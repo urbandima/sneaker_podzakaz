@@ -1100,106 +1100,6 @@ $company = Yii::$app->settings->getCompany();
     color: #6b7280;
 }
 
-.payment-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.payment-row {
-    display: grid;
-    grid-template-columns: 180px 1fr;
-    align-items: center;
-    padding: 1rem;
-    background: #f9fafb;
-    border-radius: 6px;
-    gap: 1rem;
-    border: 1px solid #e5e7eb;
-}
-
-.payment-row.full-width {
-    grid-template-columns: 180px 1fr;
-}
-
-.payment-label {
-    font-weight: 600;
-    color: #4b5563;
-    font-size: 0.95rem;
-    text-align: left;
-}
-
-.payment-value {
-    color: #1a1a1a;
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-}
-
-.payment-value.mono {
-    font-family: 'Courier New', Courier, monospace;
-    letter-spacing: 1.5px;
-    font-size: 1.05rem;
-    background: #fff;
-    padding: 0.5rem;
-    border-radius: 4px;
-    border: 1px solid #d1d5db;
-}
-
-.copy-mini {
-    background: transparent;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    padding: 0.25rem 0.5rem;
-    cursor: pointer;
-    color: #6b7280;
-    transition: all 0.2s;
-    font-size: 0.85rem;
-}
-
-.copy-mini:hover {
-    background: #f3f4f6;
-    border-color: #9ca3af;
-    color: #1a1a1a;
-}
-
-.copy-mini.copied {
-    background: #10b981;
-    border-color: #10b981;
-    color: white;
-}
-
-.payment-purpose {
-    background: #fef3c7;
-    border: 1px solid #fbbf24;
-    border-radius: 6px;
-    padding: 0.75rem;
-}
-
-.purpose-label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #92400e;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-}
-
-.purpose-value {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.purpose-value code {
-    background: white;
-    padding: 0.5rem;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    color: #1a1a1a;
-    flex-grow: 1;
-}
-
 .upload-section {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -1551,25 +1451,7 @@ $company = Yii::$app->settings->getCompany();
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Копирование в буфер обмена (старые кнопки)
-    document.querySelectorAll('.copy-mini').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const text = this.getAttribute('data-copy');
-            
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showCopySuccess(this);
-                }).catch(err => {
-                    fallbackCopy(text, this);
-                });
-            } else {
-                fallbackCopy(text, this);
-            }
-        });
-    });
-    
-    // Копирование в буфер обмена (чистые кнопки)
+    // Универсальное копирование в буфер обмена
     document.querySelectorAll('.copy-btn-clean, .copy-btn-full').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -1577,7 +1459,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(() => {
-                    showCopySuccessClean(this);
+                    showCopySuccess(this);
                 }).catch(err => {
                     fallbackCopy(text, this);
                 });
@@ -1623,18 +1505,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function showCopySuccess(btn) {
     const originalHTML = btn.innerHTML;
-    btn.innerHTML = '<i class="bi bi-check"></i>';
-    btn.classList.add('copied');
-    
-    setTimeout(() => {
-        btn.innerHTML = originalHTML;
-        btn.classList.remove('copied');
-    }, 2000);
-}
-
-function showCopySuccessClean(btn) {
-    const originalHTML = btn.innerHTML;
-    
     btn.innerHTML = '<i class="bi bi-check2"></i>';
     btn.classList.add('copied');
     
