@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: sneaker-zakaz
+    env: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: YII_ENV
+        value: prod
+      - key: YII_DEBUG
+        value: false
+    healthCheckPath: /
