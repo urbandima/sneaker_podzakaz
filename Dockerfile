@@ -7,16 +7,36 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    libzip-dev \
     zip \
     unzip \
     sqlite3 \
-    libsqlite3-dev
+    libsqlite3-dev \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libwebp-dev \
+    libxpm-dev
 
 # Очистить кеш
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Установить PHP расширения
-RUN docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd
+# Установить PHP расширения (для phpspreadsheet)
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm \
+    && docker-php-ext-install -j$(nproc) \
+        pdo_mysql \
+        pdo_sqlite \
+        mbstring \
+        exif \
+        pcntl \
+        bcmath \
+        gd \
+        zip \
+        intl \
+        soap \
+        opcache
+
+# Увеличить memory_limit для Composer
+RUN echo 'memory_limit = 512M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini
 
 # Получить Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -24,11 +44,24 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Установить рабочую директорию
 WORKDIR /var/www/html
 
-# Скопировать файлы проекта
+# Скопировать composer файлы сначала (для кеширования слоя)
+COPY composer.json composer.lock* /var/www/html/
+
+# Установить зависимости с расширенными настройками
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --no-interaction \
+    --prefer-dist \
+    --optimize-autoloader \
+    --verbose \
+    || composer install --no-dev --no-interaction --prefer-dist
+
+# Скопировать остальные файлы проекта
 COPY . /var/www/html
 
-# Установить зависимости
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Выполнить post-install скрипты
+RUN composer dump-autoload --optimize --no-dev
 
 # Создать директории и установить права
 RUN mkdir -p runtime web/assets web/uploads \
