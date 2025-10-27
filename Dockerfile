@@ -4,36 +4,51 @@ FROM php:8.2-apache
 RUN apt-get update && apt-get install -y \
     git \
     curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
     zip \
     unzip \
     sqlite3 \
     libsqlite3-dev \
+    libpng-dev \
+    libjpeg-dev \
     libfreetype6-dev \
-    libjpeg62-turbo-dev \
     libwebp-dev \
-    libxpm-dev
+    libxpm-dev \
+    libzip-dev \
+    libonig-dev \
+    libxml2-dev \
+    libicu-dev \
+    g++ \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Очистить кеш
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Настроить и установить GD
+RUN docker-php-ext-configure gd \
+    --with-freetype \
+    --with-jpeg \
+    --with-webp
 
-# Установить PHP расширения (для phpspreadsheet)
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm \
-    && docker-php-ext-install -j$(nproc) \
-        pdo_mysql \
-        pdo_sqlite \
-        mbstring \
-        exif \
-        pcntl \
-        bcmath \
-        gd \
-        zip \
-        intl \
-        soap \
-        opcache
+# Установить расширения по группам (надежнее)
+RUN docker-php-ext-install -j$(nproc) gd
+
+# Установить базовые расширения
+RUN docker-php-ext-install -j$(nproc) \
+    pdo_mysql \
+    pdo_sqlite \
+    mysqli \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath
+
+# Установить zip
+RUN docker-php-ext-install -j$(nproc) zip
+
+# Настроить и установить intl
+RUN docker-php-ext-configure intl \
+    && docker-php-ext-install -j$(nproc) intl
+
+# Установить soap и opcache
+RUN docker-php-ext-install -j$(nproc) soap opcache
 
 # Увеличить memory_limit для Composer
 RUN echo 'memory_limit = 512M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini
