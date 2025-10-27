@@ -50,8 +50,8 @@ RUN docker-php-ext-configure intl \
 # Установить soap и opcache
 RUN docker-php-ext-install -j$(nproc) soap opcache
 
-# Увеличить memory_limit для Composer
-RUN echo 'memory_limit = 512M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini
+# Настройка PHP для production
+COPY php-production.ini /usr/local/etc/php/conf.d/99-production.ini
 
 # Получить Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -74,6 +74,9 @@ RUN composer install \
 
 # Скопировать остальные файлы проекта
 COPY . /var/www/html
+
+# Заменить index.php на production версию
+RUN cp /var/www/html/web/index-prod.php /var/www/html/web/index.php
 
 # Выполнить post-install скрипты
 RUN composer dump-autoload --optimize --no-dev

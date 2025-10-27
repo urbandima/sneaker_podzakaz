@@ -5,6 +5,13 @@ echo "========================================="
 echo "Starting Sneaker Zakaz Application"
 echo "========================================="
 
+# Явно установить production переменные окружения
+export YII_ENV=prod
+export YII_DEBUG=false
+export RENDER=true
+
+echo "Environment: YII_ENV=$YII_ENV, YII_DEBUG=$YII_DEBUG"
+
 # Создать runtime директорию если не существует
 mkdir -p /var/www/html/runtime /var/www/html/web/assets /var/www/html/web/uploads
 
