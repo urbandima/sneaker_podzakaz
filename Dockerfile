@@ -93,6 +93,10 @@ COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
+# Установить переменные окружения для production
+ENV YII_ENV=prod
+ENV YII_DEBUG=false
+
 # Открыть порт
 EXPOSE ${PORT:-80}
 

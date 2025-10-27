@@ -10,5 +10,7 @@ services:
       - key: YII_ENV
         value: prod
       - key: YII_DEBUG
-        value: false
+        value: "false"
+      - key: RENDER
+        value: "true"
     healthCheckPath: /

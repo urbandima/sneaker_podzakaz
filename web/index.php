@@ -1,8 +1,14 @@
 <?php
 
-// comment out the following two lines when deployed to production
-defined('YII_DEBUG') or define('YII_DEBUG', true);
-defined('YII_ENV') or define('YII_ENV', 'dev');
+// Определить окружение на основе переменных среды или домена
+$isProduction = (
+    getenv('YII_ENV') === 'prod' || 
+    getenv('RENDER') !== false ||
+    (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'onrender.com') !== false)
+);
+
+defined('YII_DEBUG') or define('YII_DEBUG', !$isProduction);
+defined('YII_ENV') or define('YII_ENV', $isProduction ? 'prod' : 'dev');
 
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../vendor/yiisoft/yii2/Yii.php';
