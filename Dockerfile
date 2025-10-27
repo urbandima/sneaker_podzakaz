@@ -86,46 +86,11 @@ RUN mkdir -p runtime web/assets web/uploads \
 # Настроить Apache для Yii2
 RUN a2enmod rewrite
 
-# Создать конфигурацию Apache
-RUN echo '<VirtualHost *:${PORT}>\n\
-    ServerAdmin webmaster@localhost\n\
-    DocumentRoot /var/www/html/web\n\
-    \n\
-    <Directory /var/www/html/web>\n\
-        Options Indexes FollowSymLinks\n\
-        AllowOverride All\n\
-        Require all granted\n\
-        \n\
-        RewriteEngine on\n\
-        RewriteCond %{REQUEST_FILENAME} !-f\n\
-        RewriteCond %{REQUEST_FILENAME} !-d\n\
-        RewriteRule . index.php\n\
-    </Directory>\n\
-    \n\
-    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
-    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+# Скопировать конфигурацию Apache
+COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 
-# Настроить Apache для работы на динамическом порту
-RUN sed -i 's/Listen 80/Listen ${PORT}/g' /etc/apache2/ports.conf
-
-# Создать entrypoint скрипт
-RUN echo '#!/bin/bash\n\
-set -e\n\
-\n\
-# Применить миграции при первом запуске\n\
-if [ ! -f /var/www/html/runtime/database.sqlite ]; then\n\
-    echo "Creating database..."\n\
-    php /var/www/html/yii migrate --interactive=0\n\
-fi\n\
-\n\
-# Обновить конфигурацию Apache с правильным портом\n\
-sed -i "s/\${PORT}/$PORT/g" /etc/apache2/sites-available/000-default.conf\n\
-sed -i "s/\${PORT}/$PORT/g" /etc/apache2/ports.conf\n\
-\n\
-# Запустить Apache\n\
-apache2-foreground' > /usr/local/bin/docker-entrypoint.sh
-
+# Скопировать entrypoint скрипт
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Открыть порт
