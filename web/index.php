@@ -4,7 +4,10 @@
 $isProduction = (
     getenv('YII_ENV') === 'prod' || 
     getenv('RENDER') !== false ||
-    (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'onrender.com') !== false)
+    (isset($_SERVER['HTTP_HOST']) && (
+        strpos($_SERVER['HTTP_HOST'], 'onrender.com') !== false ||
+        strpos($_SERVER['HTTP_HOST'], 'sneaker-head.by') !== false
+    ))
 );
 
 defined('YII_DEBUG') or define('YII_DEBUG', !$isProduction);

@@ -25,7 +25,17 @@ echo ""
 echo "⬇️  ШАГ 1: Подтягивание изменений из GitHub"
 echo "════════════════════════════════════════════════════════"
 
+# Проверяем статус репозитория
+if ! git diff-index --quiet HEAD --; then
+    echo "⚠️  Обнаружены локальные изменения"
+    echo "📦 Сохраняем локальные изменения..."
+    git stash save "Auto-stash before update $(date '+%Y-%m-%d %H:%M:%S')"
+fi
+
+# Получаем изменения из GitHub
 git fetch origin main
+
+# Проверяем наличие обновлений
 UPSTREAM=${1:-'@{u}'}
 LOCAL=$(git rev-parse @)
 REMOTE=$(git rev-parse "$UPSTREAM")
@@ -34,8 +44,11 @@ if [ $LOCAL = $REMOTE ]; then
     echo "✅ Изменений нет. Уже актуальная версия."
 else
     echo "📥 Найдены новые изменения. Подтягиваем..."
-    git pull origin main
-    echo "✅ Код обновлен"
+    
+    # Сбрасываем на удаленную версию (force update)
+    git reset --hard origin/main
+    
+    echo "✅ Код обновлен до последней версии"
 fi
 
 echo ""
