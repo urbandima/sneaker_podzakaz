@@ -41,14 +41,6 @@ $this->title = 'Вход';
 
                     <?php ActiveForm::end(); ?>
 
-                    <div class="mt-4 text-center text-muted">
-                        <small>
-                            <strong>Тестовые аккаунты:</strong><br>
-                            admin / admin123 (Администратор)<br>
-                            manager / manager123 (Менеджер)<br>
-                            logist / logist123 (Логист)
-                        </small>
-                    </div>
                 </div>
             </div>
         </div>
