@@ -6,3 +6,31 @@ RewriteCond %{REQUEST_FILENAME} !-d
 
 # Otherwise forward it to index.php
 RewriteRule . index.php
+
+# Security headers
+<IfModule mod_headers.c>
+    # Prevent MIME sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Prevent clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # XSS Protection
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Referrer Policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Remove server information
+    Header unset X-Powered-By
+    Header unset Server
+</IfModule>
+
+# Disable directory browsing
+Options -Indexes
+
+# Block access to hidden files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

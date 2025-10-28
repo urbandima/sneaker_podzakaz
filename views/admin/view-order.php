@@ -246,8 +246,22 @@ function fallbackCopy(input) {
         document.execCommand('copy');
         showCopyNotification('Ссылка скопирована!');
     } catch (err) {
-        alert('Не удалось скопировать ссылку');
+        showCopyError();
     }
+}
+
+function showCopyError() {
+    const btn = event.target.closest('button');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="bi bi-x-circle"></i> Ошибка';
+    btn.classList.add('btn-danger');
+    btn.classList.remove('btn-outline-secondary');
+    
+    setTimeout(function() {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-outline-secondary');
+    }, 2000);
 }
 
 function showCopyNotification(message) {

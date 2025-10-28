@@ -99,8 +99,8 @@ $this->title = 'Настройки компании';
                                         <th style="width: 18%">Ключ</th>
                                         <th>Название</th>
                                         <th style="width: 15%">Порядок</th>
-                                        <th style="width: 22%">Доступ логисту</th>
-                                        <th style="width: 8%">Удалить</th>
+                                        <th style="width: 18%">Доступ логисту</th>
+                                        <th style="width: 12%">Активен</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -120,12 +120,10 @@ $this->title = 'Настройки компании';
                                                     <input class="form-check-input" type="checkbox" name="statuses[<?= Html::encode($st->key) ?>][logist_available]" value="1" <?= $st->logist_available ? 'checked' : '' ?>>
                                                 </div>
                                             </td>
-                                            <td class="text-center">
-                                                <?php if (!in_array($st->key, ['created','paid','accepted','ordered','received','issued'])): ?>
-                                                    <input class="form-check-input" type="checkbox" name="delete_keys[]" value="<?= Html::encode($st->key) ?>">
-                                                <?php else: ?>
-                                                    <span class="text-muted" title="Базовый статус">—</span>
-                                                <?php endif; ?>
+                                            <td>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" name="statuses[<?= Html::encode($st->key) ?>][is_active]" value="1" <?= $st->is_active ? 'checked' : '' ?>>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

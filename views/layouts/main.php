@@ -49,11 +49,14 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
             $menuItems[] = ['label' => 'Пользователи', 'url' => ['/admin/users']];
             $menuItems[] = ['label' => 'Настройки', 'url' => ['/admin/settings']];
         }
+        
+        // Профиль пользователя
+        $menuItems[] = ['label' => '<i class="bi bi-person-circle"></i> ' . Html::encode(Yii::$app->user->identity->username), 'url' => ['/admin/profile']];
 
         $menuItems[] = '<li class="nav-item">'
             . Html::beginForm(['/site/logout'], 'post', ['class' => 'form-inline'])
             . Html::submitButton(
-                'Выход (' . Html::encode(Yii::$app->user->identity->username) . ')',
+                'Выход',
                 ['class' => 'btn btn-link nav-link logout']
             )
             . Html::endForm()

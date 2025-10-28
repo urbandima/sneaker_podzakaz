@@ -17,6 +17,8 @@ class User extends ActiveRecord implements IdentityInterface
     const ROLE_MANAGER = 'manager';
     const ROLE_LOGIST = 'logist';
 
+    public $password; // Для формы создания
+
     public static function tableName()
     {
         return '{{%user}}';
@@ -43,7 +45,18 @@ class User extends ActiveRecord implements IdentityInterface
             ['username', 'unique'],
             ['email', 'email'],
             ['email', 'unique'],
+            
+            // Для создания пользователя
+            ['password', 'required', 'on' => 'create'],
+            ['password', 'string', 'min' => 6, 'on' => 'create'],
         ];
+    }
+
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $scenarios['create'] = ['username', 'email', 'password', 'role', 'status'];
+        return $scenarios;
     }
 
     public function attributeLabels()
@@ -52,6 +65,7 @@ class User extends ActiveRecord implements IdentityInterface
             'id' => 'ID',
             'username' => 'Имя пользователя',
             'email' => 'Email',
+            'password' => 'Пароль',
             'role' => 'Роль',
             'status' => 'Статус',
             'created_at' => 'Создан',

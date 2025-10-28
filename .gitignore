@@ -1,53 +1,37 @@
-# yii console commands (removed to allow deployment)
-# /yii
-
-# phpstorm project files
+# IDE
 .idea
+.vscode
+*.swp
+*.swo
+*~
 
-# netbeans project files
-nbproject
-
-# zend studio for eclipse project files
-.buildpath
-.project
-.settings
-
-# windows thumbnail cache
+# OS
+.DS_Store
 Thumbs.db
 
-# composer vendor dir
+# Composer
 /vendor
-
-# composer itself is not needed
 composer.phar
+composer.lock
 
-# Mac DS_Store Files
-.DS_Store
-
-# phpunit itself is not needed
-phpunit.phar
-
-# local phpunit config
-/phpunit.xml
-
-# vagrant runtime
-/.vagrant
-
-# ignore generated files
-/web/index-test.php
-/web/robots.txt
-
-# ignore uploaded files
-/web/uploads/*
-!/web/uploads/.gitkeep
-
-# ignore runtime files
+# Runtime
 /runtime/*
 !/runtime/.gitkeep
 
-# ignore log files
+# Assets
 /web/assets/*
 !/web/assets/.gitkeep
 
-# composer lock file
-composer.lock
+# Uploads (НЕ коммитим файлы клиентов)
+/web/uploads/*
+!/web/uploads/.gitkeep
+
+# Config (НЕ коммитим конфиги с паролями)
+/config/db.php
+
+# Tests
+phpunit.phar
+/phpunit.xml
+
+# Vagrant
+/.vagrant

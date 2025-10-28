@@ -62,95 +62,102 @@ $company = Yii::$app->settings->getCompany();
                 </div>
             </div>
 
-            <!-- Основной контент: 2 колонки -->
-            <div class="row g-3">
-                <!-- Левая колонка: Товары -->
-                <div class="col-lg-7">
-                    <!-- Товары -->
-                    <div class="product-card">
-                        <h5 class="section-title"><i class="bi bi-cart3"></i> Состав заказа</h5>
-                        <div class="products-list">
-                            <?php foreach ($model->orderItems as $index => $item): ?>
-                            <div class="product-item">
-                                <div class="product-number"><?= $index + 1 ?></div>
-                                <div class="product-info flex-grow-1">
-                                    <div class="product-name"><?= Html::encode($item->product_name) ?></div>
-                                    <div class="product-meta"><?= $item->quantity ?> шт. × <?= Yii::$app->formatter->asDecimal($item->price, 2) ?> BYN</div>
-                                </div>
-                                <div class="product-total"><?= Yii::$app->formatter->asDecimal($item->total, 2) ?> BYN</div>
+            <!-- Основной контент: одна колонка -->
+            <div class="content-single-column">
+                <!-- Товары -->
+                <div class="product-card">
+                    <h5 class="section-title"><i class="bi bi-cart3"></i> Состав заказа</h5>
+                    <div class="products-list">
+                        <?php foreach ($model->orderItems as $index => $item): ?>
+                        <div class="product-item">
+                            <div class="product-number"><?= $index + 1 ?></div>
+                            <div class="product-info flex-grow-1">
+                                <div class="product-name"><?= Html::encode($item->product_name) ?></div>
+                                <div class="product-meta"><?= $item->quantity ?> шт. × <?= Yii::$app->formatter->asDecimal($item->price, 2) ?> BYN</div>
                             </div>
-                            <?php endforeach; ?>
+                            <div class="product-total"><?= Yii::$app->formatter->asDecimal($item->total, 2) ?> BYN</div>
                         </div>
-                        <div class="total-section">
-                            <span>Итого к оплате:</span>
-                            <strong class="total-amount"><?= Yii::$app->formatter->asDecimal($model->total_amount, 2) ?> BYN</strong>
-                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="total-section">
+                        <span>Итого к оплате:</span>
+                        <strong class="total-amount"><?= Yii::$app->formatter->asDecimal($model->total_amount, 2) ?> BYN</strong>
                     </div>
                 </div>
 
-                <!-- Правая колонка: Реквизиты для оплаты -->
-                <div class="col-lg-5">
-                    <div class="payment-card-clean sticky-card">
+                <!-- Реквизиты для оплаты -->
+                <div class="payment-card-clean">
+                    <div class="payment-header-with-btn">
                         <h3 class="payment-title-clean">Реквизиты для оплаты</h3>
-                        <div class="payment-list-clean">
-                            <div class="payment-item-clean">
-                                <div class="payment-label-clean">Организация</div>
-                                <div class="payment-value-wrap">
-                                    <div class="payment-value-clean"><?= Html::encode($company['name']) ?></div>
-                                    <button class="copy-btn-clean" data-copy="<?= Html::encode($company['name']) ?>">
-                                        <i class="bi bi-files"></i>
-                                    </button>
-                                </div>
+                        <button type="button" class="btn-instruction" onclick="openPaymentModal()">
+                            <i class="bi bi-book"></i> Инструкция
+                        </button>
+                    </div>
+                    <div class="payment-list-clean">
+                        <div class="payment-item-clean">
+                            <div class="payment-label-clean">Организация</div>
+                            <div class="payment-value-wrap">
+                                <div class="payment-value-clean"><?= Html::encode($company['name']) ?></div>
+                                <button class="copy-btn-clean" data-copy="<?= Html::encode($company['name']) ?>">
+                                    <i class="bi bi-files"></i>
+                                </button>
                             </div>
+                        </div>
 
-                            <div class="payment-item-clean">
-                                <div class="payment-label-clean">УНП</div>
-                                <div class="payment-value-wrap">
-                                    <div class="payment-value-clean"><?= Html::encode($company['unp']) ?></div>
-                                    <button class="copy-btn-clean" data-copy="<?= Html::encode($company['unp']) ?>">
-                                        <i class="bi bi-files"></i>
-                                    </button>
-                                </div>
+                        <div class="payment-item-clean">
+                            <div class="payment-label-clean">УНП</div>
+                            <div class="payment-value-wrap">
+                                <div class="payment-value-clean"><?= Html::encode($company['unp']) ?></div>
+                                <button class="copy-btn-clean" data-copy="<?= Html::encode($company['unp']) ?>">
+                                    <i class="bi bi-files"></i>
+                                </button>
                             </div>
+                        </div>
 
-                            <div class="payment-item-clean">
-                                <div class="payment-label-clean">Банк</div>
-                                <div class="payment-value-wrap">
-                                    <div class="payment-value-clean"><?= Html::encode($company['bank']) ?></div>
-                                    <button class="copy-btn-clean" data-copy="<?= Html::encode($company['bank']) ?>">
-                                        <i class="bi bi-files"></i>
-                                    </button>
-                                </div>
+                        <div class="payment-item-clean">
+                            <div class="payment-label-clean">Банк</div>
+                            <div class="payment-value-wrap">
+                                <div class="payment-value-clean"><?= Html::encode($company['bank']) ?></div>
+                                <button class="copy-btn-clean" data-copy="<?= Html::encode($company['bank']) ?>">
+                                    <i class="bi bi-files"></i>
+                                </button>
                             </div>
+                        </div>
 
-                            <div class="payment-item-clean">
-                                <div class="payment-label-clean">БИК</div>
-                                <div class="payment-value-wrap">
-                                    <div class="payment-value-clean"><?= Html::encode($company['bic']) ?></div>
-                                    <button class="copy-btn-clean" data-copy="<?= Html::encode($company['bic']) ?>">
-                                        <i class="bi bi-files"></i>
-                                    </button>
-                                </div>
+                        <div class="payment-item-clean">
+                            <div class="payment-label-clean">БИК</div>
+                            <div class="payment-value-wrap">
+                                <div class="payment-value-clean"><?= Html::encode($company['bic']) ?></div>
+                                <button class="copy-btn-clean" data-copy="<?= Html::encode($company['bic']) ?>">
+                                    <i class="bi bi-files"></i>
+                                </button>
                             </div>
+                        </div>
 
-                            <div class="payment-item-clean">
-                                <div class="payment-label-clean">Расчетный счет</div>
-                                <div class="payment-value-wrap">
-                                    <div class="payment-value-clean payment-account-clean"><?= Html::encode($company['account']) ?></div>
-                                    <button class="copy-btn-clean" data-copy="<?= Html::encode($company['account']) ?>">
-                                        <i class="bi bi-files"></i>
-                                    </button>
-                                </div>
+                        <div class="payment-item-clean">
+                            <div class="payment-label-clean">Расчетный счет</div>
+                            <div class="payment-value-wrap">
+                                <div class="payment-value-clean payment-account-clean"><?= Html::encode($company['account']) ?></div>
+                                <button class="copy-btn-clean" data-copy="<?= Html::encode($company['account']) ?>">
+                                    <i class="bi bi-files"></i>
+                                </button>
                             </div>
+                        </div>
 
-                            <div class="payment-purpose-clean">
-                                <div class="payment-label-clean">Назначение платежа</div>
-                                <div class="payment-value-wrap">
-                                    <div class="payment-purpose-value">Оплата по договору оферты №<?= Html::encode($model->order_number) ?></div>
-                                    <button class="copy-btn-clean" data-copy="Оплата по договору оферты №<?= Html::encode($model->order_number) ?>">
-                                        <i class="bi bi-files"></i>
-                                    </button>
-                                </div>
+                        <div class="payment-purpose-clean payment-purpose-highlighted">
+                            <div class="payment-label-clean">
+                                <i class="bi bi-exclamation-circle-fill text-warning me-2"></i>
+                                Назначение платежа
+                                <i class="bi bi-exclamation-circle-fill text-warning ms-2"></i>
+                            </div>
+                            <div class="alert alert-warning mb-2 py-2">
+                                <small><i class="bi bi-info-circle me-1"></i>Обязательно укажите это назначение платежа при переводе!</small>
+                            </div>
+                            <div class="payment-value-wrap">
+                                <div class="payment-purpose-value payment-purpose-important">Оплата по договору оферты №<?= Html::encode($model->order_number) ?></div>
+                                <button class="copy-btn-clean copy-btn-highlighted" data-copy="Оплата по договору оферты №<?= Html::encode($model->order_number) ?>">
+                                    <i class="bi bi-files"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -168,22 +175,31 @@ $company = Yii::$app->settings->getCompany();
                                 <form method="post" action="<?= Url::to(['upload-payment', 'token' => $model->token]) ?>" enctype="multipart/form-data" id="payment-form">
                                     <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                                     
-                                    <div class="upload-box-bottom">
-                                        <label for="file-input" class="upload-label-bottom">
+                                    <div class="upload-box-bottom" id="upload-box">
+                                        <label for="file-input" class="upload-label-bottom" id="upload-label">
                                             <i class="bi bi-cloud-upload"></i>
                                             <span>Прикрепить чек об оплате</span>
-                                            <small>JPG, PNG, PDF (до 5 МБ)</small>
+                                            <small>JPG, PNG, PDF (до 10 МБ)</small>
                                         </label>
                                         <input type="file" class="file-input" name="payment_proof" accept="image/*,application/pdf" required id="file-input">
                                         <div class="file-preview-bottom" id="file-preview" style="display: none;">
-                                            <img id="preview-image" class="preview-img-bottom">
+                                            <div class="preview-content">
+                                                <img id="preview-image" class="preview-img-bottom">
+                                                <div class="file-info" id="file-info">
+                                                    <div class="file-name" id="file-name"></div>
+                                                    <div class="file-size" id="file-size"></div>
+                                                    <button type="button" class="btn-change-file" id="change-file">
+                                                        <i class="bi bi-arrow-repeat"></i> Выбрать другой файл
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div class="offer-checkbox-bottom">
                                         <input type="checkbox" name="offer_accepted" value="1" id="offer_accepted" required>
                                         <label for="offer_accepted">
-                                            Согласен с <a href="<?= \yii\helpers\Url::to(['/site/offer-agreement']) ?>" target="_blank">условиями договора оферты</a>
+                                            Согласен с <a href="<?= \yii\helpers\Url::to(['/site/offer-agreement']) ?>" target="_blank">условиями договора оферты</a> и <a href="https://sneaker-head.by/policy" target="_blank">политикой обработки персональных данных</a>
                                         </label>
                                     </div>
 
@@ -408,40 +424,43 @@ $company = Yii::$app->settings->getCompany();
     font-size: 0.9375rem;
 }
 
-/* Форма оплаты внизу */
+/* Форма оплаты внизу - минималистичный стиль */
 .payment-upload-section {
-    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    background: #f9fafb;
     padding: 3rem 0;
     margin-top: 3rem;
+    border-top: 1px solid #e5e7eb;
 }
 
 .upload-section-bottom {
     background: white;
-    border-radius: 15px;
-    padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 2.5rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .upload-section-bottom h4 {
-    color: #ff6b35;
-    font-weight: 700;
+    color: #111827;
+    font-weight: 600;
+    font-size: 1.5rem;
 }
 
 .upload-box-bottom {
-    border: 3px dashed #ff6b35;
-    border-radius: 12px;
-    padding: 2rem;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 2.5rem;
     text-align: center;
     margin-bottom: 1.5rem;
     cursor: pointer;
-    transition: all 0.3s;
-    background: #fff8f5;
+    transition: all 0.2s;
+    background: #f9fafb;
 }
 
 .upload-box-bottom:hover {
-    border-color: #f7931e;
-    background: #fff5f0;
-    transform: translateY(-2px);
+    border-color: #111827;
+    background: #ffffff;
+    transform: translateY(-1px);
 }
 
 .upload-label-bottom {
@@ -450,33 +469,82 @@ $company = Yii::$app->settings->getCompany();
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
-    color: #ff6b35;
+    color: #111827;
 }
 
 .upload-label-bottom i {
     font-size: 3rem;
+    color: #6b7280;
 }
 
 .upload-label-bottom span {
-    font-weight: 700;
-    font-size: 1.2rem;
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: #111827;
 }
 
 .upload-label-bottom small {
-    color: #666;
-    font-size: 0.9rem;
+    color: #6b7280;
+    font-size: 0.875rem;
 }
 
 .file-preview-bottom {
     margin-top: 1rem;
-    text-align: center;
+}
+
+.preview-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
 }
 
 .preview-img-bottom {
     max-width: 100%;
-    max-height: 200px;
+    max-height: 300px;
     border-radius: 8px;
-    border: 2px solid #ff6b35;
+    border: 2px solid #10b981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+}
+
+.file-info {
+    text-align: center;
+    width: 100%;
+}
+
+.file-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.5rem;
+    word-break: break-word;
+}
+
+.file-size {
+    font-size: 0.875rem;
+    color: #10b981;
+    margin-bottom: 1rem;
+}
+
+.btn-change-file {
+    background: white;
+    color: #111827;
+    border: 2px solid #e5e7eb;
+    padding: 0.625rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-change-file:hover {
+    border-color: #111827;
+    background: #f9fafb;
+    transform: translateY(-1px);
 }
 
 .offer-checkbox-bottom {
@@ -485,9 +553,9 @@ $company = Yii::$app->settings->getCompany();
     gap: 0.75rem;
     margin-bottom: 2rem;
     padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 4px solid #ff6b35;
+    background: #f9fafb;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
 }
 
 .offer-checkbox-bottom input[type="checkbox"] {
@@ -495,46 +563,59 @@ $company = Yii::$app->settings->getCompany();
     width: 20px;
     height: 20px;
     cursor: pointer;
-    accent-color: #ff6b35;
+    accent-color: #111827;
 }
 
 .offer-checkbox-bottom label {
-    font-size: 0.95rem;
+    font-size: 0.9375rem;
     cursor: pointer;
     margin: 0;
-    line-height: 1.4;
+    line-height: 1.5;
+    color: #374151;
 }
 
 .offer-checkbox-bottom a {
-    color: #ff6b35;
+    color: #111827;
     text-decoration: underline;
+    font-weight: 500;
+}
+
+.offer-checkbox-bottom a:hover {
+    color: #000000;
 }
 
 .btn-submit-bottom {
-    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    background: #111827;
     color: white;
     border: none;
-    padding: 1rem 3rem;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1.1rem;
+    padding: 1rem 2.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.0625rem;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .btn-submit-bottom:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+    background: #1f2937;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-submit-bottom:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .payment-success-section {
     background: #f9fafb;
     padding: 3rem 0;
     margin-top: 3rem;
+    border-top: 1px solid #e5e7eb;
 }
 
 .payment-success-bottom {
@@ -893,9 +974,15 @@ $company = Yii::$app->settings->getCompany();
 }
 
 .order-container {
-    max-width: 1400px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 1rem 0;
+}
+
+.content-single-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
 .order-header {
@@ -940,13 +1027,6 @@ $company = Yii::$app->settings->getCompany();
     margin-bottom: 1rem;
 }
 
-/* Sticky карточка реквизитов */
-.sticky-card {
-    position: sticky;
-    top: 20px;
-    z-index: 100;
-}
-
 /* Чистая минималистичная карточка реквизитов */
 .payment-card-clean {
     background: #ffffff;
@@ -956,13 +1036,40 @@ $company = Yii::$app->settings->getCompany();
     margin-bottom: 1rem;
 }
 
+.payment-header-with-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
 .payment-title-clean {
     font-size: 1.125rem;
     font-weight: 600;
     color: #111827;
-    margin: 0 0 1.5rem 0;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    margin: 0;
+}
+
+.btn-instruction {
+    background: #111827;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-instruction:hover {
+    background: #1f2937;
+    transform: translateY(-1px);
 }
 
 .payment-list-clean {
@@ -1054,6 +1161,61 @@ $company = Yii::$app->settings->getCompany();
     flex-grow: 1;
 }
 
+.payment-purpose-highlighted {
+    background: #fffbeb !important;
+    border: 2px solid #fbbf24 !important;
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
+}
+
+.payment-purpose-highlighted .payment-label-clean {
+    color: #d97706;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.payment-purpose-important {
+    font-size: 1.0625rem !important;
+    font-weight: 600 !important;
+    color: #d97706 !important;
+    background: white;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #fbbf24;
+}
+
+.copy-btn-highlighted {
+    background: #fbbf24 !important;
+    color: white !important;
+    border-color: #fbbf24 !important;
+}
+
+.copy-btn-highlighted:hover {
+    background: #d97706 !important;
+    border-color: #d97706 !important;
+}
+
+.payment-instruction-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #d97706;
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.payment-instruction-link:hover {
+    color: #b45309;
+    background: rgba(251, 191, 36, 0.1);
+    text-decoration: underline;
+}
+
 .section-title {
     font-size: 1.0625rem;
     font-weight: 600;
@@ -1095,9 +1257,40 @@ $company = Yii::$app->settings->getCompany();
 }
 
 .product-info {
+    flex: 1;
+}
+
+.product-name {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
 .product-meta {
     font-size: 0.85rem;
     color: #6b7280;
+}
+
+.product-total {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.total-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 2px solid #e5e7eb;
+    font-size: 1.125rem;
+}
+
+.total-amount {
+    font-size: 1.375rem;
+    color: #111827;
 }
 
 .upload-section {
@@ -1320,6 +1513,10 @@ $company = Yii::$app->settings->getCompany();
 }
 
 @media (max-width: 991px) {
+    .order-container {
+        max-width: 100%;
+    }
+    
     .order-header {
         padding: 0.75rem;
     }
@@ -1328,7 +1525,7 @@ $company = Yii::$app->settings->getCompany();
         font-size: 1.25rem;
     }
     
-    .product-card, .payment-details-card, .upload-section, .info-card, .history-card {
+    .product-card, .payment-card-clean, .payment-details-card, .upload-section, .info-card, .history-card {
         padding: 1rem;
     }
 }
@@ -1414,8 +1611,13 @@ $company = Yii::$app->settings->getCompany();
         padding: 0.5rem 0;
     }
     
+    .content-single-column {
+        gap: 1rem;
+    }
+    
     .product-item {
         flex-wrap: wrap;
+        padding: 0.5rem;
     }
     
     .product-total {
@@ -1424,10 +1626,14 @@ $company = Yii::$app->settings->getCompany();
         margin-top: 0.5rem;
     }
     
-    .payment-row {
+    .payment-value-wrap {
         flex-direction: column;
-        align-items: stretch;
+        align-items: flex-start;
         gap: 0.5rem;
+    }
+    
+    .copy-btn-clean {
+        align-self: flex-end;
     }
     
     .cookie-banner {
@@ -1471,18 +1677,50 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Превью файла
     const fileInput = document.getElementById('file-input');
+    const uploadBox = document.getElementById('upload-box');
+    const uploadLabel = document.getElementById('upload-label');
+    const filePreview = document.getElementById('file-preview');
+    const previewImage = document.getElementById('preview-image');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const changeFileBtn = document.getElementById('change-file');
+    
     if (fileInput) {
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('preview-image').src = e.target.result;
-                    document.getElementById('file-preview').style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+            if (file) {
+                // Скрываем label загрузки
+                uploadLabel.style.display = 'none';
+                uploadBox.style.border = '2px solid #10b981';
+                uploadBox.style.background = '#f0fdf4';
+                
+                // Показываем информацию о файле
+                fileName.textContent = file.name;
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                fileSize.textContent = `Размер: ${sizeMB} МБ`;
+                filePreview.style.display = 'block';
+                
+                // Показываем превью для изображений
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        previewImage.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    // Для PDF показываем иконку
+                    previewImage.style.display = 'none';
+                }
             }
         });
+        
+        // Кнопка смены файла
+        if (changeFileBtn) {
+            changeFileBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+        }
     }
     
     // Валидация формы
@@ -1526,10 +1764,21 @@ function fallbackCopy(text, btn) {
         document.execCommand('copy');
         showCopySuccess(btn);
     } catch (err) {
-        alert('Не удалось скопировать');
+        showCopyError(btn);
     }
     
     document.body.removeChild(textarea);
+}
+
+function showCopyError(btn) {
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="bi bi-x-circle"></i>';
+    btn.style.background = '#ef4444';
+    
+    setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.style.background = '';
+    }, 1500);
 }
 
 // Функции для модального окна истории
@@ -1598,4 +1847,608 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Popup модальное окно с инструкцией по оплате
+function openPaymentModal() {
+    const modal = document.getElementById('paymentModal');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
+}
+
+function closePaymentModal() {
+    const modal = document.getElementById('paymentModal');
+    modal.classList.remove('show');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+}
+
+function showBankInstructions(bank) {
+    // Скрываем выбор банков
+    document.getElementById('bankSelection').style.display = 'none';
+    // Показываем инструкцию
+    const instruction = document.getElementById('bankInstruction');
+    instruction.style.display = 'block';
+    
+    // Обновляем контент
+    const content = getBankInstructionContent(bank);
+    document.getElementById('bankInstructionContent').innerHTML = content;
+}
+
+function backToBankSelection() {
+    document.getElementById('bankInstruction').style.display = 'none';
+    document.getElementById('bankSelection').style.display = 'block';
+}
+
+function getBankInstructionContent(bank) {
+    const instructions = {
+        belarusbank: {
+            name: 'Беларусбанк',
+            logo: 'https://belarusbank.by/favicon.ico',
+            steps: [
+                { title: 'Войдите в приложение или интернет-банк', desc: 'Откройте мобильное приложение "Беларусбанк" или зайдите в личный кабинет на сайте' },
+                { title: 'Выберите "Платежи" → "Оплата услуг"', desc: 'В главном меню найдите раздел платежей' },
+                { title: 'Нажмите "Перевод по реквизитам"', desc: 'Выберите опцию перевода на расчётный счёт организации' },
+                { title: 'Заполните реквизиты получателя', desc: 'Введите все данные организации из вашего счета', note: 'Обязательно укажите назначение платежа точно как в счете' },
+                { title: 'Подтвердите платёж', desc: 'Проверьте данные и подтвердите операцию кодом из SMS' }
+            ]
+        },
+        priorbank: {
+            name: 'Приорбанк',
+            logo: 'https://www.priorbank.by/favicon.ico',
+            steps: [
+                { title: 'Откройте приложение "Приорбанк Онлайн"', desc: '' },
+                { title: 'Перейдите в "Платежи и переводы"', desc: '' },
+                { title: 'Выберите "На расчётный счёт"', desc: '' },
+                { title: 'Введите реквизиты организации', desc: '', note: 'Можно сохранить реквизиты как шаблон для будущих платежей' },
+                { title: 'Укажите сумму и назначение платежа', desc: 'Обязательно укажите номер договора оферты в назначении платежа' },
+                { title: 'Подтвердите операцию', desc: '' }
+            ]
+        },
+        alfabank: {
+            name: 'Альфа-Банк',
+            logo: 'https://alfabank.by/favicon.ico',
+            steps: [
+                { title: 'Войдите в "Альфа-Мобайл"', desc: '' },
+                { title: 'Нажмите "Платежи" в нижнем меню', desc: '' },
+                { title: 'Выберите "Перевод на счёт в банке"', desc: '' },
+                { title: 'Заполните форму перевода', desc: 'Укажите УНП организации, расчётный счёт, БИК банка и назначение платежа' },
+                { title: 'Подтвердите платёж с помощью кода из SMS или Face ID', desc: '' }
+            ]
+        },
+        belveb: {
+            name: 'БелВЭБ',
+            logo: 'https://belveb.by/favicon.ico',
+            steps: [
+                { title: 'Откройте "БелВЭБ 24/7"', desc: '' },
+                { title: 'Перейдите в раздел "Платежи"', desc: '' },
+                { title: 'Выберите "Платёж по реквизитам"', desc: '' },
+                { title: 'Введите данные организации', desc: 'Все реквизиты указаны в вашем счёте на оплату' },
+                { title: 'Укажите назначение платежа и сумму', desc: '' },
+                { title: 'Подтвердите операцию', desc: '' }
+            ]
+        },
+        mtbank: {
+            name: 'МТБанк',
+            logo: 'https://www.mtbank.by/favicon.ico',
+            steps: [
+                { title: 'Зайдите в приложение "МТБанк Online"', desc: '' },
+                { title: 'Выберите "Платежи" → "Переводы и платежи"', desc: '' },
+                { title: 'Нажмите "Перевод на счёт в другом банке"', desc: '' },
+                { title: 'Заполните реквизиты получателя', desc: 'УНП, расчётный счёт, название организации, БИК банка' },
+                { title: 'Укажите назначение платежа', desc: '', note: 'Скопируйте назначение платежа из вашего счёта без изменений' },
+                { title: 'Подтвердите перевод кодом', desc: '' }
+            ]
+        },
+        bpsbank: {
+            name: 'БПС-Сбербанк',
+            logo: 'https://www.bps-sberbank.by/favicon.ico',
+            steps: [
+                { title: 'Откройте "БПС-Онлайн"', desc: 'Войдите в мобильное приложение или интернет-банк' },
+                { title: 'Выберите "Платежи и переводы"', desc: '' },
+                { title: 'Нажмите "Перевод организации"', desc: '' },
+                { title: 'Заполните реквизиты', desc: 'Введите все данные получателя из вашего счета' },
+                { title: 'Укажите назначение платежа', desc: '', note: 'Точно скопируйте назначение из счета' },
+                { title: 'Подтвердите платёж', desc: 'Проверьте данные и подтвердите кодом' }
+            ]
+        },
+        belgazprombank: {
+            name: 'Белгазпромбанк',
+            logo: 'https://www.bgpb.by/favicon.ico',
+            steps: [
+                { title: 'Зайдите в "БГПБанк Онлайн"', desc: '' },
+                { title: 'Перейдите в раздел "Переводы"', desc: '' },
+                { title: 'Выберите "Перевод по реквизитам"', desc: '' },
+                { title: 'Введите данные организации', desc: 'Все реквизиты из вашего счета на оплату' },
+                { title: 'Заполните назначение платежа', desc: '', note: 'Обязательно укажите номер договора' },
+                { title: 'Подтвердите операцию', desc: '' }
+            ]
+        },
+        dabrabyt: {
+            name: 'Банк Дабрабыт',
+            logo: 'https://www.dabrabyt.by/favicon.ico',
+            steps: [
+                { title: 'Откройте приложение "Дабрабыт"', desc: '' },
+                { title: 'Перейдите в "Платежи"', desc: '' },
+                { title: 'Выберите "Перевод организации"', desc: '' },
+                { title: 'Введите реквизиты', desc: 'Все данные из вашего счета' },
+                { title: 'Укажите назначение', desc: '', note: 'Точно как в счете' },
+                { title: 'Подтвердите', desc: '' }
+            ]
+        },
+        technobank: {
+            name: 'Технобанк',
+            logo: 'https://www.technobank.by/favicon.ico',
+            steps: [
+                { title: 'Зайдите в интернет-банк', desc: '' },
+                { title: 'Выберите "Платежи и переводы"', desc: '' },
+                { title: 'Нажмите "Платёж юр. лицу"', desc: '' },
+                { title: 'Заполните реквизиты', desc: '' },
+                { title: 'Укажите назначение платежа', desc: '' },
+                { title: 'Подтвердите', desc: '' }
+            ]
+        },
+        idea: {
+            name: 'Идея Банк',
+            logo: 'https://ideabank.by/favicon.ico',
+            steps: [
+                { title: 'Откройте "Идея Онлайн"', desc: '' },
+                { title: 'Выберите "Платежи"', desc: '' },
+                { title: 'Нажмите "Перевод по реквизитам"', desc: '' },
+                { title: 'Введите данные организации', desc: '' },
+                { title: 'Укажите назначение', desc: '', note: 'Обязательно укажите номер договора' },
+                { title: 'Подтвердите', desc: '' }
+            ]
+        }
+    };
+    
+    const bankData = instructions[bank];
+    let html = `
+        <div class="bank-header">
+            <img src="${bankData.logo}" alt="${bankData.name}" class="bank-logo-large" onerror="this.style.display='none'">
+            <h3>${bankData.name}</h3>
+        </div>
+        <ol class="instruction-steps">
+    `;
+    
+    bankData.steps.forEach((step, index) => {
+        html += `
+            <li class="instruction-step">
+                <div class="step-number">${index + 1}</div>
+                <div class="step-content">
+                    <div class="step-title">${step.title}</div>
+                    ${step.desc ? `<div class="step-desc">${step.desc}</div>` : ''}
+                    ${step.note ? `<div class="step-note"><i class="bi bi-exclamation-circle"></i> ${step.note}</div>` : ''}
+                </div>
+            </li>
+        `;
+    });
+    
+    html += `
+        </ol>
+        <div class="instruction-footer">
+            <div class="alert alert-warning">
+                <strong><i class="bi bi-exclamation-triangle-fill"></i> Важно!</strong>
+                <ul>
+                    <li>Указывайте точное назначение платежа</li>
+                    <li>Проверяйте все реквизиты перед подтверждением</li>
+                    <li>Сохраните чек — его нужно загрузить в личном кабинете</li>
+                </ul>
+            </div>
+        </div>
+    `;
+    
+    return html;
+}
+
+// Закрытие по клику вне модального окна
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('paymentModal');
+    if (e.target === modal) {
+        closePaymentModal();
+    }
+});
 </script>
+
+<!-- Modal для инструкции по оплате -->
+<div id="paymentModal" class="payment-modal">
+    <div class="payment-modal-content">
+        <button class="modal-close" onclick="closePaymentModal()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        
+        <!-- Выбор банка -->
+        <div id="bankSelection">
+            <h2 class="modal-title">
+                <i class="bi bi-bank"></i>
+                Выберите ваш банк
+            </h2>
+            <p class="modal-subtitle">Мы покажем пошаговую инструкцию для вашего банка</p>
+            
+            <div class="banks-grid">
+                <button class="bank-card" onclick="showBankInstructions('belarusbank')">
+                    <img src="https://belarusbank.by/favicon.ico" alt="Беларусбанк" class="bank-card-logo" onerror="this.style.display='none'">
+                    <div class="bank-card-name">Беларусбанк</div>
+                </button>
+                
+                <button class="bank-card" onclick="showBankInstructions('priorbank')">
+                    <img src="https://www.priorbank.by/favicon.ico" alt="Приорбанк" class="bank-card-logo" onerror="this.style.display='none'">
+                    <div class="bank-card-name">Приорбанк</div>
+                </button>
+                
+                <button class="bank-card" onclick="showBankInstructions('alfabank')">
+                    <img src="https://alfabank.by/favicon.ico" alt="Альфа-Банк" class="bank-card-logo" onerror="this.style.display='none'">
+                    <div class="bank-card-name">Альфа-Банк</div>
+                </button>
+                
+                <button class="bank-card" onclick="showBankInstructions('belveb')">
+                    <img src="https://belveb.by/favicon.ico" alt="БелВЭБ" class="bank-card-logo" onerror="this.style.display='none'">
+                    <div class="bank-card-name">БелВЭБ</div>
+                </button>
+                
+                <button class="bank-card" onclick="showBankInstructions('mtbank')">
+                    <img src="https://www.mtbank.by/favicon.ico" alt="МТБанк" class="bank-card-logo" onerror="this.style.display='none'">
+                    <div class="bank-card-name">МТБанк</div>
+                </button>
+                
+                <button class="bank-card" onclick="showBankInstructions('bpsbank')">
+                    <img src="https://www.bps-sberbank.by/favicon.ico" alt="БПС-Сбербанк" class="bank-card-logo" onerror="this.style.display='none'">
+                    <div class="bank-card-name">БПС-Сбербанк</div>
+                </button>
+                
+                <button class="bank-card" onclick="showBankInstructions('belgazprombank')">
+                    <img src="https://www.bgpb.by/favicon.ico" alt="Белгазпромбанк" class="bank-card-logo" onerror="this.style.display='none'">
+                    <div class="bank-card-name">Белгазпромбанк</div>
+                </button>
+                
+                <button class="bank-card" onclick="showBankInstructions('dabrabyt')">
+                    <img src="https://www.dabrabyt.by/favicon.ico" alt="Дабрабыт" class="bank-card-logo" onerror="this.style.display='none'">
+                    <div class="bank-card-name">Дабрабыт</div>
+                </button>
+                
+                <button class="bank-card" onclick="showBankInstructions('technobank')">
+                    <img src="https://www.technobank.by/favicon.ico" alt="Технобанк" class="bank-card-logo" onerror="this.style.display='none'">
+                    <div class="bank-card-name">Технобанк</div>
+                </button>
+                
+                <button class="bank-card" onclick="showBankInstructions('idea')">
+                    <img src="https://ideabank.by/favicon.ico" alt="Идея Банк" class="bank-card-logo" onerror="this.style.display='none'">
+                    <div class="bank-card-name">Идея Банк</div>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Инструкция для выбранного банка -->
+        <div id="bankInstruction" style="display: none;">
+            <button class="back-btn" onclick="backToBankSelection()">
+                <i class="bi bi-arrow-left"></i> Выбрать другой банк
+            </button>
+            <div id="bankInstructionContent"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+.payment-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.payment-modal.show {
+    opacity: 1;
+}
+
+.payment-modal-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    padding: 2.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.payment-modal.show .payment-modal-content {
+    transform: scale(1);
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #f3f4f6;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.25rem;
+    color: #6b7280;
+}
+
+.modal-close:hover {
+    background: #e5e7eb;
+    color: #111827;
+    transform: rotate(90deg);
+}
+
+.modal-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.modal-subtitle {
+    font-size: 1.125rem;
+    color: #6b7280;
+    margin-bottom: 2rem;
+}
+
+.banks-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+    .banks-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .banks-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.bank-card {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.25rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 100px;
+}
+
+.bank-card:hover {
+    border-color: #111827;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.bank-card-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.bank-card-name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #111827;
+    text-align: center;
+    line-height: 1.3;
+}
+
+@media (min-width: 640px) {
+    .bank-card {
+        padding: 1.5rem 1rem;
+    }
+    
+    .bank-card-logo {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .bank-card-name {
+        font-size: 1rem;
+    }
+}
+
+.back-btn {
+    background: #f3f4f6;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 1.5rem;
+    transition: all 0.2s;
+}
+
+.back-btn:hover {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.bank-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.bank-logo-large {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin: 0 auto 1rem;
+    display: block;
+}
+
+.bank-header h3 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.instruction-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem 0;
+}
+
+.instruction-step {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.step-number {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: #111827;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+.step-desc {
+    color: #6b7280;
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+}
+
+.step-note {
+    background: #fffbeb;
+    border-left: 4px solid #fbbf24;
+    padding: 0.75rem 1rem;
+    margin-top: 0.75rem;
+    border-radius: 4px;
+    font-size: 0.9375rem;
+    color: #78350f;
+}
+
+.instruction-footer .alert {
+    background: #fef2f2;
+    border: 2px solid #fca5a5;
+    border-radius: 8px;
+    padding: 1.25rem;
+}
+
+.instruction-footer .alert strong {
+    display: block;
+    color: #dc2626;
+    margin-bottom: 0.75rem;
+    font-size: 1.0625rem;
+}
+
+.instruction-footer .alert ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: #991b1b;
+}
+
+.instruction-footer .alert li {
+    margin-bottom: 0.5rem;
+}
+
+.payment-instruction-link {
+    background: none;
+    border: none;
+}
+
+@media (max-width: 768px) {
+    .payment-modal {
+        padding: 0.5rem;
+    }
+    
+    .payment-modal-content {
+        padding: 1.25rem;
+        max-height: 95vh;
+        border-radius: 12px;
+    }
+    
+    .modal-title {
+        font-size: 1.375rem;
+    }
+    
+    .modal-subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .modal-close {
+        width: 36px;
+        height: 36px;
+        top: 0.75rem;
+        right: 0.75rem;
+    }
+    
+    .instruction-step {
+        gap: 1rem;
+    }
+    
+    .step-number {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+    
+    .step-title {
+        font-size: 1rem;
+    }
+    
+    .bank-logo-large {
+        width: 64px;
+        height: 64px;
+    }
+    
+    .bank-header h3 {
+        font-size: 1.5rem;
+    }
+}
+</style>

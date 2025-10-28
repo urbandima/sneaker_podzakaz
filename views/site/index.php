@@ -4,7 +4,7 @@
 
 use yii\helpers\Html;
 
-$this->title = 'СНИКЕРХЭД - Закажем любую оригинальную обувь для вас';
+$this->title = 'СНИКЕРХЭД - Закажем любые оригинальные товары для вас';
 ?>
 
 <div class="landing-page">
@@ -14,23 +14,35 @@ $this->title = 'СНИКЕРХЭД - Закажем любую оригинал�
             <div class="hero-content">
                 <div class="hero-text">
                     <h1 class="hero-title">СНИКЕРХЭД</h1>
-                    <p class="hero-subtitle">Закажем любую пару оригинальной обуви для вас</p>
+                    <p class="hero-subtitle">Закажем любые оригинальные товары для вас</p>
                     <p class="hero-description">
-                        Мы специализируемся на заказе оригинальной обуви из США и Европы. 
-                        Доставим любую модель по выгодной цене с гарантией подлинности.
+                        Мы специализируемся на заказе брендовой обуви, одежды, аксессуаров и электроники из США и Европы. 
+                        Доставим любой товар по выгодной цене с гарантией подлинности.
                     </p>
                     <div class="hero-buttons">
                         <a href="https://t.me/sneakerheadbyweb_bot" target="_blank" class="btn-primary">
                             <i class="bi bi-telegram"></i> Заказать в Telegram
                         </a>
-                        <a href="<?= \yii\helpers\Url::to(['/site/offer-agreement']) ?>" class="btn-secondary">
-                            Договор оферты
-                        </a>
                     </div>
                 </div>
                 <div class="hero-image">
-                    <div class="hero-image-placeholder">
-                        <i class="bi bi-box2-heart"></i>
+                    <div class="products-showcase">
+                        <div class="product-item">
+                            <div class="product-icon"><i class="bi bi-bag-heart"></i></div>
+                            <span>Обувь</span>
+                        </div>
+                        <div class="product-item">
+                            <div class="product-icon"><i class="bi bi-watch"></i></div>
+                            <span>Аксессуары</span>
+                        </div>
+                        <div class="product-item">
+                            <div class="product-icon"><i class="bi bi-phone"></i></div>
+                            <span>Электроника</span>
+                        </div>
+                        <div class="product-item">
+                            <div class="product-icon"><i class="bi bi-vinyl"></i></div>
+                            <span>Одежда</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -48,7 +60,7 @@ $this->title = 'СНИКЕРХЭД - Закажем любую оригинал�
                     </div>
                     <h3 class="feature-title">100% оригинал</h3>
                     <p class="feature-description">
-                        Работаем только с проверенными поставщиками. Гарантируем подлинность каждой пары.
+                        Работаем только с проверенными поставщиками. Гарантируем подлинность каждого товара.
                     </p>
                 </div>
 
@@ -92,9 +104,9 @@ $this->title = 'СНИКЕРХЭД - Закажем любую оригинал�
             <div class="steps-grid">
                 <div class="step-card">
                     <div class="step-number">1</div>
-                    <h3 class="step-title">Выбираете обувь</h3>
+                    <h3 class="step-title">Выбираете товар</h3>
                     <p class="step-description">
-                        Отправьте нам ссылку на понравившуюся модель или расскажите, что ищете
+                        Отправьте нам ссылку на понравившийся товар или расскажите, что ищете
                     </p>
                 </div>
 
@@ -116,7 +128,7 @@ $this->title = 'СНИКЕРХЭД - Закажем любую оригинал�
 
                 <div class="step-card">
                     <div class="step-number">4</div>
-                    <h3 class="step-title">Получаете обувь</h3>
+                    <h3 class="step-title">Получаете товар</h3>
                     <p class="step-description">
                         Ваш заказ прибудет в течение 14-21 дня. Доставка до двери
                     </p>
@@ -147,7 +159,7 @@ $this->title = 'СНИКЕРХЭД - Закажем любую оригинал�
                 <div class="footer-column">
                     <h4 class="footer-title">СНИКЕРХЭД</h4>
                     <p class="footer-text">
-                        Оригинальная обувь из США и Европы
+                        Оригинальные товары из США и Европы
                     </p>
                 </div>
                 <div class="footer-column">
@@ -270,16 +282,48 @@ $this->title = 'СНИКЕРХЭД - Закажем любую оригинал�
     background: #f9fafb;
 }
 
-.hero-image-placeholder {
-    width: 100%;
-    height: 400px;
-    background: linear-gradient(135deg, #e5e7eb 0%, #f9fafb 100%);
+.products-showcase {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.product-item {
+    background: white;
+    padding: 2rem;
     border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.product-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    border-color: #111827;
+}
+
+.product-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 8rem;
-    color: #9ca3af;
+    font-size: 2.5rem;
+    color: #111827;
+}
+
+.product-item span {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
 }
 
 /* Features Section */
@@ -470,9 +514,19 @@ $this->title = 'СНИКЕРХЭД - Закажем любую оригинал�
         font-size: 1.25rem;
     }
     
-    .hero-image-placeholder {
-        height: 300px;
-        font-size: 5rem;
+    .products-showcase {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .product-item {
+        padding: 1.5rem;
+    }
+    
+    .product-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
     }
     
     .section-title {

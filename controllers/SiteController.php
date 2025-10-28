@@ -80,4 +80,14 @@ class SiteController extends Controller
         $this->layout = 'public';
         return $this->render('offer-agreement');
     }
+    
+    /**
+     * Инструкция по оплате на юридическое лицо
+     * Доступна без авторизации
+     */
+    public function actionPaymentInstruction()
+    {
+        $this->layout = 'public';
+        return $this->render('payment-instruction');
+    }
 }

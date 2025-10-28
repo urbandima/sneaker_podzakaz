@@ -22,28 +22,6 @@ if ($user->isLogist()) {
     $query->andWhere(['assigned_logist' => $user->id]);
 }
 
-// Быстрые фильтры (пресеты)
-$preset = Yii::$app->request->get('preset', '');
-if ($preset) {
-    switch ($preset) {
-        case 'new':
-            $query->andWhere(['status' => 'created']);
-            break;
-        case 'paid':
-            $query->andWhere(['status' => 'paid']);
-            break;
-        case 'in_work':
-            $query->andWhere(['in', 'status', ['accepted', 'ordered']]);
-            break;
-        case 'ready':
-            $query->andWhere(['status' => 'received']);
-            break;
-        case 'completed':
-            $query->andWhere(['status' => 'issued']);
-            break;
-    }
-}
-
 // Применяем фильтры
 if ($filterStatus) {
     $query->andWhere(['status' => $filterStatus]);
@@ -92,39 +70,47 @@ foreach ($orders as $order) {
         <?php endif; ?>
     </div>
 
-    <!-- Быстрые фильтры (пресеты) -->
-    <div class="mb-3">
-        <div class="btn-group btn-group-sm" role="group">
-            <?= Html::a(
-                '<i class="bi bi-grid-3x3-gap me-1"></i>Все', 
-                ['orders'], 
-                ['class' => 'btn ' . (!$preset ? 'btn-primary' : 'btn-outline-primary')]
-            ) ?>
-            <?= Html::a(
-                '<i class="bi bi-file-earmark-plus me-1"></i>Новые', 
-                ['orders', 'preset' => 'new'], 
-                ['class' => 'btn ' . ($preset == 'new' ? 'btn-warning' : 'btn-outline-warning')]
-            ) ?>
-            <?= Html::a(
-                '<i class="bi bi-credit-card me-1"></i>Оплачены', 
-                ['orders', 'preset' => 'paid'], 
-                ['class' => 'btn ' . ($preset == 'paid' ? 'btn-info' : 'btn-outline-info')]
-            ) ?>
-            <?= Html::a(
-                '<i class="bi bi-hourglass-split me-1"></i>В работе', 
-                ['orders', 'preset' => 'in_work'], 
-                ['class' => 'btn ' . ($preset == 'in_work' ? 'btn-primary' : 'btn-outline-primary')]
-            ) ?>
-            <?= Html::a(
-                '<i class="bi bi-box-seam me-1"></i>Готовы к выдаче', 
-                ['orders', 'preset' => 'ready'], 
-                ['class' => 'btn ' . ($preset == 'ready' ? 'btn-success' : 'btn-outline-success')]
-            ) ?>
-            <?= Html::a(
-                '<i class="bi bi-check-circle me-1"></i>Завершенные', 
-                ['orders', 'preset' => 'completed'], 
-                ['class' => 'btn ' . ($preset == 'completed' ? 'btn-dark' : 'btn-outline-dark')]
-            ) ?>
+    <?php
+    // Панель статусов со счетчиками (актуальные данные из БД)
+    $statuses = Yii::$app->settings->getStatuses();
+    $statusCounts = [];
+    
+    // Подсчитываем количество заказов по каждому статусу
+    foreach ($statuses as $key => $label) {
+        $q = Order::find()->where(['status' => $key]);
+        if ($user->isLogist()) {
+            $q->andWhere(['assigned_logist' => $user->id]);
+        }
+        $statusCounts[$key] = (int)$q->count();
+    }
+    
+    // Общее количество
+    $totalQ = Order::find();
+    if ($user->isLogist()) {
+        $totalQ->andWhere(['assigned_logist' => $user->id]);
+    }
+    $totalCount = (int)$totalQ->count();
+    
+    // Активный фильтр
+    $activeStatus = $filterStatus ?? '';
+    ?>
+
+    <!-- Компактная панель статусов -->
+    <div class="status-filter-bar sticky-top bg-white border-bottom mb-3 pb-2">
+        <div class="status-pills d-flex gap-2 flex-wrap">
+            <a href="<?= Url::to(['orders']) ?>" 
+               class="status-pill <?= $activeStatus === '' ? 'active' : '' ?>">
+                <span class="label">Все</span>
+                <span class="count"><?= $totalCount ?></span>
+            </a>
+            <?php foreach ($statuses as $key => $label): ?>
+                <a href="<?= Url::to(['orders', 'status' => $key]) ?>" 
+                   class="status-pill <?= $activeStatus === $key ? 'active' : '' ?>"
+                   data-status="<?= Html::encode($key) ?>">
+                    <span class="label"><?= Html::encode($label) ?></span>
+                    <span class="count"><?= $statusCounts[$key] ?></span>
+                </a>
+            <?php endforeach; ?>
         </div>
     </div>
 
@@ -262,6 +248,7 @@ foreach ($orders as $order) {
                                         <th style="width: 180px;">Клиент</th>
                                         <th style="width: 110px;">Сумма</th>
                                         <th style="width: 130px;">Статус</th>
+                                        <th style="width: 60px;" class="text-center">Чек</th>
                                         <th style="width: 100px;">Ответств.</th>
                                         <th style="width: 100px;">Дата</th>
                                         <th style="width: 90px;" class="text-center">Действия</th>
@@ -289,14 +276,27 @@ foreach ($orders as $order) {
                                             $badges = [
                                                 'created' => 'warning',
                                                 'paid' => 'info',
-                                                'accepted' => 'primary',
                                                 'ordered' => 'primary',
                                                 'received' => 'success',
                                                 'issued' => 'dark',
+                                                'canceled' => 'danger',
                                             ];
                                             $badgeClass = $badges[$order->status] ?? 'secondary';
                                             ?>
                                             <span class="badge bg-<?= $badgeClass ?> w-100"><?= $order->getStatusLabel() ?></span>
+                                        </td>
+                                        <td class="text-center">
+                                            <?php if ($order->payment_proof): ?>
+                                                <?php
+                                                // Формируем полный URL к файлу
+                                                $fileUrl = Yii::$app->request->hostInfo . $order->payment_proof;
+                                                ?>
+                                                <a href="<?= $fileUrl ?>" target="_blank" class="btn btn-sm btn-outline-success" title="Просмотр чека">
+                                                    <i class="bi bi-file-earmark-image"></i>
+                                                </a>
+                                            <?php else: ?>
+                                                <span class="text-muted" title="Чек не загружен">—</span>
+                                            <?php endif; ?>
                                         </td>
                                         <td>
                                             <small>
@@ -329,7 +329,7 @@ foreach ($orders as $order) {
                                     <tr class="table-secondary fw-bold">
                                         <td colspan="2" class="text-end">Итого за месяц:</td>
                                         <td><?= Yii::$app->formatter->asDecimal($monthData['total'], 2) ?> BYN</td>
-                                        <td colspan="4"><?= $monthData['count'] ?> заказов</td>
+                                        <td colspan="5"><?= $monthData['count'] ?> заказов</td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -341,6 +341,45 @@ foreach ($orders as $order) {
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+// Быстрая навигация по статусам стрелками
+document.addEventListener('DOMContentLoaded', function() {
+    const pills = Array.from(document.querySelectorAll('.status-pill'));
+    if (!pills.length) return;
+    
+    const activeIndex = pills.findIndex(p => p.classList.contains('active'));
+    
+    document.addEventListener('keydown', function(e) {
+        // Игнорируем, если фокус в поле ввода
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) {
+            return;
+        }
+        
+        let targetIndex = -1;
+        
+        if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            targetIndex = Math.min(pills.length - 1, activeIndex + 1);
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            targetIndex = Math.max(0, activeIndex - 1);
+        }
+        
+        if (targetIndex >= 0 && pills[targetIndex]) {
+            pills[targetIndex].scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
+            window.location.href = pills[targetIndex].getAttribute('href');
+        }
+    });
+    
+    // Автоскролл к активному пину при загрузке
+    if (activeIndex >= 0 && pills[activeIndex]) {
+        setTimeout(() => {
+            pills[activeIndex].scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
+        }, 100);
+    }
+});
+</script>
 
 <style>
 /* Компактная таблица */
@@ -409,5 +448,69 @@ foreach ($orders as $order) {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* Компактная панель статусов с пинами */
+.status-filter-bar {
+    padding-top: 0.5rem;
+    z-index: 1020;
+}
+
+.status-pills {
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 50px;
+    text-decoration: none;
+    color: #374151;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.status-pill:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #111827;
+    transform: translateY(-1px);
+}
+
+.status-pill.active {
+    background: #111827;
+    border-color: #111827;
+    color: white;
+}
+
+.status-pill .label {
+    font-weight: 500;
+}
+
+.status-pill .count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.125rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 24px;
+    text-align: center;
+}
+
+.status-pill.active .count {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.status-pill:not(.active) .count {
+    background: #e5e7eb;
+    color: #111827;
 }
 </style>

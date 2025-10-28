@@ -447,6 +447,87 @@ class AdminController extends Controller
         ]);
     }
 
+    public function actionCreateUser()
+    {
+        $user = Yii::$app->user->identity;
+
+        // Только админ может создавать пользователей
+        if (!$user->isAdmin()) {
+            throw new NotFoundHttpException('Доступ запрещен.');
+        }
+
+        $model = new User();
+        $model->scenario = 'create';
+
+        if ($model->load(Yii::$app->request->post())) {
+            // Устанавливаем статус активен
+            $model->status = User::STATUS_ACTIVE;
+            
+            // Хешируем пароль
+            $model->setPassword($model->password);
+            $model->generateAuthKey();
+            
+            if ($model->save()) {
+                Yii::info('Создан новый пользователь: ' . $model->username . ' (роль: ' . $model->role . ') админом #' . $user->id, 'user');
+                Yii::$app->session->setFlash('success', 'Пользователь успешно создан!');
+                return $this->redirect(['users']);
+            } else {
+                Yii::$app->session->setFlash('error', 'Ошибка при создании пользователя: ' . json_encode($model->errors));
+            }
+        }
+
+        return $this->render('create-user', [
+            'model' => $model,
+        ]);
+    }
+
+    public function actionDeleteUser($id)
+    {
+        $user = Yii::$app->user->identity;
+
+        // Только админ может удалять пользователей
+        if (!$user->isAdmin()) {
+            throw new NotFoundHttpException('Доступ запрещен.');
+        }
+
+        // Нельзя удалить самого себя
+        if ($id == $user->id) {
+            Yii::$app->session->setFlash('error', 'Нельзя удалить самого себя.');
+            return $this->redirect(['users']);
+        }
+
+        $userToDelete = User::findOne($id);
+        if ($userToDelete === null) {
+            throw new NotFoundHttpException('Пользователь не найден.');
+        }
+
+        $username = $userToDelete->username;
+        if ($userToDelete->delete()) {
+            Yii::info('Удален пользователь: ' . $username . ' (ID: ' . $id . ') админом #' . $user->id, 'user');
+            Yii::$app->session->setFlash('success', 'Пользователь успешно удален.');
+        } else {
+            Yii::$app->session->setFlash('error', 'Ошибка при удалении пользователя.');
+        }
+
+        return $this->redirect(['users']);
+    }
+
+    public function actionProfile()
+    {
+        $user = Yii::$app->user->identity;
+        $model = new \app\models\ChangePasswordForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->changePassword()) {
+            Yii::$app->session->setFlash('success', 'Пароль успешно изменен');
+            return $this->refresh();
+        }
+
+        return $this->render('profile', [
+            'model' => $model,
+            'user' => $user,
+        ]);
+    }
+
     public function actionStatistics()
     {
         $user = Yii::$app->user->identity;
@@ -503,7 +584,6 @@ class AdminController extends Controller
 
         if (Yii::$app->request->isPost) {
             $post = Yii::$app->request->post();
-
             // Сохранение реквизитов компании
             if ($settings->load($post) && $settings->validate()) {
                 $settings->updated_at = time();
@@ -521,19 +601,8 @@ class AdminController extends Controller
                         $model->label = trim($data['label'] ?? $model->label);
                         $model->sort = (int)($data['sort'] ?? $model->sort);
                         $model->logist_available = !empty($data['logist_available']);
+                        $model->is_active = !empty($data['is_active']);
                         $model->save(false);
-                    }
-                }
-
-                // Удаление помеченных
-                $deleteKeys = $post['delete_keys'] ?? [];
-                if (!empty($deleteKeys)) {
-                    foreach ($deleteKeys as $delKey) {
-                        // не позволяем удалить базовые статусы created/paid/accepted/ordered/received/issued
-                        if (in_array($delKey, ['created','paid','accepted','ordered','received','issued'])) {
-                            continue;
-                        }
-                        OrderStatus::deleteAll(['key' => $delKey]);
                     }
                 }
 
@@ -546,6 +615,7 @@ class AdminController extends Controller
                         $m->label = trim($new['label']);
                         $m->sort = (int)($new['sort'] ?? 999);
                         $m->logist_available = !empty($new['logist_available']);
+                        $m->is_active = 1; // Новые статусы по умолчанию активны
                         $m->save(false);
                     }
                 }

@@ -21,16 +21,23 @@ class Settings extends Component
         return $this->_company;
     }
 
-    public function getStatuses(bool $onlyKeys = false): array
+    public function getStatuses(bool $onlyKeys = false, bool $includeInactive = false): array
     {
         if ($this->_statuses === null) {
-            $this->_statuses = OrderStatus::find()->orderBy(['sort' => SORT_ASC])->asArray()->all();
+            $query = OrderStatus::find()->orderBy(['sort' => SORT_ASC]);
+            if (!$includeInactive) {
+                $query->where(['is_active' => 1]);
+            }
+            $this->_statuses = $query->asArray()->all();
         }
         if ($onlyKeys) {
             return array_column($this->_statuses, 'key');
         }
         $map = [];
         foreach ($this->_statuses as $s) {
+            if (!$includeInactive && !$s['is_active']) {
+                continue;
+            }
             $map[$s['key']] = $s['label'];
         }
         return $map;

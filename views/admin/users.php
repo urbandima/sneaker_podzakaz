@@ -12,6 +12,7 @@ $this->title = 'Управление пользователями';
 <div class="admin-users">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><?= Html::encode($this->title) ?></h1>
+        <?= Html::a('<i class="bi bi-person-plus me-2"></i>Создать пользователя', ['create-user'], ['class' => 'btn btn-success']) ?>
     </div>
 
     <div class="card">
@@ -57,6 +58,30 @@ $this->title = 'Управление пользователями';
                         'attribute' => 'created_at',
                         'label' => 'Создан',
                         'format' => ['datetime', 'php:d.m.Y'],
+                    ],
+                    [
+                        'class' => 'yii\grid\ActionColumn',
+                        'header' => 'Действия',
+                        'template' => '{delete}',
+                        'buttons' => [
+                            'delete' => function ($url, $model) {
+                                if ($model->id === Yii::$app->user->id) {
+                                    return '<span class="text-muted" title="Нельзя удалить себя">—</span>';
+                                }
+                                return Html::a(
+                                    '<i class="bi bi-trash"></i>',
+                                    ['delete-user', 'id' => $model->id],
+                                    [
+                                        'class' => 'btn btn-sm btn-outline-danger',
+                                        'title' => 'Удалить',
+                                        'data' => [
+                                            'confirm' => 'Вы уверены, что хотите удалить пользователя ' . $model->username . '?',
+                                            'method' => 'post',
+                                        ],
+                                    ]
+                                );
+                            },
+                        ],
                     ],
                 ],
             ]); ?>
