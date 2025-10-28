@@ -28,6 +28,15 @@ composer.lock
 
 # Config (НЕ коммитим конфиги с паролями)
 /config/db.php
+/config/db-production.php
+
+# SECURITY: Файлы с паролями и секретами
+*DEPLOY*.md
+*COMMANDS*.md
+ssh-deploy.sh
+deploy.sh
+DEPLOY_INFO.txt
+SECURITY_AUDIT.md
 
 # Tests
 phpunit.phar

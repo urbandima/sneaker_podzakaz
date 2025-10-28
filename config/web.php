@@ -16,7 +16,7 @@ $config = [
     ],
     'components' => [
         'request' => [
-            'cookieValidationKey' => 'your-secret-key-here-change-in-production',
+            'cookieValidationKey' => '55daa9b88efcaee7aa2537a89365b6cfd36c32e988b0cd14070795aa19a3a081',
             'baseUrl' => '',
         ],
         'cache' => [
