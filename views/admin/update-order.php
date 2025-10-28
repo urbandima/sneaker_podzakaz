@@ -47,6 +47,12 @@ $this->title = 'Редактировать заказ №' . $model->order_numbe
                 </div>
             </div>
 
+            <div class="row">
+                <div class="col-md-12">
+                    <?= $form->field($model, 'comment')->textarea(['rows' => 3, 'placeholder' => 'Примечания к заказу...']) ?>
+                </div>
+            </div>
+
             <hr class="my-4">
 
             <h5 class="mb-3">Товары</h5>

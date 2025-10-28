@@ -12,38 +12,44 @@ $this->title = 'СНИКЕРХЭД - Закажем любые оригинал�
     <section class="hero-section">
         <div class="container">
             <div class="hero-content">
-                <div class="hero-text">
-                    <h1 class="hero-title">СНИКЕРХЭД</h1>
-                    <p class="hero-subtitle">Закажем любые оригинальные товары для вас</p>
-                    <p class="hero-description">
-                        Мы специализируемся на заказе брендовой обуви, одежды, аксессуаров и электроники из США и Европы. 
-                        Доставим любой товар по выгодной цене с гарантией подлинности.
-                    </p>
-                    <div class="hero-buttons">
-                        <a href="https://t.me/sneakerheadbyweb_bot" target="_blank" class="btn-primary">
-                            <i class="bi bi-telegram"></i> Заказать в Telegram
-                        </a>
-                    </div>
+                <h1 class="hero-title">СНИКЕРХЭД</h1>
+                <p class="hero-subtitle">Закажем оригинальные товары<br>из США и Европы</p>
+                <p class="hero-description">
+                    Работаем с брендовой обувью, одеждой, аксессуарами и электроникой. 
+                    Доставка по Беларуси с гарантией подлинности.
+                </p>
+                <div class="hero-buttons">
+                    <a href="https://t.me/sneakerheadbyweb_bot" target="_blank" class="btn-cta">
+                        <i class="bi bi-telegram"></i> Сделать заказ
+                    </a>
                 </div>
-                <div class="hero-image">
-                    <div class="products-showcase">
-                        <div class="product-item">
-                            <div class="product-icon"><i class="bi bi-bag-heart"></i></div>
-                            <span>Обувь</span>
-                        </div>
-                        <div class="product-item">
-                            <div class="product-icon"><i class="bi bi-watch"></i></div>
-                            <span>Аксессуары</span>
-                        </div>
-                        <div class="product-item">
-                            <div class="product-icon"><i class="bi bi-phone"></i></div>
-                            <span>Электроника</span>
-                        </div>
-                        <div class="product-item">
-                            <div class="product-icon"><i class="bi bi-vinyl"></i></div>
-                            <span>Одежда</span>
-                        </div>
-                    </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Brands Carousel -->
+    <section class="brands-section">
+        <div class="container">
+            <p class="brands-label">Работаем с ведущими брендами</p>
+            <div class="brands-carousel">
+                <div class="brands-track">
+                    <div class="brand-item">NIKE</div>
+                    <div class="brand-item">ADIDAS</div>
+                    <div class="brand-item">PUMA</div>
+                    <div class="brand-item">NEW BALANCE</div>
+                    <div class="brand-item">REEBOK</div>
+                    <div class="brand-item">CONVERSE</div>
+                    <div class="brand-item">VANS</div>
+                    <div class="brand-item">ASICS</div>
+                    <!-- Дубликаты для бесшовной прокрутки -->
+                    <div class="brand-item">NIKE</div>
+                    <div class="brand-item">ADIDAS</div>
+                    <div class="brand-item">PUMA</div>
+                    <div class="brand-item">NEW BALANCE</div>
+                    <div class="brand-item">REEBOK</div>
+                    <div class="brand-item">CONVERSE</div>
+                    <div class="brand-item">VANS</div>
+                    <div class="brand-item">ASICS</div>
                 </div>
             </div>
         </div>
@@ -187,6 +193,7 @@ $this->title = 'СНИКЕРХЭД - Закажем любые оригинал�
 </div>
 
 <style>
+/* Mobile First Approach */
 * {
     margin: 0;
     padding: 0;
@@ -197,349 +204,403 @@ $this->title = 'СНИКЕРХЭД - Закажем любые оригинал�
     background: #ffffff;
     min-height: 100vh;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: #000000;
 }
 
 .container {
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 1rem;
 }
 
-/* Hero Section */
+/* Hero Section - Mobile First */
 .hero-section {
-    padding: 5rem 0;
-    background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+    padding: 3rem 0;
+    background: #ffffff;
+    text-align: center;
 }
 
 .hero-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .hero-title {
-    font-size: 3.5rem;
-    font-weight: 700;
-    color: #111827;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #000000;
     margin-bottom: 1rem;
-    letter-spacing: -1px;
+    letter-spacing: -2px;
+    line-height: 1;
 }
 
 .hero-subtitle {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #374151;
+    font-size: 1.125rem;
+    font-weight: 400;
+    color: #666666;
     margin-bottom: 1.5rem;
+    line-height: 1.5;
 }
 
 .hero-description {
-    font-size: 1.125rem;
-    color: #6b7280;
-    line-height: 1.7;
+    font-size: 1rem;
+    color: #666666;
+    line-height: 1.6;
     margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .hero-buttons {
     display: flex;
+    justify-content: center;
     gap: 1rem;
     flex-wrap: wrap;
 }
 
-.btn-primary {
-    background: #111827;
-    color: white;
+.btn-cta {
+    background: #000000;
+    color: #ffffff;
     padding: 1rem 2rem;
-    border-radius: 8px;
+    border-radius: 4px;
     text-decoration: none;
     font-weight: 600;
-    font-size: 1.125rem;
+    font-size: 1rem;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
+    border: 2px solid #000000;
 }
 
-.btn-primary:hover {
-    background: #1f2937;
-    transform: translateY(-2px);
-}
-
-.btn-secondary {
-    background: transparent;
-    color: #111827;
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 1.125rem;
-    border: 2px solid #e5e7eb;
-    transition: all 0.2s;
-}
-
-.btn-secondary:hover {
-    border-color: #111827;
-    background: #f9fafb;
-}
-
-.products-showcase {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-    padding: 1rem;
-}
-
-.product-item {
-    background: white;
-    padding: 2rem;
-    border-radius: 16px;
-    border: 1px solid #e5e7eb;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    transition: all 0.3s;
-    cursor: pointer;
-}
-
-.product-item:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-    border-color: #111827;
-}
-
-.product-icon {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    color: #111827;
-}
-
-.product-item span {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #111827;
-}
-
-/* Features Section */
-.features-section {
-    padding: 5rem 0;
+.btn-cta:hover {
     background: #ffffff;
+    color: #000000;
+}
+
+/* Brands Carousel - Mobile First */
+.brands-section {
+    padding: 2rem 0;
+    background: #000000;
+    overflow: hidden;
+}
+
+.brands-label {
+    text-align: center;
+    color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.brands-carousel {
+    overflow: hidden;
+    position: relative;
+}
+
+.brands-track {
+    display: flex;
+    gap: 2rem;
+    animation: scroll 30s linear infinite;
+}
+
+.brand-item {
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    white-space: nowrap;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+}
+
+.brand-item:hover {
+    opacity: 1;
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.brands-track:hover {
+    animation-play-state: paused;
+}
+
+/* Features Section - Mobile First */
+.features-section {
+    padding: 3rem 0;
+    background: #f8f8f8;
 }
 
 .section-title {
-    font-size: 2.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
-    color: #111827;
+    color: #000000;
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
 }
 
 .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
 }
 
 .feature-card {
     text-align: center;
-    padding: 2rem;
+    padding: 1.5rem;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
 }
 
 .feature-icon {
-    width: 80px;
-    height: 80px;
-    background: #f9fafb;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem;
-    font-size: 2.5rem;
-    color: #111827;
-}
-
-.feature-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 0.75rem;
-}
-
-.feature-description {
-    font-size: 1rem;
-    color: #6b7280;
-    line-height: 1.6;
-}
-
-/* How It Works Section */
-.how-it-works-section {
-    padding: 5rem 0;
-    background: #f9fafb;
-}
-
-.steps-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-}
-
-.step-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    text-align: center;
-}
-
-.step-number {
     width: 60px;
     height: 60px;
-    background: #111827;
-    color: white;
+    background: #000000;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0 auto 1rem;
     font-size: 1.75rem;
+    color: #ffffff;
+}
+
+.feature-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 0.5rem;
+}
+
+.feature-description {
+    font-size: 0.9375rem;
+    color: #666666;
+    line-height: 1.6;
+}
+
+/* How It Works Section - Mobile First */
+.how-it-works-section {
+    padding: 3rem 0;
+    background: #ffffff;
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.step-card {
+    background: #f8f8f8;
+    padding: 1.5rem;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+    text-align: center;
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
+    background: #000000;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
     font-weight: 700;
-    margin: 0 auto 1.5rem;
+    margin: 0 auto 1rem;
 }
 
 .step-title {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     font-weight: 600;
-    color: #111827;
-    margin-bottom: 0.75rem;
+    color: #000000;
+    margin-bottom: 0.5rem;
 }
 
 .step-description {
     font-size: 0.9375rem;
-    color: #6b7280;
+    color: #666666;
     line-height: 1.6;
 }
 
-/* CTA Section */
+/* CTA Section - Mobile First */
 .cta-section {
-    padding: 5rem 0;
-    background: #111827;
-    color: white;
+    padding: 3rem 0;
+    background: #000000;
+    color: #ffffff;
 }
 
 .cta-content {
     text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
 }
 
 .cta-title {
-    font-size: 2.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
     margin-bottom: 1rem;
 }
 
 .cta-description {
-    font-size: 1.25rem;
+    font-size: 1rem;
     margin-bottom: 2rem;
-    color: #d1d5db;
+    color: #cccccc;
 }
 
 .btn-large {
-    padding: 1.25rem 3rem;
-    font-size: 1.25rem;
+    padding: 1.125rem 2.5rem;
+    font-size: 1.125rem;
 }
 
-/* Footer */
+/* Footer - Mobile First */
 .landing-footer {
-    padding: 3rem 0 1.5rem;
-    background: #ffffff;
-    border-top: 1px solid #e5e7eb;
+    padding: 2.5rem 0 1.5rem;
+    background: #000000;
+    color: #ffffff;
 }
 
 .footer-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: 1fr;
     gap: 2rem;
     margin-bottom: 2rem;
 }
 
 .footer-title {
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 600;
-    color: #111827;
-    margin-bottom: 1rem;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
 }
 
 .footer-text {
-    font-size: 0.9375rem;
-    color: #6b7280;
+    font-size: 0.875rem;
+    color: #cccccc;
     line-height: 1.8;
 }
 
 .footer-text a {
-    color: #6b7280;
+    color: #cccccc;
     text-decoration: none;
+    transition: color 0.2s;
 }
 
 .footer-text a:hover {
-    color: #111827;
-    text-decoration: underline;
+    color: #ffffff;
 }
 
 .footer-bottom {
     text-align: center;
-    padding-top: 2rem;
-    border-top: 1px solid #e5e7eb;
+    padding-top: 1.5rem;
+    border-top: 1px solid #333333;
 }
 
 .footer-bottom p {
-    color: #9ca3af;
-    font-size: 0.875rem;
+    color: #888888;
+    font-size: 0.8125rem;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .hero-content {
-        grid-template-columns: 1fr;
+/* Tablet - 768px and up */
+@media (min-width: 768px) {
+    .container {
+        padding: 0 2rem;
+    }
+    
+    .hero-section {
+        padding: 4rem 0;
     }
     
     .hero-title {
-        font-size: 2.5rem;
+        font-size: 3.5rem;
     }
     
     .hero-subtitle {
-        font-size: 1.25rem;
+        font-size: 1.375rem;
     }
     
-    .products-showcase {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .product-item {
-        padding: 1.5rem;
-    }
-    
-    .product-icon {
-        width: 60px;
-        height: 60px;
-        font-size: 2rem;
+    .hero-description {
+        font-size: 1.125rem;
     }
     
     .section-title {
-        font-size: 2rem;
+        font-size: 2.25rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+    
+    .steps-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+    
+    .footer-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
     
     .cta-title {
-        font-size: 2rem;
+        font-size: 2.25rem;
     }
     
-    .features-grid,
+    .cta-description {
+        font-size: 1.125rem;
+    }
+}
+
+/* Desktop - 1024px and up */
+@media (min-width: 1024px) {
+    .hero-section {
+        padding: 5rem 0;
+    }
+    
+    .hero-title {
+        font-size: 4rem;
+    }
+    
+    .section-title {
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    .features-section,
+    .how-it-works-section {
+        padding: 4rem 0;
+    }
+    
+    .features-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
     .steps-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .cta-section {
+        padding: 4rem 0;
+    }
+    
+    .cta-title {
+        font-size: 2.75rem;
+    }
+    
+    .brand-item {
+        font-size: 1.5rem;
     }
 }
 </style>

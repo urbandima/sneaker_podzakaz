@@ -2007,7 +2007,6 @@ function getBankInstructionContent(bank) {
     const bankData = instructions[bank];
     let html = `
         <div class="bank-header">
-            <img src="${bankData.logo}" alt="${bankData.name}" class="bank-logo-large" onerror="this.style.display='none'">
             <h3>${bankData.name}</h3>
         </div>
         <ol class="instruction-steps">
@@ -2067,55 +2066,45 @@ document.addEventListener('click', function(e) {
             </h2>
             <p class="modal-subtitle">Мы покажем пошаговую инструкцию для вашего банка</p>
             
-            <div class="banks-grid">
-                <button class="bank-card" onclick="showBankInstructions('belarusbank')">
-                    <img src="https://belarusbank.by/favicon.ico" alt="Беларусбанк" class="bank-card-logo" onerror="this.style.display='none'">
-                    <div class="bank-card-name">Беларусбанк</div>
+            <div class="banks-list">
+                <button class="bank-item" onclick="showBankInstructions('alfabank')">
+                    Альфа-Банк
                 </button>
                 
-                <button class="bank-card" onclick="showBankInstructions('priorbank')">
-                    <img src="https://www.priorbank.by/favicon.ico" alt="Приорбанк" class="bank-card-logo" onerror="this.style.display='none'">
-                    <div class="bank-card-name">Приорбанк</div>
+                <button class="bank-item" onclick="showBankInstructions('belarusbank')">
+                    Беларусбанк
                 </button>
                 
-                <button class="bank-card" onclick="showBankInstructions('alfabank')">
-                    <img src="https://alfabank.by/favicon.ico" alt="Альфа-Банк" class="bank-card-logo" onerror="this.style.display='none'">
-                    <div class="bank-card-name">Альфа-Банк</div>
+                <button class="bank-item" onclick="showBankInstructions('belgazprombank')">
+                    Белгазпромбанк
                 </button>
                 
-                <button class="bank-card" onclick="showBankInstructions('belveb')">
-                    <img src="https://belveb.by/favicon.ico" alt="БелВЭБ" class="bank-card-logo" onerror="this.style.display='none'">
-                    <div class="bank-card-name">БелВЭБ</div>
+                <button class="bank-item" onclick="showBankInstructions('belveb')">
+                    БелВЭБ
                 </button>
                 
-                <button class="bank-card" onclick="showBankInstructions('mtbank')">
-                    <img src="https://www.mtbank.by/favicon.ico" alt="МТБанк" class="bank-card-logo" onerror="this.style.display='none'">
-                    <div class="bank-card-name">МТБанк</div>
+                <button class="bank-item" onclick="showBankInstructions('bpsbank')">
+                    БПС-Сбербанк
                 </button>
                 
-                <button class="bank-card" onclick="showBankInstructions('bpsbank')">
-                    <img src="https://www.bps-sberbank.by/favicon.ico" alt="БПС-Сбербанк" class="bank-card-logo" onerror="this.style.display='none'">
-                    <div class="bank-card-name">БПС-Сбербанк</div>
+                <button class="bank-item" onclick="showBankInstructions('dabrabyt')">
+                    Дабрабыт
                 </button>
                 
-                <button class="bank-card" onclick="showBankInstructions('belgazprombank')">
-                    <img src="https://www.bgpb.by/favicon.ico" alt="Белгазпромбанк" class="bank-card-logo" onerror="this.style.display='none'">
-                    <div class="bank-card-name">Белгазпромбанк</div>
+                <button class="bank-item" onclick="showBankInstructions('idea')">
+                    Идея Банк
                 </button>
                 
-                <button class="bank-card" onclick="showBankInstructions('dabrabyt')">
-                    <img src="https://www.dabrabyt.by/favicon.ico" alt="Дабрабыт" class="bank-card-logo" onerror="this.style.display='none'">
-                    <div class="bank-card-name">Дабрабыт</div>
+                <button class="bank-item" onclick="showBankInstructions('mtbank')">
+                    МТБанк
                 </button>
                 
-                <button class="bank-card" onclick="showBankInstructions('technobank')">
-                    <img src="https://www.technobank.by/favicon.ico" alt="Технобанк" class="bank-card-logo" onerror="this.style.display='none'">
-                    <div class="bank-card-name">Технобанк</div>
+                <button class="bank-item" onclick="showBankInstructions('priorbank')">
+                    Приорбанк
                 </button>
                 
-                <button class="bank-card" onclick="showBankInstructions('idea')">
-                    <img src="https://ideabank.by/favicon.ico" alt="Идея Банк" class="bank-card-logo" onerror="this.style.display='none'">
-                    <div class="bank-card-name">Идея Банк</div>
+                <button class="bank-item" onclick="showBankInstructions('technobank')">
+                    Технобанк
                 </button>
             </div>
         </div>
@@ -2210,72 +2199,30 @@ document.addEventListener('click', function(e) {
     margin-bottom: 2rem;
 }
 
-.banks-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-}
-
-@media (min-width: 640px) {
-    .banks-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-    }
-}
-
-@media (min-width: 768px) {
-    .banks-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-
-.bank-card {
-    background: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 1.25rem 0.75rem;
+.banks-list {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
+}
+
+.bank-item {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    text-align: left;
     cursor: pointer;
-    transition: all 0.3s ease;
-    min-height: 100px;
-}
-
-.bank-card:hover {
-    border-color: #111827;
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-
-.bank-card-logo {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
-}
-
-.bank-card-name {
-    font-size: 0.9375rem;
-    font-weight: 600;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    font-weight: 500;
     color: #111827;
-    text-align: center;
-    line-height: 1.3;
+    width: 100%;
 }
 
-@media (min-width: 640px) {
-    .bank-card {
-        padding: 1.5rem 1rem;
-    }
-    
-    .bank-card-logo {
-        width: 56px;
-        height: 56px;
-    }
-    
-    .bank-card-name {
-        font-size: 1rem;
-    }
+.bank-item:hover {
+    background: #f9fafb;
+    border-color: #111827;
+    transform: translateX(4px);
 }
 
 .back-btn {
@@ -2303,14 +2250,6 @@ document.addEventListener('click', function(e) {
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
     border-bottom: 2px solid #e5e7eb;
-}
-
-.bank-logo-large {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
-    margin: 0 auto 1rem;
-    display: block;
 }
 
 .bank-header h3 {
@@ -2440,11 +2379,6 @@ document.addEventListener('click', function(e) {
     
     .step-title {
         font-size: 1rem;
-    }
-    
-    .bank-logo-large {
-        width: 64px;
-        height: 64px;
     }
     
     .bank-header h3 {

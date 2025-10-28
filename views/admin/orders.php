@@ -248,6 +248,7 @@ foreach ($orders as $order) {
                                         <th style="width: 180px;">Клиент</th>
                                         <th style="width: 110px;">Сумма</th>
                                         <th style="width: 130px;">Статус</th>
+                                        <th style="width: 200px;">Комментарий</th>
                                         <th style="width: 60px;" class="text-center">Чек</th>
                                         <th style="width: 100px;">Ответств.</th>
                                         <th style="width: 100px;">Дата</th>
@@ -256,7 +257,7 @@ foreach ($orders as $order) {
                                 </thead>
                                 <tbody>
                                     <?php foreach ($monthData['orders'] as $order): ?>
-                                    <tr>
+                                    <tr class="clickable-row" data-href="<?= Url::to(['view-order', 'id' => $order->id]) ?>">
                                         <td>
                                             <?= Html::a(
                                                 Html::encode($order->order_number),
@@ -285,6 +286,11 @@ foreach ($orders as $order) {
                                             ?>
                                             <span class="badge bg-<?= $badgeClass ?> w-100"><?= $order->getStatusLabel() ?></span>
                                         </td>
+                                        <td>
+                                            <div class="text-truncate" style="max-width: 200px;" title="<?= Html::encode($order->comment) ?>">
+                                                <?= $order->comment ? Html::encode($order->comment) : '<span class="text-muted">—</span>' ?>
+                                            </div>
+                                        </td>
                                         <td class="text-center">
                                             <?php if ($order->payment_proof): ?>
                                                 <?php
@@ -308,18 +314,12 @@ foreach ($orders as $order) {
                                             </small>
                                         </td>
                                         <td><small><?= Yii::$app->formatter->asDatetime($order->created_at, 'php:d.m.Y') ?></small></td>
-                                        <td class="text-center">
+                                        <td class="text-center action-cell">
                                             <div class="btn-group btn-group-sm" role="group">
                                                 <?= Html::a('<i class="bi bi-eye"></i>', ['view-order', 'id' => $order->id], [
                                                     'title' => 'Просмотр',
                                                     'class' => 'btn btn-outline-primary btn-sm',
                                                 ]) ?>
-                                                <?php if (!$user->isLogist()): ?>
-                                                    <?= Html::a('<i class="bi bi-pencil"></i>', ['update-order', 'id' => $order->id], [
-                                                        'title' => 'Редактировать',
-                                                        'class' => 'btn btn-outline-secondary btn-sm',
-                                                    ]) ?>
-                                                <?php endif; ?>
                                             </div>
                                         </td>
                                     </tr>
@@ -378,6 +378,28 @@ document.addEventListener('DOMContentLoaded', function() {
             pills[activeIndex].scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
         }, 100);
     }
+});
+
+// Кликабельные строки таблицы
+document.addEventListener('DOMContentLoaded', function() {
+    const clickableRows = document.querySelectorAll('.clickable-row');
+    
+    clickableRows.forEach(row => {
+        row.addEventListener('click', function(e) {
+            // Игнорируем клик, если это кнопка действия или чекбокс
+            if (e.target.closest('.action-cell') || e.target.closest('a') || e.target.closest('button')) {
+                return;
+            }
+            
+            const href = this.getAttribute('data-href');
+            if (href) {
+                window.location.href = href;
+            }
+        });
+        
+        // Изменяем курсор при наведении
+        row.style.cursor = 'pointer';
+    });
 });
 </script>
 
@@ -512,5 +534,18 @@ document.addEventListener('DOMContentLoaded', function() {
 .status-pill:not(.active) .count {
     background: #e5e7eb;
     color: #111827;
+}
+
+/* Кликабельные строки */
+.clickable-row {
+    transition: background-color 0.2s ease;
+}
+
+.clickable-row:hover {
+    background-color: #f3f4f6 !important;
+}
+
+.clickable-row:active {
+    background-color: #e5e7eb !important;
 }
 </style>
