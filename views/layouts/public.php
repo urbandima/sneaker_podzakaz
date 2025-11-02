@@ -786,6 +786,12 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
   color: #000;
   position: relative;
   transition: color 0.2s;
+  background: transparent !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: auto !important;
+  min-height: auto !important;
+  border-radius: 0 !important;
 }
 
 .header-btn i {
@@ -1433,11 +1439,23 @@ document.addEventListener('click', (e) => {
 
 // Search functionality
 const headerSearch = document.getElementById('headerSearch');
-headerSearch?.addEventListener('input', (e) => {
-  const query = e.target.value;
-  if (query.length >= 3) {
-    // TODO: Implement live search
-    console.log('Searching for:', query);
+const searchBox = document.querySelector('.search-box');
+
+// Поиск по Enter
+headerSearch?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    const query = e.target.value.trim();
+    if (query.length > 0) {
+      window.location.href = '/catalog?search=' + encodeURIComponent(query);
+    }
+  }
+});
+
+// Поиск по клику на иконку
+searchBox?.querySelector('.bi-search')?.addEventListener('click', () => {
+  const query = headerSearch.value.trim();
+  if (query.length > 0) {
+    window.location.href = '/catalog?search=' + encodeURIComponent(query);
   }
 });
 
