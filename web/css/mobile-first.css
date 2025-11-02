@@ -824,14 +824,16 @@ body {
 
 @media (min-width: 1024px) {
     .container {
-        max-width: 1600px;
+        width: 80%;
+        max-width: 1920px;
         margin: 0 auto;
     }
     
     /* Header container на desktop */
     .catalog-header .container,
     .ecom-header .main-header .container {
-        max-width: 1600px;
+        width: 80%;
+        max-width: 1920px;
         margin: 0 auto;
     }
     
