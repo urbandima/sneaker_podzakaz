@@ -935,7 +935,7 @@ $this->registerJs("document.body.dataset.infiniteScroll = 'true'; document.body.
 
 /* XL Desktop - 5 колонок */
 @media (min-width:1536px){
-.container{max-width:1200px;padding:0 2rem}
+.container{max-width:1600px;padding:0 2rem}
 .products{grid-template-columns:repeat(5,1fr);gap:2rem}
 .sidebar{max-width:520px}
 }

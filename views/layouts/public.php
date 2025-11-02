@@ -475,7 +475,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
+  max-width: 1600px;
   padding: 0 1rem;
   margin: 0 auto;
 }
@@ -516,7 +516,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 }
 
 .main-header .container {
-  max-width: 1200px;
+  max-width: 1600px;
   padding: 0 1rem;
   margin: 0 auto;
   display: flex;
@@ -831,7 +831,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 }
 
 .main-nav .container {
-  max-width: 1200px;
+  max-width: 1600px;
   padding: 0 1rem;
   margin: 0 auto;
 }
@@ -1198,7 +1198,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 }
 
 .footer-main .container {
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 0 1rem;
 }
@@ -1318,7 +1318,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 }
 
 .footer-bottom .container {
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 0 1rem;
 }

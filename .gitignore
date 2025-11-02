@@ -26,9 +26,10 @@ composer.lock
 /web/uploads/*
 !/web/uploads/.gitkeep
 
-# Config (НЕ коммитим конфиги с паролями)
-/config/db.php
+# Config (локальные переопределения конфигов)
+/config/db-local.php
 /config/db-production.php
+/config/params-local.php
 
 # SECURITY: Файлы с паролями и секретами
 *DEPLOY*.md
@@ -37,6 +38,10 @@ ssh-deploy.sh
 deploy.sh
 DEPLOY_INFO.txt
 SECURITY_AUDIT.md
+
+# SSH туннель (временные файлы)
+/tmp/ssh-tunnel-*.pid
+.ssh-tunnel.pid
 
 # Tests
 phpunit.phar

@@ -1,0 +1,51 @@
+# robots.txt для СНИКЕРХЭД E-commerce
+# Автоматически сгенерирован: 02.11.2025
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /order/
+Disallow: /web/uploads/temp/
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://sneakerhead.by/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Allow specific crawlers
+User-agent: Googlebot
+Allow: /catalog/
+Allow: /site/
+
+User-agent: Yandex
+Allow: /catalog/
+Allow: /site/
+Crawl-delay: 2
+
+# Каталог товаров
+Allow: /catalog
+Allow: /catalog/brand/*
+Allow: /catalog/category/*
+Allow: /catalog/product/*
+
+# Запрещаем индексацию служебных страниц
+Disallow: /admin
+Disallow: /debug
+Disallow: /runtime
+Disallow: /vendor
+Disallow: /assets
+
+# Запрещаем индексацию AJAX endpoints
+Disallow: /catalog/filter
+Disallow: /catalog/add-favorite
+Disallow: /catalog/remove-favorite
+Disallow: /catalog/create-inquiry
+
+# Sitemap
+Sitemap: https://sneaker-head.by/sitemap.xml
+
+# Краулинг
+Crawl-delay: 1

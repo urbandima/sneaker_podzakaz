@@ -44,8 +44,57 @@ class SiteController extends Controller
 
     public function actionIndex()
     {
+        // Главная страница теперь - каталог
+        return $this->redirect('/catalog');
+    }
+    
+    /**
+     * Страница "О нас"
+     */
+    public function actionAbout()
+    {
         $this->layout = 'public';
-        return $this->render('index');
+        return $this->render('about');
+    }
+    
+    /**
+     * Страница "Контакты"
+     */
+    public function actionContacts()
+    {
+        $this->layout = 'public';
+        return $this->render('contacts');
+    }
+    
+    /**
+     * Отслеживание заказа
+     */
+    public function actionTrack()
+    {
+        $this->layout = 'public';
+        $orderNumber = Yii::$app->request->get('order');
+        
+        return $this->render('track', [
+            'orderNumber' => $orderNumber,
+        ]);
+    }
+    
+    /**
+     * Корзина
+     */
+    public function actionCart()
+    {
+        $this->layout = 'public';
+        return $this->render('cart');
+    }
+    
+    /**
+     * Личный кабинет
+     */
+    public function actionAccount()
+    {
+        $this->layout = 'public';
+        return $this->render('account');
     }
 
     public function actionLogin()

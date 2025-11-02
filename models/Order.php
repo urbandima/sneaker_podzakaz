@@ -31,7 +31,8 @@ class Order extends ActiveRecord
             [['client_phone'], 'string', 'max' => 50],
             [['comment'], 'string'],
             [['total_amount'], 'number'],
-            [['status'], 'string', 'max' => 50],
+            [['status', 'source'], 'string', 'max' => 50],
+            [['source_id'], 'integer'],
             [['offer_accepted'], 'boolean'],
             [['created_by', 'assigned_logist', 'payment_uploaded_at', 'offer_accepted_at'], 'integer'],
             ['client_email', 'email'],
@@ -55,6 +56,8 @@ class Order extends ActiveRecord
             'offer_accepted' => 'Оферта принята',
             'created_by' => 'Создал',
             'assigned_logist' => 'Логист',
+            'source' => 'Источник',
+            'source_id' => 'ID источника',
             'created_at' => 'Создан',
             'updated_at' => 'Обновлен',
         ];

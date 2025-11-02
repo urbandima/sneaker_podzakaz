@@ -21,6 +21,22 @@ $config = [
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
+            'cachePath' => '@runtime/cache',
+        ],
+        'assetManager' => [
+            'bundles' => YII_ENV_DEV ? [] : [
+                'yii\web\JqueryAsset' => [
+                    'js' => ['jquery.min.js']
+                ],
+                'yii\bootstrap5\BootstrapAsset' => [
+                    'css' => ['css/bootstrap.min.css'],
+                ],
+                'yii\bootstrap5\BootstrapPluginAsset' => [
+                    'js' => ['js/bootstrap.bundle.min.js']
+                ],
+            ],
+            'appendTimestamp' => true,
+            'linkAssets' => true,
         ],
         'user' => [
             'identityClass' => 'app\models\User',
@@ -30,7 +46,7 @@ $config = [
             'errorAction' => 'site/error',
         ],
         'mailer' => [
-            'class' => 'yii\symfonymailer\Mailer',
+            'class' => 'yii\swiftmailer\Mailer',
             'viewPath' => '@app/mail',
             'useFileTransport' => true,
         ],
@@ -58,6 +74,19 @@ $config = [
                 // Публичный просмотр заказа
                 'order/<token:[a-zA-Z0-9_-]+>' => 'order/view',
                 'order/<token:[a-zA-Z0-9_-]+>/upload' => 'order/upload-payment',
+                
+                // Каталог товаров
+                'catalog' => 'catalog/index',
+                'catalog/brand/<slug:[a-z0-9-]+>' => 'catalog/brand',
+                'catalog/category/<slug:[a-z0-9-]+>' => 'catalog/category',
+                'catalog/product/<slug:[a-z0-9-]+>' => 'catalog/product',
+                'catalog/favorites' => 'catalog/favorites',
+                
+                // Sitemap
+                'sitemap.xml' => 'sitemap/index',
+                
+                // SEF фильтрация (умный фильтр)
+                'catalog/filter/<filters:[\w\-/]+>' => 'catalog/filter-sef',
                 
                 // Админ-панель
                 'admin' => 'admin/index',

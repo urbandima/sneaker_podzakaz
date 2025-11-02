@@ -19,7 +19,10 @@ $this->title = 'СНИКЕРХЭД - Закажем любые оригинал�
                     Доставка по Беларуси с гарантией подлинности.
                 </p>
                 <div class="hero-buttons">
-                    <a href="https://t.me/sneakerheadbyweb_bot" target="_blank" class="btn-cta">
+                    <a href="<?= \yii\helpers\Url::to(['/catalog/index']) ?>" class="btn-cta">
+                        <i class="bi bi-grid-3x3"></i> Каталог товаров
+                    </a>
+                    <a href="https://t.me/sneakerheadbyweb_bot" target="_blank" class="btn-cta btn-secondary">
                         <i class="bi bi-telegram"></i> Сделать заказ
                     </a>
                 </div>
@@ -149,11 +152,16 @@ $this->title = 'СНИКЕРХЭД - Закажем любые оригинал�
             <div class="cta-content">
                 <h2 class="cta-title">Готовы сделать заказ?</h2>
                 <p class="cta-description">
-                    Напишите нам в Telegram и получите расчет стоимости в течение 10 минут
+                    Выберите товар в каталоге или напишите нам в Telegram для персонального заказа
                 </p>
-                <a href="https://t.me/sneakerheadbyweb_bot" target="_blank" class="btn-primary btn-large">
-                    <i class="bi bi-telegram"></i> Написать в Telegram
-                </a>
+                <div class="cta-buttons">
+                    <a href="<?= \yii\helpers\Url::to(['/catalog/index']) ?>" class="btn-primary btn-large">
+                        <i class="bi bi-grid-3x3"></i> Открыть каталог
+                    </a>
+                    <a href="https://t.me/sneakerheadbyweb_bot" target="_blank" class="btn-primary btn-large btn-outline">
+                        <i class="bi bi-telegram"></i> Написать в Telegram
+                    </a>
+                </div>
             </div>
         </div>
     </section>
@@ -278,6 +286,17 @@ $this->title = 'СНИКЕРХЭД - Закажем любые оригинал�
 .btn-cta:hover {
     background: #ffffff;
     color: #000000;
+}
+
+.btn-secondary {
+    background: #ffffff;
+    color: #000000;
+    border: 2px solid #000000;
+}
+
+.btn-secondary:hover {
+    background: #000000;
+    color: #ffffff;
 }
 
 /* Brands Carousel - Mobile First */
@@ -464,6 +483,45 @@ $this->title = 'СНИКЕРХЭД - Закажем любые оригинал�
 .btn-large {
     padding: 1.125rem 2.5rem;
     font-size: 1.125rem;
+}
+
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-primary {
+    background: #ffffff;
+    color: #000000;
+    padding: 1rem 2rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    border: 2px solid #ffffff;
+}
+
+.btn-primary:hover {
+    background: transparent;
+    color: #ffffff;
+    border-color: #ffffff;
+}
+
+.btn-outline {
+    background: transparent;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+}
+
+.btn-outline:hover {
+    background: #ffffff;
+    color: #000000;
 }
 
 /* Footer - Mobile First */
