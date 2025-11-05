@@ -30,9 +30,11 @@ composer.lock
 /config/db-local.php
 /config/db-production.php
 /config/params-local.php
+.env
 
 # SECURITY: Файлы с паролями и секретами
 *DEPLOY*.md
+!DEPLOYMENT_GUIDE.md
 *COMMANDS*.md
 ssh-deploy.sh
 deploy.sh
@@ -49,3 +51,7 @@ phpunit.phar
 
 # Vagrant
 /.vagrant
+
+# Documentation (НЕ деплоим на production, оставляем только в Git)
+# Эти файлы будут в репозитории, но не попадут на сервер при правильном деплое
+# Используйте: rsync --exclude-from=.gitignore или git archive

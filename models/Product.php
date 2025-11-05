@@ -42,6 +42,25 @@ use yii\behaviors\SluggableBehavior;
  * @property float $rating Рейтинг
  * @property int $reviews_count Количество отзывов
  * 
+ * POIZON INTEGRATION FIELDS:
+ * @property string|null $sku Уникальный SKU товара
+ * @property string|null $poizon_id ID товара в Poizon
+ * @property string|null $poizon_spu_id SPU ID в Poizon
+ * @property string|null $poizon_url URL товара на Poizon
+ * @property float|null $poizon_price_cny Цена в CNY на Poizon
+ * @property string|null $last_sync_at Последняя синхронизация
+ * @property string|null $upper_material Материал верха
+ * @property string|null $sole_material Материал подошвы
+ * @property string|null $color_description Описание цвета
+ * @property string|null $style_code Код стиля/модели
+ * @property int|null $release_year Год выпуска
+ * @property int $is_limited Лимитированная модель
+ * @property int|null $weight Вес в граммах
+ * @property string|null $series_name Название серии
+ * @property int|null $delivery_time_min Минимальный срок доставки
+ * @property int|null $delivery_time_max Максимальный срок доставки
+ * @property string|null $related_products_json Связанные товары JSON
+ * 
  * @property Category $category
  * @property Brand $brand
  * @property ProductImage[] $images
@@ -87,11 +106,65 @@ class Product extends ActiveRecord
     }
 
     /**
+     * Перед сохранением - автозаполнение денормализованных полей
+     */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            // Автозаполнение денормализованных полей для решения N+1 проблемы
+            if ($this->brand_id && !$this->brand_name) {
+                $brand = Brand::findOne($this->brand_id);
+                if ($brand) {
+                    $this->brand_name = $brand->name;
+                }
+            }
+            
+            if ($this->category_id && !$this->category_name) {
+                $category = Category::findOne($this->category_id);
+                if ($category) {
+                    $this->category_name = $category->name;
+                }
+            }
+            
+            if ($this->main_image && !$this->main_image_url) {
+                $this->main_image_url = $this->main_image;
+            }
+            
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * После сохранения - инвалидация кэша
      */
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
+        
+        // Обновляем денормализованные поля если изменились связанные данные
+        $needsUpdate = false;
+        if (isset($changedAttributes['brand_id'])) {
+            $brand = $this->brand;
+            if ($brand) {
+                $this->updateAttributes(['brand_name' => $brand->name]);
+                $needsUpdate = true;
+            }
+        }
+        
+        if (isset($changedAttributes['category_id'])) {
+            $category = $this->category;
+            if ($category) {
+                $this->updateAttributes(['category_name' => $category->name]);
+                $needsUpdate = true;
+            }
+        }
+        
+        if (isset($changedAttributes['main_image'])) {
+            $this->updateAttributes(['main_image_url' => $this->main_image]);
+            $needsUpdate = true;
+        }
+        
         $this->invalidateCatalogCache();
     }
 
@@ -105,7 +178,7 @@ class Product extends ActiveRecord
     }
 
     /**
-     * Инвалидация кэша каталога (расширенная версия)
+     * Инвалидация кэша каталога (универсальная для FileCache и Redis)
      */
     protected function invalidateCatalogCache()
     {
@@ -114,32 +187,20 @@ class Product extends ActiveRecord
             return;
         }
         
-        // Если используется FileCache - удаляем все файлы по паттерну
+        // Используем tagged cache (работает и с FileCache, и с Redis)
+        \yii\caching\TagDependency::invalidate($cache, [
+            'catalog',           // Все данные каталога
+            'catalog-filters',   // Фильтры
+            'catalog-products',  // Товары
+        ]);
+        
+        // Дополнительно для FileCache: очищаем известные ключи
         if ($cache instanceof \yii\caching\FileCache) {
-            $cachePath = $cache->cachePath;
-            
-            // Удаляем кэш фильтров
-            $patterns = [
-                'filters_data_*',      // Новый формат
-                'catalog_filters_*',   // Старый формат
-                'catalog_count_*',     // Счётчики
-                'similar_products_*',  // Похожие товары
-            ];
-            
-            foreach ($patterns as $pattern) {
-                $files = glob($cachePath . '/' . $pattern);
-                if ($files) {
-                    foreach ($files as $file) {
-                        @unlink($file);
-                    }
-                }
-            }
-        } else {
-            // Для Redis/Memcached - используем тегирование (если поддерживается)
-            // или просто удаляем известные ключи
             $cache->delete('filters_data_v2');
             $cache->delete('catalog_count');
         }
+        
+        Yii::info('Cache invalidated: catalog, filters, products', 'cache');
     }
 
     /**
@@ -171,6 +232,25 @@ class Product extends ActiveRecord
             [['gender'], 'in', 'range' => ['male', 'female', 'unisex']],
             [['height'], 'in', 'range' => ['low', 'mid', 'high']],
             [['fastening'], 'in', 'range' => ['laces', 'velcro', 'zipper', 'slip_on']],
+            
+            // POIZON INTEGRATION FIELDS
+            [['sku', 'style_code', 'vendor_code'], 'string', 'max' => 100],
+            // poizon_id и poizon_variant_id могут приходить как числа - конвертируем в строки
+            [['poizon_id', 'poizon_spu_id', 'poizon_variant_id'], 'filter', 'filter' => function($value) {
+                return $value !== null ? (string)$value : null;
+            }],
+            [['poizon_id', 'poizon_spu_id', 'poizon_variant_id'], 'string', 'max' => 100],
+            [['sku'], 'unique'],
+            [['poizon_url'], 'string', 'max' => 500],
+            [['poizon_price_cny', 'purchase_price'], 'number', 'min' => 0],
+            [['last_sync_at'], 'safe'],
+            [['upper_material', 'sole_material', 'color_description', 'series_name'], 'string', 'max' => 255],
+            [['release_year', 'weight', 'favorite_count', 'stock_count', 'delivery_time_min', 'delivery_time_max', 'parent_product_id'], 'integer'],
+            [['related_products_json'], 'safe'],
+            [['is_limited'], 'boolean'],
+            [['is_limited'], 'default', 'value' => 0],
+            [['country_of_origin'], 'string', 'max' => 100],
+            [['properties', 'sizes_data', 'keywords', 'variant_params'], 'safe'],
             
             [['category_id'], 'exist', 'targetClass' => Category::class, 'targetAttribute' => 'id'],
             [['brand_id'], 'exist', 'targetClass' => Brand::class, 'targetAttribute' => 'id'],
@@ -214,6 +294,25 @@ class Product extends ActiveRecord
             'is_exclusive' => 'Эксклюзив',
             'rating' => 'Рейтинг',
             'reviews_count' => 'Количество отзывов',
+            
+            // POIZON LABELS
+            'sku' => 'SKU',
+            'poizon_id' => 'Poizon ID',
+            'poizon_spu_id' => 'Poizon SPU ID',
+            'poizon_url' => 'Ссылка Poizon',
+            'poizon_price_cny' => 'Цена CNY',
+            'last_sync_at' => 'Последняя синхронизация',
+            'upper_material' => 'Материал верха',
+            'sole_material' => 'Материал подошвы',
+            'color_description' => 'Описание цвета',
+            'style_code' => 'Код модели',
+            'release_year' => 'Год выпуска',
+            'is_limited' => 'Лимитированная',
+            'weight' => 'Вес (г)',
+            'series_name' => 'Серия товара',
+            'delivery_time_min' => 'Срок доставки (мин)',
+            'delivery_time_max' => 'Срок доставки (макс)',
+            'related_products_json' => 'Связанные товары',
         ];
     }
 
@@ -241,16 +340,24 @@ class Product extends ActiveRecord
         return $this->hasMany(ProductImage::class, ['product_id' => 'id'])
             ->orderBy(['is_main' => SORT_DESC, 'sort_order' => SORT_ASC]);
     }
-
+    
     /**
-     * Размеры товара
+     * Характеристики товара
+     */
+    public function getCharacteristics()
+    {
+        return $this->hasMany(ProductCharacteristic::class, ['product_id' => 'id'])->orderBy(['sort_order' => SORT_ASC]);
+    }
+    
+    /**
+     * Все размеры товара
      */
     public function getSizes()
     {
         return $this->hasMany(ProductSize::class, ['product_id' => 'id'])
-            ->orderBy(['size' => SORT_ASC]);
+            ->orderBy(['sort_order' => SORT_ASC, 'size' => SORT_ASC]);
     }
-
+    
     /**
      * Доступные размеры
      */

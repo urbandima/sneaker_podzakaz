@@ -16,13 +16,35 @@ $config = [
     ],
     'components' => [
         'request' => [
-            'cookieValidationKey' => '55daa9b88efcaee7aa2537a89365b6cfd36c32e988b0cd14070795aa19a3a081',
+            'cookieValidationKey' => env('COOKIE_VALIDATION_KEY', '55daa9b88efcaee7aa2537a89365b6cfd36c32e988b0cd14070795aa19a3a081'),
             'baseUrl' => '',
         ],
+        // ВРЕМЕННО: FileCache (после установки Redis заменить)
+        // Для перехода на Redis выполните:
+        // 1. composer require yiisoft/yii2-redis
+        // 2. brew install redis && brew services start redis
+        // 3. Раскомментировать секцию Redis ниже
         'cache' => [
             'class' => 'yii\caching\FileCache',
             'cachePath' => '@runtime/cache',
         ],
+        
+        // БУДУЩЕЕ: Redis cache (раскомментировать после установки)
+        // 'redis' => [
+        //     'class' => 'yii\redis\Connection',
+        //     'hostname' => 'localhost',
+        //     'port' => 6379,
+        //     'database' => 0,
+        // ],
+        // 'cache' => [
+        //     'class' => 'yii\redis\Cache',
+        //     'redis' => [
+        //         'hostname' => 'localhost',
+        //         'port' => 6379,
+        //         'database' => 1, // Отдельная БД для кеша
+        //     ],
+        //     'keyPrefix' => 'sneakerhead:', // Префикс для избежания коллизий
+        // ],
         'assetManager' => [
             'bundles' => YII_ENV_DEV ? [] : [
                 'yii\web\JqueryAsset' => [
@@ -48,7 +70,7 @@ $config = [
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
             'viewPath' => '@app/mail',
-            'useFileTransport' => true,
+            'useFileTransport' => (bool) env('MAIL_USE_FILE_TRANSPORT', true),
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -63,6 +85,12 @@ $config = [
         'settings' => [
             'class' => 'app\\components\\Settings',
         ],
+        'poizonApi' => [
+            'class' => 'app\components\PoizonApiService',
+            'apiUrl' => $params['poizonApiUrl'] ?? 'https://api.poizon-parser.com/v1',
+            'apiKey' => $params['poizonApiKey'] ?? null,
+            'timeout' => 30,
+        ],
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
@@ -74,6 +102,7 @@ $config = [
                 // Публичный просмотр заказа
                 'order/<token:[a-zA-Z0-9_-]+>' => 'order/view',
                 'order/<token:[a-zA-Z0-9_-]+>/upload' => 'order/upload-payment',
+                'order/<token:[a-zA-Z0-9_-]+>/download-payment' => 'order/download-payment',
                 
                 // Каталог товаров
                 'catalog' => 'catalog/index',

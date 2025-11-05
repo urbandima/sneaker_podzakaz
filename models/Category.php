@@ -91,13 +91,14 @@ class Category extends ActiveRecord
             [['name'], 'string', 'max' => 255],
             [['slug'], 'string', 'max' => 255],
             [['slug'], 'unique'],
-            [['parent_id', 'sort_order'], 'integer'],
-            [['description', 'meta_description', 'meta_keywords'], 'string'],
+            [['parent_id', 'sort_order', 'poizon_id'], 'integer'],
+            [['description'], 'string'],
             [['image'], 'string', 'max' => 255],
             [['is_active'], 'boolean'],
             [['is_active'], 'default', 'value' => 1],
             [['sort_order'], 'default', 'value' => 0],
-            [['meta_title'], 'string', 'max' => 255],
+            // SEO поля - безопасные (могут не существовать в БД)
+            [['meta_title', 'meta_description', 'meta_keywords'], 'safe'],
             [['parent_id'], 'exist', 'targetClass' => Category::class, 'targetAttribute' => 'id'],
         ];
     }

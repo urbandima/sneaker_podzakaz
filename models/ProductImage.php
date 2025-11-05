@@ -75,6 +75,24 @@ class ProductImage extends ActiveRecord
     }
 
     /**
+     * Получить полный URL изображения
+     */
+    public function getImageUrl()
+    {
+        if (empty($this->image)) {
+            return null;
+        }
+        
+        // Если это полный URL (начинается с http)
+        if (strpos($this->image, 'http') === 0) {
+            return $this->image;
+        }
+        
+        // Если это относительный путь
+        return Yii::getAlias('@web') . '/' . ltrim($this->image, '/');
+    }
+
+    /**
      * Установить как главное изображение
      */
     public function setAsMain()

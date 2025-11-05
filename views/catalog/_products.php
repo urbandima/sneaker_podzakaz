@@ -58,11 +58,13 @@ use yii\helpers\Html;
                     </div>
                 </div>
                 <div class="info product-card-body">
-                    <span class="product-card-brand"><?= Html::encode($product->brand->name) ?></span>
+                    <?php if ($product->brand): ?>
+                        <span class="product-card-brand"><?= Html::encode($product->brand->name) ?></span>
+                    <?php endif; ?>
                     <h3 class="product-card-name"><?= Html::encode($product->name) ?></h3>
                     
                     <!-- Рейтинг -->
-                    <?php if ($product->rating > 0): ?>
+                    <?php if (isset($product->rating) && $product->rating > 0): ?>
                     <div class="rating">
                         <div class="stars">
                             <?php 
@@ -78,21 +80,23 @@ use yii\helpers\Html;
                                 <i class="bi bi-star"></i>
                             <?php endfor; ?>
                         </div>
-                        <span class="rating-text"><?= $product->rating ?> (<?= $product->reviews_count ?>)</span>
+                        <span class="rating-text"><?= $product->rating ?> (<?= $product->reviews_count ?? 0 ?>)</span>
                     </div>
                     <?php endif; ?>
                     
                     <!-- Цвета (улучшенные с hover) -->
-                    <?php if (!empty($product->colors) && count($product->colors) > 0): ?>
+                    <?php if (!empty($product->colors) && is_array($product->colors) && count($product->colors) > 0): ?>
                     <div class="colors">
                         <?php $shown = 0; foreach ($product->colors as $color): if ($shown >= 5) break; ?>
+                            <?php if ($color && isset($color->hex) && isset($color->name)): ?>
                             <span class="dot" 
                                   style="background:<?= $color->hex ?>" 
-                                  title="<?= $color->name ?>"
+                                  title="<?= Html::encode($color->name) ?>"
                                   data-product-id="<?= $product->id ?>"
                                   data-image="<?= $product->getMainImageUrl() ?>"
                                   onmouseenter="changeColorPreview(this, '<?= $product->getMainImageUrl() ?>')"
                                   onmouseleave="resetColorPreview(this)"></span>
+                            <?php endif; ?>
                         <?php $shown++; endforeach; ?>
                         <?php if (count($product->colors) > 5): ?>
                             <span class="more">+<?= count($product->colors) - 5 ?></span>
@@ -101,16 +105,17 @@ use yii\helpers\Html;
                     <?php endif; ?>
                     
                     <!-- Размеры (улучшенные - кликабельные) -->
-                    <?php if (!empty($product->sizes)): ?>
+                    <?php if (!empty($product->sizes) && is_array($product->sizes)): ?>
                     <div class="sizes-quick">
                         <?php 
-                        $availableSizes = array_filter($product->sizes, function($s) { return $s->is_available; });
+                        $availableSizes = array_filter($product->sizes, function($s) { return $s && isset($s->is_available) && $s->is_available; });
                         $shown = 0;
                         foreach ($availableSizes as $size): 
                             if ($shown >= 6) break;
+                            if (!$size || !isset($size->size)) continue;
                         ?>
                             <span class="size-badge" 
-                                  onclick="selectQuickSize(event, <?= $product->id ?>, '<?= $size->size ?>')"><?= $size->size ?></span>
+                                  onclick="selectQuickSize(event, <?= $product->id ?>, '<?= Html::encode($size->size) ?>')"><?= Html::encode($size->size) ?></span>
                         <?php 
                             $shown++;
                         endforeach; 

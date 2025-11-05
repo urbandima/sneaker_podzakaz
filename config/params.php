@@ -33,4 +33,12 @@ return [
         'phone' => '+375 29 123-45-67',
         'email' => 'info@sneakerculture.by',
     ],
+    
+    // Настройки Poizon/Dewu API
+    'poizonApiUrl' => 'https://api.poizon-parser.com/v1', // Замените на реальный URL API
+    'poizonApiKey' => null, // Замените на ваш API ключ (если требуется)
+    'poizonXmlUrl' => null, // URL XML фида (если используется), например: 'https://s3.q-parser.ru/export/xxx/poizon.xml'
+    
+    // Курс CNY -> BYN (обновляется вручную или через API курсов)
+    'cnyToBynRate' => 0.45, // 1 CNY ≈ 0.45 BYN (примерный курс)
 ];

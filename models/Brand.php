@@ -15,6 +15,7 @@ use yii\behaviors\SluggableBehavior;
  * @property string $slug SEO-friendly URL
  * @property string|null $description Описание бренда
  * @property string|null $logo Путь к логотипу
+ * @property string|null $logo_url URL логотипа (из Poizon)
  * @property int $sort_order Порядок сортировки
  * @property int $is_active Активен ли бренд
  * @property string|null $meta_title SEO заголовок
@@ -90,7 +91,8 @@ class Brand extends ActiveRecord
             [['slug'], 'unique'],
             [['description', 'meta_description', 'meta_keywords'], 'string'],
             [['logo'], 'string', 'max' => 255],
-            [['sort_order'], 'integer'],
+            [['logo_url'], 'string', 'max' => 500],
+            [['sort_order', 'poizon_id'], 'integer'],
             [['is_active'], 'boolean'],
             [['is_active'], 'default', 'value' => 1],
             [['sort_order'], 'default', 'value' => 0],
@@ -109,6 +111,7 @@ class Brand extends ActiveRecord
             'slug' => 'URL (slug)',
             'description' => 'Описание',
             'logo' => 'Логотип',
+            'logo_url' => 'URL логотипа',
             'sort_order' => 'Порядок сортировки',
             'is_active' => 'Активен',
             'meta_title' => 'SEO заголовок',
@@ -197,5 +200,27 @@ class Brand extends ActiveRecord
     public function getMetaDescription()
     {
         return $this->meta_description ?: 'Оригинальные кроссовки и одежда ' . $this->name . ' с доставкой из США и Европы. Гарантия подлинности.';
+    }
+
+    /**
+     * Получить URL логотипа (приоритет logo_url, затем logo)
+     */
+    public function getLogoUrl()
+    {
+        if ($this->logo_url) {
+            return $this->logo_url;
+        }
+        
+        if ($this->logo) {
+            // Если это уже полный URL
+            if (strpos($this->logo, 'http') === 0) {
+                return $this->logo;
+            }
+            // Иначе это локальный путь
+            return \Yii::getAlias('@web') . '/' . ltrim($this->logo, '/');
+        }
+        
+        // Дефолтный placeholder
+        return \Yii::getAlias('@web') . '/images/no-brand-logo.png';
     }
 }

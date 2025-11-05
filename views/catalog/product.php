@@ -195,7 +195,7 @@ $this->registerMetaTag([
                         <span class="old"><?= Yii::$app->formatter->asCurrency($product->old_price, 'BYN') ?></span>
                         <span class="disc">-<?= $product->getDiscountPercent() ?>%</span>
                     <?php endif; ?>
-                    <span class="current"><?= Yii::$app->formatter->asCurrency($product->price, 'BYN') ?></span>
+                    <span class="current" id="productPrice" data-base-price="<?= $product->price ?>"><?= Yii::$app->formatter->asCurrency($product->price, 'BYN') ?></span>
                 </div>
 
                 <div class="status <?= $product->isInStock() ? 'in' : 'out' ?>">
@@ -240,16 +240,67 @@ $this->registerMetaTag([
                 <div class="sizes-section">
                     <div class="size-header">
                         <h3>Выберите размер</h3>
-                        <button class="btn-size-guide" onclick="openSizeGuide()">
-                            <i class="bi bi-rulers"></i>
+                        <button class="btn-size-guide" onclick="toggleSizeTable()">
+                            <i class="bi bi-table"></i>
                             Таблица размеров
                         </button>
                     </div>
+                    
+                    <!-- Соответствие размеров -->
+                    <div id="size-conversion-table" class="size-conversion-table" style="display: none;">
+                        <div class="table-responsive">
+                            <table class="size-table">
+                                <thead>
+                                    <tr>
+                                        <th>EU</th>
+                                        <th>US</th>
+                                        <th>UK</th>
+                                        <th>CM</th>
+                                        <th>Цена</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                    // Группируем размеры по EU размеру
+                                    $sizesGrouped = [];
+                                    foreach ($product->availableSizes as $size): 
+                                        $euSize = $size->eu_size ?: $size->size;
+                                        if (!isset($sizesGrouped[$euSize])) {
+                                            $sizesGrouped[$euSize] = $size;
+                                        }
+                                    endforeach;
+                                    
+                                    foreach ($sizesGrouped as $size): 
+                                        $priceByn = $size->getPriceByn();
+                                    ?>
+                                        <tr <?= $size->inStock() ? '' : 'class="out-of-stock"' ?>>
+                                            <td><strong><?= Html::encode($size->eu_size ?: $size->size) ?></strong></td>
+                                            <td><?= Html::encode($size->us_size ?: '—') ?></td>
+                                            <td><?= Html::encode($size->uk_size ?: '—') ?></td>
+                                            <td><?= Html::encode($size->cm_size ? $size->cm_size . ' cm' : '—') ?></td>
+                                            <td><?= $priceByn ? Yii::$app->formatter->asCurrency($priceByn, 'BYN') : '—' ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="size-table-hint">
+                            <i class="bi bi-info-circle"></i>
+                            <small>Измерьте длину стопы (в см) и сравните с таблицей</small>
+                        </div>
+                    </div>
                     <div class="sizes">
-                        <?php foreach ($product->availableSizes as $size): ?>
-                            <label class="size <?= !$size->inStock() ? 'disabled' : '' ?>">
-                                <input type="radio" name="size" value="<?= $size->size ?>" <?= !$size->inStock() ? 'disabled' : '' ?>>
-                                <span><?= Html::encode($size->size) ?></span>
+                        <?php foreach ($product->availableSizes as $size): 
+                            $priceByn = $size->getPriceByn();
+                        ?>
+                            <label class="size <?= !$size->inStock() ? 'disabled' : '' ?>" title="<?= $priceByn ? Yii::$app->formatter->asCurrency($priceByn, 'BYN') : '' ?>">
+                                <input type="radio" name="size" value="<?= $size->size ?>" 
+                                       data-price="<?= $priceByn ?>" 
+                                       <?= !$size->inStock() ? 'disabled' : '' ?>>
+                                <span class="size-label"><?= Html::encode($size->size) ?></span>
+                                <?php if ($priceByn): ?>
+                                    <span class="size-price"><?= Yii::$app->formatter->asCurrency($priceByn, 'BYN') ?></span>
+                                <?php endif; ?>
                             </label>
                         <?php endforeach; ?>
                     </div>
@@ -312,8 +363,13 @@ $this->registerMetaTag([
                         <div class="info-item">
                             <i class="bi bi-truck"></i>
                             <div>
-                                <strong>Доставка по Минску</strong>
-                                <p>1-2 дня, от 5 BYN<br><small>Бесплатно от 150 BYN</small></p>
+                                <strong>Доставка</strong>
+                                <?php if ($product->delivery_time_min && $product->delivery_time_max): ?>
+                                    <p><?= $product->delivery_time_min ?>-<?= $product->delivery_time_max ?> дней<br>
+                                    <small>Из Китая, отслеживание в личном кабинете</small></p>
+                                <?php else: ?>
+                                    <p>1-2 дня, от 5 BYN<br><small>Бесплатно от 150 BYN</small></p>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <div class="info-item">
@@ -336,6 +392,80 @@ $this->registerMetaTag([
             </div>
         </div>
 
+        <!-- Характеристики товара -->
+        <div class="product-specs-section">
+            <h2>📋 Характеристики</h2>
+            <div class="specs-grid">
+                <?php if ($product->series_name): ?>
+                <div class="spec-item">
+                    <span class="spec-label">Серия:</span>
+                    <span class="spec-value"><?= Html::encode($product->series_name) ?></span>
+                </div>
+                <?php endif; ?>
+                
+                <?php if ($product->style_code): ?>
+                <div class="spec-item">
+                    <span class="spec-label">Артикул:</span>
+                    <span class="spec-value"><code><?= Html::encode($product->style_code) ?></code></span>
+                </div>
+                <?php endif; ?>
+                
+                <?php if ($product->country || $product->country_of_origin): ?>
+                <div class="spec-item">
+                    <span class="spec-label">Страна производства:</span>
+                    <span class="spec-value"><?= Html::encode($product->country ?: $product->country_of_origin) ?></span>
+                </div>
+                <?php endif; ?>
+                
+                <?php if ($product->release_year): ?>
+                <div class="spec-item">
+                    <span class="spec-label">Год выпуска:</span>
+                    <span class="spec-value"><?= $product->release_year ?></span>
+                </div>
+                <?php endif; ?>
+                
+                <?php if ($product->gender): ?>
+                <div class="spec-item">
+                    <span class="spec-label">Пол:</span>
+                    <span class="spec-value">
+                        <?php 
+                        $genderMap = ['male' => 'Мужской', 'female' => 'Женский', 'unisex' => 'Унисекс'];
+                        echo $genderMap[$product->gender] ?? $product->gender;
+                        ?>
+                    </span>
+                </div>
+                <?php endif; ?>
+                
+                <?php if ($product->weight): ?>
+                <div class="spec-item">
+                    <span class="spec-label">Вес:</span>
+                    <span class="spec-value"><?= $product->weight ?> г</span>
+                </div>
+                <?php endif; ?>
+                
+                <?php 
+                // Характеристики из Poizon properties
+                if ($product->properties):
+                    $properties = json_decode($product->properties, true);
+                    if (is_array($properties)):
+                        foreach ($properties as $prop):
+                            $key = $prop['key'] ?? '';
+                            $value = $prop['value'] ?? '';
+                            if ($key && $value):
+                ?>
+                <div class="spec-item">
+                    <span class="spec-label"><?= Html::encode($key) ?>:</span>
+                    <span class="spec-value"><?= Html::encode($value) ?></span>
+                </div>
+                <?php 
+                            endif;
+                        endforeach;
+                    endif;
+                endif;
+                ?>
+            </div>
+        </div>
+        
         <!-- Описание товара (Аккордеон) -->
         <?php if ($product->description): ?>
         <div class="product-description-section">
@@ -768,7 +898,7 @@ $this->registerMetaTag([
 .price-block{display:flex;align-items:center;gap:0.75rem}
 .price-block .old{font-size:1rem;color:#9ca3af;text-decoration:line-through}
 .price-block .disc{background:#ef4444;color:#fff;padding:0.25rem 0.5rem;border-radius:4px;font-size:0.75rem;font-weight:700}
-.price-block .current{font-size:2rem;font-weight:900;color:#000}
+.price-block .current{font-size:2rem;font-weight:900;color:#000;transition:transform 0.2s ease}
 
 .status{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1rem;background:#f9fafb;border-radius:8px;font-weight:600}
 .status.in{color:#10b981;background:#ecfdf5}
@@ -795,18 +925,21 @@ $this->registerMetaTag([
 .btn-find-size:hover{background:#f0f0f0;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
 .btn-find-size i{font-size:1rem}
 
-.sizes-section{margin-bottom:1rem}
+.sizes-section{margin-bottom:2.5rem}
 .size-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem}
 .size-header h3{font-size:0.875rem;font-weight:700;margin:0}
 .btn-size-guide{background:#fff;border:1px solid #e5e7eb;padding:0.5rem 1rem;border-radius:8px;font-size:0.8125rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.5rem;transition:all 0.2s}
 .btn-size-guide:hover{background:#f3f4f6;border-color:#000}
 .btn-size-guide i{font-size:1rem}
 .sizes{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.75rem}
-.size{display:flex}
+.size{display:flex;position:relative}
 .size input{display:none}
-.size span{display:flex;align-items:center;justify-content:center;min-width:48px;height:48px;padding:0 1rem;border:2px solid #e5e7eb;border-radius:8px;cursor:pointer;font-weight:600;transition:all 0.2s}
-.size input:checked+span{border-color:#000;background:#000;color:#fff}
-.size.disabled span{opacity:0.3;cursor:not-allowed}
+.size .size-label{display:flex;align-items:center;justify-content:center;min-width:48px;height:48px;padding:0 1rem;border:2px solid #e5e7eb;border-radius:8px;cursor:pointer;font-weight:600;transition:all 0.2s}
+.size .size-price{position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);font-size:0.75rem;font-weight:600;color:#666;white-space:nowrap;background:#fff;padding:2px 6px;border-radius:4px;border:1px solid #e5e7eb}
+.size input:checked ~ .size-label{border-color:#000;background:#000;color:#fff}
+.size input:checked ~ .size-price{color:#000;border-color:#000;font-weight:700}
+.size.disabled .size-label{opacity:0.3;cursor:not-allowed}
+.size.disabled .size-price{opacity:0.3}
 .popular-size-hint{display:flex;align-items:center;gap:0.5rem;padding:0.75rem;background:#fff9e6;border-radius:8px;font-size:0.8125rem;color:#666;margin-top:0.75rem}
 .popular-size-hint i{color:#fbbf24;font-size:1rem}
 .popular-size-hint strong{color:#000;font-weight:700}
@@ -1141,6 +1274,35 @@ $this->registerMetaTag([
 .modal-nav-btn.next{right:1rem}
 .modal-thumbnails{display:none}
 }
+
+/* Size Conversion Table */
+.size-conversion-table{margin:1rem 0 1.5rem;padding:1rem;background:#f9fafb;border-radius:12px;border:1px solid #e5e7eb;animation:slideDown 0.3s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.size-table{width:100%;border-collapse:collapse;margin:0}
+.size-table thead{background:#fff}
+.size-table th{padding:0.75rem;text-align:center;font-size:0.8125rem;font-weight:700;color:#666;border-bottom:2px solid #e5e7eb;text-transform:uppercase;letter-spacing:0.5px}
+.size-table td{padding:0.875rem;text-align:center;font-size:0.9375rem;border-bottom:1px solid #e5e7eb}
+.size-table tbody tr:hover{background:#fff;box-shadow:0 2px 4px rgba(0,0,0,0.05)}
+.size-table tbody tr.out-of-stock{opacity:0.5}
+.size-table tbody tr.out-of-stock td{text-decoration:line-through}
+.size-table-hint{margin-top:0.75rem;padding:0.75rem;background:#fff;border-radius:8px;display:flex;align-items:center;gap:0.5rem;font-size:0.8125rem;color:#666}
+.size-table-hint i{color:#667eea;font-size:1rem}
+
+/* Product Specs Section */
+.product-specs-section{background:#fff;border-radius:16px;padding:2rem;margin:2rem 0;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.product-specs-section h2{font-size:1.5rem;font-weight:800;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem}
+.specs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+.spec-item{display:flex;flex-direction:column;gap:0.25rem;padding:1rem;background:#f9fafb;border-radius:10px;border:1px solid #e5e7eb;transition:all 0.2s}
+.spec-item:hover{border-color:#667eea;background:#fff;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.08)}
+.spec-label{font-size:0.8125rem;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px}
+.spec-value{font-size:1rem;font-weight:600;color:#000}
+.spec-value code{background:#fff;padding:0.25rem 0.5rem;border-radius:4px;font-family:'Courier New',monospace;font-size:0.875rem;color:#667eea;border:1px solid #e5e7eb}
+
+@media (max-width:767px){
+.specs-grid{grid-template-columns:1fr}
+.size-table{font-size:0.75rem}
+.size-table th,.size-table td{padding:0.5rem 0.25rem}
+}
 </style>
 
 <!-- jQuery УДАЛЕН - используем vanilla JS -->
@@ -1175,6 +1337,37 @@ function toggleFav(e,id){
 function toggleZoom(){
     document.getElementById('mainImgContainer').classList.toggle('zoomed');
 }
+
+// Обновление цены при выборе размера
+document.addEventListener('DOMContentLoaded', function() {
+    const sizeInputs = document.querySelectorAll('input[name="size"]');
+    const priceElement = document.getElementById('productPrice');
+    
+    if (sizeInputs.length > 0 && priceElement) {
+        sizeInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                if (this.checked) {
+                    const newPrice = this.dataset.price;
+                    if (newPrice && newPrice > 0) {
+                        // Форматируем цену
+                        const formatter = new Intl.NumberFormat('ru-BY', {
+                            style: 'currency',
+                            currency: 'BYN',
+                            minimumFractionDigits: 2
+                        });
+                        priceElement.textContent = formatter.format(newPrice);
+                        
+                        // Добавляем плавную анимацию
+                        priceElement.style.transform = 'scale(1.1)';
+                        setTimeout(() => {
+                            priceElement.style.transform = 'scale(1)';
+                        }, 200);
+                    }
+                }
+            });
+        });
+    }
+});
 
 function createOrder(){
     const productId = <?= $product->id ?>;
@@ -1367,6 +1560,16 @@ function addCompleteLook() {
     <?php else: ?>
     alert('Нет похожих товаров');
     <?php endif; ?>
+}
+
+// Size Table Toggle
+function toggleSizeTable() {
+    const table = document.getElementById('size-conversion-table');
+    if (table.style.display === 'none' || table.style.display === '') {
+        table.style.display = 'block';
+    } else {
+        table.style.display = 'none';
+    }
 }
 
 // Size Guide Modal

@@ -43,15 +43,23 @@ class CatalogController extends Controller
      */
     public function actionIndex()
     {
+        // ОПТИМИЗИРОВАНО: Используем денормализованные поля вместо JOIN
+        // Было: ->with(['brand', 'category', 'images'])
+        // Стало: используем brand_name, category_name, main_image_url напрямую
         $query = Product::find()
-            ->with([
-                'brand', 
-                'category', 
-                'images' => function($q) {
-                    $q->where(['is_main' => 1])->orWhere(['sort_order' => 0])->limit(1);
-                },
-                'colors', 
-                'sizes'
+            ->select([
+                'id', 
+                'name', 
+                'slug', 
+                'brand_name',      // Денормализованное поле
+                'category_name',   // Денормализованное поле
+                'main_image_url',  // Денормализованное поле
+                'price', 
+                'old_price', 
+                'stock_status',
+                'is_featured',
+                'rating',
+                'reviews_count'
             ])
             ->where(['is_active' => 1]);
 
@@ -270,13 +278,19 @@ class CatalogController extends Controller
             return $this->renderError(404, 'Бренд не найден');
         }
 
+        // ОПТИМИЗИРОВАНО: Используем денормализованные поля
         $query = Product::find()
-            ->with([
-                'brand', 
-                'category',
-                'images' => function($q) {
-                    $q->where(['is_main' => 1])->orWhere(['sort_order' => 0])->limit(1);
-                },
+            ->select([
+                'id', 
+                'name', 
+                'slug', 
+                'brand_name',
+                'category_name',
+                'main_image_url',
+                'price', 
+                'old_price', 
+                'stock_status',
+                'is_featured'
             ])
             ->where(['brand_id' => $brand->id, 'is_active' => 1]);
 
@@ -328,13 +342,19 @@ class CatalogController extends Controller
         // Получаем ID категории и всех дочерних
         $categoryIds = $category->getChildrenIds();
 
+        // ОПТИМИЗИРОВАНО: Используем денормализованные поля
         $query = Product::find()
-            ->with([
-                'brand', 
-                'category',
-                'images' => function($q) {
-                    $q->where(['is_main' => 1])->orWhere(['sort_order' => 0])->limit(1);
-                },
+            ->select([
+                'id', 
+                'name', 
+                'slug', 
+                'brand_name',
+                'category_name',
+                'main_image_url',
+                'price', 
+                'old_price', 
+                'stock_status',
+                'is_featured'
             ])
             ->where(['category_id' => $categoryIds, 'is_active' => 1]);
 
@@ -540,18 +560,24 @@ class CatalogController extends Controller
         }
         
         // Фильтр по размерам
+        // ПРИМЕЧАНИЕ: Требует создания связи many-to-many с таблицей product_sizes
+        // Реализация будет добавлена после миграции схемы БД для размеров
+        /*
         if ($sizes = $request->get('sizes')) {
             $sizeArray = is_array($sizes) ? $sizes : explode(',', $sizes);
-            // TODO: Добавить связь с таблицей размеров
-            // $query->joinWith('sizes')->andWhere(['product_size.size' => $sizeArray]);
+            $query->joinWith('sizes')->andWhere(['product_size.size' => $sizeArray]);
         }
+        */
         
         // Фильтр по цветам
+        // ПРИМЕЧАНИЕ: Требует создания связи many-to-many с таблицей product_colors
+        // Реализация будет добавлена после миграции схемы БД для цветов
+        /*
         if ($colors = $request->get('colors')) {
             $colorArray = is_array($colors) ? $colors : explode(',', $colors);
-            // TODO: Добавить связь с таблицей цветов
-            // $query->joinWith('colors')->andWhere(['product_color.hex' => $colorArray]);
+            $query->joinWith('colors')->andWhere(['product_color.hex' => $colorArray]);
         }
+        */
         
         // Фильтр по скидке
         if ($request->get('discount_any')) {
@@ -592,7 +618,8 @@ class CatalogController extends Controller
                         $query->andWhere(['is_featured' => 1]);
                         break;
                     case 'free_delivery':
-                        // TODO: Добавить поле free_delivery
+                        // ПРИМЕЧАНИЕ: Требует добавления поля free_delivery в таблицу products
+                        // $query->andWhere(['free_delivery' => 1]);
                         break;
                     case 'in_stock':
                         $query->andWhere(['stock_status' => 'in_stock']);

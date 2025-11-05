@@ -1,5 +1,8 @@
 <?php
 
+// Load bootstrap (env helper)
+require __DIR__ . '/bootstrap.php';
+
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
@@ -37,6 +40,12 @@ $config = [
             'class' => 'yii\symfonymailer\Mailer',
             'viewPath' => '@app/mail',
             'useFileTransport' => true,
+        ],
+        'poizonApi' => [
+            'class' => 'app\components\PoizonApiService',
+            'apiUrl' => $params['poizonApiUrl'] ?? 'https://api.poizon-parser.com/v1',
+            'apiKey' => $params['poizonApiKey'] ?? null,
+            'timeout' => 30,
         ],
         'urlManager' => [
             'class' => 'yii\web\UrlManager',

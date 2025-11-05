@@ -50,7 +50,7 @@ $this->title = $brand->getMetaTitle();
                         <label class="filter-checkbox">
                             <input type="checkbox" name="categories[]" value="<?= $category['id'] ?>">
                             <span><?= Html::encode($category['name']) ?></span>
-                            <span class="count">(<?= $category['products_count'] ?>)</span>
+                            <span class="count">(<?= $category['count'] ?? 0 ?>)</span>
                         </label>
                     <?php endforeach; ?>
                 </div>

@@ -71,18 +71,20 @@ class OrderController extends Controller
                 // Начинаем транзакцию
                 $transaction = Yii::$app->db->beginTransaction();
                 try {
-                    $uploadPath = Yii::getAlias('@app/web/uploads/payments/');
+                    // ИСПРАВЛЕНО: Файлы хранятся ВНЕ web root для безопасности
+                    $uploadPath = Yii::getAlias('@app/runtime/uploads/payments/');
                     if (!is_dir($uploadPath)) {
                         mkdir($uploadPath, 0755, true);
                     }
 
-                    // Генерируем безопасное имя файла
-                    $fileName = $model->id . '_' . time() . '_' . Yii::$app->security->generateRandomString(8) . '.' . $file->extension;
+                    // Генерируем безопасное имя файла (UUID + расширение)
+                    $fileName = $model->id . '_' . time() . '_' . Yii::$app->security->generateRandomString(32) . '.' . $file->extension;
                     $filePath = $uploadPath . $fileName;
 
                     if ($file->saveAs($filePath)) {
                         $oldStatus = $model->status;
-                        $model->payment_proof = '/uploads/payments/' . $fileName;
+                        // ИСПРАВЛЕНО: Сохраняем только имя файла (не путь)
+                        $model->payment_proof = $fileName;
                         $model->payment_uploaded_at = time();
                         $model->status = 'paid';
                         $model->offer_accepted = true;
@@ -214,5 +216,46 @@ class OrderController extends Controller
 
         $session->set($key, $attempts + 1);
         $session->set($key . '_time', time());
+    }
+
+    /**
+     * НОВОЕ: Безопасное скачивание подтверждения оплаты
+     * Файлы хранятся вне web root и отдаются через контроллер
+     */
+    public function actionDownloadPayment($token)
+    {
+        $model = Order::findOne(['token' => $token]);
+
+        if ($model === null) {
+            throw new NotFoundHttpException('Заказ не найден.');
+        }
+
+        if (!$model->payment_proof) {
+            throw new NotFoundHttpException('Подтверждение оплаты не загружено.');
+        }
+
+        $filePath = Yii::getAlias('@app/runtime/uploads/payments/' . $model->payment_proof);
+
+        if (!file_exists($filePath)) {
+            Yii::error('Файл подтверждения не найден: ' . $filePath . ' (заказ #' . $model->id . ')', 'order');
+            throw new NotFoundHttpException('Файл не найден.');
+        }
+
+        // Проверка прав доступа
+        // Могут скачать: клиент (по токену), менеджер, админ
+        if (!Yii::$app->user->isGuest) {
+            $user = Yii::$app->user->identity;
+            // Админ и менеджер могут скачать любой файл
+            // Логист может скачать только для своих заказов
+            if ($user->isLogist() && $model->assigned_logist != $user->id) {
+                throw new NotFoundHttpException('Доступ запрещен.');
+            }
+        }
+
+        Yii::info('Скачивание подтверждения оплаты для заказа #' . $model->id, 'order');
+
+        return Yii::$app->response->sendFile($filePath, 'payment_proof_' . $model->order_number . '.' . pathinfo($model->payment_proof, PATHINFO_EXTENSION), [
+            'inline' => true // Показать в браузере вместо скачивания
+        ]);
     }
 }
