@@ -4,6 +4,7 @@
  * Yii console bootstrap file.
  */
 
+require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/config/bootstrap.php';
 
 if (!defined('YII_ENV')) {
@@ -14,7 +15,6 @@ if (!defined('YII_DEBUG')) {
     define('YII_DEBUG', (bool) env('YII_DEBUG', YII_ENV !== 'prod'));
 }
 
-require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/vendor/yiisoft/yii2/Yii.php';
 
 $config = require __DIR__ . '/config/console.php';
