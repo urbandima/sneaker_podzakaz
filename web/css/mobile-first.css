@@ -643,7 +643,7 @@ body {
 .product-gallery-swipe {
     position: relative;
     width: 100%;
-    height: 400px;
+    min-height: 240px;
     overflow: hidden;
     touch-action: pan-y;
     background: var(--gray-light);
@@ -814,7 +814,7 @@ body {
     }
     
     .product-gallery-swipe {
-        height: 500px;
+        min-height: 350px;
     }
 }
 
@@ -855,7 +855,7 @@ body {
     }
     
     .product-gallery-swipe {
-        height: 600px;
+        min-height: 400px;
     }
     
     .specs-section {

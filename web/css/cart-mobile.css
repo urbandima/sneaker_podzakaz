@@ -1,0 +1,288 @@
+/**
+ * Мобильная адаптация корзины
+ * Mobile-first responsive design для максимального UX на мобильных устройствах
+ */
+
+/* Smooth scrolling для всей страницы */
+html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent zoom on inputs on iOS */
+@media screen and (max-width: 768px) {
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="tel"],
+    textarea,
+    select {
+        font-size: 16px !important;
+    }
+}
+
+/* Touch-action optimization */
+.cart-item,
+.item-quantity button,
+.item-remove,
+.btn-checkout,
+.btn-continue,
+.delivery-option,
+.country-tab {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Улучшенная анимация для удаления на мобильных */
+@media (max-width: 768px) {
+    .cart-item {
+        transition: transform 0.3s ease-out, opacity 0.3s ease-out, box-shadow 0.2s ease;
+    }
+    
+    .cart-item.removing {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    
+    /* Свайп-индикатор (опционально) */
+    .cart-item::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        background: linear-gradient(to right, transparent, rgba(239, 68, 68, 0.1));
+        transition: width 0.2s ease;
+        pointer-events: none;
+    }
+    
+    .cart-item.swiping::after {
+        width: 60px;
+    }
+    
+    /* Sticky actions optimization для Safari */
+    .cart-summary-actions {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+    }
+    
+    /* Pull-to-refresh prevention на корзине */
+    .cart-page {
+        overscroll-behavior-y: contain;
+    }
+    
+    /* Accessibility - увеличенные тач-области */
+    .item-quantity button,
+    .item-remove {
+        position: relative;
+    }
+    
+    .item-quantity button::after,
+    .item-remove::after {
+        content: '';
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        bottom: -8px;
+        left: -8px;
+    }
+    
+    /* Улучшенная типографика для читаемости */
+    .item-name {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+    
+    /* Плавная анимация при изменении количества */
+    .item-quantity input {
+        transition: background-color 0.2s ease;
+    }
+    
+    .item-quantity input:focus {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    /* Feedback при нажатии */
+    .item-quantity button:active,
+    .item-remove:active,
+    .btn-checkout:active,
+    .btn-continue:active {
+        transform: scale(0.95);
+        transition: transform 0.1s ease;
+    }
+    
+    /* Модальное окно - полноэкранное на мобильных */
+    .checkout-modal.active {
+        animation: modalSlideUp 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideUp {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    /* Keyboard handling */
+    .modal-content form input:focus,
+    .modal-content form textarea:focus {
+        scroll-margin-bottom: 120px; /* Место для клавиатуры */
+    }
+    
+    /* Loading state для кнопок */
+    .btn-checkout.loading,
+    .btn-submit-order.loading {
+        pointer-events: none;
+        opacity: 0.7;
+        position: relative;
+    }
+    
+    .btn-checkout.loading::after,
+    .btn-submit-order.loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        border: 2px solid currentColor;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spinner 0.6s linear infinite;
+        margin-left: 8px;
+    }
+    
+    @keyframes spinner {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Скрытие элементов при вводе на малых экранах */
+    body.keyboard-open .cart-summary-info {
+        display: none;
+    }
+    
+    body.keyboard-open .cart-summary-actions {
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Portrait orientation optimizations */
+@media (max-width: 480px) and (orientation: portrait) {
+    /* Компактный режим для узких экранов */
+    .cart-item {
+        border-radius: 12px;
+    }
+    
+    .item-image {
+        border-radius: 8px;
+    }
+    
+    /* Оптимизация пространства */
+    .cart-items {
+        gap: 0.625rem;
+    }
+    
+    /* Более компактный summary info */
+    .cart-summary-info {
+        padding: 0.875rem 0.75rem;
+    }
+    
+    /* Более компактный actions panel */
+    .cart-summary-actions {
+        padding: 0.75rem;
+    }
+    
+    .summary-row,
+    .summary-total {
+        font-size: 0.8125rem;
+    }
+}
+
+/* Landscape orientation - горизонтальная ориентация */
+@media (max-width: 768px) and (orientation: landscape) {
+    /* В горизонтальном режиме уменьшаем высоту элементов */
+    .cart-summary-info {
+        padding: 0.875rem 1rem;
+        margin-bottom: 8rem;
+    }
+    
+    .cart-summary-actions {
+        padding: 0.75rem 1rem;
+    }
+    
+    .cart-items {
+        padding-bottom: 0;
+    }
+    
+    .cart-item {
+        padding: 0.75rem;
+    }
+    
+    .item-image {
+        width: 60px;
+        height: 60px;
+    }
+    
+    h1 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-checkout {
+        padding: 0.75rem;
+        margin-top: 0.75rem;
+    }
+}
+
+/* High DPI / Retina displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .item-image img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+    /* Добавить при необходимости темную тему */
+}
+
+/* Reduced motion для accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Safe area insets для iPhone X и новых устройств */
+@supports (padding: max(0px)) {
+    @media (max-width: 768px) {
+        .cart-summary-actions {
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+    }
+    
+    .checkout-footer {
+        padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+    /* Фикс для Safari на iOS */
+    @media (max-width: 768px) {
+        .cart-summary-actions {
+            position: -webkit-fixed;
+            position: fixed;
+        }
+    }
+    
+    input[type="number"] {
+        -webkit-appearance: none;
+        appearance: none;
+    }
+}

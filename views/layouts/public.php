@@ -79,19 +79,6 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 
 <!-- PREMIUM E-COMMERCE HEADER -->
 <header class="ecom-header">
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <div class="container">
-            <div class="top-bar-left">
-                <i class="bi bi-truck"></i> Бесплатная доставка от 200 BYN
-            </div>
-            <div class="top-bar-right">
-                <a href="tel:+375291234567"><i class="bi bi-telephone"></i> +375 29 123-45-67</a>
-                <a href="/site/track"><i class="bi bi-geo-alt"></i> Отследить заказ</a>
-            </div>
-        </div>
-    </div>
-    
     <!-- Main Header -->
     <div class="main-header">
         <div class="container">
@@ -101,11 +88,20 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                     <span></span>
                     <span></span>
                 </button>
-                <a href="/" class="logo">
-                    <span class="logo-icon">👟</span>
+                <?php
+                // На странице каталога логотип ведет на каталог, иначе - на главную
+                $logoUrl = (Yii::$app->controller->id === 'catalog') ? '/catalog' : '/';
+                ?>
+                <a href="<?= $logoUrl ?>" class="logo">
+                    <span class="logo-image">
+                        <img src="https://sneaker-head.by/images/logo.png" alt="Сникерхэд" loading="lazy">
+                    </span>
                     <span class="logo-text">
                         <strong>СНИКЕРХЭД</strong>
-                        <small>Оригинальная обувь</small>
+                        <small>
+                            <span class="line-1">Оригинальные товары</span>
+                            <span class="line-2">под заказ</span>
+                        </small>
                     </span>
                 </a>
             </div>
@@ -369,76 +365,60 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
     </div>
 </main>
 
-<!-- FOOTER -->
+<!-- ULTRA COMPACT FOOTER -->
 <footer class="site-footer">
     <div class="footer-main">
         <div class="container">
-            <div class="footer-grid">
-                <!-- О компании -->
-                <div class="footer-col">
-                    <div class="footer-logo">
-                        <span class="logo-icon">👟</span>
-                        <span class="logo-text">
-                            <strong>СНИКЕРХЭД</strong>
-                            <small>Оригинальная обувь</small>
-                        </span>
+            <div class="footer-content">
+                <!-- Колонка 1: Бренд + Навигация -->
+                <div class="footer-col-left">
+                    <div class="footer-brand">
+                        <div class="footer-logo">
+                            <span class="footer-logo-image">
+                                <img src="https://sneaker-head.by/images/logo.png" alt="Сникерхэд" loading="lazy">
+                            </span>
+                            <div class="footer-logo-text">
+                                <strong>СНИКЕРХЭД</strong>
+                                <small>Оригинальные товары под заказ</small>
+                            </div>
+                        </div>
+                        <div class="footer-social">
+                            <a href="#" title="Instagram" class="social-link"><i class="bi bi-instagram"></i></a>
+                            <a href="#" title="Telegram" class="social-link"><i class="bi bi-telegram"></i></a>
+                            <a href="#" title="VK" class="social-link"><i class="bi bi-vk"></i></a>
+                            <span class="social-divider">|</span>
+                            <span class="payment-badge">VISA</span>
+                            <span class="payment-badge">Mastercard</span>
+                            <span class="payment-badge">МИР</span>
+                        </div>
                     </div>
-                    <p class="footer-desc">
-                        Официальный поставщик оригинальных кроссовок Nike, Adidas, Puma и других мировых брендов в Беларуси.
-                    </p>
-                    <div class="footer-social">
-                        <a href="#" title="Instagram"><i class="bi bi-instagram"></i></a>
-                        <a href="#" title="Facebook"><i class="bi bi-facebook"></i></a>
-                        <a href="#" title="Telegram"><i class="bi bi-telegram"></i></a>
-                        <a href="#" title="VK"><i class="bi bi-vk"></i></a>
+                    <div class="footer-nav">
+                        <a href="/catalog?gender=male">Мужское</a>
+                        <a href="/catalog?gender=female">Женское</a>
+                        <a href="/catalog?new=1">Новинки</a>
+                        <span class="nav-divider">|</span>
+                        <a href="/site/offer-agreement">Договор оферты</a>
+                        <a href="https://sneaker-head.by/page/politika-konfidencialnosti" target="_blank">Политика конфиденциальности</a>
+                        <a href="https://sneaker-head.by/page/dostavka-i-oplata" target="_blank">Доставка и оплата</a>
                     </div>
                 </div>
                 
-                <!-- Каталог -->
-                <div class="footer-col">
-                    <h4>Каталог</h4>
-                    <ul>
-                        <li><a href="/catalog?gender=male">Мужское</a></li>
-                        <li><a href="/catalog?gender=female">Женское</a></li>
-                        <li><a href="/catalog?new=1">Новинки</a></li>
-                        <li><a href="/catalog?sale=1">Распродажа</a></li>
-                        <li><a href="/catalog/brands">Все бренды</a></li>
-                    </ul>
-                </div>
-                
-                <!-- Информация -->
-                <div class="footer-col">
-                    <h4>Информация</h4>
-                    <ul>
-                        <li><a href="/site/about">О нас</a></li>
-                        <li><a href="/site/delivery">Доставка и оплата</a></li>
-                        <li><a href="/site/returns">Возврат и обмен</a></li>
-                        <li><a href="/site/guarantee">Гарантия</a></li>
-                        <li><a href="/site/contacts">Контакты</a></li>
-                    </ul>
-                </div>
-                
-                <!-- Контакты -->
-                <div class="footer-col">
-                    <h4>Контакты</h4>
-                    <ul class="footer-contacts">
-                        <li>
+                <!-- Колонка 2: Контакты -->
+                <div class="footer-col-right">
+                    <div class="footer-contacts">
+                        <a href="tel:+375447009001" class="contact-item">
                             <i class="bi bi-telephone-fill"></i>
-                            <a href="tel:+375291234567">+375 29 123-45-67</a>
-                        </li>
-                        <li>
+                            <span>+375 (44) 700-90-01</span>
+                        </a>
+                        <a href="mailto:sneakerkultura@gmail.com" class="contact-item">
                             <i class="bi bi-envelope-fill"></i>
-                            <a href="mailto:info@sneaker-head.by">info@sneaker-head.by</a>
-                        </li>
-                        <li>
-                            <i class="bi bi-geo-alt-fill"></i>
-                            <span>г. Минск, ул. Примерная, 1</span>
-                        </li>
-                        <li>
-                            <i class="bi bi-clock-fill"></i>
-                            <span>Пн-Вс: 10:00 - 22:00</span>
-                        </li>
-                    </ul>
+                            <span>sneakerkultura@gmail.com</span>
+                        </a>
+                        <a href="https://t.me/sneakerheadbyweb_bot" target="_blank" class="contact-item">
+                            <i class="bi bi-telegram"></i>
+                            <span>@sneakerheadbyweb_bot</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -446,13 +426,15 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
     
     <div class="footer-bottom">
         <div class="container">
+            <!-- Реквизиты компании -->
+            <div class="footer-legal">
+                <p>Общество с ограниченной ответственностью «СникерКультура». УНП 193618972, зарегистрировано 15 марта 2022 года Минским Горисполкомом.</p>
+                <p>Юридический адрес: Беларусь, 220004, г.Минск, пр-т Победителей 5 (БЦ «Александровский»), офис 9. Время приема заявок - круглосуточно.</p>
+                <p>Магазин зарегистрирован в торговом реестре 11.08.2022 №539453. <a href="/site/privacy">Политика конфиденциальности</a></p>
+            </div>
+            
             <div class="footer-bottom-content">
-                <p>&copy; <?= date('Y') ?> СНИКЕРХЭД. Все права защищены.</p>
-                <div class="footer-payment">
-                    <img src="https://cdn.jsdelivr.net/npm/payment-icons@1.2.2/svg/visa.svg" alt="Visa" width="40">
-                    <img src="https://cdn.jsdelivr.net/npm/payment-icons@1.2.2/svg/mastercard.svg" alt="Mastercard" width="40">
-                    <img src="https://cdn.jsdelivr.net/npm/payment-icons@1.2.2/svg/maestro.svg" alt="Maestro" width="40">
-                </div>
+                <p>&copy; <?= date('Y') ?> СНИКЕРХЭД</p>
             </div>
         </div>
     </div>
@@ -462,48 +444,6 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 /* ============================================
    PREMIUM E-COMMERCE HEADER STYLES
    ============================================ */
-
-/* Top Bar */
-.top-bar {
-  background: #000;
-  color: #fff;
-  padding: 0.5rem 0;
-  font-size: 0.8125rem;
-}
-
-.top-bar .container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 80%;
-  max-width: 1920px;
-  padding: 0 1rem;
-  margin: 0 auto;
-}
-
-.top-bar-left {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.top-bar-right {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.top-bar-right a {
-  color: #fff;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  transition: opacity 0.2s;
-}
-
-.top-bar-right a:hover {
-  opacity: 0.8;
-}
 
 /* Main Header */
 .main-header {
@@ -517,7 +457,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 }
 
 .main-header .container {
-  width: 80%;
+  width: 100%;
   max-width: 1920px;
   padding: 0 1rem;
   margin: 0 auto;
@@ -525,6 +465,13 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
+}
+
+/* Десктоп - ограничиваем ширину */
+@media (min-width: 1280px) {
+  .main-header .container {
+    width: 80%;
+  }
 }
 
 .header-left {
@@ -562,8 +509,19 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
   letter-spacing: -0.5px;
 }
 
-.logo-icon {
-  font-size: 1.75rem;
+.logo-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+}
+
+.logo-image img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .logo-text {
@@ -580,11 +538,29 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 }
 
 .logo-text small {
-  font-size: 0.6875rem;
-  font-weight: 500;
-  color: #666;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.8px;
+}
+
+.logo-text small .line-1 {
+  color: #111;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  font-size: 0.65rem;
+}
+
+.logo-text small .line-2 {
+  color: #666;
+  text-transform: lowercase;
+  font-weight: 500;
+  font-size: 0.6rem;
+  font-style: italic;
+  letter-spacing: 1px;
 }
 
 /* Category Navigation Bar */
@@ -833,10 +809,17 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 }
 
 .main-nav .container {
-  width: 80%;
+  width: 100%;
   max-width: 1920px;
   padding: 0 1rem;
   margin: 0 auto;
+}
+
+/* Десктоп - ограничиваем ширину */
+@media (min-width: 1280px) {
+  .main-nav .container {
+    width: 80%;
+  }
 }
 
 .nav-menu {
@@ -1172,32 +1155,161 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
   }
 }
 
+@media (max-width: 768px) {
+  .main-header {
+    padding: 0.75rem 0;
+  }
+  
+  .main-header .container {
+    width: 100%;
+    padding: 0 0.75rem;
+    gap: 0.75rem;
+  }
+  
+  .logo {
+    font-size: 1rem;
+    gap: 0.375rem;
+  }
+  
+  .logo-icon {
+    font-size: 1.5rem;
+  }
+  
+  .logo-text strong {
+    font-size: 1rem;
+  }
+  
+  .logo-text small .line-1 {
+    font-size: 0.6rem;
+  }
+  
+  .logo-text small .line-2 {
+    font-size: 0.575rem;
+  }
+  
+  .header-actions {
+    gap: 0.5rem;
+  }
+  
+  .header-btn i {
+    font-size: 1.375rem;
+  }
+}
+
 @media (max-width: 640px) {
   .header-search {
     display: none;
   }
   
+  .main-header {
+    padding: 0.625rem 0;
+  }
+  
+  .main-header .container {
+    padding: 0 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .header-left {
+    gap: 0.5rem;
+  }
+  
+  .menu-burger {
+    padding: 0.25rem;
+  }
+  
+  .menu-burger span {
+    width: 20px;
+  }
+  
+  .logo {
+    font-size: 0.875rem;
+  }
+  
+  .logo-icon {
+    font-size: 1.25rem;
+  }
+  
+  .logo-text strong {
+    font-size: 0.875rem;
+  }
+  
+  .logo-text small .line-1 {
+    font-size: 0.575rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .logo-text small .line-2 {
+    font-size: 0.55rem;
+  }
+  
   .header-actions {
-    gap: 1rem;
+    gap: 0.375rem;
   }
   
   .header-btn i {
     font-size: 1.25rem;
+    margin-bottom: 0;
+  }
+  
+  .header-btn .badge {
+    width: 16px;
+    height: 16px;
+    font-size: 0.5625rem;
+    top: -2px;
+    right: -6px;
+  }
+}
+
+@media (max-width: 390px) {
+  .main-header .container {
+    padding: 0 0.375rem;
+    gap: 0.375rem;
+  }
+  
+  .logo-icon {
+    font-size: 1.125rem;
+  }
+  
+  .logo-image {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .logo-text strong {
+    font-size: 0.75rem;
+  }
+  
+  .logo-text small .line-1 {
+    font-size: 0.5rem;
+  }
+  
+  .logo-text small .line-2 {
+    font-size: 0.475rem;
+  }
+  
+  .header-actions {
+    gap: 0.25rem;
+  }
+  
+  .header-btn i {
+    font-size: 1.125rem;
   }
 }
 
 /* ============================================
-   FOOTER STYLES
+   ULTRA COMPACT FOOTER (2 COLUMNS)
    ============================================ */
 
 .site-footer {
-  background: #1a1a1a;
+  background: #0f0f0f;
   color: #fff;
-  margin-top: 4rem;
+  margin-top: 2rem;
+  border-top: 1px solid #2d2d2d;
 }
 
 .footer-main {
-  padding: 3rem 0 2rem;
+  padding: 1rem 0 0.75rem;
 }
 
 .footer-main .container {
@@ -1207,118 +1319,189 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
   padding: 0 1rem;
 }
 
-.footer-grid {
+/* 2 колонки */
+.footer-content {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1.5fr;
-  gap: 3rem;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2rem;
+  align-items: center;
 }
 
-.footer-col h4 {
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 1.25rem;
-  color: #fff;
+/* Левая колонка */
+.footer-col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
 }
 
-.footer-col ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.footer-col ul li {
-  margin-bottom: 0.75rem;
-}
-
-.footer-col ul li a {
-  color: #9ca3af;
-  text-decoration: none;
-  font-size: 0.9375rem;
-  transition: color 0.2s;
-}
-
-.footer-col ul li a:hover {
-  color: #fff;
+/* Брендовый блок */
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .footer-logo {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 1rem;
 }
 
-.footer-logo .logo-icon {
-  font-size: 2rem;
+.footer-logo-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
 }
 
-.footer-logo .logo-text strong {
-  font-size: 1.5rem;
+.footer-logo-image img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.footer-logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.footer-logo-text strong {
+  font-size: 0.875rem;
+  font-weight: 900;
   color: #fff;
+  letter-spacing: 0.5px;
 }
 
-.footer-logo .logo-text small {
-  color: #9ca3af;
-}
-
-.footer-desc {
-  color: #9ca3af;
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
+.footer-logo-text small {
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.2;
+  letter-spacing: -0.3px;
 }
 
 .footer-social {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.25rem;
+  align-items: center;
 }
 
-.footer-social a {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #2d2d2d;
+.social-link {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 1.125rem;
-  transition: all 0.2s;
+  color: #9ca3af;
+  font-size: 0.8125rem;
+  transition: all 0.15s;
   text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
-.footer-social a:hover {
+.social-link:hover {
   background: #3b82f6;
-  transform: translateY(-3px);
+  color: #fff;
+  border-color: #3b82f6;
 }
 
-.footer-contacts li {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+.social-divider {
+  color: #4b5563;
+  font-size: 0.75rem;
+  margin: 0 0.25rem;
+}
+
+.payment-badge {
+  background: rgba(255,255,255,0.08);
   color: #9ca3af;
-  font-size: 0.9375rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.2s;
 }
 
-.footer-contacts li i {
-  color: #3b82f6;
-  font-size: 1rem;
-  margin-top: 2px;
+.payment-badge:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border-color: rgba(255,255,255,0.15);
 }
 
-.footer-contacts li a {
+/* Навигация в одну строку */
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.footer-nav a {
   color: #9ca3af;
   text-decoration: none;
-  transition: color 0.2s;
+  font-size: 0.75rem;
+  transition: color 0.15s;
+  padding: 0.125rem 0;
 }
 
-.footer-contacts li a:hover {
+.footer-nav a:hover {
   color: #fff;
 }
 
+.footer-nav .nav-divider {
+  color: #4b5563;
+  font-size: 0.6875rem;
+  margin: 0 0.125rem;
+}
+
+/* Правая колонка - контакты */
+.footer-col-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.footer-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #9ca3af;
+  text-decoration: none;
+  font-size: 0.6875rem;
+  transition: color 0.15s;
+}
+
+.contact-item i {
+  color: #3b82f6;
+  font-size: 0.75rem;
+  width: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-item:hover {
+  color: #fff;
+}
+
+/* Нижний блок */
 .footer-bottom {
-  border-top: 1px solid #2d2d2d;
-  padding: 1.5rem 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 0.625rem 0;
+  margin-top: 0.75rem;
 }
 
 .footer-bottom .container {
@@ -1328,52 +1511,122 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
   padding: 0 1rem;
 }
 
+/* Реквизиты компании */
+.footer-legal {
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.footer-legal p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.625rem;
+  line-height: 1.4;
+  margin-bottom: 0.125rem;
+}
+
+.footer-legal p:last-child {
+  margin-bottom: 0;
+}
+
+.footer-legal a {
+  color: #9ca3af;
+  text-decoration: underline;
+  transition: color 0.15s;
+}
+
+.footer-legal a:hover {
+  color: #fff;
+}
+
+/* Копирайт и платежи */
 .footer-bottom-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.footer-bottom p {
+.footer-bottom-content > p {
   margin: 0;
-  color: #9ca3af;
-  font-size: 0.875rem;
+  color: #6b7280;
+  font-size: 0.6875rem;
+  font-weight: 500;
 }
 
-.footer-payment {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.footer-payment img {
-  height: 24px;
-  width: auto;
-  opacity: 0.8;
-  transition: opacity 0.2s;
-}
-
-.footer-payment img:hover {
-  opacity: 1;
-}
-
+/* Адаптивность */
 @media (max-width: 1024px) {
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .footer-col-right {
+    justify-content: flex-start;
   }
 }
 
-@media (max-width: 640px) {
-  .footer-grid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
+@media (max-width: 768px) {
+  .site-footer {
+    margin-top: 1.5rem;
+  }
+  
+  .footer-main {
+    padding: 0.875rem 0 0.625rem;
+  }
+  
+  .footer-main .container,
+  .footer-bottom .container {
+    width: 100%;
+  }
+  
+  .footer-brand {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .footer-nav {
+    gap: 0.375rem;
   }
   
   .footer-bottom-content {
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.5rem;
     text-align: center;
+  }
+  
+  .footer-legal p {
+    font-size: 0.5625rem;
+  }
+  
+  .footer-bottom {
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .footer-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .footer-nav .nav-divider {
+    display: none;
+  }
+  
+  .contact-item {
+    font-size: 0.625rem;
+  }
+  
+  .footer-legal p {
+    font-size: 0.5rem;
+  }
+  
+  .footer-col-left {
+    gap: 0.5rem;
   }
 }
 </style>
@@ -1501,6 +1754,9 @@ function loadBrands() {
     });
 }
 </script>
+
+<!-- ДОБАВЛЕНО: Глобальная система уведомлений -->
+<script src="<?= Yii::$app->request->baseUrl ?>/js/notifications.js"></script>
 
 <?php $this->endBody() ?>
 </body>

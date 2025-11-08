@@ -7,11 +7,13 @@
     'use strict';
 
     // Конфигурация
+    // ИСПРАВЛЕНО (Проблема #1): Используем явный AJAX endpoint
     const CONFIG = {
-        ajaxFilterUrl: '/catalog/filter',
+        ajaxFilterUrl: '/catalog/filter',  // Явный роут добавлен в config/web.php
         addFavoriteUrl: '/catalog/add-favorite',
         removeFavoriteUrl: '/catalog/remove-favorite',
-        filterDebounceDelay: 200, // УЛУЧШЕНО: 300ms → 200ms для быстрого отклика
+        searchUrl: '/catalog/search',
+        filterDebounceDelay: 200,
     };
 
     // Состояние фильтров
@@ -21,15 +23,38 @@
         priceFrom: null,
         priceTo: null,
         sizes: [],
+        sizeSystem: 'eu',
         colors: [],
         stockStatus: null,
         sortBy: 'popular',
         page: 1,
         perPage: 24,
     };
+    
+    // Кэш DOM элементов для повышения производительности
+    let domCache = {
+        productsContainer: null,
+        skeletonGrid: null,
+        counter: null
+    };
+    
+    // Инициализация кэша DOM
+    function initDOMCache() {
+        domCache.productsContainer = document.getElementById('products');
+        domCache.skeletonGrid = document.getElementById('skeletonGrid');
+        domCache.counter = document.getElementById('productsCount');
+    }
+
+    // Глобальный обработчик для подавления AbortError в консоли
+    window.addEventListener('unhandledrejection', function(event) {
+        if (event.reason && (event.reason.name === 'AbortError' || event.reason.message === 'Aborted')) {
+            event.preventDefault(); // Подавляем ошибку в консоли
+        }
+    });
 
     // Инициализация при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
+        initDOMCache();
         initializeFilters();
         initializeFavorites();
         initializeViewToggle();
@@ -83,6 +108,16 @@
         filterState.categories = Array.from(document.querySelectorAll('input[name="categories[]"]:checked'))
             .map(cb => parseInt(cb.value));
 
+        // Размеры
+        filterState.sizes = Array.from(document.querySelectorAll('input[name="sizes[]"]:checked'))
+            .map(cb => cb.value);
+        
+        // Текущая система размеров
+        const activeSystemBtn = document.querySelector('.size-system-btn.active');
+        if (activeSystemBtn) {
+            filterState.sizeSystem = activeSystemBtn.dataset.system || 'eu';
+        }
+
         // Цена
         const priceFrom = document.querySelector('input[name="price_from"]');
         const priceTo = document.querySelector('input[name="price_to"]');
@@ -95,24 +130,40 @@
 
     /**
      * Применить фильтры через AJAX
+     * ОПТИМИЗИРОВАНО: Отмена предыдущих запросов для повышения производительности
      */
+    let currentRequest = null;
+    
     function applyFiltersAjax() {
-        // НОВОЕ: Показываем skeleton loading
-        showSkeletonGrid();
+        // Отменяем предыдущий запрос, если он ещё выполняется
+        if (currentRequest) {
+            try {
+                currentRequest.abort();
+            } catch (e) {
+                // Игнорируем ошибки при отмене
+            }
+            currentRequest = null;
+        }
         
-        // НОВОЕ: Индикатор "Применяется..."
-        showFilteringIndicator();
-        
-        showLoadingIndicator();
+        // Минимальный индикатор загрузки (используем кэш)
+        if (domCache.productsContainer) {
+            domCache.productsContainer.style.opacity = '0.6';
+        }
 
         const formData = new FormData();
         formData.append('brands', JSON.stringify(filterState.brands));
         formData.append('categories', JSON.stringify(filterState.categories));
+        formData.append('sizes', JSON.stringify(filterState.sizes));
+        formData.append('sizeSystem', filterState.sizeSystem);
         formData.append('price_from', filterState.priceFrom || '');
         formData.append('price_to', filterState.priceTo || '');
         formData.append('sort', filterState.sortBy);
         formData.append('page', filterState.page);
         formData.append('perPage', filterState.perPage);
+
+        // Создаём AbortController для отмены запроса
+        const controller = new AbortController();
+        currentRequest = controller;
 
         fetch(CONFIG.ajaxFilterUrl, {
             method: 'POST',
@@ -120,25 +171,63 @@
                 'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-Token': getCsrfToken(),
             },
-            body: formData
+            body: formData,
+            signal: controller.signal
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                renderProducts(data.products);
-                updateFilterCounts(data.filters);
-                updatePagination(data.pagination);
-                updateURL();
-                saveFilterHistory(data);
-            } else {
-                showError('Ошибка загрузки товаров');
+        .then(response => {
+            // Проверяем, не был ли запрос отменён
+            if (controller.signal.aborted) {
+                return Promise.reject(new DOMException('Aborted', 'AbortError'));
             }
-            hideLoadingIndicator();
+            return response.json();
+        })
+        .then(data => {
+            // Игнорируем, если запрос был отменён
+            if (controller.signal.aborted) return;
+            
+            // ВРЕМЕННОЕ ЛОГИРОВАНИЕ для отладки
+            console.log('Ответ от сервера:', data);
+            console.log('data.success:', data.success);
+            console.log('data.html существует:', !!data.html);
+            
+            if (data.success && data.html) {
+                // Используем requestAnimationFrame для плавности
+                requestAnimationFrame(() => {
+                    if (domCache.productsContainer) {
+                        domCache.productsContainer.innerHTML = data.html;
+                        
+                        // КРИТИЧНО: Реинициализация lazy loading для новых элементов
+                        if (window.LazyLoadUtils) {
+                            LazyLoadUtils.observe(domCache.productsContainer);
+                        }
+                    }
+                    updateFilterCounts(data.filters);
+                    updatePagination(data.pagination);
+                    updateURL();
+                    saveFilterHistory(data);
+                    hideLoadingIndicator();
+                });
+            } else {
+                console.error('Проблема с данными. data.success:', data.success, 'data.html:', !!data.html);
+                console.error('Полный ответ:', data);
+                showError('Ошибка загрузки товаров');
+                hideLoadingIndicator();
+            }
+            currentRequest = null;
         })
         .catch(error => {
-            console.error('Ошибка AJAX:', error);
-            showError('Ошибка соединения с сервером');
+            // Тихо игнорируем AbortError - это нормальное поведение при отмене запроса
+            if (error.name === 'AbortError' || error.message === 'Aborted') {
+                // Просто возвращаемся без ошибки
+                return;
+            }
+            
+            // Показываем ошибку только для настоящих проблем с сетью
+            if (error.message !== 'Failed to fetch') {
+                showError('Ошибка соединения с сервером');
+            }
             hideLoadingIndicator();
+            currentRequest = null;
         });
     }
 
@@ -146,8 +235,11 @@
      * Отрисовка товаров
      */
     function renderProducts(products) {
-        const container = document.getElementById('products-container');
-        if (!container) return;
+        const container = document.getElementById('products');
+        if (!container) {
+            console.error('Контейнер #products не найден!');
+            return;
+        }
 
         if (products.length === 0) {
             container.innerHTML = `
@@ -368,53 +460,38 @@
 
     /**
      * Переключение избранного
+     * УДАЛЕНО: Функция перенесена в favorites.js для универсального использования
+     * Теперь favorites.js подключается на всех страницах (каталог, товар)
      */
-    window.toggleFavorite = function(event, productId) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const button = event.currentTarget;
-        const isActive = button.classList.contains('active');
-
-        const url = isActive ? CONFIG.removeFavoriteUrl : CONFIG.addFavoriteUrl;
-        const formData = new FormData();
-        formData.append('productId', productId);
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-Token': getCsrfToken(),
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                button.classList.toggle('active');
-                updateFavoritesCount();
-                showNotification(data.message);
-            } else {
-                showError(data.message || 'Ошибка');
-            }
-        })
-        .catch(error => {
-            console.error('Ошибка избранного:', error);
-            showError('Ошибка при обновлении избранного');
-        });
-    };
 
     /**
      * Обновление счетчика избранного
+     * ИСПРАВЛЕНО: правильный ID селектор
      */
     function updateFavoritesCount() {
-        // TODO: AJAX запрос для получения актуального счетчика
-        // Пока используем количество активных кнопок
-        const activeCount = document.querySelectorAll('.btn-favorite.active').length;
-        const badges = document.querySelectorAll('#favorites-count');
-        badges.forEach(badge => {
-            badge.textContent = activeCount;
-            badge.style.display = activeCount > 0 ? 'flex' : 'none';
+        // Получаем актуальное количество через AJAX
+        fetch('/catalog/favorites-count', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.getElementById('favCount');
+            if (badge && data.count !== undefined) {
+                badge.textContent = data.count;
+                badge.style.display = data.count > 0 ? 'flex' : 'none';
+            }
+        })
+        .catch(error => {
+            console.warn('Failed to update favorites count:', error);
+            // Fallback: подсчитываем визуально
+            const activeCount = document.querySelectorAll('.btn-favorite.active, .fav-btn.active').length;
+            const badge = document.getElementById('favCount');
+            if (badge) {
+                badge.textContent = activeCount;
+                badge.style.display = activeCount > 0 ? 'flex' : 'none';
+            }
         });
     }
 
@@ -428,7 +505,7 @@
                 viewButtons.forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 const view = this.dataset.view;
-                const container = document.getElementById('products-container');
+                const container = document.getElementById('products');
                 if (container) {
                     container.className = view === 'list' ? 'products-list' : 'products-grid';
                 }
@@ -542,7 +619,17 @@
     }
 
     function hideLoadingIndicator() {
-        // Skeleton заменится на реальные продукты в renderProducts
+        if (domCache.productsContainer) {
+            domCache.productsContainer.style.opacity = '1';
+        }
+        
+        if (domCache.skeletonGrid) {
+            domCache.skeletonGrid.style.display = 'none';
+        }
+        
+        if (domCache.counter && domCache.productsContainer) {
+            domCache.counter.textContent = domCache.productsContainer.children.length;
+        }
     }
 
     function showNotification(message) {
@@ -567,7 +654,7 @@
         setTimeout(() => {
             notification.style.animation = 'slideOut 0.3s ease-out';
             setTimeout(() => notification.remove(), 300);
-        }, 3000);
+        }, 2000);
     }
 
     function showError(message) {
@@ -587,7 +674,7 @@
         `;
         document.body.appendChild(notification);
         
-        setTimeout(() => notification.remove(), 3000);
+        setTimeout(() => notification.remove(), 2000);
     }
 
     // Анимации для уведомлений
@@ -620,72 +707,84 @@
             
             loadPage(url);
         }
+        
+        // Проверяем клик по кнопке "Добавить в корзину"
+        if (e.target.closest('.quickAddToCart')) {
+            quickAddToCart(e, e.target.dataset.productId);
+        }
     });
     
-    function loadPage(url) {
-        // Показываем skeleton loading
-        showSkeletonGrid();
-        
-        // Прокручиваем к началу товаров
-        const productsContainer = document.getElementById('products');
-        if (productsContainer) {
-            const offset = productsContainer.getBoundingClientRect().top + window.pageYOffset - 100;
-            window.scrollTo({
-                top: offset,
-                behavior: 'smooth'
-            });
-        }
-        
-        // Загружаем страницу через AJAX
-        fetch(url, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.text())
-        .then(html => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            
-            // Обновляем товары
-            const newProducts = doc.getElementById('products');
-            if (newProducts && productsContainer) {
-                productsContainer.innerHTML = newProducts.innerHTML;
-            }
-            
-            // Обновляем пагинацию
-            const newPagination = doc.querySelector('.pagination');
-            const currentPagination = document.querySelector('.pagination');
-            if (newPagination && currentPagination) {
-                currentPagination.innerHTML = newPagination.innerHTML;
-            }
-            
-            // Обновляем URL без перезагрузки
-            history.pushState({}, '', url);
-            
-            // Переинициализируем обработчики избранного
-            initializeFavorites();
-        })
-        .catch(error => {
-            console.error('Error loading page:', error);
-            showError('Ошибка загрузки страницы');
-        });
-    }
+    function quickAddToCart(e, productId) {
+    e.preventDefault();
+    e.stopPropagation();
     
-    function showSkeletonGrid() {
-        const productsContainer = document.getElementById('products');
-        if (!productsContainer) return;
-        
-        const skeletonHTML = Array(12).fill(0).map(() => `
-            <div class="skeleton-card">
-                <div class="skeleton-image"></div>
-                <div class="skeleton-brand"></div>
-                <div class="skeleton-title"></div>
-                <div class="skeleton-price"></div>
-            </div>
-        `).join('');
-        
-        productsContainer.innerHTML = skeletonHTML;
-    }
+    const button = e.currentTarget;
+    const originalText = button.innerHTML;
+    
+    // Показываем загрузку
+    button.innerHTML = '<i class="bi bi-hourglass-split"></i> <span>Добавляем...</span>';
+    button.classList.add('loading');
+    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+
+    const formData = new FormData();
+    formData.append('product_id', productId);
+    formData.append('quantity', 1);
+    formData.append('_csrf', getCsrfToken());
+
+    fetch('/cart/add', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            throw new Error(data.message || 'Ошибка добавления в корзину');
+        }
+
+        if (typeof updateCartCount === 'function') {
+            updateCartCount(data.count);
+        }
+
+        button.innerHTML = '<i class="bi bi-check-circle"></i> <span>Добавлено!</span>';
+        button.classList.remove('loading');
+        button.classList.add('success');
+
+        if (window.NotificationManager) {
+            NotificationManager.success('✓ Товар добавлен в корзину');
+        }
+
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.classList.remove('success');
+            resetButtonState(button);
+        }, 1500);
+    })
+    .catch(error => {
+        console.error('quickAddToCart error:', error);
+        button.innerHTML = '<i class="bi bi-x-circle"></i> <span>Ошибка</span>';
+        button.classList.remove('loading');
+        button.classList.add('error');
+
+        if (window.NotificationManager) {
+            NotificationManager.error(error.message || 'Ошибка добавления в корзину');
+        }
+
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.classList.remove('error');
+            resetButtonState(button);
+        }, 1500);
+    });
+}
+
+function resetButtonState(button) {
+    button.disabled = false;
+    button.classList.remove('loading');
+    button.removeAttribute('aria-busy');
+}
 
 })();

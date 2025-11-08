@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
 
 /**
  * Модель ProductFavorite (Избранный товар)
@@ -12,7 +13,7 @@ use yii\db\ActiveRecord;
  * @property int|null $user_id ID пользователя (для авторизованных)
  * @property int $product_id ID товара
  * @property string|null $session_id ID сессии (для неавторизованных)
- * @property string $created_at
+ * @property int $created_at
  * 
  * @property User $user
  * @property Product $product
@@ -25,6 +26,19 @@ class ProductFavorite extends ActiveRecord
     public static function tableName()
     {
         return 'product_favorite';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'updatedAtAttribute' => false, // Нет поля updated_at
+            ],
+        ];
     }
 
     /**

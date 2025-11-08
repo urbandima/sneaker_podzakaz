@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Минимальный тест каталога</title>
+    <link href="/css/catalog-card.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-header {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .products {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            background: white;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-header">
+        <h1>🔬 Минимальный тест каталога</h1>
+        <p><strong>Проверка:</strong> Должна быть видна 1 карточка товара ниже</p>
+    </div>
+
+    <div class="products grid-5">
+        <div class="product product-card modern-card" style="border: 2px solid red;">
+            <a href="#" class="product-link">
+                <div class="product-image-wrapper">
+                    <img src="https://cdn-img.thepoizon.ru/pro-img/origin-img/20250312/bb511fbe666740acb5f579932a609cb8.jpg" 
+                         alt="Test Product" 
+                         class="product-image primary">
+                </div>
+                <div class="info product-card-body">
+                    <span class="product-card-brand">Nike</span>
+                    <h3 class="product-card-name">TEST PRODUCT - Должен быть виден</h3>
+                    <div class="price product-card-price">
+                        <span class="current product-card-price-current">500 BYN</span>
+                    </div>
+                </div>
+            </a>
+            <div class="product-footer">
+                <button class="btn-add-to-cart">В корзину</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-header" style="margin-top: 20px;">
+        <h3>Результат:</h3>
+        <ul>
+            <li>✅ Если карточка ВИДНА → CSS работает, проблема в PHP/JS</li>
+            <li>❌ Если карточка НЕ ВИДНА → проблема в CSS файле</li>
+        </ul>
+        <p><strong>URL:</strong> <a href="http://localhost:8080/catalog-test-minimal.html">http://localhost:8080/catalog-test-minimal.html</a></p>
+    </div>
+
+    <script>
+        console.log('=== ТЕСТ ЗАГРУЗКИ ===');
+        console.log('Product card element:', document.querySelector('.product-card'));
+        console.log('Product card count:', document.querySelectorAll('.product-card').length);
+        
+        const card = document.querySelector('.product-card');
+        if (card) {
+            const styles = window.getComputedStyle(card);
+            console.log('Display:', styles.display);
+            console.log('Visibility:', styles.visibility);
+            console.log('Opacity:', styles.opacity);
+            console.log('Width:', styles.width);
+            console.log('Height:', styles.height);
+        }
+    </script>
+</body>
+</html>

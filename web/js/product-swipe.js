@@ -1,108 +1,15 @@
 /**
- * Product Swipe Gallery - Native Touch API (Optimized)
+ * Product Swipe для карточек каталога
  * Нативные жесты для мобильных устройств
  * Без внешних зависимостей, vanilla JS
  */
 
-class ProductSwipeGallery {
-    constructor(containerId, options = {}) {
-        this.container = document.getElementById(containerId);
-        if (!this.container) return;
-        
-        this.images = options.images || [];
-        this.currentIndex = 0;
-        this.startX = 0;
-        this.currentX = 0;
-        this.isDragging = false;
-        this.threshold = 50;
-        
-        this.init();
-    }
-    
-    init() {
-        this.render();
-        this.attachEvents();
-    }
-    
-    render() {
-        const html = `
-            <div class="swipe-gallery">
-                <div class="swipe-track" id="swipeTrack">
-                    ${this.images.map((img, index) => `
-                        <div class="swipe-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
-                            <img src="${img.url}" alt="${img.alt || ''}" loading="${index === 0 ? 'eager' : 'lazy'}">
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="swipe-pagination">
-                    ${this.images.map((_, index) => `
-                        <span class="swipe-dot ${index === 0 ? 'active' : ''}" data-index="${index}"></span>
-                    `).join('')}
-                </div>
-                ${this.images.length > 1 ? `
-                    <button class="swipe-prev" aria-label="Previous"><i class="bi bi-chevron-left"></i></button>
-                    <button class="swipe-next" aria-label="Next"><i class="bi bi-chevron-right"></i></button>
-                ` : ''}
-            </div>
-        `;
-        this.container.innerHTML = html;
-        
-        this.track = document.getElementById('swipeTrack');
-        this.slides = this.track.querySelectorAll('.swipe-slide');
-        this.dots = this.container.querySelectorAll('.swipe-dot');
-        this.prevBtn = this.container.querySelector('.swipe-prev');
-        this.nextBtn = this.container.querySelector('.swipe-next');
-    }
-    
-    attachEvents() {
-        // Touch events
-        this.track.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
-        this.track.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
-        this.track.addEventListener('touchend', this.handleTouchEnd.bind(this));
-        
-        // Mouse events для desktop
-        this.track.addEventListener('mousedown', this.handleMouseDown.bind(this));
-        this.track.addEventListener('mousemove', this.handleMouseMove.bind(this));
-        this.track.addEventListener('mouseup', this.handleMouseUp.bind(this));
-        this.track.addEventListener('mouseleave', this.handleMouseUp.bind(this));
-        
-        // Buttons
-        if (this.prevBtn) this.prevBtn.addEventListener('click', () => this.prev());
-        if (this.nextBtn) this.nextBtn.addEventListener('click', () => this.next());
-        
-        // Dots
-        this.dots.forEach(dot => {
-            dot.addEventListener('click', (e) => {
-                const index = parseInt(e.target.dataset.index);
-                this.goTo(index);
-            });
-        });
-        
-        // Keyboard
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') this.prev();
-            if (e.key === 'ArrowRight') this.next();
-        });
-    }
-    
-    handleTouchStart(e) {
-        this.startX = e.touches[0].clientX;
-        this.isDragging = true;
-        this.track.style.transition = 'none';
-    }
-    
-    handleTouchMove(e) {
-        if (!this.isDragging) return;
-        
-        this.currentX = e.touches[0].clientX;
-        const diff = this.currentX - this.startX;
-        const translate = -(this.currentIndex * 100) + (diff / this.container.offsetWidth) * 100;
-        
-        this.track.style.transform = `translateX(${translate}%)`;
-        
-        if (Math.abs(diff) > 10) {
-    // ============================================
+(function() {
+    'use strict';
 
+    // ============================================
+    // 1. SWIPE КАРТОЧКИ ТОВАРА (Catalog)
+    // ============================================
     class ProductCardSwipe {
         constructor(card) {
             this.card = card;

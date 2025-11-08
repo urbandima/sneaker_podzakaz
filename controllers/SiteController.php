@@ -44,8 +44,8 @@ class SiteController extends Controller
 
     public function actionIndex()
     {
-        // Главная страница теперь - каталог
-        return $this->redirect('/catalog');
+        $this->layout = 'public';
+        return $this->render('index');
     }
     
     /**

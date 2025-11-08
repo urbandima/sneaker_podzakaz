@@ -228,8 +228,9 @@ class PoizonImportController extends Controller
         $product->poizon_price_cny = $data['price_cny'];
         $product->description = $data['description'] ?? '';
         
-        // Цена (формула: CNY * курс * 1.5 + 40 BYN)
-        $product->price = $this->poizonApi->calculatePriceBYN($data['price_cny']);
+        // Цена (формула: CNY * курс * 1.5 + 40 BYN) с красивым округлением
+        $currencyService = Yii::$app->currency;
+        $product->price = $currencyService->calculatePoizonPriceByn($data['price_cny']);
         $product->old_price = null; // Без скидки, все товары по одной цене
         
         // Бренд
@@ -382,7 +383,13 @@ class PoizonImportController extends Controller
             $productSize->poizon_sku_id = $poizonSkuId;
             $productSize->poizon_stock = $stock;
             $productSize->poizon_price_cny = $priceCny;
+            $productSize->price_cny = $priceCny;
             $productSize->is_available = $stock > 0 ? 1 : 0;
+            
+            // КАЛЬКУЛЯЦИЯ ЦЕНЫ ДЛЯ КЛИЕНТА
+            // Используем CurrencyService для расчета цены в BYN
+            $currencyService = Yii::$app->currency;
+            $productSize->price_byn = $currencyService->calculatePoizonPriceByn($priceCny);
             
             // Конвертируем размерные сетки
             $this->convertSizeGrids($productSize, $sizeValue, $product->gender);
@@ -573,13 +580,69 @@ class PoizonImportController extends Controller
 
     /**
      * Обновить только цены товаров
+     * Пересчитывает price_byn для всех размеров на основе price_cny
      */
     public function actionUpdatePrices()
     {
-        $this->stdout("🔄 Обновление цен товаров из Poizon...\n\n");
+        $this->stdout("\n");
+        $this->stdout("╔══════════════════════════════════════════════════════╗\n", \yii\helpers\Console::BOLD);
+        $this->stdout("║  🔄 ПЕРЕСЧЕТ ЦЕН ТОВАРОВ                           ║\n", \yii\helpers\Console::BOLD);
+        $this->stdout("╚══════════════════════════════════════════════════════╝\n", \yii\helpers\Console::BOLD);
+        $this->stdout("\n");
         
-        // TODO: Реализовать обновление цен
-        $this->stdout("⚠️  В разработке\n", \yii\helpers\Console::FG_YELLOW);
+        $currencyService = Yii::$app->currency;
+        $currentRate = $currencyService->getCnyToBynRate();
+        
+        $this->stdout("📊 Текущий курс CNY → BYN: {$currentRate}\n");
+        $this->stdout("📐 Формула: (CNY × курс × 1.5) + 40 BYN\n\n");
+        
+        // Пересчитываем цены товаров
+        $products = Product::find()
+            ->where(['not', ['poizon_price_cny' => null]])
+            ->all();
+        
+        $productsUpdated = 0;
+        foreach ($products as $product) {
+            $oldPrice = $product->price;
+            $product->price = $currencyService->calculatePoizonPriceByn($product->poizon_price_cny);
+            
+            if ($product->save(false, ['price'])) {
+                $productsUpdated++;
+                $this->stdout("✅ Товар #{$product->id}: {$oldPrice} → {$product->price} BYN\n");
+            }
+        }
+        
+        $this->stdout("\n");
+        
+        // Пересчитываем цены размеров
+        $sizes = ProductSize::find()
+            ->where(['not', ['price_cny' => null]])
+            ->orWhere(['not', ['poizon_price_cny' => null]])
+            ->all();
+        
+        $sizesUpdated = 0;
+        foreach ($sizes as $size) {
+            $priceCny = $size->price_cny ?? $size->poizon_price_cny;
+            
+            if ($priceCny) {
+                $oldPrice = $size->price_byn;
+                $size->price_byn = $currencyService->calculatePoizonPriceByn($priceCny);
+                
+                if ($size->save(false, ['price_byn'])) {
+                    $sizesUpdated++;
+                    $this->stdout("✅ Размер #{$size->id} (товар #{$size->product_id}): {$oldPrice} → {$size->price_byn} BYN\n");
+                }
+            }
+        }
+        
+        $this->stdout("\n");
+        $this->stdout("╔══════════════════════════════════════════════════════╗\n", \yii\helpers\Console::BOLD);
+        $this->stdout("║  ✅ ПЕРЕСЧЕТ ЗАВЕРШЕН                              ║\n", \yii\helpers\Console::BOLD);
+        $this->stdout("╠══════════════════════════════════════════════════════╣\n", \yii\helpers\Console::BOLD);
+        $this->stdout(sprintf("║  Товаров обновлено:  %-29s ║\n", $productsUpdated), \yii\helpers\Console::FG_GREEN);
+        $this->stdout(sprintf("║  Размеров обновлено: %-29s ║\n", $sizesUpdated), \yii\helpers\Console::FG_GREEN);
+        $this->stdout("╚══════════════════════════════════════════════════════╝\n", \yii\helpers\Console::BOLD);
+        $this->stdout("\n");
         
         return ExitCode::OK;
     }
@@ -998,7 +1061,14 @@ class PoizonImportController extends Controller
         $product->slug = $data['slug'] ?? \yii\helpers\Inflector::slug($product->name);
         $product->sku = $data['sku'] ?? $product->sku ?? 'SKU-' . time();
         $product->description = $data['description'] ?? $product->description;
-        $product->price = $data['price'] ?? $product->price ?? 0;
+        
+        // Цена: если есть price_cny - калькулируем, иначе берем из данных
+        if (!empty($data['poizon_price_cny'])) {
+            $currencyService = Yii::$app->currency;
+            $product->price = $currencyService->calculatePoizonPriceByn($data['poizon_price_cny']);
+        } else {
+            $product->price = $data['price'] ?? $product->price ?? 0;
+        }
 
         // Poizon поля
         if (!empty($data['poizon_id'])) {
@@ -1092,6 +1162,34 @@ class PoizonImportController extends Controller
     }
 
     /**
+     * Нормализация размера в см: 265 → 26.5, 270 → 27.0
+     * Если размер >= 100, делим на 10
+     * Валидация: допустимый диапазон 20-35 см
+     */
+    private function normalizeCmSize($cmSize)
+    {
+        if ($cmSize === null || $cmSize === '') {
+            return null;
+        }
+        
+        $cmSize = (float) $cmSize;
+        
+        // Если размер трехзначный (165, 265, 270) - делим на 10
+        if ($cmSize >= 100) {
+            $cmSize = $cmSize / 10;
+        }
+        
+        // ВАЛИДАЦИЯ: Корректный диапазон размеров обуви в см: 20-35
+        // Если размер выходит за пределы - возвращаем null (некорректные данные)
+        if ($cmSize < 20 || $cmSize > 35) {
+            \Yii::warning("Некорректный размер CM: {$cmSize}, пропускаем", 'import');
+            return null;
+        }
+        
+        return $cmSize;
+    }
+
+    /**
      * Импорт размера товара
      */
     private function importProductSize($productId, $sizeData)
@@ -1110,7 +1208,11 @@ class PoizonImportController extends Controller
         $size->us_size = $sizeData['us'] ?? $sizeData['us_size'] ?? null;
         $size->eu_size = $sizeData['eu'] ?? $sizeData['eu_size'] ?? null;
         $size->uk_size = $sizeData['uk'] ?? $sizeData['uk_size'] ?? null;
-        $size->cm_size = $sizeData['cm'] ?? $sizeData['cm_size'] ?? null;
+        
+        // ИСПРАВЛЕНИЕ: Нормализуем размер в см (265 → 26.5)
+        $cmSize = $sizeData['cm'] ?? $sizeData['cm_size'] ?? null;
+        $size->cm_size = $this->normalizeCmSize($cmSize);
+        
         $size->stock = $sizeData['stock'] ?? 0;
         $size->is_available = $sizeData['is_available'] ?? 1;
 
@@ -1119,6 +1221,11 @@ class PoizonImportController extends Controller
         }
         if (!empty($sizeData['poizon_price_cny'])) {
             $size->poizon_price_cny = $sizeData['poizon_price_cny'];
+            $size->price_cny = $sizeData['poizon_price_cny'];
+            
+            // КАЛЬКУЛЯЦИЯ ЦЕНЫ ДЛЯ КЛИЕНТА
+            $currencyService = Yii::$app->currency;
+            $size->price_byn = $currencyService->calculatePoizonPriceByn($sizeData['poizon_price_cny']);
         }
 
         $size->save(false);

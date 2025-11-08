@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест визуального отображения каталога</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/catalog-card.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .products {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+        }
+        .test-info {
+            background: #f0f9ff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h1>🔍 Тест визуального отображения каталога</h1>
+        <p><strong>Задача:</strong> Проверить, что товары отображаются корректно</p>
+        <p><strong>Ожидаемый результат:</strong> Видны карточки товаров ниже</p>
+    </div>
+
+    <h2>Товары (должно быть 3 карточки):</h2>
+    
+    <div class="products grid-5" id="products">
+        <!-- Карточка 1 -->
+        <div class="product product-card modern-card">
+            <a href="/catalog/product/test-1" class="product-link">
+                <div class="product-image-wrapper">
+                    <img src="https://cdn-img.thepoizon.ru/pro-img/origin-img/20250312/bb511fbe666740acb5f579932a609cb8.jpg" 
+                         alt="Nike Dunk Low" 
+                         loading="lazy" 
+                         class="product-image primary">
+                    <div class="product-badges-compact"></div>
+                    <div class="quick-actions">
+                        <button class="action-btn favorite" title="В избранное">
+                            <i class="bi bi-heart"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="info product-card-body">
+                    <span class="product-card-brand">Nike</span>
+                    <h3 class="product-card-name">Nike Dunk Low Test</h3>
+                    <div class="price product-card-price">
+                        <span class="current product-card-price-current">489,00 BYN</span>
+                    </div>
+                </div>
+            </a>
+            <div class="product-footer">
+                <button class="btn-add-to-cart" type="button">
+                    <i class="bi bi-cart-plus"></i>
+                    <span>В корзину</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Карточка 2 -->
+        <div class="product product-card modern-card">
+            <a href="/catalog/product/test-2" class="product-link">
+                <div class="product-image-wrapper">
+                    <img src="https://cdn-img.thepoizon.ru/pro-img/origin-img/20230802/715d1a6c923e4051a6f0e3df978ee525.jpg" 
+                         alt="Nike Air Max" 
+                         loading="lazy" 
+                         class="product-image primary">
+                    <div class="product-badges-compact"></div>
+                    <div class="quick-actions">
+                        <button class="action-btn favorite" title="В избранное">
+                            <i class="bi bi-heart"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="info product-card-body">
+                    <span class="product-card-brand">Nike</span>
+                    <h3 class="product-card-name">Nike Air Max Test</h3>
+                    <div class="price product-card-price">
+                        <span class="current product-card-price-current">599,00 BYN</span>
+                    </div>
+                </div>
+            </a>
+            <div class="product-footer">
+                <button class="btn-add-to-cart" type="button">
+                    <i class="bi bi-cart-plus"></i>
+                    <span>В корзину</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Карточка 3 -->
+        <div class="product product-card modern-card">
+            <a href="/catalog/product/test-3" class="product-link">
+                <div class="product-image-wrapper">
+                    <img src="https://cdn-img.thepoizon.ru/pro-img/origin-img/20240825/40b867f42e704a8cb11fb9ad61cc69d7.jpg" 
+                         alt="Nike Kobe 8" 
+                         loading="lazy" 
+                         class="product-image primary">
+                    <div class="product-badges-compact"></div>
+                    <div class="quick-actions">
+                        <button class="action-btn favorite" title="В избранное">
+                            <i class="bi bi-heart"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="info product-card-body">
+                    <span class="product-card-brand">Nike</span>
+                    <h3 class="product-card-name">Nike Kobe 8 Test</h3>
+                    <div class="price product-card-price">
+                        <span class="current product-card-price-current">1 489,00 BYN</span>
+                    </div>
+                </div>
+            </a>
+            <div class="product-footer">
+                <button class="btn-add-to-cart" type="button">
+                    <i class="bi bi-cart-plus"></i>
+                    <span>В корзину</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-info" style="margin-top: 40px; border-left-color: #10b981; background: #f0fdf4;">
+        <h3>✅ Если видишь 3 карточки товаров выше - CSS работает корректно</h3>
+        <h3>❌ Если карточек не видно - проблема в CSS файлах</h3>
+        <p><strong>Следующий шаг:</strong> Открой http://localhost:8080/test-catalog-visual.html</p>
+    </div>
+</body>
+</html>

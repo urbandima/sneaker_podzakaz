@@ -8,11 +8,12 @@ use yii\console\ExitCode;
 use app\models\Product;
 use app\models\ProductImage;
 use app\models\ProductSize;
-use app\models\ProductCharacteristic;
 use app\models\Brand;
 use app\models\Category;
 use app\models\ImportBatch;
 use app\models\ImportLog;
+use app\models\ProductSizeImage;
+use app\models\CurrencySetting;
 
 /**
  * Импорт товаров из JSON файла Poizon
@@ -49,6 +50,21 @@ class PoizonImportJsonController extends Controller
      * @var string Путь к файлу лога
      */
     private $logFile;
+    
+    /**
+     * @var array Кэш брендов для быстрого поиска (name => Brand)
+     */
+    private $brandsCache = [];
+    
+    /**
+     * @var array Кэш категорий для быстрого поиска (poizon_id => Category)
+     */
+    private $categoriesCache = [];
+    
+    /**
+     * @var array Буфер размеров для батч-вставки
+     */
+    private $sizesBuffer = [];
 
     /**
      * Options
@@ -232,6 +248,11 @@ class PoizonImportJsonController extends Controller
             $this->stdout("📦 Импортирую товары... (всего: $total)\n");
             $this->log("Начинаю импорт товаров. Всего: $total");
             
+            // ОПТИМИЗАЦИЯ: Загружаем все бренды и категории в кэш для устранения N+1
+            $this->stdout("⚡ Загружаю кэш брендов и категорий...\n");
+            $this->initializeCaches();
+            $this->stdout("   ✅ Загружено брендов: " . count($this->brandsCache) . ", категорий: " . count($this->categoriesCache) . "\n");
+            
             if ($this->verbose) {
                 $this->stdout("   Режим: VERBOSE (детальный вывод)\n");
             }
@@ -277,8 +298,12 @@ class PoizonImportJsonController extends Controller
                         $log = new ImportLog();
                         $log->batch_id = $this->batch->id;
                         $log->action = ImportLog::ACTION_ERROR;
+                        $log->level = ImportLog::LEVEL_ERROR;
+                        $log->product_name = $productName;
+                        $log->poizon_id = (string)$productId;
                         $log->message = "Error importing {$productName} (ID: {$productId}): " . $e->getMessage();
-                        $log->details = json_encode($errorData, JSON_UNESCAPED_UNICODE);
+                        $log->data = json_encode($productData, JSON_UNESCAPED_UNICODE);
+                        $log->error_details = $e->getTraceAsString();
                         $log->save(false);
                     }
                     
@@ -489,26 +514,29 @@ class PoizonImportJsonController extends Controller
         // НЕ сохраняем poizon_variant_id в Product - это для размеров!
         $product->poizon_url = $data['url'];
         
-        // Цены
-        $product->price = $data['price'];
+        // Цены: калькулируем из CNY если доступно, иначе берем из данных
+        if (!empty($data['purchasePrice'])) {
+            // Используем purchasePrice (CNY) для калькуляции с правильным округлением
+            $product->poizon_price_cny = $data['purchasePrice'];
+            $product->price = \app\models\CurrencySetting::convertFromCny($data['purchasePrice'], 'BYN');
+        } else {
+            // Фоллбэк на цену из данных (если нет purchasePrice)
+            $product->price = $data['price'];
+        }
         $product->old_price = null; // Можно вычислить если есть скидка
         
-        // Бренд
+        // Бренд (ОПТИМИЗИРОВАНО: используем кэш вместо запроса к БД)
         if (!empty($data['vendor'])) {
-            $brand = Brand::find()
-                ->where(['name' => $data['vendor']])
-                ->one();
+            $brand = $this->brandsCache[$data['vendor']] ?? null;
             if ($brand) {
                 $product->brand_id = $brand->id;
                 $product->brand_name = $brand->name; // Денормализация
             }
         }
         
-        // Категория
+        // Категория (ОПТИМИЗИРОВАНО: используем кэш вместо запроса к БД)
         if (!empty($data['categoryId'])) {
-            $category = Category::find()
-                ->where(['poizon_id' => $data['categoryId']])
-                ->one();
+            $category = $this->categoriesCache[$data['categoryId']] ?? null;
             if ($category) {
                 $product->category_id = $category->id;
                 $product->category_name = $category->name; // Денормализация
@@ -564,9 +592,9 @@ class PoizonImportJsonController extends Controller
             $this->importImages($product, $data['images']);
         }
         
-        // Импортируем характеристики в таблицу
+        // Импортируем характеристики в новую систему справочников
         if (!empty($data['properties'])) {
-            $this->importCharacteristics($product, $data['properties']);
+            $this->importCharacteristicsToRegistry($product, $data['properties']);
         }
         
         // Импортируем размеры из children как ProductSize (с использованием sizes[])
@@ -580,37 +608,6 @@ class PoizonImportJsonController extends Controller
         return $product;
     }
 
-    /**
-     * Импорт характеристик в таблицу product_characteristic (старая система)
-     */
-    private function importCharacteristics($product, $properties)
-    {
-        // Удаляем старые характеристики
-        ProductCharacteristic::deleteAll(['product_id' => $product->id]);
-        
-        $sortOrder = 0;
-        foreach ($properties as $prop) {
-            $key = $prop['key'] ?? '';
-            $value = $prop['value'] ?? '';
-            
-            if (empty($key) || empty($value)) {
-                continue;
-            }
-            
-            $characteristic = new ProductCharacteristic();
-            $characteristic->product_id = $product->id;
-            $characteristic->characteristic_key = $this->slugify($key);
-            $characteristic->characteristic_name = $key;
-            $characteristic->characteristic_value = $value;
-            $characteristic->sort_order = $sortOrder++;
-            $characteristic->created_at = date('Y-m-d H:i:s');
-            
-            $characteristic->save(false);
-        }
-        
-        // Также сохраняем в новую систему справочников
-        $this->importCharacteristicsToRegistry($product, $properties);
-    }
     
     /**
      * Импорт характеристик в новую систему справочников
@@ -784,18 +781,50 @@ class PoizonImportJsonController extends Controller
     }
 
     /**
+     * Нормализация размера в см: 265 → 26.5, 270 → 27.0
+     * Если размер >= 100, делим на 10
+     * Валидация: допустимый диапазон 20-35 см
+     */
+    private function normalizeCmSize($cmSize)
+    {
+        if ($cmSize === null || $cmSize === '') {
+            return null;
+        }
+        
+        $cmSize = (float) $cmSize;
+        
+        // Если размер трехзначный (165, 265, 270) - делим на 10
+        if ($cmSize >= 100) {
+            $cmSize = $cmSize / 10;
+        }
+        
+        // ВАЛИДАЦИЯ: Корректный диапазон размеров обуви в см: 20-35
+        // Если размер выходит за пределы - возвращаем null (некорректные данные)
+        if ($cmSize < 20 || $cmSize > 35) {
+            \Yii::warning("Некорректный размер CM: {$cmSize}, пропускаем", 'import');
+            return null;
+        }
+        
+        return $cmSize;
+    }
+
+    /**
      * Импорт размеров товара через ProductSize (с использованием sizes[])
+     * ОПТИМИЗИРОВАНО: накапливаем размеры в буфере и вставляем батчами
      */
     private function importSizes($product, $children, $sizes = [])
     {
         // Создаем lookup таблицу из sizes[]
         $sizesLookup = $this->buildSizesLookup($sizes);
         
+        // Удаляем старые размеры товара (чтобы избежать дубликатов при обновлении)
+        ProductSize::deleteAll(['product_id' => $product->id]);
+        
+        $sizesData = []; // Буфер для батч-вставки
+        
         foreach ($children as $childData) {
-            // Пропускаем недоступные
-            if (empty($childData['available'])) {
-                continue;
-            }
+            // Импортируем ВСЕ размеры (даже недоступные), чтобы показывать полный ассортимент
+            // Флаг is_available будет установлен корректно ниже
             
             // Извлекаем размер и цвет из params
             $sizeValue = null;
@@ -849,53 +878,147 @@ class PoizonImportJsonController extends Controller
                 $cmSize = $cmSize ?: $sizesLookup[$sizeValue]['cm'];
             }
             
-            // Ищем существующий размер
-            $size = ProductSize::find()
-                ->where([
-                    'product_id' => $product->id,
-                    'poizon_sku_id' => $childData['variantId']
-                ])
+            // ИСПРАВЛЕНИЕ: Нормализуем размер в см (265 → 26.5)
+            $cmSize = $this->normalizeCmSize($cmSize);
+            
+            // Расчет цены BYN (ОБНОВЛЕНО: используем CurrencySetting)
+            $priceCny = $childData['purchasePrice'] ?? null;
+            $priceByn = null;
+            if ($priceCny) {
+                $priceByn = CurrencySetting::convertFromCny($priceCny, 'BYN');
+            }
+            
+            // Формируем JSON изображений (для обратной совместимости)
+            $imagesJson = null;
+            $variantImages = [];
+            if (!empty($childData['images']) && is_array($childData['images'])) {
+                $variantImages = $childData['images'];
+                $imagesJson = json_encode($variantImages, JSON_UNESCAPED_UNICODE);
+            }
+            
+            // ОПТИМИЗИРОВАНО: Накапливаем данные для батч-вставки вместо save()
+            $sizesData[] = [
+                'poizon_sku_id' => (string)$childData['variantId'], // Для связки с изображениями
+                'data' => [
+                $product->id,                                    // product_id
+                $sizeValue ?: 'Один размер',                    // size
+                $colorValue,                                     // color
+                $usSize,                                         // us_size
+                $euSize,                                         // eu_size
+                $ukSize,                                         // uk_size
+                $cmSize,                                         // cm_size
+                $childData['count'] ?? 0,                        // stock
+                !empty($childData['available']) ? 1 : 0,        // is_available
+                $childData['price'] ?? $product->price,         // price
+                $priceCny,                                       // price_cny
+                $priceByn,                                       // price_byn
+                (string)$childData['variantId'],                // poizon_sku_id
+                $childData['count'] ?? 0,                        // poizon_stock
+                $priceCny,                                       // poizon_price_cny
+                $colorValue,                                     // color_variant
+                $childData['timeDelivery']['min'] ?? null,      // delivery_time_min
+                $childData['timeDelivery']['max'] ?? null,      // delivery_time_max
+                $childData['vendorCode'] ?? null,               // variant_vendor_code
+                $imagesJson,                                     // images_json
+                    date('Y-m-d H:i:s'),                            // created_at
+                    date('Y-m-d H:i:s'),                            // updated_at
+                    0,                                               // sort_order
+                ],
+                'images' => $variantImages, // Сохраняем для последующей обработки
+            ];
+            
+            $this->stats['variants_created']++;
+        }
+        
+        // БАТЧ-ВСТАВКА: вставляем все размеры одним запросом (ОГРОМНЫЙ буст производительности!)
+        if (!empty($sizesData)) {
+            try {
+                // Извлекаем только data для batch insert
+                $batchData = array_column($sizesData, 'data');
+                
+                Yii::$app->db->createCommand()->batchInsert(
+                    'product_size',
+                    [
+                        'product_id', 'size', 'color', 'us_size', 'eu_size', 'uk_size', 'cm_size',
+                        'stock', 'is_available', 'price', 'price_cny', 'price_byn',
+                        'poizon_sku_id', 'poizon_stock', 'poizon_price_cny',
+                        'color_variant', 'delivery_time_min', 'delivery_time_max',
+                        'variant_vendor_code', 'images_json',
+                        'created_at', 'updated_at', 'sort_order'
+                    ],
+                    $batchData
+                )->execute();
+                
+                $this->log("Батч-вставка размеров: " . count($sizesData) . " шт для product_id={$product->id}");
+                
+                // АРХИТЕКТУРА: Импортируем изображения вариантов в product_size_image
+                $this->importSizeImages($product->id, $sizesData);
+                
+            } catch (\Exception $e) {
+                \Yii::error("Ошибка батч-вставки размеров для product {$product->id}: " . $e->getMessage(), __METHOD__);
+            }
+        }
+    }
+    
+    /**
+     * Импорт изображений вариантов в таблицу product_size_image
+     * 
+     * @param int $productId ID товара
+     * @param array $sizesData Данные размеров с изображениями
+     */
+    private function importSizeImages($productId, $sizesData)
+    {
+        if (empty($sizesData)) {
+            return;
+        }
+        
+        $imagesBatch = [];
+        $imagesCount = 0;
+        
+        foreach ($sizesData as $sizeData) {
+            if (empty($sizeData['images'])) {
+                continue;
+            }
+            
+            // Находим созданный ProductSize по poizon_sku_id
+            $poizonSkuId = $sizeData['poizon_sku_id'];
+            $productSize = ProductSize::find()
+                ->where(['product_id' => $productId, 'poizon_sku_id' => $poizonSkuId])
                 ->one();
-            
-            if (!$size) {
-                $size = new ProductSize();
-                $size->product_id = $product->id;
-                $this->stats['variants_created']++;
+                
+            if (!$productSize) {
+                continue;
             }
             
-            // Заполняем данные
-            $size->size = $sizeValue ?: 'Один размер';
-            $size->color = $colorValue;
-            $size->color_variant = $colorValue; // НОВОЕ ПОЛЕ для цвета варианта
-            $size->us_size = $usSize;
-            $size->eu_size = $euSize;
-            $size->uk_size = $ukSize;
-            $size->cm_size = $cmSize;
+            // Удаляем старые изображения этого размера
+            ProductSizeImage::deleteAll(['product_size_id' => $productSize->id]);
             
-            $size->poizon_sku_id = (string)$childData['variantId'];
-            $size->poizon_stock = $childData['count'] ?? 0;
-            $size->poizon_price_cny = $childData['purchasePrice'] ?? null;
-            
-            // НОВЫЕ ПОЛЯ ЦЕН - используем формулу price_cny * 1.5 + 40
-            $size->price_cny = $childData['purchasePrice'] ?? null;
-            if ($size->price_cny) {
-                // Автоматический расчет по формуле
-                $size->price_byn = round($size->price_cny * 1.5 + 40, 2);
+            // Добавляем новые изображения
+            foreach ($sizeData['images'] as $index => $imageUrl) {
+                $imagesBatch[] = [
+                    $productSize->id,           // product_size_id
+                    $imageUrl,                  // image_url
+                    $index,                     // sort_order
+                    $index === 0 ? 1 : 0,      // is_main (первое главное)
+                    date('Y-m-d H:i:s'),       // created_at
+                    date('Y-m-d H:i:s'),       // updated_at
+                ];
+                $imagesCount++;
             }
-            
-            // НОВЫЕ ПОЛЯ ДОСТАВКИ
-            if (isset($childData['timeDelivery'])) {
-                $size->delivery_time_min = $childData['timeDelivery']['min'] ?? null;
-                $size->delivery_time_max = $childData['timeDelivery']['max'] ?? null;
-            }
-            
-            $size->price = $childData['price'] ?? $product->price;
-            $size->stock = $childData['count'] ?? 0;
-            $size->is_available = !empty($childData['available']) ? 1 : 0;
-            
-            // Сохраняем размер
-            if (!$size->save(false)) { // save(false) - без валидации
-                \Yii::warning('Ошибка сохранения размера: ' . print_r($size->errors, true), __METHOD__);
+        }
+        
+        // Батч-вставка изображений
+        if (!empty($imagesBatch)) {
+            try {
+                Yii::$app->db->createCommand()->batchInsert(
+                    'product_size_image',
+                    ['product_size_id', 'image_url', 'sort_order', 'is_main', 'created_at', 'updated_at'],
+                    $imagesBatch
+                )->execute();
+                
+                $this->log("Импортировано изображений вариантов: $imagesCount для product_id=$productId");
+            } catch (\Exception $e) {
+                \Yii::error("Ошибка импорта изображений вариантов для product $productId: " . $e->getMessage(), __METHOD__);
             }
         }
     }
@@ -1129,15 +1252,37 @@ class PoizonImportJsonController extends Controller
     }
     
     /**
+     * Инициализация кэшей брендов и категорий (устранение N+1)
+     */
+    private function initializeCaches()
+    {
+        // Загружаем все бренды в память
+        $brands = Brand::find()->all();
+        foreach ($brands as $brand) {
+            $this->brandsCache[$brand->name] = $brand;
+        }
+        
+        // Загружаем все категории в память
+        $categories = Category::find()->all();
+        foreach ($categories as $category) {
+            if ($category->poizon_id) {
+                $this->categoriesCache[$category->poizon_id] = $category;
+            }
+        }
+        
+        $this->log("Кэш инициализирован: brands=" . count($this->brandsCache) . ", categories=" . count($this->categoriesCache));
+    }
+
+    /**
      * Форматирование размера файла
      */
     private function formatFileSize($bytes)
     {
-        if ($bytes === 0) return '0 B';
-        
-        $units = ['B', 'KB', 'MB', 'GB'];
-        $i = floor(log($bytes) / log(1024));
-        
-        return round($bytes / pow(1024, $i), 2) . ' ' . $units[$i];
+        if ($bytes >= 1048576) {
+            return round($bytes / 1048576, 2) . ' MB';
+        } elseif ($bytes >= 1024) {
+            return round($bytes / 1024, 2) . ' KB';
+        }
+        return $bytes . ' bytes';
     }
 }

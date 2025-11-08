@@ -194,6 +194,11 @@
                     if (window.initProductSwipe) {
                         window.initProductSwipe();
                     }
+                    
+                    // КРИТИЧНО: Реинициализировать lazy loading для новых изображений
+                    if (window.LazyLoadUtils) {
+                        window.LazyLoadUtils.observe(this.container);
+                    }
 
                     this.page = nextPage;
 
@@ -208,7 +213,6 @@
                 }
 
             } catch (error) {
-                console.error('Infinite scroll error:', error);
                 this.showError();
             } finally {
                 this.isLoading = false;
@@ -247,20 +251,11 @@
             this.closeBtn = document.querySelector('.sidebar-header .close-btn');
             this.activeFiltersCount = 0;
             
-            // Debug
-            console.log('StickyFilters init:', {
-                sidebar: !!this.sidebar,
-                overlay: !!this.overlay,
-                openBtn: !!this.openBtn,
-                closeBtn: !!this.closeBtn
-            });
-            
             this.init();
         }
 
         init() {
             if (!this.sidebar) {
-                console.warn('StickyFilters: sidebar не найден');
                 return;
             }
 
@@ -278,14 +273,10 @@
 
             // События
             if (this.openBtn) {
-                console.log('Добавляем listener для openBtn');
                 this.openBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    console.log('Filter button clicked!');
                     this.open();
                 });
-            } else {
-                console.warn('StickyFilters: openBtn не найдена');
             }
 
             if (this.closeBtn) {
@@ -319,17 +310,15 @@
         }
 
         open() {
-            console.log('Opening filters sidebar');
             this.sidebar.classList.add('open');
-            this.sidebar.classList.add('active'); // Для совместимости
+            this.sidebar.classList.add('active');
             this.overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
 
         close() {
-            console.log('Closing filters sidebar');
             this.sidebar.classList.remove('open');
-            this.sidebar.classList.remove('active'); // Для совместимости
+            this.sidebar.classList.remove('active');
             this.overlay.classList.remove('active');
             document.body.style.overflow = '';
         }
@@ -408,7 +397,7 @@
                 window.history.pushState({}, '', `?${params.toString()}`);
 
             } catch (error) {
-                console.error('Sorting error:', error);
+                // Error handling
             }
         }
     }
@@ -433,21 +422,21 @@
         }
 
         // Infinite Scroll (опционально, можно включить/выключить)
-        const enableInfiniteScroll = document.body.dataset.infiniteScroll === 'true';
-        if (enableInfiniteScroll) {
-            const totalPages = parseInt(document.body.dataset.totalPages) || 10;
-            const productsContainer = document.getElementById('products') || document.querySelector('.products-grid');
-            
-            if (productsContainer) {
-                new InfiniteScroll({
-                    container: productsContainer,
-                    loadMoreUrl: '/catalog/load-more',
-                    totalPages: totalPages,
-                    threshold: 300
-                });
-                console.log('Infinite Scroll initialized:', { totalPages, container: productsContainer.id });
-            }
-        }
+        // ОТКЛЮЧЕНО: Инициализируется вручную из catalog/index.php после установки dataset
+        // const enableInfiniteScroll = document.body.dataset.infiniteScroll === 'true';
+        // if (enableInfiniteScroll) {
+        //     const totalPages = parseInt(document.body.dataset.totalPages) || 10;
+        //     const productsContainer = document.getElementById('products') || document.querySelector('.products-grid');
+        //     
+        //     if (productsContainer) {
+        //         new InfiniteScroll({
+        //             container: productsContainer,
+        //             loadMoreUrl: '/catalog/load-more',
+        //             totalPages: totalPages,
+        //             threshold: 300
+        //         });
+        //     }
+        // }
     }
 
     // Инициализация при загрузке

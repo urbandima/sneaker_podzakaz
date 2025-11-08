@@ -10,48 +10,90 @@
     min-height: 100vh;
 }
 
-/* Breadcrumbs */
+/* Breadcrumbs - Премиум дизайн */
 .breadcrumbs-nav {
     background: #fff;
     border-bottom: 1px solid #e5e7eb;
-    padding: 0.75rem 0;
+    padding: 0.875rem 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .breadcrumbs {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.625rem;
     list-style: none;
     font-size: 0.875rem;
     margin: 0;
+    flex-wrap: wrap;
 }
 
 .breadcrumbs li {
     display: flex;
     align-items: center;
+    gap: 0.625rem;
 }
 
 .breadcrumbs a {
-    color: #666;
+    color: #6b7280;
     text-decoration: none;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    transition: color 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
 }
 
 .breadcrumbs a:hover {
-    color: #000;
+    color: #111827;
+    background: #f3f4f6;
+}
+
+.breadcrumbs a i.bi-house {
+    font-size: 1rem;
 }
 
 .breadcrumbs .active {
-    color: #000;
+    color: #111827;
     font-weight: 600;
 }
 
-.breadcrumbs i {
-    font-size: 0.75rem;
-    color: #999;
+.breadcrumbs i.bi-chevron-right {
+    font-size: 0.625rem;
+    color: #d1d5db;
+    flex-shrink: 0;
+}
+
+/* Адаптив для breadcrumbs */
+@media (max-width: 640px) {
+    .breadcrumbs-nav {
+        padding: 0.625rem 0;
+    }
+    
+    .breadcrumbs {
+        font-size: 0.8125rem;
+        gap: 0.5rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .breadcrumbs::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .breadcrumbs li {
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+    
+    .breadcrumbs a {
+        padding: 0.125rem 0.375rem;
+        white-space: nowrap;
+    }
 }
 
 /* Catalog Layout */

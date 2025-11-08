@@ -427,8 +427,8 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                 'laces' => 'Шнурки', 'velcro' => 'Липучки', 'zipper' => 'Молния', 'slip_on' => 'Без застежки'
                             ]],
                             ['key' => 'country', 'name' => 'Страна производства', 'value' => $product->country, 'type' => 'text'],
-                            ['key' => 'style_code', 'name' => 'Код стиля/модели', 'value' => $product->style_code, 'type' => 'text'],
-                            ['key' => 'release_year', 'name' => 'Год выпуска', 'value' => $product->release_year, 'type' => 'number'],
+                            ['key' => 'style_code', 'name' => 'Артикул', 'value' => $product->style_code, 'type' => 'text'],
+                            ['key' => 'release_year', 'name' => 'Дата релиза', 'value' => $product->release_year, 'type' => 'number'],
                             ['key' => 'weight', 'name' => 'Вес (граммы)', 'value' => $product->weight, 'type' => 'number'],
                         ];
                         

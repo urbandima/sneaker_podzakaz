@@ -99,7 +99,6 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                                 'class' => 'btn btn-sm btn-danger',
                                                 'title' => 'Удалить',
                                                 'data-method' => 'post',
-                                                'data-confirm' => 'Удалить это изображение?',
                                             ]) ?>
                                         </div>
                                     </div>
@@ -241,9 +240,9 @@ $allKeywords = array_unique(array_filter($allKeywords));
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                     <h5 class="mb-0"><i class="bi bi-list-check"></i> Характеристики товара</h5>
-                    <button type="button" class="btn btn-sm btn-light" onclick="alert('Управление характеристиками в разработке')">
+                    <a href="<?= Url::to(['admin/edit-product', 'id' => $product->id]) ?>#characteristics" class="btn btn-sm btn-light">
                         <i class="bi bi-pencil"></i> Редактировать
-                    </button>
+                    </a>
                 </div>
                 <div class="card-body">
                     <?php
@@ -337,7 +336,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         <?php if ($product->style_code): ?>
                         <div class="col-md-6 mb-3">
                             <div class="spec-item">
-                                <span class="spec-label">Код модели:</span>
+                                <span class="spec-label">Артикул:</span>
                                 <span class="spec-value"><?= Html::encode($product->style_code) ?></span>
                             </div>
                         </div>
@@ -346,7 +345,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         <?php if ($product->hasAttribute('release_year') && $product->release_year): ?>
                         <div class="col-md-6 mb-3">
                             <div class="spec-item">
-                                <span class="spec-label">Год выпуска:</span>
+                                <span class="spec-label">Дата релиза:</span>
                                 <span class="spec-value"><?= Html::encode($product->release_year) ?></span>
                             </div>
                         </div>
@@ -462,6 +461,8 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                         <th>Цена клиента</th>
                                         <?php if ($product->poizon_id): ?>
                                             <th>Poizon SKU</th>
+                                            <th>Артикул варианта</th>
+                                            <th>Фото варианта</th>
                                             <th>Остаток Poizon</th>
                                         <?php endif; ?>
                                         <th>Остаток</th>
@@ -505,6 +506,26 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                         </td>
                                         <?php if ($product->poizon_id): ?>
                                             <td><small><?= Html::encode($size->poizon_sku_id ?: '-') ?></small></td>
+                                            <td>
+                                                <?php if ($size->variant_vendor_code): ?>
+                                                    <code class="text-primary"><?= Html::encode($size->variant_vendor_code) ?></code>
+                                                <?php else: ?>
+                                                    <span class="text-muted">-</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <?php 
+                                                $variantImages = $size->images_json ? json_decode($size->images_json, true) : [];
+                                                if (!empty($variantImages)): ?>
+                                                    <button type="button" class="btn btn-sm btn-outline-info" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#imagesModal<?= $size->id ?>">
+                                                        <i class="bi bi-images"></i> <?= count($variantImages) ?>
+                                                    </button>
+                                                <?php else: ?>
+                                                    <span class="text-muted">-</span>
+                                                <?php endif; ?>
+                                            </td>
                                             <td>
                                                 <?php if ($size->poizon_stock > 0): ?>
                                                     <span class="badge bg-success"><?= $size->poizon_stock ?></span>
@@ -791,6 +812,51 @@ $allKeywords = array_unique(array_filter($allKeywords));
     </div>
 </div>
 <?php endforeach; ?>
+
+<!-- Модальные окна для просмотра изображений вариантов -->
+<?php 
+$sizes = $product->getSizes()->all();
+foreach ($sizes as $size):
+    $variantImages = $size->images_json ? json_decode($size->images_json, true) : [];
+    if (!empty($variantImages)):
+?>
+<div class="modal fade" id="imagesModal<?= $size->id ?>" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-images"></i> Изображения варианта: 
+                    <span class="badge bg-primary"><?= Html::encode($size->size) ?></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <?php foreach ($variantImages as $imgUrl): ?>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <img src="<?= Html::encode($imgUrl) ?>" class="card-img-top" alt="Variant image" 
+                                 style="height: 200px; object-fit: cover;">
+                            <div class="card-body p-2 text-center">
+                                <a href="<?= Html::encode($imgUrl) ?>" target="_blank" class="btn btn-sm btn-outline-primary w-100">
+                                    <i class="bi bi-box-arrow-up-right"></i> Открыть в новой вкладке
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php 
+    endif;
+endforeach;
+?>
 
 <style>
 .spec-item {

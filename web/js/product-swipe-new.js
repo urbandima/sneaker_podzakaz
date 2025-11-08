@@ -37,11 +37,6 @@
             this.track.addEventListener('mouseup', this.handleMouseUp.bind(this));
             this.track.addEventListener('mouseleave', this.handleMouseUp.bind(this));
             
-            // Dots navigation
-            this.dots.forEach((dot, index) => {
-                dot.addEventListener('click', () => this.goTo(index));
-            });
-            
             // Keyboard navigation
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'ArrowLeft') this.prev();
@@ -153,14 +148,48 @@
             this.dots.forEach((dot, i) => {
                 dot.classList.toggle('active', i === index);
             });
+            
+            // Update thumbnails
+            this.updateThumbnails(index);
+        }
+        
+        updateThumbnails(index) {
+            const thumbnails = document.querySelectorAll('.thumbnail-item');
+            thumbnails.forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === index);
+            });
+            
+            // Прокручиваем к активной миниатюре
+            const activeThumbnail = thumbnails[index];
+            if (activeThumbnail) {
+                activeThumbnail.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
         }
     }
+
+    // Global swiper instance
+    let globalSwiper = null;
 
     // Auto-initialize
     function init() {
         const gallery = document.querySelector('.product-gallery-swipe');
         if (gallery) {
-            new ProductGallerySwipe(gallery);
+            globalSwiper = new ProductGallerySwipe(gallery);
+            
+            // Добавляем обработчики для точек пагинации
+            const dots = gallery.querySelectorAll('.swipe-dot');
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    globalSwiper.goTo(index);
+                });
+            });
+            
+            // Экспортируем в window для внешнего использования
+            window.productSwiper = globalSwiper;
         }
     }
 
@@ -174,3 +203,132 @@
     // Export for manual re-initialization
     window.initProductSwipe = init;
 })();
+
+/**
+ * Переключение слайдов через миниатюры
+ */
+function switchToSlide(index) {
+    // Используем глобальный swiper если доступен
+    if (window.productSwiper) {
+        window.productSwiper.goTo(index);
+    } else {
+        console.error('Product swiper не инициализирован');
+    }
+    
+    // Обновляем миниатюры отдельно
+    const thumbnails = document.querySelectorAll('.thumbnail-item');
+    thumbnails.forEach((thumb, i) => {
+        thumb.classList.toggle('active', i === index);
+    });
+    
+    // Прокручиваем миниатюры к активной
+    const activeThumbnail = document.querySelector('.thumbnail-item.active');
+    if (activeThumbnail) {
+        activeThumbnail.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'center'
+        });
+    }
+}
+
+/**
+ * Скролл миниатюр (для desktop)
+ */
+function scrollThumbnails(direction) {
+    const wrapper = document.querySelector('.thumbnails-wrapper');
+    if (!wrapper) return;
+    
+    const scrollAmount = 200;
+    const targetScroll = wrapper.scrollLeft + (direction === 'next' ? scrollAmount : -scrollAmount);
+    
+    wrapper.scrollTo({
+        left: targetScroll,
+        behavior: 'smooth'
+    });
+}
+
+/**
+ * Открытие премиальной галереи изображений
+ */
+function openImageModal(index) {
+    const modal = document.getElementById('imageGalleryModal');
+    if (!modal) return;
+    
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    // Прокручиваем к выбранному изображению
+    const container = modal.querySelector('.gallery-scroll-container');
+    const images = modal.querySelectorAll('.gallery-image-item');
+    
+    if (images[index]) {
+        setTimeout(() => {
+            images[index].scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+            updateGalleryCounter(index + 1);
+        }, 100);
+    }
+    
+    // Обработчик скролла для обновления счетчика
+    container.addEventListener('scroll', updateGalleryCounterOnScroll);
+}
+
+/**
+ * Закрытие премиальной галереи
+ */
+function closeImageGallery() {
+    const modal = document.getElementById('imageGalleryModal');
+    if (!modal) return;
+    
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    
+    const container = modal.querySelector('.gallery-scroll-container');
+    container.removeEventListener('scroll', updateGalleryCounterOnScroll);
+}
+
+/**
+ * Обновление счетчика текущего изображения
+ */
+function updateGalleryCounter(current) {
+    const counterElement = document.querySelector('.gallery-current');
+    if (counterElement) {
+        counterElement.textContent = current;
+    }
+}
+
+/**
+ * Обновление счетчика при скролле
+ */
+function updateGalleryCounterOnScroll() {
+    const container = document.querySelector('.gallery-scroll-container');
+    const images = document.querySelectorAll('.gallery-image-item');
+    const containerRect = container.getBoundingClientRect();
+    const centerY = containerRect.top + containerRect.height / 2;
+    
+    let closestIndex = 0;
+    let minDistance = Infinity;
+    
+    images.forEach((img, index) => {
+        const rect = img.getBoundingClientRect();
+        const imgCenterY = rect.top + rect.height / 2;
+        const distance = Math.abs(centerY - imgCenterY);
+        
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestIndex = index;
+        }
+    });
+    
+    updateGalleryCounter(closestIndex + 1);
+}
+
+// Закрытие по ESC
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeImageGallery();
+    }
+});

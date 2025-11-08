@@ -106,11 +106,14 @@ class CatalogInquiry extends ActiveRecord
         
         try {
             $order = new Order();
-            $order->customer_name = $this->name;
-            $order->customer_phone = $this->phone;
-            $order->customer_email = $this->email;
-            $order->source = 'catalog';
-            $order->source_id = $this->id;
+            $order->client_name = $this->name;
+            $order->client_phone = $this->phone;
+            $order->client_email = $this->email;
+
+            if ($order->hasAttribute('source') && $order->hasAttribute('source_id')) {
+                $order->source = 'catalog';
+                $order->source_id = $this->id;
+            }
             $order->comment = $this->message;
             
             if (!$order->save()) {

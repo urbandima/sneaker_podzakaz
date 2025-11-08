@@ -28,7 +28,7 @@ use yii\helpers\Html;
         <!-- Информация -->
         <div class="qv-info">
             <div class="qv-brand"><?= Html::encode($product->brand->name) ?></div>
-            <h2 class="qv-title"><?= Html::encode($product->name) ?></h2>
+            <h2 class="qv-title"><?= Html::encode($product->getDisplayTitle()) ?></h2>
             
             <!-- Рейтинг -->
             <?php if ($product->rating > 0): ?>

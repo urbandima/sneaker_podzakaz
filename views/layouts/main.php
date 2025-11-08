@@ -337,33 +337,22 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
     ?>
     
     <script>
-    // Dropdown при наведении (hover) - ПОЛНЫЙ КОНТРОЛЬ
+    // Dropdown при наведении (hover)
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('🔧 Инициализация dropdown меню...');
-        
         const dropdownToggles = document.querySelectorAll('.navbar-nav .nav-link.dropdown-toggle');
-        console.log('🔍 Найдено dropdown toggles:', dropdownToggles.length);
         
-        dropdownToggles.forEach(function(toggle, index) {
-            // Удаляем data-bs-toggle чтобы отключить клик-открытие Bootstrap
+        dropdownToggles.forEach(function(toggle) {
             toggle.removeAttribute('data-bs-toggle');
             
             const navItem = toggle.closest('li');
             const menu = navItem.querySelector('.dropdown-menu');
             
-            if (!menu) {
-                console.warn('⚠️ Dropdown menu не найден для toggle #' + index);
-                return;
-            }
-            
-            console.log('✅ Настроен dropdown #' + (index + 1), 'Пунктов меню:', menu.children.length);
+            if (!menu) return;
             
             let closeTimeout;
             
-            // Функция открытия
             function openMenu() {
                 clearTimeout(closeTimeout);
-                console.log('🟢 Открытие dropdown #' + (index + 1));
                 
                 // Закрываем все другие dropdown
                 document.querySelectorAll('.navbar-nav .dropdown-menu').forEach(function(otherMenu) {
@@ -377,7 +366,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                     }
                 });
                 
-                // Открываем текущий - ВСЕ СТИЛИ ЯВНО!
+                // Открываем текущий
                 menu.classList.add('show');
                 menu.style.display = 'block';
                 menu.style.opacity = '1';
@@ -385,23 +374,9 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                 menu.style.pointerEvents = 'auto';
                 menu.style.transform = 'translateY(0)';
                 toggle.setAttribute('aria-expanded', 'true');
-                
-                // Диагностика
-                const computed = window.getComputedStyle(menu);
-                console.log('📊 Меню #' + (index + 1) + ':', {
-                    display: computed.display,
-                    opacity: computed.opacity,
-                    visibility: computed.visibility,
-                    position: computed.position,
-                    zIndex: computed.zIndex,
-                    top: computed.top,
-                    left: computed.left
-                });
             }
             
-            // Функция закрытия
             function closeMenu() {
-                console.log('🔴 Закрытие dropdown #' + (index + 1));
                 menu.classList.remove('show');
                 menu.style.display = '';
                 menu.style.opacity = '';
@@ -411,15 +386,11 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                 toggle.setAttribute('aria-expanded', 'false');
             }
             
-            // Hover на li элементе
             navItem.addEventListener('mouseenter', openMenu);
-            
-            // Уход с li элемента - с небольшой задержкой
             navItem.addEventListener('mouseleave', function() {
                 closeTimeout = setTimeout(closeMenu, 100);
             });
             
-            // Hover на самом меню - отменяем закрытие
             menu.addEventListener('mouseenter', function() {
                 clearTimeout(closeTimeout);
             });
@@ -428,16 +399,6 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                 closeTimeout = setTimeout(closeMenu, 100);
             });
         });
-        
-        if (dropdownToggles.length === 0) {
-            console.error('❌ Dropdown toggles не найдены! Проверьте HTML.');
-            
-            // Диагностика: покажем структуру navbar
-            const navbar = document.querySelector('.navbar-nav');
-            if (navbar) {
-                console.log('📋 Структура navbar:', navbar.innerHTML.substring(0, 500));
-            }
-        }
     });
     </script>
 </header>

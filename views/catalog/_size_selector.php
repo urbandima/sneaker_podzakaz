@@ -414,14 +414,44 @@ function addToCartFromToolbar() {
         return;
     }
     
-    // TODO: Implement cart logic
-    console.log('Adding to cart:', selectedSize);
-    alert('Товар добавлен в корзину!');
+    // Добавление в корзину через AJAX
+    fetch('/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+        },
+        body: JSON.stringify({
+            product_id: <?= $product->id ?>,
+            size: selectedSize,
+            quantity: 1
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Товар добавлен в корзину!');
+            // Обновить счетчик корзины
+            if (typeof updateCartCount === 'function') {
+                updateCartCount();
+            }
+        } else {
+            alert(data.message || 'Ошибка добавления в корзину');
+        }
+    })
+    .catch(error => {
+        alert('Произошла ошибка. Попробуйте еще раз.');
+    });
 }
 
 // Size guide modal
 function openSizeGuide() {
-    // TODO: Implement size guide modal
-    alert('Открыть таблицу размеров');
+    // Открытие модального окна с таблицей размеров
+    const sizeTable = document.querySelector('.size-conversion-table');
+    if (sizeTable) {
+        sizeTable.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+        alert('Таблица размеров доступна ниже на странице');
+    }
 }
 </script>

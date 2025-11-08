@@ -47,6 +47,11 @@ $config = [
             'apiKey' => $params['poizonApiKey'] ?? null,
             'timeout' => 30,
         ],
+        'currency' => [
+            'class' => 'app\components\CurrencyService',
+            'cnyToBynRate' => 0.45, // Курс CNY к BYN (обновляется автоматически через API)
+            'cacheDuration' => 86400, // 24 часа
+        ],
         'urlManager' => [
             'class' => 'yii\web\UrlManager',
             'baseUrl' => 'http://localhost:8080',

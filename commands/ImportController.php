@@ -86,8 +86,15 @@ class ImportController extends Controller
                     continue;
                 }
 
-                // Конвертируем цену (RUB → BYN примерно x3)
-                $priceInBYN = round($price / 35, 2); // 1 BYN ≈ 35 RUB
+                // Конвертируем цену: если в CNY - используем правильную формулу, иначе RUB → BYN
+                // Определяем валюту по величине цены (CNY обычно 200-2000, RUB обычно > 5000)
+                if ($price < 3000) {
+                    // Скорее всего CNY - используем правильную калькуляцию
+                    $priceInBYN = \app\models\CurrencySetting::convertFromCny($price, 'BYN');
+                } else {
+                    // Скорее всего RUB - конвертируем
+                    $priceInBYN = round($price / 35, 2); // 1 BYN ≈ 35 RUB
+                }
 
                 // Определяем пол
                 $gender = $this->detectGender($name);

@@ -25,12 +25,14 @@ class Order extends ActiveRecord
     public function rules()
     {
         return [
-            [['client_name', 'created_by'], 'required'],
+            [['client_name'], 'required'],
+            // created_by необязательно для заказов с сайта
+            [['created_by'], 'integer'],
             [['order_number', 'token'], 'string', 'max' => 100],
             [['client_name', 'client_email', 'delivery_date', 'payment_proof'], 'string', 'max' => 255],
-            [['client_phone'], 'string', 'max' => 50],
-            [['comment'], 'string'],
-            [['total_amount'], 'number'],
+            [['client_phone', 'delivery_country', 'delivery_method'], 'string', 'max' => 50],
+            [['comment', 'delivery_address'], 'string'],
+            [['total_amount', 'delivery_cost'], 'number'],
             [['status', 'source'], 'string', 'max' => 50],
             [['source_id'], 'integer'],
             [['offer_accepted'], 'boolean'],
@@ -48,6 +50,10 @@ class Order extends ActiveRecord
             'client_name' => 'ФИО клиента',
             'client_phone' => 'Телефон',
             'client_email' => 'Email',
+            'delivery_country' => 'Страна доставки',
+            'delivery_method' => 'Способ доставки',
+            'delivery_address' => 'Адрес доставки',
+            'delivery_cost' => 'Стоимость доставки',
             'total_amount' => 'Сумма заказа',
             'status' => 'Статус',
             'delivery_date' => 'Срок доставки',
@@ -84,7 +90,6 @@ class Order extends ActiveRecord
         }
         return false;
     }
-
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);

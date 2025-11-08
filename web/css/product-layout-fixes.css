@@ -1,0 +1,472 @@
+/**
+ * ИСПРАВЛЕНИЯ ВЕРСТКИ СТРАНИЦЫ ТОВАРА
+ * Центрирование и выравнивание элементов
+ */
+
+/* ============================================
+   TELEGRAM SUPPORT - БАЗОВЫЕ СТИЛИ
+   ============================================ */
+
+.telegram-support {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #0088cc, #006ba6);
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    margin-bottom: 1.25rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 136, 204, 0.2);
+    width: 100%;
+    text-align: center;
+}
+
+.telegram-support:hover {
+    background: linear-gradient(135deg, #006ba6, #005a8a);
+    box-shadow: 0 4px 16px rgba(0, 136, 204, 0.3);
+    transform: translateY(-2px);
+    color: #ffffff;
+}
+
+.telegram-support:active {
+    transform: translateY(0);
+}
+
+.telegram-support i:first-child {
+    font-size: 1.5rem;
+}
+
+.telegram-support i:last-child {
+    margin-left: auto;
+    font-size: 1.125rem;
+    transition: transform 0.3s ease;
+}
+
+.telegram-support:hover i:last-child {
+    transform: translateX(4px);
+}
+
+.telegram-support span {
+    flex: 1;
+    text-align: left;
+}
+
+/* ============================================
+   РАЗМЕРЫ - ИСПРАВЛЕНИЕ ЦЕНТРИРОВАНИЯ
+   ============================================ */
+
+.sizes-section {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.sizes {
+    width: 100%;
+}
+
+.size-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+/* ============================================
+   ACTION BUTTONS - ЦЕНТРИРОВАНИЕ
+   ============================================ */
+
+.action-buttons {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.btn-order {
+    width: 100%;
+}
+
+/* ============================================
+   PRODUCT TRUST SECTION - ЦЕНТРИРОВАНИЕ
+   ============================================ */
+
+.product-trust-section {
+    width: 100%;
+    padding: 1.5rem 0;
+    margin: 1.5rem 0;
+    border-top: 1px solid #f3f4f6;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.authenticity-main {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.auth-icon {
+    font-size: 2rem;
+    color: #10b981;
+    flex-shrink: 0;
+}
+
+.auth-info {
+    flex: 1;
+}
+
+.auth-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #065f46;
+    letter-spacing: 0.05em;
+}
+
+.auth-subtitle {
+    font-size: 0.8125rem;
+    color: #047857;
+}
+
+.trust-badges {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.badge-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background: #f9fafb;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    width: 100%;
+}
+
+.badge-item i {
+    font-size: 1.25rem;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.badge-item span {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* ============================================
+   BREADCRUMBS - ПРАВИЛЬНЫЙ PADDING
+   ============================================ */
+
+.breadcrumbs {
+    padding: 1rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+    width: 100%;
+}
+
+.breadcrumbs a {
+    color: #6b7280;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.breadcrumbs a:hover {
+    color: #111827;
+}
+
+/* На tablet и desktop - убираем боковые отступы у breadcrumbs */
+@media (min-width: 768px) {
+    .breadcrumbs {
+        padding: 1rem 0;
+    }
+}
+
+/* ============================================
+   CUSTOM ORDER BADGE
+   ============================================ */
+
+.custom-order-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: #ffffff;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+.custom-order-badge i {
+    font-size: 0.875rem;
+}
+
+/* ============================================
+   MOBILE (до 768px) - ОСОБЕННОСТИ
+   ============================================ */
+
+@media (max-width: 767px) {
+    .telegram-support {
+        padding: 0.875rem 1rem;
+        font-size: 0.875rem;
+        border-radius: 10px;
+    }
+    
+    .telegram-support i:first-child {
+        font-size: 1.25rem;
+    }
+    
+    .telegram-support span {
+        font-size: 0.875rem;
+    }
+    
+    .product-trust-section {
+        margin: 1rem 0;
+        padding: 1rem 0;
+    }
+    
+    .authenticity-main {
+        padding: 0.875rem;
+    }
+    
+    .auth-title {
+        font-size: 0.875rem;
+    }
+    
+    .auth-subtitle {
+        font-size: 0.75rem;
+    }
+    
+    .trust-badges {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .badge-item {
+        padding: 0.75rem 0.875rem;
+    }
+    
+    .badge-item i {
+        font-size: 1.125rem;
+    }
+    
+    .badge-item span {
+        font-size: 0.8125rem;
+    }
+}
+
+/* ============================================
+   TABLET (768px - 1023px)
+   ============================================ */
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .trust-badges {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .badge-item:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ============================================
+   DESKTOP (1024px+)
+   ============================================ */
+
+@media (min-width: 1024px) {
+    .telegram-support {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .product-trust-section {
+        padding: 2rem 0;
+        margin: 2rem 0;
+    }
+    
+    .authenticity-main {
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .trust-badges {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+    
+    .action-buttons {
+        flex-direction: row;
+        gap: 1rem;
+    }
+    
+    .btn-order {
+        flex: 1;
+    }
+}
+
+/* ============================================
+   SELECTED SIZE LINK
+   ============================================ */
+
+.selected-size-link {
+    margin-top: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.selected-size-link:hover {
+    background: #f3f4f6;
+    border-color: #111827;
+}
+
+.selected-size-link i {
+    color: #6b7280;
+    font-size: 1rem;
+}
+
+.selected-size-link span {
+    color: #6b7280;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.selected-size-link strong {
+    color: #111827;
+    font-weight: 700;
+}
+
+/* ============================================
+   PRICE SEPARATOR
+   ============================================ */
+
+.price-separator {
+    color: #9ca3af;
+    font-weight: 600;
+    margin: 0 0.25rem;
+}
+
+/* ============================================
+   STOCK URGENCY
+   ============================================ */
+
+.stock-urgency {
+    margin: 1rem 0;
+    width: 100%;
+}
+
+.stock-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    width: 100%;
+}
+
+.stock-left i {
+    font-size: 1.25rem;
+    color: #ef4444;
+    flex-shrink: 0;
+}
+
+.stock-left span {
+    font-size: 0.875rem;
+    color: #991b1b;
+    font-weight: 500;
+}
+
+.stock-left strong {
+    font-weight: 700;
+    color: #7f1d1d;
+}
+
+/* ============================================
+   PRODUCT VARIATIONS (COLORS)
+   ============================================ */
+
+.product-variations {
+    width: 100%;
+    margin: 1rem 0;
+}
+
+.product-variations h3 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.75rem;
+}
+
+.color-variations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.color-variation {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.color-variation:hover {
+    border-color: #9ca3af;
+    background: #f9fafb;
+}
+
+.color-variation.active {
+    border-color: #111827;
+    background: #f9fafb;
+}
+
+.color-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #e5e7eb;
+}
+
+.color-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.color-variation.active .color-name {
+    color: #111827;
+}

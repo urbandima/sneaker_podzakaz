@@ -144,6 +144,16 @@ $company = Yii::$app->settings->getCompany();
                             </div>
                         </div>
 
+                        <div class="payment-item-clean">
+                            <div class="payment-label-clean">Код назначения платежа</div>
+                            <div class="payment-value-wrap">
+                                <div class="payment-value-clean">22501</div>
+                                <button class="copy-btn-clean" data-copy="22501">
+                                    <i class="bi bi-files"></i>
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="payment-purpose-clean payment-purpose-highlighted">
                             <div class="payment-label-clean">
                                 <i class="bi bi-exclamation-circle-fill text-warning me-2"></i>
@@ -1631,7 +1641,7 @@ $company = Yii::$app->settings->getCompany();
         align-items: flex-start;
         gap: 0.5rem;
     }
-    
+
     .copy-btn-clean {
         align-self: flex-end;
     }

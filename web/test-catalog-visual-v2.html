@@ -1,0 +1,170 @@
+php yii serve --port=8080<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест визуализации каталога</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/catalog-card.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f9fafb;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #111;
+        }
+        .products {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        @media (min-width: 640px) {
+            .products {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (min-width: 1024px) {
+            .products {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+        .debug-info {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #10b981;
+        }
+        .debug-info h3 {
+            margin: 0 0 10px 0;
+            color: #10b981;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="debug-info">
+            <h3>✅ Диагностика</h3>
+            <p><strong>Товаров в контейнере:</strong> <span id="productCount">...</span></p>
+            <p><strong>CSS файл загружен:</strong> <span id="cssCheck">...</span></p>
+            <p><strong>Grid активен:</strong> <span id="gridCheck">...</span></p>
+        </div>
+
+        <h1>Тест каталога (3 товара из БД)</h1>
+
+        <div class="products grid-5" id="products">
+            <!-- Товар 1 - Nike Dunk Low -->
+            <div class="product product-card modern-card">
+                <a href="/catalog/product/nike-dunk-low" class="product-link">
+                    <div class="product-image-wrapper">
+                        <img src="https://cdn-img.thepoizon.ru/pro-img/origin-img/20250312/bb511fbe666740acb5f579932a609cb8.jpg" 
+                             alt="Nike Dunk Low 355152-106" 
+                             loading="lazy" 
+                             class="product-image primary">
+                    </div>
+                    <div class="info product-card-body">
+                        <span class="product-card-brand">Nike</span>
+                        <h3 class="product-card-name">Nike Dunk Low</h3>
+                        <div class="price product-card-price">
+                            <span class="current product-card-price-current">489.00 BYN</span>
+                        </div>
+                    </div>
+                </a>
+                <div class="product-footer">
+                    <button class="btn-add-to-cart" type="button">
+                        <i class="bi bi-cart-plus"></i>
+                        <span>В корзину</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Товар 2 - Nike Данк -->
+            <div class="product product-card modern-card">
+                <a href="/catalog/product" class="product-link">
+                    <div class="product-image-wrapper">
+                        <img src="https://cdn-img.thepoizon.ru/pro-img/origin-img/20230802/715d1a6c923e4051a6f0e3df978ee525.jpg" 
+                             alt="Nike Данк" 
+                             loading="lazy" 
+                             class="product-image primary">
+                    </div>
+                    <div class="info product-card-body">
+                        <span class="product-card-brand">Nike</span>
+                        <h3 class="product-card-name">Nike Данк</h3>
+                        <div class="price product-card-price">
+                            <span class="current product-card-price-current">489.00 BYN</span>
+                        </div>
+                    </div>
+                </a>
+                <div class="product-footer">
+                    <button class="btn-add-to-cart" type="button">
+                        <i class="bi bi-cart-plus"></i>
+                        <span>В корзину</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Товар 3 - Nike Kobe 8 -->
+            <div class="product product-card modern-card">
+                <a href="/catalog/product/nike-kobe-8" class="product-link">
+                    <div class="product-image-wrapper">
+                        <img src="https://cdn-img.thepoizon.ru/pro-img/origin-img/20240825/40b867f42e704a8cb11fb9ad61cc69d7.jpg" 
+                             alt="Nike Kobe 8" 
+                             loading="lazy" 
+                             class="product-image primary">
+                    </div>
+                    <div class="info product-card-body">
+                        <span class="product-card-brand">Nike</span>
+                        <h3 class="product-card-name">Nike Kobe 8</h3>
+                        <div class="price product-card-price">
+                            <span class="current product-card-price-current">1 489.00 BYN</span>
+                        </div>
+                    </div>
+                </a>
+                <div class="product-footer">
+                    <button class="btn-add-to-cart" type="button">
+                        <i class="bi bi-cart-plus"></i>
+                        <span>В корзину</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Диагностика
+        document.addEventListener('DOMContentLoaded', function() {
+            // Подсчет товаров
+            const products = document.querySelectorAll('.product-card');
+            document.getElementById('productCount').textContent = products.length;
+            document.getElementById('productCount').style.color = products.length > 0 ? '#10b981' : '#ef4444';
+
+            // Проверка CSS
+            const container = document.getElementById('products');
+            const styles = window.getComputedStyle(container);
+            const displayValue = styles.display;
+            document.getElementById('cssCheck').textContent = displayValue === 'grid' ? '✅ Да (grid)' : '❌ Нет (' + displayValue + ')';
+            document.getElementById('cssCheck').style.color = displayValue === 'grid' ? '#10b981' : '#ef4444';
+
+            // Проверка grid
+            const gridColumns = styles.gridTemplateColumns;
+            document.getElementById('gridCheck').textContent = gridColumns !== 'none' ? '✅ Да (' + gridColumns + ')' : '❌ Нет';
+            document.getElementById('gridCheck').style.color = gridColumns !== 'none' ? '#10b981' : '#ef4444';
+
+            console.log('=== ДИАГНОСТИКА ===');
+            console.log('Товаров найдено:', products.length);
+            console.log('Display:', displayValue);
+            console.log('Grid columns:', gridColumns);
+            console.log('Видимость первого товара:', products[0] ? window.getComputedStyle(products[0]).visibility : 'N/A');
+            console.log('Opacity первого товара:', products[0] ? window.getComputedStyle(products[0]).opacity : 'N/A');
+        });
+    </script>
+</body>
+</html>

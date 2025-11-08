@@ -80,8 +80,9 @@ class CartController extends Controller
         if ($cart->updateQuantity($quantity)) {
             return [
                 'success' => true,
-                'subtotal' => $cart->getSubtotal(),
-                'total' => Cart::getTotal(),
+                'subtotal' => (float) $cart->getSubtotal(),
+                'total' => (float) Cart::getTotal(),
+                'count' => Cart::getItemsCount(),
             ];
         }
 
@@ -137,6 +138,24 @@ class CartController extends Controller
         return [
             'count' => Cart::getItemsCount(),
             'total' => Cart::getTotal(),
+        ];
+    }
+
+    /**
+     * Проверить наличие товара в корзине (AJAX)
+     */
+    public function actionHasProduct($productId)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $sessionId = Yii::$app->session->id;
+        $exists = Cart::find()
+            ->where(['session_id' => $sessionId, 'product_id' => $productId])
+            ->exists();
+
+        return [
+            'inCart' => $exists,
+            'count' => Cart::getItemsCount(),
         ];
     }
 }

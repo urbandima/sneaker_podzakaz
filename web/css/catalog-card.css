@@ -1,0 +1,608 @@
+/**
+ * CATALOG CARD STYLES
+ * Стили для карточек товаров в каталоге
+ * Mobile-First подход
+ */
+
+/* ============================================
+   КАРТОЧКА ТОВАРА - БАЗОВЫЕ СТИЛИ
+   ============================================ */
+
+.product.product-card {
+    background: var(--white, #ffffff);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.product.product-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.product-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+/* ============================================
+   КОНТЕЙНЕР ИЗОБРАЖЕНИЯ - ЧЕТКИЕ ГРАНИЦЫ
+   ============================================ */
+
+.product-card .product-image-wrapper,
+.product .product-image-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1; /* Квадратное соотношение */
+    overflow: hidden;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 16px; /* Увеличенный отступ для корректного отображения */
+}
+
+/* Основное и вторичное изображение */
+.product-image {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    width: calc(100% - 32px);
+    height: calc(100% - 32px);
+    object-fit: contain; /* Изображение полностью помещается без обрезания */
+    object-position: center;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.product-image.primary {
+    opacity: 1;
+    z-index: 1;
+}
+
+.product-image.secondary {
+    opacity: 0;
+    z-index: 2;
+}
+
+/* Hover эффект - смена изображения */
+.product-card:hover .product-image.primary {
+    opacity: 0;
+}
+
+.product-card:hover .product-image.secondary {
+    opacity: 1;
+}
+
+/* Небольшой зум при hover */
+.product-card:hover .product-image {
+    transform: scale(1.05);
+}
+
+/* ============================================
+   БЕЙДЖИ (NEW, СКИДКА)
+   ============================================ */
+
+.product-badges-compact {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 3;
+}
+
+.badge-discount,
+.badge-new {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.badge-discount {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #ffffff;
+}
+
+.badge-new {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+}
+
+/* Премиальный значок "под заказ" */
+.badge-custom-order {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: badge-glow 2s ease-in-out infinite;
+}
+
+.badge-custom-order i {
+    font-size: 12px;
+    animation: gem-sparkle 1.5s ease-in-out infinite;
+}
+
+@keyframes badge-glow {
+    0%, 100% {
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(139, 92, 246, 0.7);
+    }
+}
+
+@keyframes gem-sparkle {
+    0%, 100% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+    50% {
+        transform: scale(1.1);
+        filter: brightness(1.3);
+    }
+}
+
+/* ============================================
+   QUICK ACTIONS (ИЗБРАННОЕ, СРАВНЕНИЕ, ПРОСМОТР)
+   ============================================ */
+
+.quick-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+    pointer-events: all;
+}
+
+.product-card:hover .quick-actions {
+    opacity: 1;
+}
+
+.action-btn {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #111827;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    pointer-events: all;
+}
+
+.action-btn:hover {
+    background: #000000;
+    color: #ffffff;
+    transform: scale(1.1);
+}
+
+.action-btn:active {
+    transform: scale(0.95);
+}
+
+.action-btn i {
+    font-size: 18px;
+}
+
+/* ============================================
+   ИНФОРМАЦИЯ О ТОВАРЕ
+   ============================================ */
+
+.info.product-card-body {
+    padding: 10px; /* Уменьшено с 12px для компактности */
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* Уменьшено с 6px для компактности */
+    flex: 1;
+}
+
+/* Заголовок: Бренд + Рейтинг в одну строку */
+.product-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+    min-height: 16px; /* Фиксированная высота */
+}
+
+/* Бренд */
+.product-card-brand {
+    font-size: 10px; /* Уменьшено с 11px */
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #6b7280;
+    letter-spacing: 0.5px;
+    margin-bottom: 0; /* Убрали отступ */
+}
+
+/* Название товара */
+.product-card-name {
+    font-size: 13px; /* Уменьшено с 14px */
+    font-weight: 600;
+    line-height: 1.3; /* Уменьшено с 1.4 */
+    color: #111827;
+    margin: 0 0 4px 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    min-height: 34px; /* Уменьшено с 40px для компактности */
+}
+
+/* ============================================
+   РЕЙТИНГ
+   ============================================ */
+
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    margin-bottom: 6px; /* Отступ после рейтинга */
+}
+
+/* Компактный рейтинг (в одну строку с брендом) */
+.rating-compact {
+    margin-bottom: 0;
+    gap: 3px;
+}
+
+.rating .stars {
+    display: flex;
+    gap: 2px;
+    color: #fbbf24;
+}
+
+.rating .stars i {
+    font-size: 12px;
+}
+
+.rating-compact .stars i {
+    font-size: 10px; /* Еще меньше для компактного вида */
+}
+
+.rating-text {
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.rating-compact .rating-text {
+    font-size: 10px;
+}
+
+/* ============================================
+   ЦВЕТА
+   ============================================ */
+
+.colors {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 6px; /* Отступ после цветов */
+}
+
+.colors .dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #e5e7eb;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.colors .dot:hover {
+    transform: scale(1.2);
+    border-color: #000000;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.colors .more {
+    font-size: 11px;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+/* ============================================
+   РАЗМЕРЫ
+   ============================================ */
+
+.sizes-quick {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 8px; /* Отступ после размеров перед ценой */
+}
+
+.size-badge {
+    position: relative;
+    padding: 3px 6px; /* Уменьшено с 4px 8px */
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px; /* Уменьшено с 6px */
+    font-size: 10px; /* Уменьшено с 11px */
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #111827;
+}
+
+.size-badge:hover {
+    background: #000000;
+    color: #ffffff;
+    border-color: #000000;
+    transform: scale(1.05);
+}
+
+.size-more {
+    font-size: 10px; /* Уменьшено с 11px */
+    color: #6b7280;
+    font-weight: 600;
+}
+
+/* Tooltip для размеров */
+.size-badge[data-size-tooltip]:hover::after {
+    content: attr(data-size-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    background: rgba(17, 24, 39, 0.95);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    border-radius: 6px;
+    z-index: 100;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(8px);
+}
+
+.size-badge[data-size-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 2px;
+    border: 4px solid transparent;
+    border-top-color: rgba(17, 24, 39, 0.95);
+    z-index: 100;
+    pointer-events: none;
+}
+
+/* ============================================
+   ЦЕНА
+   ============================================ */
+
+.price.product-card-price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: auto;
+}
+
+.product-card-price-old {
+    font-size: 13px;
+    color: #9ca3af;
+    text-decoration: line-through;
+}
+
+.product-card-discount {
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #ef4444;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.product-card-price-current {
+    font-size: 18px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.product-card-price-current span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+    margin-left: 4px;
+}
+
+
+/* ============================================
+   ФУТЕР КАРТОЧКИ (КНОПКА В КОРЗИНУ)
+   ============================================ */
+
+.product-footer {
+    padding: 0 10px 10px; /* Уменьшено с 12px */
+    margin-top: auto;
+}
+
+.btn-add-to-cart {
+    width: 100%;
+    padding: 8px 12px; /* Уменьшено с 10px 16px */
+    background: linear-gradient(135deg, #111827, #1f2937);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px; /* Уменьшено с 14px */
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; /* Уменьшено с 8px */
+    transition: all 0.2s ease;
+}
+
+.btn-add-to-cart:hover {
+    background: linear-gradient(135deg, #000000, #111827);
+    transform: translateY(-2px);
+}
+
+.btn-add-to-cart:active {
+    transform: translateY(0);
+}
+
+.btn-add-to-cart i {
+    font-size: 18px;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+.empty {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.empty i {
+    font-size: 64px;
+    color: #d1d5db;
+    margin-bottom: 16px;
+}
+
+.empty h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 16px;
+}
+
+.empty button {
+    padding: 10px 24px;
+    background: #111827;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.empty button:hover {
+    background: #000000;
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   TABLET (768px+)
+   ============================================ */
+
+@media (min-width: 768px) {
+    .product-image-wrapper {
+        aspect-ratio: 1;
+    }
+    
+    .info.product-card-body {
+        padding: 16px;
+        gap: 6px; /* Уменьшен с 10px до 6px */
+    }
+    
+    .product-card-name {
+        font-size: 15px;
+        min-height: 42px;
+    }
+    
+    .product-card-price-current {
+        font-size: 20px;
+    }
+    
+    .product-footer {
+        padding: 0 16px 16px;
+    }
+    
+    .btn-add-to-cart {
+        padding: 12px 20px;
+        font-size: 15px;
+    }
+}
+
+/* ============================================
+   DESKTOP (1024px+)
+   ============================================ */
+
+@media (min-width: 1024px) {
+    .product.product-card {
+        border-radius: 16px;
+    }
+    
+    .product-image-wrapper {
+        border-bottom-width: 2px;
+    }
+    
+    .info.product-card-body {
+        padding: 20px;
+    }
+    
+    .product-card-name {
+        font-size: 16px;
+        min-height: 44px;
+    }
+    
+    .product-card-price-current {
+        font-size: 22px;
+    }
+    
+    .quick-actions {
+        gap: 12px;
+    }
+    
+    .action-btn {
+        width: 44px;
+        height: 44px;
+    }
+}

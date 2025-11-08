@@ -13,6 +13,8 @@ use app\models\Brand;
 use app\models\ProductFavorite;
 use app\models\CatalogInquiry;
 use app\components\SmartFilter;
+use app\components\CacheManager;
+use app\components\HttpCacheHeaders;
 
 /**
  * Контроллер каталога товаров
@@ -20,6 +22,47 @@ use app\components\SmartFilter;
 class CatalogController extends Controller
 {
     public $layout = 'public';
+    
+    /**
+     * Behaviors для HTTP кэширования
+     */
+    public function behaviors()
+    {
+        return array_merge(parent::behaviors(), [
+            'httpCache' => [
+                'class' => 'yii\filters\HttpCache',
+                'only' => ['index', 'brand', 'category', 'product'],
+                'lastModified' => function ($action, $params) {
+                    // Время последнего изменения товаров
+                    if ($action->id === 'product') {
+                        $product = $this->findProduct(Yii::$app->request->get('slug'));
+                        return $product ? $product->updated_at : time();
+                    }
+                    return CacheManager::get('catalog_last_modified') ?: time();
+                },
+                'etagSeed' => function ($action, $params) {
+                    // Генерация ETag на основе параметров
+                    return serialize([
+                        'action' => $action->id,
+                        'params' => Yii::$app->request->queryParams,
+                        'user' => Yii::$app->user->id,
+                    ]);
+                },
+            ],
+        ]);
+    }
+    
+    /**
+     * Найти товар для behaviors
+     */
+    protected function findProduct($slug)
+    {
+        static $product = null;
+        if ($product === null) {
+            $product = Product::find()->where(['slug' => $slug])->one();
+        }
+        return $product;
+    }
 
     /**
      * Регистрация мета-тегов
@@ -43,74 +86,23 @@ class CatalogController extends Controller
      */
     public function actionIndex()
     {
-        // ОПТИМИЗИРОВАНО: Используем денормализованные поля вместо JOIN
-        // Было: ->with(['brand', 'category', 'images'])
-        // Стало: используем brand_name, category_name, main_image_url напрямую
-        $query = Product::find()
-            ->select([
-                'id', 
-                'name', 
-                'slug', 
-                'brand_name',      // Денормализованное поле
-                'category_name',   // Денормализованное поле
-                'main_image_url',  // Денормализованное поле
-                'price', 
-                'old_price', 
-                'stock_status',
-                'is_featured',
-                'rating',
-                'reviews_count'
-            ])
-            ->where(['is_active' => 1]);
-
-        // Применение фильтров
-        $query = $this->applyFilters($query);
-
-        // Пагинация с кэшированным COUNT
-        $pagination = new Pagination([
-            'defaultPageSize' => 24,
-            'totalCount' => $this->getCachedCount($query),
-        ]);
-
-        $products = $query
-            ->offset($pagination->offset)
-            ->limit($pagination->limit)
-            ->all();
-
-        // Получение данных для фильтров
-        $filters = $this->getFiltersData();
-
-        // SEO meta-теги
-        $this->view->title = 'Каталог товаров - Оригинальные кроссовки и одежда | СНИКЕРХЭД';
-        $this->registerMetaTags([
-            'keywords' => 'купить кроссовки, оригинальная обувь, nike, adidas, интернет-магазин',
-            'og:title' => 'Каталог товаров - СНИКЕРХЭД',
-            'og:description' => 'Оригинальные товары из США и Европы',
-            'og:type' => 'website',
-            'og:url' => Yii::$app->request->absoluteUrl,
-        ]);
+        // Установка HTTP Cache headers
+        HttpCacheHeaders::setCatalogHeaders(Yii::$app->response);
         
-        // FIX: Объявляем переменную request
-        $request = Yii::$app->request;
+        $query = $this->buildProductQuery();
         
-        // Текущие выбранные фильтры
-        $currentFilters = [
-            'brands' => $request->get('brands') ? explode(',', $request->get('brands')) : [],
-            'categories' => $request->get('categories') ? explode(',', $request->get('categories')) : [],
-            'price_from' => $request->get('price_from'),
-            'price_to' => $request->get('price_to'),
-        ];
-
-        // Активные фильтры (для отображения тегов)
-        $activeFilters = $this->getActiveFilters($currentFilters);
-
-        return $this->render('index', [
-            'products' => $products,
-            'pagination' => $pagination,
-            'filters' => $filters,
-            'currentFilters' => $currentFilters,
-            'activeFilters' => $activeFilters,
-        ]);
+        return $this->renderCatalogPage(
+            query: $query,
+            h1: 'Каталог товаров',
+            metaTags: [
+                'title' => 'Каталог товаров - Оригинальные кроссовки и одежда | СНИКЕРХЭД',
+                'keywords' => 'купить кроссовки, оригинальная обувь, nike, adidas, интернет-магазин',
+                'og:title' => 'Каталог товаров - СНИКЕРХЭД',
+                'og:description' => 'Оригинальные товары из США и Европы',
+                'og:type' => 'website',
+                'og:url' => Yii::$app->request->absoluteUrl,
+            ]
+        );
     }
     
     /**
@@ -145,10 +137,14 @@ class CatalogController extends Controller
     
     /**
      * Live поиск (AJAX)
+     * ИСПРАВЛЕНО: формат данных соответствует ожиданиям фронтенда
      */
     public function actionSearch()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        // Кэшируемый API endpoint
+        HttpCacheHeaders::setApiHeaders(Yii::$app->response, true, 300);
         
         $query = Yii::$app->request->get('q');
         
@@ -157,11 +153,12 @@ class CatalogController extends Controller
         }
         
         $products = Product::find()
-            ->select(['id', 'name', 'slug', 'price', 'old_price', 'main_image'])
+            ->select(['id', 'name', 'slug', 'price', 'old_price', 'main_image', 'stock_status', 'is_featured'])
             ->with(['brand'])
             ->where(['is_active' => 1])
+            ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]) // Скрываем "нет в наличии"
             ->andWhere(['like', 'name', $query])
-            ->limit(10)
+            ->limit(5)
             ->all();
         
         $results = [];
@@ -169,12 +166,17 @@ class CatalogController extends Controller
             $results[] = [
                 'id' => $product->id,
                 'name' => $product->name,
-                'brand' => $product->brand->name ?? '',
+                'slug' => $product->slug,
+                'brand' => [
+                    'name' => $product->brand->name ?? '',
+                ],
                 'price' => $product->price,
-                'old_price' => $product->old_price,
+                'oldPrice' => $product->old_price,
                 'discount' => $product->getDiscountPercent(),
                 'url' => '/catalog/product/' . $product->slug,
-                'image' => $product->getMainImageUrl(),
+                'mainImage' => $product->getMainImageUrl(),
+                'stockStatus' => $product->stock_status ?? 'out_of_stock',
+                'isFeatured' => (bool)$product->is_featured,
             ];
         }
         
@@ -201,6 +203,137 @@ class CatalogController extends Controller
             'success' => true,
             'html' => $this->renderAjax('_quick_view', ['product' => $product]),
         ];
+    }
+    
+    /**
+     * Построение базового запроса для товаров (DRY принцип)
+     * ОПТИМИЗИРОВАНО: Eager loading для устранения N+1 запросов
+     * 
+     * @param array $whereConditions Дополнительные условия WHERE (например, ['brand_id' => 5])
+     * @return \yii\db\ActiveQuery
+     */
+    protected function buildProductQuery(array $whereConditions = [])
+    {
+        $query = Product::find()
+            ->with([
+                // ОПТИМИЗАЦИЯ: Загружаем sizes для диапазона цен и отображения в карточках
+                'sizes' => function($query) {
+                    $query->select(['id', 'product_id', 'size', 'price_byn', 'is_available', 'eu_size', 'us_size', 'uk_size', 'cm_size'])
+                          ->where(['is_available' => 1])
+                          ->orderBy(['size' => SORT_ASC]);
+                },
+                // ОПТИМИЗАЦИЯ: Загружаем colors для отображения в карточках
+                'colors' => function($query) {
+                    $query->select(['id', 'product_id', 'name', 'hex']);
+                },
+                // ОПТИМИЗАЦИЯ: Загружаем первые 2 изображения для hover-эффекта (устраняет N+1)
+                'images' => function($query) {
+                    $query->select(['id', 'product_id', 'image', 'is_main', 'sort_order'])
+                          ->orderBy(['is_main' => SORT_DESC, 'sort_order' => SORT_ASC])
+                          ->limit(2);
+                }
+            ])
+            ->select([
+                'id', 
+                'name', 
+                'slug', 
+                'brand_id',        // Для связи with(['brand']) если понадобится
+                'brand_name',      // Денормализованное поле (устраняет N+1)
+                'category_name',   // Денормализованное поле
+                'main_image_url',  // Денормализованное поле
+                'price', 
+                'old_price', 
+                'stock_status',
+                'is_featured',
+                'rating',
+                'reviews_count',
+                'created_at'       // Для бейджа "NEW"
+            ])
+            ->where(['is_active' => 1])
+            ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]); // Скрываем "нет в наличии"
+        
+        // Применяем дополнительные условия (brand_id, category_id и т.д.)
+        if (!empty($whereConditions)) {
+            $query->andWhere($whereConditions);
+        }
+        
+        return $query;
+    }
+    
+    /**
+     * Универсальный метод рендеринга страницы каталога (DRY принцип)
+     * Устраняет дублирование кода в actionIndex, actionBrand, actionCategory
+     * 
+     * @param \yii\db\ActiveQuery $query Запрос товаров
+     * @param string $h1 Заголовок H1 страницы
+     * @param array $metaTags SEO мета-теги
+     * @param array $filterConditions Условия для фильтров (например, ['brand_id' => 5])
+     * @return string
+     */
+    protected function renderCatalogPage($query, string $h1, array $metaTags = [], array $filterConditions = [])
+    {
+        // Применяем фильтры пользователя
+        $query = $this->applyFilters($query);
+        
+        // Пагинация с кэшированным COUNT
+        $pagination = new Pagination([
+            'defaultPageSize' => 24,
+            'totalCount' => $this->getCachedCount($query),
+        ]);
+        
+        // Получаем товары
+        $products = $query
+            ->offset($pagination->offset)
+            ->limit($pagination->limit)
+            ->all();
+        
+        // ДИАГНОСТИКА: Логируем количество товаров
+        if (YII_ENV_DEV) {
+            \Yii::info(sprintf(
+                'Catalog: loaded %d products (offset: %d, limit: %d, total: %d)',
+                count($products),
+                $pagination->offset,
+                $pagination->limit,
+                $pagination->totalCount
+            ), 'catalog_performance');
+        }
+        
+        // Получаем данные для фильтров
+        $filters = $this->getFiltersData($filterConditions);
+        
+        // Устанавливаем SEO meta-теги
+        if (isset($metaTags['title'])) {
+            $this->view->title = $metaTags['title'];
+        }
+        
+        // Регистрируем остальные мета-теги
+        $this->registerMetaTags($metaTags);
+        
+        // Получаем текущие фильтры из запроса
+        $request = Yii::$app->request;
+        $currentFilters = [
+            'brands' => $request->get('brands') ? explode(',', $request->get('brands')) : [],
+            'categories' => $request->get('categories') ? explode(',', $request->get('categories')) : [],
+            'price_from' => $request->get('price_from'),
+            'price_to' => $request->get('price_to'),
+        ];
+        
+        // Формируем активные фильтры для отображения тегов
+        $activeFilters = $this->getActiveFilters($currentFilters);
+        
+        // Получаем текущую систему размеров из запроса
+        $currentSizeSystem = $request->get('size_system', 'eu');
+        
+        // Рендерим view
+        return $this->render('index', [
+            'products' => $products,
+            'pagination' => $pagination,
+            'h1' => $h1,
+            'filters' => $filters,
+            'currentFilters' => $currentFilters,
+            'activeFilters' => $activeFilters,
+            'currentSizeSystem' => $currentSizeSystem,
+        ]);
     }
     
     /**
@@ -278,54 +411,28 @@ class CatalogController extends Controller
             return $this->renderError(404, 'Бренд не найден');
         }
 
-        // ОПТИМИЗИРОВАНО: Используем денормализованные поля
-        $query = Product::find()
-            ->select([
-                'id', 
-                'name', 
-                'slug', 
-                'brand_name',
-                'category_name',
-                'main_image_url',
-                'price', 
-                'old_price', 
-                'stock_status',
-                'is_featured'
-            ])
-            ->where(['brand_id' => $brand->id, 'is_active' => 1]);
-
-        $query = $this->applyFilters($query);
-
-        $pagination = new Pagination([
-            'defaultPageSize' => 24,
-            'totalCount' => $this->getCachedCount($query),
-        ]);
-
-        $products = $query
-            ->offset($pagination->offset)
-            ->limit($pagination->limit)
-            ->all();
-
-        $filters = $this->getFiltersData(['brand_id' => $brand->id]);
-
-        // SEO
-        $this->view->title = $brand->getMetaTitle();
-        $this->view->registerMetaTag(['name' => 'description', 'content' => $brand->getMetaDescription()]);
-        $this->view->registerMetaTag(['name' => 'keywords', 'content' => $brand->name . ', оригинальные товары, купить']);
-        $this->view->registerMetaTag(['property' => 'og:title', 'content' => $brand->getMetaTitle()]);
-        $this->view->registerMetaTag(['property' => 'og:description', 'content' => $brand->getMetaDescription()]);
-        $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
-        $this->view->registerMetaTag(['property' => 'og:url', 'content' => Yii::$app->request->absoluteUrl]);
+        $query = $this->buildProductQuery(['brand_id' => $brand->id]);
+        
+        $metaTags = [
+            'title' => $brand->getMetaTitle(),
+            'description' => $brand->getMetaDescription(),
+            'keywords' => $brand->name . ', оригинальные товары, купить',
+            'og:title' => $brand->getMetaTitle(),
+            'og:description' => $brand->getMetaDescription(),
+            'og:type' => 'website',
+            'og:url' => Yii::$app->request->absoluteUrl,
+        ];
+        
         if ($brand->logo) {
-            $this->view->registerMetaTag(['property' => 'og:image', 'content' => Yii::$app->request->hostInfo . $brand->logo]);
+            $metaTags['og:image'] = Yii::$app->request->hostInfo . $brand->logo;
         }
-
-        return $this->render('brand', [
-            'brand' => $brand,
-            'products' => $products,
-            'pagination' => $pagination,
-            'filters' => $filters,
-        ]);
+        
+        return $this->renderCatalogPage(
+            query: $query,
+            h1: $brand->name,
+            metaTags: $metaTags,
+            filterConditions: ['brand_id' => $brand->id]
+        );
     }
 
     /**
@@ -342,53 +449,22 @@ class CatalogController extends Controller
         // Получаем ID категории и всех дочерних
         $categoryIds = $category->getChildrenIds();
 
-        // ОПТИМИЗИРОВАНО: Используем денормализованные поля
-        $query = Product::find()
-            ->select([
-                'id', 
-                'name', 
-                'slug', 
-                'brand_name',
-                'category_name',
-                'main_image_url',
-                'price', 
-                'old_price', 
-                'stock_status',
-                'is_featured'
-            ])
-            ->where(['category_id' => $categoryIds, 'is_active' => 1]);
-
-        $query = $this->applyFilters($query);
-
-        $pagination = new Pagination([
-            'defaultPageSize' => 24,
-            'totalCount' => $this->getCachedCount($query),
-        ]);
-
-        $products = $query
-            ->offset($pagination->offset)
-            ->limit($pagination->limit)
-            ->all();
-
-        $filters = $this->getFiltersData(['category_id' => $categoryIds]);
-
-        // SEO
-        $this->view->title = $category->getMetaTitle();
-        $this->registerMetaTags([
-            'description' => $category->getMetaDescription(),
-            'keywords' => $category->name . ', купить, оригинал',
-            'og:title' => $category->getMetaTitle(),
-            'og:description' => $category->getMetaDescription(),
-            'og:type' => 'website',
-            'og:url' => Yii::$app->request->absoluteUrl,
-        ]);
-
-        return $this->render('category', [
-            'category' => $category,
-            'products' => $products,
-            'pagination' => $pagination,
-            'filters' => $filters,
-        ]);
+        $query = $this->buildProductQuery(['category_id' => $categoryIds]);
+        
+        return $this->renderCatalogPage(
+            query: $query,
+            h1: $category->name,
+            metaTags: [
+                'title' => $category->getMetaTitle(),
+                'description' => $category->getMetaDescription(),
+                'keywords' => $category->name . ', купить, оригинал',
+                'og:title' => $category->getMetaTitle(),
+                'og:description' => $category->getMetaDescription(),
+                'og:type' => 'website',
+                'og:url' => Yii::$app->request->absoluteUrl,
+            ],
+            filterConditions: ['category_id' => $categoryIds]
+        );
     }
 
     /**
@@ -404,12 +480,19 @@ class CatalogController extends Controller
         if (!$product) {
             return $this->renderError(404, 'Товар не найден');
         }
+        
+        // Установка HTTP Cache headers для страницы товара
+        HttpCacheHeaders::setProductHeaders(
+            Yii::$app->response,
+            $product->id,
+            $product->updated_at
+        );
 
         // Увеличиваем счетчик просмотров
         $product->incrementViews();
 
-        // Похожие товары
-        $similarProducts = $product->getSimilarProducts(4);
+        // Похожие товары - увеличиваем лимит для показа большего количества
+        $similarProducts = $product->getSimilarProducts(12);
 
         // Проверка - в избранном ли
         $isFavorite = $this->checkIsFavorite($product->id);
@@ -453,7 +536,7 @@ class CatalogController extends Controller
             return ['success' => false, 'message' => 'ID товара не указан'];
         }
 
-        $userId = Yii::$app->user->id;
+        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
         $sessionId = Yii::$app->session->id;
 
         if (ProductFavorite::add($productId, $userId, $sessionId)) {
@@ -480,7 +563,7 @@ class CatalogController extends Controller
             return ['success' => false, 'message' => 'ID товара не указан'];
         }
 
-        $userId = Yii::$app->user->id;
+        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
         $sessionId = Yii::$app->session->id;
 
         ProductFavorite::remove($productId, $userId, $sessionId);
@@ -488,6 +571,22 @@ class CatalogController extends Controller
         return [
             'success' => true,
             'message' => 'Товар удален из избранного',
+            'count' => ProductFavorite::getCount($userId, $sessionId),
+        ];
+    }
+
+    /**
+     * Получить количество избранных товаров (AJAX)
+     * ДОБАВЛЕНО: для корректной работы счетчика
+     */
+    public function actionFavoritesCount()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $sessionId = Yii::$app->session->id;
+
+        return [
             'count' => ProductFavorite::getCount($userId, $sessionId),
         ];
     }
@@ -559,15 +658,27 @@ class CatalogController extends Controller
             $query->andWhere(['like', 'name', $search]);
         }
         
-        // Фильтр по размерам
-        // ПРИМЕЧАНИЕ: Требует создания связи many-to-many с таблицей product_sizes
-        // Реализация будет добавлена после миграции схемы БД для размеров
-        /*
+        // Фильтр по размерам с учетом выбранной системы измерения
         if ($sizes = $request->get('sizes')) {
             $sizeArray = is_array($sizes) ? $sizes : explode(',', $sizes);
-            $query->joinWith('sizes')->andWhere(['product_size.size' => $sizeArray]);
+            $sizeSystem = $request->get('size_system', 'eu'); // Получаем систему измерения (по умолчанию EU)
+            
+            // Определяем поле для фильтрации в зависимости от системы
+            $sizeField = match($sizeSystem) {
+                'us' => 'us_size',
+                'uk' => 'uk_size',
+                'cm' => 'cm_size',
+                default => 'eu_size'
+            };
+            
+            // ИСПРАВЛЕНО: Используем подзапрос вместо JOIN, чтобы избежать дубликатов
+            $query->andWhere([
+                'id' => \app\models\ProductSize::find()
+                    ->select('product_id')
+                    ->where([$sizeField => $sizeArray])
+                    ->andWhere(['is_available' => 1])
+            ]);
         }
-        */
         
         // Фильтр по цветам
         // ПРИМЕЧАНИЕ: Требует создания связи many-to-many с таблицей product_colors
@@ -729,19 +840,20 @@ class CatalogController extends Controller
 
     /**
      * Кэшированный COUNT для пагинации (оптимизация)
+     * ОПТИМИЗИРОВАНО: Используем CacheManager с тегами
      */
     protected function getCachedCount($query)
     {
         $filterParams = Yii::$app->request->queryParams;
-        $cacheKey = 'catalog_count_' . md5(serialize($filterParams));
         
-        return Yii::$app->cache->getOrSet($cacheKey, function() use ($query) {
+        return CacheManager::getCatalogCount($filterParams, function() use ($query) {
             return $query->count();
-        }, 300); // 5 минут
+        });
     }
 
     /**
      * Получение данных для фильтров с учетом текущих фильтров (УМНЫЙ ФИЛЬТР + КЭШ)
+     * ОПТИМИЗИРОВАНО: Используем CacheManager с тегами для инвалидации
      */
     protected function getFiltersData($baseCondition = [])
     {
@@ -753,13 +865,13 @@ class CatalogController extends Controller
             'price_to' => $request->get('price_to'),
         ];
         
-        // Кэшируем результат
-        $cacheKey = 'filters_data_v2_' . md5(serialize([
+        // Кэшируем результат через CacheManager
+        $params = [
             'base' => $baseCondition,
             'filters' => $currentFilters
-        ]));
+        ];
         
-        return Yii::$app->cache->getOrSet($cacheKey, function() use ($currentFilters, $baseCondition) {
+        return CacheManager::getFiltersData($params, function() use ($currentFilters, $baseCondition) {
         
         // Бренды с количеством товаров (с учетом других фильтров)
         $brandsQuery = Brand::find()
@@ -810,7 +922,8 @@ class CatalogController extends Controller
         // Диапазон цен (с учетом текущих фильтров)
         $priceQuery = Product::find()
             ->select(['MIN(price) as min', 'MAX(price) as max'])
-            ->where(['is_active' => 1]);
+            ->where(['is_active' => 1])
+            ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]); // Скрываем "нет в наличии"
         
         if (!empty($currentFilters['brands'])) {
             $priceQuery->andWhere(['brand_id' => $currentFilters['brands']]);
@@ -821,36 +934,36 @@ class CatalogController extends Controller
         
         $priceRange = $priceQuery->asArray()->one();
 
+        // Получаем доступные размеры
+        $sizes = $this->getAvailableSizes($currentFilters);
+        
         return [
             'brands' => $brands,
             'categories' => $categories,
+            'sizes' => $sizes,
             'priceRange' => [
                 'min' => (float)($priceRange['min'] ?? 0),
                 'max' => (float)($priceRange['max'] ?? 1000),
             ],
         ];
-        }, 1800); // 30 минут кэш
+        });
     }
 
     /**
      * Инвалидация кэша фильтров
+     * ОПТИМИЗИРОВАНО: Используем CacheManager с tagged caching
      */
     public static function invalidateFiltersCache()
     {
-        $cache = Yii::$app->cache;
-        $pattern = 'catalog_filters_';
-        
-        // Удаляем все ключи кэша фильтров
-        if ($cache instanceof \yii\caching\FileCache) {
-            $cachePath = $cache->cachePath;
-            $files = glob($cachePath . '/' . $pattern . '*');
-            foreach ($files as $file) {
-                @unlink($file);
-            }
-        }
-        
-        // Альтернатива - flush всего кэша (если используется Redis/Memcached)
-        // $cache->flush();
+        CacheManager::invalidateFilters();
+    }
+    
+    /**
+     * Инвалидация всего кэша каталога
+     */
+    public static function invalidateCatalogCache()
+    {
+        CacheManager::invalidateCatalog();
     }
 
     /**
@@ -858,7 +971,7 @@ class CatalogController extends Controller
      */
     protected function checkIsFavorite($productId)
     {
-        $userId = Yii::$app->user->id;
+        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
         $sessionId = Yii::$app->session->id;
 
         return ProductFavorite::find()
@@ -890,7 +1003,8 @@ class CatalogController extends Controller
         // Применяем фильтры
         $query = Product::find()
             ->with(['brand', 'category'])
-            ->where(['is_active' => 1]);
+            ->where(['is_active' => 1])
+            ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]); // Скрываем "нет в наличии"
         
         $query = $this->applyParsedFilters($query, $parsedFilters);
         
@@ -995,7 +1109,9 @@ class CatalogController extends Controller
         $cacheDuration = 1800; // 30 минут
         
         return Yii::$app->cache->getOrSet($cacheKey, function() use ($currentFilters) {
-            $baseQuery = Product::find()->where(['is_active' => 1]);
+            $baseQuery = Product::find()
+                ->where(['is_active' => 1])
+                ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]); // Скрываем "нет в наличии"
             
             // Доступные бренды (без учета фильтра по брендам)
             $brandFilters = $currentFilters;
@@ -1049,6 +1165,114 @@ class CatalogController extends Controller
                 ],
             ];
         }, $cacheDuration);
+    }
+    
+    /**
+     * Получение всех доступных размеров по всем системам измерения
+     * 
+     * @param array $currentFilters Текущие фильтры для умного сужения
+     * @return array Массив доступных размеров с количеством товаров для каждой системы
+     */
+    protected function getAvailableSizes($currentFilters = [])
+    {
+        // Кэшируем результат
+        $cacheKey = 'available_sizes_all_' . md5(serialize($currentFilters));
+        
+        return Yii::$app->cache->getOrSet($cacheKey, function() use ($currentFilters) {
+            $result = [
+                'eu' => [],
+                'us' => [],
+                'uk' => [],
+                'cm' => []
+            ];
+            
+            // Базовый запрос
+            $baseQuery = \app\models\ProductSize::find()
+                ->innerJoin('product', 'product.id = product_size.product_id')
+                ->where([
+                    'product.is_active' => 1,
+                    'product_size.is_available' => 1
+                ])
+                ->andWhere(['!=', 'product.stock_status', Product::STOCK_OUT_OF_STOCK]);
+            
+            // Применяем текущие фильтры (умное сужение)
+            if (!empty($currentFilters['brands'])) {
+                $baseQuery->andWhere(['product.brand_id' => $currentFilters['brands']]);
+            }
+            if (!empty($currentFilters['categories'])) {
+                $baseQuery->andWhere(['product.category_id' => $currentFilters['categories']]);
+            }
+            if (!empty($currentFilters['price_from'])) {
+                $baseQuery->andWhere(['>=', 'product.price', $currentFilters['price_from']]);
+            }
+            if (!empty($currentFilters['price_to'])) {
+                $baseQuery->andWhere(['<=', 'product.price', $currentFilters['price_to']]);
+            }
+            
+            // Получаем размеры EU
+            $euQuery = clone $baseQuery;
+            $result['eu'] = $euQuery
+                ->select([
+                    'product_size.eu_size as size',
+                    'COUNT(DISTINCT product_size.product_id) as count'
+                ])
+                ->andWhere(['IS NOT', 'product_size.eu_size', null])
+                ->groupBy(['product_size.eu_size'])
+                ->having(['>', 'count', 0])
+                ->asArray()
+                ->all();
+            
+            // Получаем размеры US
+            $usQuery = clone $baseQuery;
+            $result['us'] = $usQuery
+                ->select([
+                    'product_size.us_size as size',
+                    'COUNT(DISTINCT product_size.product_id) as count'
+                ])
+                ->andWhere(['IS NOT', 'product_size.us_size', null])
+                ->groupBy(['product_size.us_size'])
+                ->having(['>', 'count', 0])
+                ->asArray()
+                ->all();
+            
+            // Получаем размеры UK
+            $ukQuery = clone $baseQuery;
+            $result['uk'] = $ukQuery
+                ->select([
+                    'product_size.uk_size as size',
+                    'COUNT(DISTINCT product_size.product_id) as count'
+                ])
+                ->andWhere(['IS NOT', 'product_size.uk_size', null])
+                ->groupBy(['product_size.uk_size'])
+                ->having(['>', 'count', 0])
+                ->asArray()
+                ->all();
+            
+            // Получаем размеры CM
+            $cmQuery = clone $baseQuery;
+            $result['cm'] = $cmQuery
+                ->select([
+                    'product_size.cm_size as size',
+                    'COUNT(DISTINCT product_size.product_id) as count'
+                ])
+                ->andWhere(['IS NOT', 'product_size.cm_size', null])
+                // ИСПРАВЛЕНИЕ: Фильтруем некорректные размеры (нормальный диапазон 20-35 см)
+                ->andWhere(['>=', 'product_size.cm_size', 20])
+                ->andWhere(['<=', 'product_size.cm_size', 35])
+                ->groupBy(['product_size.cm_size'])
+                ->having(['>', 'count', 0])
+                ->asArray()
+                ->all();
+            
+            // Сортируем размеры численно для каждой системы
+            foreach ($result as $system => &$sizes) {
+                usort($sizes, function($a, $b) {
+                    return (float)$a['size'] - (float)$b['size'];
+                });
+            }
+            
+            return $result;
+        }, 1800); // 30 минут кэш
     }
     
     /**
@@ -1121,40 +1345,108 @@ class CatalogController extends Controller
     
     /**
      * AJAX фильтрация товаров (без перезагрузки)
+     * ИСПРАВЛЕНО: Читаем параметры из POST вместо GET
      */
     public function actionFilter()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $request = Yii::$app->request;
         
-        // Применяем фильтры
+        // ИСПРАВЛЕНО: Временно сохраняем POST параметры в $_GET для applyFilters()
+        // Это нужно, потому что applyFilters() использует $request->get()
+        $brands = $request->post('brands');
+        $categories = $request->post('categories');
+        $sizes = $request->post('sizes');
+        $sizeSystem = $request->post('sizeSystem', 'eu');
+        $priceFrom = $request->post('price_from');
+        $priceTo = $request->post('price_to');
+        $sort = $request->post('sort', 'popular');
+        $page = (int)$request->post('page', 1);
+        $perPage = (int)$request->post('perPage', 24);
+        
+        // Декодируем JSON параметры
+        if ($brands && is_string($brands)) {
+            $brands = json_decode($brands, true);
+        }
+        if ($categories && is_string($categories)) {
+            $categories = json_decode($categories, true);
+        }
+        if ($sizes && is_string($sizes)) {
+            $sizes = json_decode($sizes, true);
+        }
+        
+        // Временно добавляем в GET для совместимости с applyFilters()
+        $_GET['brands'] = $brands;
+        $_GET['categories'] = $categories;
+        $_GET['sizes'] = $sizes;
+        $_GET['size_system'] = $sizeSystem;
+        $_GET['price_from'] = $priceFrom;
+        $_GET['price_to'] = $priceTo;
+        $_GET['sort'] = $sort;
+        
+        // Применяем фильтры (ОПТИМИЗИРОВАНО: только нужные поля)
         $query = Product::find()
-            ->with(['brand', 'category', 'colors', 'sizes'])
-            ->where(['is_active' => 1]);
+            ->select([
+                'id', 'name', 'slug', 'brand_id', 'brand_name', 'category_name',
+                'main_image_url', 'price', 'old_price', 'stock_status',
+                'is_featured', 'rating', 'reviews_count', 'views_count', 'created_at'
+            ])
+            ->where(['is_active' => 1])
+            ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]);
         
         $query = $this->applyFilters($query);
         
-        // Пагинация
-        $page = $request->get('page', 1);
-        $perPage = 24;
+        // Применяем сортировку
+        switch ($sort) {
+            case 'price_asc':
+                $query->orderBy(['price' => SORT_ASC]);
+                break;
+            case 'price_desc':
+                $query->orderBy(['price' => SORT_DESC]);
+                break;
+            case 'new':
+                $query->orderBy(['created_at' => SORT_DESC]);
+                break;
+            case 'rating':
+                $query->orderBy(['rating' => SORT_DESC]);
+                break;
+            case 'discount':
+                $query->andWhere(['>', 'old_price', 0])
+                      ->orderBy(['(old_price - price) / old_price' => SORT_DESC]);
+                break;
+            case 'popular':
+            default:
+                $query->orderBy(['views_count' => SORT_DESC]);
+                break;
+        }
+        
+        // Пагинация (ОПТИМИЗИРОВАНО: count без лишних данных)
+        $countQuery = clone $query;
+        $totalCount = $countQuery->count();
         
         $pagination = new Pagination([
             'defaultPageSize' => $perPage,
-            'totalCount' => $query->count(),
+            'totalCount' => $totalCount,
             'page' => $page - 1,
         ]);
         
+        // ИСПРАВЛЕНО: Убрали asArray() - view ожидает объекты
         $products = $query
+            ->with(['brand' => function($q) {
+                $q->select(['id', 'name', 'slug']);
+            }])
             ->offset($pagination->offset)
             ->limit($pagination->limit)
             ->all();
         
         // Текущие фильтры
         $currentFilters = [
-            'brands' => $request->get('brands') ? explode(',', $request->get('brands')) : [],
-            'categories' => $request->get('categories') ? explode(',', $request->get('categories')) : [],
-            'price_from' => $request->get('price_from'),
-            'price_to' => $request->get('price_to'),
+            'brands' => $brands ?: [],
+            'categories' => $categories ?: [],
+            'sizes' => $sizes ?: [],
+            'size_system' => $sizeSystem,
+            'price_from' => $priceFrom,
+            'price_to' => $priceTo,
         ];
         
         // Обновленные данные фильтров (умное сужение)
@@ -1167,64 +1459,32 @@ class CatalogController extends Controller
         
         return [
             'success' => true,
+            'products' => array_map(function($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'slug' => $product->slug,
+                    'price' => $product->price,
+                    'brand' => $product->brand_name,
+                ];
+            }, $products),
             'html' => $html,
             'filters' => $filters,
-            'totalCount' => $pagination->totalCount,
-            'currentPage' => $page,
-            'totalPages' => $pagination->pageCount,
+            'pagination' => [
+                'total' => $pagination->totalCount,
+                'currentPage' => $page,
+                'totalPages' => $pagination->pageCount,
+                'perPage' => $perPage,
+            ],
         ];
     }
     
     /**
-     * Quick View - API для модального окна
+     * УДАЛЕНО (Проблема #17): Дублирующий QuickView API
+     * Используйте actionQuickView() вместо этого
+     * 
+     * Если нужен JSON вместо HTML - можно расширить actionQuickView
      */
-    public function actionProductQuick($id)
-    {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        
-        $product = Product::find()
-            ->with(['brand', 'category', 'images', 'sizes'])
-            ->where(['id' => $id, 'is_active' => 1])
-            ->one();
-        
-        if (!$product) {
-            return ['error' => 'Product not found'];
-        }
-        
-        $images = [$product->getMainImageUrl()];
-        foreach ($product->images as $img) {
-            $images[] = $img->getUrl();
-        }
-        
-        $sizes = [];
-        if ($product->sizes) {
-            foreach ($product->sizes as $size) {
-                if ($size->is_available) {
-                    $sizes[] = $size->size;
-                }
-            }
-        }
-        
-        $priceHtml = '';
-        if ($product->hasDiscount()) {
-            $priceHtml .= '<span style="font-size:1rem;color:#9ca3af;text-decoration:line-through;margin-right:0.5rem">' . 
-                         Yii::$app->formatter->asCurrency($product->old_price, 'BYN') . '</span>';
-            $priceHtml .= '<span style="background:#ef4444;color:#fff;padding:0.25rem 0.5rem;border-radius:4px;font-size:0.75rem;font-weight:700;margin-right:0.5rem">-' . 
-                         $product->getDiscountPercent() . '%</span>';
-        }
-        $priceHtml .= '<span style="font-size:1.75rem;font-weight:900;color:#000">' . 
-                     Yii::$app->formatter->asCurrency($product->price, 'BYN') . '</span>';
-        
-        return [
-            'image' => $product->getMainImageUrl(),
-            'images' => $images,
-            'brand' => $product->brand->name,
-            'name' => $product->name,
-            'price' => $priceHtml,
-            'sizes' => $sizes,
-            'url' => $product->getUrl(),
-        ];
-    }
 
     /**
      * Получить товары по списку IDs (для истории просмотров)
@@ -1250,6 +1510,7 @@ class CatalogController extends Controller
         $products = Product::find()
             ->with(['brand'])
             ->where(['id' => $ids, 'is_active' => 1])
+            ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]) // Скрываем "нет в наличии"
             ->limit(20)
             ->all();
 
@@ -1312,7 +1573,8 @@ class CatalogController extends Controller
                 'colors', 
                 'sizes'
             ])
-            ->where(['is_active' => 1]);
+            ->where(['is_active' => 1])
+            ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]); // Скрываем "нет в наличии"
 
         // Применяем фильтры
         $query = $this->applyFilters($query);
@@ -1349,5 +1611,110 @@ class CatalogController extends Controller
     public function actionHistory()
     {
         return $this->render('history');
+    }
+
+    /**
+     * Быстрый заказ в 1 клик
+     * Принимает JSON из fetch() запроса
+     */
+    public function actionQuickOrder()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'message' => 'Метод не поддерживается'];
+        }
+
+        // Читаем JSON из body (fetch отправляет JSON, а не form-data)
+        $rawBody = Yii::$app->request->getRawBody();
+        $data = json_decode($rawBody, true);
+        
+        // Если JSON не распарсился, попробуем form-data (обратная совместимость)
+        if (!$data) {
+            $data = Yii::$app->request->post();
+        }
+        
+        // Валидация данных
+        if (empty($data['product_id']) || empty($data['name']) || empty($data['phone'])) {
+            return [
+                'success' => false,
+                'message' => 'Пожалуйста, заполните все обязательные поля'
+            ];
+        }
+
+        // Проверяем существование товара
+        $product = Product::findOne($data['product_id']);
+        if (!$product) {
+            return ['success' => false, 'message' => 'Товар не найден'];
+        }
+
+        // Получаем информацию о размере если указан
+        $sizeInfo = '';
+        if (!empty($data['size'])) {
+            $sizeInfo = " (Размер: {$data['size']})";
+        }
+
+        // Формируем данные для отправки менеджеру
+        $message = "📱 БЫСТРЫЙ ЗАКАЗ\n\n";
+        $message .= "👤 Клиент: " . $data['name'] . "\n";
+        $message .= "📞 Телефон: " . $data['phone'] . "\n\n";
+        $message .= "🛍 Товар: " . $product->brand_name . ' ' . $product->name . $sizeInfo . "\n";
+        $message .= "💰 Цена: " . Yii::$app->formatter->asCurrency($product->price, 'BYN') . "\n";
+        
+        if (!empty($data['comment'])) {
+            $message .= "\n💬 Комментарий: " . $data['comment'] . "\n";
+        }
+
+        $message .= "\n🔗 Ссылка: " . \yii\helpers\Url::to(['catalog/product', 'slug' => $product->slug], true);
+
+        // Отправляем уведомление менеджеру через email
+        try {
+            Yii::$app->mailer->compose()
+                ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
+                ->setTo(Yii::$app->params['adminEmail'])
+                ->setSubject('⚡ Быстрый заказ: ' . $product->name)
+                ->setTextBody($message)
+                ->send();
+
+            // Можно также отправить в Telegram если настроено
+            // $this->sendToTelegram($message);
+
+            return [
+                'success' => true,
+                'message' => 'Заказ оформлен! Менеджер свяжется с вами в ближайшее время.'
+            ];
+        } catch (\Exception $e) {
+            Yii::error('Quick order email error: ' . $e->getMessage(), __METHOD__);
+            return [
+                'success' => false,
+                'message' => 'Произошла ошибка при отправке заказа. Пожалуйста, позвоните нам.'
+            ];
+        }
+    }
+
+    /**
+     * Отправка в Telegram (опционально)
+     */
+    private function sendToTelegram($message)
+    {
+        // Если настроен Telegram bot token и chat_id
+        $botToken = Yii::$app->params['telegramBotToken'] ?? null;
+        $chatId = Yii::$app->params['telegramChatId'] ?? null;
+
+        if ($botToken && $chatId) {
+            $url = "https://api.telegram.org/bot{$botToken}/sendMessage";
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+                'chat_id' => $chatId,
+                'text' => $message,
+                'parse_mode' => 'HTML'
+            ]));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_exec($ch);
+            curl_close($ch);
+        }
     }
 }

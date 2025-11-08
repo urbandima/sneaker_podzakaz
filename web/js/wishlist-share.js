@@ -65,9 +65,9 @@
                 </button>
                 
                 <div class="share-header">
-                    <i class="bi bi-share-fill"></i>
-                    <h3>Поделиться списком желаний</h3>
-                    <p>Поделитесь вашими любимыми товарами (${count} ${pluralize(count, 'товар', 'товара', 'товаров')})</p>
+                    <i class="bi bi-share-fill share-header-icon"></i>
+                    <h3 class="share-header-title">Поделиться коллекцией</h3>
+                    <p class="share-header-description">Поделитесь вашими избранными товарами (${count} ${pluralize(count, 'товар', 'товара', 'товаров')})</p>
                 </div>
 
                 <div class="share-link-box">
@@ -114,6 +114,15 @@
                 modal.remove();
             }
         });
+        
+        // Закрытие по Escape
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                modal.remove();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
     }
 
     /**

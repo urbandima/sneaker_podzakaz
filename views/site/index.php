@@ -5,6 +5,17 @@
 use yii\helpers\Html;
 
 $this->title = 'СНИКЕРХЭД - Закажем любые оригинальные товары для вас';
+
+// Убираем отступ футера для главной страницы
+$this->registerCss('
+.site-footer {
+    margin-top: 0 !important;
+}
+main.flex-shrink-0 {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+');
 ?>
 
 <div class="landing-page">
@@ -165,39 +176,6 @@ $this->title = 'СНИКЕРХЭД - Закажем любые оригинал�
             </div>
         </div>
     </section>
-
-    <!-- Footer -->
-    <footer class="landing-footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-column">
-                    <h4 class="footer-title">СНИКЕРХЭД</h4>
-                    <p class="footer-text">
-                        Оригинальные товары из США и Европы
-                    </p>
-                </div>
-                <div class="footer-column">
-                    <h4 class="footer-title">Контакты</h4>
-                    <p class="footer-text">
-                        <i class="bi bi-telephone"></i> +375 44 700-90-01<br>
-                        <i class="bi bi-envelope"></i> sneakerkultura@gmail.com<br>
-                        <i class="bi bi-telegram"></i> <a href="https://t.me/sneakerheadbyweb_bot" target="_blank">@sneakerheadbyweb_bot</a>
-                    </p>
-                </div>
-                <div class="footer-column">
-                    <h4 class="footer-title">Информация</h4>
-                    <p class="footer-text">
-                        <a href="<?= \yii\helpers\Url::to(['/site/offer-agreement']) ?>">Договор оферты</a><br>
-                        <a href="https://sneaker-head.by/page/politika-konfidencialnosti" target="_blank">Политика конфиденциальности</a><br>
-                        <a href="https://sneaker-head.by/page/dostavka-i-oplata" target="_blank">Доставка и оплата</a>
-                    </p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; <?= date('Y') ?> СНИКЕРХЭД. Все права защищены.</p>
-            </div>
-        </div>
-    </footer>
 </div>
 
 <style>
@@ -524,54 +502,6 @@ $this->title = 'СНИКЕРХЭД - Закажем любые оригинал�
     color: #000000;
 }
 
-/* Footer - Mobile First */
-.landing-footer {
-    padding: 2.5rem 0 1.5rem;
-    background: #000000;
-    color: #ffffff;
-}
-
-.footer-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    margin-bottom: 2rem;
-}
-
-.footer-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #ffffff;
-    margin-bottom: 0.75rem;
-}
-
-.footer-text {
-    font-size: 0.875rem;
-    color: #cccccc;
-    line-height: 1.8;
-}
-
-.footer-text a {
-    color: #cccccc;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-.footer-text a:hover {
-    color: #ffffff;
-}
-
-.footer-bottom {
-    text-align: center;
-    padding-top: 1.5rem;
-    border-top: 1px solid #333333;
-}
-
-.footer-bottom p {
-    color: #888888;
-    font-size: 0.8125rem;
-}
-
 /* Tablet - 768px and up */
 @media (min-width: 768px) {
     .container {
@@ -606,10 +536,6 @@ $this->title = 'СНИКЕРХЭД - Закажем любые оригинал�
     .steps-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 2rem;
-    }
-    
-    .footer-grid {
-        grid-template-columns: repeat(3, 1fr);
     }
     
     .cta-title {

@@ -19,32 +19,24 @@ $config = [
             'cookieValidationKey' => env('COOKIE_VALIDATION_KEY', '55daa9b88efcaee7aa2537a89365b6cfd36c32e988b0cd14070795aa19a3a081'),
             'baseUrl' => '',
         ],
-        // ВРЕМЕННО: FileCache (после установки Redis заменить)
-        // Для перехода на Redis выполните:
-        // 1. composer require yiisoft/yii2-redis
-        // 2. brew install redis && brew services start redis
-        // 3. Раскомментировать секцию Redis ниже
-        'cache' => [
-            'class' => 'yii\caching\FileCache',
-            'cachePath' => '@runtime/cache',
+        'cache' => extension_loaded('redis') && !YII_ENV_DEV 
+            ? [
+                // Redis для production
+                'class' => 'yii\redis\Cache',
+                'redis' => 'redis', // Ссылка на компонент redis
+            ]
+            : [
+                // FileCache для dev/fallback
+                'class' => 'yii\caching\FileCache',
+                'cachePath' => '@runtime/cache',
+            ],
+        'redis' => [
+            'class' => 'yii\redis\Connection',
+            'hostname' => env('REDIS_HOST', 'localhost'),
+            'port' => env('REDIS_PORT', 6379),
+            'password' => env('REDIS_PASSWORD', null),
+            'database' => env('REDIS_DB', 0),
         ],
-        
-        // БУДУЩЕЕ: Redis cache (раскомментировать после установки)
-        // 'redis' => [
-        //     'class' => 'yii\redis\Connection',
-        //     'hostname' => 'localhost',
-        //     'port' => 6379,
-        //     'database' => 0,
-        // ],
-        // 'cache' => [
-        //     'class' => 'yii\redis\Cache',
-        //     'redis' => [
-        //         'hostname' => 'localhost',
-        //         'port' => 6379,
-        //         'database' => 1, // Отдельная БД для кеша
-        //     ],
-        //     'keyPrefix' => 'sneakerhead:', // Префикс для избежания коллизий
-        // ],
         'assetManager' => [
             'bundles' => YII_ENV_DEV ? [] : [
                 'yii\web\JqueryAsset' => [
@@ -68,7 +60,7 @@ $config = [
             'errorAction' => 'site/error',
         ],
         'mailer' => [
-            'class' => 'yii\swiftmailer\Mailer',
+            'class' => 'yii\symfonymailer\Mailer',
             'viewPath' => '@app/mail',
             'useFileTransport' => (bool) env('MAIL_USE_FILE_TRANSPORT', true),
         ],
@@ -91,6 +83,11 @@ $config = [
             'apiKey' => $params['poizonApiKey'] ?? null,
             'timeout' => 30,
         ],
+        'currency' => [
+            'class' => 'app\components\CurrencyService',
+            'cnyToBynRate' => 0.45, // Курс CNY к BYN (обновляется автоматически через API)
+            'cacheDuration' => 86400, // 24 часа
+        ],
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
@@ -111,10 +108,24 @@ $config = [
                 'catalog/product/<slug:[a-z0-9-]+>' => 'catalog/product',
                 'catalog/favorites' => 'catalog/favorites',
                 
+                // ИСПРАВЛЕНО: Явные API роуты для AJAX (Проблема #7)
+                'catalog/add-favorite' => 'catalog/add-favorite',
+                'catalog/remove-favorite' => 'catalog/remove-favorite',
+                'catalog/favorites-count' => 'catalog/favorites-count',
+                'catalog/search' => 'catalog/search',
+                'catalog/filter' => 'catalog/filter',
+                'catalog/quick-view/<id:\d+>' => 'catalog/quick-view',
+                
+                // Корзина API
+                'cart/add' => 'cart/add',
+                'cart/update' => 'cart/update',
+                'cart/remove/<id:\d+>' => 'cart/remove',
+                'cart/count' => 'cart/count',
+                
                 // Sitemap
                 'sitemap.xml' => 'sitemap/index',
                 
-                // SEF фильтрация (умный фильтр)
+                // SEF фильтрация (умный фильтр) - ДОЛЖЕН быть после явных роутов
                 'catalog/filter/<filters:[\w\-/]+>' => 'catalog/filter-sef',
                 
                 // Админ-панель

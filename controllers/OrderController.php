@@ -7,8 +7,11 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
 use yii\web\BadRequestHttpException;
+use yii\web\Response;
 use app\models\Order;
+use app\models\OrderItem;
 use app\models\OrderHistory;
+use app\models\Cart;
 
 class OrderController extends Controller
 {
@@ -19,6 +22,173 @@ class OrderController extends Controller
         // CSRF защита включена для всех действий
         // Для публичных форм используем встроенные механизмы Yii2
         return parent::beforeAction($action);
+    }
+
+    /**
+     * Создание заказа из корзины
+     */
+    public function actionCreate()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'message' => 'Недопустимый метод запроса'];
+        }
+        
+        // Получаем данные формы
+        $name = Yii::$app->request->post('name');
+        $phone = Yii::$app->request->post('phone');
+        $email = Yii::$app->request->post('email');
+        $country = Yii::$app->request->post('country', 'belarus');
+        $delivery = Yii::$app->request->post('delivery');
+        $address = Yii::$app->request->post('address');
+        $comment = Yii::$app->request->post('comment');
+        
+        // Валидация обязательных полей
+        if (empty($name) || empty($phone) || empty($delivery)) {
+            return ['success' => false, 'message' => 'Заполните все обязательные поля'];
+        }
+        
+        // Проверяем адрес (обязателен для всех кроме самовывоза)
+        if ($delivery !== 'pickup_minsk' && empty($address)) {
+            return ['success' => false, 'message' => 'Укажите адрес доставки'];
+        }
+        
+        // Получаем товары из корзины
+        $cartItems = Cart::getItems();
+        if (empty($cartItems)) {
+            return ['success' => false, 'message' => 'Корзина пуста'];
+        }
+        
+        // Начинаем транзакцию
+        $transaction = Yii::$app->db->beginTransaction();
+        
+        try {
+            // Создаем заказ
+            $order = new Order();
+            $order->client_name = $name;
+            $order->client_phone = $phone;
+            $order->client_email = $email;
+            $order->delivery_country = $country;
+            $order->delivery_method = $delivery;
+            $order->delivery_address = $address ?? '';
+            $order->comment = $comment;
+            $order->status = 'new';
+
+            if ($order->hasAttribute('source')) {
+                $order->source = 'website';
+            } else {
+                Yii::warning('Поле source отсутствует в таблице order, пропускаем установку источника.', 'order');
+            }
+            
+            // Рассчитываем стоимость доставки
+            $deliveryCost = 0;
+            switch ($delivery) {
+                case 'courier_minsk':
+                    $deliveryCost = 10;
+                    break;
+                case 'europochta':
+                    $deliveryCost = 5;
+                    break;
+                case 'belpochta':
+                    $deliveryCost = 4;
+                    break;
+                case 'sdek':
+                    $deliveryCost = 0; // Рассчитывается отдельно
+                    break;
+                default:
+                    $deliveryCost = 0;
+            }
+            
+            $order->delivery_cost = $deliveryCost;
+            
+            // Рассчитываем итоговую сумму
+            $totalAmount = Cart::getTotal();
+            $order->total_amount = $totalAmount + $deliveryCost;
+            
+            // Генерируем номер заказа и токен
+            $order->order_number = 'WEB-' . date('Ymd') . '-' . strtoupper(Yii::$app->security->generateRandomString(6));
+            $order->token = Yii::$app->security->generateRandomString(32);
+            
+            if (!$order->save()) {
+                throw new \Exception('Ошибка сохранения заказа: ' . json_encode($order->errors));
+            }
+            
+            // Добавляем товары в заказ
+            foreach ($cartItems as $cartItem) {
+                $orderItem = new OrderItem();
+                $orderItem->order_id = $order->id;
+                $orderItem->product_id = $cartItem->product_id;
+                $orderItem->product_name = $cartItem->product->name;
+                $orderItem->product_article = $cartItem->product->article ?? '';
+                $orderItem->quantity = $cartItem->quantity;
+                $orderItem->price = $cartItem->price;
+                $orderItem->size = $cartItem->size;
+                $orderItem->color = $cartItem->color;
+                
+                if (!$orderItem->save()) {
+                    throw new \Exception('Ошибка сохранения товара: ' . json_encode($orderItem->errors));
+                }
+            }
+            
+            // Добавляем запись в историю
+            $history = new OrderHistory();
+            $history->order_id = $order->id;
+            $history->old_status = null;
+            $history->new_status = 'new';
+            $history->comment = 'Заказ создан через сайт';
+            
+            if (!$history->save()) {
+                throw new \Exception('Ошибка сохранения истории: ' . json_encode($history->errors));
+            }
+            
+            // Очищаем корзину
+            Cart::clear();
+            
+            // Отправляем email уведомления (опционально)
+            try {
+                // Клиенту
+                if ($email) {
+                    Yii::$app->mailer->compose('order-created', ['order' => $order])
+                        ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
+                        ->setTo($email)
+                        ->setSubject('Заказ №' . $order->order_number . ' оформлен')
+                        ->send();
+                }
+                
+                // Менеджеру
+                if (!empty(Yii::$app->params['adminEmail'])) {
+                    Yii::$app->mailer->compose('order-created-manager', ['order' => $order])
+                        ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
+                        ->setTo(Yii::$app->params['adminEmail'])
+                        ->setSubject('Новый заказ №' . $order->order_number)
+                        ->send();
+                }
+            } catch (\Exception $e) {
+                Yii::warning('Ошибка отправки email: ' . $e->getMessage(), 'order');
+            }
+            
+            $transaction->commit();
+            
+            Yii::info('Создан заказ #' . $order->id . ' через корзину', 'order');
+            
+            return [
+                'success' => true,
+                'message' => 'Заказ успешно оформлен',
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'token' => $order->token
+            ];
+            
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::error('Ошибка создания заказа: ' . $e->getMessage(), 'order');
+            
+            return [
+                'success' => false,
+                'message' => 'Ошибка при оформлении заказа. Попробуйте позже.'
+            ];
+        }
     }
 
     public function actionView($token)

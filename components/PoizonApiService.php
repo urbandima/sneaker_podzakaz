@@ -71,28 +71,6 @@ class PoizonApiService extends Component
                 return $this->parseXmlFeed(Yii::$app->params['poizonXmlUrl']);
             }
             
-            // Вариант 2: Использование стороннего API парсера (требует composer require yiisoft/yii2-httpclient)
-            // Для использования API раскомментируйте код ниже и установите yii2-httpclient
-            /*
-            $client = new \yii\httpclient\Client(['baseUrl' => $this->apiUrl]);
-            $response = $client->createRequest()
-                ->setMethod('GET')
-                ->setUrl('/products/search')
-                ->setData($params)
-                ->setHeaders([
-                    'Authorization' => 'Bearer ' . $this->apiKey,
-                    'Content-Type' => 'application/json',
-                ])
-                ->send();
-            
-            if ($response->isOk) {
-                return $response->data;
-            }
-            
-            Yii::error('Poizon API error: ' . $response->statusCode, __METHOD__);
-            return ['items' => [], 'error' => 'API request failed'];
-            */
-            
             return ['items' => [], 'error' => 'API импорт не настроен. Используйте XML фид или JSON файл'];
             
         } catch (\Exception $e) {
@@ -235,22 +213,6 @@ class PoizonApiService extends Component
                 'stock' => rand(1, 10),
                 'price_cny' => rand(300, 2000),
             ];
-            
-            // Реальная реализация (пример):
-            /*
-            $response = $this->_client->createRequest()
-                ->setMethod('GET')
-                ->setUrl('/sku/check')
-                ->setData(['sku_id' => $poizonSkuId])
-                ->setHeaders(['Authorization' => 'Bearer ' . $this->apiKey])
-                ->send();
-            
-            if ($response->isOk) {
-                return $response->data;
-            }
-            
-            return ['available' => false, 'stock' => 0];
-            */
         } catch (\Exception $e) {
             Yii::error('Size availability check error: ' . $e->getMessage(), __METHOD__);
             return ['available' => false, 'stock' => 0, 'error' => $e->getMessage()];
@@ -351,19 +313,15 @@ class PoizonApiService extends Component
 
     /**
      * Рассчитать цену в BYN по формуле: CNY * курс * 1.5 + 40 BYN
+     * ДЕЛЕГИРУЕТ в CurrencyService для единообразия калькуляции и красивого округления
      * 
      * @param float $priceCny Цена в юанях
      * @return float Цена в BYN
      */
     public function calculatePriceBYN($priceCny)
     {
-        // Курс CNY -> BYN (примерный, обновляется вручную или через API)
-        $cnyToByn = Yii::$app->params['cnyToBynRate'] ?? 0.45; // 1 CNY ≈ 0.45 BYN
-        
-        // Формула: CNY * курс * 1.5 + 40
-        $priceByn = ($priceCny * $cnyToByn * 1.5) + 40;
-        
-        return round($priceByn, 2);
+        // Используем CurrencyService для единообразия калькуляции
+        return Yii::$app->currency->calculatePoizonPriceByn($priceCny);
     }
 
     /**

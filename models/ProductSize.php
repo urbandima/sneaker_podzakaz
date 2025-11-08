@@ -40,6 +40,8 @@ use yii\behaviors\TimestampBehavior;
  * @property string|null $color_variant Цвет конкретного варианта
  * @property int|null $delivery_time_min Минимальный срок доставки
  * @property int|null $delivery_time_max Максимальный срок доставки
+ * @property string|null $variant_vendor_code Артикул варианта (vendorCode из children)
+ * @property string|null $images_json JSON массив изображений варианта
  * 
  * @property Product $product
  */
@@ -79,6 +81,8 @@ class ProductSize extends ActiveRecord
             [['is_available'], 'default', 'value' => 1],
             [['size', 'us_size', 'eu_size', 'uk_size', 'poizon_sku_id', 'color_variant'], 'string', 'max' => 50],
             [['color', 'color_variant'], 'string', 'max' => 100],
+            [['variant_vendor_code'], 'string', 'max' => 100],
+            [['images_json'], 'string'],
             [['delivery_time_min', 'delivery_time_max'], 'integer'],
             [['cm_size', 'poizon_price_cny', 'price', 'price_cny', 'price_byn', 'price_client_byn'], 'number'],
             [['price', 'price_cny', 'price_byn', 'price_client_byn'], 'number', 'min' => 0],
@@ -123,6 +127,8 @@ class ProductSize extends ActiveRecord
             'color_variant' => 'Цвет варианта',
             'delivery_time_min' => 'Доставка (мин)',
             'delivery_time_max' => 'Доставка (макс)',
+            'variant_vendor_code' => 'Артикул варианта',
+            'images_json' => 'Изображения варианта (JSON)',
         ];
     }
 
@@ -144,22 +150,47 @@ class ProductSize extends ActiveRecord
     
     /**
      * Получить цену в BYN (автоматический расчет)
-     * Формула: price_cny * 1.5 + 40 BYN
+     * Формула: (price_cny * курс * 1.5) + 40 BYN
+     * С округлением до красивых значений (X99)
      * 
      * @return float|null
      */
     public function getPriceByn()
     {
-        if ($this->price_cny) {
-            return round($this->price_cny * 1.5 + 40, 2);
+        // Приоритет 1: price_byn из БД (уже округленная)
+        if ($this->price_byn) {
+            return $this->price_byn;
         }
         
-        // Fallback на цену товара
+        // Приоритет 2: расчет из price_cny через CurrencySetting
+        if ($this->price_cny) {
+            return \app\models\CurrencySetting::convertFromCny($this->price_cny, 'BYN');
+        }
+        
+        // Приоритет 3: цена товара (с округлением)
         if ($this->product && $this->product->price) {
-            return $this->product->price;
+            return $this->roundToPrettyPrice($this->product->price);
         }
         
         return null;
+    }
+    
+    /**
+     * Округлить цену до "красивого" значения, заканчивающегося на 9
+     * 
+     * @param float $price
+     * @return int
+     */
+    private function roundToPrettyPrice($price)
+    {
+        $floored = floor($price);
+        $result = floor($floored / 10) * 10 + 9;
+        
+        if ($result > $floored) {
+            $result -= 10;
+        }
+        
+        return $result;
     }
     
     /**
@@ -183,6 +214,10 @@ class ProductSize extends ActiveRecord
             if ($this->price_cny && !$this->price_byn) {
                 $this->price_byn = $this->getPriceByn();
             }
+            
+            // Цена уже округляется в CurrencySetting::convertFromCny()
+            // Дополнительное округление не требуется
+            
             return true;
         }
         return false;
