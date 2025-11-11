@@ -9,10 +9,21 @@ class m251108_172031_add_missing_order_fields extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn('{{%order}}', 'source', $this->string(50)->comment('Источник заказа (catalog, manual)'));
-        $this->addColumn('{{%order}}', 'source_id', $this->integer()->comment('ID источника'));
+        $tableSchema = $this->db->getTableSchema('{{%order}}');
+        
+        if (!isset($tableSchema->columns['source'])) {
+            $this->addColumn('{{%order}}', 'source', $this->string(50)->comment('Источник заказа (catalog, manual)'));
+        }
+        
+        if (!isset($tableSchema->columns['source_id'])) {
+            $this->addColumn('{{%order}}', 'source_id', $this->integer()->comment('ID источника'));
+        }
 
-        $this->createIndex('idx-order-source', '{{%order}}', ['source', 'source_id']);
+        try {
+            $this->createIndex('idx-order-source', '{{%order}}', ['source', 'source_id']);
+        } catch (\Exception $e) {
+            echo "⚠ Индекс idx-order-source уже существует\n";
+        }
     }
 
     /**
