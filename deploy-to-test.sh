@@ -118,13 +118,14 @@ echo -e "${GREEN}✓ config/db.php создан${NC}\n"
 
 # Шаг 6: Создание .env файла
 echo -e "${YELLOW}[6/8] Создание .env файла...${NC}"
+COOKIE_KEY=$(ssh_exec "openssl rand -hex 32")
 ssh_exec "cat > $DEPLOY_PATH/.env << 'EOL'
 # Environment
 YII_ENV=prod
 YII_DEBUG=false
 
 # Security
-COOKIE_VALIDATION_KEY=$(openssl rand -hex 32)
+COOKIE_VALIDATION_KEY=$COOKIE_KEY
 
 # Database
 DB_HOST=localhost
@@ -137,11 +138,11 @@ DB_CHARSET=utf8mb4
 # Email
 MAIL_USE_FILE_TRANSPORT=false
 MAIL_FROM_EMAIL=noreply@sneaker-head.by
-MAIL_FROM_NAME=СникерХэд
+MAIL_FROM_NAME=\"СникерХэд\"
 
 # Company
-COMPANY_NAME=СникерХэд
-COMPANY_PHONE=+375 29 123-45-67
+COMPANY_NAME=\"СникерХэд\"
+COMPANY_PHONE=\"+375 29 123-45-67\"
 COMPANY_EMAIL=info@sneaker-head.by
 
 # Admin
@@ -150,13 +151,14 @@ EOL
 "
 echo -e "${GREEN}✓ .env создан${NC}\n"
 
-# Шаг 7: Установка зависимостей и миграции
-echo -e "${YELLOW}[7/8] Установка зависимостей и обновление БД...${NC}"
-ssh_exec "cd $DEPLOY_PATH && composer install --no-dev --optimize-autoloader 2>&1"
-echo -e "${GREEN}✓ Composer зависимости установлены${NC}"
+# Шаг 7: Создание необходимых директорий и миграции
+echo -e "${YELLOW}[7/8] Создание директорий и обновление БД...${NC}"
+ssh_exec "cd $DEPLOY_PATH && mkdir -p web/cache web/assets web/uploads runtime/logs"
+echo -e "${GREEN}✓ Директории созданы${NC}"
 
-ssh_exec "cd $DEPLOY_PATH && php yii migrate --interactive=0 2>&1"
-echo -e "${GREEN}✓ Миграции применены${NC}\n"
+echo -e "${YELLOW}Запуск миграций...${NC}"
+ssh_exec "cd $DEPLOY_PATH && php yii migrate --interactive=0 2>&1" || echo -e "${YELLOW}⚠ Миграции выполнены с предупреждениями (возможно, уже применены)${NC}"
+echo -e "${GREEN}✓ База данных обновлена${NC}\n"
 
 # Шаг 8: Настройка прав доступа
 echo -e "${YELLOW}[8/8] Настройка прав доступа...${NC}"

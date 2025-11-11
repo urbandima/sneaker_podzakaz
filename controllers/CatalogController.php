@@ -149,9 +149,9 @@ class CatalogController extends Controller
         $ogImage = $this->getFirstProductImage($query) ?: Yii::$app->request->hostInfo . '/images/og-default.jpg';
         
         return $this->renderCatalogPage(
-            query: $query,
-            h1: 'Каталог товаров',
-            metaTags: [
+            $query,
+            'Каталог товаров',
+            [
                 'title' => $title . ' | СНИКЕРХЭД',
                 'description' => $description,
                 'keywords' => 'купить кроссовки, оригинальная обувь, nike, adidas, интернет-магазин',
@@ -412,12 +412,16 @@ class CatalogController extends Controller
      */
     protected function resolveSizeField(string $sizeSystem): string
     {
-        return match ($sizeSystem) {
-            'us' => 'us_size',
-            'uk' => 'uk_size',
-            'cm' => 'cm_size',
-            default => 'eu_size',
-        };
+        switch ($sizeSystem) {
+            case 'us':
+                return 'us_size';
+            case 'uk':
+                return 'uk_size';
+            case 'cm':
+                return 'cm_size';
+            default:
+                return 'eu_size';
+        }
     }
     
     /**
@@ -605,10 +609,10 @@ class CatalogController extends Controller
         ];
         
         return $this->renderCatalogPage(
-            query: $query,
-            h1: $brand->name,
-            metaTags: $metaTags,
-            filterConditions: ['brand_id' => $brand->id]
+            $query,
+            $brand->name,
+            $metaTags,
+            ['brand_id' => $brand->id]
         );
     }
 
@@ -658,9 +662,9 @@ class CatalogController extends Controller
         }
         
         return $this->renderCatalogPage(
-            query: $query,
-            h1: $category->name,
-            metaTags: [
+            $query,
+            $category->name,
+            [
                 'title' => $title . ' | СНИКЕРХЭД',
                 'description' => $description,
                 'keywords' => $category->name . ', купить, оригинал',
@@ -679,7 +683,7 @@ class CatalogController extends Controller
                     ['name' => $category->name, 'url' => '/catalog/category/' . $category->slug]
                 ],
             ],
-            filterConditions: ['category_id' => $categoryIds]
+            ['category_id' => $categoryIds]
         );
     }
 
