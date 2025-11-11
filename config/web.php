@@ -19,9 +19,9 @@ $config = [
             'cookieValidationKey' => env('COOKIE_VALIDATION_KEY', '55daa9b88efcaee7aa2537a89365b6cfd36c32e988b0cd14070795aa19a3a081'),
             'baseUrl' => '',
         ],
-        'cache' => extension_loaded('redis') && !YII_ENV_DEV 
+        'cache' => extension_loaded('redis') && YII_ENV === 'prod' && env('REDIS_HOST')
             ? [
-                // Redis для production
+                // Redis для production (только если установлен и настроен)
                 'class' => 'yii\redis\Cache',
                 'redis' => 'redis', // Ссылка на компонент redis
             ]
@@ -30,13 +30,6 @@ $config = [
                 'class' => 'yii\caching\FileCache',
                 'cachePath' => '@runtime/cache',
             ],
-        'redis' => [
-            'class' => 'yii\redis\Connection',
-            'hostname' => env('REDIS_HOST', 'localhost'),
-            'port' => env('REDIS_PORT', 6379),
-            'password' => env('REDIS_PASSWORD', null),
-            'database' => env('REDIS_DB', 0),
-        ],
         'assetManager' => [
             'bundles' => YII_ENV_DEV ? [] : [
                 'yii\web\JqueryAsset' => [
