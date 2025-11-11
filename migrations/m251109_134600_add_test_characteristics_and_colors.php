@@ -9,15 +9,29 @@ class m251109_134600_add_test_characteristics_and_colors extends Migration
 {
     public function safeUp()
     {
-        // 1. Добавляем характеристики для фильтров
-        $this->batchInsert('{{%characteristic}}', ['key', 'name', 'type', 'is_filter', 'is_active', 'sort_order'], [
+        // 1. Добавляем характеристики для фильтров (только если не существуют)
+        $characteristics = [
             ['material', 'Материал', 'multiselect', 1, 1, 1],
             ['season', 'Сезон', 'select', 1, 1, 2],
             ['gender', 'Пол', 'select', 1, 1, 3],
             ['height', 'Высота', 'select', 1, 1, 4],
             ['fastening', 'Тип застежки', 'multiselect', 1, 1, 5],
             ['country_origin', 'Страна производства', 'select', 1, 1, 6],
-        ]);
+        ];
+        
+        foreach ($characteristics as $char) {
+            $exists = $this->db->createCommand("SELECT COUNT(*) FROM {{%characteristic}} WHERE `key`=:key", [':key' => $char[0]])->queryScalar();
+            if (!$exists) {
+                $this->insert('{{%characteristic}}', [
+                    'key' => $char[0],
+                    'name' => $char[1],
+                    'type' => $char[2],
+                    'is_filter' => $char[3],
+                    'is_active' => $char[4],
+                    'sort_order' => $char[5],
+                ]);
+            }
+        }
 
         // 2. Получаем ID характеристик
         $materialId = $this->db->createCommand("SELECT id FROM {{%characteristic}} WHERE `key`='material'")->queryScalar();
@@ -27,53 +41,56 @@ class m251109_134600_add_test_characteristics_and_colors extends Migration
         $fasteningId = $this->db->createCommand("SELECT id FROM {{%characteristic}} WHERE `key`='fastening'")->queryScalar();
         $countryId = $this->db->createCommand("SELECT id FROM {{%characteristic}} WHERE `key`='country_origin'")->queryScalar();
 
-        // 3. Добавляем значения для Материала
-        $this->batchInsert('{{%characteristic_value}}', ['characteristic_id', 'value', 'slug', 'sort_order', 'is_active'], [
+        // 3. Добавляем значения для характеристик (с проверкой на существование)
+        $values = [
+            // Материал
             [$materialId, 'Кожа', 'leather', 1, 1],
             [$materialId, 'Замша', 'suede', 2, 1],
             [$materialId, 'Текстиль', 'textile', 3, 1],
             [$materialId, 'Синтетика', 'synthetic', 4, 1],
             [$materialId, 'Сетка', 'mesh', 5, 1],
             [$materialId, 'Канвас', 'canvas', 6, 1],
-        ]);
-
-        // 4. Значения для Сезона
-        $this->batchInsert('{{%characteristic_value}}', ['characteristic_id', 'value', 'slug', 'sort_order', 'is_active'], [
+            // Сезон
             [$seasonId, 'Лето', 'summer', 1, 1],
             [$seasonId, 'Зима', 'winter', 2, 1],
             [$seasonId, 'Демисезон', 'demi', 3, 1],
             [$seasonId, 'Всесезон', 'all-season', 4, 1],
-        ]);
-
-        // 5. Значения для Пола
-        $this->batchInsert('{{%characteristic_value}}', ['characteristic_id', 'value', 'slug', 'sort_order', 'is_active'], [
+            // Пол
             [$genderId, 'Мужской', 'male', 1, 1],
             [$genderId, 'Женский', 'female', 2, 1],
             [$genderId, 'Унисекс', 'unisex', 3, 1],
-        ]);
-
-        // 6. Значения для Высоты
-        $this->batchInsert('{{%characteristic_value}}', ['characteristic_id', 'value', 'slug', 'sort_order', 'is_active'], [
+            // Высота
             [$heightId, 'Низкие', 'low', 1, 1],
             [$heightId, 'Средние', 'mid', 2, 1],
             [$heightId, 'Высокие', 'high', 3, 1],
-        ]);
-
-        // 7. Значения для Застежки
-        $this->batchInsert('{{%characteristic_value}}', ['characteristic_id', 'value', 'slug', 'sort_order', 'is_active'], [
+            // Застежка
             [$fasteningId, 'Шнурки', 'laces', 1, 1],
             [$fasteningId, 'Липучки', 'velcro', 2, 1],
             [$fasteningId, 'Молния', 'zipper', 3, 1],
             [$fasteningId, 'Slip-on', 'slip-on', 4, 1],
-        ]);
-
-        // 8. Значения для Страны
-        $this->batchInsert('{{%characteristic_value}}', ['characteristic_id', 'value', 'slug', 'sort_order', 'is_active'], [
+            // Страна
             [$countryId, 'Вьетнам', 'vietnam', 1, 1],
             [$countryId, 'Китай', 'china', 2, 1],
             [$countryId, 'Индонезия', 'indonesia', 3, 1],
             [$countryId, 'США', 'usa', 4, 1],
-        ]);
+        ];
+        
+        foreach ($values as $val) {
+            $exists = $this->db->createCommand(
+                "SELECT COUNT(*) FROM {{%characteristic_value}} WHERE characteristic_id=:char_id AND slug=:slug",
+                [':char_id' => $val[0], ':slug' => $val[2]]
+            )->queryScalar();
+            
+            if (!$exists) {
+                $this->insert('{{%characteristic_value}}', [
+                    'characteristic_id' => $val[0],
+                    'value' => $val[1],
+                    'slug' => $val[2],
+                    'sort_order' => $val[3],
+                    'is_active' => $val[4],
+                ]);
+            }
+        }
 
         // 9. Добавляем цвета товаров (для первых 20 товаров)
         $products = $this->db->createCommand("SELECT id FROM {{%product}} WHERE is_active=1 LIMIT 20")->queryColumn();
@@ -90,22 +107,29 @@ class m251109_134600_add_test_characteristics_and_colors extends Migration
         ];
 
         foreach ($products as $index => $productId) {
-            // Каждому товару 1-2 цвета
-            $color1 = $colors[$index % count($colors)];
-            $this->insert('{{%product_color}}', [
-                'product_id' => $productId,
-                'name' => $color1[0],
-                'hex' => $color1[1],
-            ]);
+            // Каждому товару 1-2 цвета (пропускаем если уже есть)
+            $existingColors = $this->db->createCommand(
+                "SELECT COUNT(*) FROM {{%product_color}} WHERE product_id=:pid",
+                [':pid' => $productId]
+            )->queryScalar();
             
-            // Добавляем второй цвет для половины товаров
-            if ($index % 2 === 0 && $index + 1 < count($colors)) {
-                $color2 = $colors[($index + 1) % count($colors)];
+            if (!$existingColors) {
+                $color1 = $colors[$index % count($colors)];
                 $this->insert('{{%product_color}}', [
                     'product_id' => $productId,
-                    'name' => $color2[0],
-                    'hex' => $color2[1],
+                    'name' => $color1[0],
+                    'hex' => $color1[1],
                 ]);
+                
+                // Добавляем второй цвет для половины товаров
+                if ($index % 2 === 0 && $index + 1 < count($colors)) {
+                    $color2 = $colors[($index + 1) % count($colors)];
+                    $this->insert('{{%product_color}}', [
+                        'product_id' => $productId,
+                        'name' => $color2[0],
+                        'hex' => $color2[1],
+                    ]);
+                }
             }
         }
 
@@ -135,49 +159,57 @@ class m251109_134600_add_test_characteristics_and_colors extends Migration
         ];
 
         foreach ($products as $index => $productId) {
-            $values = $valuesByProduct[$index % count($valuesByProduct)];
+            // Пропускаем если уже есть характеристики
+            $existingChars = $this->db->createCommand(
+                "SELECT COUNT(*) FROM {{%product_characteristic_value}} WHERE product_id=:pid",
+                [':pid' => $productId]
+            )->queryScalar();
             
-            // Материал
-            $this->insert('{{%product_characteristic_value}}', [
-                'product_id' => $productId,
-                'characteristic_id' => $materialId,
-                'characteristic_value_id' => $values[0],
-            ]);
-            
-            // Сезон
-            $this->insert('{{%product_characteristic_value}}', [
-                'product_id' => $productId,
-                'characteristic_id' => $seasonId,
-                'characteristic_value_id' => $values[1],
-            ]);
-            
-            // Пол
-            $this->insert('{{%product_characteristic_value}}', [
-                'product_id' => $productId,
-                'characteristic_id' => $genderId,
-                'characteristic_value_id' => $values[2],
-            ]);
-            
-            // Высота
-            $this->insert('{{%product_characteristic_value}}', [
-                'product_id' => $productId,
-                'characteristic_id' => $heightId,
-                'characteristic_value_id' => $values[3],
-            ]);
-            
-            // Застежка
-            $this->insert('{{%product_characteristic_value}}', [
-                'product_id' => $productId,
-                'characteristic_id' => $fasteningId,
-                'characteristic_value_id' => $values[4],
-            ]);
-            
-            // Страна
-            $this->insert('{{%product_characteristic_value}}', [
-                'product_id' => $productId,
-                'characteristic_id' => $countryId,
-                'characteristic_value_id' => $values[5],
-            ]);
+            if (!$existingChars) {
+                $values = $valuesByProduct[$index % count($valuesByProduct)];
+                
+                // Материал
+                $this->insert('{{%product_characteristic_value}}', [
+                    'product_id' => $productId,
+                    'characteristic_id' => $materialId,
+                    'characteristic_value_id' => $values[0],
+                ]);
+                
+                // Сезон
+                $this->insert('{{%product_characteristic_value}}', [
+                    'product_id' => $productId,
+                    'characteristic_id' => $seasonId,
+                    'characteristic_value_id' => $values[1],
+                ]);
+                
+                // Пол
+                $this->insert('{{%product_characteristic_value}}', [
+                    'product_id' => $productId,
+                    'characteristic_id' => $genderId,
+                    'characteristic_value_id' => $values[2],
+                ]);
+                
+                // Высота
+                $this->insert('{{%product_characteristic_value}}', [
+                    'product_id' => $productId,
+                    'characteristic_id' => $heightId,
+                    'characteristic_value_id' => $values[3],
+                ]);
+                
+                // Застежка
+                $this->insert('{{%product_characteristic_value}}', [
+                    'product_id' => $productId,
+                    'characteristic_id' => $fasteningId,
+                    'characteristic_value_id' => $values[4],
+                ]);
+                
+                // Страна
+                $this->insert('{{%product_characteristic_value}}', [
+                    'product_id' => $productId,
+                    'characteristic_id' => $countryId,
+                    'characteristic_value_id' => $values[5],
+                ]);
+            }
         }
 
         echo "✅ Добавлено:\n";
