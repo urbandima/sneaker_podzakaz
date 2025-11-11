@@ -60,12 +60,15 @@ class SmartFilter extends Component
             $parts[] = "price-{$from}-{$to}";
         }
         
-        // Размеры
+        // Размеры (с указанием системы измерения для SEO)
         if (!empty($filters['sizes'])) {
             $sizes = is_array($filters['sizes']) 
                 ? implode('-', array_map('strval', $filters['sizes'])) 
                 : strval($filters['sizes']);
-            $parts[] = 'size-' . $sizes;
+            
+            // Добавляем систему размеров в URL для лучшей индексации
+            $sizeSystem = $filters['size_system'] ?? 'eu';
+            $parts[] = 'size-' . strtolower($sizeSystem) . '-' . $sizes;
         }
         
         // Цвета
@@ -130,9 +133,16 @@ class SmartFilter extends Component
                     $filters['price_to'] = (int)$m[2];
                 }
             }
-            // size-40-41-42
-            elseif (preg_match('/^size-(.+)$/', $part, $m)) {
-                $filters['sizes'] = explode('-', $m[1]);
+            // size-eu-40-41-42 или size-40-41-42 (старый формат)
+            elseif (preg_match('/^size-(?:(eu|us|uk|cm)-)?(.+)$/', $part, $m)) {
+                if (!empty($m[1])) {
+                    $filters['size_system'] = $m[1];
+                    $filters['sizes'] = explode('-', $m[2]);
+                } else {
+                    // Старый формат без системы - по умолчанию EU
+                    $filters['size_system'] = 'eu';
+                    $filters['sizes'] = explode('-', $m[2]);
+                }
             }
             // color-red-blue
             elseif (preg_match('/^color-(.+)$/', $part, $m)) {
@@ -291,13 +301,14 @@ class SmartFilter extends Component
         // Размеры
         if (!empty($filters['sizes'])) {
             $sizes = is_array($filters['sizes']) ? implode(', ', $filters['sizes']) : $filters['sizes'];
+            $sizeSystem = strtoupper($filters['size_system'] ?? 'EU');
             
             $removeFilters = $filters;
-            unset($removeFilters['sizes']);
+            unset($removeFilters['sizes'], $removeFilters['size_system']);
             
             $active[] = [
                 'type' => 'size',
-                'label' => "Размер: {$sizes}",
+                'label' => "Размер {$sizeSystem}: {$sizes}",
                 'removeUrl' => self::generateSefUrl($removeFilters)
             ];
         }

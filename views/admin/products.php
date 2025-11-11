@@ -32,14 +32,14 @@ $this->params['breadcrumbs'][] = $this->title;
                 <li>
                     <?= Html::a(
                         '<i class="bi bi-tags"></i> Справочник характеристик',
-                        ['characteristics-guide'],
+                        ['/admin/characteristic/guide'],
                         ['class' => 'dropdown-item']
                     ) ?>
                 </li>
                 <li>
                     <?= Html::a(
                         '<i class="bi bi-info-circle"></i> Информация о размерах',
-                        ['size-guide'],
+                        ['/admin/size-grid/guide'],
                         ['class' => 'dropdown-item']
                     ) ?>
                 </li>
@@ -48,14 +48,14 @@ $this->params['breadcrumbs'][] = $this->title;
                 <li>
                     <?= Html::a(
                         '<i class="bi bi-rulers"></i> Размерные сетки',
-                        ['size-grids'],
+                        ['/admin/size-grid/index'],
                         ['class' => 'dropdown-item']
                     ) ?>
                 </li>
                 <li>
                     <?= Html::a(
                         '<i class="bi bi-plus-circle"></i> Создать размерную сетку',
-                        ['create-size-grid'],
+                        ['/admin/size-grid/create'],
                         ['class' => 'dropdown-item']
                     ) ?>
                 </li>
@@ -112,7 +112,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <h5 class="mb-0"><i class="bi bi-funnel"></i> Фильтры</h5>
         </div>
         <div class="card-body">
-            <form method="get" action="<?= Url::to(['products']) ?>">
+            <form method="get" action="<?= Url::to(['/admin/product/index']) ?>">
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label class="form-label">Поиск</label>
@@ -181,13 +181,13 @@ $this->params['breadcrumbs'][] = $this->title;
             <strong>Импорт из Poizon:</strong> Быстрый импорт и обновление товаров из Poizon
         </div>
         <div class="btn-group">
-            <?= Html::a('<i class="bi bi-play-circle"></i> Запустить импорт', ['poizon-run'], [
+            <?= Html::a('<i class="bi bi-play-circle"></i> Запустить импорт', ['/admin/poizon/run'], [
                 'class' => 'btn btn-sm btn-success',
             ]) ?>
-            <?= Html::a('<i class="bi bi-arrow-repeat"></i> Обновить цены', ['poizon-import'], [
+            <?= Html::a('<i class="bi bi-arrow-repeat"></i> Обновить цены', ['/admin/poizon/index'], [
                 'class' => 'btn btn-sm btn-info',
             ]) ?>
-            <?= Html::a('<i class="bi bi-list-check"></i> История импорта', ['poizon-import'], [
+            <?= Html::a('<i class="bi bi-list-check"></i> История импорта', ['/admin/poizon/index'], [
                 'class' => 'btn btn-sm btn-secondary',
             ]) ?>
         </div>
@@ -223,7 +223,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         'attribute' => 'name',
                         'format' => 'raw',
                         'value' => function ($model) {
-                            $name = Html::a(Html::encode($model->name), ['view-product', 'id' => $model->id], [
+                            $name = Html::a(Html::encode($model->name), ['/admin/product/view', 'id' => $model->id], [
                                 'style' => 'font-weight: 500; color: #2c3e50;'
                             ]);
                             
@@ -385,13 +385,13 @@ $this->params['breadcrumbs'][] = $this->title;
                         'template' => '{view} {edit} {sync} {toggle} {delete}',
                         'buttons' => [
                             'view' => function ($url, $model) {
-                                return Html::a('<i class="bi bi-eye"></i>', ['view-product', 'id' => $model->id], [
+                                return Html::a('<i class="bi bi-eye"></i>', ['/admin/product/view', 'id' => $model->id], [
                                     'class' => 'btn btn-sm btn-outline-primary',
                                     'title' => 'Просмотр',
                                 ]);
                             },
                             'edit' => function ($url, $model) {
-                                return Html::a('<i class="bi bi-pencil"></i>', ['edit-product', 'id' => $model->id], [
+                                return Html::a('<i class="bi bi-pencil"></i>', ['/admin/product/edit', 'id' => $model->id], [
                                     'class' => 'btn btn-sm btn-outline-secondary',
                                     'title' => 'Редактировать',
                                 ]);
@@ -400,7 +400,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 if (!$model->poizon_id) {
                                     return '';
                                 }
-                                return Html::a('<i class="bi bi-arrow-repeat"></i>', ['sync-product', 'id' => $model->id], [
+                                return Html::a('<i class="bi bi-arrow-repeat"></i>', ['/admin/product/sync', 'id' => $model->id], [
                                     'class' => 'btn btn-sm btn-outline-info',
                                     'title' => 'Синхронизировать с Poizon',
                                     'data-method' => 'post',
@@ -409,14 +409,14 @@ $this->params['breadcrumbs'][] = $this->title;
                             'toggle' => function ($url, $model) {
                                 $icon = $model->is_active ? 'eye-slash' : 'eye';
                                 $class = $model->is_active ? 'warning' : 'success';
-                                return Html::a('<i class="bi bi-' . $icon . '"></i>', ['toggle-product', 'id' => $model->id], [
+                                return Html::a('<i class="bi bi-' . $icon . '"></i>', ['/admin/product/toggle', 'id' => $model->id], [
                                     'class' => 'btn btn-sm btn-outline-' . $class,
                                     'title' => $model->is_active ? 'Деактивировать' : 'Активировать',
                                     'data-method' => 'post',
                                 ]);
                             },
                             'delete' => function ($url, $model) {
-                                return Html::a('<i class="bi bi-trash"></i>', ['delete-product', 'id' => $model->id], [
+                                return Html::a('<i class="bi bi-trash"></i>', ['/admin/product/delete', 'id' => $model->id], [
                                     'class' => 'btn btn-sm btn-outline-danger',
                                     'title' => 'Удалить',
                                     'data-method' => 'post',

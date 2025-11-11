@@ -7,7 +7,7 @@ use yii\grid\GridView;
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
 $this->title = 'Логи ошибок импорта';
-$this->params['breadcrumbs'][] = ['label' => 'Импорт', 'url' => ['poizon-import']];
+$this->params['breadcrumbs'][] = ['label' => 'Импорт', 'url' => ['/admin/poizon/index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -15,7 +15,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="bi bi-exclamation-triangle text-danger"></i> <?= Html::encode($this->title) ?></h1>
-        <?= Html::a('<i class="bi bi-arrow-left"></i> Назад', ['poizon-import'], ['class' => 'btn btn-secondary']) ?>
+        <?= Html::a('<i class="bi bi-arrow-left"></i> Назад', ['/admin/poizon/index'], ['class' => 'btn btn-secondary']) ?>
     </div>
 
     <div class="card">
@@ -33,7 +33,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         'attribute' => 'batch_id',
                         'format' => 'raw',
                         'value' => function ($model) {
-                            return Html::a('#' . $model->batch_id, ['poizon-view', 'id' => $model->batch_id]);
+                            return Html::a('#' . $model->batch_id, ['/admin/poizon/view', 'id' => $model->batch_id]);
                         },
                         'headerOptions' => ['width' => '80'],
                     ],

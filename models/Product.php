@@ -6,6 +6,7 @@ use Yii;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\SluggableBehavior;
+use app\components\SitemapNotifier;
 
 /**
  * Модель Product (Товар)
@@ -167,6 +168,7 @@ class Product extends ActiveRecord
         }
         
         $this->invalidateCatalogCache();
+        SitemapNotifier::scheduleRegeneration();
     }
 
     /**
@@ -176,6 +178,7 @@ class Product extends ActiveRecord
     {
         parent::afterDelete();
         $this->invalidateCatalogCache();
+        SitemapNotifier::scheduleRegeneration();
     }
 
     /**
@@ -356,11 +359,25 @@ class Product extends ActiveRecord
     }
     
     /**
-     * Характеристики товара
+     * УДАЛЕНО: getCharacteristics() - связь со старой таблицей product_characteristic
+     * ПРИЧИНА: Таблица не существует, модель удалена
+     * ДАТА: 2025-11-10
      */
-    public function getCharacteristics()
+    
+    /**
+     * Связь со значениями характеристик
+     */
+    public function getCharacteristicValues()
     {
-        return $this->hasMany(ProductCharacteristic::class, ['product_id' => 'id'])->orderBy(['sort_order' => SORT_ASC]);
+        return $this->hasMany(ProductCharacteristicValue::class, ['product_id' => 'id']);
+    }
+    
+    /**
+     * Цвета товара
+     */
+    public function getColors()
+    {
+        return $this->hasMany(ProductColor::class, ['product_id' => 'id']);
     }
     
     /**
@@ -380,14 +397,6 @@ class Product extends ActiveRecord
         return $this->hasMany(ProductSize::class, ['product_id' => 'id'])
             ->where(['is_available' => 1])
             ->orderBy(['size' => SORT_ASC]);
-    }
-
-    /**
-     * Цвета товара
-     */
-    public function getColors()
-    {
-        return $this->hasMany(ProductColor::class, ['product_id' => 'id']);
     }
 
     /**

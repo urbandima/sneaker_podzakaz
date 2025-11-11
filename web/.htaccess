@@ -1,5 +1,13 @@
 RewriteEngine on
 
+# ====================
+# SEO: Remove trailing slash from URLs (кроме корневого /)
+# Стандарт: /catalog/ → /catalog
+# ====================
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} (.+)/$
+RewriteRule ^ %1 [L,R=301]
+
 # If a directory or a file exists, use it directly
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

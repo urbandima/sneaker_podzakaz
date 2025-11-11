@@ -6,7 +6,7 @@ use yii\widgets\ActiveForm;
 /** @var yii\web\View $this */
 
 $this->title = 'Запуск импорта товаров';
-$this->params['breadcrumbs'][] = ['label' => 'Импорт', 'url' => ['poizon-import']];
+$this->params['breadcrumbs'][] = ['label' => 'Импорт', 'url' => ['/admin/poizon/index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -172,8 +172,8 @@ php yii poizon-import/logs</code></pre>
                     <h6 class="mb-0"><i class="bi bi-link-45deg"></i> Быстрые ссылки</h6>
                 </div>
                 <div class="list-group list-group-flush">
-                    <?= Html::a('История импортов', ['poizon-import'], ['class' => 'list-group-item list-group-item-action']) ?>
-                    <?= Html::a('Логи ошибок', ['poizon-errors'], ['class' => 'list-group-item list-group-item-action']) ?>
+                    <?= Html::a('История импортов', ['/admin/poizon/index'], ['class' => 'list-group-item list-group-item-action']) ?>
+                    <?= Html::a('Логи ошибок', ['/admin/poizon/errors'], ['class' => 'list-group-item list-group-item-action']) ?>
                     <?= Html::a('Управление товарами', ['/catalog/index'], ['class' => 'list-group-item list-group-item-action']) ?>
                 </div>
             </div>

@@ -25,10 +25,15 @@
         sizes: [],
         sizeSystem: 'eu',
         colors: [],
+        discountAny: false,
+        discountRange: [],
+        rating: null,
+        conditions: [],
         stockStatus: null,
         sortBy: 'popular',
         page: 1,
         perPage: 24,
+        characteristics: {}, // Динамические характеристики (формат: char_ID => [value_ids])
     };
     
     // Кэш DOM элементов для повышения производительности
@@ -86,6 +91,35 @@
         if (priceToInput) {
             priceToInput.addEventListener('input', debounce(handleFilterChange, CONFIG.filterDebounceDelay));
         }
+        
+        // Характеристики (динамически) - все типы: checkbox, radio, text
+        document.querySelectorAll('input[name^="char_"], input[name*="char_"]').forEach(input => {
+            if (input.type === 'checkbox' || input.type === 'radio') {
+                input.addEventListener('change', handleFilterChange);
+            } else {
+                input.addEventListener('input', debounce(handleFilterChange, CONFIG.filterDebounceDelay));
+            }
+        });
+        
+        // Цвета
+        document.querySelectorAll('input[name="colors[]"]').forEach(checkbox => {
+            checkbox.addEventListener('change', handleFilterChange);
+        });
+        
+        // Скидка
+        document.querySelectorAll('input[name="discount_any"], input[name="discount_range[]"]').forEach(checkbox => {
+            checkbox.addEventListener('change', handleFilterChange);
+        });
+        
+        // Рейтинг
+        document.querySelectorAll('input[name="rating"]').forEach(radio => {
+            radio.addEventListener('change', handleFilterChange);
+        });
+        
+        // Условия
+        document.querySelectorAll('input[name="conditions[]"]').forEach(checkbox => {
+            checkbox.addEventListener('change', handleFilterChange);
+        });
     }
 
     /**
@@ -112,10 +146,13 @@
         filterState.sizes = Array.from(document.querySelectorAll('input[name="sizes[]"]:checked'))
             .map(cb => cb.value);
         
-        // Текущая система размеров
-        const activeSystemBtn = document.querySelector('.size-system-btn.active');
+        // Текущая система размеров (проверяем несколько вариантов кнопок)
+        const activeSystemBtn = document.querySelector('.size-system-btn.active, .size-system-btn-small.active');
         if (activeSystemBtn) {
             filterState.sizeSystem = activeSystemBtn.dataset.system || 'eu';
+        } else {
+            // Fallback на localStorage или EU по умолчанию
+            filterState.sizeSystem = localStorage.getItem('preferredSizeSystem') || 'eu';
         }
 
         // Цена
@@ -123,6 +160,36 @@
         const priceTo = document.querySelector('input[name="price_to"]');
         filterState.priceFrom = priceFrom && priceFrom.value ? parseFloat(priceFrom.value) : null;
         filterState.priceTo = priceTo && priceTo.value ? parseFloat(priceTo.value) : null;
+        
+        // Цвета
+        filterState.colors = Array.from(document.querySelectorAll('input[name="colors[]"]:checked'))
+            .map(cb => cb.value);
+        
+        // Скидка
+        filterState.discountAny = document.querySelector('input[name="discount_any"]:checked') ? true : false;
+        filterState.discountRange = Array.from(document.querySelectorAll('input[name="discount_range[]"]:checked'))
+            .map(cb => cb.value);
+        
+        // Рейтинг
+        const ratingInput = document.querySelector('input[name="rating"]:checked');
+        filterState.rating = ratingInput ? ratingInput.value : null;
+        
+        // Условия
+        filterState.conditions = Array.from(document.querySelectorAll('input[name="conditions[]"]:checked'))
+            .map(cb => cb.value);
+        
+        // Характеристики (динамические)
+        filterState.characteristics = {};
+        document.querySelectorAll('input[name^="char_"]:checked, input[name*="char_"]:checked').forEach(input => {
+            const match = input.name.match(/^char_(\d+)(\[\])?$/);
+            if (match) {
+                const charId = 'char_' + match[1];
+                if (!filterState.characteristics[charId]) {
+                    filterState.characteristics[charId] = [];
+                }
+                filterState.characteristics[charId].push(parseInt(input.value));
+            }
+        });
 
         // Сброс страницы при изменении фильтров
         filterState.page = 1;
@@ -155,11 +222,23 @@
         formData.append('categories', JSON.stringify(filterState.categories));
         formData.append('sizes', JSON.stringify(filterState.sizes));
         formData.append('sizeSystem', filterState.sizeSystem);
-        formData.append('price_from', filterState.priceFrom || '');
-        formData.append('price_to', filterState.priceTo || '');
+        formData.append('price_from', filterState.priceFrom !== null && filterState.priceFrom !== undefined ? filterState.priceFrom : '');
+        formData.append('price_to', filterState.priceTo !== null && filterState.priceTo !== undefined ? filterState.priceTo : '');
+        formData.append('colors', JSON.stringify(filterState.colors));
+        formData.append('discount_any', filterState.discountAny ? '1' : '');
+        formData.append('discount_range', JSON.stringify(filterState.discountRange));
+        formData.append('rating', filterState.rating || '');
+        formData.append('conditions', JSON.stringify(filterState.conditions));
         formData.append('sort', filterState.sortBy);
         formData.append('page', filterState.page);
         formData.append('perPage', filterState.perPage);
+        
+        // Характеристики
+        for (const charKey in filterState.characteristics) {
+            if (filterState.characteristics[charKey].length > 0) {
+                formData.append(charKey, JSON.stringify(filterState.characteristics[charKey]));
+            }
+        }
 
         // Создаём AbortController для отмены запроса
         const controller = new AbortController();
@@ -179,14 +258,31 @@
             if (controller.signal.aborted) {
                 return Promise.reject(new DOMException('Aborted', 'AbortError'));
             }
+            
+            // ИСПРАВЛЕНО: Проверяем тип контента перед парсингом
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                console.error('❌ Сервер вернул не JSON:', contentType);
+                return response.text().then(text => {
+                    console.error('HTML ответ:', text.substring(0, 500));
+                    throw new Error('Сервер вернул HTML вместо JSON. Проверьте роуты и контроллер.');
+                });
+            }
+            
             return response.json();
         })
         .then(data => {
             // Игнорируем, если запрос был отменён
             if (controller.signal.aborted) return;
             
+            // Проверяем структуру ответа
+            if (!data || typeof data !== 'object') {
+                console.error('❌ Неправильная структура ответа:', data);
+                throw new Error('Некорректный ответ от сервера');
+            }
+            
             // ВРЕМЕННОЕ ЛОГИРОВАНИЕ для отладки
-            console.log('Ответ от сервера:', data);
+            console.log('✅ Ответ от сервера:', data);
             console.log('data.success:', data.success);
             console.log('data.html существует:', !!data.html);
             
@@ -201,14 +297,31 @@
                             LazyLoadUtils.observe(domCache.productsContainer);
                         }
                     }
-                    updateFilterCounts(data.filters);
-                    updatePagination(data.pagination);
+                    
+                    // Обновляем счетчик товаров
+                    if (domCache.counter && data.pagination && data.pagination.total !== undefined) {
+                        domCache.counter.textContent = data.pagination.total;
+                    }
+                    
+                    // Обновляем фильтры и пагинацию
+                    if (data.filters) {
+                        updateFilterCounts(data.filters);
+                    }
+                    if (data.pagination) {
+                        updatePagination(data.pagination, data.paginationHtml);
+                    }
+                    
+                    // Обновляем активные фильтры
+                    if (data.activeFiltersHtml !== undefined) {
+                        updateActiveFilters(data.activeFiltersHtml, data.activeFilters);
+                    }
+                    
                     updateURL();
                     saveFilterHistory(data);
                     hideLoadingIndicator();
                 });
             } else {
-                console.error('Проблема с данными. data.success:', data.success, 'data.html:', !!data.html);
+                console.error('❌ Проблема с данными. data.success:', data.success, 'data.html:', !!data.html);
                 console.error('Полный ответ:', data);
                 showError('Ошибка загрузки товаров');
                 hideLoadingIndicator();
@@ -222,10 +335,16 @@
                 return;
             }
             
-            // Показываем ошибку только для настоящих проблем с сетью
-            if (error.message !== 'Failed to fetch') {
-                showError('Ошибка соединения с сервером');
+            // Логируем ошибку для отладки
+            console.error('❌ Ошибка AJAX запроса:', error);
+            
+            // Показываем понятное сообщение пользователю
+            if (error.message.includes('JSON')) {
+                showError('Ошибка формата данных. Обновите страницу.');
+            } else if (error.message !== 'Failed to fetch') {
+                showError(error.message || 'Ошибка соединения с сервером');
             }
+            
             hideLoadingIndicator();
             currentRequest = null;
         });
@@ -291,8 +410,11 @@
 
     /**
      * Обновление счетчиков фильтров
+     * ИСПРАВЛЕНО: Добавлено обновление счетчиков для характеристик (включая пол)
      */
     function updateFilterCounts(filters) {
+        console.log('🔄 Обновление счетчиков фильтров:', filters);
+        
         // Обновление счетчиков брендов
         if (filters.brands) {
             filters.brands.forEach(brand => {
@@ -300,7 +422,16 @@
                 if (checkbox) {
                     const countSpan = checkbox.closest('label').querySelector('.count');
                     if (countSpan) {
-                        countSpan.textContent = `(${brand.count})`;
+                        countSpan.textContent = brand.count;
+                        // Обновляем состояние disabled
+                        const label = checkbox.closest('label');
+                        if (brand.count === 0) {
+                            checkbox.disabled = true;
+                            label.classList.add('disabled');
+                        } else {
+                            checkbox.disabled = false;
+                            label.classList.remove('disabled');
+                        }
                     }
                 }
             });
@@ -313,20 +444,156 @@
                 if (checkbox) {
                     const countSpan = checkbox.closest('label').querySelector('.count');
                     if (countSpan) {
-                        countSpan.textContent = `(${category.count})`;
+                        countSpan.textContent = category.count;
+                        // Обновляем состояние disabled
+                        const label = checkbox.closest('label');
+                        if (category.count === 0) {
+                            checkbox.disabled = true;
+                            label.classList.add('disabled');
+                        } else {
+                            checkbox.disabled = false;
+                            label.classList.remove('disabled');
+                        }
                     }
+                }
+            });
+        }
+        
+        // НОВОЕ: Обновление счетчиков характеристик (пол, сезон и т.д.)
+        if (filters.characteristics) {
+            filters.characteristics.forEach(characteristic => {
+                const charId = characteristic.id;
+                const charKey = 'char_' + charId;
+                
+                console.log(`📊 Обновление характеристики: ${characteristic.name} (${charKey})`, characteristic);
+                
+                // Обновляем счетчики для каждого значения характеристики
+                if (characteristic.values && Array.isArray(characteristic.values)) {
+                    characteristic.values.forEach(value => {
+                        const checkbox = document.querySelector(`input[name="${charKey}[]"][value="${value.id}"]`);
+                        if (checkbox) {
+                            const countSpan = checkbox.closest('label').querySelector('.count');
+                            if (countSpan) {
+                                countSpan.textContent = value.count || 0;
+                                console.log(`  ✓ ${value.value}: ${value.count}`);
+                            }
+                            
+                            // Обновляем состояние disabled
+                            const label = checkbox.closest('label');
+                            if (!value.count || value.count === 0) {
+                                checkbox.disabled = true;
+                                label.classList.add('disabled');
+                            } else {
+                                checkbox.disabled = false;
+                                label.classList.remove('disabled');
+                            }
+                        }
+                    });
                 }
             });
         }
     }
 
     /**
+     * Обновление активных фильтров
+     */
+    function updateActiveFilters(activeFiltersHtml, activeFilters) {
+        const activeFiltersContainer = document.querySelector('.active-filters');
+        
+        if (!activeFiltersHtml || activeFilters.length === 0) {
+            // Скрываем контейнер, если фильтров нет
+            if (activeFiltersContainer) {
+                activeFiltersContainer.style.display = 'none';
+            }
+        } else {
+            if (activeFiltersContainer) {
+                // Обновляем HTML
+                activeFiltersContainer.innerHTML = activeFiltersHtml;
+                activeFiltersContainer.style.display = 'flex';
+            } else {
+                // Создаем контейнер, если его нет
+                const toolbar = document.querySelector('.catalog-toolbar');
+                if (toolbar && toolbar.parentNode) {
+                    const newContainer = document.createElement('div');
+                    newContainer.className = 'active-filters';
+                    newContainer.innerHTML = activeFiltersHtml;
+                    newContainer.style.display = 'flex';
+                    toolbar.parentNode.insertBefore(newContainer, toolbar.nextSibling);
+                }
+            }
+        }
+        
+        // Обновляем бейдж количества фильтров
+        const filtersBadge = document.getElementById('filtersCountBadge');
+        if (filtersBadge) {
+            if (activeFilters && activeFilters.length > 0) {
+                filtersBadge.textContent = activeFilters.length;
+                filtersBadge.style.display = 'inline-flex';
+            } else {
+                filtersBadge.style.display = 'none';
+            }
+        }
+    }
+
+    /**
      * Обновление пагинации
      */
-    function updatePagination(pagination) {
+    function updatePagination(pagination, paginationHtml) {
+        // Обновляем счетчик товаров
         const resultsInfo = document.querySelector('.results-info strong');
         if (resultsInfo) {
             resultsInfo.textContent = pagination.total;
+        }
+        
+        const productsCount = document.getElementById('productsCount');
+        if (productsCount) {
+            productsCount.textContent = pagination.total;
+        }
+        
+        // Обновляем/вставляем HTML пагинации
+        let paginationContainer = document.querySelector('.pagination');
+        
+        if (paginationHtml) {
+            // Если пагинация нужна (pageCount > 1)
+            if (!paginationContainer) {
+                // Создаем контейнер если его нет
+                paginationContainer = document.createElement('div');
+                paginationContainer.className = 'pagination';
+                const productsContainer = document.getElementById('products');
+                if (productsContainer && productsContainer.parentNode) {
+                    productsContainer.parentNode.insertBefore(paginationContainer, productsContainer.nextSibling);
+                }
+            }
+            paginationContainer.innerHTML = paginationHtml;
+            paginationContainer.style.display = 'block';
+        } else {
+            // Если пагинация не нужна - скрываем
+            if (paginationContainer) {
+                paginationContainer.style.display = 'none';
+            }
+        }
+    }
+
+    /**
+     * Загрузка страницы пагинации
+     */
+    function loadPage(url) {
+        if (!url) return;
+        
+        // Извлекаем номер страницы из URL
+        const urlParams = new URLSearchParams(url.split('?')[1] || '');
+        const page = parseInt(urlParams.get('page')) || 1;
+        
+        // Обновляем состояние фильтров
+        filterState.page = page;
+        
+        // Применяем фильтры с новой страницей
+        applyFiltersAjax();
+        
+        // Прокручиваем к началу каталога
+        const catalogTop = document.getElementById('products');
+        if (catalogTop) {
+            catalogTop.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
@@ -377,6 +644,12 @@
             const to = filterState.priceTo || 'max';
             parts.push(`price-${from}-${to}`);
         }
+        
+        // Размеры (добавляем в SEF URL с системой измерения)
+        if (filterState.sizes && filterState.sizes.length > 0) {
+            const sizeSystem = (filterState.sizeSystem || 'eu').toLowerCase();
+            parts.push('size-' + sizeSystem + '-' + filterState.sizes.join('-'));
+        }
 
         return parts.length > 0 ? '/catalog/filter/' + parts.join('/') + '/' : '/catalog/';
     }
@@ -393,6 +666,15 @@
         }
         if (filterState.sortBy !== 'popular') {
             params.set('sort', filterState.sortBy);
+        }
+        
+        // Размеры теперь в SEF URL, не дублируем в query параметрах
+        // Оставляем только если нет SEF части с размерами
+        if (filterState.sizes && filterState.sizes.length > 0 && sefUrl === '/catalog/') {
+            params.set('sizes', filterState.sizes.join(','));
+            if (filterState.sizeSystem && filterState.sizeSystem !== 'eu') {
+                params.set('size_system', filterState.sizeSystem);
+            }
         }
 
         const newUrl = sefUrl + (params.toString() ? '?' + params.toString() : '');
@@ -521,22 +803,7 @@
         applyFiltersAjax();
     };
 
-    /**
-     * Сброс всех фильтров
-     */
-    window.resetFilters = function() {
-        // Сброс чекбоксов
-        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-        
-        // Сброс полей цены
-        const priceFrom = document.querySelector('input[name="price_from"]');
-        const priceTo = document.querySelector('input[name="price_to"]');
-        if (priceFrom) priceFrom.value = '';
-        if (priceTo) priceTo.value = '';
-        
-        // Перезагрузка страницы
-        window.location.href = window.location.pathname;
-    };
+    // resetFilters определяется ниже и экспортируется как window.resetFilters
 
     /**
      * Применение фильтров (вызывается из HTML)
@@ -544,6 +811,17 @@
     window.applyFilters = function() {
         collectFilterState();
         applyFiltersAjax();
+        
+        // Закрываем sidebar после применения фильтров (мобильная версия)
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        if (sidebar && sidebar.classList.contains('active')) {
+            sidebar.classList.remove('active');
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+            document.body.style.overflow = '';
+        }
     };
 
     // Утилиты
@@ -714,7 +992,21 @@
         }
     });
     
-    function quickAddToCart(e, productId) {
+    // Делаем функции глобальными для доступа через onclick
+    
+    // Wrapper для toggleFavorite (короткое имя для удобства)
+    window.toggleFav = function(e, id) {
+        e.stopPropagation();
+        e.preventDefault();
+        // Вызываем глобальную функцию с правильными параметрами
+        if (typeof window.toggleFavorite === 'function') {
+            window.toggleFavorite(e, id);
+        } else {
+            console.error('toggleFavorite не определена. Убедитесь, что favorites.js загружен.');
+        }
+    };
+    
+    window.quickAddToCart = function(e, productId) {
     e.preventDefault();
     e.stopPropagation();
     
@@ -780,6 +1072,43 @@
         }, 1500);
     });
 }
+
+/**
+ * Сброс всех фильтров
+ */
+function resetFilters() {
+    // Снимаем все чекбоксы и радио
+    document.querySelectorAll('.sidebar input[type="checkbox"]:checked, .sidebar input[type="radio"]:checked').forEach(input => {
+        input.checked = false;
+    });
+    
+    // Очищаем текстовые поля
+    document.querySelectorAll('.sidebar input[type="text"], .sidebar input[type="number"]').forEach(input => {
+        input.value = '';
+    });
+    
+    // Сбрасываем состояние
+    filterState = {
+        brands: [],
+        categories: [],
+        priceFrom: null,
+        priceTo: null,
+        sizes: [],
+        sizeSystem: 'eu',
+        colors: [],
+        stockStatus: null,
+        sortBy: 'popular',
+        page: 1,
+        perPage: 24,
+        characteristics: {},
+    };
+    
+    // Перезагружаем страницу без параметров
+    window.location.href = window.location.pathname;
+}
+
+// Делаем функцию глобальной
+window.resetFilters = resetFilters;
 
 function resetButtonState(button) {
     button.disabled = false;

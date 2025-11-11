@@ -4,6 +4,8 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
+use app\models\history\CharacteristicHistory;
 
 /**
  * Модель Characteristic (Тип характеристики)
@@ -40,7 +42,7 @@ class Characteristic extends ActiveRecord
         return [
             [['key', 'name'], 'required'],
             [['key'], 'unique'],
-            [['is_filter', 'is_required', 'is_active', 'sort_order'], 'integer'],
+            [['is_filter', 'is_required', 'is_active', 'sort_order', 'version', 'updated_by'], 'integer'],
             [['type'], 'in', 'range' => [self::TYPE_SELECT, self::TYPE_MULTISELECT, self::TYPE_TEXT, self::TYPE_NUMBER, self::TYPE_BOOLEAN]],
             [['key'], 'string', 'max' => 100],
             [['name'], 'string', 'max' => 255],
@@ -74,6 +76,65 @@ class Characteristic extends ActiveRecord
             ->orderBy(['sort_order' => SORT_ASC]);
     }
 
+    public function behaviors()
+    {
+        return [
+            TimestampBehavior::class,
+        ];
+    }
+
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        if (Yii::$app->has('user') && !Yii::$app->user->isGuest) {
+            $this->updated_by = Yii::$app->user->id;
+        }
+
+        if ($insert) {
+            $this->version = 1;
+        }
+
+        return true;
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if ($insert) {
+            $this->logHistory('create', null, json_encode($this->attributes, JSON_UNESCAPED_UNICODE));
+            return;
+        }
+
+        foreach ($changedAttributes as $attr => $oldValue) {
+            $newValue = $this->getAttribute($attr);
+            if ($newValue == $oldValue) {
+                continue;
+            }
+
+            $this->logHistory($attr, $oldValue, $newValue);
+        }
+
+        // Обновляем версию
+        static::updateAllCounters(['version' => 1], ['id' => $this->id]);
+        $this->version++;
+    }
+
+    protected function logHistory(string $field, $oldValue, $newValue): void
+    {
+        $history = new CharacteristicHistory([
+            'characteristic_id' => $this->id,
+            'field_name' => $field,
+            'old_value' => is_scalar($oldValue) ? (string)$oldValue : json_encode($oldValue, JSON_UNESCAPED_UNICODE),
+            'new_value' => is_scalar($newValue) ? (string)$newValue : json_encode($newValue, JSON_UNESCAPED_UNICODE),
+            'changed_by' => Yii::$app->has('user') && !Yii::$app->user->isGuest ? Yii::$app->user->id : null,
+        ]);
+        $history->save(false);
+    }
+
     /**
      * Связи с товарами
      */
@@ -103,6 +164,7 @@ class Characteristic extends ActiveRecord
     {
         return self::find()
             ->where(['is_active' => 1, 'is_filter' => 1])
+            ->with('values')
             ->orderBy(['sort_order' => SORT_ASC])
             ->all();
     }

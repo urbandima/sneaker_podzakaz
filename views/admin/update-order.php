@@ -12,7 +12,7 @@ $this->title = 'Редактировать заказ №' . $model->order_numbe
 <div class="admin-update-order">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><?= Html::encode($this->title) ?></h1>
-        <?= Html::a('← Назад к заказу', ['view-order', 'id' => $model->id], ['class' => 'btn btn-outline-secondary']) ?>
+        <?= Html::a('← Назад к заказу', ['/admin/order/view', 'id' => $model->id], ['class' => 'btn btn-outline-secondary']) ?>
     </div>
 
     <div class="card">

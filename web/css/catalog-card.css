@@ -43,9 +43,9 @@
     width: 100%;
     aspect-ratio: 1; /* Квадратное соотношение */
     overflow: hidden;
-    background: #f9fafb;
+    background: #ffffff;
     border-bottom: 1px solid #e5e7eb;
-    padding: 16px; /* Увеличенный отступ для корректного отображения */
+    padding: 12px; /* Адаптивный отступ */
 }
 
 /* Основное и вторичное изображение */
@@ -221,10 +221,10 @@
    ============================================ */
 
 .info.product-card-body {
-    padding: 10px; /* Уменьшено с 12px для компактности */
+    padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 4px; /* Уменьшено с 6px для компактности */
+    gap: 6px;
     flex: 1;
 }
 
@@ -249,18 +249,18 @@
 
 /* Название товара */
 .product-card-name {
-    font-size: 13px; /* Уменьшено с 14px */
+    font-size: 14px;
     font-weight: 600;
-    line-height: 1.3; /* Уменьшено с 1.4 */
+    line-height: 1.4;
     color: #111827;
-    margin: 0 0 4px 0;
+    margin: 0 0 6px 0;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
     text-overflow: ellipsis;
-    min-height: 34px; /* Уменьшено с 40px для компактности */
+    min-height: 40px;
 }
 
 /* ============================================
@@ -371,6 +371,28 @@
     transform: scale(1.05);
 }
 
+/* Выбранный размер (из фильтра) - жирный и выделен */
+.size-badge.selected {
+    background: #000000;
+    color: #ffffff;
+    border-color: #000000;
+    font-weight: 800;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    animation: selectedPulse 0.3s ease-out;
+}
+
+@keyframes selectedPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
 .size-more {
     font-size: 10px; /* Уменьшено с 11px */
     color: #6b7280;
@@ -439,7 +461,7 @@
 }
 
 .product-card-price-current {
-    font-size: 18px;
+    font-size: 19px;
     font-weight: 800;
     color: #111827;
 }
@@ -457,24 +479,25 @@
    ============================================ */
 
 .product-footer {
-    padding: 0 10px 10px; /* Уменьшено с 12px */
+    padding: 0 12px 12px;
     margin-top: auto;
 }
 
 .btn-add-to-cart {
     width: 100%;
-    padding: 8px 12px; /* Уменьшено с 10px 16px */
+    padding: 8px 12px;
+    min-height: 44px;
     background: linear-gradient(135deg, #111827, #1f2937);
     color: #ffffff;
     border: none;
     border-radius: 8px;
-    font-size: 13px; /* Уменьшено с 14px */
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px; /* Уменьшено с 8px */
+    gap: 6px;
     transition: all 0.2s ease;
 }
 
@@ -545,20 +568,73 @@
 @media (min-width: 768px) {
     .product-image-wrapper {
         aspect-ratio: 1;
+        padding: 14px;
+    }
+    
+    .info.product-card-body {
+        padding: 14px;
+        gap: 7px;
+    }
+    
+    .product-card-name {
+        font-size: 14px;
+        min-height: 40px;
+    }
+    
+    .product-card-price-current {
+        font-size: 18px;
+    }
+    
+    .product-footer {
+        padding: 0 14px 14px;
+    }
+    
+    .btn-add-to-cart {
+        padding: 9px 14px;
+        font-size: 13px;
+    }
+}
+
+/* ============================================
+   DESKTOP (1024px+) - ПРЕМИУМ ВЕРСИЯ
+   ============================================ */
+
+@media (min-width: 1024px) {
+    .product.product-card {
+        border-radius: 14px;
+    }
+    
+    .product-image-wrapper {
+        border-bottom-width: 1px;
+        padding: 16px;
     }
     
     .info.product-card-body {
         padding: 16px;
-        gap: 6px; /* Уменьшен с 10px до 6px */
+        gap: 8px;
+    }
+    
+    .product-card-brand {
+        font-size: 11px;
     }
     
     .product-card-name {
         font-size: 15px;
         min-height: 42px;
+        line-height: 1.4;
     }
     
     .product-card-price-current {
         font-size: 20px;
+    }
+    
+    .quick-actions {
+        gap: 8px;
+    }
+    
+    .action-btn {
+        width: 42px;
+        height: 42px;
     }
     
     .product-footer {
@@ -566,26 +642,31 @@
     }
     
     .btn-add-to-cart {
-        padding: 12px 20px;
-        font-size: 15px;
+        padding: 10px 16px;
+        font-size: 13px;
     }
 }
 
 /* ============================================
-   DESKTOP (1024px+)
+   LARGE DESKTOP (1280px+) - БОЛЬШИЕ ЭКРАНЫ
    ============================================ */
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
     .product.product-card {
         border-radius: 16px;
     }
     
     .product-image-wrapper {
-        border-bottom-width: 2px;
+        padding: 18px;
     }
     
     .info.product-card-body {
-        padding: 20px;
+        padding: 18px;
+        gap: 9px;
+    }
+    
+    .product-card-brand {
+        font-size: 11px;
     }
     
     .product-card-name {
@@ -597,12 +678,50 @@
         font-size: 22px;
     }
     
-    .quick-actions {
-        gap: 12px;
+    .btn-add-to-cart {
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+}
+
+/* ============================================
+   XL DESKTOP (1536px+) - ОЧЕНЬ БОЛЬШИЕ ЭКРАНЫ
+   ============================================ */
+
+@media (min-width: 1536px) {
+    .product.product-card {
+        border-radius: 18px;
+    }
+    
+    .product-image-wrapper {
+        padding: 20px;
+    }
+    
+    .info.product-card-body {
+        padding: 20px;
+        gap: 10px;
+    }
+    
+    .product-card-brand {
+        font-size: 12px;
+    }
+    
+    .product-card-name {
+        font-size: 17px;
+        min-height: 48px;
+    }
+    
+    .product-card-price-current {
+        font-size: 24px;
     }
     
     .action-btn {
         width: 44px;
         height: 44px;
+    }
+    
+    .btn-add-to-cart {
+        padding: 11px 20px;
+        font-size: 15px;
     }
 }

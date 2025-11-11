@@ -86,30 +86,14 @@ $lazyPlaceholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg"
                     </div>
                     <?php endif; ?>
                     
-                    <!-- Цвета (улучшенные с hover) -->
-                    <?php if (!empty($product->colors) && is_array($product->colors) && count($product->colors) > 0): ?>
-                    <div class="colors">
-                        <?php $shown = 0; foreach ($product->colors as $color): if ($shown >= 5) break; ?>
-                            <?php if ($color && isset($color->hex) && isset($color->name)): ?>
-                            <span class="dot" 
-                                  style="background:<?= $color->hex ?>" 
-                                  title="<?= Html::encode($color->name) ?>"
-                                  data-product-id="<?= $product->id ?>"
-                                  data-image="<?= $product->getMainImageUrl() ?>"
-                                  onmouseenter="changeColorPreview(this, '<?= $product->getMainImageUrl() ?>')"
-                                  onmouseleave="resetColorPreview(this)"></span>
-                            <?php endif; ?>
-                        <?php $shown++; endforeach; ?>
-                        <?php if (count($product->colors) > 5): ?>
-                            <span class="more">+<?= count($product->colors) - 5 ?></span>
-                        <?php endif; ?>
-                    </div>
-                    <?php endif; ?>
-                    
                     <!-- Размеры (показываем в соответствии с выбранной системой измерения) -->
                     <?php if (!empty($product->sizes) && is_array($product->sizes)): ?>
                     <div class="sizes-quick">
                         <?php 
+                        // Получаем выбранные размеры из фильтра
+                        $selectedSizes = Yii::$app->request->get('sizes');
+                        $selectedSizesArray = $selectedSizes ? (is_array($selectedSizes) ? $selectedSizes : explode(',', $selectedSizes)) : [];
+                        
                         // Получаем текущую систему размеров из GET параметра или localStorage (через JS)
                         $currentSizeSystem = Yii::$app->request->get('size_system', 'eu');
                         $sizeField = match($currentSizeSystem) {
@@ -122,13 +106,28 @@ $lazyPlaceholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg"
                         $availableSizes = array_filter($product->sizes, function($s) use ($sizeField) { 
                             return $s && isset($s->is_available) && $s->is_available && !empty($s->$sizeField); 
                         });
+                        
+                        // Сортируем размеры: выбранные первыми
+                        if (!empty($selectedSizesArray)) {
+                            usort($availableSizes, function($a, $b) use ($selectedSizesArray, $sizeField) {
+                                $aSelected = in_array($a->$sizeField, $selectedSizesArray);
+                                $bSelected = in_array($b->$sizeField, $selectedSizesArray);
+                                if ($aSelected && !$bSelected) return -1;
+                                if (!$aSelected && $bSelected) return 1;
+                                return 0;
+                            });
+                        }
+                        
                         $shown = 0;
                         foreach ($availableSizes as $size): 
                             if ($shown >= 6) break;
                             $displaySize = $size->$sizeField;
                             if (empty($displaySize)) continue;
+                            
+                            // Проверяем, выбран ли этот размер
+                            $isSelected = in_array($displaySize, $selectedSizesArray);
                         ?>
-                            <span class="size-badge" 
+                            <span class="size-badge <?= $isSelected ? 'selected' : '' ?>" 
                                   onclick="selectQuickSize(event, <?= $product->id ?>, '<?= Html::encode($displaySize) ?>')"><?= Html::encode($displaySize) ?></span>
                         <?php 
                             $shown++;

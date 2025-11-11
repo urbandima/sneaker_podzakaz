@@ -6,6 +6,7 @@ use Yii;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\SluggableBehavior;
+use app\components\SitemapNotifier;
 
 /**
  * Модель Category (Категория товаров)
@@ -65,12 +66,14 @@ class Category extends ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
         $this->invalidateCatalogCache();
+        SitemapNotifier::scheduleRegeneration();
     }
 
     public function afterDelete()
     {
         parent::afterDelete();
         $this->invalidateCatalogCache();
+        SitemapNotifier::scheduleRegeneration();
     }
 
     protected function invalidateCatalogCache()
@@ -177,14 +180,6 @@ class Category extends ActiveRecord
     public static function findBySlug($slug)
     {
         return static::findOne(['slug' => $slug, 'is_active' => 1]);
-    }
-
-    /**
-     * Проверка - корневая ли категория
-     */
-    public function isRoot()
-    {
-        return $this->parent_id === null;
     }
 
     /**

@@ -36,10 +36,50 @@ class SiteController extends Controller
     public function actions()
     {
         return [
-            'error' => [
-                'class' => 'yii\web\ErrorAction',
-            ],
+            // Оставляем стандартный ErrorAction, но переопределим его view в actionError
         ];
+    }
+    
+    /**
+     * Кастомная обработка ошибок
+     * Для 404 показываем премиум страницу с поиском
+     */
+    public function actionError()
+    {
+        $exception = Yii::$app->errorHandler->exception;
+        if ($exception !== null) {
+            // Для 404 показываем кастомную страницу
+            if ($exception->statusCode === 404) {
+                return $this->render404();
+            }
+            
+            // Для остальных ошибок - стандартная страница
+            return $this->render('error', [
+                'name' => $exception->getName(),
+                'message' => $exception->getMessage(),
+                'exception' => $exception,
+            ]);
+        }
+    }
+    
+    /**
+     * Кастомная 404 страница с поиском и популярными категориями
+     */
+    private function render404()
+    {
+        $this->layout = 'public';
+        Yii::$app->response->statusCode = 404;
+        
+        // Получаем популярные бренды
+        $brands = \app\models\Brand::find()
+            ->where(['is_active' => 1])
+            ->orderBy(['sort_order' => SORT_ASC])
+            ->limit(8)
+            ->all();
+        
+        return $this->render('404', [
+            'brands' => $brands,
+        ]);
     }
 
     public function actionIndex()

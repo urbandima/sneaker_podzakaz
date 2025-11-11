@@ -11,6 +11,7 @@ Disallow: /api/
 
 # Sitemap
 Sitemap: https://sneakerhead.by/sitemap.xml
+Sitemap: https://sneakerhead.by/sitemap-images.xml
 
 # Crawl-delay
 Crawl-delay: 1
@@ -43,9 +44,6 @@ Disallow: /catalog/filter
 Disallow: /catalog/add-favorite
 Disallow: /catalog/remove-favorite
 Disallow: /catalog/create-inquiry
-
-# Sitemap
-Sitemap: https://sneaker-head.by/sitemap.xml
 
 # Краулинг
 Crawl-delay: 1

@@ -1,0 +1,423 @@
+/**
+ * АДАПТИВНЫЕ ИСПРАВЛЕНИЯ ДЛЯ ВСЕХ СТРАНИЦ
+ * ========================================
+ * Универсальные правила для корректного отображения на всех устройствах
+ * Загружается после всех основных CSS файлов
+ */
+
+/* ============================================
+   БАЗОВЫЕ ПРАВИЛА
+   ============================================ */
+
+/* Предотвращение горизонтального скролла */
+html {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+body {
+    overflow-x: hidden;
+    width: 100%;
+    min-width: 320px; /* Минимальная ширина для корректного отображения */
+}
+
+/* Box-sizing для всех элементов */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* ============================================
+   КОНТЕЙНЕРЫ - УНИВЕРСАЛЬНЫЕ ПРАВИЛА
+   ============================================ */
+
+/* Все контейнеры должны быть видимы */
+.container,
+.ecom-header,
+.main-header,
+.main-nav,
+.site-footer,
+.footer-main,
+.footer-bottom {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* КРИТИЧНО: Header всегда виден на всех страницах */
+header.ecom-header,
+.ecom-header,
+.main-header,
+header {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    /* ИСПРАВЛЕНО: Убрано position: relative чтобы не конфликтовать с position: sticky из layout */
+}
+
+/* ============================================
+   HEADER - АДАПТАЦИЯ
+   ============================================ */
+
+@media (max-width: 991px) {
+    /* Мобильное меню */
+    .main-nav {
+        display: none !important;
+    }
+    
+    .menu-burger {
+        display: flex !important;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Header компактный */
+    .main-header {
+        padding: 0.75rem 0;
+    }
+    
+    .logo-image {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .header-actions {
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 640px) {
+    /* Очень компактный header */
+    .header-search {
+        display: none !important;
+    }
+    
+    .logo-image {
+        width: 48px;
+        height: 48px;
+    }
+}
+
+/* ============================================
+   FOOTER - АДАПТАЦИЯ
+   ============================================ */
+
+@media (max-width: 1024px) {
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-brand {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .footer-social {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 640px) {
+    .footer-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .footer-nav .nav-divider {
+        display: none;
+    }
+}
+
+/* ============================================
+   КАТАЛОГ - АДАПТАЦИЯ
+   ============================================ */
+
+@media (max-width: 768px) {
+    .catalog-layout {
+        padding: 0 1rem;
+    }
+    
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .product-card {
+        font-size: 0.875rem;
+    }
+}
+
+/* ============================================
+   СТРАНИЦА ТОВАРА - АДАПТАЦИЯ
+   ============================================ */
+
+.product-page-optimized {
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+/* Header всегда виден на странице товара */
+.product-page-optimized ~ .ecom-header,
+body:has(.product-page-optimized) .ecom-header,
+body:has(.product-page-optimized) .main-header {
+    display: block !important;
+    visibility: visible !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+}
+
+/* main-nav на странице товара - только на desktop */
+@media (min-width: 992px) {
+    body:has(.product-page-optimized) .main-nav {
+        display: block !important;
+        visibility: visible !important;
+    }
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+    .product-page-optimized {
+        background: #f9fafb;
+    }
+    
+    .product-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .product-gallery-wrapper {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    .product-gallery-swipe {
+        background: #fff;
+        border-radius: 12px;
+        padding: 1rem;
+        margin: 0;
+    }
+    
+    .swipe-slide {
+        aspect-ratio: 1/1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .swipe-slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+    }
+    
+    .product-thumbnails-carousel {
+        display: flex !important;
+        margin-top: 1rem;
+    }
+    
+    .product-details {
+        width: 100%;
+        background: #fff;
+        border-radius: 12px;
+        padding: 1rem;
+    }
+    
+    .product-details h1 {
+        font-size: 1.5rem;
+        line-height: 1.3;
+        margin-bottom: 0.75rem;
+    }
+    
+    .price-block {
+        font-size: 1.75rem;
+        margin: 1rem 0;
+    }
+    
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+    
+    .btn-order,
+    .telegram-support {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+    }
+}
+
+/* Очень маленькие экраны */
+@media (max-width: 480px) {
+    .product-gallery-swipe {
+        padding: 0.75rem;
+    }
+    
+    .product-details {
+        padding: 0.875rem;
+    }
+    
+    .product-details h1 {
+        font-size: 1.25rem;
+    }
+    
+    .price-block {
+        font-size: 1.5rem;
+    }
+    
+    .action-buttons {
+        gap: 0.625rem;
+    }
+    
+    .btn-order,
+    .telegram-support {
+        padding: 0.875rem;
+        font-size: 0.9375rem;
+    }
+}
+
+/* iPhone SE и подобные */
+@media (max-width: 375px) {
+    .product-gallery-swipe {
+        padding: 0.625rem;
+    }
+    
+    .product-details {
+        padding: 0.75rem;
+    }
+    
+    .product-details h1 {
+        font-size: 1.125rem;
+    }
+    
+    .breadcrumbs {
+        font-size: 0.75rem;
+        padding: 0.5rem 0;
+    }
+}
+
+/* ============================================
+   МОДАЛЬНЫЕ ОКНА
+   ============================================ */
+
+.modal,
+.modal-overlay {
+    display: none;
+}
+
+.modal.active,
+.modal-overlay.active {
+    display: flex !important;
+}
+
+/* ============================================
+   УТИЛИТЫ ДЛЯ СКРЫТИЯ/ПОКАЗА
+   ============================================ */
+
+/* Скрыть на мобильных */
+@media (max-width: 768px) {
+    .hide-mobile {
+        display: none !important;
+    }
+    
+    .show-desktop {
+        display: none !important;
+    }
+}
+
+/* Показать только на мобильных */
+@media (min-width: 769px) {
+    .show-mobile {
+        display: none !important;
+    }
+    
+    .hide-desktop {
+        display: none !important;
+    }
+}
+
+/* ============================================
+   ИЗОБРАЖЕНИЯ - АДАПТАЦИЯ
+   ============================================ */
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ============================================
+   ТАБЛИЦЫ - АДАПТАЦИЯ
+   ============================================ */
+
+@media (max-width: 768px) {
+    table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* ============================================
+   ФОРМЫ - АДАПТАЦИЯ
+   ============================================ */
+
+@media (max-width: 640px) {
+    input,
+    select,
+    textarea,
+    button {
+        font-size: 16px !important; /* Предотвращает зум на iOS */
+    }
+}
+
+/* ============================================
+   ТЕКСТ - АДАПТАЦИЯ
+   ============================================ */
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.75rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    h3 {
+        font-size: 1.25rem;
+    }
+    
+    h4 {
+        font-size: 1.125rem;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    h2 {
+        font-size: 1.25rem;
+    }
+    
+    h3 {
+        font-size: 1.125rem;
+    }
+}

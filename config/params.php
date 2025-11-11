@@ -4,6 +4,7 @@ return [
     'adminEmail' => 'admin@sneakerculture.by',
     'senderEmail' => 'noreply@sneakerculture.by',
     'senderName' => 'СникерКультура',
+    'frontendUrl' => env('FRONTEND_URL', 'https://sneakerhead.by'),
     
     // Статусы заказов
     'orderStatuses' => [
@@ -41,4 +42,19 @@ return [
     
     // Курс CNY -> BYN (обновляется вручную или через API курсов)
     'cnyToBynRate' => 0.45, // 1 CNY ≈ 0.45 BYN (примерный курс)
+    
+    // Настройки генерации Sitemap
+    'sitemap' => [
+        'filterMaxPages' => 5000,          // Максимум фильтрованных страниц
+        'filterMinResults' => 5,           // Минимум результатов для включения в sitemap
+        'productBatchSize' => 500,         // Размер батча для товаров
+        'imageBatchSize' => 500,           // Размер батча для изображений
+        'imageLimit' => 5,                 // Лимит изображений на товар
+        'topProductsForImages' => 1000,    // Топ товаров для image sitemap
+        'lockTtl' => 600,                  // Время блокировки генерации (секунды)
+        'cacheCheckInterval' => 60,        // Интервал проверки флага pending (секунды)
+        'enableValidation' => YII_ENV_DEV, // Валидация XML (только в dev)
+        'changefreqHigh' => 'daily',       // Частота обновления популярных страниц
+        'changefreqLow' => 'weekly',       // Частота обновления редких страниц
+    ],
 ];

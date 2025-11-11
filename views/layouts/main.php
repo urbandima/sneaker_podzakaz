@@ -301,29 +301,39 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
         // Товары (dropdown) - только для админов
         if ($user->isAdmin()) {
             $menuItems[] = [
-                'label' => '<i class="bi bi-box-seam me-2"></i>Товары',
+                'label' => '<i class="bi bi-box"></i> Товары',
                 'items' => [
-                    ['label' => 'Все товары', 'url' => ['/admin/products']],
-                    ['label' => 'Дашборд Poizon', 'url' => ['/admin/poizon-import']],
+                    ['label' => '<i class="bi bi-box-seam"></i> Все товары', 'url' => ['/admin/product/index']],
+                    ['label' => '<i class="bi bi-plus-lg"></i> Добавить товар', 'url' => ['/admin/product/create']],
+                    ['label' => '<i class="bi bi-layers"></i> Размерные сетки', 'url' => ['/admin/size-grid/index']],
+                    ['label' => '<i class="bi bi-sliders"></i> Управление фильтром', 'url' => ['/admin/characteristic/index']],
+                    ['label' => '<i class="bi bi-rocket"></i> Импорт Poizon', 'url' => ['/admin/poizon/index']],
                 ],
-                'options' => ['class' => 'dropdown'],
+                'options' => ['class' => 'nav-item dropdown'],
+                'encode' => false,
             ];
-            
-            $menuItems[] = ['label' => '<i class="bi bi-people me-2"></i>Пользователи', 'url' => ['/admin/users']];
+        }
+        
+        // Пользователи (только для админов)
+        if ($user->isAdmin()) {
+            $menuItems[] = ['label' => '<i class="bi bi-people me-2"></i>Пользователи', 'url' => ['/admin/user/index']];
+        }
+        
+        // Настройки (только для админов)
+        if ($user->isAdmin()) {
             $menuItems[] = ['label' => '<i class="bi bi-gear me-2"></i>Настройки', 'url' => ['/admin/settings']];
         }
         
-        // Профиль
+        // Профиль и выход
         $menuItems[] = ['label' => '<i class="bi bi-person-circle me-2"></i>Профиль', 'url' => ['/admin/profile']];
-
-        $menuItems[] = '<li class="nav-item">'
-            . Html::beginForm(['/site/logout'], 'post', ['class' => 'form-inline'])
-            . Html::submitButton(
-                '<i class="bi bi-box-arrow-right me-2"></i>Выход',
-                ['class' => 'btn btn-link logout']
-            )
-            . Html::endForm()
-            . '</li>';
+        $menuItems[] = [
+            'label' => Html::beginForm(['/site/logout'], 'post', ['class' => 'form-inline']) .
+                Html::submitButton('<i class="bi bi-box-arrow-right me-2"></i>Выход', ['class' => 'btn btn-link logout']) .
+                Html::endForm(),
+            'encode' => false,
+            'options' => ['class' => 'nav-item'],
+            'template' => '{label}',
+        ];
     }
 
     echo Nav::widget([
@@ -404,6 +414,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 </header>
 
 <main role="main" class="flex-shrink-0">
+    <!-- Контейнер использует единую ширину из container-system.css (1400px) -->
     <div class="container" style="margin-top: 46px;">
         <?php if (Yii::$app->session->hasFlash('success')): ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">

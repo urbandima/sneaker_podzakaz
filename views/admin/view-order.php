@@ -19,7 +19,7 @@ $user = Yii::$app->user->identity;
                     <i class="bi bi-pencil"></i> <span id="editModeText">Редактировать</span>
                 </button>
             <?php endif; ?>
-            <?= Html::a('← К списку', ['orders'], ['class' => 'btn btn-outline-secondary']) ?>
+            <?= Html::a('← К списку', ['/admin/order/index'], ['class' => 'btn btn-outline-secondary']) ?>
         </div>
     </div>
 
@@ -58,7 +58,7 @@ $user = Yii::$app->user->identity;
 
                     <!-- Режим редактирования -->
                     <div id="editMode" style="display: none;">
-                        <form method="post" action="<?= Url::to(['update-order', 'id' => $model->id]) ?>" id="orderEditForm">
+                        <form method="post" action="<?= Url::to(['/admin/order/update', 'id' => $model->id]) ?>" id="orderEditForm">
                             <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                             
                             <div class="row">
@@ -234,7 +234,7 @@ $user = Yii::$app->user->identity;
                         <span class="badge bg-primary"><?= $model->getStatusLabel() ?></span>
                     </h4>
 
-                    <form method="post" action="<?= Url::to(['change-status', 'id' => $model->id]) ?>">
+                    <form method="post" action="<?= Url::to(['/admin/order/change-status', 'id' => $model->id]) ?>">
                         <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                         
                         <div class="mb-3">
@@ -271,7 +271,7 @@ $user = Yii::$app->user->identity;
                     <p><strong>Текущий логист:</strong><br>
                     <?= $model->logist ? Html::encode($model->logist->username) : 'Не назначен' ?></p>
 
-                    <form method="post" action="<?= Url::to(['assign-logist', 'id' => $model->id]) ?>">
+                    <form method="post" action="<?= Url::to(['/admin/order/assign-logist', 'id' => $model->id]) ?>">
                         <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                         
                         <div class="mb-3">

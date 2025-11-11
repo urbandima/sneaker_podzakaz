@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 
 $this->title = 'Размерные сетки';
-$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['products']];
+$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['/admin/product/index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -15,7 +15,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <p class="text-muted">Управление размерными сетками для быстрого добавления размеров к товарам</p>
         </div>
         <div>
-            <?= Html::a('<i class="bi bi-plus-circle"></i> Создать сетку', ['create-size-grid'], [
+            <?= Html::a('<i class="bi bi-plus-circle"></i> Создать сетку', ['/admin/size-grid/create'], [
                 'class' => 'btn btn-success'
             ]) ?>
         </div>

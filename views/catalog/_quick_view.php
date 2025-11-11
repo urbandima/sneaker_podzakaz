@@ -88,20 +88,6 @@ use yii\helpers\Html;
                 </div>
             <?php endif; ?>
             
-            <!-- Цвета -->
-            <?php if (!empty($product->colors)): ?>
-                <div class="qv-colors">
-                    <h4>Выберите цвет</h4>
-                    <div class="color-grid">
-                        <?php foreach ($product->colors as $color): ?>
-                            <label class="color-option" title="<?= Html::encode($color->name) ?>">
-                                <input type="radio" name="qv_color" value="<?= Html::encode($color->name) ?>">
-                                <span class="color-circle" style="background-color: <?= Html::encode($color->hex) ?>"></span>
-                            </label>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            <?php endif; ?>
             
             <!-- Детали товара -->
             <div class="qv-details">

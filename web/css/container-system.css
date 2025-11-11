@@ -1,0 +1,137 @@
+/**
+ * ЕДИНАЯ СИСТЕМА КОНТЕЙНЕРОВ - СНИКЕРХЭД
+ * ============================================
+ * Глобальные настройки ширины для всех страниц проекта
+ * Обеспечивает визуальную согласованность header, catalog, product
+ * 
+ * ВАЖНО: Этот файл должен загружаться ПЕРВЫМ перед остальными стилями
+ * ============================================
+ */
+
+:root {
+    /* Единая максимальная ширина контента для всего сайта */
+    /* На мобильных - 100%, на десктопе - 80% */
+    --container-max-width: 100%;
+    
+    /* Адаптивные отступы */
+    --container-padding-mobile: 1rem;      /* 16px */
+    --container-padding-tablet: 1.5rem;    /* 24px */
+    --container-padding-desktop: 2rem;     /* 32px */
+    --container-padding-xl: 2.5rem;        /* 40px */
+}
+
+/* ============================================
+   БАЗОВЫЙ КОНТЕЙНЕР (используется везде)
+   ============================================ */
+.container {
+    width: 100%;
+    max-width: var(--container-max-width) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: var(--container-padding-mobile) !important;
+    padding-right: var(--container-padding-mobile) !important;
+    box-sizing: border-box;
+}
+
+/* Desktop - ограничиваем ширину до 80% для комфортного чтения */
+@media (min-width: 1280px) {
+    :root {
+        --container-max-width: 80%;
+    }
+}
+
+/* Ограничение для очень больших экранов (4K+) */
+@media (min-width: 2560px) {
+    .container {
+        max-width: 2400px !important;
+    }
+}
+
+/* ============================================
+   АДАПТИВНЫЕ ОТСТУПЫ
+   ============================================ */
+@media (min-width: 640px) {
+    .container {
+        padding-left: var(--container-padding-tablet) !important;
+        padding-right: var(--container-padding-tablet) !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        padding-left: var(--container-padding-desktop) !important;
+        padding-right: var(--container-padding-desktop) !important;
+    }
+}
+
+@media (min-width: 1536px) {
+    .container {
+        padding-left: var(--container-padding-xl) !important;
+        padding-right: var(--container-padding-xl) !important;
+    }
+}
+
+/* ============================================
+   СПЕЦИФИЧНЫЕ КОНТЕЙНЕРЫ
+   ============================================ */
+
+/* Контейнер каталога */
+.catalog-page .container {
+    max-width: var(--container-max-width) !important;
+}
+
+/* Контейнер страницы товара */
+.product-page-optimized .product-container {
+    max-width: var(--container-max-width) !important;
+}
+
+/* Контейнер header (Bootstrap navbar + public layout) */
+.navbar .container,
+.navbar .container-fluid,
+.catalog-header .container,
+.ecom-header .main-header .container,
+.main-header .container {
+    max-width: var(--container-max-width) !important;
+    width: 100% !important;
+}
+
+/* Footer контейнер */
+.footer .container,
+.site-footer .container,
+.footer-main .container,
+.footer-bottom .container {
+    max-width: var(--container-max-width) !important;
+}
+
+/* Content блок каталога */
+.content {
+    width: 100%;
+    max-width: 100%; /* Занимает всю доступную ширину внутри контейнера */
+}
+
+/* Product layout */
+.product-layout {
+    width: 100%;
+    max-width: 100%; /* Занимает всю доступную ширину внутри контейнера */
+}
+
+/* Navigation menu */
+.main-nav .container {
+    max-width: var(--container-max-width) !important;
+    width: 100% !important;
+}
+
+.nav-menu {
+    width: 100%;
+    max-width: 100%; /* Занимает всю ширину контейнера */
+    margin: 0;
+}
+
+/* ============================================
+   ВИЗУАЛЬНАЯ ОТЛАДКА (только для dev)
+   ============================================ */
+/* 
+.container {
+    outline: 1px dashed rgba(255, 0, 0, 0.3);
+}
+*/

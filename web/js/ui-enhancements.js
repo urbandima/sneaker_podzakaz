@@ -129,13 +129,24 @@
 
                 this.observer.observe(this.loader);
             }
+
+            // НОВОЕ: Обработчик кликов по пагинации
+            this.initPaginationHandler();
+
+            // НОВОЕ: Синхронизация с текущей страницей из URL
+            this.syncWithURL();
         }
 
         createLoader() {
             this.loader = document.createElement('div');
             this.loader.className = 'infinite-scroll-loading';
             this.loader.innerHTML = '<div class="spinner"></div>';
-            this.loader.style.display = 'none';
+            
+            // КРИТИЧНО: Loader должен быть видимым для IntersectionObserver
+            // Но spinner скрыт до начала загрузки
+            this.loader.style.minHeight = '1px';
+            this.loader.style.visibility = 'visible';
+            this.loader.querySelector('.spinner').style.display = 'none';
             
             // Вставить после контейнера
             this.container.parentNode.insertBefore(
@@ -160,6 +171,9 @@
             if (this.isLoading || !this.hasMore) return;
 
             this.isLoading = true;
+            // Показываем spinner
+            const spinner = this.loader.querySelector('.spinner');
+            if (spinner) spinner.style.display = 'block';
             this.loader.style.display = 'flex';
 
             try {
@@ -202,6 +216,12 @@
 
                     this.page = nextPage;
 
+                    // НОВОЕ: Обновляем пагинацию
+                    this.updatePagination(nextPage);
+
+                    // НОВОЕ: Обновляем URL без перезагрузки
+                    this.updateURL(nextPage);
+
                     // Проверить, есть ли ещё страницы
                     if (nextPage >= this.totalPages || !data.hasMore) {
                         this.hasMore = false;
@@ -216,7 +236,78 @@
                 this.showError();
             } finally {
                 this.isLoading = false;
-                this.loader.style.display = 'none';
+                // Скрываем spinner, но loader остаётся видимым для observer
+                const spinner = this.loader.querySelector('.spinner');
+                if (spinner) spinner.style.display = 'none';
+                this.loader.style.display = 'flex';
+            }
+        }
+
+        updatePagination(currentPage) {
+            // Находим пагинацию на странице
+            const pagination = document.querySelector('.pagination');
+            if (!pagination) return;
+
+            // Убираем active со всех кнопок
+            const pageLinks = pagination.querySelectorAll('li');
+            pageLinks.forEach(li => {
+                li.classList.remove('active');
+                const link = li.querySelector('a');
+                if (link) {
+                    const pageNum = this.extractPageNumber(link.href);
+                    if (pageNum === currentPage) {
+                        li.classList.add('active');
+                    }
+                }
+            });
+        }
+
+        extractPageNumber(url) {
+            if (!url) return 1;
+            const match = url.match(/[?&]page=(\d+)/);
+            return match ? parseInt(match[1]) : 1;
+        }
+
+        updateURL(page) {
+            // Обновляем URL без перезагрузки страницы
+            const params = new URLSearchParams(window.location.search);
+            params.set('page', page);
+            const newURL = `${window.location.pathname}?${params.toString()}`;
+            window.history.replaceState({ page: page }, '', newURL);
+        }
+
+        initPaginationHandler() {
+            // Отслеживаем клики по пагинации
+            document.addEventListener('click', (e) => {
+                const paginationLink = e.target.closest('.pagination a');
+                if (!paginationLink) return;
+
+                // Извлекаем номер страницы из ссылки
+                const targetPage = this.extractPageNumber(paginationLink.href);
+                
+                // Если кликнули на страницу, которая уже загружена через infinite scroll
+                // просто скроллим к началу товаров этой страницы
+                if (targetPage <= this.page) {
+                    e.preventDefault();
+                    this.updatePagination(targetPage);
+                    this.updateURL(targetPage);
+                    
+                    // Скроллим к началу каталога
+                    const catalogTop = this.container.offsetTop - 100;
+                    window.scrollTo({ top: catalogTop, behavior: 'smooth' });
+                }
+                // Если кликнули на страницу дальше текущей - позволяем обычный переход
+            });
+        }
+
+        syncWithURL() {
+            // Синхронизируем текущую страницу из URL
+            const params = new URLSearchParams(window.location.search);
+            const urlPage = parseInt(params.get('page')) || 1;
+            
+            if (urlPage > 1) {
+                this.page = urlPage;
+                this.updatePagination(urlPage);
             }
         }
 

@@ -33,9 +33,7 @@ class AssetOptimizer extends Component
      */
     const DEFERRED_CSS = [
         'catalog-card' => '@web/css/catalog-card.css',
-        'catalog-clean' => '@web/css/catalog-clean.css',
-        'product-adaptive' => '@web/css/product-adaptive.css',
-        'product-layout-fixes' => '@web/css/product-layout-fixes.css',
+        'catalog-inline' => '@web/css/catalog-inline.css',
     ];
     
     /**
@@ -50,13 +48,11 @@ class AssetOptimizer extends Component
         // Некритичные - async + lazy (выполняются независимо)
         'deferred' => [
             'view-history' => '@web/js/view-history.js',
-            'product-improvements' => '@web/js/product-improvements.js',
             'ui-enhancements' => '@web/js/ui-enhancements.js',
             'wishlist-share' => '@web/js/wishlist-share.js',
         ],
         // Интерактивные - defer (нужны для UX)
         'interactive' => [
-            'product-swipe' => '@web/js/product-swipe.js',
             'price-slider' => '@web/js/price-slider.js',
             'favorites' => '@web/js/favorites.js',
         ],
@@ -89,7 +85,7 @@ class AssetOptimizer extends Component
         self::optimizeScripts($view, [
             'critical' => ['catalog', 'cart'],
             'deferred' => ['view-history', 'ui-enhancements'],
-            'interactive' => ['product-swipe', 'price-slider'],
+            'interactive' => ['price-slider'],
         ]);
         
         // 5. Prefetch для следующих страниц
@@ -116,15 +112,13 @@ class AssetOptimizer extends Component
         // 3. Отложенная загрузка CSS
         self::deferNonCriticalCSS($view, [
             'product',
-            'product-adaptive',
-            'product-layout-fixes',
         ]);
         
         // 4. JS с приоритетами
         self::optimizeScripts($view, [
             'critical' => ['cart'],
-            'interactive' => ['product-swipe', 'favorites'],
-            'deferred' => ['view-history', 'product-improvements', 'wishlist-share'],
+            'interactive' => ['favorites'],
+            'deferred' => ['view-history', 'wishlist-share'],
         ]);
     }
 
@@ -144,10 +138,21 @@ class AssetOptimizer extends Component
             // Минификация (простая)
             $criticalCSS = self::minifyCSS($criticalCSS);
             
-            // Вставка в <head>
+            // В dev режиме добавляем комментарий с версией для отладки
+            if (YII_ENV_DEV) {
+                $version = filemtime($criticalPath);
+                $criticalCSS = "/* Critical CSS v{$version} */ " . $criticalCSS;
+            }
+            
+            // Вставка в <head> с уникальным ключом на основе версии файла
+            $key = 'critical-css';
+            if (YII_ENV_DEV) {
+                $key .= '-' . filemtime($criticalPath);
+            }
+            
             $view->registerCss($criticalCSS, [
                 'position' => View::POS_HEAD,
-            ], 'critical-css');
+            ], $key);
         }
     }
 

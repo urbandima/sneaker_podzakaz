@@ -8,7 +8,7 @@ use yii\widgets\ActiveForm;
 /** @var app\models\ProductSize $size */
 
 $this->title = 'Редактировать размер: ' . $product->name;
-$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['products']];
+$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['/admin/product/index']];
 $this->params['breadcrumbs'][] = ['label' => $product->name, 'url' => ['view-product', 'id' => $product->id]];
 $this->params['breadcrumbs'][] = 'Редактировать размер';
 ?>
@@ -63,7 +63,7 @@ $this->params['breadcrumbs'][] = 'Редактировать размер';
 
             <div class="form-group">
                 <?= Html::submitButton('Сохранить изменения', ['class' => 'btn btn-success']) ?>
-                <?= Html::a('Отмена', ['view-product', 'id' => $product->id], ['class' => 'btn btn-secondary']) ?>
+                <?= Html::a('Отмена', ['/admin/product/view', 'id' => $product->id], ['class' => 'btn btn-secondary']) ?>
             </div>
 
             <?php ActiveForm::end(); ?>

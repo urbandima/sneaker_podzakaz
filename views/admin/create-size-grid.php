@@ -5,8 +5,8 @@ use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
 
 $this->title = 'Создать размерную сетку';
-$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['products']];
-$this->params['breadcrumbs'][] = ['label' => 'Размерные сетки', 'url' => ['size-grids']];
+$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['/admin/product/index']];
+$this->params['breadcrumbs'][] = ['label' => 'Размерные сетки', 'url' => ['/admin/size-grid/index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -51,7 +51,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
             <div class="form-group">
                 <?= Html::submitButton('<i class="bi bi-check-circle"></i> Создать', ['class' => 'btn btn-success']) ?>
-                <?= Html::a('Отмена', ['size-grids'], ['class' => 'btn btn-secondary']) ?>
+                <?= Html::a('Отмена', ['/admin/size-grid/index'], ['class' => 'btn btn-secondary']) ?>
             </div>
 
             <?php ActiveForm::end(); ?>

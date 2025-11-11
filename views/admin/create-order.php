@@ -12,7 +12,7 @@ $this->title = 'Создать заказ';
 <div class="admin-create-order">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><?= Html::encode($this->title) ?></h1>
-        <?= Html::a('← Назад к списку', ['orders'], ['class' => 'btn btn-outline-secondary']) ?>
+        <?= Html::a('← Назад к списку', ['/admin/order/index'], ['class' => 'btn btn-outline-secondary']) ?>
     </div>
 
     <div class="card">

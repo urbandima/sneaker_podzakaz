@@ -66,7 +66,7 @@ foreach ($orders as $order) {
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1><?= Html::encode($this->title) ?></h1>
         <?php if (!$user->isLogist()): ?>
-            <?= Html::a('<i class="bi bi-plus-circle me-2"></i>Создать заказ', ['create-order'], ['class' => 'btn btn-success']) ?>
+            <?= Html::a('<i class="bi bi-plus-circle me-2"></i>Создать заказ', ['/admin/order/create'], ['class' => 'btn btn-success']) ?>
         <?php endif; ?>
     </div>
 
@@ -98,13 +98,13 @@ foreach ($orders as $order) {
     <!-- Компактная панель статусов -->
     <div class="status-filter-bar sticky-top bg-white border-bottom mb-3 pb-2">
         <div class="status-pills d-flex gap-2 flex-wrap">
-            <a href="<?= Url::to(['orders']) ?>" 
+            <a href="<?= Url::to(['/admin/order/index']) ?>" 
                class="status-pill <?= $activeStatus === '' ? 'active' : '' ?>">
                 <span class="label">Все</span>
                 <span class="count"><?= $totalCount ?></span>
             </a>
             <?php foreach ($statuses as $key => $label): ?>
-                <a href="<?= Url::to(['orders', 'status' => $key]) ?>" 
+                <a href="<?= Url::to(['/admin/order/index', 'status' => $key]) ?>" 
                    class="status-pill <?= $activeStatus === $key ? 'active' : '' ?>"
                    data-status="<?= Html::encode($key) ?>">
                     <span class="label"><?= Html::encode($label) ?></span>
@@ -162,7 +162,7 @@ foreach ($orders as $order) {
                         <button type="submit" class="btn btn-primary btn-sm">
                             <i class="bi bi-search me-1"></i>Применить
                         </button>
-                        <a href="<?= Url::to(['orders']) ?>" class="btn btn-outline-secondary btn-sm">
+                        <a href="<?= Url::to(['/admin/order/index']) ?>" class="btn btn-outline-secondary btn-sm">
                             <i class="bi bi-x-circle me-1"></i>Сбросить
                         </a>
                     </div>
@@ -227,7 +227,7 @@ foreach ($orders as $order) {
                             <span class="badge bg-primary ms-2"><?= $monthData['count'] ?> заказов</span>
                             <span class="badge bg-success ms-1"><?= Yii::$app->formatter->asDecimal($monthData['total'], 2) ?> BYN</span>
                         </button>
-                        <a href="<?= Url::to(['export-orders', 'year' => $year, 'month' => $month]) ?>" 
+                        <a href="<?= Url::to(['/admin/order/export', 'year' => $year, 'month' => $month]) ?>" 
                            class="btn btn-success btn-sm"
                            title="Экспортировать в Excel">
                             <i class="bi bi-file-earmark-spreadsheet me-1"></i>Экспорт Excel
@@ -257,11 +257,11 @@ foreach ($orders as $order) {
                                 </thead>
                                 <tbody>
                                     <?php foreach ($monthData['orders'] as $order): ?>
-                                    <tr class="clickable-row" data-href="<?= Url::to(['view-order', 'id' => $order->id]) ?>">
+                                    <tr class="clickable-row" data-href="<?= Url::to(['/admin/order/view', 'id' => $order->id]) ?>">
                                         <td>
                                             <?= Html::a(
                                                 Html::encode($order->order_number),
-                                                ['view-order', 'id' => $order->id],
+                                                ['/admin/order/view', 'id' => $order->id],
                                                 ['class' => 'fw-bold text-decoration-none', 'title' => 'Просмотр заказа']
                                             ) ?>
                                         </td>
@@ -316,7 +316,7 @@ foreach ($orders as $order) {
                                         <td><small><?= Yii::$app->formatter->asDatetime($order->created_at, 'php:d.m.Y') ?></small></td>
                                         <td class="text-center action-cell">
                                             <div class="btn-group btn-group-sm" role="group">
-                                                <?= Html::a('<i class="bi bi-eye"></i>', ['view-order', 'id' => $order->id], [
+                                                <?= Html::a('<i class="bi bi-eye"></i>', ['/admin/order/view', 'id' => $order->id], [
                                                     'title' => 'Просмотр',
                                                     'class' => 'btn btn-outline-primary btn-sm',
                                                 ]) ?>

@@ -1,0 +1,650 @@
+/* ============================================
+   ECOM-HEADER ADAPTIVE STYLES
+   Адаптация под все устройства от 320px до 4K
+   ============================================ */
+
+/* ============================================
+   DESKTOP (1200px+) - ВСЕ В ОДНУ СТРОКУ
+   ============================================ */
+@media (min-width: 1200px) {
+    .main-header .container {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 1.5rem !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .header-left {
+        display: flex !important;
+        align-items: center !important;
+        gap: 1rem !important;
+        flex-shrink: 0 !important;
+        min-width: 0 !important;
+    }
+    
+    .menu-burger {
+        display: none !important;
+    }
+    
+    .logo {
+        flex-shrink: 0 !important;
+        min-width: 0 !important;
+    }
+    
+    .logo-text small {
+        display: flex !important;
+    }
+    
+    .header-search {
+        flex: 1 !important;
+        max-width: 500px !important;
+        min-width: 300px !important;
+        margin: 0 1rem !important;
+    }
+    
+    .header-actions {
+        display: flex !important;
+        gap: 1.25rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .header-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 0.25rem !important;
+    }
+    
+    .header-btn .label {
+        display: block !important;
+        font-size: 0.75rem !important;
+    }
+    
+    .header-btn i {
+        font-size: 1.5rem !important;
+    }
+    
+    /* Navigation видна */
+    .main-nav {
+        display: block !important;
+    }
+    
+    .mobile-menu {
+        display: none !important;
+    }
+    
+    .mobile-menu-overlay {
+        display: none !important;
+    }
+}
+
+/* ============================================
+   LAPTOP (992px - 1199px)
+   ============================================ */
+@media (min-width: 992px) and (max-width: 1199px) {
+    .main-header .container {
+        gap: 1rem !important;
+    }
+    
+    .header-search {
+        max-width: 400px !important;
+        min-width: 250px !important;
+    }
+    
+    .header-actions {
+        gap: 1rem !important;
+    }
+    
+    .header-btn .label {
+        font-size: 0.6875rem !important;
+    }
+    
+    .header-btn i {
+        font-size: 1.375rem !important;
+    }
+    
+    /* Скрываем "История" для экономии места */
+    .header-btn[href="/catalog/history"] {
+        display: none !important;
+    }
+}
+
+/* ============================================
+   TABLET (768px - 991px)
+   ============================================ */
+@media (min-width: 768px) and (max-width: 991px) {
+    .main-header {
+        padding: 0.875rem 0 !important;
+    }
+    
+    .main-header .container {
+        gap: 0.875rem !important;
+    }
+    
+    .menu-burger {
+        display: flex !important;
+    }
+    
+    .header-search {
+        flex: 1 !important;
+        max-width: none !important;
+        min-width: 0 !important;
+    }
+    
+    .header-actions {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+        flex-shrink: 0 !important;
+        margin-left: auto !important;
+    }
+    
+    .header-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+    
+    .header-btn .label {
+        display: none !important;
+    }
+    
+    .header-btn i {
+        font-size: 1.375rem !important;
+        margin-bottom: 0 !important;
+    }
+    
+    /* Скрываем История и Профиль */
+    .header-btn[href="/catalog/history"],
+    .header-btn[href="/site/account"] {
+        display: none !important;
+    }
+    
+    /* Desktop навигацию скрываем, показываем мобильное меню */
+    .main-nav {
+        display: none !important;
+    }
+}
+
+/* ============================================
+   MOBILE (640px - 767px)
+   ============================================ */
+@media (min-width: 640px) and (max-width: 767px) {
+    .main-header {
+        padding: 0.75rem 0 !important;
+    }
+    
+    .main-header .container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-wrap: nowrap !important;
+        gap: 0.75rem !important;
+    }
+    
+    .menu-burger {
+        display: flex !important;
+        padding: 0.375rem !important;
+    }
+    
+    .logo {
+        font-size: 1rem !important;
+        gap: 0.375rem !important;
+    }
+    
+    .logo-image {
+        width: 48px !important;
+        height: 48px !important;
+    }
+    
+    .logo-text strong {
+        font-size: 1rem !important;
+    }
+    
+    .logo-text small .line-1 {
+        font-size: 0.6rem !important;
+    }
+    
+    .logo-text small .line-2 {
+        font-size: 0.575rem !important;
+    }
+    
+    /* Скрываем поиск - будет в мобильном меню */
+    .header-search {
+        display: none !important;
+    }
+    
+    .header-actions {
+        gap: 0.625rem !important;
+        margin-left: auto !important;
+    }
+    
+    .header-btn .label {
+        display: none !important;
+    }
+    
+    .header-btn i {
+        font-size: 1.375rem !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .header-btn .badge {
+        width: 16px !important;
+        height: 16px !important;
+        font-size: 0.5625rem !important;
+        top: -2px !important;
+        right: -6px !important;
+    }
+    
+    /* Скрываем История и Профиль */
+    .header-btn[href="/catalog/history"],
+    .header-btn[href="/site/account"] {
+        display: none !important;
+    }
+    
+    .main-nav {
+        display: none !important;
+    }
+}
+
+/* ============================================
+   SMALL MOBILE (480px - 639px)
+   ============================================ */
+@media (min-width: 480px) and (max-width: 639px) {
+    .main-header {
+        padding: 0.625rem 0 !important;
+    }
+    
+    .main-header .container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-wrap: nowrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    .menu-burger {
+        display: flex !important;
+        padding: 0.25rem !important;
+    }
+    
+    .menu-burger span {
+        width: 20px !important;
+        height: 2px !important;
+    }
+    
+    .logo {
+        font-size: 0.875rem !important;
+        gap: 0.375rem !important;
+    }
+    
+    .logo-image {
+        width: 44px !important;
+        height: 44px !important;
+    }
+    
+    .logo-text strong {
+        font-size: 0.875rem !important;
+    }
+    
+    .logo-text small .line-1 {
+        font-size: 0.575rem !important;
+    }
+    
+    .logo-text small .line-2 {
+        font-size: 0.55rem !important;
+    }
+    
+    .header-search {
+        display: none !important;
+    }
+    
+    .header-actions {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        flex-shrink: 0 !important;
+        margin-left: auto !important;
+    }
+    
+    .header-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+    
+    .header-btn i {
+        font-size: 1.25rem !important;
+    }
+    
+    .header-btn .badge {
+        width: 16px !important;
+        height: 16px !important;
+        font-size: 0.5625rem !important;
+    }
+    
+    /* Показываем только Избранное и Корзину */
+    .header-btn[href="/catalog/history"],
+    .header-btn[href="/site/account"] {
+        display: none !important;
+    }
+    
+    .main-nav {
+        display: none !important;
+    }
+}
+
+/* ============================================
+   EXTRA SMALL (370px - 479px)
+   ============================================ */
+@media (min-width: 370px) and (max-width: 479px) {
+    .main-header {
+        padding: 0.5rem 0 !important;
+    }
+    
+    .main-header .container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-wrap: nowrap !important;
+        gap: 0.375rem !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+    
+    .menu-burger {
+        display: flex !important;
+        padding: 0.25rem !important;
+    }
+    
+    .menu-burger span {
+        width: 18px !important;
+        height: 2px !important;
+    }
+    
+    .logo {
+        font-size: 0.75rem !important;
+        gap: 0.25rem !important;
+    }
+    
+    .logo-image {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .logo-text strong {
+        font-size: 0.75rem !important;
+    }
+    
+    .logo-text small .line-1 {
+        font-size: 0.5rem !important;
+    }
+    
+    .logo-text small .line-2 {
+        font-size: 0.475rem !important;
+    }
+    
+    .header-search {
+        display: none !important;
+    }
+    
+    .header-actions {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.375rem !important;
+        flex-shrink: 0 !important;
+        margin-left: auto !important;
+    }
+    
+    .header-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+    
+    .header-btn i {
+        font-size: 1.125rem !important;
+    }
+    
+    .header-btn .badge {
+        width: 14px !important;
+        height: 14px !important;
+        font-size: 0.5rem !important;
+        top: -2px !important;
+        right: -4px !important;
+    }
+    
+    .header-btn[href="/catalog/history"],
+    .header-btn[href="/site/account"] {
+        display: none !important;
+    }
+    
+    .main-nav {
+        display: none !important;
+    }
+}
+
+/* ============================================
+   TINY (320px - 369px)
+   ============================================ */
+@media (max-width: 369px) {
+    .main-header .container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-wrap: nowrap !important;
+        gap: 0.25rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    
+    .logo-image {
+        width: 36px !important;
+        height: 36px !important;
+    }
+    
+    .logo-text strong {
+        font-size: 0.6875rem !important;
+    }
+    
+    .logo-text small {
+        display: none !important;
+    }
+    
+    .header-actions {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.25rem !important;
+        flex-shrink: 0 !important;
+        margin-left: auto !important;
+    }
+    
+    .header-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+    
+    .header-btn i {
+        font-size: 1rem !important;
+    }
+}
+
+/* ============================================
+   NAVIGATION - КРИТИЧНО ДЛЯ ПРОДАКШЕНА
+   nav-menu УДАЛЕНО на мобильной, только burger
+   ============================================ */
+
+/* БАЗОВОЕ ПРАВИЛО: nav-menu скрыто по умолчанию */
+.main-nav {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* МОБИЛЬНАЯ И ПЛАНШЕТ (<1200px): nav-menu ПОЛНОСТЬЮ УДАЛЕНО */
+@media (max-width: 1199px) {
+    .main-nav,
+    .nav-menu,
+    .mega-menu {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        height: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        position: absolute !important;
+        left: -9999px !important;
+    }
+}
+
+/* ТОЛЬКО КОМПЬЮТЕР (>=1200px): nav-menu показывается */
+@media (min-width: 1200px) {
+    .main-nav {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+        position: relative !important;
+        left: auto !important;
+    }
+    
+    .nav-menu {
+        display: flex !important;
+    }
+    
+    /* Burger скрыт на desktop */
+    .menu-burger {
+        display: none !important;
+    }
+    
+    /* Mobile menu скрыто на desktop */
+    .mobile-menu {
+        display: none !important;
+    }
+    
+    .mobile-menu-overlay {
+        display: none !important;
+    }
+    
+    /* Активируем выпадающие меню на hover */
+    .nav-item:hover .mega-menu {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateY(0) !important;
+    }
+    
+    .mega-menu {
+        position: absolute !important;
+        left: auto !important;
+    }
+}
+
+/* ============================================
+   STICKY HEADER НА ВСЕХ РАЗРЕШЕНИЯХ
+   ============================================ */
+.main-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    background: #fff !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+}
+
+/* При скролле - усиленная тень */
+.main-header.scrolled {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+}
+
+/* ============================================
+   ДОПОЛНИТЕЛЬНЫЕ УЛУЧШЕНИЯ
+   ============================================ */
+
+/* Плавная анимация бургера */
+.menu-burger span {
+    transition: all 0.3s ease !important;
+}
+
+.menu-burger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+
+.menu-burger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-burger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* Badge анимация при добавлении товара */
+@keyframes badge-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.header-btn .badge.updated {
+    animation: badge-pulse 0.3s ease;
+}
+
+/* Улучшенный hover для header-btn */
+.header-btn {
+    position: relative;
+    transition: all 0.2s ease !important;
+}
+
+.header-btn::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    background: transparent;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+    z-index: -1;
+}
+
+.header-btn:hover::before {
+    background: rgba(239, 68, 68, 0.05);
+}
+
+/* Search box - улучшенный фокус */
+.search-box {
+    transition: all 0.2s ease !important;
+}
+
+.search-box:focus-within {
+    transform: scale(1.02);
+}
+
+/* Logo hover эффект */
+.logo {
+    transition: all 0.2s ease !important;
+}
+
+.logo:hover {
+    transform: translateY(-2px);
+}
+
+.logo:hover .logo-text strong {
+    color: #ef4444;
+}

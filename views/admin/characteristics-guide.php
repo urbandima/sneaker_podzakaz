@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 
 $this->title = 'Справочник характеристик товаров';
-$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['products']];
+$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['/admin/product/index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -192,9 +192,9 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 
     <div class="mt-4">
-        <?= Html::a('<i class="bi bi-arrow-left"></i> Вернуться к товарам', ['products'], ['class' => 'btn btn-secondary']) ?>
-        <?= Html::a('<i class="bi bi-rulers"></i> Справочник размерных сеток', ['size-guide'], ['class' => 'btn btn-info']) ?>
-        <?= Html::a('<i class="bi bi-gear"></i> Управление размерными сетками', ['size-grids'], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('<i class="bi bi-arrow-left"></i> Вернуться к товарам', ['/admin/product/index'], ['class' => 'btn btn-secondary']) ?>
+        <?= Html::a('<i class="bi bi-rulers"></i> Справочник размерных сеток', ['/admin/size-grid/guide'], ['class' => 'btn btn-info']) ?>
+        <?= Html::a('<i class="bi bi-gear"></i> Управление размерными сетками', ['/admin/size-grid/index'], ['class' => 'btn btn-primary']) ?>
     </div>
     
     <div class="alert alert-success mt-4">

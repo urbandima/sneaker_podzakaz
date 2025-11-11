@@ -11,7 +11,7 @@ use yii\helpers\Url;
 /** @var array $logsList */
 
 $this->title = 'Просмотр лога импорта';
-$this->params['breadcrumbs'][] = ['label' => 'Импорт Poizon', 'url' => ['poizon-import']];
+$this->params['breadcrumbs'][] = ['label' => 'Импорт Poizon', 'url' => ['/admin/poizon/index']];
 $this->params['breadcrumbs'][] = $this->title;
 
 // Форматирование размера
@@ -25,7 +25,7 @@ function formatSize($bytes) {
 <div class="poizon-view-log">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><?= Html::encode($this->title) ?></h1>
-        <?= Html::a('<i class="bi bi-arrow-left"></i> Назад', ['poizon-import'], ['class' => 'btn btn-secondary']) ?>
+        <?= Html::a('<i class="bi bi-arrow-left"></i> Назад', ['/admin/poizon/index'], ['class' => 'btn btn-secondary']) ?>
     </div>
 
     <div class="row">
@@ -36,18 +36,24 @@ function formatSize($bytes) {
                     <h6 class="mb-0"><i class="bi bi-list"></i> Все логи</h6>
                 </div>
                 <div class="list-group list-group-flush" style="max-height: 600px; overflow-y: auto;">
-                    <?php foreach ($logsList as $log): ?>
-                        <a href="<?= Url::to(['poizon-view-log', 'file' => $log['name']]) ?>" 
-                           class="list-group-item list-group-item-action <?= $log['name'] === $fileName ? 'active' : '' ?>">
-                            <div class="d-flex w-100 justify-content-between">
-                                <small class="text-truncate"><?= Html::encode($log['name']) ?></small>
-                            </div>
-                            <small class="text-muted">
-                                <?= formatSize($log['size']) ?> • 
-                                <?= date('d.m.Y H:i', $log['time']) ?>
-                            </small>
-                        </a>
-                    <?php endforeach; ?>
+                    <?php if (!empty($logsList)): ?>
+                        <?php foreach ($logsList as $log): ?>
+                            <a href="<?= Url::to(['/admin/poizon/view-log', 'file' => $log['name']]) ?>" 
+                               class="list-group-item list-group-item-action <?= $log['name'] === $fileName ? 'active' : '' ?>">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <small class="text-truncate"><?= Html::encode($log['name']) ?></small>
+                                </div>
+                                <small class="text-muted">
+                                    <?= formatSize($log['size']) ?> • 
+                                    <?= date('d.m.Y H:i', $log['time']) ?>
+                                </small>
+                            </a>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="list-group-item text-muted">
+                            <small>Нет доступных логов</small>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -61,14 +67,21 @@ function formatSize($bytes) {
                             <i class="bi bi-file-text"></i> <?= Html::encode($fileName) ?>
                         </h6>
                         <div>
-                            <span class="badge bg-secondary"><?= formatSize($fileSize) ?></span>
-                            <span class="badge bg-info"><?= date('d.m.Y H:i:s', $lastModified) ?></span>
+                            <?php if ($fileSize > 0): ?>
+                                <span class="badge bg-secondary"><?= formatSize($fileSize) ?></span>
+                            <?php endif; ?>
+                            <?php if ($lastModified > 0): ?>
+                                <span class="badge bg-info"><?= date('d.m.Y H:i:s', $lastModified) ?></span>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
                 <div class="card-body p-0">
                     <div style="background: #1e1e1e; color: #d4d4d4; padding: 20px; max-height: 600px; overflow-y: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; line-height: 1.6;">
                         <?php
+                        if (empty($content)):
+                            echo '<div style="color: #888;">Лог пустой или файл не найден</div>';
+                        else:
                         // Подсветка важных строк
                         $lines = explode("\n", $content);
                         foreach ($lines as $line) {
@@ -100,6 +113,7 @@ function formatSize($bytes) {
                                 echo '<div>' . $line . '</div>';
                             }
                         }
+                        endif;
                         ?>
                     </div>
                 </div>
@@ -108,7 +122,7 @@ function formatSize($bytes) {
                         <button class="btn btn-sm btn-outline-primary" onclick="copyLog()">
                             <i class="bi bi-clipboard"></i> Копировать
                         </button>
-                        <a href="<?= Url::to(['poizon-view-log', 'file' => $fileName]) ?>" 
+                        <a href="<?= Url::to(['/admin/poizon/view-log', 'file' => $fileName]) ?>" 
                            class="btn btn-sm btn-outline-secondary">
                             <i class="bi bi-arrow-clockwise"></i> Обновить
                         </a>

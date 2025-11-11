@@ -32,8 +32,11 @@ class OrderController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
         
         if (!Yii::$app->request->isPost) {
+            Yii::error('Попытка создания заказа не POST методом', 'order');
             return ['success' => false, 'message' => 'Недопустимый метод запроса'];
         }
+        
+        Yii::info('Начало создания заказа', 'order');
         
         // Получаем данные формы
         $name = Yii::$app->request->post('name');
@@ -55,8 +58,17 @@ class OrderController extends Controller
         }
         
         // Получаем товары из корзины
-        $cartItems = Cart::getItems();
+        try {
+            Yii::info('Попытка получения корзины', 'order');
+            $cartItems = Cart::getItems();
+            Yii::info('Корзина получена: ' . count($cartItems) . ' товаров', 'order');
+        } catch (\Throwable $e) {
+            Yii::error('Ошибка получения корзины: ' . $e->getMessage() . "\n" . $e->getTraceAsString(), 'order');
+            return ['success' => false, 'message' => 'Ошибка загрузки корзины: ' . $e->getMessage()];
+        }
+        
         if (empty($cartItems)) {
+            Yii::warning('Попытка создания заказа с пустой корзиной', 'order');
             return ['success' => false, 'message' => 'Корзина пуста'];
         }
         
@@ -116,6 +128,9 @@ class OrderController extends Controller
             
             // Добавляем товары в заказ
             foreach ($cartItems as $cartItem) {
+                if (!$cartItem->product) {
+                    throw new \RuntimeException('Товар ID ' . $cartItem->product_id . ' недоступен. Обновите корзину.');
+                }
                 $orderItem = new OrderItem();
                 $orderItem->order_id = $order->id;
                 $orderItem->product_id = $cartItem->product_id;
@@ -174,21 +189,107 @@ class OrderController extends Controller
             
             return [
                 'success' => true,
-                'message' => 'Заказ успешно оформлен',
                 'order_id' => $order->id,
                 'order_number' => $order->order_number,
                 'token' => $order->token
             ];
             
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
-            Yii::error('Ошибка создания заказа: ' . $e->getMessage(), 'order');
+            Yii::error('Ошибка создания заказа: ' . $e->getMessage() . "\n" . $e->getTraceAsString(), 'order');
             
             return [
                 'success' => false,
-                'message' => 'Ошибка при оформлении заказа. Попробуйте позже.'
+                'message' => 'Ошибка при оформлении заказа: ' . $e->getMessage()
             ];
         }
+    }
+
+    /**
+     * Страница успешного оформления заказа
+     * Показывается сразу после создания заказа
+{{ ... }}
+     */
+    public function actionSuccess($token)
+    {
+        $model = Order::findOne(['token' => $token]);
+
+        if ($model === null) {
+            throw new NotFoundHttpException('Заказ не найден.');
+        }
+
+        // Получаем рекомендованные товары для upsell
+        $recommendedProducts = $this->getRecommendedProducts($model);
+
+        return $this->render('success', [
+            'model' => $model,
+            'recommendedProducts' => $recommendedProducts,
+        ]);
+    }
+
+    /**
+     * Получить рекомендованные товары для upsell
+     * Логика: товары из тех же брендов + популярные
+     */
+    private function getRecommendedProducts($order, $limit = 8)
+    {
+        $orderItems = $order->orderItems;
+        if (empty($orderItems)) {
+            // Если по какой-то причине товаров нет, показываем популярные
+            return \app\models\Product::find()
+                ->where(['is_active' => 1])
+                ->orderBy(['created_at' => SORT_DESC])
+                ->limit($limit)
+                ->all();
+        }
+
+        // Собираем ID брендов из заказа
+        $brandIds = [];
+        $excludeProductIds = [];
+        foreach ($orderItems as $item) {
+            if ($item->product && $item->product->brand_id) {
+                $brandIds[] = $item->product->brand_id;
+            }
+            if ($item->product_id) {
+                $excludeProductIds[] = $item->product_id;
+            }
+        }
+
+        $brandIds = array_unique($brandIds);
+        $query = \app\models\Product::find()
+            ->where(['is_active' => 1]);
+
+        // Если есть бренды, показываем товары из тех же брендов
+        if (!empty($brandIds)) {
+            $query->andWhere(['brand_id' => $brandIds]);
+        }
+
+        // Исключаем уже заказанные товары
+        if (!empty($excludeProductIds)) {
+            $query->andWhere(['not in', 'id', $excludeProductIds]);
+        }
+
+        $products = $query
+            ->orderBy(['created_at' => SORT_DESC])
+            ->limit($limit)
+            ->all();
+
+        // Если товаров недостаточно, добавляем популярные
+        if (count($products) < $limit) {
+            $need = $limit - count($products);
+            $existingIds = array_merge($excludeProductIds, array_map(fn($p) => $p->id, $products));
+            
+            $popularProducts = \app\models\Product::find()
+                ->where(['is_active' => 1])
+                ->andWhere(['not in', 'id', $existingIds])
+                ->orderBy(['created_at' => SORT_DESC])
+                ->limit($need)
+                ->all();
+
+            $products = array_merge($products, $popularProducts);
+        }
+
+        return $products;
     }
 
     public function actionView($token)

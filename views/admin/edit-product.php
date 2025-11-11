@@ -9,9 +9,9 @@ use yii\widgets\ActiveForm;
 /** @var array $categories */
 
 $this->title = $product->isNewRecord ? 'Создание товара' : 'Редактирование: ' . $product->name;
-$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['products']];
+$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['/admin/product/index']];
 if (!$product->isNewRecord) {
-    $this->params['breadcrumbs'][] = ['label' => $product->name, 'url' => ['view-product', 'id' => $product->id]];
+    $this->params['breadcrumbs'][] = ['label' => $product->name, 'url' => ['/admin/product/view', 'id' => $product->id]];
 }
 $this->params['breadcrumbs'][] = $product->isNewRecord ? 'Создание' : 'Редактирование';
 
@@ -63,7 +63,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
         </div>
         <div class="btn-group">
             <?= Html::a('<i class="bi bi-arrow-left"></i> Назад', 
-                $product->isNewRecord ? ['products'] : ['view-product', 'id' => $product->id], 
+                $product->isNewRecord ? ['/admin/product/index'] : ['/admin/product/view', 'id' => $product->id], 
                 ['class' => 'btn btn-secondary']
             ) ?>
         </div>
@@ -364,13 +364,13 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                     <?php endif; ?>
                                     <div class="position-absolute top-0 end-0 m-1">
                                         <?php if (!$image->is_main): ?>
-                                            <?= Html::a('<i class="bi bi-star"></i>', ['set-main-image', 'id' => $image->id], [
+                                            <?= Html::a('<i class="bi bi-star"></i>', ['/admin/product/set-main-image', 'id' => $image->id], [
                                                 'class' => 'btn btn-sm btn-warning',
                                                 'title' => 'Сделать главным',
                                                 'data-method' => 'post',
                                             ]) ?>
                                         <?php endif; ?>
-                                        <?= Html::a('<i class="bi bi-trash"></i>', ['delete-image', 'id' => $image->id], [
+                                        <?= Html::a('<i class="bi bi-trash"></i>', ['/admin/product/delete-image', 'id' => $image->id], [
                                             'class' => 'btn btn-sm btn-danger',
                                             'title' => 'Удалить',
                                             'data-method' => 'post',
@@ -757,7 +757,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                                     title="Редактировать">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                            <?= Html::a('<i class="bi bi-trash"></i>', ['delete-size', 'id' => $size->id], [
+                                            <?= Html::a('<i class="bi bi-trash"></i>', ['/admin/product/delete-size', 'id' => $size->id], [
                                                 'class' => 'btn btn-outline-danger',
                                                 'title' => 'Удалить',
                                                 'data-method' => 'post',
@@ -832,12 +832,12 @@ $characteristicsFromRegistry = !$product->isNewRecord
                             <?= Html::submitButton('<i class="bi bi-check-circle-fill"></i> Сохранить изменения', [
                                 'class' => 'btn btn-success btn-lg px-5'
                             ]) ?>
-                            <?= Html::a('<i class="bi bi-x-circle"></i> Отмена', ['view-product', 'id' => $product->id], [
+                            <?= Html::a('<i class="bi bi-x-circle"></i> Отмена', ['/admin/product/view', 'id' => $product->id], [
                                 'class' => 'btn btn-secondary btn-lg px-4'
                             ]) ?>
                         </div>
                         <div>
-                            <?= Html::a('<i class="bi bi-trash"></i> Удалить товар', ['delete-product', 'id' => $product->id], [
+                            <?= Html::a('<i class="bi bi-trash"></i> Удалить товар', ['/admin/product/delete', 'id' => $product->id], [
                                 'class' => 'btn btn-outline-danger',
                                 'data-method' => 'post',
                                 'data-confirm' => 'Вы уверены, что хотите удалить этот товар? Это действие нельзя отменить.'
@@ -891,7 +891,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                         </tr>
                     </table>
                     
-                    <?= Html::a('<i class="bi bi-arrow-repeat"></i> Синхронизировать сейчас', ['sync-product', 'id' => $product->id], [
+                    <?= Html::a('<i class="bi bi-arrow-repeat"></i> Синхронизировать сейчас', ['/admin/product/sync', 'id' => $product->id], [
                         'class' => 'btn btn-info btn-sm w-100 mt-2',
                         'data-method' => 'post'
                     ]) ?>
@@ -936,7 +936,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                 <h5 class="modal-title"><i class="bi bi-image"></i> Добавить изображение</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="<?= yii\helpers\Url::to(['add-image', 'productId' => $product->id, 'returnUrl' => 'edit-product']) ?>" method="post">
+            <form action="<?= yii\helpers\Url::to(['/admin/product/add-image', 'productId' => $product->id, 'returnUrl' => 'edit']) ?>" method="post">
                 <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                 <div class="modal-body">
                     <div class="mb-3">
@@ -963,7 +963,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                 <h5 class="modal-title"><i class="bi bi-rulers"></i> Добавить размер</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="<?= yii\helpers\Url::to(['add-size', 'productId' => $product->id, 'returnUrl' => 'edit-product']) ?>" method="post">
+            <form action="<?= yii\helpers\Url::to(['/admin/product/add-size', 'productId' => $product->id, 'returnUrl' => 'edit']) ?>" method="post">
                 <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                 <div class="modal-body">
                     <!-- Выбор размерной сетки -->
@@ -991,7 +991,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <a href="<?= yii\helpers\Url::to(['add-sizes-from-grid', 'productId' => $product->id, 'gridId' => '__GRID_ID__', 'returnUrl' => 'edit-product']) ?>" 
+                            <a href="<?= yii\helpers\Url::to(['/admin/product/add-sizes-from-grid', 'productId' => $product->id, 'gridId' => '__GRID_ID__', 'returnUrl' => 'edit']) ?>" 
                                class="btn btn-sm btn-success mt-2" id="add-from-grid-btn" style="display:none;">
                                 <i class="bi bi-plus-circle"></i> Добавить все размеры из сетки
                             </a>

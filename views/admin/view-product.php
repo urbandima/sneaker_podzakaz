@@ -8,7 +8,7 @@ use yii\helpers\Url;
 /** @var app\models\Product $product */
 
 $this->title = $product->name;
-$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['products']];
+$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['/admin/product/index']];
 $this->params['breadcrumbs'][] = $this->title;
 
 // Парсим JSON данные
@@ -54,14 +54,14 @@ $allKeywords = array_unique(array_filter($allKeywords));
             <?php endif; ?>
         </div>
         <div class="btn-group">
-            <?= Html::a('<i class="bi bi-arrow-left"></i> Назад', ['products'], ['class' => 'btn btn-secondary']) ?>
+            <?= Html::a('<i class="bi bi-arrow-left"></i> Назад', ['/admin/product/index'], ['class' => 'btn btn-secondary']) ?>
             <?php if ($product->poizon_id): ?>
-                <?= Html::a('<i class="bi bi-arrow-repeat"></i> Синхронизировать', ['sync-product', 'id' => $product->id], [
+                <?= Html::a('<i class="bi bi-arrow-repeat"></i> Синхронизировать', ['/admin/product/sync', 'id' => $product->id], [
                     'class' => 'btn btn-info',
                     'data-method' => 'post',
                 ]) ?>
             <?php endif; ?>
-            <?= Html::a('<i class="bi bi-pencil"></i> Редактировать', ['edit-product', 'id' => $product->id], [
+            <?= Html::a('<i class="bi bi-pencil"></i> Редактировать', ['/admin/product/edit', 'id' => $product->id], [
                 'class' => 'btn btn-primary',
             ]) ?>
         </div>
@@ -89,13 +89,13 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                         <?php endif; ?>
                                         <div class="position-absolute top-0 end-0 m-2">
                                             <?php if (!$image->is_main): ?>
-                                                <?= Html::a('<i class="bi bi-star"></i>', ['set-main-image', 'id' => $image->id], [
+                                                <?= Html::a('<i class="bi bi-star"></i>', ['/admin/product/set-main-image', 'id' => $image->id], [
                                                     'class' => 'btn btn-sm btn-warning',
                                                     'title' => 'Сделать главным',
                                                     'data-method' => 'post',
                                                 ]) ?>
                                             <?php endif; ?>
-                                            <?= Html::a('<i class="bi bi-trash"></i>', ['delete-image', 'id' => $image->id], [
+                                            <?= Html::a('<i class="bi bi-trash"></i>', ['/admin/product/delete-image', 'id' => $image->id], [
                                                 'class' => 'btn btn-sm btn-danger',
                                                 'title' => 'Удалить',
                                                 'data-method' => 'post',
@@ -240,7 +240,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                     <h5 class="mb-0"><i class="bi bi-list-check"></i> Характеристики товара</h5>
-                    <a href="<?= Url::to(['admin/edit-product', 'id' => $product->id]) ?>#characteristics" class="btn btn-sm btn-light">
+                    <a href="<?= Url::to(['/admin/product/edit', 'id' => $product->id]) ?>#characteristics" class="btn btn-sm btn-light">
                         <i class="bi bi-pencil"></i> Редактировать
                     </a>
                 </div>
@@ -556,7 +556,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                                         title="Редактировать">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
-                                                <?= Html::a('<i class="bi bi-trash"></i>', ['delete-size', 'id' => $size->id], [
+                                                <?= Html::a('<i class="bi bi-trash"></i>', ['/admin/product/delete-size', 'id' => $size->id], [
                                                     'class' => 'btn btn-outline-danger',
                                                     'title' => 'Удалить',
                                                     'data-method' => 'post',
@@ -590,7 +590,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                 <h5 class="modal-title"><i class="bi bi-image"></i> Добавить изображение</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="<?= Url::to(['add-image', 'productId' => $product->id]) ?>" method="post">
+            <form action="<?= Url::to(['/admin/product/add-image', 'productId' => $product->id]) ?>" method="post">
                 <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                 <div class="modal-body">
                     <div class="mb-3">
@@ -617,7 +617,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                 <h5 class="modal-title"><i class="bi bi-rulers"></i> Добавить размер</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="<?= Url::to(['add-size', 'productId' => $product->id]) ?>" method="post">
+            <form action="<?= Url::to(['/admin/product/add-size', 'productId' => $product->id]) ?>" method="post">
                 <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                 <div class="modal-body">
                     <div class="row">
@@ -697,7 +697,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="<?= Url::to(['edit-size', 'id' => $size->id]) ?>" method="post">
+            <form action="<?= Url::to(['/admin/product/edit-size', 'id' => $size->id]) ?>" method="post">
                 <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                 <div class="modal-body">
                     <div class="row">

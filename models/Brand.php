@@ -6,6 +6,7 @@ use Yii;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\SluggableBehavior;
+use app\components\SitemapNotifier;
 
 /**
  * Модель Brand (Бренд)
@@ -63,12 +64,14 @@ class Brand extends ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
         $this->invalidateCatalogCache();
+        SitemapNotifier::scheduleRegeneration();
     }
 
     public function afterDelete()
     {
         parent::afterDelete();
         $this->invalidateCatalogCache();
+        SitemapNotifier::scheduleRegeneration();
     }
 
     protected function invalidateCatalogCache()

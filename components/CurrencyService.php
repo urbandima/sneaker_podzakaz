@@ -16,16 +16,41 @@ class CurrencyService extends Component
      * По умолчанию примерно 0.45 BYN за 1 CNY (на 2025 год)
      */
     public $cnyToBynRate = 0.45;
-    
+
     /**
      * @var string Ключ кэша для курса валют
      */
     public $cacheKey = 'currency_cny_to_byn_rate';
-    
+
+    /**
+     * @var string Ключ таймштампа обновления курса
+     */
+    public $cacheTimestampKey = 'currency_cny_to_byn_rate_time';
+
+    /**
+     * @var string Ключ источника актуального курса
+     */
+    public $cacheSourceKey = 'currency_cny_to_byn_rate_source';
+
     /**
      * @var int Время жизни кэша в секундах (по умолчанию 1 день = 86400 сек)
      */
     public $cacheDuration = 86400;
+
+    /**
+     * @var int Количество попыток запроса внешнего API
+     */
+    public $retryAttempts = 3;
+
+    /**
+     * @var int Пауза между попытками (мс)
+     */
+    public $retryDelayMs = 200;
+
+    /**
+     * @var callable|null Кастомный HTTP клиент (callable(string $url, array $options): array)
+     */
+    private $httpClient;
     
     /**
      * Получить текущий курс CNY к BYN
@@ -34,25 +59,30 @@ class CurrencyService extends Component
      */
     public function getCnyToBynRate()
     {
-        // Пытаемся получить из кэша
-        $rate = Yii::$app->cache->get($this->cacheKey);
-        
+        $cache = $this->getCache();
+        $rate = $cache->get($this->cacheKey);
+
         if ($rate === false) {
             // Кэш пуст, используем значение по умолчанию
             $rate = $this->cnyToBynRate;
             
             // Пытаемся получить актуальный курс через API
             try {
-                $actualRate = $this->fetchCnyToBynRate();
-                if ($actualRate > 0) {
-                    $rate = $actualRate;
+                $result = $this->fetchCnyToBynRate();
+                if ($result && $result['rate'] > 0) {
+                    $rate = $result['rate'];
+                    $this->storeRateInCache($rate, $result['source']);
+                } else {
+                    $this->storeRateInCache($rate, 'default');
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 Yii::warning("Не удалось получить курс CNY/BYN: " . $e->getMessage(), __METHOD__);
+                $this->storeRateInCache($rate, 'fallback');
             }
-            
-            // Сохраняем в кэш
-            Yii::$app->cache->set($this->cacheKey, $rate, $this->cacheDuration);
+        } else {
+            if ($cache->get($this->cacheTimestampKey) === false) {
+                $this->storeRateInCache($rate, $cache->get($this->cacheSourceKey) ?: 'unknown');
+            }
         }
         
         return (float)$rate;
@@ -73,80 +103,56 @@ class CurrencyService extends Component
         }
         
         $this->cnyToBynRate = $rate;
-        
-        // Сохраняем в кэш
-        return Yii::$app->cache->set($this->cacheKey, $rate, $this->cacheDuration);
+
+        return $this->storeRateInCache($rate, 'manual');
     }
     
     /**
      * Получить актуальный курс CNY к BYN через API Национального банка РБ
      * 
-     * @return float|null
+     * @return array{rate: float, source: string}
      */
     protected function fetchCnyToBynRate()
     {
-        // API Нацбанка РБ
-        // Получаем курс USD/BYN и CNY/USD, затем вычисляем CNY/BYN
-        
-        try {
-            // 1. Получаем курс CNY к BYN напрямую от НБРБ
-            $url = 'https://api.nbrb.by/exrates/rates/CNY?parammode=0';
-            
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-            
-            if ($httpCode === 200 && $response) {
-                $data = json_decode($response, true);
-                
-                if (isset($data['Cur_OfficialRate']) && $data['Cur_OfficialRate'] > 0) {
-                    // Курс НБРБ указывает за сколько BYN можно купить 1 CNY (или 10/100 CNY)
-                    $scale = $data['Cur_Scale'] ?? 1;
-                    $rate = $data['Cur_OfficialRate'] / $scale;
-                    
-                    Yii::info("Получен курс CNY/BYN от НБРБ: $rate", __METHOD__);
-                    return $rate;
+        $sources = [
+            [
+                'url' => 'https://api.nbrb.by/exrates/rates/CNY?parammode=0',
+                'parser' => function (array $data) {
+                    if (isset($data['Cur_OfficialRate']) && $data['Cur_OfficialRate'] > 0) {
+                        $scale = $data['Cur_Scale'] ?? 1;
+                        return $data['Cur_OfficialRate'] / max(1, $scale);
+                    }
+                    return null;
+                },
+                'source' => 'nbrb',
+            ],
+            [
+                'url' => 'https://api.exchangerate-api.com/v4/latest/CNY',
+                'parser' => function (array $data) {
+                    return $data['rates']['BYN'] ?? null;
+                },
+                'source' => 'exchange-rate-api',
+            ],
+        ];
+
+        foreach ($sources as $source) {
+            try {
+                $data = $this->requestJson($source['url']);
+                $rate = $source['parser']($data);
+                if ($rate > 0) {
+                    $rate = (float)$rate;
+                    Yii::info("Получен курс CNY/BYN ({$source['source']}): $rate", __METHOD__);
+                    return [
+                        'rate' => $rate,
+                        'source' => $source['source'],
+                    ];
                 }
+            } catch (\Throwable $e) {
+                Yii::warning("Источник {$source['source']} недоступен: " . $e->getMessage(), __METHOD__);
             }
-            
-        } catch (\Exception $e) {
-            Yii::warning("Ошибка при получении курса от НБРБ: " . $e->getMessage(), __METHOD__);
         }
-        
-        // Если не удалось получить, пытаемся через альтернативный источник (ExchangeRate-API)
-        try {
-            $url = 'https://api.exchangerate-api.com/v4/latest/CNY';
-            
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-            
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-            
-            if ($httpCode === 200 && $response) {
-                $data = json_decode($response, true);
-                
-                if (isset($data['rates']['BYN']) && $data['rates']['BYN'] > 0) {
-                    $rate = $data['rates']['BYN'];
-                    Yii::info("Получен курс CNY/BYN через ExchangeRate-API: $rate", __METHOD__);
-                    return $rate;
-                }
-            }
-            
-        } catch (\Exception $e) {
-            Yii::warning("Ошибка при получении курса через ExchangeRate-API: " . $e->getMessage(), __METHOD__);
-        }
-        
-        return null;
+
+        throw new \RuntimeException('Все источники курса CNY/BYN недоступны.');
     }
     
     /**
@@ -214,7 +220,12 @@ class CurrencyService extends Component
      */
     public function clearCache()
     {
-        return Yii::$app->cache->delete($this->cacheKey);
+        $cache = $this->getCache();
+        $deleted = $cache->delete($this->cacheKey);
+        $cache->delete($this->cacheTimestampKey);
+        $cache->delete($this->cacheSourceKey);
+
+        return $deleted;
     }
     
     /**
@@ -225,12 +236,115 @@ class CurrencyService extends Component
     public function getCurrencyInfo()
     {
         $rate = $this->getCnyToBynRate();
-        $cacheTime = Yii::$app->cache->get($this->cacheKey . '_time');
-        
+        $cache = $this->getCache();
+        $cacheTime = $cache->get($this->cacheTimestampKey);
+        $source = $cache->get($this->cacheSourceKey) ?: 'unknown';
+
         return [
             'rate' => $rate,
             'updated_at' => $cacheTime ? date('Y-m-d H:i:s', $cacheTime) : null,
-            'source' => 'cache',
+            'source' => $source,
+        ];
+    }
+
+    /**
+     * Установить кастомный HTTP клиент для тестов или альтернативных транспортов
+     */
+    public function setHttpClient($client): void
+    {
+        if ($client !== null && !is_callable($client)) {
+            throw new \InvalidArgumentException('HTTP клиент должен быть callable.');
+        }
+
+        $this->httpClient = $client;
+    }
+
+    protected function getCache(): CacheInterface
+    {
+        $cache = Yii::$app->cache;
+        if (!$cache instanceof CacheInterface) {
+            throw new \RuntimeException('Компонент cache не реализует CacheInterface.');
+        }
+
+        return $cache;
+    }
+
+    protected function storeRateInCache(float $rate, string $source): bool
+    {
+        $cache = $this->getCache();
+        $timestamp = time();
+
+        $stored = $cache->set($this->cacheKey, $rate, $this->cacheDuration);
+        $cache->set($this->cacheTimestampKey, $timestamp, $this->cacheDuration);
+        $cache->set($this->cacheSourceKey, $source, $this->cacheDuration);
+
+        return $stored;
+    }
+
+    protected function requestJson(string $url): array
+    {
+        $attempt = 0;
+        $lastException = null;
+        $attempts = max(1, (int)$this->retryAttempts);
+
+        while ($attempt < $attempts) {
+            $attempt++;
+            try {
+                $response = $this->performHttpRequest($url);
+                if (($response['status'] ?? 0) !== 200) {
+                    throw new \RuntimeException('HTTP status ' . ($response['status'] ?? 'unknown'));
+                }
+
+                $body = $response['body'] ?? null;
+                if ($body === null || $body === '') {
+                    throw new \RuntimeException('Пустой ответ от сервиса.');
+                }
+
+                $data = json_decode($body, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    throw new \RuntimeException('Некорректный JSON: ' . json_last_error_msg());
+                }
+
+                return $data;
+            } catch (\Throwable $e) {
+                $lastException = $e;
+                Yii::warning("Попытка {$attempt} запроса {$url} завершилась ошибкой: " . $e->getMessage(), __METHOD__);
+                if ($attempt < $attempts) {
+                    usleep(max(1, $this->retryDelayMs) * 1000);
+                }
+            }
+        }
+
+        throw new \RuntimeException('Не удалось получить данные по URL ' . $url, 0, $lastException);
+    }
+
+    protected function performHttpRequest(string $url): array
+    {
+        if ($this->httpClient) {
+            return call_user_func($this->httpClient, $url, [
+                'timeout' => 5,
+            ]);
+        }
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'CurrencyService/1.0');
+
+        $body = curl_exec($ch);
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($body === false) {
+            throw new \RuntimeException('cURL error: ' . $error);
+        }
+
+        return [
+            'status' => $status,
+            'body' => $body,
         ];
     }
 }

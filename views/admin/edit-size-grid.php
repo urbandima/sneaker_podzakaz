@@ -5,8 +5,8 @@ use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
 
 $this->title = 'Редактировать: ' . $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['products']];
-$this->params['breadcrumbs'][] = ['label' => 'Размерные сетки', 'url' => ['size-grids']];
+$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['/admin/product/index']];
+$this->params['breadcrumbs'][] = ['label' => 'Размерные сетки', 'url' => ['/admin/size-grid/index']];
 $this->params['breadcrumbs'][] = $model->name;
 ?>
 
@@ -14,7 +14,7 @@ $this->params['breadcrumbs'][] = $model->name;
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><?= Html::encode($this->title) ?></h1>
         <div>
-            <?= Html::a('<i class="bi bi-arrow-left"></i> Назад к списку', ['size-grids'], ['class' => 'btn btn-secondary']) ?>
+            <?= Html::a('<i class="bi bi-arrow-left"></i> Назад к списку', ['/admin/size-grid/index'], ['class' => 'btn btn-secondary']) ?>
         </div>
     </div>
 
@@ -134,19 +134,17 @@ $this->params['breadcrumbs'][] = $model->name;
 
 <!-- Modal: Добавить размер в сетку -->
 <div class="modal fade" id="addSizeItemModal" tabindex="-1">
-    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Добавить размер в сетку</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="<?= yii\helpers\Url::to(['add-size-grid-item', 'gridId' => $model->id]) ?>" method="post">
+            <form action="<?= yii\helpers\Url::to(['/admin/size-grid/add-item', 'gridId' => $model->id]) ?>" method="post">
                 <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">US</label>
                                 <input type="text" name="SizeGridItem[us_size]" class="form-control" 
                                        placeholder="9.5">
                             </div>

@@ -26,46 +26,45 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
     
     <?php $this->head() ?>
     
-    <!-- SEO Meta Tags -->
+    <!-- 
+        Метатеги (SEO, Open Graph, Twitter Cards) регистрируются в контроллерах
+        через метод registerMetaTags() и выводятся автоматически в $this->head()
+    -->
+    
     <?php
-    $description = $this->params['description'] ?? 'СНИКЕРХЭД - оригинальные кроссовки Nike, Adidas, Puma и другие бренды. Большой выбор, низкие цены, быстрая доставка по Беларуси.';
-    $keywords = $this->params['keywords'] ?? 'кроссовки, обувь, Nike, Adidas, Puma, купить кроссовки Минск';
-    $image = $this->params['image'] ?? Yii::$app->request->hostInfo . Yii::$app->request->baseUrl . '/images/og-default.jpg';
-    $url = Yii::$app->request->hostInfo . Yii::$app->request->url;
+    /**
+     * Schema.org JSON-LD микроразметка
+     * Автоматически генерируется в CatalogController
+     */
+    if (isset($this->params['jsonLdSchemas']) && is_array($this->params['jsonLdSchemas'])) {
+        foreach ($this->params['jsonLdSchemas'] as $key => $jsonLd) {
+            echo "\n    <!-- Schema.org: " . $key . " -->\n";
+            echo '    <script type="application/ld+json">' . "\n";
+            echo $jsonLd . "\n";
+            echo '    </script>' . "\n";
+        }
+    }
     ?>
-    <meta name="description" content="<?= Html::encode($description) ?>">
-    <meta name="keywords" content="<?= Html::encode($keywords) ?>">
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="<?= Html::encode($url) ?>">
-    
-    <!-- Open Graph / Facebook / VK -->
-    <meta property="og:type" content="<?= $this->params['og:type'] ?? 'website' ?>">
-    <meta property="og:url" content="<?= Html::encode($url) ?>">
-    <meta property="og:title" content="<?= Html::encode($this->title) ?>">
-    <meta property="og:description" content="<?= Html::encode($description) ?>">
-    <meta property="og:image" content="<?= Html::encode($image) ?>">
-    <meta property="og:site_name" content="СНИКЕРХЭД">
-    <meta property="og:locale" content="ru_RU">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="<?= Html::encode($url) ?>">
-    <meta name="twitter:title" content="<?= Html::encode($this->title) ?>">
-    <meta name="twitter:description" content="<?= Html::encode($description) ?>">
-    <meta name="twitter:image" content="<?= Html::encode($image) ?>">
     
     <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        html {
+            overflow-x: hidden;
+        }
+        
         body {
             background: #ffffff;
             min-height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        }
-        
-        .container {
-            max-width: 100%;
+            margin: 0;
             padding: 0;
         }
+        
+        /* Container управляется через container-system.css (1400px) */
+        /* Удалены переопределения max-width и padding */
         
         @media (max-width: 768px) {
             body {
@@ -77,8 +76,35 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 <body class="d-flex flex-column h-100">
 <?php $this->beginBody() ?>
 
+<!-- КРИТИЧНО: Гарантируем видимость хедера через inline стили -->
+<style>
+    /* Эти стили ОБЯЗАТЕЛЬНО применятся первыми */
+    header.ecom-header,
+    .ecom-header,
+    .main-header {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative !important;
+        z-index: 1000 !important;
+        width: 100% !important;
+        overflow: visible !important;
+    }
+    
+    .ecom-header .main-header {
+        position: sticky !important;
+        top: 0 !important;
+        background: #fff !important;
+    }
+    
+    /* Убираем любые скрывающие стили */
+    body > header:first-of-type {
+        display: block !important;
+    }
+</style>
+
 <!-- PREMIUM E-COMMERCE HEADER -->
-<header class="ecom-header">
+<header class="ecom-header" style="display: block !important; visibility: visible !important; opacity: 1 !important;">
     <!-- Main Header -->
     <div class="main-header">
         <div class="container">
@@ -266,81 +292,152 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 <!-- Mobile Menu Overlay -->
 <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-header">
-        <h3>Меню</h3>
         <button class="menu-close" id="menuClose">
             <i class="bi bi-x"></i>
         </button>
+        <div class="mobile-menu-logo">
+            <strong>СНИКЕРХЭД</strong>
+            <small>Оригинальные товары под заказ</small>
+        </div>
     </div>
+    
     <div class="mobile-menu-content">
+        <!-- Поиск (сверху) -->
         <div class="mobile-search">
             <i class="bi bi-search"></i>
-            <input type="text" placeholder="Поиск...">
+            <input type="text" placeholder="Поиск товаров, брендов..." id="mobileSearch">
+        </div>
+        
+        <!-- Быстрые фильтры -->
+        <div class="mobile-quick-filters">
+            <a href="/catalog?discount=50" class="filter-chip">
+                <i class="bi bi-percent"></i> Скидка 50%+
+            </a>
+            <a href="/catalog?price=0-5000" class="filter-chip">
+                <i class="bi bi-wallet2"></i> До 5000₽
+            </a>
+            <a href="/catalog?instock=1" class="filter-chip">
+                <i class="bi bi-check-circle"></i> В наличии
+            </a>
+            <a href="/catalog?new=1" class="filter-chip">
+                <i class="bi bi-star-fill"></i> Новинки
+            </a>
+        </div>
+        
+        <!-- Быстрые действия -->
+        <div class="mobile-quick-actions">
+            <a href="/catalog/favorites" class="mobile-action-btn">
+                <i class="bi bi-heart"></i>
+                <span class="action-label">Избранное</span>
+                <span class="action-badge" id="mobileFavCount">0</span>
+            </a>
+            <a href="/cart" class="mobile-action-btn">
+                <i class="bi bi-bag"></i>
+                <span class="action-label">Корзина</span>
+                <span class="action-badge" id="mobileCartCount">0</span>
+            </a>
+            <a href="/catalog/history" class="mobile-action-btn">
+                <i class="bi bi-clock-history"></i>
+                <span class="action-label">История</span>
+            </a>
+            <a href="/site/account" class="mobile-action-btn">
+                <i class="bi bi-person"></i>
+                <span class="action-label">Профиль</span>
+            </a>
+        </div>
+        
+        <!-- Навигация -->
+        <div class="mobile-nav-section">
+            <div class="mobile-nav-section-title">Основное меню</div>
         </div>
         
         <ul class="mobile-nav">
             <!-- Каталог с подкатегориями -->
-            <li class="mobile-nav-item has-submenu">
+            <li class="mobile-nav-item has-submenu" data-id="catalog">
                 <a href="#" class="mobile-nav-toggle">
                     <i class="bi bi-grid-3x3-gap"></i> Каталог
                     <i class="bi bi-chevron-down chevron"></i>
                 </a>
                 <ul class="mobile-submenu">
-                    <li><a href="/catalog?cat=sneakers">Кроссовки</a></li>
-                    <li><a href="/catalog?cat=boots">Ботинки</a></li>
-                    <li><a href="/catalog?cat=sandals">Сандалии</a></li>
-                    <li><a href="/catalog?cat=slippers">Слипоны</a></li>
-                    <li><a href="/catalog?cat=tshirts">Футболки</a></li>
-                    <li><a href="/catalog?cat=hoodies">Толстовки</a></li>
-                    <li><a href="/catalog?cat=jackets">Куртки</a></li>
-                    <li><a href="/catalog?cat=accessories">Аксессуары</a></li>
+                    <li><a href="/catalog?cat=sneakers">Кроссовки <span class="item-count">245</span></a></li>
+                    <li><a href="/catalog?cat=boots">Ботинки <span class="item-count">128</span></a></li>
+                    <li><a href="/catalog?cat=sandals">Сандалии <span class="item-count">89</span></a></li>
+                    <li><a href="/catalog?cat=slippers">Слипоны <span class="item-count">67</span></a></li>
+                    <li><a href="/catalog?cat=tshirts">Футболки <span class="item-count">156</span></a></li>
+                    <li><a href="/catalog?cat=hoodies">Толстовки <span class="item-count">98</span></a></li>
+                    <li><a href="/catalog?cat=jackets">Куртки <span class="item-count">74</span></a></li>
+                    <li><a href="/catalog?cat=accessories">Аксессуары <span class="item-count">112</span></a></li>
                 </ul>
             </li>
             
             <!-- Мужское с подкатегориями -->
-            <li class="mobile-nav-item has-submenu">
+            <li class="mobile-nav-item has-submenu" data-id="male">
                 <a href="#" class="mobile-nav-toggle">
                     <i class="bi bi-gender-male"></i> Мужское
                     <i class="bi bi-chevron-down chevron"></i>
                 </a>
                 <ul class="mobile-submenu">
-                    <li><a href="/catalog?gender=male&cat=sneakers">Кроссовки</a></li>
-                    <li><a href="/catalog?gender=male&cat=boots">Ботинки</a></li>
-                    <li><a href="/catalog?gender=male&cat=sandals">Сандалии</a></li>
-                    <li><a href="/catalog?gender=male&cat=tshirts">Футболки</a></li>
-                    <li><a href="/catalog?gender=male&cat=hoodies">Толстовки</a></li>
-                    <li><a href="/catalog?gender=male&cat=jackets">Куртки</a></li>
+                    <li><a href="/catalog?gender=male&cat=sneakers">Кроссовки <span class="item-count">152</span></a></li>
+                    <li><a href="/catalog?gender=male&cat=boots">Ботинки <span class="item-count">78</span></a></li>
+                    <li><a href="/catalog?gender=male&cat=sandals">Сандалии <span class="item-count">45</span></a></li>
+                    <li><a href="/catalog?gender=male&cat=tshirts">Футболки <span class="item-count">89</span></a></li>
+                    <li><a href="/catalog?gender=male&cat=hoodies">Толстовки <span class="item-count">56</span></a></li>
+                    <li><a href="/catalog?gender=male&cat=jackets">Куртки <span class="item-count">43</span></a></li>
                 </ul>
             </li>
             
             <!-- Женское с подкатегориями -->
-            <li class="mobile-nav-item has-submenu">
+            <li class="mobile-nav-item has-submenu" data-id="female">
                 <a href="#" class="mobile-nav-toggle">
                     <i class="bi bi-gender-female"></i> Женское
                     <i class="bi bi-chevron-down chevron"></i>
                 </a>
                 <ul class="mobile-submenu">
-                    <li><a href="/catalog?gender=female&cat=sneakers">Кроссовки</a></li>
-                    <li><a href="/catalog?gender=female&cat=boots">Ботинки</a></li>
-                    <li><a href="/catalog?gender=female&cat=sandals">Сандалии</a></li>
-                    <li><a href="/catalog?gender=female&cat=tshirts">Футболки</a></li>
-                    <li><a href="/catalog?gender=female&cat=hoodies">Толстовки</a></li>
-                    <li><a href="/catalog?gender=female&cat=dresses">Платья</a></li>
+                    <li><a href="/catalog?gender=female&cat=sneakers">Кроссовки <span class="item-count">93</span></a></li>
+                    <li><a href="/catalog?gender=female&cat=boots">Ботинки <span class="item-count">50</span></a></li>
+                    <li><a href="/catalog?gender=female&cat=sandals">Сандалии <span class="item-count">44</span></a></li>
+                    <li><a href="/catalog?gender=female&cat=tshirts">Футболки <span class="item-count">67</span></a></li>
+                    <li><a href="/catalog?gender=female&cat=hoodies">Толстовки <span class="item-count">42</span></a></li>
+                    <li><a href="/catalog?gender=female&cat=dresses">Платья <span class="item-count">31</span></a></li>
                 </ul>
             </li>
             
-            <li><a href="/catalog?new=1"><i class="bi bi-star"></i> Новинки</a></li>
-            <li><a href="/catalog?sale=1"><i class="bi bi-fire"></i> Распродажа</a></li>
-            <li><a href="/catalog/brands"><i class="bi bi-award"></i> Бренды</a></li>
-            <li><a href="/site/track"><i class="bi bi-geo-alt"></i> Отследить заказ</a></li>
-            <li><a href="/site/about"><i class="bi bi-info-circle"></i> О нас</a></li>
-            <li><a href="/site/contacts"><i class="bi bi-envelope"></i> Контакты</a></li>
+            <!-- Улучшенные пункты -->
+            <li class="mobile-nav-item featured-new">
+                <a href="/catalog?new=1">
+                    <i class="bi bi-star-fill"></i> Новинки
+                </a>
+            </li>
+            <li class="mobile-nav-item featured-sale">
+                <a href="/catalog?sale=1">
+                    <i class="bi bi-fire"></i> Распродажа
+                </a>
+            </li>
         </ul>
         
-        <div class="mobile-footer">
-            <a href="tel:+375291234567" class="mobile-phone">
-                <i class="bi bi-telephone"></i> +375 29 123-45-67
-            </a>
+        <!-- Информация -->
+        <div class="mobile-nav-section">
+            <div class="mobile-nav-section-title">Информация</div>
         </div>
+        
+        <ul class="mobile-nav mobile-nav-info">
+            <li class="mobile-nav-item">
+                <a href="/site/about">
+                    <i class="bi bi-info-circle"></i> О нас
+                </a>
+            </li>
+            <li class="mobile-nav-item">
+                <a href="/site/contacts">
+                    <i class="bi bi-envelope"></i> Контакты
+                </a>
+            </li>
+        </ul>
+        
+        <!-- Номер телефона -->
+        <a href="tel:+375447009001" class="mobile-contact-btn">
+            <i class="bi bi-telephone-fill"></i>
+            <span>+375 (44) 700-90-01</span>
+        </a>
     </div>
 </div>
 <div class="mobile-menu-overlay" id="menuOverlay"></div>
@@ -445,33 +542,37 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
    PREMIUM E-COMMERCE HEADER STYLES
    ============================================ */
 
+.ecom-header {
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  z-index: 1000;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 /* Main Header */
 .main-header {
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
   padding: 1rem 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  width: 100%;
+  overflow-x: hidden;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .main-header .container {
-  width: 100%;
-  max-width: 1920px;
-  padding: 0 1rem;
-  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
-}
-
-/* Десктоп - ограничиваем ширину */
-@media (min-width: 1280px) {
-  .main-header .container {
-    width: 80%;
-  }
 }
 
 .header-left {
@@ -806,20 +907,17 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 .main-nav {
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
+  width: 100%;
+  overflow-x: hidden;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative;
+  z-index: 999;
 }
 
 .main-nav .container {
-  width: 100%;
-  max-width: 1920px;
-  padding: 0 1rem;
-  margin: 0 auto;
-}
-
-/* Десктоп - ограничиваем ширину */
-@media (min-width: 1280px) {
-  .main-nav .container {
-    width: 80%;
-  }
+  /* Ширина и padding управляются через container-system.css */
 }
 
 .nav-menu {
@@ -959,343 +1057,11 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
   transform: scale(1.05);
 }
 
-/* Mobile Menu */
-.mobile-menu {
-  position: fixed;
-  top: 0;
-  left: -100%;
-  width: 85%;
-  max-width: 360px;
-  height: 100vh;
-  background: #fff;
-  z-index: 1001;
-  transition: left 0.3s;
-  overflow-y: auto;
-}
+/* Mobile Menu стили перенесены в /web/css/mobile-menu-premium.css 
+   для единой системы дизайна */
 
-.mobile-menu.active {
-  left: 0;
-}
-
-.mobile-menu-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.mobile-menu-header h3 {
-  font-size: 1.125rem;
-  margin: 0;
-}
-
-.menu-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
-.mobile-search {
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: #f3f4f6;
-  margin: 1rem;
-  border-radius: 8px;
-}
-
-.mobile-search input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  outline: none;
-}
-
-.mobile-nav {
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0;
-}
-
-.mobile-nav li a {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  color: #000;
-  text-decoration: none;
-  font-weight: 500;
-  transition: background 0.2s;
-}
-
-.mobile-nav li a:hover {
-  background: #f9fafb;
-}
-
-.mobile-nav li i {
-  font-size: 1.125rem;
-  width: 24px;
-}
-
-/* Mobile submenu (accordion) */
-.mobile-nav-item.has-submenu {
-  position: relative;
-}
-
-.mobile-nav-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  cursor: pointer;
-}
-
-.mobile-nav-toggle .chevron {
-  transition: transform 0.3s ease;
-  margin-left: auto;
-}
-
-.mobile-submenu {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  background: #f9fafb;
-  border-radius: 8px;
-  margin-top: 0.5rem;
-}
-
-.mobile-submenu li {
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.mobile-submenu li:last-child {
-  border-bottom: none;
-}
-
-.mobile-submenu a {
-  padding: 0.75rem 1rem 0.75rem 3rem;
-  font-size: 0.9375rem;
-  color: #6b7280;
-}
-
-.mobile-submenu a:hover {
-  background: white;
-  color: #111827;
-}
-
-.mobile-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #e5e7eb;
-  margin-top: auto;
-}
-
-.mobile-phone {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: #000;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1.0625rem;
-}
-
-.mobile-menu-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  z-index: 1000;
-}
-
-.mobile-menu-overlay.active {
-  display: block;
-}
-
-/* Responsive */
-@media (min-width: 992px) {
-  .main-nav {
-    display: flex !important;
-  }
-  
-  .menu-burger {
-    display: none;
-  }
-}
-
-@media (max-width: 991px) {
-  .main-nav {
-    display: none;
-  }
-  
-  .menu-burger {
-    display: flex;
-  }
-  
-  .header-search {
-    max-width: none;
-    flex: 1;
-  }
-  
-  .header-btn .label {
-    display: none;
-  }
-  
-  .top-bar-left,
-  .top-bar-right a:not(:first-child) {
-    display: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .main-header {
-    padding: 0.75rem 0;
-  }
-  
-  .main-header .container {
-    width: 100%;
-    padding: 0 0.75rem;
-    gap: 0.75rem;
-  }
-  
-  .logo {
-    font-size: 1rem;
-    gap: 0.375rem;
-  }
-  
-  .logo-icon {
-    font-size: 1.5rem;
-  }
-  
-  .logo-text strong {
-    font-size: 1rem;
-  }
-  
-  .logo-text small .line-1 {
-    font-size: 0.6rem;
-  }
-  
-  .logo-text small .line-2 {
-    font-size: 0.575rem;
-  }
-  
-  .header-actions {
-    gap: 0.5rem;
-  }
-  
-  .header-btn i {
-    font-size: 1.375rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .header-search {
-    display: none;
-  }
-  
-  .main-header {
-    padding: 0.625rem 0;
-  }
-  
-  .main-header .container {
-    padding: 0 0.5rem;
-    gap: 0.5rem;
-  }
-  
-  .header-left {
-    gap: 0.5rem;
-  }
-  
-  .menu-burger {
-    padding: 0.25rem;
-  }
-  
-  .menu-burger span {
-    width: 20px;
-  }
-  
-  .logo {
-    font-size: 0.875rem;
-  }
-  
-  .logo-icon {
-    font-size: 1.25rem;
-  }
-  
-  .logo-text strong {
-    font-size: 0.875rem;
-  }
-  
-  .logo-text small .line-1 {
-    font-size: 0.575rem;
-    letter-spacing: 0.5px;
-  }
-  
-  .logo-text small .line-2 {
-    font-size: 0.55rem;
-  }
-  
-  .header-actions {
-    gap: 0.375rem;
-  }
-  
-  .header-btn i {
-    font-size: 1.25rem;
-    margin-bottom: 0;
-  }
-  
-  .header-btn .badge {
-    width: 16px;
-    height: 16px;
-    font-size: 0.5625rem;
-    top: -2px;
-    right: -6px;
-  }
-}
-
-@media (max-width: 390px) {
-  .main-header .container {
-    padding: 0 0.375rem;
-    gap: 0.375rem;
-  }
-  
-  .logo-icon {
-    font-size: 1.125rem;
-  }
-  
-  .logo-image {
-    width: 48px;
-    height: 48px;
-  }
-  
-  .logo-text strong {
-    font-size: 0.75rem;
-  }
-  
-  .logo-text small .line-1 {
-    font-size: 0.5rem;
-  }
-  
-  .logo-text small .line-2 {
-    font-size: 0.475rem;
-  }
-  
-  .header-actions {
-    gap: 0.25rem;
-  }
-  
-  .header-btn i {
-    font-size: 1.125rem;
-  }
-}
+/* Адаптивные стили теперь в /web/css/header-adaptive.css 
+   Здесь оставлены только базовые inline стили для критичных элементов */
 
 /* ============================================
    ULTRA COMPACT FOOTER (2 COLUMNS)
@@ -1313,10 +1079,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 }
 
 .footer-main .container {
-  width: 80%;
-  max-width: 1920px;
-  margin: 0 auto;
-  padding: 0 1rem;
+  /* Ширина управляется через container-system.css */
 }
 
 /* 2 колонки */
@@ -1505,10 +1268,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 }
 
 .footer-bottom .container {
-  width: 80%;
-  max-width: 1920px;
-  margin: 0 auto;
-  padding: 0 1rem;
+  /* Ширина управляется через container-system.css */
 }
 
 /* Реквизиты компании */
@@ -1575,11 +1335,6 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
     padding: 0.875rem 0 0.625rem;
   }
   
-  .footer-main .container,
-  .footer-bottom .container {
-    width: 100%;
-  }
-  
   .footer-brand {
     flex-direction: column;
     align-items: flex-start;
@@ -1632,58 +1387,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 </style>
 
 <script>
-// Mobile menu toggle
-const menuBurger = document.getElementById('menuBurger');
-const menuClose = document.getElementById('menuClose');
-const mobileMenu = document.getElementById('mobileMenu');
-const menuOverlay = document.getElementById('menuOverlay');
-
-menuBurger?.addEventListener('click', () => {
-  mobileMenu.classList.add('active');
-  menuOverlay.classList.add('active');
-  document.body.style.overflow = 'hidden';
-});
-
-menuClose?.addEventListener('click', () => {
-  mobileMenu.classList.remove('active');
-  menuOverlay.classList.remove('active');
-  document.body.style.overflow = '';
-});
-
-menuOverlay?.addEventListener('click', () => {
-  mobileMenu.classList.remove('active');
-  menuOverlay.classList.remove('active');
-  document.body.style.overflow = '';
-});
-
-// Mobile submenu toggle (accordion)
-document.querySelectorAll('.mobile-nav-toggle').forEach(toggle => {
-  toggle.addEventListener('click', (e) => {
-    e.preventDefault();
-    const parent = toggle.closest('.mobile-nav-item');
-    const submenu = parent.querySelector('.mobile-submenu');
-    const chevron = toggle.querySelector('.chevron');
-    
-    // Toggle current submenu
-    if (parent.classList.contains('active')) {
-      parent.classList.remove('active');
-      submenu.style.maxHeight = '0';
-      chevron.style.transform = 'rotate(0deg)';
-    } else {
-      // Close other submenus
-      document.querySelectorAll('.mobile-nav-item.active').forEach(item => {
-        item.classList.remove('active');
-        item.querySelector('.mobile-submenu').style.maxHeight = '0';
-        item.querySelector('.chevron').style.transform = 'rotate(0deg)';
-      });
-      
-      // Open current submenu
-      parent.classList.add('active');
-      submenu.style.maxHeight = submenu.scrollHeight + 'px';
-      chevron.style.transform = 'rotate(180deg)';
-    }
-  });
-});
+// Mobile menu logic moved to web/js/mobile-menu.js to avoid duplicate listeners
 
 // Close mega menu on click outside
 document.addEventListener('click', (e) => {

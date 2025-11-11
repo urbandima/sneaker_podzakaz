@@ -3,18 +3,19 @@ use yii\helpers\Html;
 /** @var $product app\models\Product */
 ?>
 
+<?php $lazyPlaceholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="10" height="10"%3E%3Crect width="10" height="10" fill="%23f3f4f6"/%3E%3C/svg%3E'; ?>
+
 <div class="product product-card modern-card">
-    <a href="<?= $product->getUrl() ?>" class="product-link">
-        <!-- УЛУЧШЕНО: Hover-эффект смены изображения -->
-        <?php $lazyPlaceholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="10" height="10"%3E%3Crect width="10" height="10" fill="%23f3f4f6"/%3E%3C/svg%3E'; ?>
-        <div class="product-image-wrapper">
+    <!-- УЛУЧШЕНО: Hover-эффект смены изображения -->
+    <div class="product-image-wrapper">
+        <a href="<?= $product->getUrl() ?>" class="product-link">
             <img
                 class="product-image primary"
                 src="<?= $lazyPlaceholder ?>"
                 data-src="<?= Html::encode($product->getMainImageUrl()) ?>"
                 alt="<?= Html::encode($product->name) ?>"
             >
-        
+            
             <?php if (!empty($product->images[1])): ?>
             <img
                 class="product-image secondary"
@@ -23,31 +24,30 @@ use yii\helpers\Html;
                 alt="<?= Html::encode($product->name) ?>"
             >
             <?php endif; ?>
+        </a>
         
-        <!-- УЛУЧШЕНО: Компактные бейджи (верхний правый угол) -->
+        <!-- Бейджи (скидка, NEW) -->
         <div class="product-badges-compact">
-            <!-- Премиальный значок "под заказ" -->
-            <span class="badge-custom-order">
-                <i class="bi bi-clock-history"></i>
-                <span>ПОД ЗАКАЗ</span>
-            </span>
-                <?php if ($product->hasDiscount()): ?>
-                    <span class="badge-discount">-<?= round((($product->old_price - $product->price) / $product->old_price) * 100) ?>%</span>
-                <?php endif; ?>
-                <?php if (isset($product->created_at) && $product->created_at > time() - 7*24*3600): ?>
-                    <span class="badge-new">NEW</span>
-                <?php endif; ?>
-            </div>
-            
-            <!-- Quick Actions (показываются при hover) -->
-            <div class="quick-actions">
-                <button class="action-btn favorite" 
-                        onclick="toggleFav(event,<?= $product->id ?>)"
-                        title="В избранное">
-                    <i class="bi bi-heart"></i>
-                </button>
-            </div>
+            <?php if ($product->hasDiscount()): ?>
+                <span class="badge-discount">-<?= round((($product->old_price - $product->price) / $product->old_price) * 100) ?>%</span>
+            <?php endif; ?>
+            <?php if (isset($product->created_at) && $product->created_at > time() - 7*24*3600): ?>
+                <span class="badge-new">NEW</span>
+            <?php endif; ?>
         </div>
+        
+        <!-- ИСПРАВЛЕНО: Quick Actions вынесены за пределы ссылки для правильной работы -->
+        <div class="quick-actions">
+            <button class="action-btn favorite" 
+                    type="button"
+                    onclick="toggleFav(event,<?= $product->id ?>)"
+                    aria-pressed="<?= $product->is_favorite ?? false ? 'true' : 'false' ?>"
+                    title="В избранное">
+                <i class="bi bi-heart"></i>
+            </button>
+        </div>
+    </div>
+    <a href="<?= $product->getUrl() ?>" class="product-link">
         <div class="info product-card-body">
             <!-- Бренд и Рейтинг в одну строку -->
             <div class="product-card-header">
@@ -78,89 +78,139 @@ use yii\helpers\Html;
             
             <h3 class="product-card-name"><?= Html::encode($product->getDisplayTitle()) ?></h3>
             
-            <!-- Цвета (улучшенные с hover) -->
-            <?php if (!empty($product->colors) && is_array($product->colors) && count($product->colors) > 0): ?>
-            <div class="colors">
-                <?php $shown = 0; foreach ($product->colors as $color): if ($shown >= 5) break; ?>
-                    <?php if ($color && isset($color->hex) && isset($color->name)): ?>
-                    <span class="dot" 
-                          style="background:<?= $color->hex ?>" 
-                          title="<?= Html::encode($color->name) ?>"
-                          data-product-id="<?= $product->id ?>"
-                          data-image="<?= $product->getMainImageUrl() ?>"
-                          onmouseenter="changeColorPreview(this, '<?= $product->getMainImageUrl() ?>')"
-                          onmouseleave="resetColorPreview(this)"></span>
-                    <?php endif; ?>
-                <?php $shown++; endforeach; ?>
-                <?php if (count($product->colors) > 5): ?>
-                    <span class="more">+<?= count($product->colors) - 5 ?></span>
-                <?php endif; ?>
-            </div>
-            <?php endif; ?>
-            
-            <!-- Размеры (максимум 6) -->
+            <!-- Размеры (с учетом системы измерения) -->
             <?php if (!empty($product->sizes) && is_array($product->sizes)): ?>
             <div class="sizes-quick">
                 <?php 
-                $maxSizes = 6; // Лимит для компактности
-                $sizesShown = 0;
-                foreach ($product->sizes as $size): 
-                    if ($sizesShown >= $maxSizes) break;
-                    if (!$size || !isset($size->size)) continue;
-                    
-                    // Формируем tooltip с размерами в разных системах
-                    $sizeTooltip = [];
-                    if (!empty($size->eu_size)) $sizeTooltip[] = 'EU: ' . $size->eu_size;
-                    if (!empty($size->us_size)) $sizeTooltip[] = 'US: ' . $size->us_size;
-                    if (!empty($size->uk_size)) $sizeTooltip[] = 'UK: ' . $size->uk_size;
-                    if (!empty($size->cm_size)) $sizeTooltip[] = 'CM: ' . $size->cm_size;
-                    $tooltipText = !empty($sizeTooltip) ? implode(' | ', $sizeTooltip) : '';
-                ?>
-                    <span class="size-badge" 
-                          <?php if ($tooltipText): ?>
-                          title="<?= Html::encode($tooltipText) ?>"
-                          <?php endif; ?>><?= Html::encode($size->size) ?></span>
-                <?php 
-                    $sizesShown++;
-                endforeach; 
+                // Получаем выбранные размеры из фильтра
+                $selectedSizes = Yii::$app->request->get('sizes');
+                $selectedSizesArray = $selectedSizes ? (is_array($selectedSizes) ? $selectedSizes : explode(',', $selectedSizes)) : [];
                 
-                // Показываем "+N" если размеров больше
-                if (count($product->sizes) > $maxSizes): ?>
-                    <span class="size-more">+<?= count($product->sizes) - $maxSizes ?></span>
+                // Получаем текущую систему размеров из GET параметра
+                $currentSizeSystem = Yii::$app->request->get('size_system', 'eu');
+                $sizeField = match($currentSizeSystem) {
+                    'us' => 'us_size',
+                    'uk' => 'uk_size',
+                    'cm' => 'cm_size',
+                    default => 'eu_size'
+                };
+                
+                // Фильтруем только доступные размеры
+                $availableSizes = array_filter($product->sizes, function($s) use ($sizeField) { 
+                    return $s && isset($s->is_available) && $s->is_available && !empty($s->$sizeField); 
+                });
+                
+                // Сортируем размеры: выбранные первыми
+                if (!empty($selectedSizesArray)) {
+                    usort($availableSizes, function($a, $b) use ($selectedSizesArray, $sizeField) {
+                        $aSelected = in_array($a->$sizeField, $selectedSizesArray);
+                        $bSelected = in_array($b->$sizeField, $selectedSizesArray);
+                        if ($aSelected && !$bSelected) return -1;
+                        if (!$aSelected && $bSelected) return 1;
+                        return 0;
+                    });
+                }
+                
+                $shown = 0;
+                foreach ($availableSizes as $size): 
+                    if ($shown >= 6) break;
+                    $displaySize = $size->$sizeField;
+                    if (empty($displaySize)) continue;
+                    
+                    // Проверяем, выбран ли этот размер
+                    $isSelected = in_array($displaySize, $selectedSizesArray);
+                ?>
+                    <span class="size-badge <?= $isSelected ? 'selected' : '' ?>" 
+                          onclick="selectQuickSize(event, <?= $product->id ?>, '<?= Html::encode($displaySize) ?>')"><?= Html::encode($displaySize) ?></span>
+                <?php 
+                    $shown++;
+                endforeach; 
+                if (count($availableSizes) > 6): ?>
+                    <span class="size-more">+<?= count($availableSizes) - 6 ?></span>
                 <?php endif; ?>
             </div>
             <?php endif; ?>
             
-            <!-- Цена (диапазон или фиксированная) -->
+            <!-- Цена (актуальная с учетом выбранных размеров или диапазон) -->
             <div class="price product-card-price">
                 <?php 
-                // Получаем диапазон цен из размеров
-                $priceRange = $product->getPriceRange();
-                ?>
-                <?php if ($priceRange && $product->hasPriceRange()): ?>
-                    <!-- Диапазон цен от минимальной до максимальной -->
-                    <span class="current product-card-price-current">
-                        <?= Yii::$app->formatter->asCurrency($priceRange['min'], 'BYN') ?>
-                        <span class="price-separator"> - </span>
-                        <?= Yii::$app->formatter->asCurrency($priceRange['max'], 'BYN') ?>
-                    </span>
-                <?php else: ?>
-                    <!-- Одна цена (классический вариант) -->
-                    <?php if ($product->hasDiscount()): ?>
-                        <span class="old product-card-price-old"><?= Yii::$app->formatter->asCurrency($product->old_price, 'BYN') ?></span>
-                        <span class="product-card-discount">-<?= $product->getDiscountPercent() ?>%</span>
+                // Проверяем, выбраны ли фильтры размеров
+                $selectedSizes = Yii::$app->request->get('sizes');
+                $currentSizeSystem = Yii::$app->request->get('size_system', 'eu');
+                
+                if ($selectedSizes && !empty($product->sizes)) {
+                    // Если размеры отфильтрованы - показываем актуальные цены выбранных размеров
+                    $sizeArray = is_array($selectedSizes) ? $selectedSizes : explode(',', $selectedSizes);
+                    $sizeField = match($currentSizeSystem) {
+                        'us' => 'us_size',
+                        'uk' => 'uk_size',
+                        'cm' => 'cm_size',
+                        default => 'eu_size'
+                    };
+                    
+                    // Находим размеры, которые соответствуют выбранным фильтрам
+                    $filteredSizes = array_filter($product->sizes, function($s) use ($sizeArray, $sizeField) {
+                        return $s && $s->is_available && in_array($s->$sizeField, $sizeArray) && $s->price_byn > 0;
+                    });
+                    
+                    if (!empty($filteredSizes)) {
+                        $prices = array_map(function($s) { return $s->price_byn; }, $filteredSizes);
+                        $minPrice = min($prices);
+                        $maxPrice = max($prices);
+                        
+                        if ($minPrice == $maxPrice) {
+                            // Одна актуальная цена
+                            ?>
+                            <span class="current product-card-price-current"><?= Yii::$app->formatter->asCurrency($minPrice, 'BYN') ?></span>
+                            <?php
+                        } else {
+                            // Диапазон цен для выбранных размеров
+                            ?>
+                            <span class="current product-card-price-current">
+                                <?= Yii::$app->formatter->asCurrency($minPrice, 'BYN') ?>
+                                <span class="price-separator"> - </span>
+                                <?= Yii::$app->formatter->asCurrency($maxPrice, 'BYN') ?>
+                            </span>
+                            <?php
+                        }
+                    } else {
+                        // Fallback на базовую цену
+                        ?>
+                        <span class="current product-card-price-current"><?= Yii::$app->formatter->asCurrency($product->price, 'BYN') ?></span>
+                        <?php
+                    }
+                } else {
+                    // Если размеры не выбраны - показываем диапазон цен из всех размеров
+                    $priceRange = $product->getPriceRange();
+                    ?>
+                    <?php if ($priceRange && $product->hasPriceRange()): ?>
+                        <!-- Диапазон цен от минимальной до максимальной -->
+                        <span class="current product-card-price-current">
+                            <?= Yii::$app->formatter->asCurrency($priceRange['min'], 'BYN') ?>
+                            <span class="price-separator"> - </span>
+                            <?= Yii::$app->formatter->asCurrency($priceRange['max'], 'BYN') ?>
+                        </span>
+                    <?php else: ?>
+                        <!-- Одна цена (классический вариант) -->
+                        <?php if ($product->hasDiscount()): ?>
+                            <span class="old product-card-price-old"><?= Yii::$app->formatter->asCurrency($product->old_price, 'BYN') ?></span>
+                            <span class="product-card-discount">-<?= $product->getDiscountPercent() ?>%</span>
+                        <?php endif; ?>
+                        <span class="current product-card-price-current"><?= Yii::$app->formatter->asCurrency($product->price, 'BYN') ?></span>
                     <?php endif; ?>
-                    <span class="current product-card-price-current"><?= Yii::$app->formatter->asCurrency($product->price, 'BYN') ?></span>
-                <?php endif; ?>
+                <?php } ?>
             </div>
         </div>
     </a>
     
-    <!-- Кнопка В корзину: ведёт на страницу товара для выбора размера -->
+    <!-- Кнопка В корзину -->
     <div class="product-footer">
-        <a href="<?= $product->getUrl() ?>" class="btn-add-to-cart">
-            <i class="bi bi-eye"></i>
-            <span>Подробнее</span>
-        </a>
+        <button class="btn-add-to-cart" 
+                type="button"
+                data-product-id="<?= $product->id ?>"
+                onclick="quickAddToCart(event, <?= $product->id ?>)">
+            <i class="bi bi-cart-plus"></i>
+            <span>В корзину</span>
+        </button>
     </div>
 </div>

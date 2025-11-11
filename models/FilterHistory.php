@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use app\components\SitemapNotifier;
 
 /**
  * Модель FilterHistory (История фильтрации)
@@ -63,7 +64,13 @@ class FilterHistory extends ActiveRecord
         $history->filter_params = json_encode($filterParams);
         $history->results_count = $resultsCount;
         
-        return $history->save();
+        $saved = $history->save();
+
+        if ($saved) {
+            SitemapNotifier::scheduleRegeneration();
+        }
+
+        return $saved;
     }
 
     /**

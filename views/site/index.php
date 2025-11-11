@@ -6,7 +6,7 @@ use yii\helpers\Html;
 
 $this->title = 'СНИКЕРХЭД - Закажем любые оригинальные товары для вас';
 
-// Убираем отступ футера для главной страницы
+// Убираем отступ футера для главной страницы + гарантируем видимость header
 $this->registerCss('
 .site-footer {
     margin-top: 0 !important;
@@ -14,6 +14,19 @@ $this->registerCss('
 main.flex-shrink-0 {
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
+}
+/* КРИТИЧНО: Header всегда виден на главной странице */
+.ecom-header,
+.main-header,
+.main-nav {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+.main-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
 }
 ');
 ?>
@@ -24,10 +37,9 @@ main.flex-shrink-0 {
         <div class="container">
             <div class="hero-content">
                 <h1 class="hero-title">СНИКЕРХЭД</h1>
-                <p class="hero-subtitle">Закажем оригинальные товары<br>из США и Европы</p>
+                <p class="hero-subtitle">Оригинальные товары из США, Европы и Азии</p>
                 <p class="hero-description">
-                    Работаем с брендовой обувью, одеждой, аксессуарами и электроникой. 
-                    Доставка по Беларуси с гарантией подлинности.
+                    Доставляем оригинальные товары для стиля из США и Европы. Брендовая обувь, одежда и аксессуары. Доставка по Беларуси и России.
                 </p>
                 <div class="hero-buttons">
                     <a href="<?= \yii\helpers\Url::to(['/catalog/index']) ?>" class="btn-cta">

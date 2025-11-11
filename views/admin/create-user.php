@@ -12,7 +12,7 @@ $this->title = 'Создать пользователя';
 <div class="admin-create-user">
     <div class="mb-4">
         <h1><?= Html::encode($this->title) ?></h1>
-        <?= Html::a('<i class="bi bi-arrow-left me-2"></i>Назад к списку', ['users'], ['class' => 'btn btn-outline-secondary']) ?>
+        <?= Html::a('<i class="bi bi-arrow-left me-2"></i>Назад к списку', ['/admin/user/index'], ['class' => 'btn btn-outline-secondary']) ?>
     </div>
 
     <div class="card">
@@ -72,7 +72,7 @@ $this->title = 'Создать пользователя';
                 <?= Html::submitButton('<i class="bi bi-check-circle me-2"></i>Создать пользователя', [
                     'class' => 'btn btn-success'
                 ]) ?>
-                <?= Html::a('Отмена', ['users'], ['class' => 'btn btn-outline-secondary']) ?>
+                <?= Html::a('Отмена', ['/admin/user/index'], ['class' => 'btn btn-outline-secondary']) ?>
             </div>
 
             <?php ActiveForm::end(); ?>

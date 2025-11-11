@@ -12,6 +12,86 @@ use app\components\AssetOptimizer;
 $this->title = isset($h1) ? $h1 : 'Каталог товаров';
 $this->registerMetaTag(['name' => 'description', 'content' => 'Оригинальные товары из США и Европы']);
 
+// ИСПРАВЛЕНО: Отключаем кэширование в dev режиме для корректной загрузки стилей
+if (YII_ENV_DEV) {
+    $this->registerMetaTag(['http-equiv' => 'Cache-Control', 'content' => 'no-cache, no-store, must-revalidate']);
+    $this->registerMetaTag(['http-equiv' => 'Pragma', 'content' => 'no-cache']);
+    $this->registerMetaTag(['http-equiv' => 'Expires', 'content' => '0']);
+    
+    // КРИТИЧНО: Принудительный редирект и очистка кэша
+    $this->registerJs("
+    // 1. Редирект с trailing slash
+    if (window.location.pathname === '/catalog/' || window.location.pathname.endsWith('/catalog/')) {
+        const newUrl = window.location.pathname.replace(/\\/catalog\\/$/, '/catalog') + window.location.search + window.location.hash;
+        if (newUrl !== window.location.pathname + window.location.search + window.location.hash) {
+            window.location.replace(newUrl);
+        }
+    }
+    
+    // 2. Проверка загрузки из кэша и принудительная перезагрузка
+    if (performance.navigation.type === 2) {
+        // Страница загружена из кэша (Back/Forward) - перезагружаем
+        console.log('⚠️ Страница загружена из кэша, принудительная перезагрузка...');
+        window.location.reload(true);
+    }
+    
+    // 3. Очистка Service Workers (если есть)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+                registration.unregister();
+                console.log('🧹 Service Worker удалён');
+            }
+        });
+    }
+    
+    // 4. Проверка, что правильные CSS загружены
+    window.addEventListener('load', function() {
+        const catalogInlineCSS = document.querySelector('link[href*=\"catalog-inline.css\"]');
+        const catalogCardCSS = document.querySelector('link[href*=\"catalog-card.css\"]');
+        const containerSystemCSS = document.querySelector('link[href*=\"container-system.css\"]');
+        const allLinks = document.querySelectorAll('link[rel=\"stylesheet\"]');
+        
+        console.group('📊 Загруженные CSS файлы');
+        console.log('container-system.css:', !!containerSystemCSS, containerSystemCSS?.href);
+        console.log('catalog-inline.css:', !!catalogInlineCSS, catalogInlineCSS?.href);
+        console.log('catalog-card.css:', !!catalogCardCSS, catalogCardCSS?.href);
+        console.log('Всего CSS файлов:', allLinks.length);
+        console.log('Текущий URL:', window.location.href);
+        console.groupEnd();
+        
+        // Проверка ширины контейнера
+        const container = document.querySelector('.container');
+        if (container) {
+            const containerWidth = window.getComputedStyle(container).maxWidth;
+            console.log('🔍 Ширина контейнера:', containerWidth);
+            
+            // Если ширина не 80% или меньше 1400px - проблема с CSS
+            if (containerWidth === '1400px') {
+                console.error('❌ Старые стили! Контейнер 1400px вместо 80%');
+                console.log('🔄 Принудительная перезагрузка CSS...');
+                
+                // Перезагружаем страницу с очисткой кэша
+                window.location.reload(true);
+            } else {
+                console.log('✅ Новые стили применены (80% ширина)');
+            }
+        }
+        
+        if (!catalogInlineCSS || !catalogCardCSS || !containerSystemCSS) {
+            console.error('❌ Критичные CSS файлы каталога не загружены!');
+            
+            // Принудительная перезагрузка через 1 секунду
+            setTimeout(function() {
+                window.location.reload(true);
+            }, 1000);
+        } else {
+            console.log('✅ Все CSS файлы каталога загружены корректно');
+        }
+    });
+    ", \yii\web\View::POS_HEAD);
+}
+
 // ============================================
 // ОПТИМИЗАЦИЯ ЗАГРУЗКИ РЕСУРСОВ
 // ============================================
@@ -34,7 +114,11 @@ $this->registerJsFile('https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouis
     'defer' => true,
 ]);
 
-// КРИТИЧНО: favorites.js должен загружаться в HEAD, чтобы функция была доступна для inline скриптов
+// КРИТИЧНО: Сначала global-helpers.js (wrapper функции), затем favorites.js (основная логика)
+$this->registerJsFile('@web/js/global-helpers.js', [
+    'position' => \yii\web\View::POS_HEAD,
+]);
+
 $this->registerJsFile('@web/js/favorites.js', [
     'position' => \yii\web\View::POS_HEAD,
 ]);
@@ -45,10 +129,79 @@ $this->registerJsFile('@web/js/lazy-load.js', [
     'defer' => true,
 ]);
 
-// КРИТИЧНО: Загружаем минифицированные стили для максимальной производительности
-$this->registerCssFile('@web/css/catalog-inline.min.css', [
+// Catalog functionality (filters, AJAX, sorting)
+$this->registerJsFile('@web/js/catalog.js', [
+    'position' => \yii\web\View::POS_HEAD,
+    'defer' => true,
+]);
+
+// UI Enhancements (Infinite Scroll, Skeleton, Sticky Filters)
+$this->registerJsFile('@web/js/ui-enhancements.js', [
+    'position' => \yii\web\View::POS_HEAD,
+    'defer' => true,
+]);
+
+// КРИТИЧНО: Critical CSS удален - все стили в catalog-inline.css для избежания конфликтов
+
+// НОВОЕ: Мобильные фиксы для 370-1206px (после основных стилей)
+$this->registerCssFile('@web/css/catalog-mobile-fixes.css', [
+    'position' => \yii\web\View::POS_HEAD,
+    'depends' => [\app\assets\AppAsset::class],
+]);
+
+// Загружаем полные стили после critical CSS (с версионированием для сброса кэша)
+// ИСПРАВЛЕНО: Используем filemtime для версионирования (обновляется только при изменении файла)
+$catalogInlinePath = Yii::getAlias('@webroot/css/catalog-inline.css');
+$catalogCardPath = Yii::getAlias('@webroot/css/catalog-card.css');
+$catalogInlineVersion = file_exists($catalogInlinePath) ? filemtime($catalogInlinePath) : '4.0';
+$catalogCardVersion = file_exists($catalogCardPath) ? filemtime($catalogCardPath) : '3.0';
+
+// КРИТИЧНО: Принудительная загрузка стилей каталога БЕЗ кэширования в dev режиме
+// ИСПРАВЛЕНО: Всегда используем timestamp для гарантии загрузки свежих стилей
+if (YII_ENV_DEV) {
+    // Отключаем кэширование полностью для CSS
+    $catalogInlineVersion = time();
+    $catalogCardVersion = time();
+    
+    // Также обновляем версию container-system.css через AppAsset
+    // Это гарантирует, что все стили загрузятся заново
+}
+
+$this->registerCssFile('@web/css/catalog-inline.css?v=' . $catalogInlineVersion, [
     'position' => \yii\web\View::POS_HEAD,
 ]);
+
+// Стили карточек товаров
+$this->registerCssFile('@web/css/catalog-card.css?v=' . $catalogCardVersion, [
+    'position' => \yii\web\View::POS_HEAD,
+]);
+
+// КРИТИЧНО: Гарантируем видимость header + УДАЛЕНИЕ nav-menu на мобильной
+$this->registerCss('
+.ecom-header,
+.main-header {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+.main-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+}
+/* КРИТИЧНО: nav-menu УДАЛЕНО на мобильной */
+@media (max-width: 1199px) {
+    .main-nav,
+    .nav-menu {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        position: absolute !important;
+        left: -9999px !important;
+    }
+}
+');
 
 // Infinite scroll settings - КРИТИЧНО: Устанавливаем ПЕРЕД загрузкой ui-enhancements
 $this->registerJs("
@@ -56,39 +209,50 @@ document.body.dataset.infiniteScroll = 'true';
 document.body.dataset.totalPages = '{$pagination->pageCount}';
 
 // Инициализация InfiniteScroll после загрузки ui-enhancements.js
-if (window.UIEnhancements && window.UIEnhancements.InfiniteScroll) {
-    const productsContainer = document.getElementById('products');
-    if (productsContainer) {
-        new window.UIEnhancements.InfiniteScroll({
-            container: productsContainer,
-            loadMoreUrl: '/catalog/load-more',
-            totalPages: {$pagination->pageCount},
-            threshold: 300
-        });
-        console.log('✅ Infinite Scroll инициализирован: {$pagination->pageCount} страниц');
-    }
-} else {
-    console.warn('⚠️ UIEnhancements.InfiniteScroll не найден, повторная попытка через 500ms');
-    setTimeout(() => {
-        if (window.UIEnhancements && window.UIEnhancements.InfiniteScroll) {
-            const productsContainer = document.getElementById('products');
-            if (productsContainer) {
-                new window.UIEnhancements.InfiniteScroll({
-                    container: productsContainer,
-                    loadMoreUrl: '/catalog/load-more',
-                    totalPages: {$pagination->pageCount},
-                    threshold: 300
-                });
-                console.log('✅ Infinite Scroll инициализирован (отложенно)');
-            }
+function initInfiniteScrollCatalog() {
+    if (window.UIEnhancements && window.UIEnhancements.InfiniteScroll) {
+        const productsContainer = document.getElementById('products');
+        
+        if (productsContainer) {
+            window.catalogInfiniteScroll = new window.UIEnhancements.InfiniteScroll({
+                container: productsContainer,
+                loadMoreUrl: '/catalog/load-more',
+                totalPages: {$pagination->pageCount},
+                threshold: 300
+            });
         }
-    }, 500);
+    } else {
+        setTimeout(initInfiniteScrollCatalog, 500);
+    }
 }
+
+// Запускаем инициализацию
+initInfiniteScrollCatalog();
 ", \yii\web\View::POS_READY);
 
 // Измерение производительности (только в dev режиме)
 if (YII_ENV_DEV) {
     AssetOptimizer::measurePerformance($this);
+    
+    // Удаление DEBUG блока пагинации (если он создаётся динамически)
+    $this->registerJs("
+    // Удаляем DEBUG блок пагинации
+    function removeDebugBlock() {
+        const debugBlocks = document.querySelectorAll('[style*=\"background:#fef3c7\"], [style*=\"background: #fef3c7\"]');
+        debugBlocks.forEach(block => {
+            if (block.textContent.includes('DEBUG MODE') || block.textContent.includes('пагинации')) {
+                block.remove();
+                console.log('✅ DEBUG блок удалён');
+            }
+        });
+    }
+    
+    // Удаляем сразу и через интервалы (на случай динамического создания)
+    removeDebugBlock();
+    setTimeout(removeDebugBlock, 100);
+    setTimeout(removeDebugBlock, 500);
+    setTimeout(removeDebugBlock, 1000);
+    ", \yii\web\View::POS_READY);
 }
 ?>
 
@@ -97,7 +261,10 @@ if (YII_ENV_DEV) {
         <!-- Breadcrumbs -->
         <nav class="breadcrumbs">
             <a href="/">Главная</a> / 
-            <span>Каталог</span>
+            <a href="/catalog">Каталог</a>
+            <?php if (isset($h1) && $h1 !== 'Каталог товаров' && $h1 !== 'Каталог'): ?>
+                / <span><?= Html::encode($h1) ?></span>
+            <?php endif; ?>
         </nav>
 
         <div class="catalog-layout">
@@ -117,9 +284,9 @@ if (YII_ENV_DEV) {
                     <div class="filter-content" style="display:block">
                         <div id="price-slider"></div>
                         <div class="price-inputs">
-                            <input type="number" id="price-from" value="<?= $filters['priceRange']['min'] ?>" readonly>
+                            <input type="number" id="price-from" name="price_from" value="<?= $filters['priceRange']['min'] ?>" readonly>
                             <span>—</span>
-                            <input type="number" id="price-to" value="<?= $filters['priceRange']['max'] ?>" readonly>
+                            <input type="number" id="price-to" name="price_to" value="<?= $filters['priceRange']['max'] ?>" readonly>
                         </div>
                     </div>
                 </div>
@@ -181,6 +348,18 @@ if (YII_ENV_DEV) {
                 
                 <!-- PRIMARY FILTERS END -->
                 
+                <!-- ВАЖНЫЕ ХАРАКТЕРИСТИКИ (Пол, Сезон) в основной секции -->
+                <?php if (!empty($filters['characteristics'])): ?>
+                    <?php foreach ($filters['characteristics'] as $characteristic): ?>
+                        <?php if (in_array($characteristic['key'], ['gender', 'season'])): ?>
+                            <?= $this->render('_characteristic_filter', [
+                                'characteristic' => $characteristic,
+                                'currentFilters' => $currentFilters,
+                            ]) ?>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+                
                 <!-- ADVANCED FILTERS (скрыты по умолчанию) -->
                 <div class="advanced-filters-wrapper" id="advancedFiltersWrapper" style="display:none">
                 
@@ -224,35 +403,38 @@ if (YII_ENV_DEV) {
                     </div>
                 </div>
                 
-                <!-- Цвет (как на Wildberries/Lamoda) -->
+                <!-- Цвет -->
+                <?php if (!empty($filters['colors'])): ?>
                 <div class="filter-group">
                     <h4 class="filter-title" onclick="toggleFilterGroup(this)">
-                        <span><i class="bi bi-palette-fill"></i> Цвет</span>
+                        <span><i class="bi bi-palette"></i> Цвет</span>
                         <i class="bi bi-chevron-down"></i>
                     </h4>
                     <div class="filter-content" style="display:none">
                         <div class="color-filter-grid">
-                            <?php 
-                            $colors = [
-                                ['name' => 'Черный', 'hex' => '#000000'],
-                                ['name' => 'Белый', 'hex' => '#FFFFFF'],
-                                ['name' => 'Красный', 'hex' => '#EF4444'],
-                                ['name' => 'Синий', 'hex' => '#3B82F6'],
-                                ['name' => 'Зеленый', 'hex' => '#10B981'],
-                                ['name' => 'Желтый', 'hex' => '#F59E0B'],
-                                ['name' => 'Серый', 'hex' => '#6B7280'],
-                                ['name' => 'Коричневый', 'hex' => '#92400E'],
-                            ];
-                            foreach ($colors as $color): ?>
-                                <label class="color-filter-item" title="<?= $color['name'] ?>">
-                                    <input type="checkbox" name="colors[]" value="<?= $color['hex'] ?>">
-                                    <span class="color-circle" style="background:<?= $color['hex'] ?>;<?= $color['hex'] === '#FFFFFF' ? 'border:2px solid #e5e7eb;' : '' ?>"></span>
-                                    <span class="color-name"><?= $color['name'] ?></span>
+                            <?php foreach ($filters['colors'] as $color): ?>
+                                <?php 
+                                $count = $color['count'] ?? 0;
+                                $hex = $color['hex'] ?? '#cccccc';
+                                $name = $color['name'] ?? 'Неизвестный';
+                                $isChecked = in_array($name, $currentFilters['colors'] ?? []);
+                                ?>
+                                <label class="color-filter-item <?= $count == 0 ? 'disabled' : '' ?>">
+                                    <input type="checkbox" 
+                                           name="colors[]" 
+                                           value="<?= Html::encode($name) ?>"
+                                           data-hex="<?= Html::encode($hex) ?>"
+                                           <?= $isChecked ? 'checked' : '' ?>
+                                           <?= $count == 0 ? 'disabled' : '' ?>>
+                                    <div class="color-circle" style="background: <?= Html::encode($hex) ?>"></div>
+                                    <span class="color-name"><?= Html::encode($name) ?></span>
+                                    <span class="count">(<?= $count ?>)</span>
                                 </label>
                             <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
                 
                 <!-- Скидка (как на OZON/Wildberries) -->
                 <div class="filter-group">
@@ -305,292 +487,69 @@ if (YII_ENV_DEV) {
                         <i class="bi bi-chevron-down"></i>
                     </h4>
                     <div class="filter-content" style="display:none">
-                        <label class="filter-item">
-                            <input type="checkbox" name="conditions[]" value="new">
-                            <span><i class="bi bi-stars"></i> Новинки</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="conditions[]" value="hit">
-                            <span><i class="bi bi-fire"></i> Хиты продаж</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="conditions[]" value="free_delivery">
-                            <span><i class="bi bi-truck"></i> Бесплатная доставка</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="conditions[]" value="in_stock">
-                            <span><i class="bi bi-check-circle-fill"></i> В наличии</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Материал -->
-                <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
-                        <span>Материал</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </h4>
-                    <div class="filter-content" style="display:none">
-                        <label class="filter-item">
-                            <input type="checkbox" name="material[]" value="leather">
-                            <span>Кожа</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="material[]" value="textile">
-                            <span>Текстиль</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="material[]" value="synthetic">
-                            <span>Синтетика</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="material[]" value="suede">
-                            <span>Замша</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="material[]" value="mesh">
-                            <span>Сетка</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="material[]" value="canvas">
-                            <span>Канвас</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Сезон -->
-                <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
-                        <span>Сезон</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </h4>
-                    <div class="filter-content" style="display:none">
-                        <label class="filter-item">
-                            <input type="checkbox" name="season[]" value="summer">
-                            <span><i class="bi bi-sun"></i> Лето</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="season[]" value="winter">
-                            <span><i class="bi bi-snow"></i> Зима</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="season[]" value="demi">
-                            <span><i class="bi bi-cloud-rain"></i> Демисезон</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="season[]" value="all">
-                            <span><i class="bi bi-globe"></i> Всесезон</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Пол -->
-                <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
-                        <span>Пол</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </h4>
-                    <div class="filter-content" style="display:none">
-                        <label class="filter-item">
-                            <input type="radio" name="gender" value="male">
-                            <span>Мужской</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="radio" name="gender" value="female">
-                            <span>Женский</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="radio" name="gender" value="unisex">
-                            <span>Унисекс</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Стиль -->
-                <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
-                        <span>Стиль</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </h4>
-                    <div class="filter-content" style="display:none">
-                        <div class="filter-scroll">
+                        <?php foreach ($filters['conditions'] as $condition): ?>
                             <label class="filter-item">
-                                <input type="checkbox" name="style[]" value="sport">
-                                <span>Спортивный</span>
+                                <input type="checkbox" name="conditions[]" value="<?= $condition['value'] ?>">
+                                <span><?php if (!empty($condition['icon'])): ?><i class="bi <?= $condition['icon'] ?>"></i> <?php endif; ?><?= Html::encode($condition['label']) ?></span>
                             </label>
-                            <label class="filter-item">
-                                <input type="checkbox" name="style[]" value="casual">
-                                <span>Повседневный</span>
-                            </label>
-                            <label class="filter-item">
-                                <input type="checkbox" name="style[]" value="street">
-                                <span>Уличный (Street)</span>
-                            </label>
-                            <label class="filter-item">
-                                <input type="checkbox" name="style[]" value="classic">
-                                <span>Классический</span>
-                            </label>
-                            <label class="filter-item">
-                                <input type="checkbox" name="style[]" value="running">
-                                <span>Для бега</span>
-                            </label>
-                            <label class="filter-item">
-                                <input type="checkbox" name="style[]" value="basketball">
-                                <span>Баскетбольный</span>
-                            </label>
-                            <label class="filter-item">
-                                <input type="checkbox" name="style[]" value="skate">
-                                <span>Скейтбординг</span>
-                            </label>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
                 
-                <!-- Технологии -->
-                <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
-                        <span>Технологии</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </h4>
-                    <div class="filter-content" style="display:none">
-                        <label class="filter-item">
-                            <input type="checkbox" name="tech[]" value="air">
-                            <span>Nike Air</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="tech[]" value="boost">
-                            <span>Adidas Boost</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="tech[]" value="gore_tex">
-                            <span>Gore-Tex</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="tech[]" value="zoom">
-                            <span>Nike Zoom</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="tech[]" value="react">
-                            <span>Nike React</span>
-                        </label>
+                <!-- ДИНАМИЧЕСКИЕ ХАРАКТЕРИСТИКИ (кроме Пола и Сезона - они выше) -->
+                <?php if (!empty($filters['characteristics'])): ?>
+                    <?php foreach ($filters['characteristics'] as $characteristic): ?>
+                        <?php if (!in_array($characteristic['key'], ['gender', 'season'])): ?>
+                            <?= $this->render('_characteristic_filter', [
+                                'characteristic' => $characteristic,
+                                'currentFilters' => $currentFilters,
+                            ]) ?>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <!-- Fallback: если характеристик нет -->
+                    <div class="alert alert-info" style="margin: 1rem; padding: 1rem; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Характеристики загружаются...</strong>
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: #666;">
+                            Добавьте характеристики товаров в админ-панели для расширенной фильтрации.
+                        </p>
                     </div>
-                </div>
-                
-                <!-- Высота -->
-                <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
-                        <span>Высота</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </h4>
-                    <div class="filter-content" style="display:none">
-                        <label class="filter-item">
-                            <input type="radio" name="height" value="low">
-                            <span>Низкие</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="radio" name="height" value="mid">
-                            <span>Средние</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="radio" name="height" value="high">
-                            <span>Высокие</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Застежка -->
-                <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
-                        <span>Застежка</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </h4>
-                    <div class="filter-content" style="display:none">
-                        <label class="filter-item">
-                            <input type="checkbox" name="fastening[]" value="laces">
-                            <span>Шнурки</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="fastening[]" value="velcro">
-                            <span>Липучки</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="fastening[]" value="zipper">
-                            <span>Молния</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="fastening[]" value="slip_on">
-                            <span>Slip-on (без застежки)</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Страна производства -->
-                <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
-                        <span>Страна производства</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </h4>
-                    <div class="filter-content" style="display:none">
-                        <label class="filter-item">
-                            <input type="checkbox" name="country[]" value="vietnam">
-                            <span>Вьетнам</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="country[]" value="china">
-                            <span>Китай</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="country[]" value="indonesia">
-                            <span>Индонезия</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="country[]" value="usa">
-                            <span>США</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Акции и спецпредложения -->
-                <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
-                        <span>Акции</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </h4>
-                    <div class="filter-content" style="display:none">
-                        <label class="filter-item">
-                            <input type="checkbox" name="promo[]" value="sale">
-                            <span><i class="bi bi-gift"></i> Распродажа</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="promo[]" value="bonus">
-                            <span><i class="bi bi-trophy"></i> Бонусы</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="promo[]" value="2for1">
-                            <span><i class="bi bi-plus-circle"></i> 2+1</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" name="promo[]" value="exclusive">
-                            <span><i class="bi bi-award"></i> Эксклюзив</span>
-                        </label>
-                    </div>
-                </div>
+                <?php endif; ?>
                 
                 </div><!-- END advanced-filters-wrapper -->
                 
                 <!-- Кнопка "Показать расширенные фильтры" -->
-                <button class="show-advanced-filters-btn" id="showAdvancedBtn" onclick="toggleAdvancedFilters()">
+                <?php 
+                $advancedCount = 3; // Размеры, Скидка, Рейтинг
+                // Характеристики (кроме Пола и Сезона, которые в основной секции)
+                if (!empty($filters['characteristics'])) {
+                    foreach ($filters['characteristics'] as $char) {
+                        if (!in_array($char['key'], ['gender', 'season'])) {
+                            $advancedCount++;
+                        }
+                    }
+                }
+                ?>
+                <button type="button" class="show-advanced-filters-btn" id="showAdvancedBtn" onclick="toggleAdvancedFilters()">
                     <i class="bi bi-sliders"></i>
                     <span>Расширенные фильтры</span>
-                    <span class="count">(12)</span>
+                    <span class="count">(<?= $advancedCount ?>)</span>
                     <i class="bi bi-chevron-down toggle-icon"></i>
                 </button>
 
-                <!-- Floating Apply Button (Mobile) -->
-                <button class="btn-apply-floating" id="applyFloating" onclick="applyFilters()">
-                    <i class="bi bi-check-circle"></i>
-                    <span>Применить фильтры</span>
-                </button>
+                <!-- Кнопки управления фильтрами -->
+                <div class="filter-actions">
+                    <button type="button" class="btn btn-primary" style="flex: 1; padding: 0.75rem; border-radius: 8px; border: none; background: #2563eb; color: white; cursor: pointer; font-weight: 500;" onclick="event.preventDefault(); event.stopPropagation(); applyFilters();">
+                        <i class="bi bi-check-circle"></i>
+                        Применить
+                    </button>
+                    <button type="button" class="btn btn-outline" style="flex: 1; padding: 0.75rem; border-radius: 8px; border: 1px solid #d1d5db; background: white; color: #374151; cursor: pointer; font-weight: 500;" onclick="event.preventDefault(); event.stopPropagation(); resetFilters();">
+                        <i class="bi bi-x-circle"></i>
+                        Сбросить
+                    </button>
+                </div>
+                
             </aside>
 
             <!-- Content -->
@@ -605,8 +564,9 @@ if (YII_ENV_DEV) {
                     // Топ-6 популярных брендов для быстрого доступа
                     $topBrands = array_slice($filters['brands'], 0, 6);
                     foreach ($topBrands as $brand): 
-                        if ($brand['count'] > 0): ?>
-                        <button type="button" class="quick-chip brand-chip" 
+                        if ($brand['count'] > 0): 
+                            $isActive = in_array($brand['id'], $currentFilters['brands']); ?>
+                        <button type="button" class="quick-chip brand-chip <?= $isActive ? 'active' : '' ?>" 
                                 data-brand="<?= $brand['id'] ?>" 
                                 onclick="toggleBrandFilter(<?= $brand['id'] ?>, '<?= Html::encode($brand['slug']) ?>')">
                             <span><?= Html::encode($brand['name']) ?></span>
@@ -627,7 +587,7 @@ if (YII_ENV_DEV) {
                     <!-- Wrapper для размеров и стрелок -->
                     <div class="sizes-with-nav">
                         <!-- Кнопка прокрутки влево -->
-                        <button type="button" class="size-nav-btn size-nav-left" onclick="scrollSizes('left')" style="display:none;">
+                        <button type="button" class="size-nav-btn size-nav-left" onclick="scrollSizes('left')">
                             <i class="bi bi-chevron-left"></i>
                         </button>
                         
@@ -658,7 +618,7 @@ if (YII_ENV_DEV) {
                         </div>
                         
                         <!-- Кнопка прокрутки вправо -->
-                        <button type="button" class="size-nav-btn size-nav-right" onclick="scrollSizes('right')" style="display:none;">
+                        <button type="button" class="size-nav-btn size-nav-right" onclick="scrollSizes('right')">
                             <i class="bi bi-chevron-right"></i>
                         </button>
                     </div>
@@ -667,7 +627,7 @@ if (YII_ENV_DEV) {
                 <!-- Toolbar -->
                 <div class="catalog-toolbar">
                     <div class="toolbar-left">
-                        <button class="filter-toggle-btn" type="button">
+                        <button class="filter-toggle-btn" type="button" onclick="toggleFilters()">
                             <i class="bi bi-funnel"></i>
                             <span>Фильтры</span>
                             <?php if (!empty($activeFilters)): ?>
@@ -724,17 +684,18 @@ if (YII_ENV_DEV) {
                     <?= $this->render('_products', ['products' => $products]) ?>
                 </div>
 
-                <!-- Пагинация: доступна вместе с Infinite Scroll -->
+                <!-- Пагинация (показывается только если страниц > 1) -->
+                <?php if (!empty($products) && $pagination->pageCount > 1): ?>
                 <div class="pagination">
-                    <?php if (!empty($products) && $pagination->pageCount > 1): ?>
                     <?= LinkPager::widget([
                         'pagination' => $pagination,
                         'prevPageLabel' => '<i class="bi bi-chevron-left"></i>',
                         'nextPageLabel' => '<i class="bi bi-chevron-right"></i>',
                         'maxButtonCount' => 7,
+                        'options' => ['class' => 'pagination'],
                     ]) ?>
-                    <?php endif; ?>
                 </div>
+                <?php endif; ?>
             </main>
         </div>
     </div>
@@ -745,7 +706,7 @@ if (YII_ENV_DEV) {
 <!-- Quick View Modal -->
 <div class="quick-view-modal" id="quickViewModal">
     <div class="qv-content">
-        <button class="qv-close" onclick="closeQuickView()"><i class="bi bi-x"></i></button>
+        <button type="button" class="qv-close" onclick="closeQuickView()"><i class="bi bi-x"></i></button>
         <div class="qv-grid">
             <div class="qv-gallery">
                 <img src="" alt="" id="qvMainImg">
@@ -757,7 +718,7 @@ if (YII_ENV_DEV) {
                 <div class="qv-price" id="qvPrice"></div>
                 <div class="qv-sizes" id="qvSizes"></div>
                 <div class="qv-colors" id="qvColors"></div>
-                <button class="btn-order" onclick="addToCart()"><i class="bi bi-cart-plus"></i> В корзину</button>
+                <button type="button" class="btn-order" onclick="addToCart()"><i class="bi bi-cart-plus"></i> В корзину</button>
                 <a href="#" id="qvLink" class="qv-full">Подробнее →</a>
             </div>
         </div>
@@ -780,6 +741,7 @@ function toggleFilters(){
         document.body.style.overflow='';
     }
 }
+window.toggleFilters = toggleFilters;
 
 // Закрытие по клику на overlay
 overlay?.addEventListener('click', toggleFilters);
@@ -791,44 +753,80 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// ИСПРАВЛЕНО (Проблема #15): Унифицированный wrapper
-function toggleFav(e, id) {
-    e.preventDefault();
-    e.stopPropagation();
-    // Вызываем глобальную функцию с правильными параметрами
-    if (typeof window.toggleFavorite === 'function') {
-        window.toggleFavorite(e, id);
+// УДАЛЕНО: toggleFav, resetFilters, toggleBrandFilter перенесены в global-helpers.js для устранения дублирования
+
+// КРИТИЧНО: Определяем функции ДО использования в HTML
+
+// Переключение расширенных фильтров
+function toggleAdvancedFilters() {
+    const wrapper = document.getElementById('advancedFiltersWrapper');
+    const button = document.getElementById('showAdvancedBtn');
+    
+    if (wrapper.style.display === 'none' || !wrapper.style.display) {
+        wrapper.style.display = 'block';
+        button.classList.add('active');
+        button.querySelector('span:nth-child(2)').textContent = 'Скрыть расширенные';
     } else {
-        console.error('toggleFavorite function not found. Make sure catalog.js is loaded.');
+        wrapper.style.display = 'none';
+        button.classList.remove('active');
+        button.querySelector('span:nth-child(2)').textContent = 'Расширенные фильтры';
     }
 }
-function resetFilters(){window.location.href='/catalog/'}
+window.toggleAdvancedFilters = toggleAdvancedFilters;
 
-// Фильтр по брендам
-function toggleBrandFilter(brandId, brandSlug) {
-    if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
+// Аккордеон фильтров
+function toggleFilterGroup(titleEl) {
+    const group = titleEl.closest('.filter-group');
+    const content = group.querySelector('.filter-content');
+    const icon = titleEl.querySelector('.bi-chevron-down, .bi-chevron-up');
     
-    const button = event.currentTarget;
-    const isActive = button.classList.contains('active');
-    
-    button.classList.toggle('active');
-    
-    const checkbox = document.querySelector(`input[name="brands[]"][value="${brandId}"]`);
-    if (checkbox) {
-        checkbox.checked = !isActive;
-        if (typeof window.applyFilters === 'function') {
-            window.applyFilters();
+    if (group.classList.contains('open')) {
+        group.classList.remove('open');
+        if (content) content.style.display = 'none';
+        if (icon) {
+            icon.classList.remove('bi-chevron-up');
+            icon.classList.add('bi-chevron-down');
+        }
+    } else {
+        group.classList.add('open');
+        if (content) content.style.display = 'block';
+        if (icon) {
+            icon.classList.remove('bi-chevron-down');
+            icon.classList.add('bi-chevron-up');
         }
     }
 }
+window.toggleFilterGroup = toggleFilterGroup;
 
 // НОВОЕ: Переключение размерных сеток в quick-filters
 function switchSizeSystem(system) {
     // Сохраняем выбор в localStorage
     localStorage.setItem('preferredSizeSystem', system);
+    // Синхронизируем отображение названия системы в сайдбаре
+    const sidebarLabel = document.getElementById('sidebarSizeSystem');
+    if (sidebarLabel) {
+        sidebarLabel.textContent = system.toUpperCase();
+    }
+
+    // Обновляем состояние кнопок в сайдбаре
+    document.querySelectorAll('.size-system-btn-small').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    const sidebarBtn = document.querySelector(`.size-system-btn-small[data-system="${system}"]`);
+    if (sidebarBtn) {
+        sidebarBtn.classList.add('active');
+    }
+
+    // Переключаем отображение сеток размеров в сайдбаре
+    document.querySelectorAll('.sidebar-size-grid').forEach(grid => {
+        grid.style.display = grid.dataset.system === system ? '' : 'none';
+    });
+
+    // Сбрасываем горизонтальную прокрутку и обновляем стрелки
+    const quickSizesContainer = document.getElementById('sizesScrollContainer');
+    if (quickSizesContainer) {
+        quickSizesContainer.scrollLeft = 0;
+    }
     
     // Переключаем активную кнопку
     document.querySelectorAll('.size-system-btn').forEach(btn => {
@@ -836,26 +834,39 @@ function switchSizeSystem(system) {
     });
     document.querySelector(`.size-system-btn[data-system="${system}"]`).classList.add('active');
     
-    // Сбрасываем активные чипы размеров (так как системы разные)
-    document.querySelectorAll('.size-chip').forEach(chip => {
-        chip.classList.remove('active');
-    });
-    
     // Показываем/скрываем группы размеров
     document.querySelectorAll('.size-group').forEach(group => {
         group.style.display = group.dataset.system === system ? '' : 'none';
     });
     
-    // Сбрасываем все чекбоксы размеров и применяем фильтры
-    document.querySelectorAll('input[name="sizes[]"]').forEach(cb => {
-        cb.checked = false;
+    // Синхронизируем active состояние чипов с выбранными чекбоксами для ТЕКУЩЕЙ системы
+    document.querySelectorAll('.size-chip').forEach(chip => {
+        chip.classList.remove('active');
+        
+        const chipSystem = chip.dataset.system;
+        const chipSize = chip.dataset.size;
+        
+        if (chipSystem === system) {
+            // Проверяем, выбран ли соответствующий чекбокс в sidebar
+            const checkbox = document.querySelector(
+                `.sidebar input[name="sizes[]"][value="${chipSize}"][data-system="${chipSystem}"]`
+            );
+            if (checkbox && checkbox.checked) {
+                chip.classList.add('active');
+            }
+        }
     });
     
-    // Применяем фильтры для обновления каталога
-    if (typeof applyFilters === 'function') {
-        applyFilters();
-    }
+    // Обновляем видимость стрелок после смены системы (с задержкой для рендеринга)
+    setTimeout(() => {
+        if (typeof updateScrollButtons === 'function') {
+            updateScrollButtons();
+        }
+    }, 100);
+    
+    // НЕ применяем фильтры автоматически - только при нажатии "Применить"
 }
+window.switchSizeSystem = switchSizeSystem;
 
 // Переключение системы в sidebar
 function switchSidebarSizeSystem(system) {
@@ -863,18 +874,16 @@ function switchSidebarSizeSystem(system) {
     localStorage.setItem('preferredSizeSystem', system);
     
     // Обновляем текст в заголовке
-    document.getElementById('sidebarSizeSystem').textContent = system.toUpperCase();
+    const sidebarLabel = document.getElementById('sidebarSizeSystem');
+    if (sidebarLabel) {
+        sidebarLabel.textContent = system.toUpperCase();
+    }
     
     // Переключаем активную кнопку
     document.querySelectorAll('.size-system-btn-small').forEach(btn => {
         btn.classList.remove('active');
     });
     document.querySelector(`.size-system-btn-small[data-system="${system}"]`).classList.add('active');
-    
-    // Сбрасываем активные чипы
-    document.querySelectorAll('.size-chip').forEach(chip => {
-        chip.classList.remove('active');
-    });
     
     // Показываем/скрываем grid размеров
     document.querySelectorAll('.sidebar-size-grid').forEach(grid => {
@@ -887,20 +896,27 @@ function switchSidebarSizeSystem(system) {
     });
     const quickBtn = document.querySelector(`.size-system-btn[data-system="${system}"]`);
     if (quickBtn) quickBtn.classList.add('active');
-    
     document.querySelectorAll('.size-group').forEach(group => {
         group.style.display = group.dataset.system === system ? '' : 'none';
     });
     
-    // Сбрасываем все чекбоксы размеров
-    document.querySelectorAll('input[name="sizes[]"]').forEach(cb => {
-        cb.checked = false;
+    // Синхронизируем active состояние чипов с выбранными чекбоксами для ТЕКУЩЕЙ системы
+    document.querySelectorAll('.size-chip').forEach(chip => {
+        chip.classList.remove('active');
+        
+        const chipSystem = chip.dataset.system;
+        const chipSize = chip.dataset.size;
+        
+        if (chipSystem === system) {
+            // Проверяем, выбран ли соответствующий чекбокс в sidebar
+            const checkbox = document.querySelector(
+                `.sidebar input[name="sizes[]"][value="${chipSize}"][data-system="${chipSystem}"]`
+            );
+            if (checkbox && checkbox.checked) {
+                chip.classList.add('active');
+            }
+        }
     });
-    
-    // Применяем фильтры для обновления каталога
-    if (typeof applyFilters === 'function') {
-        applyFilters();
-    }
     
     // Обновляем видимость стрелок навигации
     setTimeout(() => {
@@ -908,6 +924,11 @@ function switchSidebarSizeSystem(system) {
             updateScrollButtons();
         }
     }, 100);
+}
+
+const quickSizesContainer = document.getElementById('sizesScrollContainer');
+if (quickSizesContainer) {
+    quickSizesContainer.scrollLeft = 0;
 }
 
 // Фильтр по размерам (оптимизирован)
@@ -922,19 +943,19 @@ function toggleSizeFilter(size, system) {
     
     button.classList.toggle('active');
     
-    const visibleGrid = document.querySelector(`.sidebar-size-grid[data-system="${system}"]`);
-    const checkbox = visibleGrid 
-        ? visibleGrid.querySelector(`input[name="sizes[]"][value="${size}"]`)
-        : document.querySelector(`input[name="sizes[]"][value="${size}"][data-system="${system}"]`);
+    // Находим соответствующий чекбокс в sidebar для данной системы
+    const checkbox = document.querySelector(
+        `.sidebar input[name="sizes[]"][value="${size}"][data-system="${system}"]`
+    );
     
     if (checkbox) {
         checkbox.checked = !isActive;
+        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
     }
     
-    if (typeof window.applyFilters === 'function') {
-        window.applyFilters();
-    }
+    // Автоматически запускаем AJAX-фильтрацию для мгновенного отклика
 }
+window.toggleSizeFilter = toggleSizeFilter;
 
 // Прокрутка размеров стрелками (для десктопа)
 function scrollSizes(direction) {
@@ -965,14 +986,30 @@ function updateScrollButtons() {
     const leftBtn = document.querySelector('.size-nav-left');
     const rightBtn = document.querySelector('.size-nav-right');
     
-    if (!container || !leftBtn || !rightBtn) return;
+    if (!container || !leftBtn || !rightBtn) {
+        console.log('❌ Элементы не найдены:', { 
+            container: !!container, 
+            leftBtn: !!leftBtn, 
+            rightBtn: !!rightBtn 
+        });
+        return;
+    }
     
     // Проверяем, есть ли переполнение (контент шире контейнера)
     const hasOverflow = container.scrollWidth > container.clientWidth;
     
+    console.log('🔍 Проверка переполнения:', {
+        scrollWidth: container.scrollWidth,
+        clientWidth: container.clientWidth,
+        hasOverflow: hasOverflow,
+        scrollLeft: container.scrollLeft,
+        screenWidth: window.innerWidth
+    });
+    
     if (!hasOverflow) {
         leftBtn.style.display = 'none';
         rightBtn.style.display = 'none';
+        console.log('⚠️ Переполнения нет - стрелки скрыты');
         return;
     }
     
@@ -982,44 +1019,114 @@ function updateScrollButtons() {
     
     leftBtn.style.display = isAtStart ? 'none' : 'flex';
     rightBtn.style.display = isAtEnd ? 'none' : 'flex';
+    
+    console.log('✅ Стрелки обновлены:', { 
+        left: leftBtn.style.display, 
+        right: rightBtn.style.display,
+        isAtStart: isAtStart,
+        isAtEnd: isAtEnd
+    });
 }
 
-// Восстановление выбранной системы размеров при загрузке
+// Проверка переполнения контейнера размеров
+function checkSizesOverflow() {
+    const container = document.getElementById('sizesScrollContainer');
+    if (!container) return;
+    
+    // Обновляем видимость стрелок
+    updateScrollButtons();
+    
+    // Добавляем слушатель события прокрутки для динамического обновления стрелок (только один раз)
+    if (!container.dataset.scrollListenerAdded) {
+        container.addEventListener('scroll', updateScrollButtons);
+        container.dataset.scrollListenerAdded = 'true';
+    }
+}
+
+// Синхронизация размеров между sidebar и quick filter
+function syncSizeSelection() {
+    // 1. Слушаем изменения в sidebar чекбоксах → обновляем quick chips
+    document.querySelectorAll('.sidebar input[name="sizes[]"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const size = this.value;
+            const system = this.dataset.system;
+            const isChecked = this.checked;
+            
+            // Находим соответствующий quick chip
+            const quickChip = document.querySelector(`.quick-chip.size-chip[data-size="${size}"][data-system="${system}"]`);
+            if (quickChip) {
+                if (isChecked) {
+                    quickChip.classList.add('active');
+                } else {
+                    quickChip.classList.remove('active');
+                }
+            }
+            
+            // НЕ применяем фильтры автоматически - только по кнопке "Применить"
+        });
+    });
+    
+    // 2. Синхронизируем при загрузке страницы (восстанавливаем из URL)
+    const urlParams = new URLSearchParams(window.location.search);
+    const sizesParam = urlParams.get('sizes');
+    if (sizesParam) {
+        const selectedSizes = sizesParam.split(',');
+        const currentSystem = localStorage.getItem('preferredSizeSystem') || 'eu';
+        
+        selectedSizes.forEach(size => {
+            // Активируем quick chip
+            const quickChip = document.querySelector(`.quick-chip.size-chip[data-size="${size}"][data-system="${currentSystem}"]`);
+            if (quickChip) {
+                quickChip.classList.add('active');
+            }
+            
+            // Активируем checkbox в sidebar
+            const checkbox = document.querySelector(`.sidebar input[name="sizes[]"][value="${size}"][data-system="${currentSystem}"]`);
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+        });
+    }
+}
+
+// Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 Инициализация навигации размеров...');
+    
+    // Восстанавливаем последнюю выбранную систему размеров
     const preferredSystem = localStorage.getItem('preferredSizeSystem') || 'eu';
     if (preferredSystem !== 'eu') {
         switchSizeSystem(preferredSystem);
         switchSidebarSizeSystem(preferredSystem);
     }
     
-    // Проверяем необходимость стрелок при загрузке
-    setTimeout(() => updateScrollButtons(), 100);
+    // Проверяем необходимость стрелок при загрузке (с задержкой для рендеринга)
+    setTimeout(() => {
+        console.log('⏰ Запуск checkSizesOverflow через 100ms...');
+        checkSizesOverflow();
+    }, 100);
     
-    // Обновляем стрелки при изменении размера окна
-    window.addEventListener('resize', updateScrollButtons);
+    // Дополнительная проверка через 500ms (на случай медленной загрузки)
+    setTimeout(() => {
+        console.log('⏰ Повторная проверка через 500ms...');
+        checkSizesOverflow();
+    }, 500);
     
-    // Обновляем стрелки при прокрутке
-    const container = document.getElementById('sizesScrollContainer');
-    if (container) {
-        container.addEventListener('scroll', updateScrollButtons);
-    }
+    // Синхронизация размеров
+    syncSizeSelection();
+    
+    // Переключаем при изменении размера окна (debounce 200ms)
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            console.log('📐 Resize - обновление стрелок');
+            checkSizesOverflow();
+        }, 200);
+    });
 });
 
-// НОВОЕ: Переключение расширенных фильтров
-function toggleAdvancedFilters() {
-    const wrapper = document.getElementById('advancedFiltersWrapper');
-    const button = document.getElementById('showAdvancedBtn');
-    
-    if (wrapper.style.display === 'none' || !wrapper.style.display) {
-        wrapper.style.display = 'block';
-        button.classList.add('active');
-        button.querySelector('span:nth-child(2)').textContent = 'Скрыть расширенные';
-    } else {
-        wrapper.style.display = 'none';
-        button.classList.remove('active');
-        button.querySelector('span:nth-child(2)').textContent = 'Расширенные фильтры';
-    }
-}
+// УДАЛЕНО: toggleAdvancedFilters перенесен выше для раннего определения
 
 // НОВОЕ: Сравнение товаров
 let compareProducts = JSON.parse(localStorage.getItem('compareProducts') || '[]');
@@ -1070,35 +1177,10 @@ function closeQuickView() {
     }
 }
 
-// Открытие/закрытие группы фильтров
-function toggleFilterGroup(title) {
-  const group = title.closest('.filter-group');
-  const isOpen = group.classList.contains('open');
-  
-  // Можно закрыть другие (если нужно accordion behavior)
-  // document.querySelectorAll('.filter-group').forEach(g => g.classList.remove('open'));
-  
-  if (isOpen) {
-    group.classList.remove('open');
-  } else {
-    group.classList.add('open');
-  }
-}
+// Открытие/закрытие группы фильтров - см. ниже (удалено дублирование)
 
-// Автоматическое применение фильтра при изменении
-document.addEventListener('DOMContentLoaded', function() {
-  // Применяем фильтр при изменении чекбокса/радио
-  const filterInputs = document.querySelectorAll('.sidebar input[type="checkbox"], .sidebar input[type="radio"]');
-  filterInputs.forEach(input => {
-    input.addEventListener('change', function() {
-      // Задержка для лучшего UX
-      clearTimeout(window.filterTimeout);
-      window.filterTimeout = setTimeout(() => {
-        applyFilters();
-      }, 500);
-    });
-  });
-});
+// ОТКЛЮЧЕНО: Автоматическое применение при изменении параметров
+// Теперь фильтры применяются только при нажатии кнопки "Применить"
 
 // View Mode Switcher
 document.querySelectorAll('.view-btn').forEach(btn => {
@@ -1331,23 +1413,7 @@ location.reload(); // Или можно сделать AJAX восстановл
 });
 });
 
-// Аккордеон фильтров
-function toggleFilterGroup(titleEl) {
-const group = titleEl.closest('.filter-group');
-const content = group.querySelector('.filter-content');
-const icon = titleEl.querySelector('i');
-if (group.classList.contains('open')) {
-group.classList.remove('open');
-content.style.display = 'none';
-icon.classList.remove('bi-chevron-up');
-icon.classList.add('bi-chevron-down');
-} else {
-group.classList.add('open');
-content.style.display = 'block';
-icon.classList.remove('bi-chevron-down');
-icon.classList.add('bi-chevron-up');
-}
-}
+// УДАЛЕНО: toggleFilterGroup перенесен выше для раннего определения
 
 // Поиск в фильтре
 function searchInFilter(input, itemClass) {
@@ -1487,13 +1553,5 @@ function quickAddToCart(e, productId) {
     }
 }
 
-document.addEventListener('DOMContentLoaded',()=>{
-const slider=document.getElementById('price-slider');
-if(slider&&typeof noUiSlider!=='undefined'){
-const min=<?= $filters['priceRange']['min'] ?>,max=<?= $filters['priceRange']['max'] ?>;
-noUiSlider.create(slider,{start:[min,max],connect:true,range:{'min':min,'max':max},step:1,format:{to:v=>Math.round(v),from:v=>Number(v)}});
-const pf=document.getElementById('price-from'),pt=document.getElementById('price-to');
-slider.noUiSlider.on('update',values=>{if(pf)pf.value=values[0];if(pt)pt.value=values[1]});
-}
-});
+// Инициализация слайдера цены перенесена в price-slider.js
 </script>
