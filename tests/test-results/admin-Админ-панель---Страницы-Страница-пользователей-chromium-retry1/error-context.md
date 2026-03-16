@@ -1,0 +1,236 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "СНИКЕРХЭД" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img "СНИКЕРХЭД" [ref=e6]
+      - navigation [ref=e7]:
+        - list [ref=e8]:
+          - listitem [ref=e9]:
+            - link "Каталог" [ref=e10] [cursor=pointer]:
+              - /url: /catalog
+          - listitem [ref=e11]:
+            - link "Бренды" [ref=e12] [cursor=pointer]:
+              - /url: /brands
+          - listitem [ref=e13]:
+            - link "Скидки" [ref=e14] [cursor=pointer]:
+              - /url: /sale
+          - listitem [ref=e15]:
+            - link "О нас" [ref=e16] [cursor=pointer]:
+              - /url: /about
+          - listitem [ref=e17]:
+            - link "Контакты" [ref=e18] [cursor=pointer]:
+              - /url: /contacts
+      - generic [ref=e19]:
+        - button "Поиск товаров" [ref=e20] [cursor=pointer]:
+          - text: Поиск товаров
+          - generic [ref=e21]: 
+        - link "Избранное" [ref=e22] [cursor=pointer]:
+          - /url: /account/wishlist
+          - text: Избранное
+          - generic [ref=e23]: 
+        - link "Корзина" [ref=e24] [cursor=pointer]:
+          - /url: /cart
+          - text: Корзина
+          - generic [ref=e25]: 
+        - link "Личный кабинет" [ref=e26] [cursor=pointer]:
+          - /url: /account
+          - text: Личный кабинет
+          - generic [ref=e27]: 
+      - text: 
+  - main [ref=e28]:
+    - generic [ref=e30]:
+      - generic [ref=e31]:
+        - heading "Админ-панель" [level=1] [ref=e32]
+        - paragraph [ref=e33]: Вход в систему управления
+      - generic [ref=e34]:
+        - textbox "Введите имя пользователя" [active] [ref=e36]
+        - textbox "Введите пароль" [ref=e38]
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - checkbox "Запомнить меня Запомнить меня" [checked] [ref=e43]
+            - text: Запомнить меня
+          - generic [ref=e44] [cursor=pointer]: Запомнить меня
+        - button "Войти" [ref=e46] [cursor=pointer]
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - strong [ref=e49]: "Данные для входа:"
+          - text: "Логин:"
+          - code [ref=e50]: admin
+          - text: "Пароль:"
+          - code [ref=e51]: admin123
+        - paragraph [ref=e52]: Для входа используйте учетные данные администратора
+        - paragraph [ref=e53]:
+          - link "← Вернуться на сайт" [ref=e54] [cursor=pointer]:
+            - /url: /
+  - contentinfo [ref=e55]:
+    - generic [ref=e58]:
+      - generic [ref=e59]:
+        - generic [ref=e60]:
+          - img "СНИКЕРХЭД" [ref=e61]
+          - paragraph [ref=e62]: Оригинальные кроссовки из США и Европы
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - generic [ref=e65]: 
+            - generic [ref=e66]: 100% оригинал
+          - generic [ref=e67]:
+            - generic [ref=e68]: 
+            - generic [ref=e69]: Быстрая доставка
+          - generic [ref=e70]:
+            - generic [ref=e71]: 
+            - generic [ref=e72]: 14 дней возврат
+      - generic [ref=e73]:
+        - heading "О компании" [level=4] [ref=e74]
+        - list [ref=e75]:
+          - listitem [ref=e76]:
+            - link "О нас" [ref=e77] [cursor=pointer]:
+              - /url: /about
+          - listitem [ref=e78]:
+            - link "Контакты" [ref=e79] [cursor=pointer]:
+              - /url: /contacts
+          - listitem [ref=e80]:
+            - link "Доставка" [ref=e81] [cursor=pointer]:
+              - /url: /delivery
+          - listitem [ref=e82]:
+            - link "Возврат" [ref=e83] [cursor=pointer]:
+              - /url: /return
+          - listitem [ref=e84]:
+            - link "Политика конфиденциальности" [ref=e85] [cursor=pointer]:
+              - /url: /privacy
+          - listitem [ref=e86]:
+            - link "Условия использования" [ref=e87] [cursor=pointer]:
+              - /url: /terms
+      - generic [ref=e88]:
+        - heading "Помощь" [level=4] [ref=e89]
+        - list [ref=e90]:
+          - listitem [ref=e91]:
+            - link "Частые вопросы" [ref=e92] [cursor=pointer]:
+              - /url: /faq
+          - listitem [ref=e93]:
+            - link "Размерная сетка" [ref=e94] [cursor=pointer]:
+              - /url: /size-guide
+          - listitem [ref=e95]:
+            - link "Оплата" [ref=e96] [cursor=pointer]:
+              - /url: /payment
+          - listitem [ref=e97]:
+            - link "Гарантия" [ref=e98] [cursor=pointer]:
+              - /url: /guarantee
+          - listitem [ref=e99]:
+            - link "Программа лояльности" [ref=e100] [cursor=pointer]:
+              - /url: /loyalty
+          - listitem [ref=e101]:
+            - link "Отследить заказ" [ref=e102] [cursor=pointer]:
+              - /url: /tracking
+      - generic [ref=e103]:
+        - heading "Каталог" [level=4] [ref=e104]
+        - list [ref=e105]:
+          - listitem [ref=e106]:
+            - link "Кроссовки" [ref=e107] [cursor=pointer]:
+              - /url: /catalog?category=sneakers
+          - listitem [ref=e108]:
+            - link "Ботинки" [ref=e109] [cursor=pointer]:
+              - /url: /catalog?category=boots
+          - listitem [ref=e110]:
+            - link "Сандалии" [ref=e111] [cursor=pointer]:
+              - /url: /catalog?category=sandals
+          - listitem [ref=e112]:
+            - link "Новинки" [ref=e113] [cursor=pointer]:
+              - /url: /catalog?sort=new
+          - listitem [ref=e114]:
+            - link "Скидки" [ref=e115] [cursor=pointer]:
+              - /url: /catalog?sort=sale
+          - listitem [ref=e116]:
+            - link "Все бренды" [ref=e117] [cursor=pointer]:
+              - /url: /brands
+      - generic [ref=e118]:
+        - heading "Контакты" [level=4] [ref=e119]
+        - list [ref=e120]:
+          - listitem [ref=e121]:
+            - generic [ref=e122]: 
+            - link "+375 (29) 123-45-67" [ref=e123] [cursor=pointer]:
+              - /url: tel:+375291234567
+          - listitem [ref=e124]:
+            - generic [ref=e125]: 
+            - link "info@sneakerhead.by" [ref=e126] [cursor=pointer]:
+              - /url: mailto:info@sneakerhead.by
+          - listitem [ref=e127]:
+            - generic [ref=e128]: 
+            - generic [ref=e129]: Минск, Беларусь
+          - listitem [ref=e130]:
+            - generic [ref=e131]: 
+            - generic [ref=e132]: "Пн-Вс: 10:00 - 22:00"
+        - generic [ref=e133]:
+          - link "Instagram" [ref=e134] [cursor=pointer]:
+            - /url: https://instagram.com
+            - generic [ref=e135]: 
+          - link "Telegram" [ref=e136] [cursor=pointer]:
+            - /url: https://t.me
+            - generic [ref=e137]: 
+          - link "TikTok" [ref=e138] [cursor=pointer]:
+            - /url: https://tiktok.com
+            - generic [ref=e139]: 
+          - link "YouTube" [ref=e140] [cursor=pointer]:
+            - /url: https://youtube.com
+            - generic [ref=e141]: 
+    - generic [ref=e144]:
+      - generic [ref=e145]:
+        - generic [ref=e146]: "Принимаем к оплате:"
+        - generic [ref=e147]:
+          - img "Visa" [ref=e148]
+          - img "Mastercard" [ref=e149]
+          - img "Белкарт" [ref=e150]
+          - img "Халва" [ref=e151]
+          - img "ЕРИП" [ref=e152]
+      - generic [ref=e153]: © 2026 СНИКЕРХЭД. Все права защищены.
+  - text:  
+  - generic [ref=e154]:
+    - generic [ref=e155]:
+      - link "Yii" [ref=e157] [cursor=pointer]:
+        - /url: /debug/default/index
+        - img "Yii" [ref=e158]
+      - link "2.0.53 PHP 8.4.13" [ref=e160] [cursor=pointer]:
+        - /url: /debug/default/view?panel=config&tag=69b6e951584f2
+        - generic [ref=e161]: 2.0.53
+        - text: PHP
+        - generic [ref=e162]: 8.4.13
+      - link "Log 15" [ref=e164] [cursor=pointer]:
+        - /url: /debug/default/view?panel=log&tag=69b6e951584f2
+        - text: Log
+        - generic [ref=e165]: "15"
+      - generic [ref=e166]:
+        - link "Time 12 ms" [ref=e167] [cursor=pointer]:
+          - /url: /debug/default/view?panel=profiling&tag=69b6e951584f2
+          - text: Time
+          - generic [ref=e168]: 12 ms
+        - link "Memory 1.330 MB" [ref=e169] [cursor=pointer]:
+          - /url: /debug/default/view?panel=profiling&tag=69b6e951584f2
+          - text: Memory
+          - generic [ref=e170]: 1.330 MB
+      - link "Events 24" [ref=e172] [cursor=pointer]:
+        - /url: /debug/default/view?panel=event&tag=69b6e951584f2
+        - text: Events
+        - generic [ref=e173]: "24"
+      - link "Route admin/admin/login" [ref=e175] [cursor=pointer]:
+        - /url: /debug/default/view?panel=router&tag=69b6e951584f2
+        - text: Route
+        - generic [ref=e176]: admin/admin/login
+      - link "Status 200" [ref=e178] [cursor=pointer]:
+        - /url: /debug/default/view?panel=request&tag=69b6e951584f2
+        - text: Status
+        - generic [ref=e179]: "200"
+      - link "Guest" [ref=e181] [cursor=pointer]:
+        - /url: /debug/default/view?panel=user&tag=69b6e951584f2
+        - generic [ref=e182]: Guest
+      - link "Asset Bundles 8" [ref=e184] [cursor=pointer]:
+        - /url: /debug/default/view?panel=asset&tag=69b6e951584f2
+        - text: Asset Bundles
+        - generic [ref=e185]: "8"
+    - iframe [ref=e189]:
+      
+  - button "Переключить тёмную тему" [ref=e190] [cursor=pointer]:
+    - text: Переключить тёмную тему 
+    - generic [ref=e191]: 
+```

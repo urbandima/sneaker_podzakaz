@@ -1,23 +1,34 @@
 {
-    "name": "yiisoft/yii2-app-basic",
-    "description": "Order Management System",
+    "name": "sneakerhead/sneaker-store",
+    "description": "СНИКЕРХЭД - Интернет-магазин оригинальных кроссовок",
     "type": "project",
+    "license": "proprietary",
     "require": {
-        "php": ">=7.4.0",
+        "php": ">=8.1.0",
         "ext-pdo": "*",
         "ext-pdo_mysql": "*",
         "ext-mbstring": "*",
         "ext-fileinfo": "*",
-        "yiisoft/yii2": "~2.0.45",
-        "yiisoft/yii2-bootstrap5": "~2.0.2",
-        "yiisoft/yii2-httpclient": "~2.0.13",
-        "yiisoft/yii2-symfonymailer": "~2.0.4",
-        "phpoffice/phpspreadsheet": "^1.23",
-        "vlucas/phpdotenv": "^5.6"
+        "ext-json": "*",
+        "ext-curl": "*",
+        "yiisoft/yii2": "~2.0.49",
+        "yiisoft/yii2-bootstrap5": "~2.0.4",
+        "yiisoft/yii2-httpclient": "~2.0.14",
+        "yiisoft/yii2-symfonymailer": "~3.0.0",
+        "yiisoft/yii2-authclient": "^2.2",
+        "phpoffice/phpspreadsheet": "^1.29",
+        "vlucas/phpdotenv": "^5.6",
+        "sentry/sentry": "^4.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",
-        "yiisoft/yii2-gii": "~2.2.0"
+        "yiisoft/yii2-gii": "~2.2.0",
+        "phpunit/phpunit": "^10.0",
+        "codeception/codeception": "^5.0",
+        "codeception/module-yii2": "^1.1",
+        "codeception/module-asserts": "^3.0",
+        "phpstan/phpstan": "^1.10",
+        "squizlabs/php_codesniffer": "^3.7"
     },
     "config": {
         "allow-plugins": {
@@ -33,5 +44,31 @@
             "type": "composer",
             "url": "https://asset-packagist.org"
         }
-    ]
+    ],
+    "autoload": {
+        "psr-4": {
+            "app\\": "",
+            "app\\api\\": "api/",
+            "app\\backend\\": "backend/",
+            "app\\frontend\\": "frontend/",
+            "app\\infrastructure\\": "infrastructure/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-html coverage",
+        "lint": "phpcs --standard=PSR12 backend/ infrastructure/ commands/",
+        "lint-fix": "phpcbf --standard=PSR12 backend/ infrastructure/ commands/",
+        "analyse": "phpstan analyse -l 5 backend/ infrastructure/ commands/",
+        "check": [
+            "@lint",
+            "@analyse",
+            "@test"
+        ]
+    }
 }

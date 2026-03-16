@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PORT="${2:-8080}"
-HOST="127.0.0.1"
+HOST="localhost"
 LOG_DIR="${ROOT_DIR}/runtime"
 STATE_DIR="${LOG_DIR}/share"
 SERVER_LOG="${LOG_DIR}/share-server.log"

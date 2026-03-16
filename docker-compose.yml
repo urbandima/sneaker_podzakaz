@@ -1,0 +1,130 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # PHP-FPM Application
+  # ============================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sneakerhead-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - sneakerhead-network
+    depends_on:
+      - db
+      - redis
+    environment:
+      - YII_ENV=${YII_ENV:-dev}
+      - YII_DEBUG=${YII_DEBUG:-true}
+      - DB_DSN=mysql:host=db;dbname=${DB_NAME:-sneaker_db};charset=utf8mb4
+      - DB_USERNAME=${DB_USERNAME:-sneaker}
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  # ============================================
+  # Nginx Web Server
+  # ============================================
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: sneakerhead-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-8080}:80"
+      - "${NGINX_SSL_PORT:-8443}:443"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+    networks:
+      - sneakerhead-network
+    depends_on:
+      - app
+
+  # ============================================
+  # MySQL Database
+  # ============================================
+  db:
+    image: mysql:8.0
+    container_name: sneakerhead-db
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-sneaker_db}
+      MYSQL_USER: ${DB_USERNAME:-sneaker}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootsecret}
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - sneakerhead-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Redis Cache
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: sneakerhead-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - sneakerhead-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Node.js for Asset Building
+  # ============================================
+  node:
+    image: node:18-alpine
+    container_name: sneakerhead-node
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    command: sh -c "npm install && npm run watch"
+    networks:
+      - sneakerhead-network
+    profiles:
+      - dev
+
+  # ============================================
+  # Mailhog for Email Testing (dev only)
+  # ============================================
+  mailhog:
+    image: mailhog/mailhog
+    container_name: sneakerhead-mailhog
+    ports:
+      - "${MAILHOG_PORT:-8025}:8025"
+      - "${MAILHOG_SMTP:-1025}:1025"
+    networks:
+      - sneakerhead-network
+    profiles:
+      - dev
+
+networks:
+  sneakerhead-network:
+    driver: bridge
+
+volumes:
+  db-data:
+  redis-data:

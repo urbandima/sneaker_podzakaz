@@ -1,0 +1,2168 @@
+Server started on http://localhost:8080/
+Document root is "web"
+Quit the server with CTRL-C or COMMAND-C.
+[Tue Jan  6 17:06:11 2026] PHP 8.4.13 Development Server (http://localhost:8080) started
+[Tue Jan  6 17:06:12 2026] [::1]:55958 Accepted
+[Tue Jan  6 17:06:12 2026] [::1]:55958 [200]: GET /
+[Tue Jan  6 17:06:12 2026] [::1]:55958 Closing
+[Tue Jan  6 17:06:45 2026] [::1]:56063 Accepted
+[Tue Jan  6 17:06:45 2026] [::1]:56063 [200]: GET /
+[Tue Jan  6 17:06:45 2026] [::1]:56063 Closing
+[Tue Jan  6 17:06:46 2026] [::1]:56065 Accepted
+[Tue Jan  6 17:06:46 2026] [::1]:56064 Accepted
+[Tue Jan  6 17:06:46 2026] [::1]:56064 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:06:46 2026] [::1]:56064 Closing
+[Tue Jan  6 17:06:46 2026] [::1]:56065 [200]: GET /css/critical.css?v=1766747016
+[Tue Jan  6 17:06:46 2026] [::1]:56067 Accepted
+[Tue Jan  6 17:06:46 2026] [::1]:56065 Closing
+[Tue Jan  6 17:06:46 2026] [::1]:56068 Accepted
+[Tue Jan  6 17:06:46 2026] [::1]:56069 Accepted
+[Tue Jan  6 17:06:46 2026] [::1]:56070 Accepted
+[Tue Jan  6 17:06:46 2026] [::1]:56071 Accepted
+[Tue Jan  6 17:06:46 2026] [::1]:56068 [200]: GET /css/header-adaptive.css?v=1766914290
+[Tue Jan  6 17:06:46 2026] [::1]:56067 [200]: GET /css/public-layout.css?v=1766932010
+[Tue Jan  6 17:06:46 2026] [::1]:56069 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:06:46 2026] [::1]:56071 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:06:46 2026] [::1]:56072 Accepted
+[Tue Jan  6 17:06:46 2026] [::1]:56068 Closing
+[Tue Jan  6 17:06:46 2026] [::1]:56067 Closing
+[Tue Jan  6 17:06:46 2026] [::1]:56070 [200]: GET /css/mobile-menu.css?v=1762701633
+[Tue Jan  6 17:06:46 2026] [::1]:56073 Accepted
+[Tue Jan  6 17:06:46 2026] [::1]:56069 Closing
+[Tue Jan  6 17:06:46 2026] [::1]:56071 Closing
+[Tue Jan  6 17:06:46 2026] [::1]:56072 [200]: GET /js/public-layout.js?v=1766337393
+[Tue Jan  6 17:06:46 2026] [::1]:56074 Accepted
+[Tue Jan  6 17:06:46 2026] [::1]:56073 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:06:46 2026] [::1]:56075 Accepted
+[Tue Jan  6 17:06:46 2026] [::1]:56070 Closing
+[Tue Jan  6 17:06:46 2026] [::1]:56074 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:06:46 2026] [::1]:56076 Accepted
+[Tue Jan  6 17:06:46 2026] [::1]:56075 [200]: GET /js/notifications.js?v=1766348203
+[Tue Jan  6 17:06:46 2026] [::1]:56072 Closing
+[Tue Jan  6 17:06:46 2026] [::1]:56077 Accepted
+[Tue Jan  6 17:06:46 2026] [::1]:56073 Closing
+[Tue Jan  6 17:06:46 2026] [::1]:56076 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:06:46 2026] [::1]:56077 [200]: GET /js/mobile-menu.js?v=1762700960
+[Tue Jan  6 17:06:46 2026] [::1]:56074 Closing
+[Tue Jan  6 17:06:46 2026] [::1]:56075 Closing
+[Tue Jan  6 17:06:46 2026] [::1]:56077 Closing
+[Tue Jan  6 17:06:46 2026] [::1]:56076 Closing
+[Tue Jan  6 17:06:49 2026] [::1]:56089 Accepted
+[Tue Jan  6 17:06:49 2026] [::1]:56089 [200]: GET /debug/default/toolbar?tag=695d16f5ad705
+[Tue Jan  6 17:06:49 2026] [::1]:56089 Closing
+[Tue Jan  6 17:06:49 2026] [::1]:56093 Accepted
+[Tue Jan  6 17:06:49 2026] [::1]:56093 [200]: GET /favicon.ico
+[Tue Jan  6 17:06:49 2026] [::1]:56093 Closing
+[Tue Jan  6 17:06:54 2026] [::1]:56108 Accepted
+[Tue Jan  6 17:06:54 2026] [::1]:56108 [200]: GET /
+[Tue Jan  6 17:06:54 2026] [::1]:56108 Closing
+[Tue Jan  6 17:06:57 2026] [::1]:56112 Accepted
+[Tue Jan  6 17:06:57 2026] [::1]:56112 [404]: GET /a
+[Tue Jan  6 17:06:57 2026] [::1]:56112 Closing
+[Tue Jan  6 17:06:57 2026] [::1]:56114 Accepted
+[Tue Jan  6 17:06:57 2026] [::1]:56114 [404]: GET /ad
+[Tue Jan  6 17:06:57 2026] [::1]:56114 Closing
+[Tue Jan  6 17:06:57 2026] [::1]:56117 Accepted
+[Tue Jan  6 17:06:57 2026] [::1]:56117 [404]: GET /adm
+[Tue Jan  6 17:06:57 2026] [::1]:56117 Closing
+[Tue Jan  6 17:06:57 2026] [::1]:56119 Accepted
+[Tue Jan  6 17:06:58 2026] [::1]:56119 [404]: GET /admi
+[Tue Jan  6 17:06:58 2026] [::1]:56119 Closing
+[Tue Jan  6 17:06:58 2026] [::1]:56121 Accepted
+[Tue Jan  6 17:06:58 2026] [::1]:56121 [302]: GET /admin
+[Tue Jan  6 17:06:58 2026] [::1]:56121 Closing
+[Tue Jan  6 17:06:58 2026] [::1]:56125 Accepted
+[Tue Jan  6 17:06:58 2026] [::1]:56125 [200]: GET /login
+[Tue Jan  6 17:06:58 2026] [::1]:56125 Closing
+[Tue Jan  6 17:08:59 2026] [::1]:56459 Accepted
+[Tue Jan  6 17:08:59 2026] PHP Warning:  The use statement with non-compound name 'Yii' has no effect in /Users/user/CascadeProjects/splitwise/views/catalog/_products.php on line 5
+[Tue Jan  6 17:08:59 2026] [::1]:56459 [200]: GET /catalog?cat=sneakers
+[Tue Jan  6 17:08:59 2026] [::1]:56459 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56462 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56462 [200]: GET /js/global-helpers.js?v=1762674627
+[Tue Jan  6 17:09:00 2026] [::1]:56464 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56462 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56463 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56464 [200]: GET /css/header-adaptive.css?v=1766914290
+[Tue Jan  6 17:09:00 2026] [::1]:56464 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56463 [200]: GET /css/catalog-mobile-fixes.css?v=1762693759
+[Tue Jan  6 17:09:00 2026] [::1]:56466 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56463 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56467 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56466 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:09:00 2026] [::1]:56468 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56466 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56469 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56470 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56471 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56470 [200]: GET /js/public-layout.js?v=1766337393
+[Tue Jan  6 17:09:00 2026] [::1]:56467 [200]: GET /css/catalog-card.css?v=1767708539
+[Tue Jan  6 17:09:00 2026] [::1]:56469 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:09:00 2026] [::1]:56468 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:09:00 2026] [::1]:56471 [200]: GET /css/critical.css?v=1766747016
+[Tue Jan  6 17:09:00 2026] [::1]:56472 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56470 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56473 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56467 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56468 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56471 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56472 [200]: GET /js/favorites.js?v=1766342125
+[Tue Jan  6 17:09:00 2026] [::1]:56475 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56473 [200]: GET /css/public-layout.css?v=1766932010
+[Tue Jan  6 17:09:00 2026] [::1]:56474 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56469 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56475 [200]: GET /css/mobile-menu.css?v=1762701633
+[Tue Jan  6 17:09:00 2026] [::1]:56476 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56474 [200]: GET /js/mobile-menu.js?v=1762700960
+[Tue Jan  6 17:09:00 2026] [::1]:56472 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56477 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56473 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56476 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:09:00 2026] [::1]:56478 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56477 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:09:00 2026] [::1]:56475 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56479 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56478 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:09:00 2026] [::1]:56474 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56480 Accepted
+[Tue Jan  6 17:09:00 2026] [::1]:56479 [200]: GET /js/notifications.js?v=1766348203
+[Tue Jan  6 17:09:00 2026] [::1]:56477 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56480 [200]: GET /css/catalog-inline.css?v=1767708539
+[Tue Jan  6 17:09:00 2026] [::1]:56476 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56478 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56479 Closing
+[Tue Jan  6 17:09:00 2026] [::1]:56480 Closing
+[Tue Jan  6 17:09:05 2026] [::1]:56503 Accepted
+[Tue Jan  6 17:09:05 2026] [::1]:56503 [200]: GET /js/catalog.js?v=1766840712
+[Tue Jan  6 17:09:05 2026] [::1]:56503 Closing
+[Tue Jan  6 17:09:05 2026] [::1]:56504 Accepted
+[Tue Jan  6 17:09:05 2026] [::1]:56504 [200]: GET /js/cart.js?v=1766348219
+[Tue Jan  6 17:09:05 2026] [::1]:56504 Closing
+[Tue Jan  6 17:09:05 2026] [::1]:56505 Accepted
+[Tue Jan  6 17:09:05 2026] [::1]:56506 Accepted
+[Tue Jan  6 17:09:05 2026] [::1]:56505 [200]: GET /js/ui-enhancements.js?v=1762800130
+[Tue Jan  6 17:09:05 2026] [::1]:56506 [200]: GET /js/lazy-load.js?v=1762468890
+[Tue Jan  6 17:09:05 2026] [::1]:56507 Accepted
+[Tue Jan  6 17:09:05 2026] [::1]:56505 Closing
+[Tue Jan  6 17:09:05 2026] [::1]:56506 Closing
+[Tue Jan  6 17:09:05 2026] [::1]:56507 [200]: GET /js/price-slider.js?v=1762414530
+[Tue Jan  6 17:09:05 2026] [::1]:56507 Closing
+[Tue Jan  6 17:09:05 2026] [::1]:56508 Accepted
+[Tue Jan  6 17:09:05 2026] [::1]:56508 [200]: GET /debug/default/toolbar?tag=695d177ba2cc6
+[Tue Jan  6 17:09:05 2026] [::1]:56508 Closing
+[Tue Jan  6 17:09:06 2026] [::1]:56515 Accepted
+[Tue Jan  6 17:09:06 2026] [::1]:56515 [200]: GET /catalog/favorites-count
+[Tue Jan  6 17:09:06 2026] [::1]:56515 Closing
+[Tue Jan  6 17:09:06 2026] [::1]:56517 Accepted
+[Tue Jan  6 17:09:06 2026] [::1]:56517 [200]: GET /cart/count
+[Tue Jan  6 17:09:06 2026] [::1]:56517 Closing
+[Tue Jan  6 17:09:06 2026] [::1]:56519 Accepted
+[Tue Jan  6 17:09:06 2026] [::1]:56519 [200]: GET /catalog/favorites-count
+[Tue Jan  6 17:09:06 2026] [::1]:56519 Closing
+[Tue Jan  6 17:09:06 2026] [::1]:56522 Accepted
+[Tue Jan  6 17:09:06 2026] [::1]:56522 [200]: GET /catalog/favorites-count
+[Tue Jan  6 17:09:06 2026] [::1]:56522 Closing
+[Tue Jan  6 17:09:07 2026] [::1]:56527 Accepted
+[Tue Jan  6 17:09:07 2026] [::1]:56527 [404]: GET /@web/js/view-history.js
+[Tue Jan  6 17:09:07 2026] [::1]:56527 Closing
+[Tue Jan  6 17:09:07 2026] [::1]:56529 Accepted
+[Tue Jan  6 17:09:07 2026] [::1]:56529 [404]: GET /@web/js/ui-enhancements.js
+[Tue Jan  6 17:09:07 2026] [::1]:56529 Closing
+[Tue Jan  6 17:09:11 2026] [::1]:56540 Accepted
+[Tue Jan  6 17:09:11 2026] [::1]:56540 [200]: GET /catalog/load-more?cat=sneakers&page=2
+[Tue Jan  6 17:09:11 2026] [::1]:56540 Closing
+[Tue Jan  6 17:10:04 2026] [::1]:56693 Accepted
+[Tue Jan  6 17:10:04 2026] [::1]:56694 Accepted
+[Tue Jan  6 17:10:04 2026] [::1]:56693 [500]: GET /admin/review
+[Tue Jan  6 17:10:04 2026] [::1]:56693 Closing
+[Tue Jan  6 17:10:04 2026] [::1]:56694 [200]: GET /debug/default/toolbar?tag=695d17bcadef3
+[Tue Jan  6 17:10:04 2026] [::1]:56694 Closing
+[Tue Jan  6 17:10:06 2026] [::1]:56703 Accepted
+[Tue Jan  6 17:10:06 2026] [::1]:56704 Accepted
+[Tue Jan  6 17:10:06 2026] [::1]:56703 [200]: GET /admin/order
+[Tue Jan  6 17:10:06 2026] [::1]:56703 Closing
+[Tue Jan  6 17:10:06 2026] [::1]:56704 [200]: GET /debug/default/toolbar?tag=695d17be59551
+[Tue Jan  6 17:10:06 2026] [::1]:56704 Closing
+[Tue Jan  6 17:10:08 2026] [::1]:56712 Accepted
+[Tue Jan  6 17:10:08 2026] [::1]:56713 Accepted
+[Tue Jan  6 17:10:08 2026] [::1]:56712 [500]: GET /admin/size-grid
+[Tue Jan  6 17:10:08 2026] [::1]:56712 Closing
+[Tue Jan  6 17:10:08 2026] [::1]:56713 [200]: GET /debug/default/toolbar?tag=695d17c09d57e
+[Tue Jan  6 17:10:08 2026] [::1]:56713 Closing
+[Tue Jan  6 17:10:09 2026] [::1]:56718 Accepted
+[Tue Jan  6 17:10:09 2026] [::1]:56719 Accepted
+[Tue Jan  6 17:10:09 2026] [::1]:56718 [200]: GET /admin/order
+[Tue Jan  6 17:10:09 2026] [::1]:56718 Closing
+[Tue Jan  6 17:10:09 2026] [::1]:56719 [200]: GET /debug/default/toolbar?tag=695d17c177bc9
+[Tue Jan  6 17:10:09 2026] [::1]:56719 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56726 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56727 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56726 [200]: GET /admin/characteristic
+[Tue Jan  6 17:10:11 2026] [::1]:56726 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56730 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56727 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:10:11 2026] [::1]:56731 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56730 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:10:11 2026] [::1]:56732 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56731 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:10:11 2026] [::1]:56733 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56732 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:10:11 2026] [::1]:56734 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56730 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56727 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56733 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:10:11 2026] [::1]:56735 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56731 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56734 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:10:11 2026] [::1]:56736 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56735 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:10:11 2026] [::1]:56732 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56737 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56736 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:10:11 2026] [::1]:56733 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56738 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56737 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:10:11 2026] [::1]:56734 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56739 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56738 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:10:11 2026] [::1]:56735 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56740 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56739 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:10:11 2026] [::1]:56736 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56741 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56740 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:10:11 2026] [::1]:56737 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56738 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56741 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:10:11 2026] [::1]:56742 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56739 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56743 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56740 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56742 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:10:11 2026] [::1]:56744 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56743 [200]: GET /assets/8e6e089b/yii.gridView.js?v=1751010173
+[Tue Jan  6 17:10:11 2026] [::1]:56745 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56744 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:10:11 2026] [::1]:56746 Accepted
+[Tue Jan  6 17:10:11 2026] [::1]:56741 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56742 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56745 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:10:11 2026] [::1]:56743 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56746 [200]: GET /debug/default/toolbar?tag=695d17c33724e
+[Tue Jan  6 17:10:11 2026] [::1]:56746 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56744 Closing
+[Tue Jan  6 17:10:11 2026] [::1]:56745 Closing
+[Tue Jan  6 17:10:13 2026] [::1]:56756 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56757 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56756 [200]: GET /admin/poizon
+[Tue Jan  6 17:10:14 2026] [::1]:56756 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56759 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56757 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:10:14 2026] [::1]:56760 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56759 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:10:14 2026] [::1]:56761 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56760 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:10:14 2026] [::1]:56762 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56761 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:10:14 2026] [::1]:56763 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56759 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56757 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56762 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:10:14 2026] [::1]:56764 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56760 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56763 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:10:14 2026] [::1]:56765 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56764 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:10:14 2026] [::1]:56761 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56766 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56765 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:10:14 2026] [::1]:56762 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56767 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56766 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:10:14 2026] [::1]:56763 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56768 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56767 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:10:14 2026] [::1]:56764 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56769 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56768 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:10:14 2026] [::1]:56765 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56770 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56769 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:10:14 2026] [::1]:56766 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56771 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56767 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56770 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:10:14 2026] [::1]:56772 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56768 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56769 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56771 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:10:14 2026] [::1]:56772 [200]: GET /assets/8e6e089b/yii.gridView.js?v=1751010173
+[Tue Jan  6 17:10:14 2026] [::1]:56773 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56774 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56770 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56773 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:10:14 2026] [::1]:56771 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56772 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56775 Accepted
+[Tue Jan  6 17:10:14 2026] [::1]:56774 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:10:14 2026] [::1]:56775 [200]: GET /debug/default/toolbar?tag=695d17c61c997
+[Tue Jan  6 17:10:14 2026] [::1]:56775 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56773 Closing
+[Tue Jan  6 17:10:14 2026] [::1]:56774 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56789 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56790 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56789 [200]: GET /admin/tariff
+[Tue Jan  6 17:10:18 2026] [::1]:56789 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56792 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56790 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:10:18 2026] [::1]:56793 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56792 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:10:18 2026] [::1]:56794 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56793 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:10:18 2026] [::1]:56795 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56794 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:10:18 2026] [::1]:56796 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56792 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56790 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56795 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:10:18 2026] [::1]:56797 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56793 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56796 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:10:18 2026] [::1]:56798 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56797 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:10:18 2026] [::1]:56794 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56799 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56798 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:10:18 2026] [::1]:56795 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56800 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56799 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:10:18 2026] [::1]:56796 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56801 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56800 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:10:18 2026] [::1]:56797 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56801 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:10:18 2026] [::1]:56798 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56802 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56799 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56803 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56800 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56802 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:10:18 2026] [::1]:56804 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56801 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56803 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:10:18 2026] [::1]:56805 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56804 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:10:18 2026] [::1]:56806 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56805 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:10:18 2026] [::1]:56802 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56806 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:10:18 2026] [::1]:56807 Accepted
+[Tue Jan  6 17:10:18 2026] [::1]:56804 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56805 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56807 [200]: GET /debug/default/toolbar?tag=695d17cab465e
+[Tue Jan  6 17:10:18 2026] [::1]:56807 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56803 Closing
+[Tue Jan  6 17:10:18 2026] [::1]:56806 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56814 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56815 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56814 [200]: GET /admin/analytics
+[Tue Jan  6 17:10:20 2026] [::1]:56814 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56817 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56815 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:10:20 2026] [::1]:56818 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56817 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:10:20 2026] [::1]:56819 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56818 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:10:20 2026] [::1]:56820 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56819 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:10:20 2026] [::1]:56821 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56817 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56815 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56820 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:10:20 2026] [::1]:56822 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56818 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56821 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:10:20 2026] [::1]:56823 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56822 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:10:20 2026] [::1]:56819 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56824 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56823 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:10:20 2026] [::1]:56820 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56825 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56824 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:10:20 2026] [::1]:56821 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56826 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56825 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:10:20 2026] [::1]:56822 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56823 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56824 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56825 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56826 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:10:20 2026] [::1]:56826 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56827 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56827 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:10:20 2026] [::1]:56828 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56829 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56828 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:10:20 2026] [::1]:56827 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56830 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56829 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:10:20 2026] [::1]:56831 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56830 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:10:20 2026] [::1]:56831 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:10:20 2026] [::1]:56832 Accepted
+[Tue Jan  6 17:10:20 2026] [::1]:56828 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56829 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56830 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56832 [200]: GET /debug/default/toolbar?tag=695d17cc94a44
+[Tue Jan  6 17:10:20 2026] [::1]:56832 Closing
+[Tue Jan  6 17:10:20 2026] [::1]:56831 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56848 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56849 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56848 [200]: GET /admin/statistics
+[Tue Jan  6 17:10:26 2026] [::1]:56848 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56851 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56849 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:10:26 2026] [::1]:56852 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56851 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:10:26 2026] [::1]:56853 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56852 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:10:26 2026] [::1]:56854 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56853 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:10:26 2026] [::1]:56855 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56851 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56849 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56854 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:10:26 2026] [::1]:56852 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56855 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:10:26 2026] [::1]:56856 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56853 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56857 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56856 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:10:26 2026] [::1]:56854 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56858 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56857 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:10:26 2026] [::1]:56855 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56859 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56858 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:10:26 2026] [::1]:56860 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56859 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:10:26 2026] [::1]:56856 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56861 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56857 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56860 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:10:26 2026] [::1]:56858 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56859 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56860 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56861 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:10:26 2026] [::1]:56861 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56862 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56863 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56862 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:10:26 2026] [::1]:56864 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56863 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:10:26 2026] [::1]:56865 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56864 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:10:26 2026] [::1]:56865 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:10:26 2026] [::1]:56866 Accepted
+[Tue Jan  6 17:10:26 2026] [::1]:56863 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56862 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56864 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56866 [200]: GET /debug/default/toolbar?tag=695d17d29f78d
+[Tue Jan  6 17:10:26 2026] [::1]:56866 Closing
+[Tue Jan  6 17:10:26 2026] [::1]:56865 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57002 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57003 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57002 [200]: GET /admin/customer
+[Tue Jan  6 17:11:15 2026] [::1]:57002 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57005 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57003 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:11:15 2026] [::1]:57006 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57005 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:11:15 2026] [::1]:57007 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57006 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:11:15 2026] [::1]:57008 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57007 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:11:15 2026] [::1]:57009 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57005 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57003 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57008 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:11:15 2026] [::1]:57010 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57006 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57009 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:11:15 2026] [::1]:57011 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57010 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:11:15 2026] [::1]:57007 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57012 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57011 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:11:15 2026] [::1]:57008 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57013 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57012 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:11:15 2026] [::1]:57009 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57014 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57013 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:11:15 2026] [::1]:57010 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57015 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57014 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:11:15 2026] [::1]:57011 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57016 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57015 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:11:15 2026] [::1]:57012 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57017 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57013 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57016 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:11:15 2026] [::1]:57018 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57014 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57017 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:11:15 2026] [::1]:57019 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57015 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57018 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:11:15 2026] [::1]:57019 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:11:15 2026] [::1]:57017 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57016 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57018 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57020 Accepted
+[Tue Jan  6 17:11:15 2026] [::1]:57020 [200]: GET /debug/default/toolbar?tag=695d18031dd61
+[Tue Jan  6 17:11:15 2026] [::1]:57020 Closing
+[Tue Jan  6 17:11:15 2026] [::1]:57019 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57034 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57035 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57034 [200]: GET /customer/view?id=1
+[Tue Jan  6 17:11:19 2026] [::1]:57034 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57037 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57035 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:11:19 2026] [::1]:57038 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57037 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:11:19 2026] [::1]:57039 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57038 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:11:19 2026] [::1]:57040 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57039 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:11:19 2026] [::1]:57041 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57037 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57035 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57040 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:11:19 2026] [::1]:57042 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57038 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57041 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:11:19 2026] [::1]:57043 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57042 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:11:19 2026] [::1]:57039 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57044 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57043 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:11:19 2026] [::1]:57040 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57045 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57044 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:11:19 2026] [::1]:57041 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57046 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57045 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:11:19 2026] [::1]:57042 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57047 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57046 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:11:19 2026] [::1]:57043 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57048 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57047 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:11:19 2026] [::1]:57044 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57049 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57045 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57048 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:11:19 2026] [::1]:57050 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57046 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57049 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:11:19 2026] [::1]:57047 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57050 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:11:19 2026] [::1]:57051 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57049 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57048 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57051 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:11:19 2026] [::1]:57050 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57052 Accepted
+[Tue Jan  6 17:11:19 2026] [::1]:57051 Closing
+[Tue Jan  6 17:11:19 2026] [::1]:57052 [200]: GET /debug/default/toolbar?tag=695d180772dc1
+[Tue Jan  6 17:11:19 2026] [::1]:57052 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57076 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57078 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57076 [404]: GET /customer/index
+[Tue Jan  6 17:11:27 2026] [::1]:57076 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57080 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57078 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:11:27 2026] [::1]:57081 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57080 [200]: GET /css/critical.css?v=1766747016
+[Tue Jan  6 17:11:27 2026] [::1]:57082 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57081 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:11:27 2026] [::1]:57083 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57082 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:11:27 2026] [::1]:57084 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57080 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57078 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57083 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:11:27 2026] [::1]:57085 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57081 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57084 [200]: GET /css/header-adaptive.css?v=1766914290
+[Tue Jan  6 17:11:27 2026] [::1]:57082 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57083 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57086 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57085 [200]: GET /css/mobile-menu.css?v=1762701633
+[Tue Jan  6 17:11:27 2026] [::1]:57084 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57087 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57086 [200]: GET /css/page-404.css?v=1762730625
+[Tue Jan  6 17:11:27 2026] [::1]:57088 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57087 [200]: GET /css/public-layout.css?v=1766932010
+[Tue Jan  6 17:11:27 2026] [::1]:57089 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57085 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57088 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:11:27 2026] [::1]:57090 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57086 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57089 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:11:27 2026] [::1]:57091 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57087 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57090 [200]: GET /js/mobile-menu.js?v=1762700960
+[Tue Jan  6 17:11:27 2026] [::1]:57092 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57091 [200]: GET /js/public-layout.js?v=1766337393
+[Tue Jan  6 17:11:27 2026] [::1]:57092 [200]: GET /js/notifications.js?v=1766348203
+[Tue Jan  6 17:11:27 2026] [::1]:57089 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57090 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57088 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57091 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57092 Closing
+[Tue Jan  6 17:11:27 2026] [::1]:57093 Accepted
+[Tue Jan  6 17:11:27 2026] [::1]:57093 [200]: GET /debug/default/toolbar?tag=695d180fbeeab
+[Tue Jan  6 17:11:27 2026] [::1]:57093 Closing
+[Tue Jan  6 17:11:29 2026] [::1]:57105 Accepted
+[Tue Jan  6 17:11:29 2026] [::1]:57106 Accepted
+[Tue Jan  6 17:11:29 2026] [::1]:57105 [200]: GET /customer/view?id=1
+[Tue Jan  6 17:11:29 2026] [::1]:57105 Closing
+[Tue Jan  6 17:11:29 2026] [::1]:57106 [200]: GET /debug/default/toolbar?tag=695d181183b23
+[Tue Jan  6 17:11:29 2026] [::1]:57106 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57112 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57113 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57112 [200]: GET /admin/user
+[Tue Jan  6 17:11:31 2026] [::1]:57112 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57115 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57113 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:11:31 2026] [::1]:57116 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57115 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:11:31 2026] [::1]:57117 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57116 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:11:31 2026] [::1]:57118 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57117 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:11:31 2026] [::1]:57119 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57115 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57113 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57118 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:11:31 2026] [::1]:57120 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57116 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57119 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:11:31 2026] [::1]:57121 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57120 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:11:31 2026] [::1]:57117 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57122 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57121 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:11:31 2026] [::1]:57118 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57123 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57122 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:11:31 2026] [::1]:57119 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57124 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57120 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57123 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:11:31 2026] [::1]:57121 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57125 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57124 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:11:31 2026] [::1]:57122 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57127 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57125 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:11:31 2026] [::1]:57128 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57123 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57127 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:11:31 2026] [::1]:57129 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57124 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57128 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:11:31 2026] [::1]:57130 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57129 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:11:31 2026] [::1]:57125 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57130 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:11:31 2026] [::1]:57128 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57131 Accepted
+[Tue Jan  6 17:11:31 2026] [::1]:57129 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57127 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57131 [200]: GET /debug/default/toolbar?tag=695d181394d9b
+[Tue Jan  6 17:11:31 2026] [::1]:57131 Closing
+[Tue Jan  6 17:11:31 2026] [::1]:57130 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57162 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57163 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57162 [200]: GET /admin/dev-tools/index
+[Tue Jan  6 17:11:43 2026] [::1]:57162 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57166 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57163 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:11:43 2026] [::1]:57167 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57166 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:11:43 2026] [::1]:57168 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57167 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:11:43 2026] [::1]:57169 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57168 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:11:43 2026] [::1]:57170 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57166 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57163 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57169 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:11:43 2026] [::1]:57171 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57167 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57170 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:11:43 2026] [::1]:57172 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57171 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:11:43 2026] [::1]:57168 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57173 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57172 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:11:43 2026] [::1]:57169 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57174 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57173 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:11:43 2026] [::1]:57170 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57175 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57174 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:11:43 2026] [::1]:57171 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57176 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57175 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:11:43 2026] [::1]:57172 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57177 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57176 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:11:43 2026] [::1]:57173 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57178 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57174 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57177 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:11:43 2026] [::1]:57179 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57175 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57178 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:11:43 2026] [::1]:57180 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57176 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57179 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:11:43 2026] [::1]:57180 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:11:43 2026] [::1]:57178 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57177 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57179 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57181 Accepted
+[Tue Jan  6 17:11:43 2026] [::1]:57181 [200]: GET /debug/default/toolbar?tag=695d181fab17e
+[Tue Jan  6 17:11:43 2026] [::1]:57181 Closing
+[Tue Jan  6 17:11:43 2026] [::1]:57180 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57195 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57196 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57195 [200]: GET /admin/settings
+[Tue Jan  6 17:11:48 2026] [::1]:57195 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57198 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57196 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:11:48 2026] [::1]:57199 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57198 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:11:48 2026] [::1]:57200 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57199 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:11:48 2026] [::1]:57201 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57200 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:11:48 2026] [::1]:57202 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57198 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57196 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57201 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:11:48 2026] [::1]:57203 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57199 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57202 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:11:48 2026] [::1]:57204 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57203 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:11:48 2026] [::1]:57200 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57205 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57204 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:11:48 2026] [::1]:57201 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57206 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57205 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:11:48 2026] [::1]:57202 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57207 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57206 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:11:48 2026] [::1]:57203 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57208 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57207 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:11:48 2026] [::1]:57204 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57209 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57208 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:11:48 2026] [::1]:57205 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57210 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57206 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57209 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:11:48 2026] [::1]:57207 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57210 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:11:48 2026] [::1]:57208 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57210 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57209 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57211 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57212 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57211 [200]: GET /assets/8e6e089b/yii.validation.js?v=1751010173
+[Tue Jan  6 17:11:48 2026] [::1]:57211 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57212 [200]: GET /assets/8e6e089b/yii.activeForm.js?v=1751010173
+[Tue Jan  6 17:11:48 2026] [::1]:57213 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57212 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57214 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57213 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:11:48 2026] [::1]:57215 Accepted
+[Tue Jan  6 17:11:48 2026] [::1]:57214 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:11:48 2026] [::1]:57215 [200]: GET /debug/default/toolbar?tag=695d18244dac5
+[Tue Jan  6 17:11:48 2026] [::1]:57215 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57213 Closing
+[Tue Jan  6 17:11:48 2026] [::1]:57214 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57221 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57222 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57221 [200]: GET /admin/profile
+[Tue Jan  6 17:11:50 2026] [::1]:57221 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57222 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:11:50 2026] [::1]:57222 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57224 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57225 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57224 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:11:50 2026] [::1]:57226 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57225 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:11:50 2026] [::1]:57227 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57226 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:11:50 2026] [::1]:57228 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57224 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57227 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:11:50 2026] [::1]:57229 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57225 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57228 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:11:50 2026] [::1]:57229 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:11:50 2026] [::1]:57226 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57227 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57228 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57229 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57230 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57231 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57230 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:11:50 2026] [::1]:57231 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:11:50 2026] [::1]:57232 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57230 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57231 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57233 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57232 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:11:50 2026] [::1]:57233 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:11:50 2026] [::1]:57234 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57232 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57233 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57234 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:11:50 2026] [::1]:57234 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57235 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57236 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57235 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:11:50 2026] [::1]:57236 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:11:50 2026] [::1]:57236 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57235 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57237 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57238 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57237 [200]: GET /assets/8e6e089b/yii.validation.js?v=1751010173
+[Tue Jan  6 17:11:50 2026] [::1]:57239 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57237 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57240 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57238 [200]: GET /assets/8e6e089b/yii.activeForm.js?v=1751010173
+[Tue Jan  6 17:11:50 2026] [::1]:57239 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:11:50 2026] [::1]:57238 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57239 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57241 Accepted
+[Tue Jan  6 17:11:50 2026] [::1]:57240 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:11:50 2026] [::1]:57241 [200]: GET /debug/default/toolbar?tag=695d18265f8bd
+[Tue Jan  6 17:11:50 2026] [::1]:57241 Closing
+[Tue Jan  6 17:11:50 2026] [::1]:57240 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57267 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57268 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57267 [200]: GET /admin/order
+[Tue Jan  6 17:11:59 2026] [::1]:57267 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57273 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57268 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:11:59 2026] [::1]:57274 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57273 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:11:59 2026] [::1]:57275 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57274 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:11:59 2026] [::1]:57276 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57275 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:11:59 2026] [::1]:57277 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57273 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57268 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57276 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:11:59 2026] [::1]:57278 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57274 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57277 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:11:59 2026] [::1]:57279 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57278 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:11:59 2026] [::1]:57275 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57280 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57279 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:11:59 2026] [::1]:57276 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57281 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57280 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:11:59 2026] [::1]:57277 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57282 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57281 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:11:59 2026] [::1]:57278 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57282 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:11:59 2026] [::1]:57279 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57283 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57280 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57284 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57281 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57282 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57283 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:11:59 2026] [::1]:57283 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57284 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:11:59 2026] [::1]:57284 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57285 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57286 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57285 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:11:59 2026] [::1]:57285 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57287 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57286 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:11:59 2026] [::1]:57287 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:11:59 2026] [::1]:57288 Accepted
+[Tue Jan  6 17:11:59 2026] [::1]:57286 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57288 [200]: GET /debug/default/toolbar?tag=695d182f65762
+[Tue Jan  6 17:11:59 2026] [::1]:57288 Closing
+[Tue Jan  6 17:11:59 2026] [::1]:57287 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57359 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57360 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57359 [200]: GET /admin/order/5
+[Tue Jan  6 17:12:26 2026] [::1]:57359 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57362 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57360 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:12:26 2026] [::1]:57363 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57362 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:12:26 2026] [::1]:57364 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57363 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:12:26 2026] [::1]:57365 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57364 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:12:26 2026] [::1]:57366 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57362 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57360 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57365 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:12:26 2026] [::1]:57363 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57366 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:12:26 2026] [::1]:57364 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57365 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57367 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57366 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57368 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57367 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:12:26 2026] [::1]:57369 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57368 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:12:26 2026] [::1]:57370 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57369 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:12:26 2026] [::1]:57371 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57367 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57370 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:12:26 2026] [::1]:57372 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57368 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57371 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:12:26 2026] [::1]:57373 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57372 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:12:26 2026] [::1]:57369 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57374 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57373 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:12:26 2026] [::1]:57370 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57375 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57374 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:12:26 2026] [::1]:57371 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57376 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57375 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:12:26 2026] [::1]:57372 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57376 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:12:26 2026] [::1]:57377 Accepted
+[Tue Jan  6 17:12:26 2026] [::1]:57374 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57375 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57373 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57377 [200]: GET /debug/default/toolbar?tag=695d184ab45ca
+[Tue Jan  6 17:12:26 2026] [::1]:57377 Closing
+[Tue Jan  6 17:12:26 2026] [::1]:57376 Closing
+[Tue Jan  6 17:12:30 2026] [::1]:57390 Accepted
+[Tue Jan  6 17:12:30 2026] [::1]:57391 Accepted
+[Tue Jan  6 17:12:30 2026] [::1]:57390 [200]: GET /admin/order
+[Tue Jan  6 17:12:30 2026] [::1]:57390 Closing
+[Tue Jan  6 17:12:30 2026] [::1]:57391 [200]: GET /debug/default/toolbar?tag=695d184e04fd5
+[Tue Jan  6 17:12:30 2026] [::1]:57391 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58188 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58189 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58188 [200]: GET /admin/order/5
+[Tue Jan  6 17:17:26 2026] [::1]:58188 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58189 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:17:26 2026] [::1]:58189 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58191 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58192 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58191 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:17:26 2026] [::1]:58193 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58192 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:17:26 2026] [::1]:58194 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58193 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:17:26 2026] [::1]:58195 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58191 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58194 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:17:26 2026] [::1]:58196 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58192 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58195 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:17:26 2026] [::1]:58197 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58196 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:17:26 2026] [::1]:58193 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58198 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58197 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:17:26 2026] [::1]:58194 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58199 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58198 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:17:26 2026] [::1]:58195 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58200 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58199 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:17:26 2026] [::1]:58196 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58201 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58200 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:17:26 2026] [::1]:58197 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58202 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58201 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:17:26 2026] [::1]:58198 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58199 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58202 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:17:26 2026] [::1]:58200 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58203 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58201 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58204 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58203 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:17:26 2026] [::1]:58205 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58204 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:17:26 2026] [::1]:58206 Accepted
+[Tue Jan  6 17:17:26 2026] [::1]:58202 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58205 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:17:26 2026] [::1]:58203 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58206 [200]: GET /debug/default/toolbar?tag=695d197693cb8
+[Tue Jan  6 17:17:26 2026] [::1]:58206 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58204 Closing
+[Tue Jan  6 17:17:26 2026] [::1]:58205 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58235 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58236 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58235 [200]: GET /admin/order
+[Tue Jan  6 17:17:36 2026] [::1]:58235 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58238 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58236 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:17:36 2026] [::1]:58239 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58238 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:17:36 2026] [::1]:58240 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58239 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:17:36 2026] [::1]:58241 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58240 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:17:36 2026] [::1]:58242 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58238 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58236 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58241 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:17:36 2026] [::1]:58239 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58242 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:17:36 2026] [::1]:58240 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58241 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58243 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58242 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58244 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58243 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:17:36 2026] [::1]:58245 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58244 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:17:36 2026] [::1]:58246 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58247 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58243 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58245 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:17:36 2026] [::1]:58246 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:17:36 2026] [::1]:58248 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58244 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58247 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:17:36 2026] [::1]:58249 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58248 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:17:36 2026] [::1]:58245 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58249 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:17:36 2026] [::1]:58246 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58247 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58248 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58249 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58250 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58251 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58250 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:17:36 2026] [::1]:58252 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58251 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:17:36 2026] [::1]:58253 Accepted
+[Tue Jan  6 17:17:36 2026] [::1]:58252 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:17:36 2026] [::1]:58250 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58253 [200]: GET /debug/default/toolbar?tag=695d19808fd12
+[Tue Jan  6 17:17:36 2026] [::1]:58253 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58251 Closing
+[Tue Jan  6 17:17:36 2026] [::1]:58252 Closing
+[Tue Jan  6 17:17:38 2026] [::1]:58259 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58260 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58259 [200]: GET /admin/order/create
+[Tue Jan  6 17:17:39 2026] [::1]:58259 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58263 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58260 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:17:39 2026] [::1]:58264 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58263 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:17:39 2026] [::1]:58265 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58264 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:17:39 2026] [::1]:58266 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58265 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:17:39 2026] [::1]:58267 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58263 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58260 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58266 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:17:39 2026] [::1]:58268 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58264 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58267 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:17:39 2026] [::1]:58269 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58268 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:17:39 2026] [::1]:58265 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58270 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58269 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:17:39 2026] [::1]:58266 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58271 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58270 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:17:39 2026] [::1]:58267 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58272 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58271 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:17:39 2026] [::1]:58268 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58272 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:17:39 2026] [::1]:58269 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58273 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58270 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58274 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58271 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58273 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:17:39 2026] [::1]:58275 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58272 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58274 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:17:39 2026] [::1]:58276 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58275 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:17:39 2026] [::1]:58277 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58276 [200]: GET /assets/8e6e089b/yii.activeForm.js?v=1751010173
+[Tue Jan  6 17:17:39 2026] [::1]:58273 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58278 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58277 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:17:39 2026] [::1]:58279 Accepted
+[Tue Jan  6 17:17:39 2026] [::1]:58278 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:17:39 2026] [::1]:58275 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58276 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58274 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58279 [200]: GET /debug/default/toolbar?tag=695d198317786
+[Tue Jan  6 17:17:39 2026] [::1]:58279 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58277 Closing
+[Tue Jan  6 17:17:39 2026] [::1]:58278 Closing
+[Tue Jan  6 17:17:51 2026] [::1]:58314 Accepted
+[Tue Jan  6 17:17:51 2026] [::1]:58315 Accepted
+[Tue Jan  6 17:17:51 2026] [::1]:58314 [200]: GET /admin/order
+[Tue Jan  6 17:17:51 2026] [::1]:58314 Closing
+[Tue Jan  6 17:17:51 2026] [::1]:58315 [200]: GET /debug/default/toolbar?tag=695d198fcdab9
+[Tue Jan  6 17:17:51 2026] [::1]:58315 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58327 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58328 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58327 [200]: GET /admin/order
+[Tue Jan  6 17:17:54 2026] [::1]:58327 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58330 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58328 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:17:54 2026] [::1]:58331 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58330 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:17:54 2026] [::1]:58332 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58331 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:17:54 2026] [::1]:58333 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58332 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:17:54 2026] [::1]:58334 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58330 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58328 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58333 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:17:54 2026] [::1]:58335 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58331 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58334 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:17:54 2026] [::1]:58336 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58335 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:17:54 2026] [::1]:58332 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58337 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58336 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:17:54 2026] [::1]:58333 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58338 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58337 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:17:54 2026] [::1]:58334 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58339 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58338 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:17:54 2026] [::1]:58335 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58339 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:17:54 2026] [::1]:58336 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58340 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58337 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58341 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58338 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58340 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:17:54 2026] [::1]:58342 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58339 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58341 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:17:54 2026] [::1]:58343 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58342 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:17:54 2026] [::1]:58344 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58340 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58343 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:17:54 2026] [::1]:58342 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58341 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58344 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:17:54 2026] [::1]:58343 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58344 Closing
+[Tue Jan  6 17:17:54 2026] [::1]:58345 Accepted
+[Tue Jan  6 17:17:54 2026] [::1]:58345 [200]: GET /debug/default/toolbar?tag=695d199247d03
+[Tue Jan  6 17:17:54 2026] [::1]:58345 Closing
+[Tue Jan  6 17:17:55 2026] [::1]:58350 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58351 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58350 [200]: GET /admin/product
+[Tue Jan  6 17:17:55 2026] [::1]:58350 Closing
+[Tue Jan  6 17:17:55 2026] [::1]:58353 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58351 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:17:55 2026] [::1]:58354 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58353 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:17:55 2026] [::1]:58355 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58354 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:17:55 2026] [::1]:58356 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58355 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:17:55 2026] [::1]:58357 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58353 Closing
+[Tue Jan  6 17:17:55 2026] [::1]:58351 Closing
+[Tue Jan  6 17:17:55 2026] [::1]:58356 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:17:55 2026] [::1]:58358 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58354 Closing
+[Tue Jan  6 17:17:55 2026] [::1]:58357 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:17:55 2026] [::1]:58359 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58358 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:17:55 2026] [::1]:58355 Closing
+[Tue Jan  6 17:17:55 2026] [::1]:58360 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58359 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:17:55 2026] [::1]:58356 Closing
+[Tue Jan  6 17:17:55 2026] [::1]:58361 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58360 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:17:55 2026] [::1]:58357 Closing
+[Tue Jan  6 17:17:55 2026] [::1]:58362 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58361 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:17:55 2026] [::1]:58358 Closing
+[Tue Jan  6 17:17:55 2026] [::1]:58362 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:17:55 2026] [::1]:58359 Closing
+[Tue Jan  6 17:17:55 2026] [::1]:58360 Closing
+[Tue Jan  6 17:17:55 2026] [::1]:58361 Closing
+[Tue Jan  6 17:17:55 2026] [::1]:58362 Closing
+[Tue Jan  6 17:17:55 2026] [::1]:58363 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58363 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:17:55 2026] [::1]:58364 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58365 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58364 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:17:55 2026] [::1]:58366 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58363 Closing
+[Tue Jan  6 17:17:55 2026] [::1]:58365 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:17:55 2026] [::1]:58367 Accepted
+[Tue Jan  6 17:17:55 2026] [::1]:58366 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:17:55 2026] [::1]:58367 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:17:55 2026] [::1]:58365 Closing
+[Tue Jan  6 17:17:56 2026] [::1]:58364 Closing
+[Tue Jan  6 17:17:56 2026] [::1]:58366 Closing
+[Tue Jan  6 17:17:56 2026] [::1]:58368 Accepted
+[Tue Jan  6 17:17:56 2026] [::1]:58368 [200]: GET /debug/default/toolbar?tag=695d1993c7dea
+[Tue Jan  6 17:17:56 2026] [::1]:58368 Closing
+[Tue Jan  6 17:17:56 2026] [::1]:58367 Closing
+[Tue Jan  6 17:18:00 2026] [::1]:58390 Accepted
+[Tue Jan  6 17:18:00 2026] [::1]:58391 Accepted
+[Tue Jan  6 17:18:00 2026] [::1]:58390 [200]: GET /admin/product/679
+[Tue Jan  6 17:18:00 2026] [::1]:58390 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58391 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:18:01 2026] [::1]:58391 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58396 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58397 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58396 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:18:01 2026] [::1]:58398 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58397 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:18:01 2026] [::1]:58399 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58398 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:18:01 2026] [::1]:58400 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58396 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58399 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:18:01 2026] [::1]:58404 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58397 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58400 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:18:01 2026] [::1]:58405 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58404 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:18:01 2026] [::1]:58398 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58406 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58405 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:18:01 2026] [::1]:58399 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58407 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58406 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:18:01 2026] [::1]:58400 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58408 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58407 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:18:01 2026] [::1]:58404 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58405 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58406 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58407 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58408 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:18:01 2026] [::1]:58409 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58410 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58408 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58409 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:18:01 2026] [::1]:58411 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58410 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:18:01 2026] [::1]:58412 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58411 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:18:01 2026] [::1]:58413 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58409 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58412 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:18:01 2026] [::1]:58413 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:18:01 2026] [::1]:58411 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58410 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58412 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58413 Closing
+[Tue Jan  6 17:18:01 2026] [::1]:58414 Accepted
+[Tue Jan  6 17:18:01 2026] [::1]:58414 [200]: GET /debug/default/toolbar?tag=695d1998e4afb
+[Tue Jan  6 17:18:01 2026] [::1]:58414 Closing
+[Tue Jan  6 17:18:18 2026] [::1]:58466 Accepted
+[Tue Jan  6 17:18:18 2026] [::1]:58467 Accepted
+[Tue Jan  6 17:18:18 2026] [::1]:58466 [200]: GET /admin/product
+[Tue Jan  6 17:18:18 2026] [::1]:58466 Closing
+[Tue Jan  6 17:18:18 2026] [::1]:58467 [200]: GET /debug/default/toolbar?tag=695d19aabc5cf
+[Tue Jan  6 17:18:18 2026] [::1]:58467 Closing
+[Tue Jan  6 17:18:23 2026] [::1]:58482 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58483 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58482 [200]: GET /admin/product/674
+[Tue Jan  6 17:18:24 2026] [::1]:58482 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58485 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58483 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:18:24 2026] [::1]:58486 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58485 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:18:24 2026] [::1]:58487 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58486 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:18:24 2026] [::1]:58488 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58487 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:18:24 2026] [::1]:58489 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58485 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58483 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58488 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:18:24 2026] [::1]:58486 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58489 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:18:24 2026] [::1]:58493 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58487 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58488 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58489 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58494 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58493 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:18:24 2026] [::1]:58495 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58494 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:18:24 2026] [::1]:58496 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58495 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:18:24 2026] [::1]:58497 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58493 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58496 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:18:24 2026] [::1]:58498 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58494 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58497 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:18:24 2026] [::1]:58499 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58498 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:18:24 2026] [::1]:58495 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58500 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58499 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:18:24 2026] [::1]:58496 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58501 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58500 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:18:24 2026] [::1]:58497 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58502 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58501 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:18:24 2026] [::1]:58498 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58502 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:18:24 2026] [::1]:58500 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58501 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58499 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58502 Closing
+[Tue Jan  6 17:18:24 2026] [::1]:58504 Accepted
+[Tue Jan  6 17:18:24 2026] [::1]:58504 [200]: GET /debug/default/toolbar?tag=695d19b017c3a
+[Tue Jan  6 17:18:24 2026] [::1]:58504 Closing
+[Tue Jan  6 17:18:31 2026] [::1]:58523 Accepted
+[Tue Jan  6 17:18:31 2026] [::1]:58524 Accepted
+[Tue Jan  6 17:18:31 2026] [::1]:58523 [200]: GET /admin/product
+[Tue Jan  6 17:18:31 2026] [::1]:58523 Closing
+[Tue Jan  6 17:18:31 2026] [::1]:58524 [200]: GET /debug/default/toolbar?tag=695d19b79163e
+[Tue Jan  6 17:18:31 2026] [::1]:58524 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58557 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58558 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58557 [200]: GET /admin/product?page=2&per-page=50
+[Tue Jan  6 17:18:43 2026] [::1]:58557 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58565 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58558 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:18:43 2026] [::1]:58566 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58565 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:18:43 2026] [::1]:58567 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58566 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:18:43 2026] [::1]:58568 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58567 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:18:43 2026] [::1]:58569 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58565 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58558 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58568 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:18:43 2026] [::1]:58570 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58566 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58569 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:18:43 2026] [::1]:58570 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:18:43 2026] [::1]:58567 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58571 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58568 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58572 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58569 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58570 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58573 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58572 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:18:43 2026] [::1]:58571 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:18:43 2026] [::1]:58574 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58573 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:18:43 2026] [::1]:58575 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58574 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:18:43 2026] [::1]:58576 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58572 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58571 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58575 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:18:43 2026] [::1]:58577 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58573 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58576 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:18:43 2026] [::1]:58578 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58577 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:18:43 2026] [::1]:58574 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58579 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58578 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:18:43 2026] [::1]:58575 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58579 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:18:43 2026] [::1]:58577 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58580 Accepted
+[Tue Jan  6 17:18:43 2026] [::1]:58578 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58576 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58580 [200]: GET /debug/default/toolbar?tag=695d19c35020a
+[Tue Jan  6 17:18:43 2026] [::1]:58580 Closing
+[Tue Jan  6 17:18:43 2026] [::1]:58579 Closing
+[Tue Jan  6 17:19:00 2026] [::1]:58627 Accepted
+[Tue Jan  6 17:19:00 2026] [::1]:58628 Accepted
+[Tue Jan  6 17:19:00 2026] [::1]:58627 [500]: GET /admin/size-grid
+[Tue Jan  6 17:19:00 2026] [::1]:58627 Closing
+[Tue Jan  6 17:19:00 2026] [::1]:58628 [200]: GET /debug/default/toolbar?tag=695d19d44e0e8
+[Tue Jan  6 17:19:00 2026] [::1]:58628 Closing
+[Tue Jan  6 17:19:01 2026] [::1]:58633 Accepted
+[Tue Jan  6 17:19:01 2026] [::1]:58634 Accepted
+[Tue Jan  6 17:19:01 2026] [::1]:58633 [200]: GET /admin/product?page=2&per-page=50
+[Tue Jan  6 17:19:01 2026] [::1]:58633 Closing
+[Tue Jan  6 17:19:01 2026] [::1]:58634 [200]: GET /debug/default/toolbar?tag=695d19d56258e
+[Tue Jan  6 17:19:01 2026] [::1]:58634 Closing
+[Tue Jan  6 17:19:05 2026] [::1]:58655 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58656 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58655 [200]: GET /admin/tariff
+[Tue Jan  6 17:19:06 2026] [::1]:58655 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58656 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:19:06 2026] [::1]:58660 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58661 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58660 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:19:06 2026] [::1]:58662 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58661 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:19:06 2026] [::1]:58663 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58656 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58662 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:19:06 2026] [::1]:58664 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58660 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58663 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:19:06 2026] [::1]:58665 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58664 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:19:06 2026] [::1]:58661 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58666 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58665 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:19:06 2026] [::1]:58662 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58667 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58666 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:19:06 2026] [::1]:58663 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58668 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58667 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:19:06 2026] [::1]:58664 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58669 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58668 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:19:06 2026] [::1]:58665 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58670 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58669 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:19:06 2026] [::1]:58666 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58667 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58670 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:19:06 2026] [::1]:58668 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58671 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58669 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58672 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58671 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:19:06 2026] [::1]:58670 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58673 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58672 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:19:06 2026] [::1]:58674 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58673 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:19:06 2026] [::1]:58672 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58674 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:19:06 2026] [::1]:58671 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58673 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58675 Accepted
+[Tue Jan  6 17:19:06 2026] [::1]:58675 [200]: GET /debug/default/toolbar?tag=695d19da0886b
+[Tue Jan  6 17:19:06 2026] [::1]:58675 Closing
+[Tue Jan  6 17:19:06 2026] [::1]:58674 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58696 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58698 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58696 [200]: GET /admin
+[Tue Jan  6 17:19:14 2026] [::1]:58696 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58700 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58698 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:19:14 2026] [::1]:58701 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58700 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:19:14 2026] [::1]:58702 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58701 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:19:14 2026] [::1]:58703 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58702 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:19:14 2026] [::1]:58704 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58700 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58698 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58703 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:19:14 2026] [::1]:58701 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58704 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:19:14 2026] [::1]:58705 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58702 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58703 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58706 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58705 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:19:14 2026] [::1]:58704 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58707 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58706 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:19:14 2026] [::1]:58708 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58707 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:19:14 2026] [::1]:58709 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58705 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58708 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:19:14 2026] [::1]:58710 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58706 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58709 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:19:14 2026] [::1]:58707 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58710 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:19:14 2026] [::1]:58708 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58709 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58710 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58711 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58712 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58711 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:19:14 2026] [::1]:58713 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58712 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:19:14 2026] [::1]:58714 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58713 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:19:14 2026] [::1]:58714 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:19:14 2026] [::1]:58712 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58711 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58713 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58714 Closing
+[Tue Jan  6 17:19:14 2026] [::1]:58715 Accepted
+[Tue Jan  6 17:19:14 2026] [::1]:58715 [200]: GET /debug/default/toolbar?tag=695d19e286e82
+[Tue Jan  6 17:19:14 2026] [::1]:58715 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58722 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58723 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58722 [200]: GET /admin/order/create
+[Tue Jan  6 17:19:16 2026] [::1]:58722 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58725 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58723 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:19:16 2026] [::1]:58726 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58725 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:19:16 2026] [::1]:58727 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58726 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:19:16 2026] [::1]:58728 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58727 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:19:16 2026] [::1]:58729 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58725 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58723 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58728 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:19:16 2026] [::1]:58730 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58726 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58729 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:19:16 2026] [::1]:58731 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58730 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:19:16 2026] [::1]:58727 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58732 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58731 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:19:16 2026] [::1]:58728 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58733 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58732 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:19:16 2026] [::1]:58729 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58734 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58733 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:19:16 2026] [::1]:58730 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58735 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58734 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:19:16 2026] [::1]:58731 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58735 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:19:16 2026] [::1]:58732 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58736 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58733 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58737 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58734 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58736 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:19:16 2026] [::1]:58738 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58737 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:19:16 2026] [::1]:58735 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58739 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58738 [200]: GET /assets/8e6e089b/yii.activeForm.js?v=1751010173
+[Tue Jan  6 17:19:16 2026] [::1]:58740 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58739 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:19:16 2026] [::1]:58741 Accepted
+[Tue Jan  6 17:19:16 2026] [::1]:58737 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58740 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:19:16 2026] [::1]:58738 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58736 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58741 [200]: GET /debug/default/toolbar?tag=695d19e4c9346
+[Tue Jan  6 17:19:16 2026] [::1]:58741 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58739 Closing
+[Tue Jan  6 17:19:16 2026] [::1]:58740 Closing
+[Tue Jan  6 17:19:17 2026] [::1]:58747 Accepted
+[Tue Jan  6 17:19:17 2026] [::1]:58748 Accepted
+[Tue Jan  6 17:19:17 2026] [::1]:58747 [200]: GET /admin
+[Tue Jan  6 17:19:17 2026] [::1]:58747 Closing
+[Tue Jan  6 17:19:17 2026] [::1]:58748 [200]: GET /debug/default/toolbar?tag=695d19e59a553
+[Tue Jan  6 17:19:17 2026] [::1]:58748 Closing
+[Tue Jan  6 17:19:18 2026] [::1]:58752 Accepted
+[Tue Jan  6 17:19:18 2026] [::1]:58753 Accepted
+[Tue Jan  6 17:19:18 2026] [::1]:58752 [200]: GET /admin/analytics
+[Tue Jan  6 17:19:18 2026] [::1]:58752 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58755 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58753 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:19:19 2026] [::1]:58756 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58755 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:19:19 2026] [::1]:58757 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58756 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:19:19 2026] [::1]:58758 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58757 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:19:19 2026] [::1]:58759 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58755 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58753 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58758 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:19:19 2026] [::1]:58760 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58756 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58759 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:19:19 2026] [::1]:58761 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58760 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:19:19 2026] [::1]:58757 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58762 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58761 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:19:19 2026] [::1]:58758 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58763 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58762 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:19:19 2026] [::1]:58759 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58764 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58763 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:19:19 2026] [::1]:58760 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58765 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58764 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:19:19 2026] [::1]:58761 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58765 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:19:19 2026] [::1]:58762 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58763 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58766 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58764 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58767 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58766 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:19:19 2026] [::1]:58765 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58767 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:19:19 2026] [::1]:58768 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58769 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58768 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:19:19 2026] [::1]:58770 Accepted
+[Tue Jan  6 17:19:19 2026] [::1]:58767 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58769 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:19:19 2026] [::1]:58766 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58770 [200]: GET /debug/default/toolbar?tag=695d19e6e1714
+[Tue Jan  6 17:19:19 2026] [::1]:58770 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58768 Closing
+[Tue Jan  6 17:19:19 2026] [::1]:58769 Closing
+[Tue Jan  6 17:19:23 2026] [::1]:58782 Accepted
+[Tue Jan  6 17:19:23 2026] [::1]:58783 Accepted
+[Tue Jan  6 17:19:23 2026] [::1]:58782 [200]: GET /admin
+[Tue Jan  6 17:19:23 2026] [::1]:58782 Closing
+[Tue Jan  6 17:19:23 2026] [::1]:58783 [200]: GET /debug/default/toolbar?tag=695d19eb28bc2
+[Tue Jan  6 17:19:23 2026] [::1]:58783 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58849 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58850 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58849 [200]: GET /admin?tariff_id=2&price_cny=300&weight_kg=0.5&note=
+[Tue Jan  6 17:19:47 2026] [::1]:58849 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58852 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58850 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:19:47 2026] [::1]:58853 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58852 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:19:47 2026] [::1]:58854 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58853 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:19:47 2026] [::1]:58855 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58854 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:19:47 2026] [::1]:58856 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58852 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58850 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58855 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:19:47 2026] [::1]:58857 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58853 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58856 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:19:47 2026] [::1]:58858 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58857 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:19:47 2026] [::1]:58854 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58859 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58858 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:19:47 2026] [::1]:58855 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58860 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58859 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:19:47 2026] [::1]:58856 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58861 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58860 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:19:47 2026] [::1]:58857 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58862 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58861 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:19:47 2026] [::1]:58858 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58862 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:19:47 2026] [::1]:58859 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58860 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58863 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58861 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58862 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58864 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58863 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:19:47 2026] [::1]:58864 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:19:47 2026] [::1]:58864 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58863 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58865 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58866 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58865 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:19:47 2026] [::1]:58867 Accepted
+[Tue Jan  6 17:19:47 2026] [::1]:58866 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:19:47 2026] [::1]:58867 [200]: GET /debug/default/toolbar?tag=695d1a03bd369
+[Tue Jan  6 17:19:47 2026] [::1]:58867 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58865 Closing
+[Tue Jan  6 17:19:47 2026] [::1]:58866 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58877 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58878 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58877 [200]: GET /admin?tariff_id=3&price_cny=300&weight_kg=0.5&note=
+[Tue Jan  6 17:19:51 2026] [::1]:58877 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58880 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58878 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:19:51 2026] [::1]:58881 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58880 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:19:51 2026] [::1]:58882 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58881 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:19:51 2026] [::1]:58883 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58882 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:19:51 2026] [::1]:58884 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58880 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58878 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58883 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:19:51 2026] [::1]:58885 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58881 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58884 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:19:51 2026] [::1]:58886 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58885 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:19:51 2026] [::1]:58882 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58887 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58886 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:19:51 2026] [::1]:58883 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58888 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58887 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:19:51 2026] [::1]:58884 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58889 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58888 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:19:51 2026] [::1]:58885 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58890 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58889 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:19:51 2026] [::1]:58886 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58890 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:19:51 2026] [::1]:58887 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58888 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58889 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58890 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58891 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58892 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58891 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:19:51 2026] [::1]:58893 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58892 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:19:51 2026] [::1]:58894 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58893 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:19:51 2026] [::1]:58895 Accepted
+[Tue Jan  6 17:19:51 2026] [::1]:58894 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:19:51 2026] [::1]:58892 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58895 [200]: GET /debug/default/toolbar?tag=695d1a07bb4a1
+[Tue Jan  6 17:19:51 2026] [::1]:58895 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58891 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58893 Closing
+[Tue Jan  6 17:19:51 2026] [::1]:58894 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58908 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58909 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58908 [200]: GET /admin/tariff
+[Tue Jan  6 17:19:56 2026] [::1]:58908 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58911 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58909 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:19:56 2026] [::1]:58912 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58911 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:19:56 2026] [::1]:58913 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58912 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:19:56 2026] [::1]:58914 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58913 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:19:56 2026] [::1]:58915 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58911 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58909 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58914 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:19:56 2026] [::1]:58916 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58912 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58915 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:19:56 2026] [::1]:58917 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58916 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:19:56 2026] [::1]:58913 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58918 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58917 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:19:56 2026] [::1]:58914 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58919 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58918 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:19:56 2026] [::1]:58915 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58921 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58919 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:19:56 2026] [::1]:58916 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58922 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58921 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:19:56 2026] [::1]:58917 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58922 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:19:56 2026] [::1]:58918 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58923 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58919 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58921 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58922 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58923 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:19:56 2026] [::1]:58923 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58924 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58924 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:19:56 2026] [::1]:58925 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58925 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:19:56 2026] [::1]:58924 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58926 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58925 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58926 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:19:56 2026] [::1]:58927 Accepted
+[Tue Jan  6 17:19:56 2026] [::1]:58927 [200]: GET /debug/default/toolbar?tag=695d1a0c3f115
+[Tue Jan  6 17:19:56 2026] [::1]:58927 Closing
+[Tue Jan  6 17:19:56 2026] [::1]:58926 Closing
+[Tue Jan  6 17:19:58 2026] [::1]:58935 Accepted
+[Tue Jan  6 17:19:58 2026] [::1]:58935 [200]: POST /admin/tariff/calculate
+[Tue Jan  6 17:19:58 2026] [::1]:58935 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60446 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60448 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60446 [200]: GET /admin/customer
+[Tue Jan  6 17:28:18 2026] [::1]:60446 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60450 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60448 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:28:18 2026] [::1]:60451 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60450 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:28:18 2026] [::1]:60452 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60451 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:28:18 2026] [::1]:60453 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60452 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:28:18 2026] [::1]:60454 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60450 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60448 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60453 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:28:18 2026] [::1]:60455 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60451 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60454 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:28:18 2026] [::1]:60457 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60455 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:28:18 2026] [::1]:60452 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60458 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60457 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:28:18 2026] [::1]:60453 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60459 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60458 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:28:18 2026] [::1]:60454 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60460 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60459 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:28:18 2026] [::1]:60455 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60461 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60460 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:28:18 2026] [::1]:60457 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60462 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60461 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:28:18 2026] [::1]:60458 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60463 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60459 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60462 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:28:18 2026] [::1]:60464 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60460 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60463 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:28:18 2026] [::1]:60465 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60461 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60464 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:28:18 2026] [::1]:60465 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:28:18 2026] [::1]:60463 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60462 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60464 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60466 Accepted
+[Tue Jan  6 17:28:18 2026] [::1]:60466 [200]: GET /debug/default/toolbar?tag=695d1c02341b6
+[Tue Jan  6 17:28:18 2026] [::1]:60466 Closing
+[Tue Jan  6 17:28:18 2026] [::1]:60465 Closing
+[Tue Jan  6 17:33:19 2026] [::1]:61445 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61446 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61445 [200]: GET /admin/profile
+[Tue Jan  6 17:33:20 2026] [::1]:61445 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61446 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:33:20 2026] [::1]:61448 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61449 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61446 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61448 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:33:20 2026] [::1]:61450 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61449 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:33:20 2026] [::1]:61451 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61450 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:33:20 2026] [::1]:61452 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61448 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61451 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:33:20 2026] [::1]:61453 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61449 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61452 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:33:20 2026] [::1]:61454 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61450 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61453 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:33:20 2026] [::1]:61455 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61454 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:33:20 2026] [::1]:61451 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61456 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61455 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:33:20 2026] [::1]:61452 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61457 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61456 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:33:20 2026] [::1]:61453 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61458 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61457 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:33:20 2026] [::1]:61454 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61458 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:33:20 2026] [::1]:61455 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61459 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61456 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61457 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61459 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:33:20 2026] [::1]:61460 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61458 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61461 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61460 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:33:20 2026] [::1]:61462 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61461 [200]: GET /assets/8e6e089b/yii.validation.js?v=1751010173
+[Tue Jan  6 17:33:20 2026] [::1]:61463 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61462 [200]: GET /assets/8e6e089b/yii.activeForm.js?v=1751010173
+[Tue Jan  6 17:33:20 2026] [::1]:61464 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61460 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61459 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61463 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:33:20 2026] [::1]:61465 Accepted
+[Tue Jan  6 17:33:20 2026] [::1]:61461 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61464 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:33:20 2026] [::1]:61465 [200]: GET /debug/default/toolbar?tag=695d1d3004ea4
+[Tue Jan  6 17:33:20 2026] [::1]:61465 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61462 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61463 Closing
+[Tue Jan  6 17:33:20 2026] [::1]:61464 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61504 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61505 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61504 [404]: GET /admin/help
+[Tue Jan  6 17:33:33 2026] [::1]:61504 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61508 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61505 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:33:33 2026] [::1]:61509 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61508 [200]: GET /css/critical.css?v=1766747016
+[Tue Jan  6 17:33:33 2026] [::1]:61510 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61509 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:33:33 2026] [::1]:61511 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61510 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:33:33 2026] [::1]:61512 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61508 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61505 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61511 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:33:33 2026] [::1]:61513 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61509 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61512 [200]: GET /css/header-adaptive.css?v=1766914290
+[Tue Jan  6 17:33:33 2026] [::1]:61514 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61513 [200]: GET /css/mobile-menu.css?v=1762701633
+[Tue Jan  6 17:33:33 2026] [::1]:61510 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61515 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61514 [200]: GET /css/page-404.css?v=1762730625
+[Tue Jan  6 17:33:33 2026] [::1]:61511 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61516 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61515 [200]: GET /css/public-layout.css?v=1766932010
+[Tue Jan  6 17:33:33 2026] [::1]:61512 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61517 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61516 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:33:33 2026] [::1]:61513 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61518 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61517 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:33:33 2026] [::1]:61514 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61519 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61518 [200]: GET /js/mobile-menu.js?v=1762700960
+[Tue Jan  6 17:33:33 2026] [::1]:61515 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61520 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61519 [200]: GET /js/public-layout.js?v=1766337393
+[Tue Jan  6 17:33:33 2026] [::1]:61517 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61520 [200]: GET /js/notifications.js?v=1766348203
+[Tue Jan  6 17:33:33 2026] [::1]:61516 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61518 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61519 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61520 Closing
+[Tue Jan  6 17:33:33 2026] [::1]:61521 Accepted
+[Tue Jan  6 17:33:33 2026] [::1]:61521 [200]: GET /debug/default/toolbar?tag=695d1d3d57aec
+[Tue Jan  6 17:33:33 2026] [::1]:61521 Closing
+[Tue Jan  6 17:33:36 2026] [::1]:61535 Accepted
+[Tue Jan  6 17:33:36 2026] [::1]:61536 Accepted
+[Tue Jan  6 17:33:36 2026] [::1]:61535 [200]: GET /admin/profile
+[Tue Jan  6 17:33:36 2026] [::1]:61535 Closing
+[Tue Jan  6 17:33:36 2026] [::1]:61536 [200]: GET /debug/default/toolbar?tag=695d1d40bfd8b
+[Tue Jan  6 17:33:36 2026] [::1]:61536 Closing
+[Tue Jan  6 17:33:47 2026] [::1]:61567 Accepted
+[Tue Jan  6 17:33:47 2026] [::1]:61568 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61567 [200]: GET /admin/product
+[Tue Jan  6 17:33:48 2026] [::1]:61567 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61570 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61568 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:33:48 2026] [::1]:61571 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61570 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:33:48 2026] [::1]:61572 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61571 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:33:48 2026] [::1]:61573 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61572 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:33:48 2026] [::1]:61574 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61570 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61568 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61573 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:33:48 2026] [::1]:61575 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61571 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61574 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:33:48 2026] [::1]:61576 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61575 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:33:48 2026] [::1]:61572 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61577 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61576 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:33:48 2026] [::1]:61573 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61578 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61577 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:33:48 2026] [::1]:61574 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61579 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61578 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:33:48 2026] [::1]:61575 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61580 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61579 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:33:48 2026] [::1]:61576 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61580 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:33:48 2026] [::1]:61577 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61578 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61579 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61581 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61580 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61582 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61581 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:33:48 2026] [::1]:61583 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61582 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:33:48 2026] [::1]:61584 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61583 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:33:48 2026] [::1]:61584 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:33:48 2026] [::1]:61582 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61585 Accepted
+[Tue Jan  6 17:33:48 2026] [::1]:61581 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61583 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61585 [200]: GET /debug/default/toolbar?tag=695d1d4bf1a3a
+[Tue Jan  6 17:33:48 2026] [::1]:61585 Closing
+[Tue Jan  6 17:33:48 2026] [::1]:61584 Closing
+[Tue Jan  6 17:33:54 2026] [::1]:61609 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61610 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61609 [200]: GET /admin/order
+[Tue Jan  6 17:33:55 2026] [::1]:61609 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61612 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61610 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:33:55 2026] [::1]:61613 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61612 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:33:55 2026] [::1]:61614 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61613 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:33:55 2026] [::1]:61615 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61614 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:33:55 2026] [::1]:61616 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61612 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61610 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61615 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:33:55 2026] [::1]:61617 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61613 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61616 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:33:55 2026] [::1]:61618 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61617 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:33:55 2026] [::1]:61614 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61619 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61618 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:33:55 2026] [::1]:61615 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61620 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61619 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:33:55 2026] [::1]:61616 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61621 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61620 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:33:55 2026] [::1]:61617 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61622 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61621 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:33:55 2026] [::1]:61618 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61622 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:33:55 2026] [::1]:61619 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61620 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61621 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61623 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61622 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61624 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61623 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:33:55 2026] [::1]:61625 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61624 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:33:55 2026] [::1]:61626 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61625 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:33:55 2026] [::1]:61626 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:33:55 2026] [::1]:61627 Accepted
+[Tue Jan  6 17:33:55 2026] [::1]:61624 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61623 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61625 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61627 [200]: GET /debug/default/toolbar?tag=695d1d53060c9
+[Tue Jan  6 17:33:55 2026] [::1]:61627 Closing
+[Tue Jan  6 17:33:55 2026] [::1]:61626 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61632 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61633 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61632 [200]: GET /admin/order/5
+[Tue Jan  6 17:33:57 2026] [::1]:61632 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61636 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61633 [200]: GET /assets/293118c7/css/bootstrap.css?v=1669054741
+[Tue Jan  6 17:33:57 2026] [::1]:61637 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61636 [200]: GET /css/container-system.css?v=1766744685
+[Tue Jan  6 17:33:57 2026] [::1]:61638 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61637 [200]: GET /css/site.css?v=1766746625
+[Tue Jan  6 17:33:57 2026] [::1]:61639 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61638 [200]: GET /css/responsive-fixes.css?v=1766747032
+[Tue Jan  6 17:33:57 2026] [::1]:61640 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61636 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61633 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61639 [200]: GET /css/admin-design-system.css?v=1766916626
+[Tue Jan  6 17:33:57 2026] [::1]:61641 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61637 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61640 [200]: GET /css/admin-header-v2.css?v=1766910164
+[Tue Jan  6 17:33:57 2026] [::1]:61642 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61641 [200]: GET /css/admin-shell.css?v=1766860482
+[Tue Jan  6 17:33:57 2026] [::1]:61638 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61643 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61642 [200]: GET /css/admin-pages.css?v=1766343973
+[Tue Jan  6 17:33:57 2026] [::1]:61639 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61644 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61643 [200]: GET /css/admin-dashboard.css?v=1766934544
+[Tue Jan  6 17:33:57 2026] [::1]:61640 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61645 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61644 [200]: GET /css/admin-orders-v2.css?v=1766935757
+[Tue Jan  6 17:33:57 2026] [::1]:61641 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61646 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61645 [200]: GET /css/admin-size-grid.css?v=1766934997
+[Tue Jan  6 17:33:57 2026] [::1]:61642 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61646 [200]: GET /css/admin-product-view.css?v=1766910450
+[Tue Jan  6 17:33:57 2026] [::1]:61643 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61644 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61645 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61646 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61647 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61648 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61647 [200]: GET /assets/7af08f8b/jquery.js?v=1693229950
+[Tue Jan  6 17:33:57 2026] [::1]:61649 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61648 [200]: GET /assets/8e6e089b/yii.js?v=1751010173
+[Tue Jan  6 17:33:57 2026] [::1]:61650 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61649 [200]: GET /js/admin-dropdown-hover.js?v=1766336780
+[Tue Jan  6 17:33:57 2026] [::1]:61651 Accepted
+[Tue Jan  6 17:33:57 2026] [::1]:61650 [200]: GET /assets/293118c7/js/bootstrap.bundle.js?v=1669054741
+[Tue Jan  6 17:33:57 2026] [::1]:61648 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61651 [200]: GET /debug/default/toolbar?tag=695d1d559f049
+[Tue Jan  6 17:33:57 2026] [::1]:61651 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61647 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61649 Closing
+[Tue Jan  6 17:33:57 2026] [::1]:61650 Closing

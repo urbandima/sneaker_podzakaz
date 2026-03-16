@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Тест изображений - Оригинальные логотипы</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-grid {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .logo-item {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .logo-item img {
+            display: block;
+            margin: 5px auto;
+        }
+
+        .logo-item.success {
+            border-color: #28a745;
+        }
+
+        .logo-item.error {
+            border-color: #dc3545;
+        }
+
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        .source {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🎨 Тест оригинальных логотипов платёжных систем</h1>
+    <p>Все логотипы загружены из официальных источников (Wikimedia Commons, официальные сайты)</p>
+
+    <div class="section">
+        <h2>💳 Платёжные системы (оригинальные SVG)</h2>
+        <div class="logo-grid">
+            <div class="logo-item" id="visa-item">
+                <img src="/images/payment/visa.svg" alt="Visa" width="60" height="36">
+                <div><strong>Visa</strong></div>
+                <div class="source">Источник: Wikimedia Commons</div>
+                <div class="status" id="visa-status">Проверка...</div>
+            </div>
+
+            <div class="logo-item" id="mastercard-item">
+                <img src="/images/payment/mastercard.svg" alt="Mastercard" width="60" height="46">
+                <div><strong>Mastercard</strong></div>
+                <div class="source">Источник: Wikimedia Commons</div>
+                <div class="status" id="mastercard-status">Проверка...</div>
+            </div>
+
+            <div class="logo-item" id="belcard-item">
+                <img src="/images/payment/belcard.svg" alt="Белкарт" width="40" height="56">
+                <div><strong>Белкарт Pay</strong></div>
+                <div class="source">Источник: Wikimedia Commons</div>
+                <div class="status" id="belcard-status">Проверка...</div>
+            </div>
+
+            <div class="logo-item" id="halva-item">
+                <img src="/images/payment/halva.svg" alt="Халва" width="60" height="12">
+                <div><strong>Халва</strong></div>
+                <div class="source">Источник: logo-teka.com</div>
+                <div class="status" id="halva-status">Проверка...</div>
+            </div>
+
+            <div class="logo-item" id="erip-item">
+                <img src="/images/payment/erip.svg" alt="ЕРИП" width="60" height="24">
+                <div><strong>ЕРИП</strong></div>
+                <div class="source">Источник: raschet.by (официальный)</div>
+                <div class="status" id="erip-status">Проверка...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🏢 Логотипы компании</h2>
+        <div class="logo-grid">
+            <div class="logo-item" id="logo-item">
+                <img src="/images/logo.png" alt="Logo" width="120" height="40">
+                <div><strong>Основной логотип</strong></div>
+                <div class="source">Placeholder</div>
+                <div class="status" id="logo-status">Проверка...</div>
+            </div>
+
+            <div class="logo-item" id="logo-white-item">
+                <img src="/images/logo-white.png" alt="Logo White" width="120" height="40">
+                <div><strong>Белый логотип</strong></div>
+                <div class="source">Placeholder</div>
+                <div class="status" id="logo-white-status">Проверка...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📊 Статистика загрузки</h2>
+        <div id="stats">
+            <p>Всего изображений: <strong id="total-count">7</strong></p>
+            <p>Загружено успешно: <strong id="success-count" style="color: #28a745;">0</strong></p>
+            <p>Ошибки загрузки: <strong id="error-count" style="color: #dc3545;">0</strong></p>
+        </div>
+    </div>
+
+    <script>
+        let successCount = 0;
+        let errorCount = 0;
+        const totalCount = 7;
+
+        function updateStats() {
+            document.getElementById('success-count').textContent = successCount;
+            document.getElementById('error-count').textContent = errorCount;
+        }
+
+        function checkImage(imgId, statusId, itemId) {
+            const img = document.getElementById(imgId);
+            const status = document.getElementById(statusId);
+            const item = document.getElementById(itemId);
+
+            img.onerror = function () {
+                status.textContent = '❌ Ошибка';
+                status.className = 'status error';
+                item.className = 'logo-item error';
+                errorCount++;
+                updateStats();
+            };
+
+            img.onload = function () {
+                status.textContent = '✅ Загружено';
+                status.className = 'status success';
+                item.className = 'logo-item success';
+                successCount++;
+                updateStats();
+            };
+        }
+
+        // Проверяем все изображения
+        checkImage('visa', 'visa-status', 'visa-item');
+        checkImage('mastercard', 'mastercard-status', 'mastercard-item');
+        checkImage('belcard', 'belcard-status', 'belcard-item');
+        checkImage('halva', 'halva-status', 'halva-item');
+        checkImage('erip', 'erip-status', 'erip-item');
+        checkImage('logo', 'logo-status', 'logo-item');
+        checkImage('logo-white', 'logo-white-status', 'logo-white-item');
+
+        // Добавляем информацию о времени
+        document.addEventListener('DOMContentLoaded', function () {
+            const time = new Date().toLocaleString('ru-RU');
+            const timeInfo = document.createElement('div');
+            timeInfo.innerHTML = `<p style="text-align: center; color: #666; font-size: 14px;">Последняя проверка: ${time}</p>`;
+            document.querySelector('h1').after(timeInfo);
+        });
+    </script>
+</body>
+
+</html>

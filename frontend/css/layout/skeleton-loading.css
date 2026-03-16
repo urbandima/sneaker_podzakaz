@@ -1,0 +1,212 @@
+/**
+ * Skeleton Loading Animations for СНИКЕРХЭД
+ * Улучшение UX при загрузке контента
+ */
+
+/* Base skeleton animation */
+@keyframes skeleton-loading {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+/* Skeleton base class */
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 0px,
+        #e0e0e0 40px,
+        #f0f0f0 80px
+    );
+    background-size: 200px 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+/* Skeleton for product cards */
+.skeleton-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.skeleton-card .skeleton-image {
+    width: 100%;
+    padding-top: 100%; /* 1:1 aspect ratio */
+    background: linear-gradient(
+        90deg,
+        #f5f5f5 0px,
+        #ebebeb 40px,
+        #f5f5f5 80px
+    );
+    background-size: 200px 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+.skeleton-card .skeleton-content {
+    padding: 16px;
+}
+
+.skeleton-card .skeleton-brand {
+    height: 14px;
+    width: 40%;
+    margin-bottom: 8px;
+}
+
+.skeleton-card .skeleton-title {
+    height: 18px;
+    width: 80%;
+    margin-bottom: 12px;
+}
+
+.skeleton-card .skeleton-price {
+    height: 24px;
+    width: 50%;
+}
+
+/* Skeleton for filters */
+.skeleton-filter {
+    padding: 16px;
+}
+
+.skeleton-filter .skeleton-filter-title {
+    height: 20px;
+    width: 60%;
+    margin-bottom: 12px;
+}
+
+.skeleton-filter .skeleton-filter-item {
+    height: 32px;
+    width: 100%;
+    margin-bottom: 8px;
+    border-radius: 6px;
+}
+
+/* Skeleton for product page */
+.skeleton-product-page {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .skeleton-product-page {
+        grid-template-columns: 1fr;
+    }
+}
+
+.skeleton-product-page .skeleton-gallery {
+    aspect-ratio: 1;
+}
+
+.skeleton-product-page .skeleton-info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.skeleton-product-page .skeleton-info .skeleton-title {
+    height: 32px;
+    width: 90%;
+}
+
+.skeleton-product-page .skeleton-info .skeleton-brand {
+    height: 18px;
+    width: 30%;
+}
+
+.skeleton-product-page .skeleton-info .skeleton-price {
+    height: 36px;
+    width: 40%;
+}
+
+.skeleton-product-page .skeleton-info .skeleton-sizes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.skeleton-product-page .skeleton-info .skeleton-size {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+}
+
+.skeleton-product-page .skeleton-info .skeleton-button {
+    height: 56px;
+    width: 100%;
+    border-radius: 12px;
+    margin-top: 16px;
+}
+
+/* Skeleton grid for catalog */
+.skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
+}
+
+@media (max-width: 576px) {
+    .skeleton-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+}
+
+/* Pulse animation alternative */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.skeleton-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Text placeholders */
+.skeleton-text {
+    height: 1em;
+    border-radius: 4px;
+}
+
+.skeleton-text-sm {
+    height: 0.875em;
+}
+
+.skeleton-text-lg {
+    height: 1.25em;
+}
+
+/* Circle skeleton for avatars */
+.skeleton-circle {
+    border-radius: 50%;
+}
+
+/* Hide skeleton when content loaded */
+.skeleton-hide {
+    display: none !important;
+}
+
+/* Fade out animation for skeleton */
+.skeleton-fade-out {
+    animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}

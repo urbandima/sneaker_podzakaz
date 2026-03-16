@@ -55,3 +55,11 @@ phpunit.phar
 # Documentation (НЕ деплоим на production, оставляем только в Git)
 # Эти файлы будут в репозитории, но не попадут на сервер при правильном деплое
 # Используйте: rsync --exclude-from=.gitignore или git archive
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
