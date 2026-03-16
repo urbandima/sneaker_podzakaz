@@ -8,6 +8,7 @@ use yii\console\ExitCode;
 use app\backend\modules\catalog\models\Product;
 use app\backend\modules\catalog\models\Brand;
 use app\backend\modules\catalog\models\Category;
+use app\backend\modules\admin\models\CurrencySetting;
 
 /**
  * Импорт товаров из XML
@@ -90,7 +91,7 @@ class ImportController extends Controller
                 // Определяем валюту по величине цены (CNY обычно 200-2000, RUB обычно > 5000)
                 if ($price < 3000) {
                     // Скорее всего CNY - используем правильную калькуляцию
-                    $priceInBYN = \app\models\CurrencySetting::convertFromCny($price, 'BYN');
+                    $priceInBYN = CurrencySetting::convertFromCny($price, 'BYN');
                 } else {
                     // Скорее всего RUB - конвертируем
                     $priceInBYN = round($price / 35, 2); // 1 BYN ≈ 35 RUB

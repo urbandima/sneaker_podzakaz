@@ -96,6 +96,15 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
     background: #000000;
 }
 
+.btn-poizon-import {
+    background: #4472C4;
+    color: #ffffff;
+}
+
+.btn-poizon-import:hover {
+    background: #3a5cb8;
+}
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -423,32 +432,28 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
                 Показывать
                 <select id="pageSizeSelect" onchange="changeProductPageSize(this.value)">
                     <?php foreach ($pageSizeOptions as $size): ?>
-                        <option value="<?= $size ?>" <?= $pageSize === $size ? 'selected' : '' ?>><?= $size ?></option>
+                        <option value="<?= $size ?>" <?= $size == $pageSize ? 'selected' : '' ?>><?= $size ?></option>
                     <?php endforeach; ?>
                 </select>
                 на странице
             </label>
-            <button class="btn-action btn-secondary-action filter-toggle" id="filtersToggle" type="button" onclick="toggleProductFilters()">
-                <i class="bi bi-funnel"></i>
-                Фильтры
-                <?php if ($activeFilterCount): ?>
-                    <span class="filter-count"><?= $activeFilterCount ?></span>
-                <?php endif; ?>
-            </button>
-            <div class="export-menu">
-                <button class="btn-action btn-secondary-action" type="button" onclick="toggleExportMenu()">
+            
+            <div class="export-group">
+                <a href="<?= Url::to(['/admin/product/export']) ?>" class="btn-action">
                     <i class="bi bi-download"></i>
                     Экспорт
+                </a>
+                <button type="button" class="btn-action" onclick="showBulkActions()">
+                    <i class="bi bi-check2-square"></i>
+                    Массовые действия
                 </button>
-                <div class="export-dropdown" id="exportDropdown">
-                    <a href="<?= Url::to(['/admin/product/export', 'format' => 'xlsx']) ?>">
-                        <i class="bi bi-file-earmark-spreadsheet"></i> Excel (.xlsx)
-                    </a>
-                    <a href="<?= Url::to(['/admin/product/export', 'format' => 'csv']) ?>">
-                        <i class="bi бі-file-earmark-text"></i> CSV
-                    </a>
-                </div>
             </div>
+            
+            <a href="<?= Url::to(['/admin-import/index']) ?>" class="btn-action btn-poizon-import">
+                <i class="bi bi-cloud-download"></i>
+                Импорт Poizon
+            </a>
+            
             <a href="<?= Url::to(['/admin/product/create']) ?>" class="btn-action btn-primary-action">
                 <i class="bi bi-plus-lg"></i>
                 Новый товар

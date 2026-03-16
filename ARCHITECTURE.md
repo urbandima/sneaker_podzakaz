@@ -70,7 +70,8 @@ project/
 │   │   ├── helpers/           # Хелперы
 │   │   ├── mail/              # Шаблоны писем
 │   │   └── traits/            # Traits
-│   └── commands/              # Консольные команды
+│   └── console/               # Консольные команды
+│       └── controllers/      # Console controllers
 │
 ├── infrastructure/            # Инфраструктура
 │   ├── config/                # Конфигурация

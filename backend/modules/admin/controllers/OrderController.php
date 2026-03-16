@@ -58,6 +58,8 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 
 class OrderController extends BaseAdminController
 {
+    public $layout = 'admin';
+    
     /**
      * Список заказов с фильтрацией и статистикой
      */

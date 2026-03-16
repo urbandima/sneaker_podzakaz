@@ -15,6 +15,7 @@ use app\backend\modules\catalog\models\CatalogInquiry;
 use app\backend\shared\components\SmartFilter;
 use app\backend\shared\components\CacheManager;
 use app\backend\shared\components\HttpCacheHeaders;
+use app\backend\modules\catalog\repositories\ProductRepository;
 
 /**
  * Контроллер каталога товаров
@@ -828,9 +829,19 @@ class CatalogController extends Controller
         $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
         $sessionId = Yii::$app->session->id;
 
-        return [
-            'count' => ProductFavorite::getCount($userId, $sessionId),
-        ];
+        try {
+            $count = ProductFavorite::getCount($userId, $sessionId);
+            return [
+                'success' => true,
+                'count' => $count,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'count' => 0,
+                'error' => $e->getMessage(),
+            ];
+        }
     }
 
     /**

@@ -210,12 +210,12 @@ $config = [
                 'order/<token:[a-zA-Z0-9_-]+>/download-payment' => 'order/download-payment',
                 
                 // Каталог товаров
-                'catalog' => 'catalog/catalog/index',
-                'catalog/brand/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
-                'catalog/category/<slug:[a-z0-9-]+>' => 'catalog/catalog/category',
-                'catalog/product/<slug:[a-z0-9-]+>' => 'catalog/catalog/product',
-                'catalog/favorites' => 'catalog/catalog/favorites',
-                'catalog/history' => 'catalog/catalog/history',
+                'catalog' => 'catalog/index',
+                'catalog/brand/<slug:[a-z0-9-]+>' => 'catalog/brand',
+                'catalog/category/<slug:[a-z0-9-]+>' => 'catalog/category',
+                'catalog/product/<slug:[a-z0-9-]+>' => 'catalog/product',
+                'catalog/favorites' => 'catalog/favorites',
+                'catalog/history' => 'catalog/history',
                 
                 // ИСПРАВЛЕНО: Явные API роуты для AJAX (Проблема #7)
                 'catalog/add-favorite' => 'catalog/add-favorite',
@@ -223,7 +223,7 @@ $config = [
                 'catalog/favorites-count' => 'catalog/favorites-count',
                 'catalog/search' => 'catalog/search',
                 'catalog/filter' => 'catalog/filter',
-                'catalog/load-more' => 'catalog/catalog/load-more',
+                'catalog/load-more' => 'catalog/load-more',
                 'catalog/quick-view/<id:\d+>' => 'catalog/quick-view',
                 
                 // Корзина API
@@ -272,6 +272,7 @@ $config = [
                 
                 // Products
                 'admin/product' => 'admin/product/index',
+                'admin/product/create' => 'admin/product/create',
                 'admin/product/<id:\d+>' => 'admin/product/view',
                 'admin/product/<id:\d+>/edit' => 'admin/product/edit',
                 'admin/product/<id:\d+>/toggle' => 'admin/product/toggle',

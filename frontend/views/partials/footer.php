@@ -191,55 +191,55 @@ $company = Yii::$app->settings->getCompany();
 }
 
 .footer-main {
-    padding: 4rem 0 3rem;
+    padding: 0.5rem 0 0.25rem;
 }
 
 .footer-grid {
     display: grid;
     grid-template-columns: 1.5fr repeat(4, 1fr);
-    gap: 3rem;
+    gap: 0.5rem;
 }
 
 .footer-brand {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .footer-logo {
-    height: 40px;
-    margin-bottom: 1rem;
+    height: 20px;
+    margin-bottom: 0.25rem;
 }
 
 .footer-tagline {
     color: #94a3b8;
-    font-size: 0.9375rem;
-    line-height: 1.5;
+    font-size: 0.6rem;
+    line-height: 1.2;
 }
 
 .footer-badges {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
 }
 
 .badge-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    font-size: 0.875rem;
+    gap: 0.25rem;
+    font-size: 0.6rem;
     color: #94a3b8;
 }
 
 .badge-item i {
     color: #6366f1;
-    font-size: 1.125rem;
+    font-size: 0.75rem;
 }
 
 .footer-title {
-    font-size: 1rem;
+    font-size: 0.7rem;
     font-weight: 700;
     color: #f8fafc;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.5rem;
 }
 
 .footer-links {
@@ -249,13 +249,13 @@ $company = Yii::$app->settings->getCompany();
 }
 
 .footer-links li {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.25rem;
 }
 
 .footer-links a {
     color: #94a3b8;
     text-decoration: none;
-    font-size: 0.9375rem;
+    font-size: 0.6rem;
     transition: color 0.2s;
 }
 
@@ -272,14 +272,14 @@ $company = Yii::$app->settings->getCompany();
 .footer-contacts li {
     display: flex;
     align-items: flex-start;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-    font-size: 0.9375rem;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.6rem;
 }
 
 .footer-contacts i {
     color: #6366f1;
-    font-size: 1.125rem;
+    font-size: 1rem;
     margin-top: 0.125rem;
 }
 
@@ -295,15 +295,15 @@ $company = Yii::$app->settings->getCompany();
 
 .footer-social {
     display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
 }
 
 .social-link {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -315,12 +315,12 @@ $company = Yii::$app->settings->getCompany();
 .social-link:hover {
     background: #6366f1;
     color: white;
-    transform: translateY(-3px);
+    transform: translateY(-2px);
 }
 
 .footer-bottom {
     background: #020617;
-    padding: 1.5rem 0;
+    padding: 0.5rem 0;
 }
 
 .footer-bottom-content {
@@ -332,21 +332,21 @@ $company = Yii::$app->settings->getCompany();
 .payment-methods {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
 .payment-label {
     color: #64748b;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
 }
 
 .payment-icons {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 .payment-icon {
-    height: 24px;
+    height: 20px;
     opacity: 0.7;
     transition: opacity 0.2s;
 }
@@ -357,7 +357,7 @@ $company = Yii::$app->settings->getCompany();
 
 .copyright {
     color: #64748b;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
 }
 
 /* Responsive */

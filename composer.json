@@ -50,6 +50,7 @@
             "app\\": "",
             "app\\api\\": "api/",
             "app\\backend\\": "backend/",
+            "app\\console\\": "backend/console/",
             "app\\frontend\\": "frontend/",
             "app\\infrastructure\\": "infrastructure/"
         }

@@ -824,13 +824,19 @@
      * ИСПРАВЛЕНО: правильный ID селектор
      */
     function updateFavoritesCount() {
-        // Получаем актуальное количество через AJAX
+        // Получаем актуальное количество избранных через AJAX
         fetch('/catalog/favorites-count', {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            // Проверяем статус ответа
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
             const badge = document.getElementById('favCount');
             if (badge && data.count !== undefined) {

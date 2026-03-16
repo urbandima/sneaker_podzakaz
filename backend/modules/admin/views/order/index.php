@@ -22,6 +22,9 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\modules\admin\assets\AdminAsset;
+
+AdminAsset::register($this);
 
 $this->title = 'Управление заказами';
 

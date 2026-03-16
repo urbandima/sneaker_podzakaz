@@ -19,7 +19,8 @@ splitwise/
 │
 ├── backend/                      # Бизнес-логика
 │   ├── cache/                    # Кэш стратегии
-│   ├── commands/                 # Консольные команды
+│   ├── console/                  # Консольные команды
+│   │   └── controllers/           # Console controllers
 │   ├── decorators/               # Декораторы с кэшем
 │   ├── modules/                  # Feature-модули
 │   ├── payment/                  # Платежи

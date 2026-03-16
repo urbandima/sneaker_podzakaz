@@ -41,7 +41,7 @@ use app\backend\shared\components\TariffSetupService;
 class TariffController extends BaseAdminController
 {
     public $layout = 'admin';
-
+    
     public function behaviors()
     {
         return [
@@ -52,6 +52,25 @@ class TariffController extends BaseAdminController
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => function ($rule, $action) {
+                            return Yii::$app->user->identity->isAdmin();
+                        }
+                    ],
+                ],
+            ],
+            'verbs' => [
+                'class' => VerbFilter::class,
+                'actions' => [
+                    'delete' => ['POST'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function beforeAction($action)
+    {
                             return Yii::$app->user->identity->isAdmin();
                         }
                     ],

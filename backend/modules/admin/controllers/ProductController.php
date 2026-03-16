@@ -49,6 +49,8 @@ use app\backend\modules\catalog\repositories\ProductRepository;
 
 class ProductController extends BaseAdminController
 {
+    public $layout = 'admin';
+    
     /** @var ProductRepository */
     private $productRepository;
     

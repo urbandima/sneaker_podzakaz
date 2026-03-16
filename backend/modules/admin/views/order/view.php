@@ -538,40 +538,6 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
 
         <div class="order-grid">
             <div class="order-main">
-                <!-- СОСТАВ ЗАКАЗА (перенесен наверх) -->
-                <div class="order-card">
-                    <div class="card-header">
-                        <h3><i class="bi bi-bag-check"></i> Состав заказа</h3>
-                        <span style="font-size:0.8125rem;color:#6b7280;"><?= count($model->orderItems) ?> позиций</span>
-                    </div>
-                    <table class="items-table">
-                        <thead>
-                            <tr>
-                                <th style="width:40px;">#</th>
-                                <th>Наименование</th>
-                                <th style="width:80px;">Кол-во</th>
-                                <th style="width:100px;">Цена</th>
-                                <th style="width:100px;">Сумма</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($model->orderItems as $index => $item): ?>
-                            <tr>
-                                <td style="color:#6b7280;"><?= $index + 1 ?></td>
-                                <td class="item-name"><?= Html::encode($item->product_name) ?></td>
-                                <td><?= $item->quantity ?> шт.</td>
-                                <td><?= Yii::$app->formatter->asDecimal($item->price, 2) ?> Br</td>
-                                <td class="item-price"><?= Yii::$app->formatter->asDecimal($item->total, 2) ?> Br</td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    <div class="items-total">
-                        <span class="items-total-label">Итого к оплате:</span>
-                        <span class="items-total-value"><?= Yii::$app->formatter->asDecimal($model->total_amount, 2) ?> Br</span>
-                    </div>
-                </div>
-
                 <!-- Информация о клиенте -->
                 <div class="order-card">
                     <div class="card-header">
@@ -668,6 +634,40 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                                 <i class="bi bi-clipboard"></i> Копировать
                             </button>
                         </div>
+                    </div>
+                </div>
+
+                <!-- СОСТАВ ЗАКАЗА -->
+                <div class="order-card">
+                    <div class="card-header">
+                        <h3><i class="bi bi-bag-check"></i> Состав заказа</h3>
+                        <span style="font-size:0.8125rem;color:#6b7280;"><?= count($model->orderItems) ?> позиций</span>
+                    </div>
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th style="width:40px;">#</th>
+                                <th>Наименование</th>
+                                <th style="width:80px;">Кол-во</th>
+                                <th style="width:100px;">Цена</th>
+                                <th style="width:100px;">Сумма</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($model->orderItems as $index => $item): ?>
+                            <tr>
+                                <td style="color:#6b7280;"><?= $index + 1 ?></td>
+                                <td class="item-name"><?= Html::encode($item->product_name) ?></td>
+                                <td><?= $item->quantity ?> шт.</td>
+                                <td><?= Yii::$app->formatter->asDecimal($item->price, 2) ?> Br</td>
+                                <td class="item-price"><?= Yii::$app->formatter->asDecimal($item->total, 2) ?> Br</td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    <div class="items-total">
+                        <span class="items-total-label">Итого к оплате:</span>
+                        <span class="items-total-value"><?= Yii::$app->formatter->asDecimal($model->total_amount, 2) ?> Br</span>
                     </div>
                 </div>
             </div>

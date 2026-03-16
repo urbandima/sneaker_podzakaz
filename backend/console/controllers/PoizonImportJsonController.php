@@ -14,6 +14,9 @@ use app\backend\modules\catalog\models\ImportBatch;
 use app\backend\modules\catalog\models\ImportLog;
 use app\backend\modules\catalog\models\ProductSizeImage;
 use app\backend\modules\admin\models\CurrencySetting;
+use app\backend\modules\catalog\models\Characteristic;
+use app\backend\modules\catalog\models\CharacteristicValue;
+use app\backend\modules\catalog\models\ProductCharacteristicValue;
 
 /**
  * Импорт товаров из JSON файла Poizon
@@ -518,7 +521,7 @@ class PoizonImportJsonController extends Controller
         if (!empty($data['purchasePrice'])) {
             // Используем purchasePrice (CNY) для калькуляции с правильным округлением
             $product->poizon_price_cny = $data['purchasePrice'];
-            $product->price = \app\models\CurrencySetting::convertFromCny($data['purchasePrice'], 'BYN');
+            $product->price = CurrencySetting::convertFromCny($data['purchasePrice'], 'BYN');
         } else {
             // Фоллбэк на цену из данных (если нет purchasePrice)
             $product->price = $data['price'];
@@ -615,7 +618,7 @@ class PoizonImportJsonController extends Controller
     private function importCharacteristicsToRegistry($product, $properties)
     {
         // Удаляем старые связи
-        \app\models\ProductCharacteristicValue::deleteAll(['product_id' => $product->id]);
+        ProductCharacteristicValue::deleteAll(['product_id' => $product->id]);
         
         // Маппинг ключей Poizon → наши характеристики
         $keyMapping = [
@@ -649,7 +652,7 @@ class PoizonImportJsonController extends Controller
             $characteristicKey = $keyMapping[$key];
             
             // Находим характеристику в справочнике
-            $characteristic = \app\models\Characteristic::find()
+            $characteristic = Characteristic::find()
                 ->where(['key' => $characteristicKey])
                 ->one();
             
@@ -658,34 +661,34 @@ class PoizonImportJsonController extends Controller
             }
             
             // Обработка в зависимости от типа характеристики
-            if ($characteristic->type === \app\models\Characteristic::TYPE_SELECT || 
-                $characteristic->type === \app\models\Characteristic::TYPE_MULTISELECT) {
+            if ($characteristic->type === Characteristic::TYPE_SELECT || 
+                $characteristic->type === Characteristic::TYPE_MULTISELECT) {
                 
                 // Ищем или создаем значение в справочнике
                 $characteristicValue = $this->findOrCreateCharacteristicValue($characteristic, $value);
                 
                 if ($characteristicValue) {
                     // Создаем связь товара с характеристикой
-                    $pcv = new \app\models\ProductCharacteristicValue();
+                    $pcv = new ProductCharacteristicValue();
                     $pcv->product_id = $product->id;
                     $pcv->characteristic_id = $characteristic->id;
                     $pcv->characteristic_value_id = $characteristicValue->id;
                     $pcv->save(false);
                 }
                 
-            } elseif ($characteristic->type === \app\models\Characteristic::TYPE_TEXT) {
+            } elseif ($characteristic->type === Characteristic::TYPE_TEXT) {
                 // Текстовые значения (например, style_code)
-                $pcv = new \app\models\ProductCharacteristicValue();
+                $pcv = new ProductCharacteristicValue();
                 $pcv->product_id = $product->id;
                 $pcv->characteristic_id = $characteristic->id;
                 $pcv->value_text = $value;
                 $pcv->save(false);
                 
-            } elseif ($characteristic->type === \app\models\Characteristic::TYPE_NUMBER) {
+            } elseif ($characteristic->type === Characteristic::TYPE_NUMBER) {
                 // Числовые значения (например, release_year)
                 $number = $this->extractYear($value);
                 if ($number) {
-                    $pcv = new \app\models\ProductCharacteristicValue();
+                    $pcv = new ProductCharacteristicValue();
                     $pcv->product_id = $product->id;
                     $pcv->characteristic_id = $characteristic->id;
                     $pcv->value_number = $number;
@@ -723,19 +726,19 @@ class PoizonImportJsonController extends Controller
         // Пытаемся найти по slug
         $slug = isset($valueMapping[$normalizedValue]) ? $valueMapping[$normalizedValue] : $this->slugify($normalizedValue);
         
-        $characteristicValue = \app\models\CharacteristicValue::find()
+        $characteristicValue = CharacteristicValue::find()
             ->where(['characteristic_id' => $characteristic->id])
             ->andWhere(['or', ['slug' => $slug], ['value' => $normalizedValue]])
             ->one();
         
         if (!$characteristicValue) {
             // Создаем новое значение
-            $characteristicValue = new \app\models\CharacteristicValue();
+            $characteristicValue = new CharacteristicValue();
             $characteristicValue->characteristic_id = $characteristic->id;
             $characteristicValue->value = $normalizedValue;
             $characteristicValue->slug = $slug;
             $characteristicValue->is_active = 1;
-            $characteristicValue->sort_order = \app\models\CharacteristicValue::find()
+            $characteristicValue->sort_order = CharacteristicValue::find()
                 ->where(['characteristic_id' => $characteristic->id])
                 ->max('sort_order') + 1;
             
