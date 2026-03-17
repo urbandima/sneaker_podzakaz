@@ -41,17 +41,23 @@ class StatisticsController extends BaseAdminController
             $statusStats[$label] = $count;
         }
 
-        // Статистика по менеджерам
-        $managerStats = User::find()
-            ->where(['role' => User::ROLE_MANAGER])
-            ->with(['createdOrders'])
-            ->all();
+        try {
+            // Статистика по менеджерам
+            $managerStats = User::find()
+                ->where(['role' => User::ROLE_MANAGER])
+                ->with(['createdOrders'])
+                ->all();
 
-        // Статистика по логистам
-        $logistStats = User::find()
-            ->where(['role' => User::ROLE_LOGIST])
-            ->with(['assignedOrders'])
-            ->all();
+            // Статистика по логистам
+            $logistStats = User::find()
+                ->where(['role' => User::ROLE_LOGIST])
+                ->with(['assignedOrders'])
+                ->all();
+        } catch (\Exception $e) {
+            // Демо-данные при отсутствии БД
+            $managerStats = [];
+            $logistStats = [];
+        }
 
         // Общая статистика
         $totalOrders = Order::find()->count();

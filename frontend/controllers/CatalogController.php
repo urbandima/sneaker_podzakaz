@@ -642,41 +642,22 @@ class CatalogController extends Controller
         ];
         
         // Генерируем динамическое описание
-        $description = $this->generateFilteredDescription(
-            $currentFilters,
-            $category->getMetaDescription()
-        );
-        
-        $title = $this->generateFilteredTitle($currentFilters, $category->name);
-        
-        // Приоритет для изображения: изображение категории -> первый товар -> дефолт
-        $ogImage = null;
-        if ($category->image) {
-            $ogImage = strpos($category->image, 'http') === 0 
-                ? $category->image 
-                : Yii::$app->request->hostInfo . '/' . ltrim($category->image, '/');
-        }
-        
-        if (!$ogImage) {
-            $ogImage = $this->getFirstProductImage($query) ?: Yii::$app->request->hostInfo . '/images/og-default.jpg';
-        }
+        $description = $this->generateFilteredDescription($currentFilters);
         
         return $this->renderCatalogPage(
-            $query,
+            $this->buildProductQuery()->where(['category_id' => $categoryIds]),
             $category->name,
+            $category->description,
             [
-                'title' => $title . ' | СНИКЕРХЭД',
-                'description' => $description,
-                'keywords' => $category->name . ', купить, оригинал',
-                'og:title' => $title,
-                'og:description' => $description,
+                'title' => $category->getMetaTitle(),
+                'description' => $category->getMetaDescription(),
+                'keywords' => $category->meta_keywords,
+                'canonical' => '/catalog/category/' . $category->slug,
+                'og:title' => $category->name . ' — купить в Беларуси',
+                'og:description' => $category->description ?: 'Оригинальные товары из США и Европы с доставкой',
                 'og:image' => $ogImage,
-                'og:url' => Yii::$app->request->absoluteUrl,
-                'og:type' => 'product.group',
-                'og:site_name' => 'СНИКЕРХЭД',
-                'twitter:card' => 'summary_large_image',
-                'twitter:title' => $title,
-                'twitter:description' => $description,
+                'twitter:title' => $category->name,
+                'twitter:description' => $category->description ?: 'Оригинальные товары из США и Европы',
                 'twitter:image' => $ogImage,
                 // Breadcrumbs для Schema.org
                 'breadcrumbs' => [
@@ -684,6 +665,41 @@ class CatalogController extends Controller
                 ],
             ],
             ['category_id' => $categoryIds]
+        );
+    }
+
+    /**
+     * Страница товаров со скидками
+     */
+    public function actionSale()
+    {
+        // SEO: Редирект с trailing slash
+        $this->redirectTrailingSlash();
+        
+        // Формируем OG-изображение
+        $ogImage = Yii::$app->params['defaultOgImage'] ?? '/images/og-default.jpg';
+        
+        return $this->renderCatalogPage(
+            $this->buildProductQuery()->where(['>', 'old_price', 0]),
+            'Скидки',
+            'Товары со скидками — оригинальные кроссовки из США и Европы по выгодным ценам',
+            [
+                'title' => 'Скидки — купить кроссовки со скидкой в Беларуси',
+                'description' => 'Оригинальные кроссовки со скидкой до 50%. Доставка из США и Европы. Гарантия подлинности.',
+                'keywords' => 'скидки, распродажа, кроссовки со скидкой, sale',
+                'canonical' => '/sale',
+                'og:title' => 'Скидки — кроссовки со скидкой в Беларуси',
+                'og:description' => 'Оригинальные кроссовки со скидкой до 50% с доставкой из США и Европы',
+                'og:image' => $ogImage,
+                'twitter:title' => 'Скидки на кроссовки',
+                'twitter:description' => 'Оригинальные кроссовки со скидкой до 50%',
+                'twitter:image' => $ogImage,
+                // Breadcrumbs для Schema.org
+                'breadcrumbs' => [
+                    ['name' => 'Скидки', 'url' => '/sale']
+                ],
+            ],
+            ['>', 'old_price', 0]
         );
     }
 

@@ -11,7 +11,7 @@
  * @author СНИКЕРХЭД Team
  */
 
-(function() {
+(function () {
     'use strict';
 
     // Конфигурация
@@ -35,7 +35,7 @@
         constructor() {
             this.images = document.querySelectorAll('img[data-src], img[data-srcset]');
             this.observer = null;
-            
+
             if (this.images.length > 0) {
                 this.init();
             }
@@ -74,7 +74,7 @@
 
             // Preload изображения
             const tempImage = new Image();
-            
+
             tempImage.onload = () => {
                 if (srcset) {
                     img.srcset = srcset;
@@ -82,14 +82,14 @@
                 if (src) {
                     img.src = src;
                 }
-                
+
                 img.classList.remove(CONFIG.loadingClass);
                 img.classList.add(CONFIG.loadedClass);
-                
+
                 // Удаляем data-атрибуты
                 delete img.dataset.src;
                 delete img.dataset.srcset;
-                
+
                 // Триггер события
                 img.dispatchEvent(new CustomEvent('lazyloaded', { detail: { src } }));
             };
@@ -97,7 +97,7 @@
             tempImage.onerror = () => {
                 img.classList.remove(CONFIG.loadingClass);
                 img.classList.add(CONFIG.errorClass);
-                
+
                 img.dispatchEvent(new CustomEvent('lazyerror', { detail: { src } }));
             };
 
@@ -122,7 +122,7 @@
         constructor() {
             this.elements = document.querySelectorAll('[data-bg]');
             this.observer = null;
-            
+
             if (this.elements.length > 0) {
                 this.init();
             }
@@ -154,10 +154,10 @@
 
         loadBackground(el) {
             const bg = el.dataset.bg;
-            
+
             if (bg) {
                 el.classList.add(CONFIG.loadingClass);
-                
+
                 // Preload изображения
                 const img = new Image();
                 img.onload = () => {
@@ -166,12 +166,12 @@
                     el.classList.add(CONFIG.loadedClass);
                     delete el.dataset.bg;
                 };
-                
+
                 img.onerror = () => {
                     el.classList.remove(CONFIG.loadingClass);
                     el.classList.add(CONFIG.errorClass);
                 };
-                
+
                 img.src = bg;
             }
         }
@@ -188,7 +188,7 @@
         constructor() {
             this.iframes = document.querySelectorAll('iframe[data-src]');
             this.observer = null;
-            
+
             if (this.iframes.length > 0) {
                 this.init();
             }
@@ -220,11 +220,11 @@
 
         loadIframe(iframe) {
             const src = iframe.dataset.src;
-            
+
             if (src) {
                 iframe.classList.add(CONFIG.loadingClass);
                 iframe.src = src;
-                
+
                 iframe.onload = () => {
                     iframe.classList.remove(CONFIG.loadingClass);
                     iframe.classList.add(CONFIG.loadedClass);
@@ -246,7 +246,7 @@
          * Добавить новые элементы для lazy loading
          * @param {HTMLElement} container Контейнер с новыми элементами
          */
-        observe: function(container) {
+        observe: function (container) {
             // Изображения
             const images = container.querySelectorAll('img[data-src], img[data-srcset]');
             if (images.length > 0) {
@@ -292,7 +292,7 @@
          * @param {HTMLImageElement} img
          * @returns {boolean}
          */
-        isLoaded: function(img) {
+        isLoaded: function (img) {
             return img.classList.contains(CONFIG.loadedClass);
         },
 
@@ -300,7 +300,7 @@
          * Форсировать загрузку элемента
          * @param {HTMLElement} element
          */
-        forceLoad: function(element) {
+        forceLoad: function (element) {
             if (element.tagName === 'IMG') {
                 const loader = new LazyImageLoader();
                 loader.loadImage(element);
@@ -325,6 +325,7 @@
 
         // Логирование в dev режиме
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.log('Lazy Load initialized:', {
                 images: document.querySelectorAll('img[data-src]').length,
                 backgrounds: document.querySelectorAll('[data-bg]').length,
                 iframes: document.querySelectorAll('iframe[data-src]').length,
@@ -333,11 +334,18 @@
         }
     }
 
+    // Экспорт LazyLoad для использования в других скриптах
+    window.LazyLoad = {
+        init: init,
+        forceLoad: LazyLoadManager.forceLoad
+    };
+
     // Запуск при готовности DOM
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
-        init();
+        // Если DOM уже загружен, запускаем немедленно
+        setTimeout(init, 0);
     }
 
 })();

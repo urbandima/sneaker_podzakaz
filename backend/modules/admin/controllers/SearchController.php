@@ -127,24 +127,26 @@ class SearchController extends BaseAdminController
         
         // Поиск пользователей (только для админов)
         if ($user->isAdmin()) {
-            $users = User::find()
-                ->where(['or',
-                    ['like', 'username', $query],
-                    ['like', 'email', $query],
-                ])
-                ->limit(5)
-                ->all();
-                
-            foreach ($users as $user) {
-                $results[] = [
-                    'type' => 'user',
-                    'title' => $user->username,
-                    'description' => $user->email . ' • ' . $user->getRoleLabel(),
-                    'url' => ['/admin/user/view', 'id' => $user->id],
-                    'status' => $user->status,
-                    'date' => Yii::$app->formatter->asDate($user->created_at, 'short'),
-                    'icon' => 'bi bi-person',
-                ];
+            try {
+                $users = User::find()
+                    ->where(['or',
+                        ['like', 'username', $query],
+                        ['like', 'email', $query],
+                    ])
+                    ->limit(5)
+                    ->all();
+                    
+                foreach ($users as $userModel) {
+                    $results[] = [
+                        'type' => 'user',
+                        'title' => $userModel->username,
+                        'description' => $userModel->email,
+                        'url' => Url::to(['/admin/user/edit', 'id' => $userModel->id]),
+                        'icon' => 'person',
+                    ];
+                }
+            } catch (\Exception $e) {
+                // Игнорируем ошибки при поиске пользователей
             }
         }
         

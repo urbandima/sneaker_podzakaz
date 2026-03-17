@@ -63,6 +63,11 @@ $renderPriceRange = function (float $min, float $max) {
                         $shouldEagerLoadImage = $isCriticalCard && $isFirst && $imageUrl !== $lazyPlaceholder;
                         $imgSrc = $shouldEagerLoadImage ? Html::encode($imageUrl) : $lazyPlaceholder;
                         $dataSrc = (!$shouldEagerLoadImage && $imageUrl !== $lazyPlaceholder) ? Html::encode($imageUrl) : null;
+                        
+                        // Добавляем класс lazy для lazy-load.js
+                        if (!$shouldEagerLoadImage && $dataSrc) {
+                            $imageClasses[] = 'lazy';
+                        }
                     ?>
                     <img
                         class="<?= implode(' ', $imageClasses) ?>"

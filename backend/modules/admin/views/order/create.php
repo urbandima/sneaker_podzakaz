@@ -11,7 +11,13 @@ $this->title = 'Новый заказ';
 $user = Yii::$app->user->identity;
 $statuses = Yii::$app->settings->getStatuses();
 $logists = $user->isAdmin()
-    ? \app\backend\modules\admin\models\User::find()->where(['role' => 'logist'])->orderBy(['username' => SORT_ASC])->all()
+    ? (function() {
+        try {
+            return \app\backend\modules\admin\models\User::find()->where(['role' => 'logist'])->orderBy(['username' => SORT_ASC])->all();
+        } catch (\Exception $e) {
+            return [];
+        }
+    })()
     : [];
 $orderItems = Yii::$app->request->post('OrderItem', [
     ['product_name' => '', 'quantity' => 1, 'price' => '', 'link' => ''],

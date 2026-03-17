@@ -34,7 +34,7 @@ class PageController extends Controller
         $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
         
-        return $this->render('pages/payment-terms');
+        return $this->render('/pages/payment-terms');
     }
 
     /**
@@ -52,7 +52,7 @@ class PageController extends Controller
         $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
         
-        return $this->render('pages/delivery-terms');
+        return $this->render('/pages/delivery-terms');
     }
 
     /**
@@ -70,7 +70,7 @@ class PageController extends Controller
         $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
         
-        return $this->render('pages/return-policy');
+        return $this->render('/pages/return-policy');
     }
 
     /**
@@ -88,7 +88,7 @@ class PageController extends Controller
         $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
         
-        return $this->render('pages/privacy');
+        return $this->render('/pages/privacy');
     }
 
     /**
@@ -106,7 +106,7 @@ class PageController extends Controller
         $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
         
-        return $this->render('pages/about');
+        return $this->render('/pages/about');
     }
 
     /**
@@ -124,6 +124,6 @@ class PageController extends Controller
         $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
         
-        return $this->render('pages/contacts');
+        return $this->render('/pages/contacts');
     }
 }

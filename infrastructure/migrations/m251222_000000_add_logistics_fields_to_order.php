@@ -10,26 +10,82 @@ class m251222_000000_add_logistics_fields_to_order extends Migration
     public function safeUp()
     {
         // Китайский трек-номер
-        $this->addColumn('{{%order}}', 'china_track_number', $this->string(100)->after('order_number'));
+        try {
+            $this->addColumn('{{%order}}', 'china_track_number', $this->string(100)->after('order_number'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка china_track_number уже существует\n";
+        }
         
         // Ценность шипмента (общая, Y)
-        $this->addColumn('{{%order}}', 'shipment_value_cny', $this->decimal(10, 2)->after('china_track_number'));
+        try {
+            $this->addColumn('{{%order}}', 'shipment_value_cny', $this->decimal(10, 2)->after('china_track_number'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка shipment_value_cny уже существует\n";
+        }
         
         // Паспортные данные получателя
-        $this->addColumn('{{%order}}', 'recipient_last_name', $this->string(100)->after('client_name'));
-        $this->addColumn('{{%order}}', 'recipient_first_name', $this->string(100)->after('recipient_last_name'));
-        $this->addColumn('{{%order}}', 'recipient_middle_name', $this->string(100)->after('recipient_first_name'));
-        $this->addColumn('{{%order}}', 'passport_series', $this->string(20)->after('recipient_middle_name'));
-        $this->addColumn('{{%order}}', 'passport_number', $this->string(50)->after('passport_series'));
-        $this->addColumn('{{%order}}', 'passport_issue_date', $this->date()->after('passport_number'));
-        $this->addColumn('{{%order}}', 'birth_date', $this->date()->after('passport_issue_date'));
-        $this->addColumn('{{%order}}', 'inn', $this->string(20)->after('birth_date'));
+        try {
+            $this->addColumn('{{%order}}', 'recipient_last_name', $this->string(100)->after('client_name'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка recipient_last_name уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%order}}', 'recipient_first_name', $this->string(100)->after('recipient_last_name'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка recipient_first_name уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%order}}', 'recipient_middle_name', $this->string(100)->after('recipient_first_name'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка recipient_middle_name уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%order}}', 'passport_series', $this->string(20)->after('recipient_middle_name'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка passport_series уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%order}}', 'passport_number', $this->string(50)->after('passport_series'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка passport_number уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%order}}', 'passport_issue_date', $this->date()->after('passport_number'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка passport_issue_date уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%order}}', 'birth_date', $this->date()->after('passport_issue_date'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка birth_date уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%order}}', 'inn', $this->string(20)->after('birth_date'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка inn уже существует\n";
+        }
         
         // Адрес получателя (детализированный)
-        $this->addColumn('{{%order}}', 'full_address', $this->text()->after('delivery_address'));
-        $this->addColumn('{{%order}}', 'city', $this->string(100)->after('full_address'));
-        $this->addColumn('{{%order}}', 'region', $this->string(100)->after('city'));
-        $this->addColumn('{{%order}}', 'postal_code', $this->string(20)->after('region'));
+        try {
+            $this->addColumn('{{%order}}', 'full_address', $this->text()->after('inn'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка full_address уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%order}}', 'city', $this->string(100)->after('full_address'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка city уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%order}}', 'region', $this->string(100)->after('city'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка region уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%order}}', 'postal_code', $this->string(20)->after('region'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка postal_code уже существует\n";
+        }
         
         // Описание товара для таможни
         $this->addColumn('{{%order}}', 'customs_description', $this->text()->after('comment'));

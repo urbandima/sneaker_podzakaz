@@ -1,0 +1,17 @@
+# Cron задачи для системы импорта товаров
+# 
+# Автоматический импорт каждые 8 часов
+# Очистка логов раз в неделю
+# Обновление курсов валют ежедневно
+
+# Импорт товаров (каждые 8 часов: 0:00, 8:00, 16:00)
+0 0,8,16 * * * www-data cd /var/www/sneakerhead.by && php yii import/run --limit=100 --notify=1 >> /var/log/import.log 2>&1
+
+# Обновление курсов валют (ежедневно в 6:00)
+0 6 * * * www-data cd /var/www/sneakerhead.by && php yii import/update-rates >> /var/log/currency.log 2>&1
+
+# Очистка старых логов (каждое воскресенье в 3:00)
+0 3 * * 0 www-data cd /var/www/sneakerhead.by && php yii import/clean-logs --days=30 >> /var/log/cleanup.log 2>&1
+
+# Обновление лучших цен (каждые 4 часа)
+0 */4 * * * www-data cd /var/www/sneakerhead.by && php yii import/update-prices >> /var/log/prices.log 2>&1

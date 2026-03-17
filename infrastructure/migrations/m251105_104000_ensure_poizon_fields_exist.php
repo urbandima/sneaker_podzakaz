@@ -61,13 +61,19 @@ class m251105_104000_ensure_poizon_fields_exist extends Migration
         
         foreach ($requiredIndexes as $indexName => $column) {
             if (!in_array($indexName, $indexNames)) {
-                if ($column === 'sku') {
-                    // Для SKU проверяем уникальность
-                    $this->createIndex($indexName, '{{%product}}', $column, true);
-                } else {
-                    $this->createIndex($indexName, '{{%product}}', $column);
+                try {
+                    if ($column === 'sku') {
+                        // Для SKU проверяем уникальность
+                        $this->createIndex($indexName, '{{%product}}', $column, true);
+                    } else {
+                        $this->createIndex($indexName, '{{%product}}', $column);
+                    }
+                    echo "✓ Создан индекс {$indexName}\n";
+                } catch (\Exception $e) {
+                    echo "⚠ Индекс {$indexName} уже существует\n";
                 }
-                echo "✓ Создан индекс {$indexName}\n";
+            } else {
+                echo "  Индекс {$indexName} уже существует\n";
             }
         }
         

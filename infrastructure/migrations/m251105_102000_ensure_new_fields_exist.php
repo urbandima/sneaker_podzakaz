@@ -57,21 +57,33 @@ class m251105_102000_ensure_new_fields_exist extends Migration
         $indexNames = array_keys($productIndexes);
         
         if (!in_array('idx-product-series_name', $indexNames)) {
-            $this->createIndex('idx-product-series_name', '{{%product}}', 'series_name');
-            echo "✓ Создан индекс idx-product-series_name\n";
+            try {
+                $this->createIndex('idx-product-series_name', '{{%product}}', 'series_name');
+                echo "✓ Создан индекс idx-product-series_name\n";
+            } catch (\Exception $e) {
+                echo "⚠ Индекс idx-product-series_name уже существует\n";
+            }
         }
         
         if (!in_array('idx-product-delivery_time', $indexNames)) {
-            $this->createIndex('idx-product-delivery_time', '{{%product}}', ['delivery_time_min', 'delivery_time_max']);
-            echo "✓ Создан индекс idx-product-delivery_time\n";
+            try {
+                $this->createIndex('idx-product-delivery_time', '{{%product}}', ['delivery_time_min', 'delivery_time_max']);
+                echo "✓ Создан индекс idx-product-delivery_time\n";
+            } catch (\Exception $e) {
+                echo "⚠ Индекс idx-product-delivery_time уже существует\n";
+            }
         }
         
         $sizeIndexes = $this->db->schema->getTableIndexes('{{%product_size}}');
         $sizeIndexNames = array_keys($sizeIndexes);
         
         if (!in_array('idx-product_size-color_variant', $sizeIndexNames)) {
-            $this->createIndex('idx-product_size-color_variant', '{{%product_size}}', 'color_variant');
-            echo "✓ Создан индекс idx-product_size-color_variant\n";
+            try {
+                $this->createIndex('idx-product_size-color_variant', '{{%product_size}}', 'color_variant');
+                echo "✓ Создан индекс idx-product_size-color_variant\n";
+            } catch (\Exception $e) {
+                echo "⚠ Индекс idx-product_size-color_variant уже существует\n";
+            }
         }
         
         echo "✅ Все поля проверены и добавлены если необходимо\n";

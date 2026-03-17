@@ -345,6 +345,104 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
     color: #111827;
 }
 
+.info-value.editable-field {
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.2s;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.info-value.editable-field:hover {
+    background-color: #f3f4f6;
+}
+
+.info-value.editable-field::after {
+    content: " ✏️";
+    position: absolute;
+    right: 0.25rem;
+    top: 0.25rem;
+    font-size: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.info-value.editable-field:hover::after {
+    opacity: 0.5;
+}
+
+/* Inline редактирование */
+.inline-edit-input {
+    width: 100%;
+    padding: 0.25rem 0.5rem;
+    border: 2px solid #3b82f6;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    background: #fff;
+    outline: none;
+}
+
+.inline-edit-textarea {
+    width: 100%;
+    min-height: 60px;
+    padding: 0.5rem;
+    border: 2px solid #3b82f6;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    background: #fff;
+    outline: none;
+    resize: vertical;
+}
+
+.inline-edit-actions {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.inline-edit-actions button {
+    padding: 0.25rem 0.75rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.inline-edit-save {
+    background: #10b981;
+    color: white;
+}
+
+.inline-edit-save:hover {
+    background: #059669;
+}
+
+.inline-edit-cancel {
+    background: #ef4444;
+    color: white;
+}
+
+.inline-edit-cancel:hover {
+    background: #dc2626;
+}
+
+/* Анимация сохранения */
+.saving {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.saving::after {
+    content: " 💾";
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 /* Инфо-сетка */
 .info-grid {
     display: grid;
@@ -538,6 +636,40 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
 
         <div class="order-grid">
             <div class="order-main">
+                <!-- СОСТАВ ЗАКАЗА -->
+                <div class="order-card">
+                    <div class="card-header">
+                        <h3><i class="bi bi-bag-check"></i> Состав заказа</h3>
+                        <span style="font-size:0.8125rem;color:#6b7280;"><?= count($model->orderItems) ?> позиций</span>
+                    </div>
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th style="width:40px;">#</th>
+                                <th>Наименование</th>
+                                <th style="width:80px;">Кол-во</th>
+                                <th style="width:100px;">Цена</th>
+                                <th style="width:100px;">Сумма</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($model->orderItems as $index => $item): ?>
+                            <tr>
+                                <td style="color:#6b7280;"><?= $index + 1 ?></td>
+                                <td class="item-name"><?= Html::encode($item->product_name) ?></td>
+                                <td><?= $item->quantity ?> шт.</td>
+                                <td><?= Yii::$app->formatter->asDecimal($item->price, 2) ?> Br</td>
+                                <td class="item-price"><?= Yii::$app->formatter->asDecimal($item->total, 2) ?> Br</td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    <div class="items-total">
+                        <span class="items-total-label">Итого к оплате:</span>
+                        <span class="items-total-value"><?= Yii::$app->formatter->asDecimal($model->total_amount, 2) ?> Br</span>
+                    </div>
+                </div>
+
                 <!-- Информация о клиенте -->
                 <div class="order-card">
                     <div class="card-header">
@@ -548,26 +680,26 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                             <div class="info-grid">
                                 <div class="info-item">
                                     <div class="info-label">ФИО</div>
-                                    <div class="info-value"><?= Html::encode($model->client_name ?: '-') ?></div>
+                                    <div class="info-value editable-field" data-field="client_name" data-id="<?= $model->id ?>"><?= Html::encode($model->client_name ?: '-') ?></div>
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">Телефон</div>
-                                    <div class="info-value"><?= Html::encode($model->client_phone ?: '-') ?></div>
+                                    <div class="info-value editable-field" data-field="client_phone" data-id="<?= $model->id ?>"><?= Html::encode($model->client_phone ?: '-') ?></div>
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">Email</div>
-                                    <div class="info-value"><?= Html::encode($model->client_email ?: '-') ?></div>
+                                    <div class="info-value editable-field" data-field="client_email" data-id="<?= $model->id ?>"><?= Html::encode($model->client_email ?: '-') ?></div>
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">Срок доставки</div>
-                                    <div class="info-value"><?= Html::encode($model->delivery_date ?: '-') ?></div>
+                                    <div class="info-value editable-field" data-field="delivery_date" data-id="<?= $model->id ?>"><?= Html::encode($model->delivery_date ?: '-') ?></div>
                                 </div>
                             </div>
 
                             <?php if ($model->comment): ?>
                             <div style="margin-top:1rem;padding:0.875rem;background:#fef3c7;border-radius:8px;">
                                 <div style="font-weight:600;font-size:0.75rem;color:#92400e;margin-bottom:0.25rem;">КОММЕНТАРИЙ</div>
-                                <div style="color:#78350f;"><?= nl2br(Html::encode($model->comment)) ?></div>
+                                <div class="editable-field" data-field="comment" data-id="<?= $model->id ?>" style="color:#78350f;cursor:pointer;" title="Кликните для редактирования"><?= nl2br(Html::encode($model->comment)) ?></div>
                             </div>
                             <?php endif; ?>
                         </div>
@@ -634,40 +766,6 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                                 <i class="bi bi-clipboard"></i> Копировать
                             </button>
                         </div>
-                    </div>
-                </div>
-
-                <!-- СОСТАВ ЗАКАЗА -->
-                <div class="order-card">
-                    <div class="card-header">
-                        <h3><i class="bi bi-bag-check"></i> Состав заказа</h3>
-                        <span style="font-size:0.8125rem;color:#6b7280;"><?= count($model->orderItems) ?> позиций</span>
-                    </div>
-                    <table class="items-table">
-                        <thead>
-                            <tr>
-                                <th style="width:40px;">#</th>
-                                <th>Наименование</th>
-                                <th style="width:80px;">Кол-во</th>
-                                <th style="width:100px;">Цена</th>
-                                <th style="width:100px;">Сумма</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($model->orderItems as $index => $item): ?>
-                            <tr>
-                                <td style="color:#6b7280;"><?= $index + 1 ?></td>
-                                <td class="item-name"><?= Html::encode($item->product_name) ?></td>
-                                <td><?= $item->quantity ?> шт.</td>
-                                <td><?= Yii::$app->formatter->asDecimal($item->price, 2) ?> Br</td>
-                                <td class="item-price"><?= Yii::$app->formatter->asDecimal($item->total, 2) ?> Br</td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    <div class="items-total">
-                        <span class="items-total-label">Итого к оплате:</span>
-                        <span class="items-total-value"><?= Yii::$app->formatter->asDecimal($model->total_amount, 2) ?> Br</span>
                     </div>
                 </div>
             </div>
@@ -797,7 +895,11 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                             <select name="logist_id" class="form-select">
                                 <option value="">Не назначен</option>
                                 <?php
-                                $logists = \app\backend\modules\admin\models\User::find()->where(['role' => 'logist'])->all();
+                                try {
+                                    $logists = \app\backend\modules\admin\models\User::find()->where(['role' => 'logist'])->all();
+                                } catch (\Exception $e) {
+                                    $logists = [];
+                                }
                                 foreach ($logists as $logist):
                                 ?>
                                     <option value="<?= $logist->id ?>" <?= $model->assigned_logist == $logist->id ? 'selected' : '' ?>>
@@ -934,7 +1036,150 @@ function showCopyNotification(event) {
     }, 2000);
 }
 
-// Переключение режима редактирования
+// Inline редактирование полей
+function makeFieldEditable(element) {
+    element.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (element.classList.contains('saving')) return;
+        
+        const field = element.dataset.field;
+        const id = element.dataset.id;
+        const currentValue = element.textContent.trim();
+        const isTextarea = field === 'comment';
+        
+        // Создаем поле ввода
+        const input = document.createElement(isTextarea ? 'textarea' : 'input');
+        input.type = 'text';
+        input.className = isTextarea ? 'inline-edit-textarea' : 'inline-edit-input';
+        input.value = currentValue;
+        
+        // Создаем кнопки действий
+        const actions = document.createElement('div');
+        actions.className = 'inline-edit-actions';
+        actions.innerHTML = `
+            <button type="button" class="inline-edit-save">Сохранить</button>
+            <button type="button" class="inline-edit-cancel">Отмена</button>
+        `;
+        
+        // Заменяем содержимое
+        element.innerHTML = '';
+        element.appendChild(input);
+        element.appendChild(actions);
+        element.classList.add('saving');
+        
+        // Фокус на поле ввода
+        input.focus();
+        input.select();
+        
+        // Обработчики
+        const saveBtn = actions.querySelector('.inline-edit-save');
+        const cancelBtn = actions.querySelector('.inline-edit-cancel');
+        
+        function save() {
+            const newValue = input.value.trim();
+            
+            fetch('/admin/order/update-field?id=' + id, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: 'field=' + encodeURIComponent(field) + '&value=' + encodeURIComponent(newValue)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    element.textContent = newValue || '-';
+                    element.classList.remove('saving');
+                    showNotification('Поле успешно обновлено', 'success');
+                } else {
+                    element.textContent = currentValue;
+                    element.classList.remove('saving');
+                    showNotification(data.message || 'Ошибка сохранения', 'error');
+                }
+            })
+            .catch(error => {
+                element.textContent = currentValue;
+                element.classList.remove('saving');
+                showNotification('Ошибка соединения', 'error');
+            });
+        }
+        
+        function cancel() {
+            element.textContent = currentValue;
+            element.classList.remove('saving');
+        }
+        
+        saveBtn.addEventListener('click', save);
+        cancelBtn.addEventListener('click', cancel);
+        
+        // Сохранение по Enter
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !isTextarea) {
+                e.preventDefault();
+                save();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                cancel();
+            }
+        });
+        
+        // Отмена по клику вне поля
+        document.addEventListener('click', function outsideClick(e) {
+            if (!element.contains(e.target)) {
+                cancel();
+                document.removeEventListener('click', outsideClick);
+            }
+        });
+    });
+}
+
+// Показ уведомлений
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Инициализация editable полей
+document.addEventListener('DOMContentLoaded', function() {
+    const editableFields = document.querySelectorAll('.editable-field');
+    editableFields.forEach(makeFieldEditable);
+});
+
+// CSS анимации
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
 document.addEventListener('DOMContentLoaded', function() {
     const toggleBtn = document.getElementById('toggleEditMode');
     const cancelBtn = document.getElementById('cancelEdit');

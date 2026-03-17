@@ -63,6 +63,14 @@ $config = [
             'showScriptName' => false,
         ],
     ],
+    'controllerMap' => [
+        'migrate' => [
+            'class' => 'yii\console\controllers\MigrateController',
+            'migrationPath' => [
+                '@app/infrastructure/migrations',
+            ],
+        ],
+    ],
     'params' => $params,
 ];
 

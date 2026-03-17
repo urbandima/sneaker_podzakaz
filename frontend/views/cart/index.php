@@ -1073,7 +1073,7 @@ h1 {
                         <div class="saved-addresses-section" id="savedAddressesSection">
                             <h3>Выберите адрес доставки</h3>
                             <div class="saved-addresses">
-                                <?php if ($customer->default_address): ?>
+                                <?php if ($customer && isset($customer->default_address) && $customer->default_address): ?>
                                     <label class="saved-address-card active">
                                         <input type="radio" name="saved_address" value="default" checked>
                                         <div class="address-content">
@@ -1085,7 +1085,7 @@ h1 {
                                                 <?= Html::encode($customer->default_country ?? 'Беларусь') ?>, 
                                                 <?= Html::encode($customer->default_city ?? '') ?><br>
                                                 <?= Html::encode($customer->default_address) ?>
-                                                <?php if ($customer->default_postal_code): ?>
+                                                <?php if (isset($customer->default_postal_code) && $customer->default_postal_code): ?>
                                                     , <?= Html::encode($customer->default_postal_code) ?>
                                                 <?php endif; ?>
                                             </div>
@@ -1200,7 +1200,7 @@ h1 {
                             </label>
                         </div>
                         
-                        <div class="form-group" id="addressFieldGroup" style="margin-top: 1rem;<?= $customer && $customer->default_address ? ' display: none;' : '' ?>">
+                        <div class="form-group" id="addressFieldGroup" style="margin-top: 1rem;<?= $customer && isset($customer->default_address) && $customer->default_address ? ' display: none;' : '' ?>">
                             <label id="addressLabel">Адрес доставки *</label>
                             <textarea name="address" id="addressField" rows="2" placeholder="Укажите адрес доставки"></textarea>
                         </div>

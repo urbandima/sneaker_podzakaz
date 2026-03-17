@@ -73,7 +73,7 @@ class m251226_130000_ensure_tariff_table extends Migration
     {
         $indexes = $this->db->schema->getTableIndexes($this->table, true);
         foreach ($indexes as $index) {
-            if ($index['name'] === $name) {
+            if ($index->name === $name) {
                 return;
             }
         }

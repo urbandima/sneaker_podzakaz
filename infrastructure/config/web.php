@@ -48,7 +48,7 @@ $config = [
         '@frontend' => '@app/frontend',
         '@infrastructure' => '@app/infrastructure',
         '@webroot' => '@app/frontend/web',
-        '@web' => '@app/frontend/web',
+        '@web' => '/',
         '@css' => '@app/frontend/css',
         '@js' => '@app/frontend/js',
         '@images' => '@app/frontend/images',
@@ -57,11 +57,29 @@ $config = [
     ],
     // Feature-based модули (архитектура 2026)
     'modules' => [
+        'catalog' => [
+            'class' => 'app\backend\modules\catalog\CatalogModule',
+        ],
+        'cart' => [
+            'class' => 'app\backend\modules\cart\CartModule',
+        ],
+        'account' => [
+            'class' => 'app\backend\modules\account\AccountModule',
+        ],
         'checkout' => [
             'class' => 'app\backend\modules\checkout\CheckoutModule',
         ],
         'admin' => [
             'class' => 'app\backend\modules\admin\AdminModule',
+        ],
+        'coupon' => [
+            'class' => 'app\backend\modules\coupon\CouponModule',
+        ],
+        'loyalty' => [
+            'class' => 'app\backend\modules\loyalty\LoyaltyModule',
+        ],
+        'return' => [
+            'class' => 'app\backend\modules\return\ReturnModule',
         ],
     ],
     'components' => [
@@ -202,6 +220,7 @@ $config = [
                 
                 // Каталог товаров
                 'catalog' => 'catalog/index',
+                'sale' => 'catalog/sale',
                 'catalog/brand/<slug:[a-z0-9-]+>' => 'catalog/brand',
                 'catalog/category/<slug:[a-z0-9-]+>' => 'catalog/category',
                 'catalog/product/<slug:[a-z0-9-]+>' => 'catalog/product',
@@ -347,6 +366,17 @@ $config = [
                 'admin/customer/<id:\d+>/reset-password' => 'admin/customer/reset-password',
                 'admin/customer/<id:\d+>/link-orders' => 'admin/customer/link-orders',
                 'admin/customer/export' => 'admin/customer/export',
+                
+                // Import
+                'admin/import' => 'admin/import/index',
+                'admin/import/upload' => 'admin/import/upload',
+                'admin/import/source' => 'admin/import/source',
+                'admin/import/source/<id:\d+>' => 'admin/import/source',
+                'admin/import/run/<sourceId:\d+>' => 'admin/import/run',
+                'admin/import/run-all' => 'admin/import/runAll',
+                'admin/import/logs' => 'admin/import/logs',
+                'admin/import/stats' => 'admin/import/stats',
+                'admin/import/settings' => 'admin/import/settings',
                 
                 // Общее правило для остальных admin действий
                 'admin/<controller:\w+>/<action:\w+>/<id:\d+>' => 'admin/<controller>/<action>',

@@ -67,10 +67,10 @@ $this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
                             <span class="order-client-label">Email:</span>
                             <span class="order-client-value"><?= Html::encode($model->client_email) ?></span>
                         </div>
-                        <?php if ($model->client_address): ?>
+                        <?php if ($model->delivery_address): ?>
                         <div class="order-client-item">
                             <span class="order-client-label">Адрес:</span>
-                            <span class="order-client-value"><?= Html::encode($model->client_address) ?></span>
+                            <span class="order-client-value"><?= Html::encode($model->delivery_address) ?></span>
                         </div>
                         <?php endif; ?>
                     </div>

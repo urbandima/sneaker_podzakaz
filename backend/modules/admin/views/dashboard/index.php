@@ -4,7 +4,6 @@
 /** @var array $orderStats */
 /** @var array $productStats */
 /** @var array $userStats */
-/** @var array $recentOrders */
 /** @var array $chartData */
 /** @var array $topProducts */
 /** @var array $activeLogists */
@@ -237,48 +236,6 @@ $formatter = Yii::$app->formatter;
                     <canvas id="ordersChart" class="dashboard-chart"></canvas>
                 </div>
             </div>
-
-            <div class="admin-card">
-                <div class="admin-card-header admin-flex admin-flex--between admin-flex--wrap">
-                    <div>
-                        <h2 class="admin-card-title">
-                            <i class="bi bi-clock-history"></i>
-                            Последние заказы
-                        </h2>
-                        <p class="admin-card-subtitle">Свежие заявки за последние 24 часа.</p>
-                    </div>
-                    <a href="<?= Url::to(['/admin/order/index']) ?>" class="admin-btn admin-btn--ghost admin-btn--sm">
-                        Все заказы
-                    </a>
-                </div>
-                <div class="admin-card-body recent-orders-list">
-                    <?php foreach ($recentOrders as $order): ?>
-                        <a href="<?= Url::to(['/admin/order/view', 'id' => $order->id]) ?>" class="recent-order">
-                            <div class="recent-order__avatar">
-                                <i class="bi bi-box-seam"></i>
-                            </div>
-                            <div class="recent-order__meta">
-                                <div class="recent-order__title">№ <?= Html::encode($order->order_number) ?></div>
-                                <div class="recent-order__subtitle">
-                                    <?= Html::encode($order->client_name ?: 'Не указан клиент') ?>
-                                </div>
-                            </div>
-                            <div class="recent-order__amount">
-                                <?= Html::encode($formatter->asDecimal($order->total_amount, 2)) ?> BYN
-                                <small><?= Html::encode($formatter->asRelativeTime($order->created_at)) ?></small>
-                            </div>
-                        </a>
-                    <?php endforeach; ?>
-                    <?php if (empty($recentOrders)): ?>
-                        <div class="admin-empty-state">
-                            <div class="admin-empty-state-icon">✨</div>
-                            <div class="admin-empty-state-title">Пока нет новых заказов</div>
-                            <p class="admin-empty-state-text">Создайте заказ вручную или запустите рекламную кампанию.</p>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
 
         <div class="admin-grid admin-grid--2 admin-mb-6">
             <div class="admin-card">

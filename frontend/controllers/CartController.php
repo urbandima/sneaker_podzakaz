@@ -22,7 +22,12 @@ class CartController extends Controller
     {
         $items = Cart::getItems();
         $total = Cart::getTotal();
-        $customer = Yii::$app->user->isGuest ? null : Yii::$app->user->identity;
+        
+        // Получаем customer только для реальных пользователей, не для админа
+        $customer = null;
+        if (!Yii::$app->user->isGuest && !Yii::$app->user->identity->isAdmin()) {
+            $customer = Yii::$app->user->identity;
+        }
 
         return $this->render('index', [
             'items' => $items,

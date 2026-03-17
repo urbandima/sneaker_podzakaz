@@ -66,6 +66,21 @@ $company = Yii::$app->settings->getCompany();
             box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
         }
         
+        /* Адаптация для темной темы */
+        @media (prefers-color-scheme: dark) {
+            .main-header {
+                background: var(--surface-primary, #0f172a) !important;
+                border-bottom: 1px solid var(--border-color, #334155) !important;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+            }
+        }
+        
+        [data-theme="dark"] .main-header {
+            background: var(--surface-primary, #0f172a) !important;
+            border-bottom: 1px solid var(--border-color, #334155) !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+        }
+        
         .header-content {
             display: flex !important;
             align-items: center !important;

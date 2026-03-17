@@ -209,7 +209,11 @@ class OrderController extends BaseAdminController
             ],
         ];
 
-        $logists = User::find()->where(['role' => 'logist'])->orderBy(['username' => SORT_ASC])->all();
+        try {
+            $logists = User::find()->where(['role' => 'logist'])->orderBy(['username' => SORT_ASC])->all();
+        } catch (\Exception $e) {
+            $logists = [];
+        }
         $logistMap = ArrayHelper::map($logists, 'id', 'username');
 
         if (Yii::$app->request->isAjax && Yii::$app->request->get('scroll') === '1') {
@@ -755,6 +759,7 @@ class OrderController extends BaseAdminController
         
         // Разрешенные поля для inline редактирования
         $allowedFields = [
+            'client_name', 'client_phone', 'client_email', 'delivery_date', 'comment',
             'china_track_number', 'shipment_value_cny', 'status',
             'recipient_last_name', 'recipient_first_name', 'recipient_middle_name',
             'passport_series', 'passport_number', 'passport_issue_date', 'birth_date', 'inn',
@@ -762,8 +767,7 @@ class OrderController extends BaseAdminController
             'customs_description', 'item_quantity', 'item_price_cny', 'product_link',
             'dobropost_tariff', 'sneakerhead_order_link', 'ms_number',
             'is_processed', 'is_shipped', 'customs_cleared',
-            'product_price', 'logistics_price', 'commission_price',
-            'comment', 'delivery_date'
+            'product_price', 'logistics_price', 'commission_price'
         ];
         
         if (!in_array($field, $allowedFields)) {
@@ -773,7 +777,7 @@ class OrderController extends BaseAdminController
         // Логист может менять только определенные поля
         $logistFields = [
             'china_track_number', 'is_processed', 'is_shipped', 'customs_cleared',
-            'ms_number', 'status', 'comment'
+            'ms_number', 'status', 'comment', 'delivery_date'
         ];
         
         if ($this->isLogist() && !in_array($field, $logistFields)) {

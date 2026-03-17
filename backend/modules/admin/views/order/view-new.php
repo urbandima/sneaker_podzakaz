@@ -13,7 +13,13 @@ $canEdit = !$user->isLogist();
 $isEditing = $canEdit && !empty($editing);
 $inputDisabled = ($canEdit && $isEditing) ? '' : 'disabled';
 $logists = $user->isAdmin()
-    ? \app\backend\modules\admin\models\User::find()->where(['role' => 'logist'])->orderBy(['username' => SORT_ASC])->all()
+    ? (function() {
+        try {
+            return \app\backend\modules\admin\models\User::find()->where(['role' => 'logist'])->orderBy(['username' => SORT_ASC])->all();
+        } catch (\Exception $e) {
+            return [];
+        }
+    })()
     : [];
 $itemCount = count($model->orderItems);
 $amoDealId = ($model->source === 'amocrm' && $model->source_id) ? $model->source_id : null;

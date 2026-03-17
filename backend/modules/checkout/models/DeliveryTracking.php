@@ -74,7 +74,7 @@ class DeliveryTracking extends ActiveRecord
 
     public static function tableName()
     {
-        return '{{%delivery_tracking}}';
+        return 'delivery_tracking';
     }
 
     public function rules()

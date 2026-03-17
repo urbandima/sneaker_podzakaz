@@ -449,9 +449,9 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
                 </button>
             </div>
             
-            <a href="<?= Url::to(['/admin-import/index']) ?>" class="btn-action btn-poizon-import">
-                <i class="bi bi-cloud-download"></i>
-                Импорт Poizon
+            <a href="<?= Url::to(['/admin/import']) ?>" class="btn-action btn-poizon-import">
+                <i class="fas fa-download"></i>
+                Импорт товаров
             </a>
             
             <a href="<?= Url::to(['/admin/product/create']) ?>" class="btn-action btn-primary-action">
@@ -481,6 +481,36 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
             <div class="stat-label">В наличии</div>
             <div class="stat-value"><?= number_format($stats['inStock'] ?? 0) ?></div>
             <div class="stat-sub">Нет в наличии: <?= number_format($stats['outOfStock'] ?? 0) ?></div>
+        </div>
+    </div>
+
+    <!-- Виджет импорта -->
+    <div class="row mb-4">
+        <div class="col-lg-4">
+            <?= \app\backend\modules\admin\widgets\ImportWidget::widget() ?>
+        </div>
+        <div class="col-lg-8">
+            <!-- Дополнительная статистика или информация -->
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">
+                        <i class="fas fa-info-circle text-info me-2"></i>
+                        Информация об импорте
+                    </h6>
+                    <p class="card-text small">
+                        Система импорта позволяет автоматически и вручную добавлять товары из различных источников:
+                        Lamoda, Dewu, Zalando, StockX. Поддерживаются форматы JSON, CSV и Excel.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <a href="<?= Url::to(['/admin/import']) ?>" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-chart-bar me-1"></i> Статистика
+                        </a>
+                        <a href="<?= Url::to(['/admin/import/logs']) ?>" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-list me-1"></i> Логи
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

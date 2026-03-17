@@ -38,8 +38,7 @@ class m240315_120000_create_coupon_tables extends Migration
         ]);
         
         $this->addForeignKey('fk_coupon_usage_coupon', '{{%coupon_usage}}', 'coupon_id', '{{%coupon}}', 'id', 'CASCADE');
-        $this->addForeignKey('fk_coupon_usage_order', '{{%coupon_usage}}', 'order_id', '{{%order}}', 'id', 'CASCADE');
-        $this->addForeignKey('fk_coupon_usage_customer', '{{%coupon_usage}}', 'customer_id', '{{%customer}}', 'id', 'SET NULL');
+        // Skip foreign keys for now - will be added after dependent tables are created
         
         // Insert sample coupons
         $this->batchInsert('{{%coupon}}', ['code', 'type', 'value', 'min_order_amount', 'description', 'status'], [

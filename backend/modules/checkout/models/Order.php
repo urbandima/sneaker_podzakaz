@@ -49,7 +49,7 @@ class Order extends ActiveRecord
 
     public static function tableName()
     {
-        return '{{%order}}';
+        return 'order';
     }
 
     public function behaviors()

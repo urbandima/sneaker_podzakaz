@@ -21,6 +21,15 @@ class TemporaryAdminIdentity implements IdentityInterface
     public $role = 'admin';
     public $authKey = 'temp-admin-key-2026';
     
+    // Свойства для совместимости с frontend
+    public $default_address = null;
+    public $default_country = null;
+    public $default_city = null;
+    public $default_postal_code = null;
+    public $name = 'Admin';
+    public $email = 'admin@example.com';
+    public $phone = null;
+    
     public static function findIdentity($id)
     {
         // Возвращаем экземпляр для ID=1 (admin)

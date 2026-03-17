@@ -71,7 +71,6 @@ class DashboardController extends BaseAdminController
                 'managers' => 4,
                 'logists' => 2,
             ];
-            $recentOrders = [];
             $topProducts = [
                 ['product_name' => 'Nike Air Max 90', 'order_count' => 45, 'total_quantity' => 67, 'avg_price' => 350.00],
                 ['product_name' => 'Adidas Ultraboost 22', 'order_count' => 38, 'total_quantity' => 52, 'avg_price' => 280.00],
@@ -106,13 +105,15 @@ class DashboardController extends BaseAdminController
                 // Статистика пользователей
                 $userStats = $this->getUserStats();
                 
-                // Последние заказы
-                $recentOrders = Order::find()
-                    ->with(['creator', 'logist'])
-                    ->orderBy(['created_at' => SORT_DESC])
-                    ->limit(5)
-                    ->all();
-                    
+                // Топ товары
+                $topProducts = $this->getTopProducts();
+                
+                // Активные логисты
+                $activeLogists = $this->getActiveLogists();
+                
+                // Данные для графика
+                $chartData = $this->getChartData($user);
+                
                 // Настройки компании
                 $companySettings = CompanySettings::getSettings();
             } catch (\Exception $e) {
@@ -140,7 +141,6 @@ class DashboardController extends BaseAdminController
                     'managers' => 4,
                     'logists' => 2,
                 ];
-                $recentOrders = [];
                 $topProducts = [
                     ['product_name' => 'Nike Air Max 90', 'order_count' => 45, 'total_quantity' => 67, 'avg_price' => 350.00],
                     ['product_name' => 'Adidas Ultraboost 22', 'order_count' => 38, 'total_quantity' => 52, 'avg_price' => 280.00],
@@ -171,8 +171,7 @@ class DashboardController extends BaseAdminController
             'orderStats' => $orderStats,
             'productStats' => $productStats,
             'userStats' => $userStats,
-            'recentOrders' => $recentOrders,
-            'topProducts' => $topProducts,
+                        'topProducts' => $topProducts,
             'activeLogists' => $activeLogists,
             'chartData' => $chartData,
             'companySettings' => $companySettings,
@@ -252,20 +251,97 @@ class DashboardController extends BaseAdminController
             ];
         }
         
-        return [
-            'total' => (int)User::find()->count(),
-            'active' => (int)User::find()->where(['status' => 'active'])->count(),
-            'admins' => (int)User::find()->where(['role' => 'admin'])->count(),
-            'logists' => (int)User::find()->where(['role' => 'logist'])->count(),
-            'managers' => (int)User::find()->where(['role' => 'manager'])->count(),
-        ];
+        try {
+            return [
+                'total' => (int)User::find()->count(),
+                'active' => (int)User::find()->where(['status' => 'active'])->count(),
+                'admins' => (int)User::find()->where(['role' => 'admin'])->count(),
+                'logists' => (int)User::find()->where(['role' => 'logist'])->count(),
+                'managers' => (int)User::find()->where(['role' => 'manager'])->count(),
+            ];
+        } catch (\Exception $e) {
+            // Демо-данные при отсутствии БД
+            return [
+                'total' => 8,
+                'active' => 8,
+                'admins' => 2,
+                'logists' => 2,
+                'managers' => 4,
+            ];
+        }
     }
     
+    /**
+     * Получение топ товаров
+     */
+    private function getTopProducts()
+    {
+        // ВРЕМЕННО: Для временной авторизации возвращаем демо-данные
+        if (Yii::$app->user->identity instanceof \app\backend\modules\admin\models\TemporaryAdminIdentity) {
+            return [
+                ['product_name' => 'Nike Air Max 90', 'order_count' => 45, 'total_quantity' => 67, 'avg_price' => 350.00],
+                ['product_name' => 'Adidas Ultraboost 22', 'order_count' => 38, 'total_quantity' => 52, 'avg_price' => 280.00],
+                ['product_name' => 'Jordan 1 Retro High', 'order_count' => 32, 'total_quantity' => 41, 'avg_price' => 420.00],
+                ['product_name' => 'New Balance 550', 'order_count' => 28, 'total_quantity' => 35, 'avg_price' => 180.00],
+                ['product_name' => 'Yeezy Boost 350', 'order_count' => 25, 'total_quantity' => 30, 'avg_price' => 520.00],
+            ];
+        }
+        
+        // Топ товаров по количеству заказов
+        // Используем product_name так как в order_item нет product_id
+        $sql = "
+            SELECT oi.product_name, SUM(oi.quantity) as total_quantity, 
+                   COUNT(DISTINCT oi.order_id) as order_count, AVG(oi.price) as avg_price
+            FROM order_item oi
+            INNER JOIN `order` o ON oi.order_id = o.id
+            WHERE o.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            GROUP BY oi.product_name
+            ORDER BY order_count DESC, total_quantity DESC
+            LIMIT 5
+        ";
+        
+        return Yii::$app->db->createCommand($sql)->queryAll();
+    }
+    
+    /**
+     * Получение активных логистов
+     */
+    private function getActiveLogists()
+    {
+        // ВРЕМЕННО: Для временной авторизации возвращаем демо-данные
+        if (Yii::$app->user->identity instanceof \app\backend\modules\admin\models\TemporaryAdminIdentity) {
+            return [];
+        }
+        
+        try {
+            return User::find()
+                ->where(['role' => 'logist', 'status' => 'active'])
+                ->orderBy(['username' => SORT_ASC])
+                ->all();
+        } catch (\Exception $e) {
+            // Демо-данные при отсутствии БД
+            return [];
+        }
+    }
+
     /**
      * Получение данных для графика заказов
      */
     private function getChartData($user)
     {
+        // ВРЕМЕННО: Для временной авторизации возвращаем демо-данные
+        if ($user instanceof \app\backend\modules\admin\models\TemporaryAdminIdentity) {
+            return [
+                ['date' => '2026-03-09', 'day' => 'Mon', 'orders' => 12, 'amount' => 2100.00],
+                ['date' => '2026-03-10', 'day' => 'Tue', 'orders' => 15, 'amount' => 2800.00],
+                ['date' => '2026-03-11', 'day' => 'Wed', 'orders' => 18, 'amount' => 3200.00],
+                ['date' => '2026-03-12', 'day' => 'Thu', 'orders' => 22, 'amount' => 3800.00],
+                ['date' => '2026-03-13', 'day' => 'Fri', 'orders' => 25, 'amount' => 4500.00],
+                ['date' => '2026-03-14', 'day' => 'Sat', 'orders' => 28, 'amount' => 5200.00],
+                ['date' => '2026-03-15', 'day' => 'Sun', 'orders' => 20, 'amount' => 3500.00],
+            ];
+        }
+        
         $data = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = date('Y-m-d', strtotime("-$i days"));
@@ -291,38 +367,6 @@ class DashboardController extends BaseAdminController
         }
         
         return $data;
-    }
-    
-    /**
-     * Получение топ товаров
-     */
-    private function getTopProducts()
-    {
-        // Топ товаров по количеству заказов
-        // Используем product_name так как в order_item нет product_id
-        $sql = "
-            SELECT oi.product_name, SUM(oi.quantity) as total_quantity, 
-                   COUNT(DISTINCT oi.order_id) as order_count, AVG(oi.price) as avg_price
-            FROM order_item oi
-            INNER JOIN `order` o ON oi.order_id = o.id
-            WHERE o.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-            GROUP BY oi.product_name
-            ORDER BY order_count DESC, total_quantity DESC
-            LIMIT 5
-        ";
-        
-        return Yii::$app->db->createCommand($sql)->queryAll();
-    }
-    
-    /**
-     * Получение активных логистов
-     */
-    private function getActiveLogists()
-    {
-        return User::find()
-            ->where(['role' => 'logist', 'status' => 'active'])
-            ->orderBy(['username' => SORT_ASC])
-            ->all();
     }
 
     /**

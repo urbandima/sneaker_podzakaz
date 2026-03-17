@@ -55,6 +55,10 @@ $allKeywords = array_unique(array_filter($allKeywords));
         </div>
         <div class="btn-group">
             <?= Html::a('<i class="bi bi-arrow-left"></i> Назад', ['/admin/product/index'], ['class' => 'btn btn-secondary']) ?>
+            <?= Html::a('<i class="fas fa-download"></i> Импорт', ['/admin/import/upload'], [
+                'class' => 'btn btn-success',
+                'title' => 'Перейти к импорту товаров'
+            ]) ?>
             <?php if ($product->poizon_id): ?>
                 <?= Html::a('<i class="bi bi-arrow-repeat"></i> Синхронизировать', ['/admin/product/sync', 'id' => $product->id], [
                     'class' => 'btn btn-info',

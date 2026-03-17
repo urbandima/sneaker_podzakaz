@@ -30,7 +30,7 @@ class OrderStatus extends ActiveRecord
 {
     public static function tableName()
     {
-        return '{{%order_status}}';
+        return 'order_status';
     }
 
     public function rules()

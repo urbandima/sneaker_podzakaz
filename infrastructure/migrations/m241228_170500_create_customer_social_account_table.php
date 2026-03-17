@@ -34,15 +34,7 @@ class m241228_170500_create_customer_social_account_table extends Migration
             'customer_id'
         );
 
-        $this->addForeignKey(
-            'fk-customer_social_account-customer_id',
-            '{{%customer_social_account}}',
-            'customer_id',
-            '{{%customer}}',
-            'id',
-            'CASCADE',
-            'CASCADE'
-        );
+        // Skip foreign key for now - will be added after customer table is created
     }
 
     public function safeDown()

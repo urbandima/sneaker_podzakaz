@@ -49,13 +49,11 @@ if (YII_ENV_DEV) {
     
     // Удаление DEBUG блока пагинации (если он создаётся динамически)
     $this->registerJs("
-    // Удаляем DEBUG блок пагинации
     function removeDebugBlock() {
         const debugBlocks = document.querySelectorAll('[style*=\"background:#fef3c7\"], [style*=\"background: #fef3c7\"]');
         debugBlocks.forEach(block => {
             if (block.textContent.includes('DEBUG MODE') || block.textContent.includes('пагинации')) {
                 block.remove();
-                console.log('✅ DEBUG блок удалён');
             }
         });
     }
@@ -67,6 +65,51 @@ if (YII_ENV_DEV) {
     setTimeout(removeDebugBlock, 1000);
     ", \yii\web\View::POS_READY);
 }
+
+// Инициализация Lazy Load
+$this->registerJs("
+// Инициализация lazy load после загрузки DOM
+setTimeout(function() {
+    console.log('🔍 Checking LazyLoad availability:', !!window.LazyLoad);
+    
+    // Проверяем доступен ли LazyLoad класс
+    if (window.LazyLoad) {
+        console.log('🚀 Initializing LazyLoad...');
+        const lazyLoader = new window.LazyLoad();
+        lazyLoader.init();
+        console.log('✅ LazyLoad initialized');
+    } else {
+        console.log('⚠️ LazyLoad not available, using fallback...');
+        // Fallback: простая загрузка изображений
+        const images = document.querySelectorAll('img[data-src]');
+        console.log('Found images to load:', images.length);
+        images.forEach((img, index) => {
+            if (img.dataset.src) {
+                console.log('Loading image', index, img.dataset.src.substring(0, 50) + '...');
+                img.src = img.dataset.src;
+                img.classList.add('lazy-loaded');
+            }
+        });
+        console.log('✅ Fallback loading completed');
+    }
+    
+    // Управление skeleton grid
+    const skeletonGrid = document.getElementById('skeletonGrid');
+    const productsContainer = document.getElementById('products');
+    
+    if (skeletonGrid && productsContainer) {
+        console.log('🦴 Managing skeleton grid...');
+        // Показываем skeleton при загрузке
+        skeletonGrid.classList.remove('skeleton-grid--hidden');
+        
+        // Скрываем skeleton когда товары загружены
+        setTimeout(() => {
+            skeletonGrid.classList.add('skeleton-grid--hidden');
+            console.log('🦴 Skeleton grid hidden');
+        }, 1000);
+    }
+}, 200);
+", \yii\web\View::POS_READY);
 ?>
 
 <div class="catalog-page">

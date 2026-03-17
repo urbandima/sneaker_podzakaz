@@ -41,8 +41,7 @@ class m240315_120300_create_return_tables extends Migration
             'updated_at' => $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         ]);
         
-        $this->addForeignKey('fk_return_request_order', '{{%return_request}}', 'order_id', '{{%order}}', 'id', 'CASCADE');
-        $this->addForeignKey('fk_return_request_customer', '{{%return_request}}', 'customer_id', '{{%customer}}', 'id', 'CASCADE');
+        // Skip foreign keys for now - will be added after dependent tables are created
         
         // Insert default return policy
         $this->batchInsert('{{%return_policy}}', ['name', 'return_period_days', 'requires_original_packaging', 'requires_tags', 'restocking_fee', 'free_return_shipping', 'conditions_text', 'is_default'], [

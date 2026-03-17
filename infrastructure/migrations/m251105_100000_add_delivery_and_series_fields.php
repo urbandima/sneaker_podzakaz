@@ -10,20 +10,60 @@ class m251105_100000_add_delivery_and_series_fields extends Migration
     public function safeUp()
     {
         // Добавляем поля в таблицу product
-        $this->addColumn('{{%product}}', 'series_name', $this->string(255)->comment('Название серии (Air Max, Dunk Low, Jordan 1 и т.д.)'));
-        $this->addColumn('{{%product}}', 'delivery_time_min', $this->integer()->comment('Минимальный срок доставки (дни)'));
-        $this->addColumn('{{%product}}', 'delivery_time_max', $this->integer()->comment('Максимальный срок доставки (дни)'));
-        $this->addColumn('{{%product}}', 'related_products_json', $this->text()->comment('Связанные товары (JSON array)'));
+        try {
+            $this->addColumn('{{%product}}', 'series_name', $this->string(255)->comment('Название серии (Air Max, Dunk Low, Jordan 1 и т.д.)'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка series_name уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%product}}', 'delivery_time_min', $this->integer()->comment('Минимальный срок доставки (дни)'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка delivery_time_min уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%product}}', 'delivery_time_max', $this->integer()->comment('Максимальный срок доставки (дни)'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка delivery_time_max уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%product}}', 'related_products_json', $this->text()->comment('Связанные товары (JSON array)'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка related_products_json уже существует\n";
+        }
         
         // Добавляем поля в таблицу product_size
-        $this->addColumn('{{%product_size}}', 'color_variant', $this->string(100)->comment('Цвет конкретного варианта размера'));
-        $this->addColumn('{{%product_size}}', 'delivery_time_min', $this->integer()->comment('Минимальный срок доставки для размера (дни)'));
-        $this->addColumn('{{%product_size}}', 'delivery_time_max', $this->integer()->comment('Максимальный срок доставки для размера (дни)'));
+        try {
+            $this->addColumn('{{%product_size}}', 'color_variant', $this->string(100)->comment('Цвет конкретного варианта размера'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка color_variant уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%product_size}}', 'delivery_time_min', $this->integer()->comment('Минимальный срок доставки для размера (дни)'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка delivery_time_min в product_size уже существует\n";
+        }
+        try {
+            $this->addColumn('{{%product_size}}', 'delivery_time_max', $this->integer()->comment('Максимальный срок доставки для размера (дни)'));
+        } catch (\Exception $e) {
+            echo "⚠ Колонка delivery_time_max в product_size уже существует\n";
+        }
         
         // Создаем индексы для оптимизации
-        $this->createIndex('idx-product-series_name', '{{%product}}', 'series_name');
-        $this->createIndex('idx-product-delivery_time', '{{%product}}', ['delivery_time_min', 'delivery_time_max']);
-        $this->createIndex('idx-product_size-color_variant', '{{%product_size}}', 'color_variant');
+        try {
+            $this->createIndex('idx-product-series_name', '{{%product}}', 'series_name');
+        } catch (\Exception $e) {
+            echo "⚠ Индекс idx-product-series_name уже существует\n";
+        }
+        try {
+            $this->createIndex('idx-product-delivery_time', '{{%product}}', ['delivery_time_min', 'delivery_time_max']);
+        } catch (\Exception $e) {
+            echo "⚠ Индекс idx-product-delivery_time уже существует\n";
+        }
+        try {
+            $this->createIndex('idx-product_size-color_variant', '{{%product_size}}', 'color_variant');
+        } catch (\Exception $e) {
+            echo "⚠ Индекс idx-product_size-color_variant уже существует\n";
+        }
         
         echo "✓ Добавлены поля серии, доставки и цветовых вариантов\n";
     }

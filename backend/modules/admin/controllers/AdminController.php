@@ -90,13 +90,8 @@ class AdminController extends BaseAdminController
         $model = new LoginForm();
         
         if ($model->load(Yii::$app->request->post())) {
-            // ОТЛАДКА: Выводим введенные данные
-            error_log("DEBUG: Login attempt - Username: '{$model->username}', Password: '{$model->password}'");
-            
             // ВРЕМЕННО: Простая проверка для разработки
             if ($model->username === 'admin' && $model->password === 'admin123') {
-                error_log("DEBUG: Credentials match, creating identity");
-                
                 // Очищаем старые сессии перед входом
                 TemporaryAdminIdentity::clearAllSessions();
                 
@@ -106,16 +101,13 @@ class AdminController extends BaseAdminController
                 $identity = new TemporaryAdminIdentity();
                 
                 if (Yii::$app->user->login($identity, 3600*24*30)) {
-                    error_log("DEBUG: Login successful, redirecting to /admin");
                     Yii::info("Session created successfully", 'admin');
                     return $this->redirect(['/admin']);
                 } else {
-                    error_log("DEBUG: Login failed - session creation error");
                     Yii::error("Failed to create session", 'admin');
                     $model->addError('password', 'Ошибка создания сессии');
                 }
             } else {
-                error_log("DEBUG: Credentials don't match");
                 Yii::warning("Failed login attempt: {$model->username}", 'admin');
                 $model->addError('password', 'Неверное имя пользователя или пароль. Используйте admin/admin123');
             }

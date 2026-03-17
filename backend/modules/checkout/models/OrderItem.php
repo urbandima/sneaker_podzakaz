@@ -31,7 +31,7 @@ class OrderItem extends ActiveRecord
 {
     public static function tableName()
     {
-        return '{{%order_item}}';
+        return 'order_item';
     }
 
     public function behaviors()
@@ -50,8 +50,9 @@ class OrderItem extends ActiveRecord
             [['order_id', 'product_name', 'price'], 'required'],
             [['order_id', 'quantity'], 'integer'],
             [['price', 'total'], 'number'],
-            [['product_name'], 'string', 'max' => 255],
+            [['product_name', 'size'], 'string', 'max' => 255],
             ['quantity', 'default', 'value' => 1],
+            ['size', 'default', 'value' => null],
         ];
     }
 
@@ -61,6 +62,7 @@ class OrderItem extends ActiveRecord
             'id' => 'ID',
             'order_id' => 'Заказ',
             'product_name' => 'Товар',
+            'size' => 'Размер',
             'quantity' => 'Количество',
             'price' => 'Цена',
             'total' => 'Итого',

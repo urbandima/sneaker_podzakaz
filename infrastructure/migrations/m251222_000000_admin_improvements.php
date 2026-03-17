@@ -10,60 +10,68 @@ class m251222_000000_admin_improvements extends Migration
     public function safeUp()
     {
         // 1. Система остатков на складе
-        $this->createTable('{{%product_stock}}', [
-            'id' => $this->primaryKey(),
-            'product_id' => $this->integer()->notNull(),
-            'size_id' => $this->integer(),
-            'quantity' => $this->integer()->notNull()->defaultValue(0),
-            'reserved' => $this->integer()->notNull()->defaultValue(0),
-            'warehouse' => $this->string(100)->defaultValue('main'),
-            'min_quantity' => $this->integer()->defaultValue(0),
-            'last_restock_at' => $this->dateTime(),
-            'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
-            'updated_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-        ]);
-        
-        $this->addForeignKey(
-            'fk_product_stock_product',
-            '{{%product_stock}}',
-            'product_id',
-            '{{%product}}',
-            'id',
-            'CASCADE'
-        );
-        
-        $this->createIndex('idx_product_stock_product', '{{%product_stock}}', 'product_id');
-        $this->createIndex('idx_product_stock_size', '{{%product_stock}}', 'size_id');
+        try {
+            $this->createTable('{{%product_stock}}', [
+                'id' => $this->primaryKey(),
+                'product_id' => $this->integer()->notNull(),
+                'size_id' => $this->integer(),
+                'quantity' => $this->integer()->notNull()->defaultValue(0),
+                'reserved' => $this->integer()->notNull()->defaultValue(0),
+                'warehouse' => $this->string(100)->defaultValue('main'),
+                'min_quantity' => $this->integer()->defaultValue(0),
+                'last_restock_at' => $this->dateTime(),
+                'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
+                'updated_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
+            ]);
+            
+            $this->addForeignKey(
+                'fk_product_stock_product',
+                '{{%product_stock}}',
+                'product_id',
+                '{{%product}}',
+                'id',
+                'CASCADE'
+            );
+            
+            $this->createIndex('idx_product_stock_product', '{{%product_stock}}', 'product_id');
+            $this->createIndex('idx_product_stock_size', '{{%product_stock}}', 'size_id');
+        } catch (\Exception $e) {
+            echo "⚠ Таблица product_stock уже существует\n";
+        }
 
         // 2. Таблица связанных товаров
-        $this->createTable('{{%product_related}}', [
-            'id' => $this->primaryKey(),
-            'product_id' => $this->integer()->notNull(),
-            'related_product_id' => $this->integer()->notNull(),
-            'relation_type' => $this->string(50)->defaultValue('similar'),
-            'sort_order' => $this->integer()->defaultValue(0),
-            'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
-        ]);
-        
-        $this->addForeignKey(
-            'fk_product_related_product',
-            '{{%product_related}}',
-            'product_id',
-            '{{%product}}',
-            'id',
-            'CASCADE'
-        );
-        
-        $this->addForeignKey(
-            'fk_product_related_related',
-            '{{%product_related}}',
-            'related_product_id',
-            '{{%product}}',
-            'id',
-            'CASCADE'
-        );
-        
-        $this->createIndex('idx_product_related_product', '{{%product_related}}', 'product_id');
+        try {
+            $this->createTable('{{%product_related}}', [
+                'id' => $this->primaryKey(),
+                'product_id' => $this->integer()->notNull(),
+                'related_product_id' => $this->integer()->notNull(),
+                'relation_type' => $this->string(50)->defaultValue('similar'),
+                'sort_order' => $this->integer()->defaultValue(0),
+                'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
+            ]);
+            
+            $this->addForeignKey(
+                'fk_product_related_product',
+                '{{%product_related}}',
+                'product_id',
+                '{{%product}}',
+                'id',
+                'CASCADE'
+            );
+            
+            $this->addForeignKey(
+                'fk_product_related_related',
+                '{{%product_related}}',
+                'related_product_id',
+                '{{%product}}',
+                'id',
+                'CASCADE'
+            );
+            
+            $this->createIndex('idx_product_related_product', '{{%product_related}}', 'product_id');
+        } catch (\Exception $e) {
+            echo "⚠ Таблица product_related уже существует\n";
+        }
 
         // 3. Таблица тарифов и комиссий
         $this->createTable('{{%tariff}}', [
@@ -218,8 +226,8 @@ class m251222_000000_admin_improvements extends Migration
         $this->createIndex('idx_analytics_session', '{{%analytics_event}}', 'session_id');
 
         // 7. Таблица ежедневной статистики для быстрых отчетов
+        // Создаем таблицу daily_stats с составным первичным ключом
         $this->createTable('{{%daily_stats}}', [
-            'id' => $this->primaryKey(),
             'date' => $this->date()->notNull(),
             'stat_type' => $this->string(50)->notNull(),
             'value' => $this->decimal(15, 2)->defaultValue(0),
@@ -228,9 +236,9 @@ class m251222_000000_admin_improvements extends Migration
             'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
         ]);
         
+        $this->addPrimaryKey('pk_daily_stats_unique', '{{%daily_stats}}', ['date', 'stat_type']);
         $this->createIndex('idx_daily_stats_date', '{{%daily_stats}}', 'date');
         $this->createIndex('idx_daily_stats_type', '{{%daily_stats}}', 'stat_type');
-        $this->addPrimaryKey('pk_daily_stats_unique', '{{%daily_stats}}', ['date', 'stat_type']);
 
         // 8. Добавляем SEO поля в product если их нет
         $tableSchema = Yii::$app->db->schema->getTableSchema('{{%product}}');

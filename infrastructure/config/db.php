@@ -24,10 +24,10 @@ if (!$dsn) {
 $config = [
     'class' => 'yii\db\Connection',
     'dsn' => $dsn,
-    'username' => env('DB_USERNAME', 'root'),
+    'username' => env('DB_USER', 'root'),
     'password' => env('DB_PASSWORD', ''),
     'charset' => env('DB_CHARSET', 'utf8mb4'),
-    'enableSchemaCache' => (bool) env('DB_SCHEMA_CACHE', YII_ENV === 'prod'),
+    'enableSchemaCache' => false,
     'schemaCacheDuration' => (int) env('DB_SCHEMA_CACHE_DURATION', 3600),
     'attributes' => array_filter([
         \PDO::ATTR_TIMEOUT => env('DB_TIMEOUT') ? (int) env('DB_TIMEOUT') : null,

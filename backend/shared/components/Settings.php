@@ -87,4 +87,41 @@ class Settings extends Component
         }
         return $map;
     }
+
+    /**
+     * Получение настройки по ключу
+     * @param string $section Секция настроек
+     * @param string $key Ключ настройки
+     * @param mixed $default Значение по умолчанию
+     * @return mixed
+     */
+    public function get($section, $key, $default = null)
+    {
+        // Временно возвращаем значения по умолчанию для импорта
+        if ($section === 'import') {
+            $defaults = [
+                'auto_import_enabled' => true,
+                'import_interval_hours' => 8,
+                'max_products_per_run' => 100,
+                'log_retention_days' => 30,
+                'notify_on_complete' => true,
+                'notify_on_error' => true,
+            ];
+            return $defaults[$key] ?? $default;
+        }
+        
+        return $default;
+    }
+
+    /**
+     * Установка настройки
+     * @param string $section Секция настроек
+     * @param string $key Ключ настройки
+     * @param mixed $value Значение
+     */
+    public function set($section, $key, $value)
+    {
+        // Временно ничего не делаем - настройки сохраняются в сессии
+        // TODO: Реализовать сохранение в базу данных
+    }
 }

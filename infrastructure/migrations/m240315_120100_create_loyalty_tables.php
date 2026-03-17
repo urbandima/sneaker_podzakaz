@@ -46,10 +46,7 @@ class m240315_120100_create_loyalty_tables extends Migration
             'updated_at' => $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         ]);
         
-        $this->addForeignKey('fk_loyalty_points_customer', '{{%loyalty_points}}', 'customer_id', '{{%customer}}', 'id', 'CASCADE');
-        $this->addForeignKey('fk_loyalty_points_order', '{{%loyalty_points}}', 'order_id', '{{%order}}', 'id', 'SET NULL');
-        $this->addForeignKey('fk_customer_loyalty_level_customer', '{{%customer_loyalty_level}}', 'customer_id', '{{%customer}}', 'id', 'CASCADE');
-        $this->addForeignKey('fk_customer_loyalty_level_level', '{{%customer_loyalty_level}}', 'loyalty_level_id', '{{%loyalty_level}}', 'id', 'CASCADE');
+        // Skip foreign keys for now - will be added after dependent tables are created
         
         // Insert loyalty levels
         $this->batchInsert('{{%loyalty_level}}', ['name', 'level', 'min_points', 'points_multiplier', 'discount_percent', 'benefits'], [
