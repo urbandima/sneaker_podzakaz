@@ -55,22 +55,55 @@ trait CatalogSeoTrait
             }
         }
         
-        // Canonical URL - всегда без trailing slash (SEO best practice)
-        $canonicalUrl = Yii::$app->request->absoluteUrl;
-        $parsedUrl = parse_url($canonicalUrl);
-        $path = $parsedUrl['path'] ?? '/';
+        // Canonical URL с нормализацией параметров
+        $canonicalUrl = $this->generateCanonicalUrl();
+        $this->view->registerLinkTag(['rel' => 'canonical', 'href' => $canonicalUrl]);
+    }
+    
+    /**
+     * Генерация канонического URL с нормализацией параметров
+     */
+    private function generateCanonicalUrl()
+    {
+        $request = Yii::$app->request;
+        $urlParts = parse_url($request->absoluteUrl);
         
-        // Убираем trailing slash из пути, сохраняя query параметры
-        if ($path !== '/' && substr($path, -1) === '/') {
-            $cleanPath = rtrim($path, '/');
-            $canonicalUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . $cleanPath;
+        // Базовый URL без query параметров
+        $canonical = $urlParts['scheme'] . '://' . $urlParts['host'] . ($urlParts['path'] ?? '/');
+        
+        // Получаем и нормализуем query параметры
+        $queryParams = $request->get();
+        
+        if (!empty($queryParams)) {
+            // Исключаем несущественные параметры
+            $excludeParams = [
+                '_csrf', 'csrf_token', 'r', // CSRF и служебные
+                'sort', 'order', 'per-page', // Пагинация и сортировка
+                'ajax', 'X-Requested-With', // AJAX параметры
+            ];
             
-            if (!empty($parsedUrl['query'])) {
-                $canonicalUrl .= '?' . $parsedUrl['query'];
+            $filteredParams = [];
+            foreach ($queryParams as $key => $value) {
+                if (!in_array($key, $excludeParams) && $value !== '') {
+                    $filteredParams[$key] = $value;
+                }
+            }
+            
+            // Сортируем параметры для консистентности
+            ksort($filteredParams);
+            
+            if (!empty($filteredParams)) {
+                $canonical .= '?' . http_build_query($filteredParams);
             }
         }
         
-        $this->view->registerLinkTag(['rel' => 'canonical', 'href' => $canonicalUrl]);
+        // Убираем trailing slash
+        $canonical = rtrim($canonical, '/');
+        if ($canonical === $urlParts['scheme'] . '://' . $urlParts['host']) {
+            $canonical .= '/';
+        }
+        
+        return $canonical;
     }
 
     /**

@@ -11,89 +11,105 @@ $this->title = 'Настройки компании';
 ?>
 
 <div class="admin-settings">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><?= Html::encode($this->title) ?></h1>
-        <?= Html::a('← К заказам', ['/admin/order/index'], ['class' => 'btn btn-outline-secondary']) ?>
+    <div class="admin-page-header">
+        <div class="admin-page-header-content">
+            <div class="admin-page-eyebrow">Настройки</div>
+            <h1 class="admin-page-title"><?= Html::encode($this->title) ?></h1>
+        </div>
+        <div class="admin-page-header-actions">
+            <?= Html::a('← К заказам', ['/admin/order/index'], ['class' => 'btn btn-secondary']) ?>
+        </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Реквизиты компании</h5>
+    <div class="admin-grid admin-grid--2">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2 class="admin-card-title">
+                    <i class="bi bi-building"></i>
+                    Реквизиты компании
+                </h2>
+            </div>
+            <div class="admin-card-body">
+                <?php $form = ActiveForm::begin([
+                    'options' => ['class' => 'admin-form'],
+                    'fieldConfig' => [
+                        'options' => ['class' => 'admin-form-group'],
+                        'labelOptions' => ['class' => 'admin-form-label'],
+                        'inputOptions' => ['class' => 'admin-form-input'],
+                        'errorOptions' => ['class' => 'admin-form-error']
+                    ]
+                ]); ?>
+
+                <div class="admin-form-row">
+                    <div class="admin-form-col">
+                        <?= $form->field($settings, 'name')->textInput(['class' => 'admin-form-input']) ?>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <?php $form = ActiveForm::begin(); ?>
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <?= $form->field($settings, 'name')->textInput() ?>
-                        </div>
+                <div class="admin-form-row">
+                    <div class="admin-form-col">
+                        <?= $form->field($settings, 'unp')->textInput(['class' => 'admin-form-input']) ?>
                     </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <?= $form->field($settings, 'unp')->textInput() ?>
-                        </div>
-                        <div class="col-md-6">
-                            <?= $form->field($settings, 'bic')->textInput() ?>
-                        </div>
+                    <div class="admin-form-col">
+                        <?= $form->field($settings, 'bic')->textInput(['class' => 'admin-form-input']) ?>
                     </div>
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <?= $form->field($settings, 'account')->textInput() ?>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <?= $form->field($settings, 'bank')->textInput() ?>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <?= $form->field($settings, 'address')->textInput() ?>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <?= $form->field($settings, 'phone')->textInput() ?>
-                        </div>
-                        <div class="col-md-6">
-                            <?= $form->field($settings, 'email')->textInput(['type' => 'email']) ?>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <?= $form->field($settings, 'offer_url')->textInput(['placeholder' => 'https://example.com/offer.pdf']) ?>
-                            <div class="form-text">Ссылка на публичную оферту (если пусто — кнопка на странице клиента будет скрыта)</div>
-                        </div>
-                    </div>
-
-                    <div class="mt-3">
-                        <?= Html::submitButton('Сохранить реквизиты', ['class' => 'btn btn-success']) ?>
-                    </div>
-
-                    <?php ActiveForm::end(); ?>
                 </div>
+
+                <div class="admin-form-row">
+                    <div class="admin-form-col">
+                        <?= $form->field($settings, 'account')->textInput(['class' => 'admin-form-input']) ?>
+                    </div>
+                </div>
+
+                    <div class="admin-form-row">
+                    <div class="admin-form-col">
+                        <?= $form->field($settings, 'bank')->textInput(['class' => 'admin-form-input']) ?>
+                    </div>
+                </div>
+
+                <div class="admin-form-row">
+                    <div class="admin-form-col">
+                        <?= $form->field($settings, 'address')->textInput(['class' => 'admin-form-input']) ?>
+                    </div>
+                </div>
+
+                <div class="admin-form-row">
+                    <div class="admin-form-col">
+                        <?= $form->field($settings, 'phone')->textInput(['class' => 'admin-form-input']) ?>
+                    </div>
+                    <div class="admin-form-col">
+                        <?= $form->field($settings, 'email')->textInput(['class' => 'admin-form-input', 'type' => 'email']) ?>
+                    </div>
+                </div>
+
+                <div class="admin-form-row">
+                    <div class="admin-form-col">
+                        <?= $form->field($settings, 'offer_url')->textInput(['class' => 'admin-form-input', 'placeholder' => 'https://example.com/offer.pdf']) ?>
+                        <div class="admin-form-help">Ссылка на публичную оферту (если пусто — кнопка на странице клиента будет скрыта)</div>
+                    </div>
+                </div>
+
+                <div class="admin-form-actions">
+                    <?= Html::submitButton('Сохранить реквизиты', ['class' => 'btn btn-primary']) ?>
+                </div>
+
+                <?php ActiveForm::end(); ?>
             </div>
         </div>
 
-        <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0">Статусы заказов</h5>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2 class="admin-card-title">
+                    <i class="bi bi-gear"></i>
+                    Статусы заказов
+                </h2>
+            </div>
+            <div class="admin-card-body">
+                <form method="post" class="admin-form">
+                    <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
 
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
+                        <div class="admin-table-container">
+                            <table class="admin-table">
                                 <thead>
                                     <tr>
                                         <th style="width: 18%">Ключ</th>
@@ -107,22 +123,24 @@ $this->title = 'Настройки компании';
                                     <?php foreach ($statuses as $st): ?>
                                         <tr>
                                             <td>
-                                                <code><?= Html::encode($st->key) ?></code>
+                                                <code class="admin-code"><?= Html::encode($st->key) ?></code>
                                             </td>
                                             <td>
-                                                <input type="text" name="statuses[<?= Html::encode($st->key) ?>][label]" class="form-control" value="<?= Html::encode($st->label) ?>">
+                                                <input type="text" name="statuses[<?= Html::encode($st->key) ?>][label]" class="admin-form-input" value="<?= Html::encode($st->label) ?>">
                                             </td>
                                             <td>
-                                                <input type="number" name="statuses[<?= Html::encode($st->key) ?>][sort]" class="form-control" value="<?= (int)$st->sort ?>">
+                                                <input type="number" name="statuses[<?= Html::encode($st->key) ?>][sort]" class="admin-form-input" value="<?= (int)$st->sort ?>">
                                             </td>
                                             <td>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" name="statuses[<?= Html::encode($st->key) ?>][logist_available]" value="1" <?= $st->logist_available ? 'checked' : '' ?>>
+                                                <div class="admin-switch">
+                                                    <input class="admin-switch-input" type="checkbox" name="statuses[<?= Html::encode($st->key) ?>][logist_available]" value="1" <?= $st->logist_available ? 'checked' : '' ?>>
+                                                    <label class="admin-switch-label"></label>
                                                 </div>
                                             </td>
                                             <td>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" name="statuses[<?= Html::encode($st->key) ?>][is_active]" value="1" <?= $st->is_active ? 'checked' : '' ?>>
+                                                <div class="admin-switch">
+                                                    <input class="admin-switch-input" type="checkbox" name="statuses[<?= Html::encode($st->key) ?>][is_active]" value="1" <?= $st->is_active ? 'checked' : '' ?>>
+                                                    <label class="admin-switch-label"></label>
                                                 </div>
                                             </td>
                                         </tr>
@@ -131,35 +149,43 @@ $this->title = 'Настройки компании';
                             </table>
                         </div>
 
-                        <div class="card mb-3">
-                            <div class="card-body bg-light">
-                                <h6 class="mb-3">Добавить новый статус</h6>
-                                <div class="row g-2">
-                                    <div class="col-md-3">
-                                        <input type="text" name="new_status[key]" class="form-control" placeholder="Ключ (латиница)">
+                        <div class="admin-card admin-card--secondary">
+                            <div class="admin-card-header">
+                                <h3 class="admin-card-title">
+                                    <i class="bi bi-plus-circle"></i>
+                                    Добавить новый статус
+                                </h3>
+                            </div>
+                            <div class="admin-card-body">
+                                <div class="admin-form-row">
+                                    <div class="admin-form-col">
+                                        <input type="text" name="new_status[key]" class="admin-form-input" placeholder="Ключ (латиница)">
                                     </div>
-                                    <div class="col-md-5">
-                                        <input type="text" name="new_status[label]" class="form-control" placeholder="Название">
+                                    <div class="admin-form-col">
+                                        <input type="text" name="new_status[label]" class="admin-form-input" placeholder="Название">
                                     </div>
-                                    <div class="col-md-2">
-                                        <input type="number" name="new_status[sort]" class="form-control" placeholder="Порядок" value="999">
+                                    <div class="admin-form-col">
+                                        <input type="number" name="new_status[sort]" class="admin-form-input" placeholder="Порядок" value="999">
                                     </div>
-                                    <div class="col-md-2 d-flex align-items-center">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="new_status[logist_available]" value="1" id="new_status_logist">
-                                            <label class="form-check-label" for="new_status_logist">Логист</label>
+                                    <div class="admin-form-col">
+                                        <div class="admin-switch">
+                                            <input class="admin-switch-input" type="checkbox" name="new_status[logist_available]" value="1" id="new_status_logist">
+                                            <label class="admin-switch-label" for="new_status_logist"></label>
                                         </div>
+                                        <label for="new_status_logist" class="admin-switch-text">Логист</label>
                                     </div>
+                                </div>
+
+                                <div class="admin-form-actions">
+                                    <?= Html::submitButton('Добавить статус', ['class' => 'btn btn-accent']) ?>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">Сохранить статусы</button>
-                            <a href="<?= Html::encode(Yii::$app->request->url) ?>" class="btn btn-outline-secondary">Отменить</a>
+                        <div class="admin-form-actions">
+                            <?= Html::submitButton('Сохранить статусы', ['class' => 'btn btn-primary']) ?>
                         </div>
                     </form>
-                </div>
             </div>
         </div>
     </div>

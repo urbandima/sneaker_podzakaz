@@ -42,7 +42,7 @@ use DOMElement;
  */
 class SitemapGenerator
 {
-    private const BASE_URL = 'http://localhost:8080';
+    private const BASE_URL = 'https://sneakerhead.by';
     private const SITEMAP_PATH = '@webroot/sitemap.xml';
     
     private $dom;
@@ -58,6 +58,46 @@ class SitemapGenerator
         $this->dom->appendChild($this->urlset);
     }
     
+    /**
+     * Динамическая генерация sitemap для web-запроса
+     */
+    public function generateDynamic(): string
+    {
+        try {
+            $this->generateStaticPages();
+            $this->generateCategories();
+            $this->generateBrands();
+            $this->generateProducts();
+            
+            return $this->dom->saveXML();
+        } catch (\Throwable $e) {
+            Yii::error('Sitemap generation failed: ' . $e->getMessage(), __METHOD__);
+            return $this->getEmptySitemap();
+        }
+    }
+    
+    /**
+     * Возвращает пустой sitemap в случае ошибки
+     */
+    private function getEmptySitemap(): string
+    {
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        $dom->formatOutput = true;
+        
+        $urlset = $dom->createElement('urlset');
+        $urlset->setAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
+        $dom->appendChild($urlset);
+        
+        $url = $dom->createElement('url');
+        $urlset->appendChild($url);
+        
+        $loc = $dom->createElement('loc');
+        $loc->appendChild($dom->createTextNode(self::BASE_URL));
+        $url->appendChild($loc);
+        
+        return $dom->saveXML();
+    }
+
     /**
      * Основная генерация sitemap
      */
@@ -84,8 +124,6 @@ class SitemapGenerator
         $pages = [
             ['loc' => '', 'changefreq' => 'daily', 'priority' => '1.0'],
             ['loc' => 'catalog', 'changefreq' => 'daily', 'priority' => '0.9'],
-            ['loc' => 'cart', 'changefreq' => 'monthly', 'priority' => '0.8'],
-            ['loc' => 'account', 'changefreq' => 'weekly', 'priority' => '0.7'],
         ];
         
         foreach ($pages as $page) {

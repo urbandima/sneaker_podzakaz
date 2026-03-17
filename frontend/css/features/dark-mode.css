@@ -1,43 +1,36 @@
 /**
- * Dark Mode Support
+ * Dark Mode Support v3.0
  * 
- * Автоматическое переключение на тёмную тему
- * при системном предпочтении или ручном переключении
+ * Синхронизировано с design-tokens.css
+ * Переопределяет ТОЛЬКО переменные из canonical design-tokens
  */
 
 /* ============================================
-   CSS VARIABLES - Dark Mode
+   SYSTEM PREFERENCE (prefers-color-scheme)
    ============================================ */
 
 @media (prefers-color-scheme: dark) {
-    :root {
-        /* Primary Colors */
-        --bg-primary: #0f172a;
-        --bg-secondary: #1e293b;
-        --bg-tertiary: #334155;
-        
-        /* Text Colors */
+    :root:not([data-theme="light"]) {
+        /* Поверхности (dark theme) */
+        --surface-primary: #0f172a;
+        --surface-secondary: #1e293b;
+        --surface-tertiary: #334155;
+        --surface-elevated: #1e293b;
+
+        /* Текст (dark theme) */
         --text-primary: #f8fafc;
         --text-secondary: #94a3b8;
         --text-muted: #64748b;
-        
-        /* Border Colors */
-        --border-primary: #334155;
-        --border-secondary: #475569;
-        
-        /* Accent Colors */
-        --accent-primary: #6366f1;
-        --accent-hover: #4f46e5;
-        
-        /* Surface Colors */
-        --surface: #1e293b;
-        --surface-hover: #334155;
-        
-        /* Status Colors */
-        --success: #10b981;
-        --warning: #f59e0b;
-        --error: #ef4444;
-        --info: #3b82f6;
+        --text-disabled: #475569;
+
+        /* Границы */
+        --border-color: #334155;
+        --border-color-hover: #475569;
+
+        /* Акцент */
+        --color-accent: #60a5fa;
+        --color-accent-hover: #3b82f6;
+        --color-accent-light: rgba(59, 130, 246, 0.2);
     }
 }
 
@@ -46,18 +39,26 @@
    ============================================ */
 
 [data-theme="dark"] {
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --bg-tertiary: #334155;
+    /* Поверхности (dark theme) */
+    --surface-primary: #0f172a;
+    --surface-secondary: #1e293b;
+    --surface-tertiary: #334155;
+    --surface-elevated: #1e293b;
+
+    /* Текст (dark theme) */
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;
-    --border-primary: #334155;
-    --border-secondary: #475569;
-    --accent-primary: #6366f1;
-    --accent-hover: #4f46e5;
-    --surface: #1e293b;
-    --surface-hover: #334155;
+    --text-disabled: #475569;
+
+    /* Границы */
+    --border-color: #334155;
+    --border-color-hover: #475569;
+
+    /* Акцент */
+    --color-accent: #60a5fa;
+    --color-accent-hover: #3b82f6;
+    --color-accent-light: rgba(59, 130, 246, 0.2);
 }
 
 /* ============================================
@@ -66,14 +67,14 @@
 
 /* Body */
 [data-theme="dark"] body {
-    background: var(--bg-primary);
+    background: var(--surface-primary);
     color: var(--text-primary);
 }
 
 /* Containers */
 [data-theme="dark"] .container,
 [data-theme="dark"] .wrapper {
-    background: var(--bg-primary);
+    background: var(--surface-primary);
 }
 
 /* Cards */
@@ -81,44 +82,44 @@
 [data-theme="dark"] .product-card,
 [data-theme="dark"] .cart-item,
 [data-theme="dark"] .review-item {
-    background: var(--bg-secondary);
-    border-color: var(--border-primary);
+    background: var(--surface-secondary);
+    border-color: var(--border-color);
 }
 
 /* Inputs */
 [data-theme="dark"] input,
 [data-theme="dark"] textarea,
 [data-theme="dark"] select {
-    background: var(--bg-tertiary);
-    border-color: var(--border-primary);
+    background: var(--surface-tertiary);
+    border-color: var(--border-color);
     color: var(--text-primary);
 }
 
 [data-theme="dark"] input:focus,
 [data-theme="dark"] textarea:focus,
 [data-theme="dark"] select:focus {
-    border-color: var(--accent-primary);
+    border-color: var(--color-accent);
 }
 
 /* Buttons */
 [data-theme="dark"] .btn-primary {
-    background: var(--accent-primary);
+    background: var(--color-accent);
     color: white;
 }
 
 [data-theme="dark"] .btn-secondary {
-    background: var(--bg-tertiary);
+    background: var(--surface-tertiary);
     color: var(--text-primary);
-    border-color: var(--border-primary);
+    border-color: var(--border-color);
 }
 
 /* Links */
 [data-theme="dark"] a {
-    color: var(--accent-primary);
+    color: var(--color-accent);
 }
 
 [data-theme="dark"] a:hover {
-    color: var(--accent-hover);
+    color: var(--color-accent-hover);
 }
 
 /* Headers */
@@ -133,29 +134,29 @@
 
 /* Tables */
 [data-theme="dark"] table {
-    background: var(--bg-secondary);
+    background: var(--surface-secondary);
 }
 
 [data-theme="dark"] th,
 [data-theme="dark"] td {
-    border-color: var(--border-primary);
+    border-color: var(--border-color);
     color: var(--text-primary);
 }
 
 [data-theme="dark"] th {
-    background: var(--bg-tertiary);
+    background: var(--surface-tertiary);
 }
 
 /* Modals */
 [data-theme="dark"] .modal,
 [data-theme="dark"] .quick-view-modal {
-    background: var(--bg-secondary);
+    background: var(--surface-secondary);
 }
 
 /* Dropdowns */
 [data-theme="dark"] .dropdown-menu {
-    background: var(--bg-secondary);
-    border-color: var(--border-primary);
+    background: var(--surface-secondary);
+    border-color: var(--border-color);
 }
 
 [data-theme="dark"] .dropdown-item {
@@ -163,7 +164,7 @@
 }
 
 [data-theme="dark"] .dropdown-item:hover {
-    background: var(--bg-tertiary);
+    background: var(--surface-tertiary);
 }
 
 /* Forms */
@@ -173,22 +174,22 @@
 
 /* Badges */
 [data-theme="dark"] .badge {
-    background: var(--bg-tertiary);
+    background: var(--surface-tertiary);
     color: var(--text-primary);
 }
 
 /* Alerts */
 [data-theme="dark"] .alert {
-    background: var(--bg-tertiary);
-    border-color: var(--border-primary);
+    background: var(--surface-tertiary);
+    border-color: var(--border-color);
     color: var(--text-primary);
 }
 
 /* Navigation */
 [data-theme="dark"] .nav-menu,
 [data-theme="dark"] .mega-menu {
-    background: var(--bg-secondary);
-    border-color: var(--border-primary);
+    background: var(--surface-secondary);
+    border-color: var(--border-color);
 }
 
 /* Footer */
@@ -202,59 +203,59 @@
 
 /* Cart */
 [data-theme="dark"] .cart-summary {
-    background: var(--bg-secondary);
+    background: var(--surface-secondary);
 }
 
 [data-theme="dark"] .promo-code-section,
 [data-theme="dark"] .loyalty-points-section {
-    background: var(--bg-tertiary);
+    background: var(--surface-tertiary);
 }
 
 [data-theme="dark"] .promo-input {
-    background: var(--bg-primary);
-    border-color: var(--border-primary);
+    background: var(--surface-primary);
+    border-color: var(--border-color);
     color: var(--text-primary);
 }
 
 [data-theme="dark"] .promo-applied {
     background: rgba(16, 185, 129, 0.1);
-    border-color: var(--success);
+    border-color: var(--color-success);
 }
 
 /* Checkout */
 [data-theme="dark"] .shipping-option .option-content,
 [data-theme="dark"] .payment-option .option-content {
-    background: var(--bg-secondary);
-    border-color: var(--border-primary);
+    background: var(--surface-secondary);
+    border-color: var(--border-color);
 }
 
-[data-theme="dark"] .shipping-option input:checked + .option-content,
-[data-theme="dark"] .payment-option input:checked + .option-content {
-    background: rgba(99, 102, 241, 0.1);
-    border-color: var(--accent-primary);
+[data-theme="dark"] .shipping-option input:checked+.option-content,
+[data-theme="dark"] .payment-option input:checked+.option-content {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: var(--color-accent);
 }
 
 /* Product Card */
 [data-theme="dark"] .product-image {
-    background: var(--bg-tertiary);
+    background: var(--surface-tertiary);
 }
 
 /* Reviews */
 [data-theme="dark"] .reviews-summary {
-    background: var(--bg-secondary);
+    background: var(--surface-secondary);
 }
 
 [data-theme="dark"] .review-form-container {
-    background: var(--bg-secondary);
+    background: var(--surface-secondary);
 }
 
 /* Quick View */
 [data-theme="dark"] .quick-view-gallery {
-    background: var(--bg-tertiary);
+    background: var(--surface-tertiary);
 }
 
 [data-theme="dark"] .quick-view-main-image {
-    background: var(--bg-secondary);
+    background: var(--surface-secondary);
 }
 
 /* Loyalty */
@@ -263,35 +264,35 @@
 }
 
 [data-theme="dark"] .earn-item {
-    background: var(--bg-tertiary);
+    background: var(--surface-tertiary);
 }
 
 /* Tracking */
 [data-theme="dark"] .current-status {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, var(--bg-secondary) 100%);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, var(--surface-secondary) 100%);
 }
 
 [data-theme="dark"] .tracking-progress::before {
-    background: var(--border-primary);
+    background: var(--border-color);
 }
 
 /* Returns */
 [data-theme="dark"] .return-policy-info {
-    background: var(--bg-tertiary);
+    background: var(--surface-tertiary);
 }
 
 [data-theme="dark"] .return-item {
-    background: var(--bg-secondary);
-    border-color: var(--border-primary);
+    background: var(--surface-secondary);
+    border-color: var(--border-color);
 }
 
 [data-theme="dark"] .return-header {
-    background: var(--bg-tertiary);
-    border-bottom-color: var(--border-primary);
+    background: var(--surface-tertiary);
+    border-bottom-color: var(--border-color);
 }
 
 /* ============================================
-   DARK MODE TOGGLE BUTTON
+   DARK MODE TOGGLE BUTTON (три позиции: light/dark/auto)
    ============================================ */
 
 .dark-mode-toggle {
@@ -301,7 +302,7 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: var(--accent-primary);
+    background: var(--color-accent);
     border: none;
     cursor: pointer;
     display: flex;
@@ -310,8 +311,11 @@
     font-size: 1.5rem;
     color: white;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     z-index: 1000;
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation;
 }
 
 .dark-mode-toggle:hover {
@@ -327,11 +331,19 @@
     display: none;
 }
 
+.dark-mode-toggle .icon-auto {
+    display: none;
+}
+
 [data-theme="dark"] .dark-mode-toggle .icon-sun {
     display: none;
 }
 
 [data-theme="dark"] .dark-mode-toggle .icon-moon {
+    display: block;
+}
+
+[data-theme="auto"] .dark-mode-toggle .icon-auto {
     display: block;
 }
 

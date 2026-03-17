@@ -68,7 +68,7 @@ $renderPriceRange = function (float $min, float $max) {
                         class="<?= implode(' ', $imageClasses) ?>"
                         src="<?= $imgSrc ?>"
                         <?php if ($dataSrc): ?>data-src="<?= $dataSrc ?>"<?php endif; ?>
-                        alt="<?= Html::encode($product->name) ?>"
+                        alt="<?= Html::encode($product->name . ' ' . ($product->brand_name ?? '') . ' — купить в Беларуси') ?>"
                         data-image-index="<?= $index ?>"
                         <?php if ($shouldEagerLoadImage): ?>
                             loading="eager"

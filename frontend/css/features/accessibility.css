@@ -1,49 +1,57 @@
 /**
- * Accessibility Improvements
+ * Accessibility Improvements v3.0
  * 
  * Улучшения доступности:
  * - ARIA labels
- * - Focus states
+ * - Focus states (синхронизировано с design-tokens)
  * - Keyboard navigation
  * - Screen reader support
- * - Color contrast
+ * - Color contrast WCAG AA
  */
 
 /* ============================================
-   FOCUS STATES
+   FOCUS STATES (использует токены из design-tokens.css)
    ============================================ */
 
-/* Enhanced focus indicators */
-*:focus {
-    outline: 2px solid #6366f1 !important;
-    outline-offset: 2px !important;
-}
-
-/* Skip to content link */
+/* Skip to content link - первый элемент body */
 .skip-link {
     position: absolute;
     top: -100%;
     left: 0;
-    background: #6366f1;
-    color: white;
-    padding: 1rem;
-    z-index: 10000;
+    background: var(--color-primary);
+    color: var(--text-inverse);
+    padding: 1rem 1.5rem;
+    z-index: 9999;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+    border-radius: 0 0 var(--radius-md) 0;
+    transition: top var(--transition-fast);
 }
 
 .skip-link:focus {
     top: 0;
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
 }
 
 /* Focus visible only for keyboard navigation */
 *:focus:not(:focus-visible) {
-    outline: none !important;
+    outline: none;
 }
 
 *:focus-visible {
-    outline: 2px solid #6366f1 !important;
-    outline-offset: 2px !important;
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+}
+
+/* Focus для кнопок с тёмным фоном */
+.btn-primary:focus-visible,
+.btn-accent:focus-visible,
+.dark-mode-toggle:focus-visible {
+    outline: 2px solid var(--text-inverse);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.3);
 }
 
 /* ============================================
@@ -242,6 +250,7 @@ label {
    ============================================ */
 
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -260,7 +269,7 @@ label {
     * {
         border-width: 2px !important;
     }
-    
+
     a,
     button,
     .btn {

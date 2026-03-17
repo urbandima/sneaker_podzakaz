@@ -42,6 +42,8 @@ use yii\filters\VerbFilter;
 abstract class BaseAdminController extends Controller
 {
     protected bool $adminOnly = false;
+    public $layout = 'admin';
+    public $layoutPath = '@backend/modules/admin/views/layouts';
 
     /**
      * @inheritdoc

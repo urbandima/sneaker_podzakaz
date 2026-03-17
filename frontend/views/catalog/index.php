@@ -16,13 +16,6 @@ CatalogAsset::register($this);
 $this->title = isset($h1) ? $h1 : 'Каталог товаров';
 $this->registerMetaTag(['name' => 'description', 'content' => 'Оригинальные товары из США и Европы']);
 
-// ИСПРАВЛЕНО: Отключаем кэширование в dev режиме для корректной загрузки стилей
-if (YII_ENV_DEV) {
-    $this->registerMetaTag(['http-equiv' => 'Cache-Control', 'content' => 'no-cache, no-store, must-revalidate']);
-    $this->registerMetaTag(['http-equiv' => 'Pragma', 'content' => 'no-cache']);
-    $this->registerMetaTag(['http-equiv' => 'Expires', 'content' => '0']);
-}
-
 // Infinite scroll settings - КРИТИЧНО: Устанавливаем ПЕРЕД загрузкой ui-enhancements
 $this->registerJs("
 document.body.dataset.infiniteScroll = 'true'; 
@@ -372,6 +365,11 @@ if (YII_ENV_DEV) {
             <main class="content">
                 <div class="content-header">
                     <h1><?= isset($h1) ? Html::encode($h1) : 'Каталог' ?> <span class="products-count">(<span id="productsCount"><?= $pagination->totalCount ?></span>)</span></h1>
+                    <?php if (isset($description) && !empty($description)): ?>
+                    <div class="category-description">
+                        <p><?= Html::encode($description) ?></p>
+                    </div>
+                    <?php endif; ?>
                 </div>
                 
                 <!-- Quick Filters: Бренды -->
@@ -511,11 +509,60 @@ if (YII_ENV_DEV) {
                         'options' => ['class' => 'pagination'],
                     ]) ?>
                 </div>
+                
+                <!-- Статическая пагинация для краулеров -->
+                <div class="static-pagination" style="display: none;">
+                    <?php
+                    $baseUrl = Yii::$app->request->baseUrl;
+                    $currentPath = Yii::$app->request->getPathInfo();
+                    $queryParams = $_GET;
+                    unset($queryParams['page']); // Убираем page из query params
+                    
+                    $queryString = !empty($queryParams) ? '?' . http_build_query($queryParams) : '';
+                    $pageUrl = $baseUrl . '/' . $currentPath . $queryString;
+                    
+                    // Генерируем ссылки на все страницы
+                    for ($i = 1; $i <= $pagination->pageCount; $i++):
+                        $url = $pageUrl . (strpos($pageUrl, '?') !== false ? '&page=' : '?page=') . $i;
+                        $rel = '';
+                        if ($i == 1) $rel = ' rel="first"';
+                        if ($i == $pagination->pageCount) $rel .= ' rel="last"';
+                        if ($i == $pagination->page + 1) $rel .= ' rel="next"';
+                        if ($i == $pagination->page - 1) $rel .= ' rel="prev"';
+                    ?>
+                        <a href="<?= Html::encode($url) ?>"<?= $rel ?>>Страница <?= $i ?></a>
+                    <?php endfor; ?>
+                </div>
                 <?php endif; ?>
             </main>
         </div>
     </div>
 </div>
+
+<!-- Статическая пагинация для SEO-краулеров -->
+<script>
+// Определяем, является ли пользователь поисковым краулером
+function isCrawler() {
+    const crawlers = [
+        'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider',
+        'yandexbot', 'facebookexternalhit', 'twitterbot', 'rogerbot',
+        'linkedinbot', 'embedly', 'quora link preview', 'showyoubot',
+        'outbrain', 'pinterest', 'developers.google.com', 'slackbot',
+        'vkshare', 'w3c_validator', 'redditbot', 'applebot'
+    ];
+    
+    const userAgent = navigator.userAgent.toLowerCase();
+    return crawlers.some(crawler => userAgent.includes(crawler));
+}
+
+// Показываем статическую пагинацию только для краулеров
+if (isCrawler()) {
+    const staticPagination = document.querySelector('.static-pagination');
+    if (staticPagination) {
+        staticPagination.style.display = 'block';
+    }
+}
+</script>
 
 <div class="overlay sidebar-overlay" id="overlay"></div>
 

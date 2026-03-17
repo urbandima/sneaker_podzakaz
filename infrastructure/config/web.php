@@ -57,17 +57,8 @@ $config = [
     ],
     // Feature-based модули (архитектура 2026)
     'modules' => [
-        'catalog' => [
-            'class' => 'app\backend\modules\catalog\CatalogModule',
-        ],
-        'cart' => [
-            'class' => 'app\backend\modules\cart\CartModule',
-        ],
         'checkout' => [
             'class' => 'app\backend\modules\checkout\CheckoutModule',
-        ],
-        'account' => [
-            'class' => 'app\backend\modules\account\AccountModule',
         ],
         'admin' => [
             'class' => 'app\backend\modules\admin\AdminModule',
@@ -227,7 +218,7 @@ $config = [
                 'catalog/quick-view/<id:\d+>' => 'catalog/quick-view',
                 
                 // Корзина API
-                'cart' => 'cart/cart/index',
+                'cart' => 'cart/index',
                 'cart/add' => 'cart/add',
                 'cart/update' => 'cart/update',
                 'cart/remove/<id:\d+>' => 'cart/remove',

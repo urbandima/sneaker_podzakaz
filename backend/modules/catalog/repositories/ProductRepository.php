@@ -103,8 +103,6 @@ class ProductRepository
         return $query->all();
     }
 
-    // Метод findSimilarProducts удален - заменен на SimilarProductsService::find()
-
     /**
      * Получить популярные товары
      */
@@ -231,5 +229,79 @@ class ProductRepository
         return Product::find()
             ->where(['brand_id' => $brandId, 'is_active' => 1])
             ->count();
+    }
+    
+    /**
+     * Найти похожие товары
+     * 
+     * @param Product $product Товар для поиска похожих
+     * @param int $limit Количество товаров
+     * @return array Массив похожих товаров
+     */
+    public function findSimilarProducts(Product $product, int $limit = 12): array
+    {
+        // Многоуровневая стратегия поиска похожих товаров
+        
+        // 1. Сначала ищем товары того же бренда (исключая текущий)
+        $brandProducts = Product::find()
+            ->where(['brand_id' => $product->brand_id, 'is_active' => 1])
+            ->andWhere(['!=', 'id', $product->id])
+            ->limit($limit)
+            ->all();
+            
+        if (count($brandProducts) >= $limit) {
+            return array_slice($brandProducts, 0, $limit);
+        }
+        
+        // 2. Если не хватает, добавляем товары из той же категории
+        $remainingLimit = $limit - count($brandProducts);
+        $categoryIds = [];
+        
+        // Получаем все категории товара (включая родительские)
+        if ($product->category) {
+            $categoryIds[] = $product->category_id;
+            if ($product->category->parent_id) {
+                $categoryIds[] = $product->category->parent_id;
+            }
+        }
+        
+        $categoryProducts = [];
+        if (!empty($categoryIds)) {
+            $categoryProducts = Product::find()
+                ->where(['category_id' => $categoryIds, 'is_active' => 1])
+                ->andWhere(['!=', 'id', $product->id])
+                ->andWhere(['not in', 'brand_id', array_column($brandProducts, 'brand_id')])
+                ->limit($remainingLimit)
+                ->all();
+        }
+        
+        // 3. Если все еще не хватает, добавляем популярные товары в том же ценовом диапазоне
+        $remainingLimit = $limit - count($brandProducts) - count($categoryProducts);
+        $popularProducts = [];
+        
+        if ($remainingLimit > 0) {
+            $priceRange = 0.3; // 30% диапазон от цены товара
+            $minPrice = $product->price * (1 - $priceRange);
+            $maxPrice = $product->price * (1 + $priceRange);
+            
+            $excludedIds = array_merge(
+                [$product->id],
+                array_column($brandProducts, 'id'),
+                array_column($categoryProducts, 'id')
+            );
+            
+            $popularProducts = Product::find()
+                ->where(['is_active' => 1])
+                ->andWhere(['between', 'price', $minPrice, $maxPrice])
+                ->andWhere(['not in', 'id', $excludedIds])
+                ->orderBy(['views' => SORT_DESC, 'created_at' => SORT_DESC])
+                ->limit($remainingLimit)
+                ->all();
+        }
+        
+        // Объединяем все результаты
+        $similarProducts = array_merge($brandProducts, $categoryProducts, $popularProducts);
+        
+        return array_slice($similarProducts, 0, $limit);
     }
 }

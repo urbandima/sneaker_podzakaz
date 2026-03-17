@@ -8,8 +8,8 @@
 
 /* Product Cards */
 .product-card {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-                box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.3s var(--ease-in-out),
+        box-shadow 0.3s var(--ease-in-out);
 }
 
 .product-card:hover {
@@ -18,7 +18,7 @@
 }
 
 .product-card .product-image img {
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.5s var(--ease-in-out);
 }
 
 .product-card:hover .product-image img {
@@ -27,7 +27,9 @@
 
 /* Buttons */
 .btn {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background 0.2s var(--ease-in-out),
+        transform 0.2s var(--ease-in-out),
+        box-shadow 0.2s var(--ease-in-out);
 }
 
 .btn:hover {
@@ -45,11 +47,15 @@ a {
 }
 
 /* Form inputs */
-input, textarea, select {
+input,
+textarea,
+select {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
@@ -65,8 +71,13 @@ input:focus, textarea:focus, select:focus {
 }
 
 @keyframes skeleton-loading {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 .skeleton-image {
@@ -100,7 +111,9 @@ input:focus, textarea:focus, select:focus {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Button Loading */
@@ -134,16 +147,28 @@ input:focus, textarea:focus, select:focus {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-.fade-in-delay-1 { animation-delay: 0.1s; }
-.fade-in-delay-2 { animation-delay: 0.2s; }
-.fade-in-delay-3 { animation-delay: 0.3s; }
-.fade-in-delay-4 { animation-delay: 0.4s; }
+.fade-in-delay-1 {
+    animation-delay: 0.1s;
+}
+
+.fade-in-delay-2 {
+    animation-delay: 0.2s;
+}
+
+.fade-in-delay-3 {
+    animation-delay: 0.3s;
+}
+
+.fade-in-delay-4 {
+    animation-delay: 0.4s;
+}
 
 /* Stagger Animation */
 .stagger-item {
@@ -152,14 +177,37 @@ input:focus, textarea:focus, select:focus {
     animation: staggerFadeIn 0.5s ease forwards;
 }
 
-.stagger-item:nth-child(1) { animation-delay: 0.05s; }
-.stagger-item:nth-child(2) { animation-delay: 0.1s; }
-.stagger-item:nth-child(3) { animation-delay: 0.15s; }
-.stagger-item:nth-child(4) { animation-delay: 0.2s; }
-.stagger-item:nth-child(5) { animation-delay: 0.25s; }
-.stagger-item:nth-child(6) { animation-delay: 0.3s; }
-.stagger-item:nth-child(7) { animation-delay: 0.35s; }
-.stagger-item:nth-child(8) { animation-delay: 0.4s; }
+.stagger-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.stagger-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.stagger-item:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.stagger-item:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.stagger-item:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.stagger-item:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+.stagger-item:nth-child(7) {
+    animation-delay: 0.35s;
+}
+
+.stagger-item:nth-child(8) {
+    animation-delay: 0.4s;
+}
 
 @keyframes staggerFadeIn {
     to {
@@ -181,6 +229,7 @@ input:focus, textarea:focus, select:focus {
         opacity: 0;
         transform: scale(0.9);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -196,6 +245,7 @@ input:focus, textarea:focus, select:focus {
         opacity: 0;
         transform: scale(0.5);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -215,6 +265,7 @@ input:focus, textarea:focus, select:focus {
         opacity: 0;
         transform: translateX(-30px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -230,6 +281,7 @@ input:focus, textarea:focus, select:focus {
         opacity: 0;
         transform: translateX(30px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -245,6 +297,7 @@ input:focus, textarea:focus, select:focus {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -260,9 +313,26 @@ input:focus, textarea:focus, select:focus {
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-5px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(5px);
+    }
 }
 
 /* ============================================
@@ -274,8 +344,15 @@ input:focus, textarea:focus, select:focus {
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
 }
 
 .pulse-soft {
@@ -283,8 +360,15 @@ input:focus, textarea:focus, select:focus {
 }
 
 @keyframes pulseSoft {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.8; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
 }
 
 /* ============================================
@@ -296,10 +380,13 @@ input:focus, textarea:focus, select:focus {
 }
 
 @keyframes bounce {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0);
         animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
     }
+
     50% {
         transform: translateY(-10px);
         animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
@@ -315,17 +402,17 @@ input:focus, textarea:focus, select:focus {
     bottom: 2rem;
     right: 2rem;
     padding: 1rem 1.5rem;
-    background: #0f172a;
-    color: white;
-    border-radius: 12px;
+    background: var(--color-gray-900);
+    color: var(--text-inverse);
+    border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    font-weight: 500;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    font-weight: var(--font-weight-medium);
+    box-shadow: var(--shadow-xl);
     transform: translateX(150%);
     transition: transform 0.3s ease;
-    z-index: 10000;
+    z-index: var(--z-toast);
 }
 
 .notification.show {
@@ -333,15 +420,15 @@ input:focus, textarea:focus, select:focus {
 }
 
 .notification.success {
-    background: #059669;
+    background: var(--color-success-dark);
 }
 
 .notification.error {
-    background: #dc2626;
+    background: var(--color-error-dark);
 }
 
 .notification.warning {
-    background: #d97706;
+    background: var(--color-warning-dark);
 }
 
 /* ============================================
@@ -353,9 +440,17 @@ input:focus, textarea:focus, select:focus {
 }
 
 @keyframes badgeBump {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.3); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.3);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* ============================================
@@ -396,7 +491,7 @@ input:focus, textarea:focus, select:focus {
 .reveal {
     opacity: 0;
     transform: translateY(30px);
-    transition: all 0.6s ease;
+    transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 .reveal.visible {
@@ -440,14 +535,14 @@ input:focus, textarea:focus, select:focus {
     left: 50%;
     transform: translateX(-50%) translateY(-5px);
     padding: 0.5rem 0.75rem;
-    background: #0f172a;
-    color: white;
-    font-size: 0.75rem;
-    border-radius: 6px;
+    background: var(--color-gray-900);
+    color: var(--text-inverse);
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-sm);
     white-space: nowrap;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
     pointer-events: none;
 }
 
@@ -463,7 +558,7 @@ input:focus, textarea:focus, select:focus {
 
 .focus-ring:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 0 0 3px var(--color-accent-light);
 }
 
 /* ============================================
@@ -471,6 +566,7 @@ input:focus, textarea:focus, select:focus {
    ============================================ */
 
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {

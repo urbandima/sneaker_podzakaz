@@ -40,8 +40,6 @@ use app\backend\shared\components\TariffSetupService;
 
 class TariffController extends BaseAdminController
 {
-    public $layout = 'admin';
-    
     public function behaviors()
     {
         return [
@@ -69,22 +67,6 @@ class TariffController extends BaseAdminController
     /**
      * {@inheritdoc}
      */
-    public function beforeAction($action)
-    {
-                            return Yii::$app->user->identity->isAdmin();
-                        }
-                    ],
-                ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::class,
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
-
     public function beforeAction($action)
     {
         if (!TariffSetupService::ensureSchema()) {

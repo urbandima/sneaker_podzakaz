@@ -22,10 +22,12 @@ class CartController extends Controller
     {
         $items = Cart::getItems();
         $total = Cart::getTotal();
+        $customer = Yii::$app->user->isGuest ? null : Yii::$app->user->identity;
 
         return $this->render('index', [
             'items' => $items,
             'total' => $total,
+            'customer' => $customer,
         ]);
     }
 

@@ -16,6 +16,7 @@ use app\backend\shared\components\SmartFilter;
 use app\backend\shared\components\CacheManager;
 use app\backend\shared\components\HttpCacheHeaders;
 use app\backend\modules\catalog\repositories\ProductRepository;
+use app\backend\modules\catalog\services\Catalog\FilterBuilder;
 
 /**
  * Контроллер каталога товаров
@@ -757,6 +758,42 @@ class CatalogController extends Controller
             'twitter:image' => $imageUrl,
             'twitter:image:alt' => $product->name,
         ]);
+
+        // Schema.org Product
+        $productSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Product',
+            'name' => $socialTitle,
+            'description' => $socialDescription,
+            'image' => $imageUrl,
+            'brand' => [
+                '@type' => 'Brand',
+                'name' => $product->brand_name ?? ''
+            ],
+            'offers' => [
+                '@type' => 'Offer',
+                'price' => $product->price,
+                'priceCurrency' => 'BYN',
+                'availability' => $product->stock_status === 'in_stock' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                'seller' => [
+                    '@type' => 'Organization',
+                    'name' => 'СНИКЕРХЭД',
+                    'url' => Yii::$app->request->hostInfo
+                ]
+            ],
+            'condition' => 'https://schema.org/NewCondition'
+        ];
+        
+        // Добавляем рейтинг если есть
+        if (isset($product->rating) && $product->rating > 0) {
+            $productSchema['aggregateRating'] = [
+                '@type' => 'AggregateRating',
+                'ratingValue' => $product->rating,
+                'reviewCount' => $product->reviews_count ?? 1
+            ];
+        }
+        
+        $this->registerJsonLd($productSchema, 'product');
 
         return $this->render('product', [
             'product' => $product,

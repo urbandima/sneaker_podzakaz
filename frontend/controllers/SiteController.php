@@ -24,12 +24,14 @@ use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use app\backend\shared\traits\CatalogSeoTrait;
 
 /**
  * Базовый контроллер сайта
  */
 class SiteController extends Controller
 {
+    use CatalogSeoTrait;
     /**
      * {@inheritdoc}
      */
@@ -84,14 +86,102 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        // SEO метаданные для главной страницы
+        $this->view->title = 'Купить оригинальные кроссовки в Беларуси — СНИКЕРХЭД';
+        
+        // Meta description
+        $this->view->registerMetaTag([
+            'name' => 'description',
+            'content' => 'Оригинальные кроссовки Nike, Adidas, Jordan с доставкой по Беларуси. 100% подлинность, гарантия качества, лучшие цены. Заказывайте онлайн с быстрой доставкой!'
+        ]);
+        
+        // Open Graph теги
+        $this->view->registerMetaTag(['property' => 'og:title', 'content' => 'Купить оригинальные кроссовки в Беларуси — СНИКЕРХЭД']);
+        $this->view->registerMetaTag(['property' => 'og:description', 'content' => 'Оригинальные кроссовки Nike, Adidas, Jordan с доставкой по Беларуси. 100% подлинность, гарантия качества.']);
+        $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
+        $this->view->registerMetaTag(['property' => 'og:url', 'content' => Yii::$app->request->hostInfo]);
+        $this->view->registerMetaTag(['property' => 'og:image', 'content' => Yii::$app->request->hostInfo . '/images/hero-sneakers.png']);
+        $this->view->registerMetaTag(['property' => 'og:image:width', 'content' => '1200']);
+        $this->view->registerMetaTag(['property' => 'og:image:height', 'content' => '630']);
+        
+        // Twitter Card
+        $this->view->registerMetaTag(['name' => 'twitter:card', 'content' => 'summary_large_image']);
+        $this->view->registerMetaTag(['name' => 'twitter:title', 'content' => 'Купить оригинальные кроссовки в Беларуси — СНИКЕРХЭД']);
+        $this->view->registerMetaTag(['name' => 'twitter:description', 'content' => 'Оригинальные кроссовки Nike, Adidas, Jordan с доставкой по Беларуси. 100% подлинность.']);
+        $this->view->registerMetaTag(['name' => 'twitter:image', 'content' => Yii::$app->request->hostInfo . '/images/hero-sneakers.png']);
+        
+        // Canonical URL
+        $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->hostInfo]);
+        
+        // Schema.org Organization
+        $organizationSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Organization',
+            'name' => 'СНИКЕРХЭД',
+            'url' => Yii::$app->request->hostInfo,
+            'logo' => Yii::$app->request->hostInfo . '/images/logo-white.png',
+            'description' => 'Оригинальные кроссовки и обувь с доставкой по Беларуси. 100% подлинность, гарантия качества.',
+            'contactPoint' => [
+                '@type' => 'ContactPoint',
+                'telephone' => '+375-XX-XXX-XX-XX',
+                'contactType' => 'customer service',
+                'availableLanguage' => 'Russian'
+            ],
+            'sameAs' => [
+                // Добавить ссылки на соцсети при наличии
+            ]
+        ];
+        $this->registerJsonLd($organizationSchema, 'organization');
+        
+        // Schema.org WebSite с SearchAction
+        $websiteSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'WebSite',
+            'name' => 'СНИКЕРХЭД',
+            'url' => Yii::$app->request->hostInfo,
+            'description' => 'Оригинальные кроссовки Nike, Adidas, Jordan с доставкой по Беларуси',
+            'potentialAction' => [
+                '@type' => 'SearchAction',
+                'target' => [
+                    '@type' => 'EntryPoint',
+                    'urlTemplate' => Yii::$app->request->hostInfo . '/catalog?search={search_term_string}'
+                ],
+                'query-input' => 'required name=search_term_string'
+            ]
+        ];
+        $this->registerJsonLd($websiteSchema, 'website');
+        
+        // Загрузка популярных товаров для главной страницы
+        $popularProducts = $this->getPopularProducts();
+        
         // Проверяем, есть ли главная страница в landing
         $landingView = '@frontend/views/landing/index';
         if (file_exists(Yii::getAlias($landingView . '.php'))) {
-            return $this->render($landingView);
+            return $this->render($landingView, ['popularProducts' => $popularProducts]);
         }
         
         // Если нет landing страницы, показываем базовую главную
-        return $this->render('index');
+        return $this->render('index', ['popularProducts' => $popularProducts]);
+    }
+    
+    /**
+     * Получение популярных товаров для главной страницы
+     */
+    private function getPopularProducts()
+    {
+        try {
+            // Загружаем 6-8 популярных/новых товаров
+            $products = \app\backend\modules\catalog\models\Product::find()
+                ->where(['status' => 1])
+                ->orderBy(['created_at' => SORT_DESC, 'rating' => SORT_DESC])
+                ->limit(8)
+                ->all();
+                
+            return $products;
+        } catch (\Throwable $e) {
+            Yii::error('Failed to load popular products: ' . $e->getMessage(), __METHOD__);
+            return [];
+        }
     }
     
     /**

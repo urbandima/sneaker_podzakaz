@@ -12,43 +12,30 @@ class AppAsset extends AssetBundle
     // Файлы без версий - версии добавятся автоматически в init()
     public $css = [
         // CORE (критичные стили)
-        'css/core/critical.css',
-        'css/core/critical-inline.css',
+        'css/css/dist/critical.min.css',
         
-        // CORE (системные стили)
-        'css/core/container-system.css',
-        'css/core/design-tokens.css',
-        'css/core/design-system.css',
+        // PUBLIC (основной сайт)
+        'css/css/dist/public-bundle.min.css',
         
-        // COMPONENTS
-        'css/components/header-adaptive.css',
-        'css/components/mobile-menu.css',
-        'css/components/mega-menu.css',
+        // PRODUCT (страница товара)
+        'css/css/dist/product-page.min.css',
         
-        // LAYOUT
-        'css/layout/public-layout.css',
-        'css/layout/responsive-fixes.css',
-        'css/layout/skeleton-loading.css',
+        // MOBILE MENU
+        'css/features/mobile-menu.css',
         
-        // FEATURES
-        'css/features/accessibility.css',
+        // DARK MODE
         'css/features/dark-mode.css',
-        'css/features/micro-interactions.css',
         
-        // SITE
-        'css/site.css',
-        
-        // ВНЕШНИЕ РЕСУРСЫ
-        'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css',
+        // Bootstrap Icons (CDN)
+        'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css',
     ];
     
     public $js = [
-        'js/mobile-menu.js',        // Мобильное меню для ecom-header (burger, overlay)
+        'js/mobile-menu.js',
     ];
     
     public $depends = [
         'yii\web\YiiAsset',
-        'yii\bootstrap5\BootstrapAsset',
     ];
     
     /**

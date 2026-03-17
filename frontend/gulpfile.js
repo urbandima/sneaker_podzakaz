@@ -9,42 +9,39 @@ const paths = {
     css: {
         // Критические стили (инлайнятся в head)
         critical: [
-            'web/css/critical.css',
-            'web/css/container-system.css',
-            'web/css/skeleton-loading.css'
+            'frontend/css/core/design-tokens.css',
+            'frontend/css/core/critical.css',
+            'frontend/css/css/container-system.css',
+            'frontend/css/css/skeleton-loading.css'
         ],
         // Публичные стили (основной сайт)
         public: [
-            'web/css/site.css',
-            'web/css/public-layout.css',
-            'web/css/design-tokens.css',
-            'web/css/design-system.css',
-            'web/css/mobile-first.css',
-            'web/css/header-adaptive.css',
-            'web/css/mobile-menu.css',
-            'web/css/responsive-fixes.css'
+            'frontend/css/core/design-system.css',
+            'frontend/css/css/site.css',
+            'frontend/css/css/public-layout.css',
+            'frontend/css/features/accessibility.css',
+            'frontend/css/features/micro-interactions.css',
+            'frontend/css/features/dark-mode.css',
+            'frontend/css/css/mobile-first.css',
+            'frontend/css/css/header-adaptive.css',
+            'frontend/css/features/mobile-menu.css',
+            'frontend/css/css/responsive-fixes.css'
         ],
         // Каталог
         catalog: [
-            'web/css/catalog-layout.css',
-            'web/css/catalog-inline.css',
-            'web/css/catalog-card.css',
+            'web/css/features/catalog-layout.css',
+            'web/css/features/catalog-inline.css',
+            'web/css/features/catalog-card.css',
             'web/css/catalog-mobile-fixes.css'
         ],
         // Страница товара (отдельно - большой файл)
         product: [
-            'web/css/product-page.css'
+            'frontend/css/css/dist/product-page.min.css'
         ],
         // Админка
         admin: [
-            'web/css/admin-design-system.css',
-            'web/css/admin-header-v2.css',
-            'web/css/admin-shell.css',
-            'web/css/admin-pages.css',
-            'web/css/admin-dashboard.css',
-            'web/css/admin-orders-v2.css',
-            'web/css/admin-size-grid.css',
-            'web/css/admin-product-view.css'
+            'css/admin-bundle.min.css',
+            'css/pages/admin.css'
         ],
         // Vendor CSS (Bootstrap и другие библиотеки)
         vendor: [

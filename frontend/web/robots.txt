@@ -8,10 +8,18 @@ Disallow: /cart/
 Disallow: /order/
 Disallow: /web/uploads/temp/
 Disallow: /api/
+Disallow: /admin
+Disallow: /debug
+Disallow: /runtime
+Disallow: /vendor
+Disallow: /assets
+Disallow: /catalog/filter
+Disallow: /catalog/add-favorite
+Disallow: /catalog/remove-favorite
+Disallow: /catalog/create-inquiry
 
 # Sitemap
 Sitemap: https://sneakerhead.by/sitemap.xml
-Sitemap: https://sneakerhead.by/sitemap-images.xml
 
 # Crawl-delay
 Crawl-delay: 1
@@ -31,19 +39,3 @@ Allow: /catalog
 Allow: /catalog/brand/*
 Allow: /catalog/category/*
 Allow: /catalog/product/*
-
-# Запрещаем индексацию служебных страниц
-Disallow: /admin
-Disallow: /debug
-Disallow: /runtime
-Disallow: /vendor
-Disallow: /assets
-
-# Запрещаем индексацию AJAX endpoints
-Disallow: /catalog/filter
-Disallow: /catalog/add-favorite
-Disallow: /catalog/remove-favorite
-Disallow: /catalog/create-inquiry
-
-# Краулинг
-Crawl-delay: 1

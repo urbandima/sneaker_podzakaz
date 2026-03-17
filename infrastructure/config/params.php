@@ -3,7 +3,7 @@
 return [
     'adminEmail' => 'admin@sneakerculture.by',
     'senderEmail' => 'noreply@sneakerculture.by',
-    'senderName' => 'СникерКультура',
+    'senderName' => 'СНИКЕРХЭД',
     'frontendUrl' => env('FRONTEND_URL', 'https://sneakerhead.by'),
     
     'socialAuth' => [
@@ -32,9 +32,9 @@ return [
         'issued' => 'Заказ выдан',
     ],
     
-    // Тестовые реквизиты ООО "СникерКультура"
+    // Тестовые реквизиты ООО "СНИКЕРХЭД"
     'companyDetails' => [
-        'name' => 'ООО "СникерКультура"',
+        'name' => 'ООО "СНИКЕРХЭД"',
         'unp' => '123456789',
         'address' => 'г. Минск, ул. Тестовая, д. 1',
         'bank' => 'ОАО "Тестовый банк"',
