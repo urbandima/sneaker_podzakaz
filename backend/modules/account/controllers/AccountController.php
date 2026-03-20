@@ -43,11 +43,11 @@ class AccountController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['profile', 'orders', 'order-view', 'settings', 'logout'],
+                'only' => ['profile', 'orders', 'order-view', 'settings', 'logout', 'wishlist'],
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['profile', 'orders', 'order-view', 'settings', 'logout'],
+                        'actions' => ['profile', 'orders', 'order-view', 'settings', 'logout', 'wishlist'],
                         'matchCallback' => function ($rule, $action) {
                             return $this->isCustomerLoggedIn();
                         },
@@ -387,5 +387,23 @@ class AccountController extends Controller
         }
 
         return $this->redirect(['account/index']);
+    }
+
+    /**
+     * Избранные товары
+     */
+    public function actionWishlist()
+    {
+        $customer = $this->getCustomer();
+        if (!$customer) {
+            return $this->redirect(['account/login']);
+        }
+
+        // TODO: Реализовать получение избранных товаров
+        // Временно показываем заглушку
+        return $this->render('wishlist', [
+            'customer' => $customer,
+            'favorites' => [], // Здесь будут избранные товары
+        ]);
     }
 }

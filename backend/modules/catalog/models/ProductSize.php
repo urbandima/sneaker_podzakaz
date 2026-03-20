@@ -117,7 +117,7 @@ class ProductSize extends ActiveRecord
             [['product_id', 'stock', 'poizon_stock', 'sort_order'], 'integer'],
             [['stock', 'poizon_stock', 'sort_order'], 'default', 'value' => 0],
             [['is_available'], 'boolean'],
-            [['is_available'], 'default', 'value' => 1],
+            [['is_available'], 'default', 'value' => true],
             [['size', 'us_size', 'eu_size', 'uk_size', 'poizon_sku_id', 'color_variant'], 'string', 'max' => 50],
             [['color', 'color_variant'], 'string', 'max' => 100],
             [['variant_vendor_code'], 'string', 'max' => 100],

@@ -14,6 +14,8 @@ use yii\web\NotFoundHttpException;
  */
 class SitemapController extends Controller
 {
+    public $layout = 'main'; // Единый layout
+    
     /**
      * Генерация sitemap.xml
      */

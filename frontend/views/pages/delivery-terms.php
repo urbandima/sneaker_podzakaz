@@ -15,7 +15,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">🚚 Способы доставки</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-truck"></i> Способы доставки</h2>
                 
                 <div class="delivery-methods">
                     <div class="delivery-card">
@@ -26,10 +26,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             <h5>Самовывоз</h5>
                             <p class="text-muted">Бесплатно</p>
                             <ul class="list-unstyled">
-                                <li>📍 г. Минск, ул. Купревича 1, корп. 1</li>
-                                <li>⏰ Пн-Пт: 10:00 - 19:00</li>
-                                <li>⏰ Сб: 10:00 - 16:00</li>
-                                <li>📞 +375 (29) 123-45-67</li>
+                                <li><i class="bi bi-geo-alt"></i> г. Минск, ул. Купревича 1, корп. 1</li>
+                                <li><i class="bi bi-clock"></i> Пн-Пт: 10:00 - 19:00</li>
+                                <li><i class="bi bi-clock"></i> Сб: 10:00 - 16:00</li>
+                                <li><i class="bi bi-telephone"></i> +375 (29) 123-45-67</li>
                             </ul>
                             <button class="btn btn-outline-primary btn-sm">Показать на карте</button>
                         </div>
@@ -43,10 +43,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             <h5>Курьерская доставка по Минску</h5>
                             <p class="text-muted">10 BYN</p>
                             <ul class="list-unstyled">
-                                <li>⏰ Доставка в день заказа (до 16:00)</li>
-                                <li>⏰ На следующий день (после 16:00)</li>
-                                <li>⏰ Время доставки: 10:00 - 20:00</li>
-                                <li>📦 Заказ до 30 кг</li>
+                                <li><i class="bi bi-clock"></i> Доставка в день заказа (до 16:00)</li>
+                                <li><i class="bi bi-clock"></i> На следующий день (после 16:00)</li>
+                                <li><i class="bi bi-clock"></i> Время доставки: 10:00 - 20:00</li>
+                                <li><i class="bi bi-box-seam"></i> Заказ до 30 кг</li>
                             </ul>
                             <div class="alert alert-info small">
                                 <strong>Бесплатно</strong> при заказе от 200 BYN
@@ -62,10 +62,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             <h5>СДЭК</h5>
                             <p class="text-muted">от 5 BYN</p>
                             <ul class="list-unstyled">
-                                <li>📦 Доставка по всей Беларуси</li>
-                                <li>⏰ 2-4 рабочих дня</li>
-                                <li>🏪 200+ пунктов выдачи</li>
-                                <li>📱 Отслеживание заказа</li>
+                                <li><i class="bi bi-box-seam"></i> Доставка по всей Беларуси</li>
+                                <li><i class="bi bi-clock"></i> 2-4 рабочих дня</li>
+                                <li><i class="bi bi-shop"></i> 200+ пунктов выдачи</li>
+                                <li><i class="bi bi-phone"></i> Отслеживание заказа</li>
                             </ul>
                             <button class="btn btn-outline-primary btn-sm">Найти пункт выдачи</button>
                         </div>
@@ -79,10 +79,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             <h5>Почта России</h5>
                             <p class="text-muted">от 8 BYN</p>
                             <ul class="list-unstyled">
-                                <li>🌍 Доставка по всей стране</li>
-                                <li>⏰ 5-10 рабочих дней</li>
-                                <li>📦 До 20 кг</li>
-                                <li>📡 Уведомление о прибытии</li>
+                                <li><i class="bi bi-globe"></i> Доставка по всей стране</li>
+                                <li><i class="bi bi-clock"></i> 5-10 рабочих дней</li>
+                                <li><i class="bi bi-box-seam"></i> До 20 кг</li>
+                                <li><i class="bi bi-broadcast"></i> Уведомление о прибытии</li>
                             </ul>
                             <div class="alert alert-warning small">
                                 <strong>Внимание:</strong> возможна наложенная оплата
@@ -135,7 +135,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">📦 Условия приёма заказа</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-box-seam"></i> Условия приёма заказа</h2>
                 <div class="order-conditions">
                     <div class="condition-item">
                         <div class="condition-number">1</div>
@@ -175,7 +175,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">⏰ Время доставки</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-clock"></i> Время доставки</h2>
                 <div class="delivery-schedule">
                     <div class="schedule-card">
                         <h6>Курьерская доставка по Минску</h6>
@@ -220,7 +220,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">📞 Контакты для связи</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-telephone"></i> Контакты для связи</h2>
                 <div class="contact-info">
                     <div class="contact-item">
                         <i class="bi bi-telephone text-primary"></i>

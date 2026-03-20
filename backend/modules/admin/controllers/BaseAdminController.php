@@ -42,7 +42,7 @@ use yii\filters\VerbFilter;
 abstract class BaseAdminController extends Controller
 {
     protected bool $adminOnly = false;
-    public $layout = 'admin';
+    public $layout = 'admin'; // Admin layout с сайдбаром
     public $layoutPath = '@backend/modules/admin/views/layouts';
 
     /**

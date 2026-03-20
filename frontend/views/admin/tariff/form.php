@@ -126,7 +126,7 @@ $this->title = $model->isNewRecord ? '➕ Создать тариф' : '✏️ �
         <?php $form = ActiveForm::begin(); ?>
         
         <div class="form-section">
-            <h3 class="section-title">📋 Основная информация</h3>
+            <h3 class="section-title"><i class="bi bi-clipboard"></i> Основная информация</h3>
             <div class="form-grid">
                 <div class="form-group">
                     <?= $form->field($model, 'name')->textInput(['maxlength' => true, 'placeholder' => 'Название тарифа']) ?>
@@ -144,7 +144,7 @@ $this->title = $model->isNewRecord ? '➕ Создать тариф' : '✏️ �
         </div>
         
         <div class="form-section">
-            <h3 class="section-title">💰 Комиссии и сборы</h3>
+            <h3 class="section-title"><i class="bi bi-currency-dollar"></i> Комиссии и сборы</h3>
             <div class="form-grid">
                 <div class="form-group">
                     <?= $form->field($model, 'commission_percent')->textInput(['type' => 'number', 'step' => '0.01', 'placeholder' => '10.00']) ?>
@@ -166,7 +166,7 @@ $this->title = $model->isNewRecord ? '➕ Создать тариф' : '✏️ �
         </div>
         
         <div class="form-section">
-            <h3 class="section-title">🚚 Доставка</h3>
+            <h3 class="section-title"><i class="bi bi-truck"></i> Доставка</h3>
             <div class="form-grid">
                 <div class="form-group">
                     <?= $form->field($model, 'delivery_cost_per_kg')->textInput(['type' => 'number', 'step' => '0.01', 'placeholder' => '15.00']) ?>

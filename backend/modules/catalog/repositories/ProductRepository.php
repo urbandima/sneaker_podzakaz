@@ -47,7 +47,7 @@ class ProductRepository
      */
     public function createQuery(bool $withRelations = true): ActiveQuery
     {
-        $query = Product::find()->where(['is_active' => 1]);
+        $query = Product::find()->where(['is_active' => true]);
         
         if ($withRelations) {
             $query->with(['brand', 'category', 'images', 'sizes', 'colors']);
@@ -61,7 +61,7 @@ class ProductRepository
      */
     public function findById(int $id, bool $withRelations = true): ?Product
     {
-        $query = Product::find()->where(['id' => $id, 'is_active' => 1]);
+        $query = Product::find()->where(['id' => $id, 'is_active' => true]);
         
         if ($withRelations) {
             $query->with(['brand', 'category', 'images', 'sizes', 'colors']);
@@ -75,7 +75,7 @@ class ProductRepository
      */
     public function findBySlug(string $slug, bool $withRelations = true): ?Product
     {
-        $query = Product::find()->where(['slug' => $slug, 'is_active' => 1]);
+        $query = Product::find()->where(['slug' => $slug, 'is_active' => true]);
         
         if ($withRelations) {
             $query->with(['brand', 'category', 'images', 'sizes', 'colors']);
@@ -94,7 +94,7 @@ class ProductRepository
         }
         
         $query = Product::find()
-            ->where(['id' => $ids, 'is_active' => 1]);
+            ->where(['id' => $ids, 'is_active' => true]);
         
         if ($withRelations) {
             $query->with(['brand', 'category', 'images', 'sizes', 'colors']);
@@ -109,7 +109,7 @@ class ProductRepository
     public function findPopular(int $limit = 8): array
     {
         return Product::find()
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->orderBy(['views_count' => SORT_DESC])
             ->limit($limit)
             ->all();
@@ -121,7 +121,7 @@ class ProductRepository
     public function findNew(int $limit = 8): array
     {
         return Product::find()
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->orderBy(['created_at' => SORT_DESC])
             ->limit($limit)
             ->all();
@@ -133,7 +133,7 @@ class ProductRepository
     public function findByBrand(int $brandId, ?int $limit = null): array
     {
         $query = Product::find()
-            ->where(['brand_id' => $brandId, 'is_active' => 1])
+            ->where(['brand_id' => $brandId, 'is_active' => true])
             ->orderBy(['created_at' => SORT_DESC]);
         
         if ($limit) {
@@ -149,7 +149,7 @@ class ProductRepository
     public function findByCategory(int $categoryId, ?int $limit = null): array
     {
         $query = Product::find()
-            ->where(['category_id' => $categoryId, 'is_active' => 1])
+            ->where(['category_id' => $categoryId, 'is_active' => true])
             ->orderBy(['created_at' => SORT_DESC]);
         
         if ($limit) {
@@ -165,7 +165,7 @@ class ProductRepository
     public function findFeatured(int $limit = 8): array
     {
         return Product::find()
-            ->where(['is_active' => 1, 'is_featured' => 1])
+            ->where(['is_active' => true, 'is_featured' => true])
             ->orderBy(['created_at' => SORT_DESC])
             ->limit($limit)
             ->all();
@@ -177,7 +177,7 @@ class ProductRepository
     public function findWithDiscount(?int $limit = null): array
     {
         $query = Product::find()
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->andWhere(['not', ['old_price' => null]])
             ->orderBy(['created_at' => SORT_DESC]);
         
@@ -194,7 +194,7 @@ class ProductRepository
     public function searchByName(string $query, int $limit = 20): array
     {
         return Product::find()
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->andWhere(['like', 'name', $query])
             ->orWhere(['like', 'model_name', $query])
             ->limit($limit)
@@ -207,7 +207,7 @@ class ProductRepository
     public function countActive(): int
     {
         return Product::find()
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->count();
     }
 
@@ -217,7 +217,7 @@ class ProductRepository
     public function countByCategory(int $categoryId): int
     {
         return Product::find()
-            ->where(['category_id' => $categoryId, 'is_active' => 1])
+            ->where(['category_id' => $categoryId, 'is_active' => true])
             ->count();
     }
 
@@ -227,7 +227,7 @@ class ProductRepository
     public function countByBrand(int $brandId): int
     {
         return Product::find()
-            ->where(['brand_id' => $brandId, 'is_active' => 1])
+            ->where(['brand_id' => $brandId, 'is_active' => true])
             ->count();
     }
     
@@ -244,7 +244,7 @@ class ProductRepository
         
         // 1. Сначала ищем товары того же бренда (исключая текущий)
         $brandProducts = Product::find()
-            ->where(['brand_id' => $product->brand_id, 'is_active' => 1])
+            ->where(['brand_id' => $product->brand_id, 'is_active' => true])
             ->andWhere(['!=', 'id', $product->id])
             ->limit($limit)
             ->all();
@@ -268,7 +268,7 @@ class ProductRepository
         $categoryProducts = [];
         if (!empty($categoryIds)) {
             $categoryProducts = Product::find()
-                ->where(['category_id' => $categoryIds, 'is_active' => 1])
+                ->where(['category_id' => $categoryIds, 'is_active' => true])
                 ->andWhere(['!=', 'id', $product->id])
                 ->andWhere(['not in', 'brand_id', array_column($brandProducts, 'brand_id')])
                 ->limit($remainingLimit)
@@ -291,7 +291,7 @@ class ProductRepository
             );
             
             $popularProducts = Product::find()
-                ->where(['is_active' => 1])
+                ->where(['is_active' => true])
                 ->andWhere(['between', 'price', $minPrice, $maxPrice])
                 ->andWhere(['not in', 'id', $excludedIds])
                 ->orderBy(['views' => SORT_DESC, 'created_at' => SORT_DESC])

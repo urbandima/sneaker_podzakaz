@@ -258,8 +258,8 @@ class Product extends ActiveRecord
             [['slug'], 'unique'],
             [['description', 'meta_description', 'meta_keywords'], 'string'],
             [['is_active', 'is_featured', 'has_bonus', 'promo_2for1', 'is_exclusive'], 'boolean'],
-            [['is_active'], 'default', 'value' => 1],
-            [['is_featured', 'has_bonus', 'promo_2for1', 'is_exclusive'], 'default', 'value' => 0],
+            [['is_active'], 'default', 'value' => true],
+            [['is_featured', 'has_bonus', 'promo_2for1', 'is_exclusive'], 'default', 'value' => false],
             [['views_count', 'reviews_count'], 'default', 'value' => 0],
             [['rating'], 'default', 'value' => 0],
             [['stock_status'], 'string'],
@@ -468,7 +468,7 @@ class Product extends ActiveRecord
     public function getReviews()
     {
         return $this->hasMany(ProductReview::class, ['product_id' => 'id'])
-            ->where(['is_approved' => 1])
+            ->where(['is_approved' => true])
             ->orderBy(['created_at' => SORT_DESC]);
     }
 
@@ -574,7 +574,7 @@ class Product extends ActiveRecord
      */
     public static function findBySlug($slug)
     {
-        return static::findOne(['slug' => $slug, 'is_active' => 1]);
+        return static::findOne(['slug' => $slug, 'is_active' => true]);
     }
 
     /**
@@ -583,7 +583,7 @@ class Product extends ActiveRecord
     public static function getPopular($limit = 8)
     {
         return static::find()
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->orderBy(['views_count' => SORT_DESC])
             ->limit($limit)
             ->all();
@@ -595,7 +595,7 @@ class Product extends ActiveRecord
     public static function getNew($limit = 8)
     {
         return static::find()
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->orderBy(['created_at' => SORT_DESC])
             ->limit($limit)
             ->all();
@@ -607,7 +607,7 @@ class Product extends ActiveRecord
     public static function getFeatured($limit = 8)
     {
         return static::find()
-            ->where(['is_active' => 1, 'is_featured' => 1])
+            ->where(['is_active' => true, 'is_featured' => true])
             ->orderBy(['views_count' => SORT_DESC])
             ->limit($limit)
             ->all();

@@ -32,11 +32,11 @@ $tracking = $order->deliveryTracking;
     <div class="tracking-progress">
         <?php
         $statuses = [
-            'pending' => ['Ожидает отправки', '📦', false],
-            'picked_up' => ['Отправлен', '🚚', false],
-            'in_transit' => ['В пути', '✈️', false],
-            'out_for_delivery' => ['На доставке', '🏠', false],
-            'delivered' => ['Доставлен', '✅', false],
+            'pending' => ['Ожидает отправки', 'bi bi-box-seam', false],
+            'picked_up' => ['Отправлен', 'bi bi-truck', false],
+            'in_transit' => ['В пути', 'bi bi-airplane', false],
+            'out_for_delivery' => ['На доставке', 'bi bi-house', false],
+            'delivered' => ['Доставлен', 'bi bi-check-circle', false],
         ];
         
         $currentStatus = $tracking->status;
@@ -49,7 +49,7 @@ $tracking = $order->deliveryTracking;
         ?>
         <div class="tracking-step <?= $isCompleted ? 'completed' : '' ?> <?= $isActive ? 'active' : '' ?>">
             <div class="step-icon">
-                <span><?= $info[1] ?></span>
+                <i class="<?= $info[1] ?>"></i>
             </div>
             <div class="step-info">
                 <span class="step-name"><?= $info[0] ?></span>
@@ -118,7 +118,7 @@ $tracking = $order->deliveryTracking;
     <?php else: ?>
     <!-- No Tracking -->
     <div class="no-tracking">
-        <div class="no-tracking-icon">📦</div>
+        <div class="no-tracking-icon"><i class="bi bi-box-seam"></i></div>
         <h3>Заказ готовится к отправке</h3>
         <p>Трек-номер будет присвоен после передачи заказа в службу доставки</p>
         <p class="no-tracking-note">Обычно это занимает 1-2 рабочих дня</p>

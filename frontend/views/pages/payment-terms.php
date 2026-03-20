@@ -15,7 +15,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">📱 Способы онлайн-оплаты</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-phone"></i> Способы онлайн-оплаты</h2>
                 
                 <div class="payment-methods-grid">
                     <div class="payment-method-card">
@@ -74,9 +74,9 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">💳 Наличный расчёт</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-cash"></i> Наличный расчёт</h2>
                 <div class="alert alert-info">
-                    <h6 class="alert-heading">📋 Важная информация</h6>
+                    <h6 class="alert-heading"><i class="bi bi-info-circle"></i> Важная информация</h6>
                     <p class="mb-2">
                         При оплате наличными вы получаете кассовый чек в соответствии с законодательством Республики Беларусь.
                     </p>
@@ -172,19 +172,19 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">📞 Поддержка</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-telephone"></i> Поддержка</h2>
                 <div class="contact-info">
                     <p class="mb-2">
                         <strong>По вопросам оплаты:</strong><br>
-                        📞 +375 (29) 123-45-67<br>
-                        📧 payment@snikered.by<br>
-                        ⏰ Пн-Пт: 9:00 - 18:00
+                        <i class="bi bi-telephone"></i> +375 (29) 123-45-67<br>
+                        <i class="bi bi-envelope"></i> payment@snikered.by<br>
+                        <i class="bi bi-clock"></i> Пн-Пт: 9:00 - 18:00
                     </p>
                     <p class="mb-0">
                         <strong>Техническая поддержка:</strong><br>
-                        📞 +375 (29) 765-43-21<br>
-                        📧 support@snikered.by<br>
-                        ⏰ Круглосуточно
+                        <i class="bi bi-telephone"></i> +375 (29) 765-43-21<br>
+                        <i class="bi bi-envelope"></i> support@snikered.by<br>
+                        <i class="bi bi-clock"></i> Круглосуточно
                     </p>
                 </div>
             </div>

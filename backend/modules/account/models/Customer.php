@@ -79,9 +79,8 @@ use yii\behaviors\TimestampBehavior;
  */
 class Customer extends ActiveRecord implements IdentityInterface
 {
-    const STATUS_DELETED = 0;
-    const STATUS_INACTIVE = 9;
-    const STATUS_ACTIVE = 10;
+    const STATUS_INACTIVE = 0;
+    const STATUS_ACTIVE = 1;
 
     public $password;
     public $password_confirm;
@@ -101,8 +100,8 @@ class Customer extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            ['status', 'default', 'value' => self::STATUS_ACTIVE],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
+            ['is_active', 'default', 'value' => self::STATUS_ACTIVE],
+            ['is_active', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE]],
 
             ['email', 'trim'],
             ['email', 'required'],
@@ -189,12 +188,16 @@ class Customer extends ActiveRecord implements IdentityInterface
     // IdentityInterface methods
     public static function findIdentity($id)
     {
-        return static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
+        return static::find()
+            ->where(['id' => $id])
+            ->andWhere(['is_active' => self::STATUS_ACTIVE])
+            ->one();
     }
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        return static::findOne(['auth_key' => $token, 'status' => self::STATUS_ACTIVE]);
+        // В этой таблице нет auth_key, возвращаем null
+        return null;
     }
 
     public function getId()
@@ -204,24 +207,29 @@ class Customer extends ActiveRecord implements IdentityInterface
 
     public function getAuthKey()
     {
-        return $this->auth_key;
+        // В этой таблице нет auth_key, возвращаем null
+        return null;
     }
 
     public function validateAuthKey($authKey)
     {
-        return $this->getAuthKey() === $authKey;
+        // В этой таблице нет auth_key, возвращаем false
+        return false;
     }
 
     // Custom methods
     public static function findByEmail($email)
     {
-        return static::findOne(['email' => $email, 'status' => self::STATUS_ACTIVE]);
+        return static::find()
+            ->where(['email' => $email])
+            ->andWhere(['is_active' => self::STATUS_ACTIVE])
+            ->one();
     }
 
     public static function findByEmailOrPhone($emailOrPhone)
     {
         return static::find()
-            ->where(['status' => self::STATUS_ACTIVE])
+            ->where(['is_active' => self::STATUS_ACTIVE])
             ->andWhere(['or', ['email' => $emailOrPhone], ['phone' => $emailOrPhone]])
             ->one();
     }
@@ -258,7 +266,7 @@ class Customer extends ActiveRecord implements IdentityInterface
 
     public function getFullName()
     {
-        $parts = array_filter([$this->last_name, $this->first_name, $this->middle_name]);
+        $parts = array_filter([$this->last_name, $this->first_name]);
         return $parts ? implode(' ', $parts) : $this->email;
     }
 
@@ -275,9 +283,8 @@ class Customer extends ActiveRecord implements IdentityInterface
         $statuses = [
             self::STATUS_ACTIVE => 'Активен',
             self::STATUS_INACTIVE => 'Неактивен',
-            self::STATUS_DELETED => 'Удален',
         ];
-        return $statuses[$this->status] ?? 'Неизвестно';
+        return $statuses[$this->is_active] ?? 'Неизвестен';
     }
 
     public function getStatusBadgeClass()
@@ -285,34 +292,20 @@ class Customer extends ActiveRecord implements IdentityInterface
         $classes = [
             self::STATUS_ACTIVE => 'success',
             self::STATUS_INACTIVE => 'warning',
-            self::STATUS_DELETED => 'danger',
         ];
-        return $classes[$this->status] ?? 'secondary';
+        return $classes[$this->is_active] ?? 'secondary';
     }
 
     public function updateLoginInfo()
     {
-        $this->last_login_at = time();
-        $this->last_login_ip = Yii::$app->request->userIP;
-        $this->save(false, ['last_login_at', 'last_login_ip']);
+        // В реальной таблице нет этих полей, просто обновляем updated_at
+        $this->save(false, ['updated_at']);
     }
 
     public function updateOrderStats()
     {
-        $stats = Order::find()
-            ->where(['customer_id' => $this->id])
-            ->select([
-                'COUNT(*) as count',
-                'SUM(total_amount) as total',
-                'MAX(created_at) as last_order'
-            ])
-            ->asArray()
-            ->one();
-
-        $this->orders_count = (int)($stats['count'] ?? 0);
-        $this->total_spent = (float)($stats['total'] ?? 0);
-        $this->last_order_at = $stats['last_order'] ?? null;
-        $this->save(false, ['orders_count', 'total_spent', 'last_order_at']);
+        // В реальной таблице нет этих полей, метод не нужен
+        return true;
     }
 
     // Relations

@@ -32,6 +32,8 @@ use app\backend\shared\traits\CatalogSeoTrait;
 class SiteController extends Controller
 {
     use CatalogSeoTrait;
+    public $layout = 'main'; // Единый layout
+    
     /**
      * {@inheritdoc}
      */

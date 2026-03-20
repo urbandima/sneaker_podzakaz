@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .logo-text { fill: #000; font-family: Arial, sans-serif; font-weight: bold; font-size: 24px; }
+    .logo-accent { fill: #FF6B6B; }
+  </style>
+  
+  <!-- Логотип СНИКЕРХЭД -->
+  <text x="10" y="40" class="logo-text">СНИКЕР</text>
+  <text x="10" y="40" class="logo-accent" dx="85">ХЭД</text>
+  
+  <!-- Дополнительный элемент -->
+  <circle cx="170" cy="30" r="8" class="logo-accent"/>
+  <path d="M165 30 L175 30 M170 25 L170 35" stroke="#FF6B6B" stroke-width="2" stroke-linecap="round"/>
+</svg>

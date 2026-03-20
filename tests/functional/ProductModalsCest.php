@@ -26,7 +26,7 @@ class ProductModalsCest
             'article' => 'TEST-MODAL-001',
             'brand_id' => $brand->id,
             'price' => 100,
-            'is_active' => 1,
+            'is_active' => true,
         ]);
         $this->testProduct->save();
     }

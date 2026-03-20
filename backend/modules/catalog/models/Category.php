@@ -115,7 +115,7 @@ class Category extends ActiveRecord
     {
         $cache = Yii::$app->cache;
         if ($cache) {
-            $cache->delete('catalog_filters_' . md5(serialize(['is_active' => 1])));
+            $cache->delete('catalog_filters_' . md5(serialize(['is_active' => true])));
         }
     }
 
@@ -133,7 +133,7 @@ class Category extends ActiveRecord
             [['description'], 'string'],
             [['image'], 'string', 'max' => 255],
             [['is_active'], 'boolean'],
-            [['is_active'], 'default', 'value' => 1],
+            [['is_active'], 'default', 'value' => true],
             [['sort_order'], 'default', 'value' => 0],
             // SEO поля - безопасные (могут не существовать в БД)
             [['meta_title', 'meta_description', 'meta_keywords'], 'safe'],
@@ -177,7 +177,7 @@ class Category extends ActiveRecord
     public function getChildren()
     {
         return $this->hasMany(Category::class, ['parent_id' => 'id'])
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->orderBy(['sort_order' => SORT_ASC, 'name' => SORT_ASC]);
     }
 
@@ -195,7 +195,7 @@ class Category extends ActiveRecord
     public function getActiveProducts()
     {
         return $this->hasMany(Product::class, ['category_id' => 'id'])
-            ->where(['is_active' => 1]);
+            ->where(['is_active' => true]);
     }
 
     /**
@@ -204,7 +204,7 @@ class Category extends ActiveRecord
     public static function getRootCategories()
     {
         return static::find()
-            ->where(['parent_id' => null, 'is_active' => 1])
+            ->where(['parent_id' => null, 'is_active' => true])
             ->orderBy(['sort_order' => SORT_ASC, 'name' => SORT_ASC])
             ->all();
     }
@@ -214,7 +214,7 @@ class Category extends ActiveRecord
      */
     public static function findBySlug($slug)
     {
-        return static::findOne(['slug' => $slug, 'is_active' => 1]);
+        return static::findOne(['slug' => $slug, 'is_active' => true]);
     }
 
     /**
@@ -279,7 +279,7 @@ class Category extends ActiveRecord
         $categoryIds = $this->getChildrenIds();
         
         return Product::find()
-            ->where(['category_id' => $categoryIds, 'is_active' => 1])
+            ->where(['category_id' => $categoryIds, 'is_active' => true])
             ->count();
     }
 }

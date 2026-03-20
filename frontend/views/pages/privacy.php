@@ -16,7 +16,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
             <div class="content-section">
                 <div class="alert alert-primary">
-                    <h6 class="alert-heading">🔒 Ваша конфиденциальность — наш приоритет</h6>
+                    <h6 class="alert-heading"><i class="bi bi-shield-lock"></i> Ваша конфиденциальность — наш приоритет</h6>
                     <p class="mb-0">
                         Мы уважаем вашу частную жизнь и обязуемся защищать персональные данные в соответствии 
                         с Законом РБ "О персональных данных" и другими нормативными актами.
@@ -25,7 +25,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">📋 Основные положения</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-clipboard"></i> Основные положения</h2>
                 <div class="policy-basics">
                     <div class="policy-item">
                         <div class="policy-icon">
@@ -214,7 +214,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">⏰ Срок хранения данных</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-clock"></i> Срок хранения данных</h2>
                 <div class="storage-periods">
                     <div class="period-item">
                         <div class="period-icon">
@@ -383,7 +383,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">📞 Связь с нами</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-telephone"></i> Связь с нами</h2>
                 <div class="contact-info">
                     <div class="contact-item">
                         <i class="bi bi-envelope text-primary"></i>
@@ -427,7 +427,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">🔄 Изменения в политике</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-arrow-repeat"></i> Изменения в политике</h2>
                 <div class="changes-info">
                     <p>
                         Мы можем периодически обновлять эту политику. Все изменения вступают в силу 

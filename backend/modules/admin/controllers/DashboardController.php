@@ -229,7 +229,7 @@ class DashboardController extends BaseAdminController
         
         return [
             'total' => (int)Product::find()->count(),
-            'active' => (int)Product::find()->where(['is_active' => 1])->count(),
+            'active' => (int)Product::find()->where(['is_active' => true])->count(),
             'inStock' => (int)Product::find()->where(['!=', 'stock_status', 'out_of_stock'])->count(),
             'outOfStock' => (int)Product::find()->where(['stock_status' => 'out_of_stock'])->count(),
         ];

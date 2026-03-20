@@ -27,7 +27,7 @@ class CatalogModule extends Module
     /**
      * @var string Layout по умолчанию
      */
-    public $layout = 'public';
+    public $layout = 'main';
     
     /**
      * @var array Настройки модуля

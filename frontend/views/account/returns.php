@@ -22,7 +22,7 @@ use yii\helpers\Url;
     
     <!-- Return Policy Info -->
     <div class="return-policy-info">
-        <div class="policy-icon">📋</div>
+        <div class="policy-icon"><i class="bi bi-clipboard"></i></div>
         <div class="policy-content">
             <h4>Условия возврата</h4>
             <ul>
@@ -46,7 +46,7 @@ use yii\helpers\Url;
     <?php if (empty($returns)): ?>
     <!-- Empty State -->
     <div class="empty-returns">
-        <div class="empty-icon">📦</div>
+        <div class="empty-icon"><i class="bi bi-box-seam"></i></div>
         <h3>Нет активных возвратов</h3>
         <p>Вы можете оформить возврат товара в течение <?= $policy->return_period_days ?> дней после доставки</p>
         <a href="/account/orders" class="btn-view-orders">Посмотреть заказы</a>

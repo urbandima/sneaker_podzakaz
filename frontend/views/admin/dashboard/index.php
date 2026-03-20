@@ -271,7 +271,7 @@ $formatter = Yii::$app->formatter;
                     <?php endforeach; ?>
                     <?php if (empty($recentOrders)): ?>
                         <div class="admin-empty-state">
-                            <div class="admin-empty-state-icon">✨</div>
+                            <div class="admin-empty-state-icon"><i class="bi bi-stars"></i></div>
                             <div class="admin-empty-state-title">Пока нет новых заказов</div>
                             <p class="admin-empty-state-text">Создайте заказ вручную или запустите рекламную кампанию.</p>
                         </div>

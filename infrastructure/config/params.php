@@ -66,4 +66,7 @@ return [
         'changefreqHigh' => 'daily',       // Частота обновления популярных страниц
         'changefreqLow' => 'weekly',       // Частота обновления редких страниц
     ],
+    
+    // Настройки доставки
+    'shipping' => require __DIR__ . '/shipping.php',
 ];

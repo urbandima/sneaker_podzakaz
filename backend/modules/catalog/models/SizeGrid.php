@@ -68,7 +68,7 @@ class SizeGrid extends ActiveRecord
             [['brand_id'], 'integer'],
             [['description'], 'string'],
             [['is_active'], 'boolean'],
-            [['is_active'], 'default', 'value' => 1],
+            [['is_active'], 'default', 'value' => true],
             [['gender'], 'string', 'max' => 20],
             [['gender'], 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_UNISEX, self::GENDER_KIDS]],
             [['name'], 'string', 'max' => 255],

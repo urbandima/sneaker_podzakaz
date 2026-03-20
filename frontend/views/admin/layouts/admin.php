@@ -19,8 +19,7 @@ $company = Yii::$app->settings->getCompany();
     <?php $this->head() ?>
     
     <?php // Preload критических ресурсов ?>
-    <link rel="preload" href="/css/dist/admin-bundle.min.css" as="style">
-    <link rel="preload" href="/css/pages/admin.css" as="style">
+    <link rel="preload" href="/css/css/dist/admin-bundle.min.css" as="style">
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" as="style">
     
     <?php // Bootstrap Icons CSS ?>
@@ -62,9 +61,9 @@ $company = Yii::$app->settings->getCompany();
             <!-- Admin Navigation -->
             <nav class="admin-nav" role="navigation">
                 <ul class="admin-nav-menu">
-                    <li><a href="/admin" class="<?php if (Yii::$app->controller->id === 'dashboard') echo 'active'; ?>">📊 Dashboard</a></li>
-                    <li><a href="/admin/orders" class="<?php if (Yii::$app->controller->id === 'order') echo 'active'; ?>">📦 Заказы</a></li>
-                    <li><a href="/admin/products" class="<?php if (Yii::$app->controller->id === 'product') echo 'active'; ?>">👟 Товары</a></li>
+                    <li><a href="/admin" class="<?php if (Yii::$app->controller->id === 'dashboard') echo 'active'; ?>"><i class="bi bi-graph-up"></i> Dashboard</a></li>
+                    <li><a href="/admin/orders" class="<?php if (Yii::$app->controller->id === 'order') echo 'active'; ?>"><i class="bi bi-box-seam"></i> Заказы</a></li>
+                    <li><a href="/admin/products" class="<?php if (Yii::$app->controller->id === 'product') echo 'active'; ?>"><i class="bi bi-shoe"></i> Товары</a></li>
                     <li><a href="/admin/users" class="<?php if (Yii::$app->controller->id === 'user') echo 'active'; ?>">👤 Пользователи</a></li>
                     <li><a href="/admin/settings" class="<?php if (Yii::$app->controller->id === 'setting') echo 'active'; ?>">⚙️ Настройки</a></li>
                 </ul>

@@ -91,7 +91,7 @@ class CurrencySetting extends ActiveRecord
      */
     public static function getBaseCurrency()
     {
-        return self::findOne(['is_base' => 1]);
+        return self::findOne(['is_base' => true]);
     }
     
     /**
@@ -99,7 +99,7 @@ class CurrencySetting extends ActiveRecord
      */
     public static function getByCurrencyCode($code)
     {
-        return self::findOne(['currency_code' => $code, 'is_active' => 1]);
+        return self::findOne(['currency_code' => $code, 'is_active' => true]);
     }
     
     /**
@@ -160,7 +160,7 @@ class CurrencySetting extends ActiveRecord
     public static function getActiveCurrencies()
     {
         return self::find()
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->orderBy(['is_base' => SORT_DESC, 'currency_code' => SORT_ASC])
             ->all();
     }

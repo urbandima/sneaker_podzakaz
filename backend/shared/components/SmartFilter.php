@@ -134,7 +134,7 @@ class SmartFilter extends Component
                 $brandSlugs = explode('-', $m[1]);
                 $brandIds = Brand::find()
                     ->select('id')
-                    ->where(['slug' => $brandSlugs, 'is_active' => 1])
+                    ->where(['slug' => $brandSlugs, 'is_active' => true])
                     ->column();
                 if ($brandIds) {
                     $filters['brands'] = $brandIds;
@@ -145,7 +145,7 @@ class SmartFilter extends Component
                 $categorySlugs = explode('-', $m[1]);
                 $categoryIds = Category::find()
                     ->select('id')
-                    ->where(['slug' => $categorySlugs, 'is_active' => 1])
+                    ->where(['slug' => $categorySlugs, 'is_active' => true])
                     ->column();
                 if ($categoryIds) {
                     $filters['categories'] = $categoryIds;

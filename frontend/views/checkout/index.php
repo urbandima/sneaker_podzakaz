@@ -70,7 +70,7 @@ CheckoutAsset::register($this);
                             <label class="shipping-option">
                                 <input type="radio" name="shipping" value="courier">
                                 <div class="option-content">
-                                    <div class="option-icon">🚚</div>
+                                    <div class="option-icon"><i class="bi bi-truck"></i></div>
                                     <div class="option-info">
                                         <span class="option-name">Курьер по Минску</span>
                                         <span class="option-price">10 BYN</span>
@@ -83,7 +83,7 @@ CheckoutAsset::register($this);
                             <label class="shipping-option">
                                 <input type="radio" name="shipping" value="cdek">
                                 <div class="option-content">
-                                    <div class="option-icon">📦</div>
+                                    <div class="option-icon"><i class="bi bi-box-seam"></i></div>
                                     <div class="option-info">
                                         <span class="option-name">СДЭК</span>
                                         <span class="option-price">15 BYN</span>

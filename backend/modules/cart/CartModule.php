@@ -8,7 +8,7 @@ use Yii;
 class CartModule extends Module
 {
     public $controllerNamespace = 'app\backend\modules\cart\controllers';
-    public $layout = 'public';
+    public $layout = 'main';
     
     public function init()
     {

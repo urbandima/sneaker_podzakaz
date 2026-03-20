@@ -151,7 +151,7 @@ class OrderService
             if ($item->size !== null) {
                 $sizeAvailable = \app\backend\modules\catalog\models\ProductSize::find()
                     ->where(['product_id' => $product->id, 'size_value' => $item->size])
-                    ->andWhere(['is_available' => 1])
+                    ->andWhere(['is_available' => true])
                     ->exists();
                 
                 if (!$sizeAvailable) {

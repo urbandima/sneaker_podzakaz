@@ -17,7 +17,7 @@ use Yii;
  */
 class PageController extends Controller
 {
-    public $layout = 'main';
+    public $layout = 'main'; // Единый layout
 
     /**
      * Условия оплаты
@@ -125,5 +125,23 @@ class PageController extends Controller
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
         
         return $this->render('/pages/contacts');
+    }
+
+    /**
+     * Скидки и акции
+     */
+    public function actionSale()
+    {
+        $this->view->title = 'Скидки и акции — СНИКЕРХЭД';
+        $this->view->registerMetaTag([
+            'name' => 'description',
+            'content' => 'Текущие скидки, акции и специальные предложения на кроссовки в СНИКЕРХЭД. Выгодные цены на оригинальную обувь.'
+        ]);
+        $this->view->registerMetaTag(['property' => 'og:title', 'content' => 'Скидки и акции — СНИКЕРХЭД']);
+        $this->view->registerMetaTag(['property' => 'og:description', 'content' => 'Выгодные цены и акции на оригинальные кроссовки']);
+        $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
+        $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
+        
+        return $this->render('/pages/sale');
     }
 }

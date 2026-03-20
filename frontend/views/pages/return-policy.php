@@ -16,7 +16,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
             <div class="content-section">
                 <div class="alert alert-success">
-                    <h6 class="alert-heading">✅ Гарантия качества</h6>
+                    <h6 class="alert-heading"><i class="bi bi-check-circle"></i> Гарантия качества</h6>
                     <p class="mb-0">
                         Мы гарантируем подлинность и качество всех товаров. При обнаружении несоответствия 
                         вы можете вернуть товар или обменять его в течение установленных сроков.
@@ -60,7 +60,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">📦 Возврат товара надлежащего качества</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-box-seam"></i> Возврат товара надлежащего качества</h2>
                 <div class="return-steps">
                     <div class="step-item">
                         <div class="step-number">1</div>
@@ -151,7 +151,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">✅ Товары, подлежащие возврату</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-check-circle"></i> Товары, подлежащие возврату</h2>
                 <div class="returnable-items">
                     <div class="category-card">
                         <div class="category-icon">
@@ -228,7 +228,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">💰 Способы возврата средств</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-currency-dollar"></i> Способы возврата средств</h2>
                 <div class="refund-methods">
                     <div class="method-item">
                         <div class="method-icon">
@@ -266,7 +266,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">📋 Часто задаваемые вопросы</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-question-circle"></i> Часто задаваемые вопросы</h2>
                 <div class="faq-section">
                     <div class="faq-item">
                         <div class="faq-question">
@@ -307,7 +307,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">📞 Контакты для возврата</h2>
+                <h2 class="h4 mb-3"><i class="bi bi-telephone"></i> Контакты для возврата</h2>
                 <div class="contact-info">
                     <div class="contact-card">
                         <h6><i class="bi bi-telephone"></i> Телефон</h6>

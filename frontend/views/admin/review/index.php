@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\LinkPager;
 
-$this->title = '⭐ Управление отзывами';
+$this->title = '<i class="bi bi-star"></i> Управление отзывами';
 ?>
 
 <style>
@@ -290,7 +290,7 @@ $this->title = '⭐ Управление отзывами';
             <div class="stat-label">Избранные</div>
         </div>
         <div class="stat-card">
-            <div class="stat-value"><?= number_format($stats['avg_rating'], 1) ?> ⭐</div>
+            <div class="stat-value"><?= number_format($stats['avg_rating'], 1) ?> <i class="bi bi-star-fill" style="color: #fbbf24;"></i></div>
             <div class="stat-label">Средний рейтинг</div>
         </div>
     </div>
@@ -311,7 +311,7 @@ $this->title = '⭐ Управление отзывами';
         </a>
         <?php for ($i = 5; $i >= 1; $i--): ?>
             <a href="<?= Url::to(['index', 'rating' => $i]) ?>" class="filter-btn <?= Yii::$app->request->get('rating') == $i ? 'active' : '' ?>">
-                <?= $i ?> ⭐
+                <?= $i ?> <i class="bi bi-star-fill" style="color: #fbbf24;"></i>
             </a>
         <?php endfor; ?>
     </div>

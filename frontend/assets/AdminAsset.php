@@ -17,7 +17,7 @@ class AdminAsset extends VersionedAssetBundle
     public $baseUrl = '@web';
     
     public $css = [
-        'css/dist/admin-bundle.min.css',
+        '/css/admin.css',
     ];
     
     public $js = [

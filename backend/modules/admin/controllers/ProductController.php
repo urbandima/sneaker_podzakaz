@@ -102,7 +102,7 @@ class ProductController extends BaseAdminController
         }
 
         if ($filterStatus) {
-            $query->andWhere(['is_active' => $filterStatus === 'active' ? 1 : 0]);
+            $query->andWhere(['is_active' => $filterStatus === 'active' ? true : false]);
         }
 
         if ($filterStock) {
@@ -155,9 +155,9 @@ class ProductController extends BaseAdminController
         // Статистика
         $stats = [
             'total' => Product::find()->count(),
-            'active' => Product::find()->where(['is_active' => 1])->count(),
+            'active' => Product::find()->where(['is_active' => true])->count(),
             'poizon' => Product::find()->where(['not', ['poizon_id' => null]])->count(),
-            'inactive' => Product::find()->where(['is_active' => 0])->count(),
+            'inactive' => Product::find()->where(['is_active' => false])->count(),
             'inStock' => Product::find()->where(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK])->count(),
             'manual' => Product::find()->where(['poizon_id' => null])->count(),
             'outOfStock' => Product::find()->where(['stock_status' => 'out_of_stock'])->count(),

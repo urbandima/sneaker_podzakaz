@@ -97,6 +97,7 @@ class TemporaryAdminIdentity implements IdentityInterface
     {
         // ВРЕМЕННО: Отключаем очистку сессий - таблица session не существует
         // В продакшене нужно создать таблицу session или использовать Redis
-        error_log("Session clearing disabled - table 'session' not found");
+        // Логирование через Yii::info вместо error_log
+        \Yii::info("Session clearing disabled - table 'session' not found", 'temporary_admin');
     }
 }

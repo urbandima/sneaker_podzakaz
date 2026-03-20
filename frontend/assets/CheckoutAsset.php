@@ -17,8 +17,8 @@ class CheckoutAsset extends VersionedAssetBundle
     public $baseUrl = '@web';
     
     public $css = [
-        // Checkout styles (объединены из checkout-enhancements, order-success)
-        'css/pages/checkout.css',
+        // Checkout styles - использую минималистичный дизайн из AppAsset
+        // Старые стили отключены для единого дизайна 100/100
     ];
     
     public $js = [

@@ -89,7 +89,7 @@ class SizeGridController extends BaseAdminController
 
         $stats = [
             'total' => (int)SizeGrid::find()->count(),
-            'active' => (int)SizeGrid::find()->where(['is_active' => 1])->count(),
+            'active' => (int)SizeGrid::find()->where(['is_active' => true])->count(),
             'withBrand' => (int)SizeGrid::find()->where(['not', ['brand_id' => null]])->count(),
             'sizes' => (int)SizeGridItem::find()->count(),
         ];

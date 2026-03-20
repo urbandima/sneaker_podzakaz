@@ -17,10 +17,8 @@ class CatalogAsset extends VersionedAssetBundle
     public $baseUrl = '@web';
     
     public $css = [
-        // Catalog styles (объединены из catalog-layout, catalog-card, catalog-inline)
-        'css/pages/catalog.css',
-        // Grid styles (из catalog-mobile-fixes)
-        'css/pages/catalog-grid.css',
+        // Catalog styles - используем минималистичный дизайн из AppAsset
+        // Старые стили отключены для единого дизайна 100/100
     ];
     
     public $js = [

@@ -6,28 +6,12 @@ use yii\web\AssetBundle;
 
 class AppAsset extends AssetBundle
 {
-    public $sourcePath = '@frontend';  // Источник файлов
+    public $sourcePath = null;  // Отключаем публикацию в assets
     public $baseUrl = '@web';
     
-    // Файлы без версий - версии добавятся автоматически в init()
+    // Единая точка входа CSS - версии добавятся автоматически в init()
     public $css = [
-        // CORE (критичные стили)
-        'css/css/dist/critical.min.css',
-        
-        // PUBLIC (основной сайт)
-        'css/css/dist/public-bundle.min.css',
-        
-        // PRODUCT (страница товара)
-        'css/css/dist/product-page.min.css',
-        
-        // MOBILE MENU
-        'css/features/mobile-menu.css',
-        
-        // DARK MODE
-        'css/features/dark-mode.css',
-        
-        // Bootstrap Icons (CDN)
-        'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css',
+        '/css/app.css',
     ];
     
     public $js = [

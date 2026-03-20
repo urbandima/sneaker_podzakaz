@@ -8,7 +8,7 @@ use Yii;
 class CheckoutModule extends Module
 {
     public $controllerNamespace = 'app\backend\modules\checkout\controllers';
-    public $layout = 'public';
+    public $layout = 'main';
     
     public function init()
     {

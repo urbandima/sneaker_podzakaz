@@ -15,7 +15,7 @@ use app\backend\modules\cart\models\Cart;
 
 class OrderController extends Controller
 {
-    public $layout = 'public'; // Специальный layout для публичной части
+    public $layout = 'main'; // Единый layout
 
     public function beforeAction($action)
     {
@@ -237,7 +237,7 @@ class OrderController extends Controller
         if (empty($orderItems)) {
             // Если по какой-то причине товаров нет, показываем популярные
             return \app\models\Product::find()
-                ->where(['is_active' => 1])
+                ->where(['is_active' => true])
                 ->orderBy(['created_at' => SORT_DESC])
                 ->limit($limit)
                 ->all();
@@ -257,7 +257,7 @@ class OrderController extends Controller
 
         $brandIds = array_unique($brandIds);
         $query = \app\models\Product::find()
-            ->where(['is_active' => 1]);
+            ->where(['is_active' => true]);
 
         // Если есть бренды, показываем товары из тех же брендов
         if (!empty($brandIds)) {
@@ -280,7 +280,7 @@ class OrderController extends Controller
             $existingIds = array_merge($excludeProductIds, array_map(fn($p) => $p->id, $products));
             
             $popularProducts = \app\models\Product::find()
-                ->where(['is_active' => 1])
+                ->where(['is_active' => true])
                 ->andWhere(['not in', 'id', $existingIds])
                 ->orderBy(['created_at' => SORT_DESC])
                 ->limit($need)

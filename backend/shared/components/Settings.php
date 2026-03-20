@@ -61,7 +61,7 @@ class Settings extends Component
         if ($this->_statuses === null) {
             $query = OrderStatus::find()->orderBy(['sort' => SORT_ASC]);
             if (!$includeInactive) {
-                $query->where(['is_active' => 1]);
+                $query->where(['is_active' => true]);
             }
             $this->_statuses = $query->asArray()->all();
         }

@@ -107,7 +107,7 @@ class Brand extends ActiveRecord
     {
         $cache = Yii::$app->cache;
         if ($cache) {
-            $cache->delete('catalog_filters_' . md5(serialize(['is_active' => 1])));
+            $cache->delete('catalog_filters_' . md5(serialize(['is_active' => true])));
         }
     }
 
@@ -126,7 +126,7 @@ class Brand extends ActiveRecord
             [['logo_url'], 'string', 'max' => 500],
             [['sort_order', 'poizon_id'], 'integer'],
             [['is_active'], 'boolean'],
-            [['is_active'], 'default', 'value' => 1],
+            [['is_active'], 'default', 'value' => true],
             [['sort_order'], 'default', 'value' => 0],
             [['meta_title'], 'string', 'max' => 255],
         ];
@@ -168,7 +168,7 @@ class Brand extends ActiveRecord
     public function getActiveProducts()
     {
         return $this->hasMany(Product::class, ['brand_id' => 'id'])
-            ->where(['is_active' => 1]);
+            ->where(['is_active' => true]);
     }
 
     /**
@@ -176,7 +176,7 @@ class Brand extends ActiveRecord
      */
     public function getProductsCount()
     {
-        return (int)$this->getProducts()->where(['is_active' => 1])->count();
+        return (int)$this->getProducts()->where(['is_active' => true])->count();
     }
     
     /**
@@ -197,7 +197,7 @@ class Brand extends ActiveRecord
     public static function getActiveBrands()
     {
         return static::find()
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->orderBy(['sort_order' => SORT_ASC, 'name' => SORT_ASC])
             ->all();
     }
@@ -207,7 +207,7 @@ class Brand extends ActiveRecord
      */
     public static function findBySlug($slug)
     {
-        return static::findOne(['slug' => $slug, 'is_active' => 1]);
+        return static::findOne(['slug' => $slug, 'is_active' => true]);
     }
 
     /**

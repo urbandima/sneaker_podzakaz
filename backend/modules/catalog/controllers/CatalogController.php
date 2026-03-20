@@ -57,7 +57,7 @@ use app\backend\shared\components\SmartFilter;
 use app\backend\shared\components\CacheManager;
 use app\backend\shared\components\HttpCacheHeaders;
 use app\backend\modules\catalog\repositories\ProductRepository;
-use app\backend\modules\catalog\services\FilterBuilder;
+use app\backend\modules\catalog\services\Catalog\FilterBuilder;
 use app\backend\shared\traits\CatalogFiltersTrait;
 use app\backend\shared\traits\CatalogSeoTrait;
 
@@ -66,7 +66,7 @@ class CatalogController extends Controller
     use CatalogFiltersTrait;
     use CatalogSeoTrait;
     
-    public $layout = 'public';
+    public $layout = 'main'; // Единый layout frontend
     
     /** @var ProductRepository */
     private $productRepository;
@@ -173,7 +173,7 @@ class CatalogController extends Controller
         // Строим запрос
         $query = Product::find()
             ->with(['brand', 'characteristicValues'])
-            ->where(['is_active' => 1]);
+            ->where(['is_active' => true]);
         
         // ИСПРАВЛЕНО: Передаём фильтры напрямую вместо мутации $_GET
         $query = $this->applyFilters($query, [
@@ -234,7 +234,7 @@ class CatalogController extends Controller
     public function actionBrands()
     {
         $brands = Brand::find()
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->orderBy(['name' => SORT_ASC])
             ->all();
         
@@ -278,7 +278,7 @@ class CatalogController extends Controller
         $products = Product::find()
             ->select(['id', 'name', 'slug', 'price', 'old_price', 'main_image', 'stock_status', 'is_featured'])
             ->with(['brand'])
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]) // Скрываем "нет в наличии"
             ->andWhere(['like', 'name', $query])
             ->limit(5)
@@ -315,7 +315,7 @@ class CatalogController extends Controller
         
         $product = Product::find()
             ->with(['brand', 'category', 'sizes', 'colors', 'images'])
-            ->where(['id' => $id, 'is_active' => 1])
+            ->where(['id' => $id, 'is_active' => true])
             ->one();
         
         if (!$product) {
@@ -342,7 +342,7 @@ class CatalogController extends Controller
                 // ОПТИМИЗАЦИЯ: Загружаем sizes для диапазона цен и отображения в карточках
                 'sizes' => function($query) {
                     $query->select(['id', 'product_id', 'size', 'price_byn', 'is_available', 'eu_size', 'us_size', 'uk_size', 'cm_size'])
-                          ->where(['is_available' => 1])
+                          ->where(['is_available' => true])
                           ->orderBy(['size' => SORT_ASC]);
                 },
                 // ОПТИМИЗАЦИЯ: Загружаем colors для отображения в карточках
@@ -372,7 +372,7 @@ class CatalogController extends Controller
                 'reviews_count',
                 'created_at'       // Для бейджа "NEW"
             ])
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]); // Скрываем "нет в наличии"
         
         // Применяем дополнительные условия (brand_id, category_id и т.д.)
@@ -970,7 +970,7 @@ class CatalogController extends Controller
                 'main_image_url', 'price', 'old_price', 'stock_status',
                 'is_featured', 'rating', 'reviews_count', 'views_count', 'created_at'
             ])
-            ->where(['product.is_active' => 1])
+            ->where(['product.is_active' => true])
             ->andWhere(['!=', 'product.stock_status', Product::STOCK_OUT_OF_STOCK]);
         
         // ИСПРАВЛЕНО: Передаём фильтры напрямую вместо мутации $_GET
@@ -1110,7 +1110,7 @@ class CatalogController extends Controller
         // Получаем товары
         $products = Product::find()
             ->with(['brand'])
-            ->where(['id' => $ids, 'is_active' => 1])
+            ->where(['id' => $ids, 'is_active' => true])
             ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]) // Скрываем "нет в наличии"
             ->limit(20)
             ->all();
@@ -1140,7 +1140,7 @@ class CatalogController extends Controller
 
         $brands = Brand::find()
             ->select(['brand.id', 'brand.name', 'brand.slug', 'COUNT(product.id) as products_count'])
-            ->leftJoin('product', 'product.brand_id = brand.id AND product.is_active = 1')
+            ->leftJoin('product', 'product.brand_id = brand.id AND product.is_active = true')
             ->groupBy(['brand.id', 'brand.name', 'brand.slug'])
             ->having('COUNT(product.id) > 0')
             ->orderBy(['products_count' => SORT_DESC, 'brand.name' => SORT_ASC])

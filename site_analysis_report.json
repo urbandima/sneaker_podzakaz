@@ -1,0 +1,53 @@
+{
+  "pages": [
+    {
+      "name": "Каталог",
+      "url": "/catalog",
+      "accessible": false,
+      "error": {
+        "code": -32601,
+        "message": "Method not found"
+      }
+    },
+    {
+      "name": "Бренды",
+      "url": "/brands",
+      "accessible": false,
+      "error": {
+        "code": -32601,
+        "message": "Method not found"
+      }
+    },
+    {
+      "name": "Акции",
+      "url": "/sale",
+      "accessible": false,
+      "error": {
+        "code": -32601,
+        "message": "Method not found"
+      }
+    },
+    {
+      "name": "Вход",
+      "url": "/account/login",
+      "accessible": false,
+      "error": {
+        "code": -32601,
+        "message": "Method not found"
+      }
+    },
+    {
+      "name": "Регистрация",
+      "url": "/account/register",
+      "accessible": false,
+      "error": {
+        "code": -32601,
+        "message": "Method not found"
+      }
+    }
+  ],
+  "navigation": [],
+  "forms": [],
+  "buttons": [],
+  "structure": {}
+}

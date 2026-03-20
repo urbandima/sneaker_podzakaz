@@ -13,6 +13,8 @@ use app\backend\modules\catalog\models\Product;
  */
 class FavoriteController extends Controller
 {
+    public $layout = 'main'; // Единый layout
+    
     /**
      * Добавить в избранное (AJAX)
      */

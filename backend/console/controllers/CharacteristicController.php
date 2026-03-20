@@ -59,8 +59,8 @@ class CharacteristicController extends Controller
                     'key' => $data['key'],
                     'name' => $data['name'],
                     'type' => $data['type'] ?? Characteristic::TYPE_SELECT,
-                    'is_filter' => 1,
-                    'is_active' => 1,
+                    'is_filter' => true,
+                    'is_active' => true,
                 ]);
                 if (!$characteristic->save()) {
                     $this->stderr("Не удалось сохранить характеристику {$data['key']}\n", Console::FG_RED);
@@ -85,7 +85,7 @@ class CharacteristicController extends Controller
                 $value->slug = $data['slug'];
             }
             $value->sort_order = isset($data['sort_order']) ? (int)$data['sort_order'] : 0;
-            $value->is_active = 1;
+            $value->is_active = true;
 
             if ($value->save()) {
                 $count++;
@@ -123,7 +123,7 @@ class CharacteristicController extends Controller
             return ExitCode::DATAERR;
         }
 
-        $query = Product::find()->where(['is_active' => 1]);
+        $query = Product::find()->where(['is_active' => true]);
         if ($brand) {
             $query->andWhere(['brand_id' => $brand]);
         }

@@ -16,12 +16,12 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use app\frontend\assets\LandingAsset;
+use app\frontend\assets\AppAsset;
 
 $this->title = 'СНИКЕРХЭД — Оригинальные кроссовки из США и Европы';
 
-// Подключаем AssetBundle для лендинга (все стили автоматически с версионированием)
-LandingAsset::register($this);
+// Подключаем минималистичный AssetBundle (единый дизайн 100/100)
+AppAsset::register($this);
 
 // Получаем данные
 $popularProducts = $this->params['popularProducts'] ?? [];
@@ -38,7 +38,7 @@ $brands = $this->params['brands'] ?? [];
     <div class="container">
         <div class="hero-content">
             <div class="hero-badge">
-                <span class="badge-icon">🔥</span>
+                <span class="badge-icon"><i class="bi bi-fire"></i></span>
                 <span>Новая коллекция 2024</span>
             </div>
             
@@ -81,7 +81,7 @@ $brands = $this->params['brands'] ?? [];
         </div>
         
         <div class="hero-image">
-            <img src="/images/hero-sneakers.png" alt="Кроссовки" class="hero-sneakers-img">
+            <img src="/images/hero-sneakers.svg" alt="Кроссовки" class="hero-sneakers-img">
             <div class="hero-floating-card card-1">
                 <i class="bi bi-shield-check"></i>
                 <span>100% оригинал</span>

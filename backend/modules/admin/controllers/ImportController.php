@@ -600,8 +600,113 @@ class ImportController extends Controller
      */
     protected function processExcelFile($filePath, $task)
     {
-        // TODO: Реализовать обработку Excel через phpoffice/phpspreadsheet
-        throw new \Exception('Импорт Excel в разработке');
+        if (!file_exists($filePath)) {
+            throw new \Exception('Файл не найден: ' . $filePath);
+        }
+
+        // Проверяем расширение файла
+        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        if (!in_array($extension, ['xlsx', 'xls', 'csv'])) {
+            throw new \Exception('Неподдерживаемый формат файла. Используйте XLSX, XLS или CSV');
+        }
+
+        try {
+            // Для CSV используем встроенные функции PHP
+            if ($extension === 'csv') {
+                return $this->processCsvFile($filePath, $task);
+            }
+
+            // Для Excel проверяем наличие PhpSpreadsheet
+            if (!class_exists('\PhpOffice\PhpSpreadsheet\IOFactory')) {
+                // Если библиотека не установлена, пытаемся обработать как CSV
+                Yii::warning('PhpSpreadsheet не установлен, пытаемся обработать как CSV', 'import');
+                return $this->processCsvFile($filePath, $task);
+            }
+
+            // Загружаем Excel файл
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
+            $worksheet = $spreadsheet->getActiveSheet();
+            $rows = $worksheet->toArray();
+
+            if (empty($rows)) {
+                throw new \Exception('Файл пуст');
+            }
+
+            // Первая строка - заголовки
+            $headers = array_shift($rows);
+            $headers = array_map('trim', $headers);
+
+            // Преобразуем данные в формат для импорта
+            $products = [];
+            foreach ($rows as $rowIndex => $row) {
+                if (empty(array_filter($row))) {
+                    continue; // Пропускаем пустые строки
+                }
+
+                $product = [];
+                foreach ($headers as $colIndex => $header) {
+                    $value = $row[$colIndex] ?? null;
+                    $product[$header] = $value;
+                }
+
+                $products[] = $product;
+            }
+
+            if (empty($products)) {
+                throw new \Exception('Нет данных для импорта');
+            }
+
+            return $this->importProductsFromArray($products, $task);
+
+        } catch (\Exception $e) {
+            Yii::error('Ошибка обработки Excel: ' . $e->getMessage(), 'import');
+            throw $e;
+        }
+    }
+
+    /**
+     * Обработка CSV файла
+     */
+    protected function processCsvFile($filePath, $task)
+    {
+        $handle = fopen($filePath, 'r');
+        if (!$handle) {
+            throw new \Exception('Не удалось открыть CSV файл');
+        }
+
+        $products = [];
+        $headers = null;
+        $rowIndex = 0;
+
+        while (($row = fgetcsv($handle, 0, ',')) !== false) {
+            if ($rowIndex === 0) {
+                // Первая строка - заголовки
+                $headers = array_map('trim', $row);
+                $rowIndex++;
+                continue;
+            }
+
+            if (empty(array_filter($row))) {
+                continue; // Пропускаем пустые строки
+            }
+
+            $product = [];
+            foreach ($headers as $colIndex => $header) {
+                $value = $row[$colIndex] ?? null;
+                $product[$header] = $value;
+            }
+
+            $products[] = $product;
+            $rowIndex++;
+        }
+
+        fclose($handle);
+
+        if (empty($products)) {
+            throw new \Exception('Нет данных для импорта в CSV файле');
+        }
+
+        return $this->importProductsFromArray($products, $task);
     }
 
     /**

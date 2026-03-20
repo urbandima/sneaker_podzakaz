@@ -97,8 +97,8 @@ class FilterBuilder
     {
         $query = Brand::find()
             ->select(['brand.id', 'brand.name', 'brand.slug', 'COUNT(DISTINCT product.id) as count'])
-            ->innerJoin('product', 'product.brand_id = brand.id AND product.is_active = 1 AND product.stock_status != "' . Product::STOCK_OUT_OF_STOCK . '"')
-            ->where(['brand.is_active' => 1]);
+            ->innerJoin('product', 'product.brand_id = brand.id AND product.is_active = true AND product.stock_status != "' . Product::STOCK_OUT_OF_STOCK . '"')
+            ->where(['brand.is_active' => true]);
         
         // Применяем другие фильтры (кроме брендов)
         self::applyFiltersToQuery($query, $currentFilters, $baseConditions, ['brands']);
@@ -117,8 +117,8 @@ class FilterBuilder
     {
         $query = Category::find()
             ->select(['category.id', 'category.name', 'category.slug', 'COUNT(DISTINCT product.id) as count'])
-            ->innerJoin('product', 'product.category_id = category.id AND product.is_active = 1 AND product.stock_status != "' . Product::STOCK_OUT_OF_STOCK . '"')
-            ->where(['category.is_active' => 1, 'category.parent_id' => null]);
+            ->innerJoin('product', 'product.category_id = category.id AND product.is_active = true AND product.stock_status != "' . Product::STOCK_OUT_OF_STOCK . '"')
+            ->where(['category.is_active' => true, 'category.parent_id' => null]);
         
         // Применяем другие фильтры (кроме категорий)
         self::applyFiltersToQuery($query, $currentFilters, $baseConditions, ['categories']);
@@ -137,7 +137,7 @@ class FilterBuilder
     {
         $query = Product::find()
             ->select(['MIN(price) as min', 'MAX(price) as max'])
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]);
         
         // Применяем фильтры (кроме цены)
@@ -167,8 +167,8 @@ class FilterBuilder
         $baseQuery = ProductSize::find()
             ->innerJoin('product', 'product.id = product_size.product_id')
             ->where([
-                'product.is_active' => 1,
-                'product_size.is_available' => 1
+                'product.is_active' => true,
+                'product_size.is_available' => true
             ])
             ->andWhere(['!=', 'product.stock_status', Product::STOCK_OUT_OF_STOCK]);
         
@@ -275,7 +275,7 @@ class FilterBuilder
     {
         // Получаем активные характеристики для фильтров
         $characteristics = Characteristic::find()
-            ->where(['is_active' => 1, 'is_filter' => 1])
+            ->where(['is_active' => true, 'is_filter' => true])
             ->orderBy(['sort_order' => SORT_ASC])
             ->asArray()
             ->all();
@@ -289,7 +289,7 @@ class FilterBuilder
         // ОПТИМИЗАЦИЯ: Один запрос для всех значений всех характеристик
         $productIdsQuery = Product::find()
             ->select('id')
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]);
         
         // Применяем фильтры для умного сужения
@@ -317,7 +317,7 @@ class FilterBuilder
                     ['pcv' => '{{%product_characteristic_value}}'],
                     'pcv.characteristic_value_id = cv.id AND pcv.product_id IN (' . implode(',', $productIds) . ')'
                 )
-                ->where(['cv.characteristic_id' => $charIds, 'cv.is_active' => 1])
+                ->where(['cv.characteristic_id' => $charIds, 'cv.is_active' => true])
                 ->groupBy(['cv.id'])
                 ->orderBy(['cv.sort_order' => SORT_ASC])
                 ->asArray()
@@ -381,7 +381,7 @@ class FilterBuilder
         // Базовый запрос товаров с учетом фильтров
         $query = Product::find()
             ->select([$fieldName, 'COUNT(*) as count'])
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK])
             ->andWhere(['IS NOT', $fieldName, null])
             ->andWhere(['!=', $fieldName, '']);
@@ -481,7 +481,7 @@ class FilterBuilder
         // Подзапрос для получения product_id с учётом фильтров
         $productIdsQuery = Product::find()
             ->select('id')
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]);
         
         // Применяем фильтры (кроме этой характеристики)
@@ -502,7 +502,7 @@ class FilterBuilder
             )
             ->where([
                 'characteristic_value.characteristic_id' => $characteristicId,
-                'characteristic_value.is_active' => 1
+                'characteristic_value.is_active' => true
             ])
             ->groupBy(['characteristic_value.id'])
             ->orderBy(['characteristic_value.sort_order' => SORT_ASC])
@@ -525,7 +525,7 @@ class FilterBuilder
             ->innerJoin('product', 'product.id = product_characteristic_value.product_id')
             ->where([
                 'product_characteristic_value.characteristic_id' => $characteristicId,
-                'product.is_active' => 1
+                'product.is_active' => true
             ])
             ->andWhere(['IS NOT', 'product_characteristic_value.value_number', null])
             ->andWhere(['!=', 'product.stock_status', Product::STOCK_OUT_OF_STOCK]);
@@ -555,7 +555,7 @@ class FilterBuilder
             ])
             ->innerJoin('product', 'product.id = product_color.product_id')
             ->where([
-                'product.is_active' => 1
+                'product.is_active' => true
             ])
             ->andWhere(['!=', 'product.stock_status', Product::STOCK_OUT_OF_STOCK]);
         
@@ -619,7 +619,7 @@ class FilterBuilder
                 'product.id' => ProductSize::find()
                     ->select('product_id')
                     ->where([$sizeField => $currentFilters['sizes']])
-                    ->andWhere(['is_available' => 1])
+                    ->andWhere(['is_available' => true])
             ]);
         }
         

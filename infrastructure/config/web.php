@@ -218,43 +218,52 @@ $config = [
                 'order/<token:[a-zA-Z0-9_-]+>/upload' => 'order/upload-payment',
                 'order/<token:[a-zA-Z0-9_-]+>/download-payment' => 'order/download-payment',
                 
+                // Checkout/Order
+                'checkout' => 'order/create',
+                
                 // Каталог товаров
-                'catalog' => 'catalog/index',
-                'sale' => 'catalog/sale',
-                'catalog/brand/<slug:[a-z0-9-]+>' => 'catalog/brand',
-                'catalog/category/<slug:[a-z0-9-]+>' => 'catalog/category',
-                'catalog/product/<slug:[a-z0-9-]+>' => 'catalog/product',
-                'catalog/favorites' => 'catalog/favorites',
-                'catalog/history' => 'catalog/history',
+                'catalog' => 'catalog/catalog/index',
+                'catalog/brand/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
+                'catalog/category/<slug:[a-z0-9-]+>' => 'catalog/catalog/category',
+                'catalog/product/<slug:[a-z0-9-]+>' => 'catalog/catalog/product',
+                'catalog/favorites' => 'catalog/catalog/favorites',
+                'catalog/history' => 'catalog/catalog/history',
+                
+                // Страница брендов
+                'brands' => 'catalog/catalog/brands',
+                
+                // Страница скидок
+                'sale' => 'page/sale',
                 
                 // ИСПРАВЛЕНО: Явные API роуты для AJAX (Проблема #7)
-                'catalog/add-favorite' => 'catalog/add-favorite',
-                'catalog/remove-favorite' => 'catalog/remove-favorite',
-                'catalog/favorites-count' => 'catalog/favorites-count',
-                'catalog/search' => 'catalog/search',
-                'catalog/filter' => 'catalog/filter',
-                'catalog/load-more' => 'catalog/load-more',
-                'catalog/quick-view/<id:\d+>' => 'catalog/quick-view',
+                'catalog/add-favorite' => 'favorite/add',
+                'catalog/remove-favorite' => 'favorite/remove',
+                'catalog/favorites-count' => 'favorite/count',
+                'catalog/search' => 'catalog/catalog/search',
+                'catalog/filter' => 'catalog/catalog/filter',
+                'catalog/load-more' => 'catalog/catalog/load-more',
+                'catalog/quick-view/<id:\d+>' => 'catalog/catalog/quick-view',
                 
                 // Корзина API
-                'cart' => 'cart/index',
-                'cart/add' => 'cart/add',
-                'cart/update' => 'cart/update',
-                'cart/remove/<id:\d+>' => 'cart/remove',
-                'cart/count' => 'cart/count',
+                'cart' => 'cart/cart/index',
+                'cart/add' => 'cart/cart/add',
+                'cart/update' => 'cart/cart/update',
+                'cart/remove/<id:\d+>' => 'cart/cart/remove',
+                'cart/count' => 'cart/cart/count',
                 
                 // Личный кабинет покупателя
                 'account' => 'account/account/index',
                 'account/login' => 'account/account/login',
                 'account/auth' => 'account/account/auth',
                 'account/register' => 'account/account/register',
-                'account/logout' => 'account/logout',
-                'account/profile' => 'account/profile',
-                'account/orders' => 'account/orders',
-                'account/order/<id:\d+>' => 'account/order-view',
-                'account/settings' => 'account/settings',
-                'account/forgot-password' => 'account/forgot-password',
-                'account/find-orders' => 'account/find-orders',
+                'account/logout' => 'account/account/logout',
+                'account/profile' => 'account/account/profile',
+                'account/orders' => 'account/account/orders',
+                'account/order/<id:\d+>' => 'account/account/order-view',
+                'account/settings' => 'account/account/settings',
+                'account/forgot-password' => 'account/account/forgot-password',
+                'account/find-orders' => 'account/account/find-orders',
+                'account/wishlist' => 'account/account/wishlist',
                 
                 // Публичный просмотр покупателя (для админки)
                 'customer/view' => 'admin/customer/view',

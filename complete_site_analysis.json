@@ -1,0 +1,86 @@
+{
+  "siteName": "Sneakerhead",
+  "baseUrl": "http://localhost:8080",
+  "exploredAt": "2026-03-19T19:46:38.627Z",
+  "pages": [
+    {
+      "page": "Главная",
+      "title": "",
+      "links": [],
+      "buttons": [],
+      "forms": [],
+      "images": [],
+      "headings": [],
+      "totalElements": 0,
+      "accessible": true,
+      "screenshot": "taken"
+    },
+    {
+      "page": "Каталог",
+      "title": "",
+      "links": [],
+      "buttons": [],
+      "forms": [],
+      "images": [],
+      "headings": [],
+      "totalElements": 0,
+      "accessible": true,
+      "screenshot": "taken"
+    },
+    {
+      "page": "Бренды",
+      "title": "",
+      "links": [],
+      "buttons": [],
+      "forms": [],
+      "images": [],
+      "headings": [],
+      "totalElements": 0,
+      "accessible": true,
+      "screenshot": "taken"
+    },
+    {
+      "page": "Акции",
+      "title": "",
+      "links": [],
+      "buttons": [],
+      "forms": [],
+      "images": [],
+      "headings": [],
+      "totalElements": 0,
+      "accessible": true,
+      "screenshot": "taken"
+    },
+    {
+      "page": "Вход",
+      "title": "",
+      "links": [],
+      "buttons": [],
+      "forms": [],
+      "images": [],
+      "headings": [],
+      "totalElements": 0,
+      "accessible": true,
+      "screenshot": "taken"
+    },
+    {
+      "page": "Регистрация",
+      "title": "",
+      "links": [],
+      "buttons": [],
+      "forms": [],
+      "images": [],
+      "headings": [],
+      "totalElements": 0,
+      "accessible": true,
+      "screenshot": "taken"
+    }
+  ],
+  "summary": {
+    "totalPages": 6,
+    "accessiblePages": 6,
+    "totalLinks": 0,
+    "totalButtons": 0,
+    "totalForms": 0
+  }
+}

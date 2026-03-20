@@ -17,8 +17,8 @@ class CartAsset extends VersionedAssetBundle
     public $baseUrl = '@web';
     
     public $css = [
-        // Cart styles (объединены из cart, cart-mobile)
-        'css/pages/cart.css',
+        // Cart styles - использую минималистичный дизайн из AppAsset
+        // Старые стили отключены для единого дизайна 100/100
     ];
     
     public $js = [

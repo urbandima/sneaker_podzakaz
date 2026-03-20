@@ -17,7 +17,8 @@ class AdminAsset extends AssetBundle
     public $baseUrl = '@web';
     
     public $css = [
-        'css/dist/admin-bundle.min.css',
+        // Минималистичный дизайн 100/100 - используем единые стили
+        // Старые стили отключены для единого дизайна
     ];
     
     public $js = [
@@ -25,8 +26,10 @@ class AdminAsset extends AssetBundle
     ];
     
     public $depends = [
+        'app\backend\assets\AdminAsset', // Основной AdminAsset с минималистичными стилями
         'yii\web\YiiAsset',
-        'yii\bootstrap5\BootstrapAsset',
-        'yii\bootstrap5\BootstrapPluginAsset',
+        // Bootstrap5 отключен для минималистичного дизайна
+        // 'yii\bootstrap5\BootstrapAsset',
+        // 'yii\bootstrap5\BootstrapPluginAsset',
     ];
 }

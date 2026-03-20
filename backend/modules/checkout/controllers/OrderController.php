@@ -44,10 +44,12 @@ use app\backend\modules\checkout\models\Order;
 use app\backend\modules\checkout\models\OrderItem;
 use app\backend\modules\checkout\models\OrderHistory;
 use app\backend\modules\catalog\models\Cart;
+use app\backend\modules\coupon\services\CouponService;
+use app\backend\modules\loyalty\services\LoyaltyService;
 
 class OrderController extends Controller
 {
-    public $layout = 'public'; // Специальный layout для публичной части
+    public $layout = 'main'; // Единый layout frontend
 
     public function beforeAction($action)
     {
@@ -83,6 +85,10 @@ class OrderController extends Controller
         $delivery = Yii::$app->request->post('delivery');
         $address = Yii::$app->request->post('address');
         $comment = Yii::$app->request->post('comment');
+        
+        // Купон и баллы лояльности
+        $couponCode = Yii::$app->request->post('coupon_code');
+        $loyaltyPoints = (int)Yii::$app->request->post('loyalty_points', 0);
         
         // Если используется сохранённый адрес, загружаем данные покупателя
         if ($customerId && $useSavedAddress) {
@@ -142,30 +148,62 @@ class OrderController extends Controller
                 Yii::warning('Поле source отсутствует в таблице order, пропускаем установку источника.', 'order');
             }
             
-            // Рассчитываем стоимость доставки
-            $deliveryCost = 0;
-            switch ($delivery) {
-                case 'courier_minsk':
-                    $deliveryCost = 10;
-                    break;
-                case 'europochta':
-                    $deliveryCost = 5;
-                    break;
-                case 'belpochta':
-                    $deliveryCost = 4;
-                    break;
-                case 'sdek':
-                    $deliveryCost = 0; // Рассчитывается отдельно
-                    break;
-                default:
-                    $deliveryCost = 0;
-            }
+            // Рассчитываем стоимость доставки через ShippingService
+            $shippingService = new ShippingService();
+            $totalAmount = Cart::getTotal();
+            $shippingResult = $shippingService->calculateShippingCost(
+                $delivery,
+                $country,
+                null,
+                $totalAmount,
+                1.0 // Вес по умолчанию
+            );
             
+            $deliveryCost = $shippingResult['cost'];
             $order->delivery_cost = $deliveryCost;
             
             // Рассчитываем итоговую сумму
             $totalAmount = Cart::getTotal();
-            $order->total_amount = $totalAmount + $deliveryCost;
+            $order->product_price = $totalAmount;
+            $discountAmount = 0;
+            
+            // Применяем купон если указан
+            if (!empty($couponCode)) {
+                $couponService = new CouponService();
+                $coupon = $couponService->validateCoupon($couponCode, $totalAmount, $customerId);
+                
+                if ($coupon) {
+                    $discountAmount = $coupon->calculateDiscount($totalAmount, $deliveryCost);
+                    $order->coupon_id = $coupon->id;
+                    $order->coupon_code = $coupon->code;
+                    $order->discount_amount = $discountAmount;
+                    
+                    Yii::info("Применён купон {$couponCode}, скидка: {$discountAmount}", 'order');
+                } else {
+                    Yii::warning("Купон {$couponCode} невалиден: " . $couponService->getErrorMessage(), 'order');
+                }
+            }
+            
+            // Применяем баллы лояльности если указаны
+            if ($loyaltyPoints > 0 && $customerId) {
+                $loyaltyService = new LoyaltyService();
+                $maxPoints = $loyaltyService->getMaxRedeemPoints($customerId, $totalAmount);
+                
+                if ($loyaltyPoints > $maxPoints) {
+                    $loyaltyPoints = $maxPoints;
+                }
+                
+                if ($loyaltyPoints >= $loyaltyService->minPointsToRedeem) {
+                    $loyaltyDiscount = $loyaltyService->calculateRedeemDiscount($loyaltyPoints);
+                    $discountAmount += $loyaltyDiscount;
+                    $order->loyalty_points_used = $loyaltyPoints;
+                    $order->loyalty_discount = $loyaltyDiscount;
+                    
+                    Yii::info("Применены баллы лояльности: {$loyaltyPoints}, скидка: {$loyaltyDiscount}", 'order');
+                }
+            }
+            
+            $order->total_amount = $totalAmount + $deliveryCost - $discountAmount;
             
             // Генерируем номер заказа и токен
             $order->order_number = 'WEB-' . date('Ymd') . '-' . strtoupper(Yii::$app->security->generateRandomString(6));
@@ -233,6 +271,27 @@ class OrderController extends Controller
             if ($customerId) {
                 $order->customer_id = $customerId;
                 $order->save(false);
+            }
+            
+            // Финализируем купон (увеличиваем счётчик использований)
+            if (!empty($order->coupon_id)) {
+                $couponService = new CouponService();
+                $coupon = \app\backend\modules\coupon\models\Coupon::findOne($order->coupon_id);
+                if ($coupon) {
+                    $coupon->apply();
+                    \app\backend\modules\coupon\models\CouponUsage::record(
+                        $coupon->id,
+                        $order->id,
+                        $order->discount_amount,
+                        $customerId
+                    );
+                }
+            }
+            
+            // Списываем баллы лояльности
+            if (!empty($order->loyalty_points_used) && $customerId) {
+                $loyaltyService = new LoyaltyService();
+                $loyaltyService->redeemPoints($customerId, $order->loyalty_points_used, $order->id);
             }
             
             // Очищаем корзину
@@ -315,7 +374,7 @@ class OrderController extends Controller
         if (empty($orderItems)) {
             // Если по какой-то причине товаров нет, показываем популярные
             return \app\backend\modules\catalog\models\Product::find()
-                ->where(['is_active' => 1])
+                ->where(['is_active' => true])
                 ->orderBy(['created_at' => SORT_DESC])
                 ->limit($limit)
                 ->all();
@@ -335,7 +394,7 @@ class OrderController extends Controller
 
         $brandIds = array_unique($brandIds);
         $query = \app\backend\modules\catalog\models\Product::find()
-            ->where(['is_active' => 1]);
+            ->where(['is_active' => true]);
 
         // Если есть бренды, показываем товары из тех же брендов
         if (!empty($brandIds)) {
@@ -358,7 +417,7 @@ class OrderController extends Controller
             $existingIds = array_merge($excludeProductIds, array_map(fn($p) => $p->id, $products));
             
             $popularProducts = \app\backend\modules\catalog\models\Product::find()
-                ->where(['is_active' => 1])
+                ->where(['is_active' => true])
                 ->andWhere(['not in', 'id', $existingIds])
                 ->orderBy(['created_at' => SORT_DESC])
                 ->limit($need)
@@ -381,6 +440,79 @@ class OrderController extends Controller
         return $this->render('view', [
             'model' => $model,
         ]);
+    }
+
+    /**
+     * AJAX валидация купона
+     */
+    public function actionValidateCoupon()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        $code = Yii::$app->request->post('code');
+        $orderAmount = (float)Yii::$app->request->post('order_amount', 0);
+        $customerId = Yii::$app->request->post('customer_id');
+        
+        if (empty($code)) {
+            return ['success' => false, 'message' => 'Введите код купона'];
+        }
+        
+        $couponService = new CouponService();
+        $coupon = $couponService->validateCoupon($code, $orderAmount, $customerId);
+        
+        if (!$coupon) {
+            return [
+                'success' => false,
+                'message' => $couponService->getErrorMessage()
+            ];
+        }
+        
+        $discount = $coupon->calculateDiscount($orderAmount, 0);
+        
+        return [
+            'success' => true,
+            'message' => 'Купон применён',
+            'coupon' => [
+                'code' => $coupon->code,
+                'name' => $coupon->name,
+                'description' => $coupon->getDiscountDescription(),
+                'discount' => $discount,
+            ],
+        ];
+    }
+
+    /**
+     * AJAX расчёт баллов лояльности
+     */
+    public function actionCalculateLoyalty()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        $customerId = Yii::$app->request->post('customer_id');
+        $orderAmount = (float)Yii::$app->request->post('order_amount', 0);
+        
+        if (!$customerId) {
+            return ['success' => false, 'message' => 'Авторизуйтесь для использования баллов'];
+        }
+        
+        $loyaltyService = new LoyaltyService();
+        $balance = $loyaltyService->getCustomerBalance($customerId);
+        $maxPoints = $loyaltyService->getMaxRedeemPoints($customerId, $orderAmount);
+        
+        if ($balance < $loyaltyService->minPointsToRedeem) {
+            return [
+                'success' => false,
+                'message' => "Минимум для списания: {$loyaltyService->minPointsToRedeem} баллов"
+            ];
+        }
+        
+        return [
+            'success' => true,
+            'balance' => $balance,
+            'maxPoints' => $maxPoints,
+            'minPoints' => $loyaltyService->minPointsToRedeem,
+            'pointValue' => $loyaltyService->pointValue,
+        ];
     }
 
     public function actionUploadPayment($token)

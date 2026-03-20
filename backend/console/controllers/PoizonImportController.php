@@ -925,7 +925,7 @@ class PoizonImportController extends Controller
                 'category' => isset($product['categoryId']) && isset($categoriesMap[$product['categoryId']]) 
                     ? $categoriesMap[$product['categoryId']] 
                     : 'Кроссовки и кеды',
-                'is_active' => 1,
+                'is_active' => true,
                 'images' => $product['images'] ?? [],
                 'gender' => $product['gender'] ?? 'Унисекс',
             ];
@@ -960,7 +960,7 @@ class PoizonImportController extends Controller
                         'poizon_sku_id' => $child['variantId'] ?? null,
                         'poizon_price_cny' => $child['purchasePrice'] ?? 0,
                         'stock' => $child['count'] ?? 0,
-                        'is_available' => $child['available'] ? 1 : 0,
+                        'is_available' => $child['available'] ? true : false,
                     ];
 
                     // Извлекаем размер из params

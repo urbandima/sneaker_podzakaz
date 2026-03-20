@@ -35,7 +35,7 @@ use app\frontend\assets\CartAsset;
 
 class CartController extends Controller
 {
-    public $layout = 'main';
+    public $layout = 'main'; // Единый layout frontend
     
     
     /**

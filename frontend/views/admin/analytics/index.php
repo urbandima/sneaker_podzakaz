@@ -272,33 +272,33 @@ $this->title = '📊 Аналитика и отчеты';
     <!-- Основные метрики -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-icon">👁️</div>
+            <div class="stat-icon"><i class="bi bi-eye"></i></div>
             <div class="stat-value"><?= number_format($conversion['page_views']) ?></div>
             <div class="stat-label">Просмотров страниц</div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">👟</div>
+            <div class="stat-icon"><i class="bi bi-shoe"></i></div>
             <div class="stat-value"><?= number_format($conversion['product_views']) ?></div>
             <div class="stat-label">Просмотров товаров</div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">🛒</div>
+            <div class="stat-icon"><i class="bi bi-cart"></i></div>
             <div class="stat-value"><?= number_format($conversion['add_to_cart']) ?></div>
             <div class="stat-label">Добавлений в корзину</div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">📦</div>
+            <div class="stat-icon"><i class="bi bi-box-seam"></i></div>
             <div class="stat-value"><?= number_format($conversion['orders']) ?></div>
             <div class="stat-label">Заказов</div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">📈</div>
+            <div class="stat-icon"><i class="bi bi-graph-up"></i></div>
             <div class="stat-value"><?= $conversion['conversion_rate'] ?>%</div>
             <div class="stat-label">Конверсия</div>
             <div class="stat-change positive">Из посетителей в покупателей</div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">💰</div>
+            <div class="stat-icon"><i class="bi bi-currency-dollar"></i></div>
             <div class="stat-value"><?= number_format($revenueStats['total_revenue'] ?? 0, 0, '.', ' ') ?></div>
             <div class="stat-label">Выручка (BYN)</div>
         </div>
@@ -308,23 +308,23 @@ $this->title = '📊 Аналитика и отчеты';
         <!-- Воронка конверсии -->
         <div class="section">
             <div class="section-header">
-                <h3 class="section-title">🔻 Воронка конверсии</h3>
+                <h3 class="section-title"><i class="bi bi-funnel"></i> Воронка конверсии</h3>
             </div>
             <div class="conversion-funnel">
                 <?php 
                 $maxValue = max($conversion['page_views'], 1);
                 $steps = [
-                    ['label' => 'Просмотры', 'value' => $conversion['page_views'], 'icon' => '👁️'],
-                    ['label' => 'Товары', 'value' => $conversion['product_views'], 'icon' => '👟'],
-                    ['label' => 'Корзина', 'value' => $conversion['add_to_cart'], 'icon' => '🛒'],
-                    ['label' => 'Заказы', 'value' => $conversion['orders'], 'icon' => '📦'],
+                    ['label' => 'Просмотры', 'value' => $conversion['page_views'], 'icon' => 'bi bi-eye'],
+                    ['label' => 'Товары', 'value' => $conversion['product_views'], 'icon' => 'bi bi-shoe'],
+                    ['label' => 'Корзина', 'value' => $conversion['add_to_cart'], 'icon' => 'bi bi-cart'],
+                    ['label' => 'Заказы', 'value' => $conversion['orders'], 'icon' => 'bi bi-box-seam'],
                 ];
                 foreach ($steps as $step):
                     $height = max(40, ($step['value'] / $maxValue) * 200);
                 ?>
                 <div class="funnel-step">
                     <div class="funnel-bar" style="height: <?= $height ?>px;">
-                        <?= $step['icon'] ?> <?= number_format($step['value']) ?>
+                        <i class="<?= $step['icon'] ?>"></i> <?= number_format($step['value']) ?>
                     </div>
                     <div class="funnel-label"><?= $step['label'] ?></div>
                     <div class="funnel-value"><?= $maxValue > 0 ? round(($step['value'] / $maxValue) * 100) : 0 ?>%</div>
@@ -336,17 +336,17 @@ $this->title = '📊 Аналитика и отчеты';
         <!-- Устройства -->
         <div class="section">
             <div class="section-header">
-                <h3 class="section-title">📱 Устройства</h3>
+                <h3 class="section-title"><i class="bi bi-phone"></i> Устройства</h3>
             </div>
             <div class="device-stats">
                 <?php 
                 $totalDevices = array_sum(array_column($deviceStats, 'count')) ?: 1;
-                $deviceIcons = ['desktop' => '🖥️', 'mobile' => '📱', 'tablet' => '📟'];
+                $deviceIcons = ['desktop' => 'bi bi-pc-display', 'mobile' => 'bi bi-phone', 'tablet' => 'bi bi-tablet'];
                 foreach ($deviceStats as $device): 
                     $percent = round(($device['count'] / $totalDevices) * 100);
                 ?>
                 <div class="device-item">
-                    <div class="device-icon"><?= $deviceIcons[$device['device_type']] ?? '❓' ?></div>
+                    <div class="device-icon"><i class="<?= $deviceIcons[$device['device_type']] ?? 'bi bi-question-circle' ?>"></i></div>
                     <div class="device-percent"><?= $percent ?>%</div>
                     <div class="device-label"><?= ucfirst($device['device_type']) ?></div>
                 </div>
@@ -358,9 +358,9 @@ $this->title = '📊 Аналитика и отчеты';
     <!-- Источники трафика -->
     <div class="section">
         <div class="section-header">
-            <h3 class="section-title">🔗 Источники трафика</h3>
+            <h3 class="section-title"><i class="bi bi-link-45deg"></i> Источники трафика</h3>
             <a href="<?= Url::to(['export', 'type' => 'traffic', 'period' => $period]) ?>" class="export-btn">
-                📥 Экспорт
+                <i class="bi bi-download"></i> Экспорт
             </a>
         </div>
         <div class="table-section">
@@ -429,7 +429,7 @@ $this->title = '📊 Аналитика и отчеты';
     <!-- Популярные товары -->
     <div class="section">
         <div class="section-header">
-            <h3 class="section-title">🔥 Популярные товары (по просмотрам)</h3>
+            <h3 class="section-title"><i class="bi bi-fire"></i> Популярные товары (по просмотрам)</h3>
         </div>
         <div class="table-section">
             <table class="data-table">

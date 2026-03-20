@@ -1362,7 +1362,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                     <!-- Выбор размерной сетки -->
                     <?php
                     $sizeGrids = \app\backend\modules\catalog\models\SizeGrid::find()
-                        ->where(['is_active' => 1])
+                        ->where(['is_active' => true])
                         ->andWhere([
                             'or',
                             ['brand_id' => $product->brand_id],

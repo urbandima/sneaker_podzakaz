@@ -26,13 +26,24 @@ use app\backend\modules\admin\assets\AdminAsset;
 
 class AdminController extends BaseAdminController
 {
-    public $layout = 'admin';
+    public $layout = 'admin'; // Admin layout
     
     public function init()
     {
         parent::init();
-        // Регистрируем AdminAsset для админ-панели
-        AdminAsset::register(Yii::$app->view);
+        // AdminAsset регистрируется автоматически через BaseAdminController
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function beforeAction($action)
+    {
+        if ($action->id === 'login') {
+            // Для страницы входа используем специальный layout
+            $this->layout = 'login';
+        }
+        return parent::beforeAction($action);
     }
     
     /**
@@ -113,7 +124,7 @@ class AdminController extends BaseAdminController
             }
         }
 
-        return $this->render('//admin/login', [
+        return $this->render('login', [
             'model' => $model,
         ]);
     }

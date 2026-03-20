@@ -104,7 +104,7 @@ class Characteristic extends ActiveRecord
     public function getValues()
     {
         return $this->hasMany(CharacteristicValue::class, ['characteristic_id' => 'id'])
-            ->where(['is_active' => 1])
+            ->where(['is_active' => true])
             ->orderBy(['sort_order' => SORT_ASC]);
     }
 
@@ -195,7 +195,7 @@ class Characteristic extends ActiveRecord
     public static function getFilterCharacteristics()
     {
         return self::find()
-            ->where(['is_active' => 1, 'is_filter' => 1])
+            ->where(['is_active' => true, 'is_filter' => true])
             ->with('values')
             ->orderBy(['sort_order' => SORT_ASC])
             ->all();

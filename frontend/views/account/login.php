@@ -128,6 +128,32 @@ echo $this->render('_auth-style');
 
                     <div class="auth-divider"><span>или</span></div>
 
+                    <!-- Демо доступ -->
+                    <div class="demo-access-section">
+                        <div class="demo-access-header">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <span>Демо доступ для тестирования</span>
+                        </div>
+                        <div class="demo-access-buttons">
+                            <button type="button" class="demo-btn btn-outline-primary" onclick="fillDemoData('user')">
+                                <i class="bi bi-person"></i>
+                                <span>Обычный пользователь</span>
+                                <small>demo@sneakerhead.by</small>
+                            </button>
+                            <button type="button" class="demo-btn btn-outline-success" onclick="fillDemoData('vip')">
+                                <i class="bi bi-award"></i>
+                                <span>VIP клиент</span>
+                                <small>vip@sneakerhead.by</small>
+                            </button>
+                        </div>
+                        <div class="demo-access-note">
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle"></i>
+                                Нажмите кнопку для автоматического заполнения формы
+                            </small>
+                        </div>
+                    </div>
+
                     <div class="social-login">
                         <a href="#" class="social-btn yandex">
                             <i class="bi bi-yelp"></i>
@@ -153,3 +179,166 @@ echo $this->render('_auth-style');
         </div>
     </div>
 </div>
+
+<!-- Демо доступ стили -->
+<style>
+.demo-access-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px dashed #6c757d;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: center;
+}
+
+.demo-access-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.demo-access-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.demo-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: 2px solid;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.demo-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.demo-btn.btn-outline-primary {
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.demo-btn.btn-outline-primary:hover {
+    background: #007bff;
+    color: white;
+}
+
+.demo-btn.btn-outline-success {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+.demo-btn.btn-outline-success:hover {
+    background: #28a745;
+    color: white;
+}
+
+.demo-btn i {
+    font-size: 1.5rem;
+}
+
+.demo-btn small {
+    opacity: 0.8;
+    font-size: 0.8rem;
+}
+
+.demo-access-note {
+    font-style: italic;
+}
+
+@media (max-width: 576px) {
+    .demo-access-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<!-- Демо доступ JavaScript -->
+<script>
+function fillDemoData(type) {
+    const demoAccounts = {
+        user: {
+            email: 'demo@sneakerhead.by',
+            password: 'demo123'
+        },
+        vip: {
+            email: 'vip@sneakerhead.by',
+            password: 'vip123'
+        }
+    };
+    
+    const account = demoAccounts[type];
+    const emailField = document.querySelector('#customerloginform-email');
+    const passwordField = document.querySelector('#customerloginform-password');
+    
+    if (!emailField || !passwordField) {
+        console.error('Поля формы не найдены');
+        return;
+    }
+    
+    // Анимация заполнения
+    emailField.value = '';
+    passwordField.value = '';
+    
+    // Эффект печатания для email
+    let emailIndex = 0;
+    const emailInterval = setInterval(() => {
+        if (emailIndex < account.email.length) {
+            emailField.value += account.email[emailIndex];
+            emailIndex++;
+        } else {
+            clearInterval(emailInterval);
+            
+            // Эффект печатания для пароля
+            let passwordIndex = 0;
+            const passwordInterval = setInterval(() => {
+                if (passwordIndex < account.password.length) {
+                    passwordField.value += account.password[passwordIndex];
+                    passwordIndex++;
+                } else {
+                    clearInterval(passwordInterval);
+                    
+                    // Подсветка кнопки входа
+                    const submitBtn = document.querySelector('.btn-auth');
+                    if (submitBtn) {
+                        submitBtn.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+                        submitBtn.style.transform = 'scale(1.05)';
+                        submitBtn.innerHTML = '<i class="bi bi-check-circle"></i><span>Готово к входу!</span>';
+                        
+                        setTimeout(() => {
+                            submitBtn.style.background = '';
+                            submitBtn.style.transform = '';
+                            submitBtn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i><span>Войти</span>';
+                        }, 2000);
+                    }
+                }
+            }, 50);
+        }
+    }, 30);
+    
+    // Визуальная обратная связь
+    const demoSection = document.querySelector('.demo-access-section');
+    demoSection.style.borderColor = '#28a745';
+    demoSection.style.background = 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)';
+    
+    setTimeout(() => {
+        demoSection.style.borderColor = '#6c757d';
+        demoSection.style.background = '';
+    }, 3000);
+}
+</script>

@@ -106,7 +106,7 @@ class SearchController extends BaseAdminController
                     ['like', 'vendor_code', $query],
                     ['like', 'poizon_id', $query],
                 ])
-                ->andWhere(['is_active' => 1])
+                ->andWhere(['is_active' => true])
                 ->limit($limit / 2)
                 ->all();
                 
