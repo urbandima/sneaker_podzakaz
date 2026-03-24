@@ -87,7 +87,7 @@ class CartController extends Controller
             
             $customerId = Yii::$app->session->get('customer_id');
             if ($customerId) {
-                $customer = \app\backend\modules\catalog\models\Customer::findOne($customerId);
+                $customer = \app\backend\modules\account\models\Customer::findOne($customerId);
             }
         } catch (\Exception $e) {
             $demoMode = true;

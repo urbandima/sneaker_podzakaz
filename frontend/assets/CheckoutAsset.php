@@ -13,7 +13,7 @@ use app\frontend\assets\VersionedAssetBundle;
  */
 class CheckoutAsset extends VersionedAssetBundle
 {
-    public $sourcePath = '@frontend';  // Источник файлов
+    public $sourcePath = '@frontend/web';  // Источник файлов
     public $baseUrl = '@web';
     
     public $css = [

@@ -118,7 +118,7 @@ class SizeGridController extends BaseAdminController
 
         $brands = Brand::find()->orderBy(['name' => SORT_ASC])->all();
 
-        return $this->render('@frontend/views/admin/characteristic/size-create', compact('model', 'brands'));
+        return $this->render('/characteristic/size-create', compact('model', 'brands'));
     }
 
     public function actionUpdate($id)
@@ -131,7 +131,7 @@ class SizeGridController extends BaseAdminController
 
         $brands = Brand::find()->orderBy(['name' => SORT_ASC])->all();
 
-        return $this->render('@frontend/views/admin/characteristic/size-update', compact('model', 'brands'));
+        return $this->render('/characteristic/size-update', compact('model', 'brands'));
     }
 
     public function actionDelete($id)

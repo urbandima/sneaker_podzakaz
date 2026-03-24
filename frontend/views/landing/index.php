@@ -273,12 +273,13 @@ $brands = $this->params['brands'] ?? [];
     </div>
 </section>
 
-<script>
+<?php
+$this->registerJs("
 function subscribeNewsletter(e) {
     e.preventDefault();
     const form = e.target;
     const email = form.querySelector('input').value;
-    
+
     // AJAX запрос
     fetch('/api/v1/newsletter/subscribe', {
         method: 'POST',
@@ -288,8 +289,9 @@ function subscribeNewsletter(e) {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            form.innerHTML = '<div class="newsletter-success">✓ Вы подписаны!</div>';
+            form.innerHTML = '<div class=\"newsletter-success\">✓ Вы подписаны!</div>';
         }
     });
 }
-</script>
+", \yii\web\View::POS_END);
+?>

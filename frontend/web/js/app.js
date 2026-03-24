@@ -1,0 +1,95 @@
+/**
+ * APP.JS — Глобальные функции Sneakerhead
+ * Поиск, мобильное меню, корзина/избранное счётчики
+ */
+
+/* ============================================
+   SEARCH MODAL
+   ============================================ */
+
+function openSearch() {
+    var modal = document.getElementById('searchModal');
+    if (!modal) return;
+    modal.classList.add('open');
+    var input = document.getElementById('searchInput');
+    if (input) input.focus();
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSearch() {
+    var modal = document.getElementById('searchModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+/** Debounce для поиска */
+var _searchTimer = null;
+
+function handleSearch(event) {
+    if (event.key === 'Escape') {
+        closeSearch();
+        return;
+    }
+
+    var query = event.target.value.trim();
+    var resultsContainer = document.getElementById('searchResults');
+    if (!resultsContainer) return;
+
+    if (query.length < 2) {
+        resultsContainer.innerHTML = '';
+        return;
+    }
+
+    clearTimeout(_searchTimer);
+    _searchTimer = setTimeout(function () {
+        _doSearch(query, resultsContainer);
+    }, 300);
+}
+
+function _doSearch(query, container) {
+    container.innerHTML =
+        '<div class="search-loading"><div class="spinner"></div><p>Поиск товаров...</p></div>';
+
+    fetch('/catalog/search?q=' + encodeURIComponent(query), {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (data.results && data.results.length > 0) {
+                var html = data.results.map(function (p) {
+                    return '<a href="' + p.url + '" class="search-result-item">' +
+                        '<img src="' + p.mainImage + '" alt="' + p.name + '" loading="lazy">' +
+                        '<div class="search-result-info">' +
+                        '<h4>' + p.name + '</h4>' +
+                        '<p class="search-result-brand">' + p.brand.name + '</p>' +
+                        '<p class="search-result-price">' + p.price + ' BYN' +
+                        (p.oldPrice ? '<span class="search-result-old-price">' + p.oldPrice + ' BYN</span>' : '') +
+                        '</p></div></a>';
+                }).join('');
+
+                container.innerHTML =
+                    '<div class="search-results-list">' + html +
+                    '<a href="/catalog?q=' + encodeURIComponent(query) + '" class="search-view-all">Посмотреть все результаты</a>' +
+                    '</div>';
+            } else {
+                container.innerHTML =
+                    '<div class="search-empty"><p>По запросу "' + query + '" ничего не найдено</p>' +
+                    '<a href="/catalog?q=' + encodeURIComponent(query) + '" class="btn btn-primary">Посмотреть все товары</a></div>';
+            }
+        })
+        .catch(function () {
+            container.innerHTML =
+                '<div class="search-error"><p>Ошибка при поиске. Попробуйте позже.</p></div>';
+        });
+}
+
+/* Close search on backdrop click */
+document.addEventListener('DOMContentLoaded', function () {
+    var searchModal = document.getElementById('searchModal');
+    if (searchModal) {
+        searchModal.addEventListener('click', function (e) {
+            if (e.target.id === 'searchModal') closeSearch();
+        });
+    }
+});

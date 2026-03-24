@@ -63,7 +63,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="col-md-4">
                             <div class="card text-center">
                                 <div class="card-body">
-                                    <h3 class="text-primary">0</h3>
+                                    <h3 class="text-primary"><?= $customer->orders_count ?></h3>
                                     <p class="card-text">Всего заказов</p>
                                 </div>
                             </div>
@@ -71,7 +71,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="col-md-4">
                             <div class="card text-center">
                                 <div class="card-body">
-                                    <h3 class="text-success">0</h3>
+                                    <h3 class="text-success"><?= count(array_filter($orders ?? [], fn($order) => in_array($order->status ?? '', ['delivered', 'completed']))) ?></h3>
                                     <p class="card-text">Завершено</p>
                                 </div>
                             </div>
@@ -79,7 +79,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="col-md-4">
                             <div class="card text-center">
                                 <div class="card-body">
-                                    <h3 class="text-info">0 BYN</h3>
+                                    <h3 class="text-info"><?= Yii::$app->formatter->asCurrency($customer->total_spent, 'BYN') ?></h3>
                                     <p class="card-text">Сумма покупок</p>
                                 </div>
                             </div>

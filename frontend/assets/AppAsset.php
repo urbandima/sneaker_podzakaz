@@ -6,16 +6,21 @@ use yii\web\AssetBundle;
 
 class AppAsset extends AssetBundle
 {
-    public $sourcePath = null;  // Отключаем публикацию в assets
+    public $sourcePath = '@frontend/web';
     public $baseUrl = '@web';
     
     // Единая точка входа CSS - версии добавятся автоматически в init()
     public $css = [
-        '/css/app.css',
+        'css/app.css',
     ];
     
     public $js = [
+        'js/app.js',
         'js/mobile-menu.js',
+    ];
+    
+    public $jsOptions = [
+        'defer' => true,
     ];
     
     public $depends = [
@@ -25,7 +30,6 @@ class AppAsset extends AssetBundle
     /**
      * АВТОМАТИЧЕСКОЕ ВЕРСИОНИРОВАНИЕ
      * При изменении файла версия обновляется автоматически на основе времени изменения.
-     * Больше не нужно вручную менять версии!
      */
     public function init()
     {

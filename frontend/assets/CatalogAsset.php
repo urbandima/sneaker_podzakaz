@@ -13,12 +13,11 @@ use app\frontend\assets\VersionedAssetBundle;
  */
 class CatalogAsset extends VersionedAssetBundle
 {
-    public $sourcePath = '@frontend';  // Источник файлов
+    public $sourcePath = '@frontend/web';  // Источник файлов
     public $baseUrl = '@web';
     
     public $css = [
-        // Catalog styles - используем минималистичный дизайн из AppAsset
-        // Старые стили отключены для единого дизайна 100/100
+        // CSS подключается через AppAsset в depends
     ];
     
     public $js = [

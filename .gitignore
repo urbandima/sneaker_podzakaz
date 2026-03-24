@@ -17,14 +17,25 @@ composer.lock
 # Runtime
 /runtime/*
 !/runtime/.gitkeep
+/infrastructure/runtime/logs/
+/infrastructure/runtime/debug/
+/infrastructure/runtime/mail/
+/infrastructure/runtime/cache/
+/infrastructure/runtime/*.log
+/infrastructure/runtime/database.sqlite
 
-# Assets
-/web/assets/*
-!/web/assets/.gitkeep
+# Published Assets (Yii2 auto-generated)
+/frontend/web/assets/*/
+!/frontend/web/assets/.gitkeep
+/frontend/assets/*/
+!/frontend/assets/.gitkeep
+!/frontend/assets/*.php
 
 # Uploads (НЕ коммитим файлы клиентов)
-/web/uploads/*
-!/web/uploads/.gitkeep
+/frontend/web/uploads/*
+!/frontend/web/uploads/.gitkeep
+/frontend/uploads/*
+!/frontend/uploads/.gitkeep
 
 # Config (локальные переопределения конфигов)
 /config/db-local.php
@@ -63,3 +74,17 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Backup files
+*.bak
+*.backup
+*.orig
+*.swp
+
+# Temp/Debug files
+cookies.txt
+*.sqlite
+*.log
+
+# Claude/Windsurf
+.claude/

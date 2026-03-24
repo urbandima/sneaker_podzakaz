@@ -354,6 +354,7 @@ class Product extends ActiveRecord
             'poizon_spu_id' => 'Poizon SPU ID',
             'poizon_url' => 'Ссылка Poizon',
             'poizon_price_cny' => 'Цена CNY',
+            'price_cny' => 'Цена в юанях',
             'last_sync_at' => 'Последняя синхронизация',
             'upper_material' => 'Материал верха',
             'sole_material' => 'Материал подошвы',
@@ -942,5 +943,44 @@ class Product extends ActiveRecord
         }
         
         return true;
+    }
+
+    /**
+     * Getter для price_cny (обратная совместимость)
+     */
+    public function getPriceCny()
+    {
+        return $this->poizon_price_cny;
+    }
+
+    /**
+     * Setter для price_cny (обратная совместимость)
+     */
+    public function setPriceCny($value)
+    {
+        $this->poizon_price_cny = $value;
+    }
+
+    /**
+     * Magic getter для обратной совместимости
+     */
+    public function __get($name)
+    {
+        if ($name === 'price_cny') {
+            return $this->getPriceCny();
+        }
+        return parent::__get($name);
+    }
+
+    /**
+     * Magic setter для обратной совместимости
+     */
+    public function __set($name, $value)
+    {
+        if ($name === 'price_cny') {
+            $this->setPriceCny($value);
+            return;
+        }
+        parent::__set($name, $value);
     }
 }

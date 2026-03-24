@@ -9,110 +9,116 @@ use yii\helpers\Url;
 /** @var app\backend\modules\admin\models\import\ImportSource[] $sources */
 
 $this->title = 'Ручной импорт товаров';
-$this->params['breadcrumbs'][] = ['label' => 'Импорт', 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="import-upload">
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-file-upload"></i> Загрузка файла для импорта
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <?php $form = ActiveForm::begin([
-                        'options' => ['enctype' => 'multipart/form-data'],
-                        'fieldConfig' => [
-                            'template' => "{label}\n{input}\n{error}",
-                            'labelOptions' => ['class' => 'form-label'],
-                            'inputOptions' => ['class' => 'form-control'],
-                            'errorOptions' => ['class' => 'text-danger']
-                        ]
-                    ]); ?>
+<div class="admin-header">
+    <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
+    <div class="admin-header-actions">
+        <a href="<?= Url::to(['index']) ?>" class="admin-btn admin-btn-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Назад к импорту
+        </a>
+    </div>
+</div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <?= $form->field($model, 'source_id')->dropDownList(
-                                \yii\helpers\ArrayHelper::map($sources, 'id', 'name'),
-                                ['prompt' => 'Выберите источник импорта', 'class' => 'form-select']
-                            )->label('Источник импорта') ?>
-                        </div>
-                        <div class="col-md-6">
-                            <?= $form->field($model, 'format')->dropDownList([
-                                'json' => 'JSON файл',
-                                'csv' => 'CSV файл (разделитель ;)',
-                                'xlsx' => 'Excel файл (.xlsx)',
-                            ], ['prompt' => 'Выберите формат', 'class' => 'form-select'])->label('Формат файла') ?>
-                        </div>
-                    </div>
+<div class="admin-card">
+    <h2 class="admin-card-title">
+        <i class="bi bi-file-upload"></i>
+        Загрузка файла для импорта
+    </h2>
+    
+    <?php $form = ActiveForm::begin([
+        'options' => ['enctype' => 'multipart/form-data', 'class' => 'admin-form'],
+        'fieldConfig' => [
+            'template' => "{label}\n{input}\n{error}",
+            'labelOptions' => ['class' => 'form-label'],
+            'inputOptions' => ['class' => 'form-control'],
+            'errorOptions' => ['class' => 'form-error']
+        ]
+    ]); ?>
 
-                    <div class="mb-4">
-                        <?= $form->field($model, 'file')->fileInput([
-                            'class' => 'form-control',
-                            'accept' => '.json,.csv,.xlsx'
-                        ])->label('Выберите файл') ?>
-                        
-                        <p class="text-muted small mb-0">
-                            <i class="fas fa-info-circle"></i>
-                            Поддерживаемые форматы: JSON, CSV, Excel (макс. 10MB)
-                        </p>
-                    </div>
-
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <?= Html::submitButton('<i class="fas fa-upload"></i> Загрузить и импортировать', [
-                            'class' => 'btn btn-primary btn-lg'
-                        ]) ?>
-                        <?= Html::a('<i class="fas fa-arrow-left"></i> Назад', ['index'], [
-                            'class' => 'btn btn-outline-secondary btn-lg'
-                        ]) ?>
-                    </div>
-
-                    <?php ActiveForm::end(); ?>
-                </div>
-            </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+        <div class="form-group">
+            <label>Источник импорта *</label>
+            <select name="Import[source_id]" class="form-control">
+                <option value="">Выберите источник импорта</option>
+                <?php foreach ($sources as $source): ?>
+                    <option value="<?= $source->id ?>"><?= Html::encode($source->name) ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
+        
+        <div class="form-group">
+            <label>Формат файла *</label>
+            <select name="Import[format]" class="form-control">
+                <option value="">Выберите формат</option>
+                <option value="json">JSON файл</option>
+                <option value="csv">CSV файл (разделитель ;)</option>
+                <option value="xlsx">Excel файл (.xlsx)</option>
+            </select>
+        </div>
+    </div>
 
-        <div class="col-lg-4">
-            <!-- Инструкция -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-question-circle"></i> Инструкция по импорту
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <h6>Обязательные поля:</h6>
-                    <ul class="small">
-                        <li><code>name</code> - Название товара</li>
-                        <li><code>sku</code> - Артикул (уникальный)</li>
-                    </ul>
+    <div class="form-group">
+        <label>Выберите файл *</label>
+        <input type="file" name="Import[file]" class="form-control" accept=".json,.csv,.xlsx">
+        <div class="form-hint">
+            <i class="bi bi-info-circle"></i>
+            Поддерживаемые форматы: JSON, CSV, Excel (макс. 10MB)
+        </div>
+    </div>
 
-                    <h6>Опциональные поля:</h6>
-                    <ul class="small">
-                        <li><code>description</code> - Описание</li>
-                        <li><code>price</code> - Цена</li>
-                        <li><code>brand_id</code> - ID бренда</li>
-                        <li><code>brand_name</code> - Название бренда</li>
-                        <li><code>is_active</code> - Активность (true/false)</li>
-                    </ul>
-                </div>
-            </div>
+    <div class="form-actions">
+        <?= Html::submitButton('<i class="bi bi-upload"></i> Загрузить и импортировать', [
+            'class' => 'admin-btn admin-btn-primary'
+        ]) ?>
+        <?= Html::a('<i class="bi bi-x-circle"></i> Отмена', ['index'], [
+            'class' => 'admin-btn admin-btn-secondary'
+        ]) ?>
+    </div>
 
-            <!-- Примеры -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-code"></i> Примеры форматов
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <!-- JSON пример -->
-                    <div class="mb-3">
-                        <h6 class="text-primary">JSON:</h6>
-                        <pre class="small"><code>[
+    <?php ActiveForm::end(); ?>
+</div>
+
+<!-- Инструкция и шаблоны -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+    <!-- Инструкция -->
+    <div class="admin-card">
+        <h3 class="admin-card-title">
+            <i class="bi bi-question-circle"></i>
+            Инструкция по импорту
+        </h3>
+        
+        <div style="margin-top: 1rem;">
+            <h4 style="font-size: 1rem; margin-bottom: 0.5rem;">Обязательные поля:</h4>
+            <ul style="font-size: 0.875rem; color: var(--admin-text-secondary); padding-left: 1.5rem;">
+                <li><code>name</code> - Название товара</li>
+                <li><code>sku</code> - Артикул (уникальный)</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 1rem;">
+            <h4 style="font-size: 1rem; margin-bottom: 0.5rem;">Опциональные поля:</h4>
+            <ul style="font-size: 0.875rem; color: var(--admin-text-secondary); padding-left: 1.5rem;">
+                <li><code>description</code> - Описание</li>
+                <li><code>price</code> - Цена</li>
+                <li><code>brand_id</code> - ID бренда</li>
+                <li><code>brand_name</code> - Название бренда</li>
+                <li><code>is_active</code> - Активность (true/false)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Примеры -->
+    <div class="admin-card">
+        <h3 class="admin-card-title">
+            <i class="bi bi-code"></i>
+            Примеры форматов
+        </h3>
+        
+        <div style="margin-top: 1rem;">
+            <h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--admin-primary);">JSON:</h4>
+            <pre style="background: var(--admin-bg); padding: 1rem; border-radius: 0.5rem; font-size: 0.75rem; overflow-x: auto;"><code>[
   {
     "name": "Nike Air Max 90",
     "sku": "NM-90-001",
@@ -122,65 +128,103 @@ $this->params['breadcrumbs'][] = $this->title;
     "is_active": true
   }
 ]</code></pre>
-                    </div>
-
-                    <!-- CSV пример -->
-                    <div class="mb-3">
-                        <h6 class="text-success">CSV:</h6>
-                        <pre class="small"><code>name;sku;description;price;brand_name;is_active
+        </div>
+        
+        <div style="margin-top: 1rem;">
+            <h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--admin-success);">CSV:</h4>
+            <pre style="background: var(--admin-bg); padding: 1rem; border-radius: 0.5rem; font-size: 0.75rem; overflow-x: auto;"><code>name;sku;description;price;brand_name;is_active
 "Nike Air Max 90";"NM-90-001";"Классические кроссовки";299.99;"Nike";1</code></pre>
-                    </div>
-                </div>
-            </div>
+        </div>
+    </div>
 
-            <!-- Шаблоны -->
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-download"></i> Шаблоны для скачивания
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <?= Html::a('<i class="fas fa-download"></i> Скачать JSON шаблон', '#', [
-                            'class' => 'btn btn-outline-primary btn-sm',
-                            'onclick' => 'downloadTemplate("json")'
-                        ]) ?>
-                        <?= Html::a('<i class="fas fa-download"></i> Скачать CSV шаблон', '#', [
-                            'class' => 'btn btn-outline-success btn-sm',
-                            'onclick' => 'downloadTemplate("csv")'
-                        ]) ?>
-                    </div>
-                </div>
-            </div>
+    <!-- Шаблоны -->
+    <div class="admin-card">
+        <h3 class="admin-card-title">
+            <i class="bi bi-download"></i>
+            Шаблоны для скачивания
+        </h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem;">
+            <button type="button" class="admin-btn admin-btn-secondary" onclick="downloadTemplate('json')">
+                <i class="bi bi-download"></i>
+                Скачать JSON шаблон
+            </button>
+            <button type="button" class="admin-btn admin-btn-secondary" onclick="downloadTemplate('csv')">
+                <i class="bi bi-download"></i>
+                Скачать CSV шаблон
+            </button>
         </div>
     </div>
 </div>
 
 <style>
-.import-upload .card {
-    border: none;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
-.import-upload .card-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
+.form-group {
+    margin-bottom: 1rem;
 }
 
-.import-upload .form-control:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--admin-text-primary);
+    font-size: 0.875rem;
 }
 
-.import-upload .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--admin-border);
+    border-radius: 0.5rem;
+    background: var(--admin-bg);
+    color: var(--admin-text-primary);
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.import-upload .btn-primary:hover {
-    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+.form-control:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-error {
+    color: var(--admin-danger);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.form-hint {
+    font-size: 0.75rem;
+    color: var(--admin-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--admin-border);
+}
+
+code {
+    background: var(--admin-primary-soft);
+    color: var(--admin-primary);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+}
+
+pre {
+    margin: 0;
 }
 </style>
 

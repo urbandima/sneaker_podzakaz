@@ -89,7 +89,7 @@ class CustomerLoginForm extends Model
                 $duration = 3600 * 24 * 30; // 30 дней
                 Yii::$app->response->cookies->add(new \yii\web\Cookie([
                     'name' => 'customer_token',
-                    'value' => $customer->auth_key,
+                    'value' => $customer->id . ':' . md5($customer->email . $customer->password_hash),
                     'expire' => time() + $duration,
                     'httpOnly' => true,
                     'secure' => !YII_ENV_DEV,

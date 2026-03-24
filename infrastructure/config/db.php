@@ -16,7 +16,7 @@ $dsn = env('DB_DSN');
 if (!$dsn) {
     $host = env('DB_HOST', '127.0.0.1');
     $port = env('DB_PORT', 3306);
-    $database = env('DB_NAME', 'order_management');
+    $database = env('DB_NAME', 'sneakerhead');
     $charset = env('DB_CHARSET', 'utf8mb4');
     $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=%s', $host, $port, $database, $charset);
 }

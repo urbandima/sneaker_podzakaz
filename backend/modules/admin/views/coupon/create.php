@@ -3,14 +3,272 @@
 use yii\helpers\Html;
 
 $this->title = 'Создать купон';
-$this->params['breadcrumbs'][] = ['label' => 'Купоны', 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="coupon-create">
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <?= $this->render('_form', [
-        'model' => $model,
-    ]) ?>
+<div class="admin-header">
+    <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
+    <div class="admin-header-actions">
+        <a href="<?= \yii\helpers\Url::to(['index']) ?>" class="admin-btn admin-btn-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Назад к списку
+        </a>
+    </div>
 </div>
+
+<div class="admin-card">
+    <h2 class="admin-card-title">
+        <i class="bi bi-ticket-perforated"></i>
+        Создание купона
+    </h2>
+    
+    <form method="post" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+        <input type="hidden" name="_csrf" value="<?= Yii::$app->request->csrfToken ?>">
+        
+        <!-- Основная информация -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <h3 style="margin: 0; color: var(--admin-text-primary);">Основная информация</h3>
+            
+            <div class="form-group">
+                <label>Код купона *</label>
+                <input type="text" name="Coupon[code]" id="coupon-code" class="form-control" 
+                       placeholder="SUMMER2024" style="text-transform: uppercase;" required>
+                <small style="color: var(--admin-text-secondary);">Уникальный код купона (будет преобразован в верхний регистр)</small>
+                <button type="button" class="admin-btn admin-btn-secondary" style="margin-top: 0.5rem;" onclick="generateCouponCode()">
+                    <i class="bi bi-arrow-repeat"></i> Сгенерировать код
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label>Название *</label>
+                <input type="text" name="Coupon[name]" class="form-control" placeholder="Летняя распродажа" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Описание</label>
+                <textarea name="Coupon[description]" class="form-control" rows="3" 
+                          placeholder="Описание купона для внутреннего использования"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" name="Coupon[is_active]" value="1" checked>
+                    <span>Активен</span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- Скидка -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <h3 style="margin: 0; color: var(--admin-text-primary);">Скидка</h3>
+            
+            <div class="form-group">
+                <label>Тип скидки *</label>
+                <select name="Coupon[type]" id="coupon-type" class="form-control" onchange="updateDiscountFields(this.value)" required>
+                    <option value="">Выберите тип скидки</option>
+                    <option value="percentage">Процентная скидка</option>
+                    <option value="fixed">Фиксированная сумма</option>
+                    <option value="free_shipping">Бесплатная доставка</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="value-field">
+                <label>Значение скидки *</label>
+                <input type="number" name="Coupon[value]" id="coupon-value" class="form-control" 
+                       step="0.01" min="0" placeholder="10" required>
+                <small style="color: var(--admin-text-secondary);">
+                    Для процентной скидки: 10 = 10%, для фиксированной: сумма в BYN
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label>Максимальная сумма скидки</label>
+                <input type="number" name="Coupon[max_discount]" class="form-control" 
+                       step="0.01" min="0" placeholder="100">
+                <small style="color: var(--admin-text-secondary);">
+                    Максимальная сумма скидки (для процентных купонов)
+                </small>
+            </div>
+        </div>
+        
+        <!-- Условия применения -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <h3 style="margin: 0; color: var(--admin-text-primary);">Условия применения</h3>
+            
+            <div class="form-group">
+                <label>Минимальная сумма заказа</label>
+                <input type="number" name="Coupon[min_order_amount]" class="form-control" 
+                       step="0.01" min="0" placeholder="50">
+                <small style="color: var(--admin-text-secondary);">
+                    Минимальная сумма заказа для применения купона
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label>Максимальное количество использований</label>
+                <input type="number" name="Coupon[max_uses]" class="form-control" 
+                       min="0" placeholder="100">
+                <small style="color: var(--admin-text-secondary);">
+                    Максимальное количество использований (0 = без ограничений)
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label>Использований на одного пользователя</label>
+                <input type="number" name="Coupon[max_uses_per_user]" class="form-control" 
+                       min="0" placeholder="1">
+                <small style="color: var(--admin-text-secondary);">
+                    Максимальное количество использований на одного пользователя
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" name="Coupon[is_first_order]" value="1">
+                    <span>Только для первого заказа</span>
+                </label>
+                <small style="color: var(--admin-text-secondary);">
+                    Купон действует только для первого заказа пользователя
+                </small>
+            </div>
+        </div>
+        
+        <!-- Срок действия -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <h3 style="margin: 0; color: var(--admin-text-primary);">Срок действия</h3>
+            
+            <div class="form-group">
+                <label>Дата начала действия</label>
+                <input type="datetime-local" name="Coupon[valid_from]" class="form-control">
+                <small style="color: var(--admin-text-secondary);">Дата начала действия купона</small>
+            </div>
+            
+            <div class="form-group">
+                <label>Дата окончания действия</label>
+                <input type="datetime-local" name="Coupon[valid_until]" class="form-control">
+                <small style="color: var(--admin-text-secondary);">Дата окончания действия купона</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Применимость к товарам -->
+    <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--admin-border);">
+        <h3 style="margin: 0 0 1rem 0; color: var(--admin-text-primary);">
+            <i class="bi bi-tags"></i>
+            Применимость к товарам (опционально)
+        </h3>
+        
+        <p style="color: var(--admin-text-secondary); margin-bottom: 1rem;">
+            Если не указано, купон применим ко всем товарам
+        </p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+            <div class="form-group">
+                <label>ID применимых товаров (через запятую)</label>
+                <input type="text" name="applicable_products" class="form-control" placeholder="1,2,3,4,5">
+                <small style="color: var(--admin-text-secondary);">
+                    Купон будет применяться только к указанным товарам
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label>ID применимых категорий (через запятую)</label>
+                <input type="text" name="applicable_categories" class="form-control" placeholder="1,2,3">
+                <small style="color: var(--admin-text-secondary);">
+                    Купон будет применяться к товарам из указанных категорий
+                </small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Кнопки действий -->
+    <div style="display: flex; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--admin-border);">
+        <button type="submit" class="admin-btn admin-btn-primary">
+            <i class="bi bi-check-circle"></i>
+            Создать купон
+        </button>
+        <a href="<?= \yii\helpers\Url::to(['index']) ?>" class="admin-btn admin-btn-secondary">
+            <i class="bi bi-x-circle"></i>
+            Отмена
+        </a>
+    </div>
+    </form>
+</div>
+
+<style>
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--admin-text-primary);
+    font-size: 0.875rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--admin-border);
+    border-radius: 0.5rem;
+    background: var(--admin-bg);
+    color: var(--admin-text-primary);
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+small {
+    font-size: 0.75rem;
+    display: block;
+    margin-top: 0.25rem;
+}
+
+h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+</style>
+
+<script>
+function generateCouponCode() {
+    fetch('<?= \yii\helpers\Url::to(['generate-code']) ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRF-Token': '<?= Yii::$app->request->csrfToken ?>'
+        },
+        body: 'prefix=&length=8'
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.querySelector('#coupon-code').value = data.code;
+    });
+}
+
+function updateDiscountFields(type) {
+    const valueField = document.querySelector('#value-field');
+    const valueInput = document.querySelector('#coupon-value');
+    
+    if (type === 'free_shipping') {
+        valueField.style.display = 'none';
+        valueInput.value = 0;
+    } else {
+        valueField.style.display = 'block';
+    }
+}
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.querySelector('#coupon-type');
+    if (typeSelect && typeSelect.value) {
+        updateDiscountFields(typeSelect.value);
+    }
+});
+</script>

@@ -387,6 +387,33 @@ $orderItems = Yii::$app->request->post('OrderItem', [
 
             <section class="panel">
                 <div class="panel__header">
+                    <div class="panel__title">Позиции заказа</div>
+                    <div class="panel__hint">Добавьте хотя бы один товар</div>
+                </div>
+                <div class="order-items-builder" id="orderItemsBuilder">
+                    <?php foreach ($orderItems as $index => $item): ?>
+                        <div class="order-item-row" data-index="<?= $index ?>">
+                            <div class="form-field">
+                                <label>Название</label>
+                                <input type="text" name="OrderItem[<?= $index ?>][product_name]" value="<?= Html::encode($item['product_name']) ?>">
+                            </div>
+                            <div class="form-field">
+                                <label>Кол-во</label>
+                                <input type="number" name="OrderItem[<?= $index ?>][quantity]" value="<?= (int)($item['quantity'] ?: 1) ?>" min="1">
+                            </div>
+                            <div class="form-field">
+                                <label>Цена, BYN</label>
+                                <input type="number" step="0.01" name="OrderItem[<?= $index ?>][price]" value="<?= Html::encode($item['price']) ?>">
+                            </div>
+                            <button type="button" class="remove-item" <?= $index === 0 ? 'disabled' : '' ?>>×</button>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <button type="button" class="add-item-btn" id="addItemBtn">+ Добавить товар</button>
+            </section>
+
+            <section class="panel">
+                <div class="panel__header">
                     <div class="panel__title">Получатель и паспорт</div>
                     <div class="panel__hint">Используется для таможенных деклараций</div>
                 </div>
@@ -451,33 +478,6 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                     <?= Html::activeTextarea($model, 'customs_description') ?>
                     <?= Html::error($model, 'customs_description', ['class' => 'field-error']) ?>
                 </div>
-            </section>
-
-            <section class="panel">
-                <div class="panel__header">
-                    <div class="panel__title">Позиции заказа</div>
-                    <div class="panel__hint">Добавьте хотя бы один товар</div>
-                </div>
-                <div class="order-items-builder" id="orderItemsBuilder">
-                    <?php foreach ($orderItems as $index => $item): ?>
-                        <div class="order-item-row" data-index="<?= $index ?>">
-                            <div class="form-field">
-                                <label>Название</label>
-                                <input type="text" name="OrderItem[<?= $index ?>][product_name]" value="<?= Html::encode($item['product_name']) ?>">
-                            </div>
-                            <div class="form-field">
-                                <label>Кол-во</label>
-                                <input type="number" name="OrderItem[<?= $index ?>][quantity]" value="<?= (int)($item['quantity'] ?: 1) ?>" min="1">
-                            </div>
-                            <div class="form-field">
-                                <label>Цена, BYN</label>
-                                <input type="number" step="0.01" name="OrderItem[<?= $index ?>][price]" value="<?= Html::encode($item['price']) ?>">
-                            </div>
-                            <button type="button" class="remove-item" <?= $index === 0 ? 'disabled' : '' ?>>×</button>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                <button type="button" class="add-item-btn" id="addItemBtn">+ Добавить товар</button>
             </section>
         </div>
 

@@ -154,13 +154,13 @@ class Coupon extends ActiveRecord
     }
 
     /**
-     * Проверить валидность купона
+     * Проверить валидность купона для заказа
      * 
      * @param float $orderAmount Сумма заказа
      * @param int|null $userId ID пользователя
      * @return array [isValid, errorMessage]
      */
-    public function validate(float $orderAmount, ?int $userId = null): array
+    public function isValidForOrder(float $orderAmount, ?int $userId = null): array
     {
         // Проверка активности
         if (!$this->is_active) {

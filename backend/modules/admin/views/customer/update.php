@@ -5,180 +5,216 @@ use yii\widgets\ActiveForm;
 
 /**
  * @var yii\web\View $this
- * @var app\backend\modules\catalog\models\Customer $customer
+ * @var app\backend\modules\account\models\Customer $customer
  */
 
 $this->title = 'Редактирование покупателя #' . $customer->id;
-$this->params['breadcrumbs'][] = ['label' => 'Покупатели', 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $customer->getFullName(), 'url' => ['view', 'id' => $customer->id]];
-$this->params['breadcrumbs'][] = 'Редактирование';
 ?>
 
-<div class="admin-page customer-update-page">
-    <div class="page-header">
-        <div>
-            <p class="eyebrow">Покупатели</p>
-            <h1><?= Html::encode($this->title) ?></h1>
-            <p class="subtitle">Обновите информацию о покупателе, контактные данные и адрес доставки</p>
-        </div>
-        <div class="header-actions">
-            <?= Html::a('<i class="bi bi-eye"></i> Просмотр', ['view', 'id' => $customer->id], ['class' => 'btn btn-outline-secondary']) ?>
-        </div>
-    </div>
-
-    <div class="customer-form-shell">
-        <?php $form = ActiveForm::begin([
-            'options' => ['class' => 'customer-form'],
-        ]); ?>
-
-        <div class="grid-2">
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="bi bi-person-badge"></i> Персональные данные</h3>
-                </div>
-                <div class="card-body row">
-                    <div class="col-md-6">
-                        <?= $form->field($customer, 'first_name')->textInput(['maxlength' => true]) ?>
-                    </div>
-                    <div class="col-md-6">
-                        <?= $form->field($customer, 'last_name')->textInput(['maxlength' => true]) ?>
-                    </div>
-                    <div class="col-md-6">
-                        <?= $form->field($customer, 'middle_name')->textInput(['maxlength' => true]) ?>
-                    </div>
-                    <div class="col-md-3">
-                        <?= $form->field($customer, 'birth_date')->input('date') ?>
-                    </div>
-                    <div class="col-md-3">
-                        <?= $form->field($customer, 'gender')->dropDownList([
-                            '' => 'Не выбран',
-                            'male' => 'Мужской',
-                            'female' => 'Женский',
-                        ]) ?>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="bi bi-envelope"></i> Контакты</h3>
-                </div>
-                <div class="card-body row">
-                    <div class="col-md-6">
-                        <?= $form->field($customer, 'email')->textInput(['maxlength' => true, 'disabled' => true]) ?>
-                        <p class="form-hint">Email нельзя изменять из админки</p>
-                    </div>
-                    <div class="col-md-6">
-                        <?= $form->field($customer, 'phone')->textInput(['maxlength' => true]) ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid-2">
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="bi bi-geo-alt"></i> Адрес по умолчанию</h3>
-                </div>
-                <div class="card-body row">
-                    <div class="col-md-4">
-                        <?= $form->field($customer, 'default_country')->textInput(['maxlength' => true]) ?>
-                    </div>
-                    <div class="col-md-4">
-                        <?= $form->field($customer, 'default_city')->textInput(['maxlength' => true]) ?>
-                    </div>
-                    <div class="col-md-4">
-                        <?= $form->field($customer, 'default_postal_code')->textInput(['maxlength' => true]) ?>
-                    </div>
-                    <div class="col-12">
-                        <?= $form->field($customer, 'default_address')->textarea(['rows' => 2]) ?>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="bi bi-card-text"></i> Документы</h3>
-                </div>
-                <div class="card-body row">
-                    <div class="col-md-4">
-                        <?= $form->field($customer, 'passport_series')->textInput(['maxlength' => true]) ?>
-                    </div>
-                    <div class="col-md-4">
-                        <?= $form->field($customer, 'passport_number')->textInput(['maxlength' => true]) ?>
-                    </div>
-                    <div class="col-md-4">
-                        <?= $form->field($customer, 'passport_issue_date')->input('date') ?>
-                    </div>
-                    <div class="col-md-6">
-                        <?= $form->field($customer, 'inn')->textInput(['maxlength' => true]) ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="bi bi-bell"></i> Коммуникации</h3>
-            </div>
-            <div class="card-body row">
-                <div class="col-md-6">
-                    <?= $form->field($customer, 'subscribe_news')->checkbox(['label' => 'Подписка на новости']) ?>
-                </div>
-                <div class="col-md-6">
-                    <?= $form->field($customer, 'subscribe_promo')->checkbox(['label' => 'Подписка на акции и промокоды']) ?>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-footer">
-            <?= Html::submitButton('<i class="bi bi-save"></i> Сохранить изменения', ['class' => 'btn btn-primary btn-lg']) ?>
-            <?= Html::a('Отмена', ['view', 'id' => $customer->id], ['class' => 'btn btn-link']) ?>
-        </div>
-
-        <?php ActiveForm::end(); ?>
+<div class="admin-header">
+    <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
+    <div class="admin-header-actions">
+        <a href="<?= \yii\helpers\Url::to(['view', 'id' => $customer->id]) ?>" class="admin-btn admin-btn-secondary">
+            <i class="bi bi-eye"></i>
+            Просмотр
+        </a>
     </div>
 </div>
 
-<?php
-$css = <<<CSS
-.customer-update-page .grid-2 {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
+<div class="admin-card">
+    <h2 class="admin-card-title">
+        <i class="bi bi-person-badge"></i>
+        Редактирование данных покупателя
+    </h2>
+    
+    <?php $form = ActiveForm::begin([
+        'options' => ['class' => 'admin-form'],
+        'fieldConfig' => [
+            'template' => "{label}\n{input}\n{error}",
+            'labelOptions' => ['class' => 'form-label'],
+            'inputOptions' => ['class' => 'form-control'],
+            'errorOptions' => ['class' => 'form-error']
+        ]
+    ]); ?>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+        <!-- Персональные данные -->
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <i class="bi bi-person-badge"></i>
+                Персональные данные
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <?= $form->field($customer, 'first_name')->textInput(['maxlength' => true]) ?>
+                <?= $form->field($customer, 'last_name')->textInput(['maxlength' => true]) ?>
+                <?= $form->field($customer, 'middle_name')->textInput(['maxlength' => true]) ?>
+                <?= $form->field($customer, 'birth_date')->input('date') ?>
+                <?= $form->field($customer, 'gender')->dropDownList([
+                    '' => 'Не выбран',
+                    'male' => 'Мужской',
+                    'female' => 'Женский',
+                ]) ?>
+            </div>
+        </div>
+
+        <!-- Контакты -->
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <i class="bi bi-envelope"></i>
+                Контакты
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <?= $form->field($customer, 'email')->textInput(['maxlength' => true, 'disabled' => true]) ?>
+                <?= $form->field($customer, 'phone')->textInput(['maxlength' => true]) ?>
+            </div>
+            
+            <div class="form-hint" style="margin-top: 0.5rem;">
+                Email нельзя изменять из админки
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+        <!-- Адрес по умолчанию -->
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <i class="bi bi-geo-alt"></i>
+                Адрес по умолчанию
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <?= $form->field($customer, 'default_country')->textInput(['maxlength' => true]) ?>
+                <?= $form->field($customer, 'default_city')->textInput(['maxlength' => true]) ?>
+                <?= $form->field($customer, 'default_postal_code')->textInput(['maxlength' => true]) ?>
+            </div>
+            
+            <?= $form->field($customer, 'default_address')->textarea(['rows' => 2]) ?>
+        </div>
+
+        <!-- Документы -->
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <i class="bi bi-card-text"></i>
+                Документы
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <?= $form->field($customer, 'passport_series')->textInput(['maxlength' => true]) ?>
+                <?= $form->field($customer, 'passport_number')->textInput(['maxlength' => true]) ?>
+                <?= $form->field($customer, 'passport_issue_date')->input('date') ?>
+                <?= $form->field($customer, 'inn')->textInput(['maxlength' => true]) ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Коммуникации -->
+    <div class="form-section" style="margin-top: 1.5rem;">
+        <h3 class="form-section-title">
+            <i class="bi bi-bell"></i>
+            Коммуникации
+        </h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                    <?= Html::activeCheckbox($customer, 'subscribe_news', ['label' => false]) ?>
+                    <span>Подписка на новости</span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                    <?= Html::activeCheckbox($customer, 'subscribe_promo', ['label' => false]) ?>
+                    <span>Подписка на акции и промокоды</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопки действий -->
+    <div class="form-actions" style="margin-top: 2rem;">
+        <?= Html::submitButton('<i class="bi bi-save"></i> Сохранить изменения', ['class' => 'admin-btn admin-btn-primary']) ?>
+        <?= Html::a('Отмена', ['view', 'id' => $customer->id], ['class' => 'admin-btn admin-btn-secondary']) ?>
+    </div>
+
+    <?php ActiveForm::end(); ?>
+</div>
+
+<style>
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
-.customer-form-shell .card {
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    overflow: hidden;
-    background: #fff;
+
+.form-section {
+    background: var(--admin-bg);
+    border: 1px solid var(--admin-border);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
 }
-.customer-form-shell .card-header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid #f3f4f6;
-    background: #f9fafb;
-}
-.customer-form-shell .card-header h3 {
-    margin: 0;
-    font-size: 1rem;
+
+.form-section-title {
+    margin: 0 0 1rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--admin-text-primary);
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
-.customer-form-shell .card-body {
-    padding: 1.25rem;
+
+.form-group {
+    margin-bottom: 1rem;
 }
-.customer-form-shell .form-footer {
-    margin-top: 1.5rem;
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--admin-text-primary);
+    font-size: 0.875rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--admin-border);
+    border-radius: 0.5rem;
+    background: var(--admin-bg);
+    color: var(--admin-text-primary);
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-control:disabled {
+    background: var(--admin-border);
+    color: var(--admin-text-secondary);
+}
+
+.form-error {
+    color: var(--admin-danger);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.form-hint {
+    font-size: 0.75rem;
+    color: var(--admin-text-secondary);
+    display: block;
+}
+
+.form-actions {
     display: flex;
     gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--admin-border);
 }
-.customer-form .form-hint {
-    font-size: 0.75rem;
-    color: #6b7280;
-    margin-top: -0.5rem;
-}
-CSS;
-
-$this->registerCss($css);
+</style>

@@ -110,7 +110,8 @@ class Settings extends Component
             return $defaults[$key] ?? $default;
         }
         
-        return $default;
+        // Возвращаем из временного хранилища
+        return self::$storage[$section][$key] ?? $default;
     }
 
     /**
@@ -121,7 +122,9 @@ class Settings extends Component
      */
     public function set($section, $key, $value)
     {
-        // Временно ничего не делаем - настройки сохраняются в сессии
-        // TODO: Реализовать сохранение в базу данных
+        if (!isset(self::$storage[$section])) {
+            self::$storage[$section] = [];
+        }
+        self::$storage[$section][$key] = $value;
     }
 }

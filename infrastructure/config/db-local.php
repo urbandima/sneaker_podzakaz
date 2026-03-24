@@ -13,7 +13,7 @@ return [
     'class' => 'yii\db\Connection',
     
     // Локальная MySQL база данных
-    'dsn' => 'mysql:host=localhost;dbname=order_management',
+    'dsn' => 'mysql:host=localhost;dbname=sneakerhead;charset=utf8mb4',
     'username' => 'root',
     'password' => '',
     

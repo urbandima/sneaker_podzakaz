@@ -1,375 +1,214 @@
 <?php
 
 /** @var yii\web\View $this */
-/** @var array $orderStats */
-/** @var array $productStats */
-/** @var array $userStats */
-/** @var array $chartData */
-/** @var array $topProducts */
-/** @var array $activeLogists */
 
 use yii\helpers\Html;
 use yii\helpers\Url;
 
 $this->title = 'Панель управления';
 $user = Yii::$app->user->identity;
-$formatter = Yii::$app->formatter;
 ?>
 
-<div class="admin-page-container dashboard-admin">
-    <div class="admin-page-shell">
-        <div class="admin-page-header">
-            <div class="admin-page-header-content">
-                <div class="admin-page-eyebrow">Обзор</div>
-                <h1 class="admin-page-title"><?= Html::encode($this->title) ?></h1>
-                <p class="admin-page-subtitle">
-                    <?php if ($user): ?>
-                        Привет, <?= Html::encode($user->username) ?>. 
-                    <?php endif; ?>
-                    Отслеживайте заказы, выручку и нагрузку команды в едином дашборде.
-                </p>
-            </div>
-            <div class="admin-page-actions">
-                <a href="<?= Url::to(['/admin/order/create']) ?>" class="admin-btn admin-btn--primary">
-                    <i class="bi bi-plus-circle"></i>
-                    Новый заказ
-                </a>
-                <button class="admin-btn admin-btn--ghost" onclick="location.reload()">
-                    <i class="bi bi-arrow-repeat"></i>
-                    Обновить данные
-                </button>
-                <a href="<?= Url::to(['/admin/dev-tools/index']) ?>" class="admin-btn admin-btn--outline">
-                    <i class="bi bi-terminal"></i>
-                    Dev Tools
-                </a>
-            </div>
-        </div>
-
-        <div class="dashboard-hero-grid admin-mb-6">
-            <div class="dashboard-quick-card">
-                <div class="quick-card-header">
-                    <div>
-                        <span class="quick-pill">Действия</span>
-                        <h2>Быстрые сценарии</h2>
-                        <p>Запускайте частые операции в один тап, не углубляясь в меню.</p>
-                    </div>
-                    <div class="quick-card-meta">
-                        <span class="meta-dot"></span> <?= Html::encode(date('d M')) ?>
-                    </div>
-                </div>
-                <div class="quick-actions-grid">
-                    <a href="<?= Url::to(['/admin/order/create']) ?>" class="quick-action-tile">
-                        <div class="tile-icon glass-orange">
-                            <i class="bi bi-plus-lg"></i>
-                        </div>
-                        <div>
-                            <strong>Новый заказ</strong>
-                            <p>Предзаказ, оплата, доставка</p>
-                        </div>
-                        <i class="bi bi-arrow-up-right"></i>
-                    </a>
-                    <a href="<?= Url::to(['/admin/order/index', 'status' => 'created']) ?>" class="quick-action-tile">
-                        <div class="tile-icon glass-blue">
-                            <i class="bi bi-kanban"></i>
-                        </div>
-                        <div>
-                            <strong>Черновики</strong>
-                            <p>Заказы, ожидающие действий</p>
-                        </div>
-                        <i class="bi bi-arrow-up-right"></i>
-                    </a>
-                    <a href="<?= Url::to(['/admin/product/create']) ?>" class="quick-action-tile">
-                        <div class="tile-icon glass-green">
-                            <i class="bi bi-box-seam"></i>
-                        </div>
-                        <div>
-                            <strong>Добавить товар</strong>
-                            <p>Каталог, карточки, остатки</p>
-                        </div>
-                        <i class="bi bi-arrow-up-right"></i>
-                    </a>
-                    <a href="<?= Url::to(['/admin/analytics/index']) ?>" class="quick-action-tile">
-                        <div class="tile-icon glass-purple">
-                            <i class="bi bi-bar-chart"></i>
-                        </div>
-                        <div>
-                            <strong>Аналитика</strong>
-                            <p>Выручка, каналы, динамика</p>
-                        </div>
-                        <i class="bi bi-arrow-up-right"></i>
-                    </a>
-                    <a href="<?= Url::to(['/admin/user/create']) ?>" class="quick-action-tile">
-                        <div class="tile-icon glass-teal">
-                            <i class="bi bi-person-plus"></i>
-                        </div>
-                        <div>
-                            <strong>Новый пользователь</strong>
-                            <p>Команда, роли, доступы</p>
-                        </div>
-                        <i class="bi bi-arrow-up-right"></i>
-                    </a>
-                    <a href="<?= Url::to(['/admin/dev-tools/index']) ?>" class="quick-action-tile">
-                        <div class="tile-icon glass-slate">
-                            <i class="bi bi-terminal"></i>
-                        </div>
-                        <div>
-                            <strong>Dev Tools</strong>
-                            <p>Инструменты разработчика</p>
-                        </div>
-                        <i class="bi bi-arrow-up-right"></i>
-                    </a>
-                </div>
-            </div>
-
-            <div class="dashboard-calc-card">
-                <div class="calc-card-header">
-                    <div>
-                        <span class="quick-pill">Калькулятор</span>
-                        <h2>Мгновенный расчёт заказа</h2>
-                    </div>
-                    <?php if (!empty($tariffs)): ?>
-                        <button class="admin-btn admin-btn--ghost admin-btn--sm" id="calcPanelReset">
-                            <i class="bi bi-arrow-counterclockwise"></i> Сбросить
-                        </button>
-                    <?php endif; ?>
-                </div>
-                <?php if (!empty($tariffs)): ?>
-                <form id="dashboardCalcForm" class="calc-form">
-                    <div class="calc-form-grid">
-                        <label class="calc-field">
-                            <span>Тариф</span>
-                            <select name="tariff_id" id="calcTariff">
-                                <?php foreach ($tariffs as $tariff): ?>
-                                    <option value="<?= $tariff->id ?>"><?= Html::encode($tariff->name) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </label>
-                        <label class="calc-field">
-                            <span>Цена товара, ¥</span>
-                            <input type="number" step="0.01" min="0" value="300" name="price_cny" id="calcPrice">
-                        </label>
-                        <label class="calc-field">
-                            <span>Вес, кг</span>
-                            <input type="number" step="0.1" min="0.1" value="0.5" name="weight_kg" id="calcWeight">
-                        </label>
-                        <label class="calc-field">
-                            <span>Заметка</span>
-                            <input type="text" name="note" id="calcNote" placeholder="Например, 2 пары Jordan">
-                        </label>
-                    </div>
-                    <div class="calc-actions">
-                        <button type="submit" class="admin-btn admin-btn--primary" id="calcSubmit">
-                            <i class="bi bi-calculator"></i> Рассчитать
-                        </button>
-                        <div class="calc-status" id="calcStatus"></div>
-                    </div>
-                </form>
-                <div class="calc-result" id="calcResult" hidden>
-                    <div class="calc-result-main">
-                        <p>Итого</p>
-                        <strong id="calcTotalLocal">0 BYN</strong>
-                        <span id="calcTotalCny" class="calc-total-cny">0 ¥</span>
-                    </div>
-                    <div class="calc-breakdown" id="calcBreakdown"></div>
-                </div>
-                <?php else: ?>
-                    <div class="calc-empty-state">
-                        <p>Нет активных тарифов. Добавьте тариф, чтобы воспользоваться калькулятором.</p>
-                        <a href="<?= Url::to(['/admin/tariff/index']) ?>" class="admin-btn admin-btn--outline">
-                            Перейти к тарифам
-                        </a>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <div class="admin-grid admin-grid--4 admin-mb-6">
-            <div class="admin-metric-card">
-                <span class="admin-metric-label">Всего заказов</span>
-                <span class="admin-metric-value"><?= Html::encode(number_format($orderStats['total'])) ?></span>
-                <span class="admin-metric-change admin-metric-change--up">
-                    <i class="bi bi-arrow-up"></i>
-                    +<?= Html::encode($orderStats['today'] ?? 0) ?> сегодня
-                </span>
-            </div>
-            <div class="admin-metric-card">
-                <span class="admin-metric-label">Выручка BYN</span>
-                <span class="admin-metric-value"><?= Html::encode($formatter->asDecimal($orderStats['totalAmount'], 0)) ?></span>
-                <span class="admin-metric-change">
-                    <i class="bi bi-graph-up"></i>
-                    <?= Html::encode($formatter->asDecimal($orderStats['thisMonth'], 0)) ?> за месяц
-                </span>
-            </div>
-            <div class="admin-metric-card">
-                <span class="admin-metric-label">Каталог</span>
-                <span class="admin-metric-value"><?= Html::encode(number_format($productStats['total'])) ?></span>
-                <span class="admin-metric-change">
-                    <i class="bi bi-box-seam"></i>
-                    <?= Html::encode($productStats['inStock']) ?> в наличии
-                </span>
-            </div>
-            <div class="admin-metric-card">
-                <span class="admin-metric-label">Команда</span>
-                <span class="admin-metric-value"><?= Html::encode(number_format($userStats['total'])) ?></span>
-                <span class="admin-metric-change">
-                    <i class="bi bi-people"></i>
-                    <?= Html::encode($userStats['active']) ?> активных
-                </span>
-            </div>
-        </div>
-
-        <div class="admin-grid admin-grid--sidebar admin-mb-6">
-            <div class="admin-card admin-chart-card">
-                <div class="admin-card-header admin-flex admin-flex--between admin-flex--wrap">
-                    <div>
-                        <h2 class="admin-card-title">
-                            <i class="bi bi-activity"></i>
-                            Динамика заказов
-                        </h2>
-                        <p class="admin-card-subtitle">За последние 7 дней · общая выручка и количество.</p>
-                    </div>
-                    <a href="<?= Url::to(['/admin/statistics']) ?>" class="admin-btn admin-btn--ghost admin-btn--sm">
-                        Подробнее
-                    </a>
-                </div>
-                <div class="admin-card-body">
-                    <canvas id="ordersChart" class="dashboard-chart"></canvas>
-                </div>
-            </div>
-
-        <div class="admin-grid admin-grid--2 admin-mb-6">
-            <div class="admin-card">
-                <div class="admin-card-header admin-flex admin-flex--between">
-                    <h3 class="admin-card-title">
-                        <i class="bi bi-fire"></i>
-                        Топ товары
-                    </h3>
-                    <a href="<?= Url::to(['/admin/product/index']) ?>" class="admin-btn admin-btn--ghost admin-btn--sm">
-                        Каталог
-                    </a>
-                </div>
-                <div class="admin-card-body top-products-list">
-                    <?php foreach ($topProducts as $index => $product): ?>
-                        <div class="top-product">
-                            <span class="top-product__rank"><?= $index + 1 ?></span>
-                            <div>
-                                <div class="top-product__title"><?= Html::encode($product['product_name']) ?></div>
-                                <div class="top-product__meta">
-                                    <?= Html::encode($product['order_count']) ?> заказов ·
-                                    <?= Html::encode($product['total_quantity']) ?> шт.
-                                </div>
-                            </div>
-                            <span class="top-product__amount">
-                                <?= Html::encode($formatter->asCurrency($product['avg_price'], 'BYN')) ?>
-                            </span>
-                        </div>
-                    <?php endforeach; ?>
-                    <?php if (empty($topProducts)): ?>
-                        <div class="admin-text-muted">Недостаточно данных для рейтинга.</div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <div class="admin-card">
-                <div class="admin-card-header admin-flex admin-flex--between">
-                    <h3 class="admin-card-title">
-                        <i class="bi bi-person-workspace"></i>
-                        Активные логисты
-                    </h3>
-                    <a href="<?= Url::to(['/admin/user/index']) ?>" class="admin-btn admin-btn--ghost admin-btn--sm">
-                        Команда
-                    </a>
-                </div>
-                <div class="admin-card-body logist-list">
-                    <?php foreach ($activeLogists as $logist): ?>
-                        <div class="logist-entry">
-                            <div class="logist-entry__avatar">
-                                <?= Html::encode(mb_strtoupper(mb_substr($logist->username, 0, 2))) ?>
-                            </div>
-                            <div class="logist-entry__meta">
-                                <div class="logist-entry__name"><?= Html::encode($logist->username) ?></div>
-                                <div class="logist-entry__role">Логист • <?= Html::encode($logist->email) ?></div>
-                            </div>
-                            <a href="<?= Url::to(['/admin/user/edit', 'id' => $logist->id]) ?>" class="admin-btn admin-btn--ghost admin-btn--icon">
-                                <i class="bi bi-arrow-up-right"></i>
-                            </a>
-                        </div>
-                    <?php endforeach; ?>
-                    <?php if (empty($activeLogists)): ?>
-                        <div class="admin-text-muted">Нет активных логистов.</div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-
+<!-- Admin Header -->
+<div class="admin-header">
+    <div>
+        <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
+        <p style="margin: 0; color: var(--admin-text-secondary);">
+            Привет, <?= Html::encode($user->username) ?>! Добро пожаловать в админ-панель.
+        </p>
+    </div>
+    <div class="admin-header-actions">
+        <a href="<?= Url::to(['/admin/order/create']) ?>" class="admin-btn admin-btn-primary">
+            <i class="bi bi-plus-circle"></i>
+            Новый заказ
+        </a>
+        <button class="admin-btn admin-btn-secondary" onclick="location.reload()">
+            <i class="bi bi-arrow-repeat"></i>
+            Обновить
+        </button>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const chartData = <?= json_encode($chartData) ?>;
-    const ctx = document.getElementById('ordersChart');
-    if (ctx) {
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: chartData.map(item => item.day),
-                datasets: [
-                    {
-                        label: 'Заказы',
-                        data: chartData.map(item => item.orders),
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.14)',
-                        tension: 0.35,
-                        borderWidth: 3,
-                        fill: true
-                    },
-                    {
-                        label: 'Выручка (BYN)',
-                        data: chartData.map(item => item.amount),
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                        tension: 0.35,
-                        borderWidth: 3,
-                        fill: true,
-                        yAxisID: 'y1'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                plugins: {
-                    legend: {
-                        display: true,
-                        labels: { usePointStyle: true }
-                    },
-                    tooltip: {
-                        padding: 12,
-                        backgroundColor: 'rgba(15, 23, 42, 0.9)'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(15, 23, 42, 0.05)' }
-                    },
-                    y1: {
-                        beginAtZero: true,
-                        position: 'right',
-                        grid: { drawOnChartArea: false },
-                        ticks: {
-                            callback: (value) => value.toLocaleString('ru-RU') + ' BYN'
-                        }
-                    },
-                    x: {
-                        grid: { color: 'rgba(15, 23, 42, 0.05)' }
-                    }
-                }
-            }
-        });
+<!-- Statistics Cards -->
+<div class="admin-stats">
+    <div class="admin-stat-card">
+        <p class="admin-stat-number">1,234</p>
+        <p class="admin-stat-label">Всего заказов</p>
+        <div style="margin-top: 0.5rem;">
+            <span class="admin-badge admin-badge-success">+12% сегодня</span>
+        </div>
+    </div>
+    <div class="admin-stat-card" style="border-left-color: var(--admin-success);">
+        <p class="admin-stat-number">45.2K BYN</p>
+        <p class="admin-stat-label">Выручка</p>
+        <div style="margin-top: 0.5rem;">
+            <span class="admin-badge admin-badge-success">+8% за неделю</span>
+        </div>
+    </div>
+    <div class="admin-stat-card" style="border-left-color: var(--admin-warning);">
+        <p class="admin-stat-number">856</p>
+        <p class="admin-stat-label">Товары</p>
+        <div style="margin-top: 0.5rem;">
+            <span class="admin-badge admin-badge-warning">42 в наличии</span>
+        </div>
+    </div>
+    <div class="admin-stat-card" style="border-left-color: var(--admin-info);">
+        <p class="admin-stat-number">24</p>
+        <p class="admin-stat-label">Клиенты</p>
+        <div style="margin-top: 0.5rem;">
+            <span class="admin-badge admin-badge-info">3 новых</span>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="admin-card">
+    <h2 class="admin-card-title">
+        <i class="bi bi-lightning"></i>
+        Быстрые действия
+    </h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+        <a href="<?= Url::to(['/admin/product']) ?>" class="admin-btn admin-btn-secondary" style="padding: 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-box" style="font-size: 2rem;"></i>
+            <span>Товары</span>
+        </a>
+        
+        <a href="<?= Url::to(['/admin/customer']) ?>" class="admin-btn admin-btn-secondary" style="padding: 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-people" style="font-size: 2rem;"></i>
+            <span>Клиенты</span>
+        </a>
+        
+        <a href="<?= Url::to(['/admin/coupon']) ?>" class="admin-btn admin-btn-secondary" style="padding: 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-ticket-perforated" style="font-size: 2rem;"></i>
+            <span>Купоны</span>
+        </a>
+        
+        <a href="<?= Url::to(['/admin/statistics']) ?>" class="admin-btn admin-btn-secondary" style="padding: 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-graph-up" style="font-size: 2rem;"></i>
+            <span>Статистика</span>
+        </a>
+    </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="admin-card">
+    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 class="admin-card-title">
+            <i class="bi bi-cart3"></i>
+            Последние заказы
+        </h2>
+        <a href="<?= Url::to(['/admin/order']) ?>" class="admin-btn admin-btn-secondary">
+            Все заказы
+        </a>
+    </div>
+    
+    <div style="overflow-x: auto;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Клиент</th>
+                    <th>Товары</th>
+                    <th>Сумма</th>
+                    <th>Статус</th>
+                    <th>Дата</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>#1234</td>
+                    <td>Иван Петров</td>
+                    <td>Nike Air Max 90</td>
+                    <td>320 BYN</td>
+                    <td><span class="admin-badge admin-badge-success">Оплачен</span></td>
+                    <td>24.03.2026</td>
+                    <td>
+                        <a href="<?= Url::to(['/admin/order/view', 'id' => 1234]) ?>" class="admin-btn admin-btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>#1233</td>
+                    <td>Мария Сидорова</td>
+                    <td>Adidas Ultraboost</td>
+                    <td>280 BYN</td>
+                    <td><span class="admin-badge admin-badge-warning">В обработке</span></td>
+                    <td>24.03.2026</td>
+                    <td>
+                        <a href="<?= Url::to(['/admin/order/view', 'id' => 1233]) ?>" class="admin-btn admin-btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>#1232</td>
+                    <td>Алексей Иванов</td>
+                    <td>Jordan 1 Retro</td>
+                    <td>450 BYN</td>
+                    <td><span class="admin-badge admin-badge-info">Новый</span></td>
+                    <td>23.03.2026</td>
+                    <td>
+                        <a href="<?= Url::to(['/admin/order/view', 'id' => 1232]) ?>" class="admin-btn admin-btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- System Info -->
+<div class="admin-stats" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+    <div class="admin-card" style="padding: 1.5rem;">
+        <h3 style="margin: 0 0 0.5rem 0; font-size: 0.875rem; color: var(--admin-text-secondary);">Система</h3>
+        <p style="margin: 0; font-size: 1.25rem; font-weight: 600;">Yii 2.0.53</p>
+        <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--admin-text-secondary);">PHP 8.4.13</p>
+    </div>
+    
+    <div class="admin-card" style="padding: 1.5rem;">
+        <h3 style="margin: 0 0 0.5rem 0; font-size: 0.875rem; color: var(--admin-text-secondary);">База данных</h3>
+        <p style="margin: 0; font-size: 1.25rem; font-weight: 600;">MySQL</p>
+        <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--admin-text-secondary);">sneakerhead</p>
+    </div>
+    
+    <div class="admin-card" style="padding: 1.5rem;">
+        <h3 style="margin: 0 0 0.5rem 0; font-size: 0.875rem; color: var(--admin-text-secondary);">Окружение</h3>
+        <p style="margin: 0; font-size: 1.25rem; font-weight: 600;">Development</p>
+        <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--admin-text-secondary);">Localhost</p>
+    </div>
+    
+    <div class="admin-card" style="padding: 1.5rem;">
+        <h3 style="margin: 0 0 0.5rem 0; font-size: 0.875rem; color: var(--admin-text-secondary);">Время</h3>
+        <p style="margin: 0; font-size: 1.25rem; font-weight: 600;"><?= date('H:i') ?></p>
+        <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--admin-text-secondary);"><?= date('d.m.Y') ?></p>
+    </div>
+</div>
+
+<style>
+/* Дополнительные стили для dashboard */
+.admin-header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .admin-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
     }
-});
-</script>
+    
+    .admin-header-actions {
+        justify-content: center;
+    }
+    
+    .admin-stats {
+        grid-template-columns: 1fr;
+    }
+}
+</style>

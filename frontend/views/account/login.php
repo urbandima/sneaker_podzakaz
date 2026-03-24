@@ -166,8 +166,8 @@ echo $this->render('_auth-style');
                     </div>
 
                     <div class="support-links">
-                        <a href="tel:+375447009001"><i class="bi bi-telephone"></i> +375 (44) 700-90-01</a>
-                        <a href="mailto:sneakerkultura@gmail.com"><i class="bi bi-envelope"></i> sneakerkultura@gmail.com</a>
+                        <a href="tel:+375291234567"><i class="bi bi-telephone"></i> +375 (29) 123-45-67</a>
+                        <a href="mailto:info@sneakerhead.by"><i class="bi bi-envelope"></i> info@sneakerhead.by</a>
                         <small>Нажимая «Войти» вы соглашаетесь с договором оферты и политикой конфиденциальности.</small>
                     </div>
                 </div>
@@ -180,8 +180,8 @@ echo $this->render('_auth-style');
     </div>
 </div>
 
-<!-- Демо доступ стили -->
-<style>
+<?php
+$this->registerCss("
 .demo-access-section {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border: 2px dashed #6c757d;
@@ -266,7 +266,8 @@ echo $this->render('_auth-style');
         grid-template-columns: 1fr;
     }
 }
-</style>
+");
+?>
 
 <!-- Демо доступ JavaScript -->
 <script>

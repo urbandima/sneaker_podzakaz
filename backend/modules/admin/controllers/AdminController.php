@@ -27,6 +27,7 @@ use app\backend\modules\admin\assets\AdminAsset;
 class AdminController extends BaseAdminController
 {
     public $layout = 'admin'; // Admin layout
+    public $viewPath = '@backend/modules/admin/views'; // Явно указываем путь к views
     
     public function init()
     {
@@ -101,12 +102,35 @@ class AdminController extends BaseAdminController
         $model = new LoginForm();
         
         if ($model->load(Yii::$app->request->post())) {
+            // Проверка на bruteforce - ограничение попыток
+            $session = Yii::$app->session;
+            $attemptsKey = 'login_attempts_' . md5(Yii::$app->request->getUserIP());
+            $attempts = $session->get($attemptsKey, 0);
+            
+            if ($attempts >= 5) {
+                $blockTime = $session->get($attemptsKey . '_blocked_until', 0);
+                if ($blockTime > time()) {
+                    $remainingTime = $blockTime - time();
+                    $model->addError('password', "Слишком много попыток входа. Попробуйте снова через {$remainingTime} секунд.");
+                    return $this->render('login', ['model' => $model]);
+                } else {
+                    // Сбрасываем счетчик после истечения блокировки
+                    $session->remove($attemptsKey);
+                    $session->remove($attemptsKey . '_blocked_until');
+                    $attempts = 0;
+                }
+            }
+            
             // ВРЕМЕННО: Простая проверка для разработки
-            if ($model->username === 'admin' && $model->password === 'admin123') {
+            if ($model->username === 'admin' && $model->password === 'AdminSecure2026!') {
                 // Очищаем старые сессии перед входом
                 TemporaryAdminIdentity::clearAllSessions();
                 
                 Yii::info("Admin login successful: {$model->username}", 'admin');
+                
+                // Сбрасываем счетчик неудачных попыток
+                $session->remove($attemptsKey);
+                $session->remove($attemptsKey . '_blocked_until');
                 
                 // Создаем временного пользователя для сессии
                 $identity = new TemporaryAdminIdentity();
@@ -120,7 +144,19 @@ class AdminController extends BaseAdminController
                 }
             } else {
                 Yii::warning("Failed login attempt: {$model->username}", 'admin');
-                $model->addError('password', 'Неверное имя пользователя или пароль. Используйте admin/admin123');
+                
+                // Увеличиваем счетчик неудачных попыток
+                $attempts++;
+                $session->set($attemptsKey, $attempts);
+                
+                // Блокируем на 15 минут после 5 попыток
+                if ($attempts >= 5) {
+                    $session->set($attemptsKey . '_blocked_until', time() + 900); // 15 минут
+                    $model->addError('password', 'Слишком много попыток входа. Попробуйте снова через 15 минут.');
+                } else {
+                    $remainingAttempts = 5 - $attempts;
+                    $model->addError('password', "Неверное имя пользователя или пароля. Осталось попыток: {$remainingAttempts}");
+                }
             }
         }
 

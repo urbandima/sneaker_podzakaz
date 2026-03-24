@@ -186,6 +186,30 @@ class ProductController extends BaseAdminController
     }
 
     /**
+     * Создание товара
+     */
+    public function actionCreate()
+    {
+        $model = new Product();
+        $model->is_active = true;
+        $model->stock_status = Product::STOCK_IN_STOCK;
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Товар успешно создан');
+            return $this->redirect(['view', 'id' => $model->id]);
+        }
+
+        $brands = Brand::find()->orderBy(['name' => SORT_ASC])->all();
+        $categories = Category::find()->orderBy(['name' => SORT_ASC])->all();
+
+        return $this->render('create', [
+            'model' => $model,
+            'brands' => $brands,
+            'categories' => $categories,
+        ]);
+    }
+
+    /**
      * Просмотр товара
      * 
      * @param int $id

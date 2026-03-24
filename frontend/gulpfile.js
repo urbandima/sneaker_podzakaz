@@ -9,41 +9,35 @@ const paths = {
     css: {
         // Критические стили (инлайнятся в head)
         critical: [
-            'frontend/css/core/design-tokens.css',
-            'frontend/css/core/critical.css',
-            'frontend/css/css/container-system.css',
-            'frontend/css/css/skeleton-loading.css'
+            'css/core/design-system.css',
+            'css/core/critical.css',
+            'css/core/container-system.css',
+            'css/layout/skeleton-loading.css'
         ],
         // Публичные стили (основной сайт)
         public: [
-            'frontend/css/core/design-system.css',
-            'frontend/css/css/site.css',
-            'frontend/css/css/public-layout.css',
-            'frontend/css/features/accessibility.css',
-            'frontend/css/features/micro-interactions.css',
-            'frontend/css/features/dark-mode.css',
-            'frontend/css/css/mobile-first.css',
-            'frontend/css/css/header-adaptive.css',
-            'frontend/css/features/mobile-menu.css',
-            'frontend/css/css/responsive-fixes.css'
+            'css/core/design-system.css',
+            'css/layout/public-layout.css',
+            'css/features/accessibility.css',
+            'css/features/micro-interactions.css',
+            'css/features/dark-mode.css',
+            'css/features/mobile-menu.css',
+            'css/layout/responsive-fixes.css'
         ],
         // Каталог
         catalog: [
-            'web/css/features/catalog-layout.css',
-            'web/css/features/catalog-inline.css',
-            'web/css/features/catalog-card.css',
-            'web/css/catalog-mobile-fixes.css'
+            'css/pages/catalog.css',
+            'css/pages/catalog-grid.css'
         ],
-        // Страница товара (отдельно - большой файл)
+        // Страница товара
         product: [
-            'frontend/css/css/dist/product-page.min.css'
+            'css/pages/product.css'
         ],
         // Админка
         admin: [
-            'css/admin-bundle.min.css',
             'css/pages/admin.css'
         ],
-        // Vendor CSS (Bootstrap и другие библиотеки)
+        // Vendor CSS
         vendor: [
             'web/assets/vendor/bootstrap/css/bootstrap.min.css'
         ],

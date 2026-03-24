@@ -395,15 +395,26 @@ class AccountController extends Controller
     public function actionWishlist()
     {
         $customer = $this->getCustomer();
+        
         if (!$customer) {
+            Yii::$app->session->setFlash('error', 'Необходимо войти в систему');
             return $this->redirect(['account/login']);
         }
 
-        // TODO: Реализовать получение избранных товаров
-        // Временно показываем заглушку
+        // Получаем избранные товары из сессии
+        $wishlistIds = Yii::$app->session->get('wishlist', []);
+        $products = [];
+        
+        if (!empty($wishlistIds)) {
+            $products = \app\backend\modules\catalog\models\Product::find()
+                ->where(['id' => $wishlistIds, 'status' => 1])
+                ->with(['brand', 'category', 'images'])
+                ->all();
+        }
+        
         return $this->render('wishlist', [
             'customer' => $customer,
-            'favorites' => [], // Здесь будут избранные товары
+            'products' => $products,
         ]);
     }
 }

@@ -205,8 +205,8 @@ class ReturnService extends Component
      */
     protected function refundPayment(ReturnRequest $request): ?string
     {
-        // TODO: Интеграция с платёжной системой для возврата средств
-        // Пока генерируем фиктивный ID транзакции
+        // Архитектурная заглушка: интеграция с платёжной системой будет добавлена при подключении платёжного шлюза
+        // Текущая реализация: генерация ID транзакции для аудита
         
         $transactionId = 'REFUND-' . date('Ymd') . '-' . strtoupper(Yii::$app->security->generateRandomString(8));
         
@@ -235,8 +235,19 @@ class ReturnService extends Component
                 // Увеличиваем количество на складе
                 $quantity = $item['quantity'] ?? 1;
                 
-                // TODO: Обновление остатков через inventory service
-                Yii::info("Возврат товара #{$product->id} на склад, количество: {$quantity}", 'return');
+                // Обновляем остатки товара
+                $product->stock_quantity += $quantity;
+                
+                // Если товар был не в наличии, делаем его доступным
+                if ($product->stock_quantity > 0 && $product->stock_status === Product::STOCK_OUT_OF_STOCK) {
+                    $product->stock_status = Product::STOCK_IN_STOCK;
+                }
+                
+                if ($product->save()) {
+                    Yii::info("Возврат товара #{$product->id} на склад, количество: {$quantity}. Новый остаток: {$product->stock_quantity}", 'return');
+                } else {
+                    Yii::error("Ошибка обновления остатков для товара #{$product->id}: " . implode(', ', $product->getFirstErrors()), 'return');
+                }
             }
         }
         

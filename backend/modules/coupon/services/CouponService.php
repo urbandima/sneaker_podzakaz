@@ -55,7 +55,7 @@ class CouponService extends Component
             return null;
         }
         
-        list($isValid, $error) = $coupon->validate($orderAmount, $userId);
+        list($isValid, $error) = $coupon->isValidForOrder($orderAmount, $userId);
         if (!$isValid) {
             $this->errorMessage = $error;
             return null;
@@ -261,7 +261,7 @@ class CouponService extends Component
         // Фильтруем по валидности
         $validCoupons = [];
         foreach ($coupons as $coupon) {
-            list($isValid, $error) = $coupon->validate($orderAmount, $userId);
+            list($isValid, $error) = $coupon->isValidForOrder($orderAmount, $userId);
             if ($isValid) {
                 $validCoupons[] = $coupon;
             }

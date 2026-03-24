@@ -62,7 +62,7 @@ return [
         'topProductsForImages' => 1000,    // Топ товаров для image sitemap
         'lockTtl' => 600,                  // Время блокировки генерации (секунды)
         'cacheCheckInterval' => 60,        // Интервал проверки флага pending (секунды)
-        'enableValidation' => YII_ENV_DEV, // Валидация XML (только в dev)
+        'enableValidation' => defined('YII_ENV_DEV') && YII_ENV_DEV, // Валидация XML (только в dev)
         'changefreqHigh' => 'daily',       // Частота обновления популярных страниц
         'changefreqLow' => 'weekly',       // Частота обновления редких страниц
     ],

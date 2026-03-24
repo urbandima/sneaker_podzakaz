@@ -11,6 +11,9 @@ use yii\helpers\Url;
 <head>
     <meta charset="<?= Yii::$app->charset ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     
@@ -19,6 +22,13 @@ use yii\helpers\Url;
     
     <!-- Bootstrap Icons CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <?php // Отключаем debug toolbar для страницы входа ?>
+    <?php if (class_exists('yii\debug\Module')): ?>
+        <style>
+            .yii-debug-toolbar { display: none !important; }
+        </style>
+    <?php endif; ?>
     
     </head>
 <body>
@@ -34,13 +44,6 @@ use yii\helpers\Url;
         
         <div class="login-content">
             <?= $content ?>
-        </div>
-        
-        <div class="login-footer">
-            <a href="/" class="login-back-link">
-                <i class="bi bi-arrow-left"></i>
-                Вернуться на сайт
-            </a>
         </div>
     </div>
 </div>

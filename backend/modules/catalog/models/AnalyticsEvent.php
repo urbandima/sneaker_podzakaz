@@ -18,6 +18,22 @@ class AnalyticsEvent extends ActiveRecord
         return '{{%analytics_event}}';
     }
     
+    /**
+     * Проверить доступность таблицы аналитики
+     * 
+     * @return bool
+     */
+    public static function isAvailable(): bool
+    {
+        try {
+            // Проверяем существование таблицы
+            $tableSchema = Yii::$app->db->schema->getTableSchema('{{%analytics_event}}');
+            return $tableSchema !== null;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+    
     public static function getConversionStats($dateFrom, $dateTo)
     {
         // Временная заглушка

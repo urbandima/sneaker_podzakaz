@@ -48,8 +48,8 @@ $this->params['breadcrumbs'][] = $this->title;
                                 </div>
                                 <h5 class="card-title">Email</h5>
                                 <p class="card-text">
-                                    <a href="mailto:info@sneaker-head.by" class="text-decoration-none">
-                                        info@sneaker-head.by
+                                    <a href="mailto:info@sneakerhead.by" class="text-decoration-none">
+                                        info@sneakerhead.by
                                     </a>
                                 </p>
                                 <p class="text-muted small">Ответ в течение 24 часов</p>

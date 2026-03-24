@@ -81,11 +81,17 @@ $config = [
         'return' => [
             'class' => 'app\backend\modules\return\ReturnModule',
         ],
+        'compare' => [
+            'class' => 'app\backend\modules\compare\Module',
+        ],
+        'notification' => [
+            'class' => 'app\backend\modules\notification\Module',
+        ],
     ],
     'components' => [
         'request' => [
             // SECURITY: Cookie key MUST be set via .env - no hardcoded fallback in production
-            'cookieValidationKey' => env('COOKIE_VALIDATION_KEY') ?: (YII_ENV_DEV ? 'dev-only-key-change-in-production' : (function() {
+            'cookieValidationKey' => env('COOKIE_VALIDATION_KEY') ?: ((defined('YII_ENV_DEV') && YII_ENV_DEV) ? 'dev-only-key-change-in-production' : (function() {
                 throw new \RuntimeException('COOKIE_VALIDATION_KEY must be set in .env for production!');
             })()),
             'baseUrl' => '',
@@ -93,7 +99,7 @@ $config = [
             'enableCsrfValidation' => true,
             'csrfCookie' => [
                 'httpOnly' => true,
-                'secure' => !YII_ENV_DEV,
+                'secure' => !(defined('YII_ENV_DEV') && YII_ENV_DEV),
                 'sameSite' => \yii\web\Cookie::SAME_SITE_STRICT,
             ],
         ],
@@ -112,19 +118,20 @@ $config = [
                 'class' => 'yii\caching\FileCache',
                 'cachePath' => '@runtime/cache',
             ],
-        // Redis компонент для production
-        'redis' => extension_loaded('redis') && YII_ENV === 'prod' && env('REDIS_HOST')
-            ? [
-                'class' => 'yii\redis\Connection',
-                'hostname' => env('REDIS_HOST', 'localhost'),
-                'port' => (int) env('REDIS_PORT', 6379),
-                'database' => (int) env('REDIS_DATABASE', 0),
-                'password' => env('REDIS_PASSWORD') ?: null,
-                'timeout' => 0.5,
-            ]
-            : null,
+        // Redis компонент для production и dev
+        'redis' => [
+            'class' => 'yii\redis\Connection',
+            'hostname' => env('REDIS_HOST', 'localhost'),
+            'port' => (int) env('REDIS_PORT', 6379),
+            'database' => (int) env('REDIS_DATABASE', 0),
+            'password' => env('REDIS_PASSWORD') ?: null,
+            'timeout' => 0.5,
+        ],
+        'elasticsearch' => [
+            'class' => 'app\infrastructure\services\ElasticsearchService',
+        ],
         'assetManager' => [
-            'bundles' => YII_ENV_DEV ? [] : [
+            'bundles' => (defined('YII_ENV_DEV') && YII_ENV_DEV) ? [] : [
                 'yii\web\JqueryAsset' => [
                     'js' => ['jquery.min.js']
                 ],
@@ -139,14 +146,14 @@ $config = [
             'linkAssets' => true,
         ],
         'user' => [
-            'identityClass' => YII_ENV_DEV ? 'app\backend\modules\admin\models\TemporaryAdminIdentity' : 'app\backend\modules\admin\models\User',
+            'identityClass' => (defined('YII_ENV_DEV') && YII_ENV_DEV) ? 'app\backend\modules\admin\models\TemporaryAdminIdentity' : 'app\backend\modules\admin\models\User',
             'enableAutoLogin' => true,
             'loginUrl' => ['/admin/login'],
             // ВРЕМЕННО: Для разработки - используем временную авторизацию
             'identityCookie' => [
                 'name' => '_identity-admin',
                 'httpOnly' => true,
-                'secure' => !YII_ENV_DEV,
+                'secure' => !(defined('YII_ENV_DEV') && YII_ENV_DEV),
             ],
         ],
         'errorHandler' => [
@@ -165,7 +172,7 @@ $config = [
                     'levels' => ['error', 'warning'],
                 ],
                 // Sentry для production
-                ...(!YII_ENV_DEV && env('SENTRY_DSN') ? [[
+                ...(!((defined('YII_ENV_DEV') && YII_ENV_DEV)) && env('SENTRY_DSN') ? [[
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error'],
                     'logVars' => [],
@@ -279,6 +286,7 @@ $config = [
                 'admin' => 'admin/dashboard/index',
                 'admin/login' => 'admin/admin/login',
                 'admin/logout' => 'admin/admin/logout',
+                'admin/dashboard' => 'admin/dashboard/index',
                 
                 // Orders
                 'admin/order' => 'admin/order/index',
@@ -290,6 +298,7 @@ $config = [
                 'admin/order/export' => 'admin/order/export',
                 
                 // Products
+                'admin/catalog' => 'admin/product/index',
                 'admin/product' => 'admin/product/index',
                 'admin/product/create' => 'admin/product/create',
                 'admin/product/<id:\d+>' => 'admin/product/view',
@@ -332,7 +341,8 @@ $config = [
                 
                 // Statistics & Settings
                 'admin/statistics' => 'admin/statistics/index',
-                'admin/settings' => 'admin/dashboard/settings',
+                'admin/settings' => 'admin/settings/index',
+                'admin/settings/save' => 'admin/settings/save',
                 
                 // Tariffs (комиссии и тарифы)
                 'admin/tariff' => 'admin/tariff/index',
@@ -416,19 +426,20 @@ $config = [
         ],
         'securityHeaders' => [
             'class' => 'app\backend\shared\middleware\SecurityHeadersMiddleware',
-            'enableCsp' => !YII_ENV_DEV, // CSP только в проде (в dev мешает отладке)
-            'enableHsts' => YII_ENV_PROD,
+            'enableCsp' => !((defined('YII_ENV_DEV') && YII_ENV_DEV)), // CSP только в проде (в dev мешает отладке)
+            'enableHsts' => (defined('YII_ENV_PROD') && YII_ENV_PROD),
         ],
     ],
     'params' => $params,
 ];
 
-if (YII_ENV_DEV) {
+if ((defined('YII_ENV_DEV') && YII_ENV_DEV)) {
     // configuration adjustments for 'dev' environment
-    $config['bootstrap'][] = 'debug';
-    $config['modules']['debug'] = [
-        'class' => 'yii\debug\Module',
-    ];
+    // ВРЕМЕННО ОТКЛЮЧАЕМ DEBUG ДЛЯ БЕЗОПАСНОСТИ АДМИН-ПАНЕЛИ
+    // $config['bootstrap'][] = 'debug';
+    // $config['modules']['debug'] = [
+    //     'class' => 'yii\debug\Module',
+    // ];
 
     $config['bootstrap'][] = 'gii';
     $config['modules']['gii'] = [

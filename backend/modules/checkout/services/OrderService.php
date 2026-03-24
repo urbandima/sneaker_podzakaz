@@ -24,6 +24,7 @@ use app\backend\modules\checkout\models\Order;
 use app\backend\modules\checkout\models\OrderItem;
 use app\backend\modules\cart\models\Cart;
 use app\backend\modules\catalog\models\Product;
+use app\backend\modules\coupon\services\CouponService;
 
 class OrderService
 {
@@ -85,7 +86,7 @@ class OrderService
             
             // Применяем скидку если есть
             if (!empty($customerData['promo_code'])) {
-                $discount = $this->applyDiscount($total, $customerData['promo_code']);
+                $discount = $this->applyDiscount($total, $customerData['promo_code'], $order->customer_id);
                 $total -= $discount;
                 $order->discount = $discount;
                 $order->promo_code = $customerData['promo_code'];
@@ -188,19 +189,19 @@ class OrderService
      * 
      * @param float $total
      * @param string $promoCode
+     * @param int|null $customerId
      * @return float Сумма скидки
      */
-    public function applyDiscount(float $total, string $promoCode): float
+    public function applyDiscount(float $total, string $promoCode, ?int $customerId = null): float
     {
-        // TODO: Интеграция с системой промокодов
-        // Сейчас заглушка - 10% скидка для тестовых кодов
-        $testCodes = ['TEST10', 'WELCOME10', 'FIRST10'];
+        $couponService = new CouponService();
+        $coupon = $couponService->validateCoupon($promoCode, $total, $customerId);
         
-        if (in_array(strtoupper($promoCode), $testCodes)) {
-            return round($total * 0.1, 2);
+        if (!$coupon) {
+            return 0;
         }
         
-        return 0;
+        return $coupon->calculateDiscount($total, 0);
     }
     
     /**

@@ -24,7 +24,7 @@ $company = Yii::$app->settings->getCompany();
                 <!-- О компании -->
                 <div class="footer-column">
                     <div class="footer-brand">
-                        <img src="/images/logo-white.png" alt="СНИКЕРХЭД" class="footer-logo">
+                        <img src="/images/logo.png" alt="<?= Html::encode($company['name'] ?? 'СНИКЕРХЭД') ?>" class="footer-logo">
                         <p class="footer-tagline">Оригинальные кроссовки из США и Европы</p>
                     </div>
                     
@@ -62,8 +62,8 @@ $company = Yii::$app->settings->getCompany();
                         <li><?= Html::a('Условия оплаты', ['/page/payment-terms']) ?></li>
                         <li><?= Html::a('Условия доставки', ['/page/delivery-terms']) ?></li>
                         <li><?= Html::a('Возврат и обмен', ['/page/return-policy']) ?></li>
-                        <li><?= Html::a('Часто задаваемые вопросы', ['/page/faq']) ?></li>
-                        <li><?= Html::a('Отслеживание заказа', ['/account/tracking']) ?></li>
+                        <li><?= Html::a('Часто задаваемые вопросы', ['/contacts']) ?></li>
+                        <li><?= Html::a('Отслеживание заказа', ['/account/orders']) ?></li>
                     </ul>
                 </div>
                 
@@ -72,75 +72,36 @@ $company = Yii::$app->settings->getCompany();
                     <h4 class="footer-title">Каталог</h4>
                     <ul class="footer-links">
                         <li><a href="/catalog">Все товары</a></li>
-                        <li><a href="/catalog/brands">Бренды</a></li>
-                        <li><a href="/catalog/categories">Категории</a></li>
-                        <li><a href="/sale">Распродажа</a></li>
-                        <li><a href="/catalog/new">Новинки</a></li>
-                    </ul>
-                </div>
-                
-                <!-- Контакты -->
-                <div class="footer-column">
-                    <h4 class="footer-title">Контакты</h4>
-                    <div class="footer-contact">
-                        <div class="contact-item">
-                            <i class="bi bi-telephone"></i>
-                            <a href="tel:+375291234567">+375 (29) 123-45-67</a>
-                        </div>
-                        <div class="contact-item">
-                            <i class="bi bi-envelope"></i>
-                            <a href="mailto:info@snikered.by">info@snikered.by</a>
-                        </div>
-                        <div class="contact-item">
-                            <i class="bi bi-geo-alt"></i>
-                            <span>г. Минск, ул. Купревича 1, корп. 1</span>
-                        </div>
-                        <div class="contact-item">
-                            <i class="bi bi-clock"></i>
-                            <span>Пн-Пт: 9:00 - 18:00</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Каталог -->
-                <div class="footer-column">
-                    <h4 class="footer-title">Каталог</h4>
-                    <ul class="footer-links">
+                        <li><a href="/brands">Бренды</a></li>
                         <li><a href="/catalog?category=sneakers">Кроссовки</a></li>
                         <li><a href="/catalog?category=boots">Ботинки</a></li>
-                        <li><a href="/catalog?category=sandals">Сандалии</a></li>
+                        <li><a href="/sale">Распродажа</a></li>
                         <li><a href="/catalog?sort=new">Новинки</a></li>
-                        <li><a href="/catalog?sort=sale">Скидки</a></li>
-                        <li><a href="/brands">Все бренды</a></li>
                     </ul>
                 </div>
-                
+
                 <!-- Контакты -->
                 <div class="footer-column">
                     <h4 class="footer-title">Контакты</h4>
                     <ul class="footer-contacts">
                         <li>
                             <i class="bi bi-telephone"></i>
-                            <a href="tel:<?= preg_replace('/[^0-9+]/', '', $company['phone'] ?? '+375291234567') ?>">
-                                <?= Html::encode($company['phone'] ?? '+375 (29) 123-45-67') ?>
-                            </a>
+                            <a href="tel:+375291234567">+375 (29) 123-45-67</a>
                         </li>
                         <li>
                             <i class="bi bi-envelope"></i>
-                            <a href="mailto:<?= $company['email'] ?? 'info@sneakerhead.by' ?>">
-                                <?= Html::encode($company['email'] ?? 'info@sneakerhead.by') ?>
-                            </a>
+                            <a href="mailto:info@sneakerhead.by">info@sneakerhead.by</a>
                         </li>
                         <li>
                             <i class="bi bi-geo-alt"></i>
-                            <span><?= Html::encode($company['address'] ?? 'Минск, ул. Примерная, 1') ?></span>
+                            <span>Минск, ул. Купревича 1, корп. 1</span>
                         </li>
                         <li>
                             <i class="bi bi-clock"></i>
-                            <span>Пн-Вс: 10:00 - 22:00</span>
+                            <span>Пн-Вс: 10:00 - 20:00</span>
                         </li>
                     </ul>
-                    
+
                     <div class="footer-social">
                         <a href="https://instagram.com" target="_blank" class="social-link" aria-label="Instagram">
                             <i class="bi bi-instagram"></i>
@@ -210,8 +171,8 @@ $company = Yii::$app->settings->getCompany();
 }
 
 .footer-tagline {
-    color: #94a3b8;
-    font-size: 0.6rem;
+    color: #999999;
+    font-size: 1rem;
     line-height: 1.2;
 }
 
@@ -226,20 +187,20 @@ $company = Yii::$app->settings->getCompany();
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    font-size: 0.6rem;
-    color: #94a3b8;
+    font-size: 1rem;
+    color: #999999;
 }
 
 .badge-item i {
-    color: #6366f1;
+    color: #000000;
     font-size: 0.75rem;
 }
 
 .footer-title {
-    font-size: 0.7rem;
+    font-size: 1rem;
     font-weight: 700;
-    color: #f8fafc;
-    margin-bottom: 0.5rem;
+    color: #ffffff;
+    margin-bottom: 1rem;
 }
 
 .footer-links {
@@ -253,14 +214,16 @@ $company = Yii::$app->settings->getCompany();
 }
 
 .footer-links a {
-    color: #94a3b8;
+    color: #999999;
     text-decoration: none;
-    font-size: 0.6rem;
-    transition: color 0.2s;
+    display: block;
+    padding: var(--spacing-1) 0;
+    transition: color var(--transition-fast);
+    font-size: 1rem;
 }
 
 .footer-links a:hover {
-    color: #f8fafc;
+    color: #ffffff;
 }
 
 .footer-contacts {
@@ -274,23 +237,23 @@ $company = Yii::$app->settings->getCompany();
     align-items: flex-start;
     gap: 0.25rem;
     margin-bottom: 0.5rem;
-    font-size: 0.6rem;
+    font-size: 1rem;
 }
 
 .footer-contacts i {
-    color: #6366f1;
+    color: #000000;
     font-size: 1rem;
     margin-top: 0.125rem;
 }
 
 .footer-contacts a {
-    color: #94a3b8;
+    color: #999999;
     text-decoration: none;
     transition: color 0.2s;
 }
 
 .footer-contacts a:hover {
-    color: #f8fafc;
+    color: #ffffff;
 }
 
 .footer-social {
@@ -300,20 +263,19 @@ $company = Yii::$app->settings->getCompany();
 }
 
 .social-link {
-    width: 32px;
-    height: 32px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #94a3b8;
-    text-decoration: none;
-    transition: all 0.3s;
+    width: 2rem;
+    height: 2rem;
+    background: #1a1a1a;
+    color: #ffffff;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
 }
 
 .social-link:hover {
-    background: #6366f1;
+    background: #000000;
     color: white;
     transform: translateY(-2px);
 }

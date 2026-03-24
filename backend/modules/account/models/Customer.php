@@ -40,6 +40,7 @@ use Yii;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 use yii\behaviors\TimestampBehavior;
+use app\backend\modules\checkout\models\Order;
 
 /**
  * Модель покупателя (Customer)
@@ -306,6 +307,55 @@ class Customer extends ActiveRecord implements IdentityInterface
     {
         // В реальной таблице нет этих полей, метод не нужен
         return true;
+    }
+
+    /**
+     * Getter для orders_count
+     */
+    public function getOrdersCount()
+    {
+        return $this->getOrders()->count();
+    }
+
+    /**
+     * Getter для total_spent
+     */
+    public function getTotalSpent()
+    {
+        return $this->getOrders()->sum('total_amount') ?? 0;
+    }
+
+    /**
+     * Getter для last_order_at
+     */
+    public function getLastOrderAt()
+    {
+        $lastOrder = $this->getOrders()->one();
+        return $lastOrder ? $lastOrder->created_at : null;
+    }
+
+    /**
+     * Magic getter для обратной совместимости
+     */
+    public function __get($name)
+    {
+        if ($name === 'orders_count') {
+            return $this->getOrdersCount();
+        }
+        if ($name === 'total_spent') {
+            return $this->getTotalSpent();
+        }
+        if ($name === 'last_order_at') {
+            return $this->getLastOrderAt();
+        }
+        
+        // Для полей, которые могут не существовать в таблице, пробуем получить безопасно
+        try {
+            return parent::__get($name);
+        } catch (\yii\base\UnknownPropertyException $e) {
+            // Если поле не существует в таблице, возвращаем null
+            return null;
+        }
     }
 
     // Relations

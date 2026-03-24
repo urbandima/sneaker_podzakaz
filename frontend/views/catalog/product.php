@@ -6,10 +6,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use yii\helpers\Json;
 use app\frontend\assets\ProductAsset;
-use app\backend\shared\components\AssetOptimizer;
-use app\backend\shared\components\SchemaOrgGenerator;
 use app\backend\shared\helpers\ProductCardHelper;
 use app\backend\shared\helpers\ImageHelper;
 
@@ -37,50 +34,10 @@ $this->registerMetaTag(['name' => 'product-id', 'content' => $productId]);
 // ============================================
 // ОПТИМИЗАЦИЯ ЗАГРУЗКИ РЕСУРСОВ
 // ============================================
-
-// Используем AssetOptimizer для оптимизации страницы товара
-AssetOptimizer::optimizeProductPage($this, [
-    'fonts' => [], // Веб-шрифты при наличии
-    'mainImage' => getProductMethod($product, 'getMainImageUrl') ?? ($product->image ?? '/images/demo/product-1.jpg'), // Preload главного изображения для LCP
-]);
-
-// Подключение Product Asset Bundle (РЕФАКТОРИНГ 2025)
-ProductAsset::register($this);
-
-// КРИТИЧНО: Гарантируем видимость header + УДАЛЕНИЕ nav-menu на мобильной
-$this->registerCss('
-.ecom-header,
-.main-header {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-.main-header {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 1000 !important;
-}
-/* КРИТИЧНО: nav-menu УДАЛЕНО на мобильной */
-@media (max-width: 1199px) {
-    .main-nav,
-    .nav-menu {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        height: 0 !important;
-        position: absolute !important;
-        left: -9999px !important;
-    }
-}
-');
+сaMлены !important стили для чёрма
 
 // Измерение производительности (только в dev режиме)
-if (YII_ENV_DEV) {
-    AssetOptimizer::measurePerformance($this);
-}
-
-// Общие данные для карточек/цен
-$defaultSizeField = ProductCardHelper::resolveSizeField(ProductCardHelper::DEFAULT_SIZE_SYSTEM);
+if (YII_ENV_DEV) {defaultSizeField = ProductCardHelper::resolveSizeField(ProductCardHelper::DEFAULT_SIZE_SYSTEM);
 $productPriceView = ProductCardHelper::calculatePriceView($product, null, [], $defaultSizeField);
 
 $galleryPlaceholderSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="#f3f4f6"/><text x="50%" y="50%" font-family="Arial" font-size="28" fill="#94a3b8" text-anchor="middle" dominant-baseline="middle">Фото в обработке</text></svg>';

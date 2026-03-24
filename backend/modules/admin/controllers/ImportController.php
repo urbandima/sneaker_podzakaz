@@ -577,25 +577,6 @@ class ImportController extends Controller
     }
 
     /**
-     * Обработка CSV файла
-     */
-    protected function processCsvFile($filePath, $task)
-    {
-        $data = [];
-        
-        if (($handle = fopen($filePath, 'r')) !== false) {
-            $headers = fgetcsv($handle, 1000, ';');
-            
-            while (($row = fgetcsv($handle, 1000, ';')) !== false) {
-                $data[] = array_combine($headers, $row);
-            }
-            fclose($handle);
-        }
-
-        return $this->importProductsFromArray($data, $task);
-    }
-
-    /**
      * Обработка Excel файла
      */
     protected function processExcelFile($filePath, $task)

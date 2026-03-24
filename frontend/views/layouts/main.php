@@ -44,9 +44,6 @@ $company = Yii::$app->settings->getCompany();
 <!-- Skip to main content (a11y) -->
 <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
 
-<!-- Cookies Consent -->
-<script src="/js/cookies-consent.js"></script>
-
 <!-- Header -->
 <header class="main-header">
     <div class="header-content">
@@ -132,73 +129,6 @@ $company = Yii::$app->settings->getCompany();
         <div class="search-results" id="searchResults"></div>
     </div>
 </div>
-
-<!-- Подключаем Dark Mode JS -->
-<?= Html::jsFile('@web/js/dark-mode.js', ['position' => \yii\web\View::POS_END]) ?>
-
-<!-- Search Functions -->
-<script>
-function openSearch() {
-    const modal = document.getElementById('searchModal');
-    modal.classList.add('open');
-    document.getElementById('searchInput').focus();
-    document.body.style.overflow = 'hidden';
-}
-
-function closeSearch() {
-    const modal = document.getElementById('searchModal');
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
-}
-
-function handleSearch(event) {
-    if (event.key === 'Escape') {
-        closeSearch();
-        return;
-    }
-    
-    const query = event.target.value.trim();
-    const resultsContainer = document.getElementById('searchResults');
-    
-    if (query.length < 2) {
-        resultsContainer.innerHTML = '';
-        return;
-    }
-    
-    // TODO: Реализовать AJAX поиск
-    // Временно показываем заглушку
-    resultsContainer.innerHTML = `
-        <div class="search-loading">
-            <div class="spinner"></div>
-            <p>Поиск товаров...</p>
-        </div>
-    `;
-    
-    // Имитация поиска
-    setTimeout(() => {
-        resultsContainer.innerHTML = `
-            <div class="search-empty">
-                <p>По запросу "${query}" ничего не найдено</p>
-                <a href="/catalog?q=${encodeURIComponent(query)}" class="btn btn-primary">Посмотреть все товары</a>
-            </div>
-        `;
-    }, 500);
-}
-
-// Close search on backdrop click
-document.getElementById('searchModal').addEventListener('click', (e) => {
-    if (e.target.id === 'searchModal') {
-        closeSearch();
-    }
-});
-
-// Mobile menu functions
-function toggleMobileMenu() {
-    const menu = document.getElementById('mobileMenu');
-    menu.classList.toggle('open');
-    document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
-}
-</script>
 
 <?php $this->endBody() ?>
 </body>

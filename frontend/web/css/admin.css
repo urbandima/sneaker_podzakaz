@@ -19,6 +19,11 @@
     --admin-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
     --admin-radius: 8px;
     --admin-radius-lg: 12px;
+    --admin-primary-soft: rgba(255, 255, 255, 0.15);
+    --admin-danger: #ef4444;
+    --admin-success: #10b981;
+    --admin-warning: #f59e0b;
+    --admin-info: #3b82f6;
 }
 
 /* Сброс */
