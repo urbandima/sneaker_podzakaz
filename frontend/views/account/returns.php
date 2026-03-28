@@ -9,7 +9,7 @@ use yii\helpers\Url;
 
 /** @var yii\web\View $this */
 /** @var array $returns */
-/** @var app\backend\modules\return\models\ReturnPolicy $policy */
+/** @var app\backend\modules\returns\models\ReturnPolicy $policy */
 ?>
 
 <div class="returns-section">

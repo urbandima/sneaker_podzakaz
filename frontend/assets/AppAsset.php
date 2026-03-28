@@ -6,12 +6,16 @@ use yii\web\AssetBundle;
 
 class AppAsset extends AssetBundle
 {
-    public $sourcePath = '@frontend/web';
+    public $basePath = '@webroot';
     public $baseUrl = '@web';
     
-    // Единая точка входа CSS - версии добавятся автоматически в init()
+    // Модульная CSS архитектура - версии добавятся автоматически в init()
     public $css = [
-        'css/app.css',
+        'css/design-tokens.css', // Design tokens - подключается первым
+        'css/components.css',    // Переиспользуемые компоненты
+        'css/pages.css',         // Стили для конкретных страниц
+        'css/utilities.css',     // Утилитарные классы
+        'css/app.css',           // Основные стили (legacy)
     ];
     
     public $js = [

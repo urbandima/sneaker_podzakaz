@@ -25,7 +25,41 @@ class OrderController extends Controller
     }
 
     /**
-     * Создание заказа из корзины
+     * Страница оформления заказа (GET /checkout)
+     */
+    public function actionIndex()
+    {
+        $items   = [];
+        $total   = 0;
+        $customer = null;
+
+        try {
+            $items = Cart::getItems();
+            $total = Cart::getTotal();
+
+            // Если корзина пуста — перенаправляем в корзину
+            if (empty($items)) {
+                Yii::$app->session->setFlash('warning', 'Корзина пуста. Добавьте товары перед оформлением заказа.');
+                return $this->redirect(['/cart/cart/index']);
+            }
+
+            $customerId = Yii::$app->session->get('customer_id');
+            if ($customerId) {
+                $customer = \app\backend\modules\account\models\Customer::findOne($customerId);
+            }
+        } catch (\Exception $e) {
+            Yii::warning('Checkout page error: ' . $e->getMessage(), 'checkout');
+        }
+
+        return $this->render('checkout/index', [
+            'items'    => $items,
+            'total'    => $total,
+            'customer' => $customer,
+        ]);
+    }
+
+    /**
+     * Создание заказа из корзины (POST /order/create)
      */
     public function actionCreate()
     {
@@ -38,23 +72,45 @@ class OrderController extends Controller
         
         Yii::info('Начало создания заказа', 'order');
         
-        // Получаем данные формы
-        $name = Yii::$app->request->post('name');
-        $phone = Yii::$app->request->post('phone');
-        $email = Yii::$app->request->post('email');
-        $country = Yii::$app->request->post('country', 'belarus');
-        $delivery = Yii::$app->request->post('delivery');
-        $address = Yii::$app->request->post('address');
-        $comment = Yii::$app->request->post('comment');
-        
+        // Получаем и очищаем данные формы
+        $name     = trim(strip_tags(Yii::$app->request->post('name', '')));
+        $phone    = trim(strip_tags(Yii::$app->request->post('phone', '')));
+        $email    = trim(Yii::$app->request->post('email', ''));
+        $country  = trim(Yii::$app->request->post('country', 'belarus'));
+        $delivery = trim(Yii::$app->request->post('delivery', ''));
+        $address  = trim(strip_tags(Yii::$app->request->post('address', '')));
+        $comment  = trim(strip_tags(Yii::$app->request->post('comment', '')));
+
+        // Список допустимых методов доставки
+        $allowedDeliveryMethods = ['pickup_minsk', 'courier_minsk', 'europochta', 'belpochta', 'sdek'];
+        $allowedCountries       = ['belarus', 'russia', 'kazakhstan', 'ukraine', 'other'];
+
         // Валидация обязательных полей
-        if (empty($name) || empty($phone) || empty($delivery)) {
-            return ['success' => false, 'message' => 'Заполните все обязательные поля'];
+        if (empty($name) || mb_strlen($name) > 100) {
+            return ['success' => false, 'message' => 'Укажите корректное имя (до 100 символов)'];
         }
-        
+        if (empty($phone) || !preg_match('/^[\+]?[\d\s\-\(\)]{7,50}$/', $phone)) {
+            return ['success' => false, 'message' => 'Укажите корректный номер телефона'];
+        }
+        if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ['success' => false, 'message' => 'Некорректный формат email'];
+        }
+        if (!in_array($delivery, $allowedDeliveryMethods, true)) {
+            return ['success' => false, 'message' => 'Выберите способ доставки'];
+        }
+        if (!in_array($country, $allowedCountries, true)) {
+            $country = 'belarus';
+        }
+        if (mb_strlen($comment) > 1000) {
+            $comment = mb_substr($comment, 0, 1000);
+        }
+
         // Проверяем адрес (обязателен для всех кроме самовывоза)
         if ($delivery !== 'pickup_minsk' && empty($address)) {
             return ['success' => false, 'message' => 'Укажите адрес доставки'];
+        }
+        if (mb_strlen($address) > 500) {
+            return ['success' => false, 'message' => 'Адрес слишком длинный (максимум 500 символов)'];
         }
         
         // Получаем товары из корзины
@@ -236,7 +292,7 @@ class OrderController extends Controller
         $orderItems = $order->orderItems;
         if (empty($orderItems)) {
             // Если по какой-то причине товаров нет, показываем популярные
-            return \app\models\Product::find()
+            return \app\backend\modules\catalog\models\Product::find()
                 ->where(['is_active' => true])
                 ->orderBy(['created_at' => SORT_DESC])
                 ->limit($limit)
@@ -256,7 +312,7 @@ class OrderController extends Controller
         }
 
         $brandIds = array_unique($brandIds);
-        $query = \app\models\Product::find()
+        $query = \app\backend\modules\catalog\models\Product::find()
             ->where(['is_active' => true]);
 
         // Если есть бренды, показываем товары из тех же брендов
@@ -279,7 +335,7 @@ class OrderController extends Controller
             $need = $limit - count($products);
             $existingIds = array_merge($excludeProductIds, array_map(fn($p) => $p->id, $products));
             
-            $popularProducts = \app\models\Product::find()
+            $popularProducts = \app\backend\modules\catalog\models\Product::find()
                 ->where(['is_active' => true])
                 ->andWhere(['not in', 'id', $existingIds])
                 ->orderBy(['created_at' => SORT_DESC])

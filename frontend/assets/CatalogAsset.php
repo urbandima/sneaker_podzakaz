@@ -13,7 +13,7 @@ use app\frontend\assets\VersionedAssetBundle;
  */
 class CatalogAsset extends VersionedAssetBundle
 {
-    public $sourcePath = '@frontend/web';  // Источник файлов
+    public $basePath = '@webroot';
     public $baseUrl = '@web';
     
     public $css = [

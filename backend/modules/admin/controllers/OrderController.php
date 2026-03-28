@@ -293,6 +293,12 @@ class OrderController extends BaseAdminController
 
                 Yii::info('Заказ #' . $model->id . ' создан пользователем #' . Yii::$app->user->id . ', товаров: ' . $itemCount . ', сумма: ' . $totalAmount, 'order');
                 $this->flashSuccess('Заказ успешно создан!');
+                
+                // Очищаем черновик после успешного создания
+                if (Yii::$app->request->isPost) {
+                    // JavaScript очистит localStorage
+                }
+                
                 return $this->redirect(['/admin/order/view', 'id' => $model->id]);
                 
             } catch (\Exception $e) {
@@ -302,7 +308,8 @@ class OrderController extends BaseAdminController
             }
         }
 
-        return $this->render('create', [
+        // Используем новый wizard интерфейс
+        return $this->render('create-wizard', [
             'model' => $model,
         ]);
     }
@@ -323,10 +330,10 @@ class OrderController extends BaseAdminController
             throw new NotFoundHttpException('Заказ не найден.');
         }
 
-        // Используем новый интерфейс просмотра заказа
-        return $this->render('view-new', [
+        // Используем новый улучшенный интерфейс просмотра заказа
+        return $this->render('view-wizard-new', [
             'model' => $model,
-            'editing' => Yii::$app->request->get('mode') === 'edit',
+            'editing' => Yii::$app->request->get('editing', false),
         ]);
     }
 
@@ -347,7 +354,7 @@ class OrderController extends BaseAdminController
         $oldStatus = $model->status;
 
         if (!Yii::$app->request->isPost) {
-            return $this->redirect(['/admin/order/view', 'id' => $model->id, 'mode' => 'edit']);
+            return $this->redirect(['/admin/order/view', 'id' => $model->id, 'editing' => 1]);
         }
 
         if ($model->load(Yii::$app->request->post())) {
@@ -381,7 +388,7 @@ class OrderController extends BaseAdminController
             }
         }
 
-        return $this->render('view-new', [
+        return $this->render('view-wizard-new', [
             'model' => $model,
             'editing' => true,
         ]);

@@ -790,16 +790,16 @@ class CatalogController extends Controller
         // Увеличиваем счетчик просмотров
         $product->incrementViews();
 
-        // Похожие товары - используем SimilarProductsService с кэшированием
-        $cacheDependency = new TagDependency(['tags' => [CacheManager::TAG_PRODUCTS]]);
-        $similarProducts = Yii::$app->db->cache(function () use ($product) {
-            $similarService = new \app\services\SimilarProductsService();
-            return $similarService->find($product, 12);
-        }, CacheManager::TTL_SHORT, $cacheDependency);
+        // Похожие товары — используем ProductRepository::findSimilarProducts()
+        $similarProducts = $this->productRepository->findSimilarProducts($product, 12);
 
-        // Проверка - в избранном ли
-        $favoriteService = new \app\services\FavoriteService();
-        $isFavorite = $favoriteService->isFavorite($product->id, Yii::$app->user->isGuest ? null : Yii::$app->user->id, Yii::$app->session->id);
+        // Проверка — в избранном ли (через модель ProductFavorite)
+        $isFavorite = ProductFavorite::find()
+            ->where(['product_id' => $product->id])
+            ->andWhere(Yii::$app->user->isGuest
+                ? ['session_id' => Yii::$app->session->id]
+                : ['user_id' => Yii::$app->user->id])
+            ->exists();
 
         // SEO
         $this->view->title = $product->getMetaTitle();
@@ -1267,7 +1267,7 @@ class CatalogController extends Controller
             $message .= "\n💬 Комментарий: " . $data['comment'] . "\n";
         }
 
-        $message .= "\n🔗 Ссылка: " . \yii\helpers\Url::to(['catalog/product', 'slug' => $product->slug], true);
+        $message .= "\n🔗 Ссылка: " . \yii\helpers\Url::to(['/catalog/catalog/product', 'slug' => $product->slug], true);
 
         // Отправляем уведомление менеджеру через email
         try {

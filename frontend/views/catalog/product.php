@@ -6,9 +6,11 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\helpers\Json;
 use app\frontend\assets\ProductAsset;
 use app\backend\shared\helpers\ProductCardHelper;
 use app\backend\shared\helpers\ImageHelper;
+use app\backend\shared\components\SchemaOrgGenerator;
 
 // Helper функции для поддержки как Product модели, так и stdClass для demo режима
 function getProductProperty($product, $property, $default = null) {
@@ -34,10 +36,9 @@ $this->registerMetaTag(['name' => 'product-id', 'content' => $productId]);
 // ============================================
 // ОПТИМИЗАЦИЯ ЗАГРУЗКИ РЕСУРСОВ
 // ============================================
-сaMлены !important стили для чёрма
 
-// Измерение производительности (только в dev режиме)
-if (YII_ENV_DEV) {defaultSizeField = ProductCardHelper::resolveSizeField(ProductCardHelper::DEFAULT_SIZE_SYSTEM);
+// Инициализация размера по умолчанию
+$defaultSizeField = ProductCardHelper::resolveSizeField(ProductCardHelper::DEFAULT_SIZE_SYSTEM);
 $productPriceView = ProductCardHelper::calculatePriceView($product, null, [], $defaultSizeField);
 
 $galleryPlaceholderSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="#f3f4f6"/><text x="50%" y="50%" font-family="Arial" font-size="28" fill="#94a3b8" text-anchor="middle" dominant-baseline="middle">Фото в обработке</text></svg>';
@@ -74,16 +75,16 @@ $this->registerJsVar('productGalleryImages', array_column($galleryImages, 'url')
 $this->params['description'] = $product->description 
     ? Html::encode(mb_substr(strip_tags($product->description), 0, 160)) 
     : Html::encode($product->getDisplayTitle() . ' - купить оригинальные кроссовки в Минске. Цена: ' . Yii::$app->formatter->asCurrency($product->price, 'BYN'));
-$this->params['keywords'] = implode(', ', [
-    $product->brand->name,
+$this->params['keywords'] = implode(', ', array_filter([
+    $product->brand?->name ?? ($product->brand_name ?? ''),
     $product->name,
-    $product->category->name,
+    $product->category?->name ?? ($product->category_name ?? ''),
     'кроссовки',
     'обувь',
     'купить',
     'Минск',
     'Беларусь'
-]);
+]));
 $this->params['image'] = $product->getMainImageUrl();
 $this->params['og:type'] = 'product';
 
@@ -109,7 +110,9 @@ echo SchemaOrgGenerator::render($product);
         <nav class="breadcrumbs">
             <a href="/">Главная</a> / 
             <a href="/catalog">Каталог</a> / 
-            <a href="<?= $product->category->getUrl() ?>"><?= Html::encode($product->category->name) ?></a> / 
+            <?php if ($product->category ?? null): ?>
+            <a href="<?= $product->category->getUrl() ?>"><?= Html::encode($product->category->name) ?></a> /
+            <?php endif; ?>
             <span><?= Html::encode($product->name) ?></span>
         </nav>
 

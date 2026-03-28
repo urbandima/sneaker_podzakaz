@@ -7,20 +7,18 @@
 ?>
 <style>
 :root {
-    --auth-dark: #0f172a;
-    --auth-accent: #3b82f6;
-    --auth-accent-dark: #1d4ed8;
-    --auth-muted: #94a3b8;
-    --auth-border: rgba(15, 23, 42, 0.08);
+    --auth-dark: #1a1a1a;
+    --auth-accent: #8b5cf6;
+    --auth-accent-dark: #7c3aed;
+    --auth-muted: #6b7280;
+    --auth-border: rgba(0, 0, 0, 0.1);
 }
 
 .auth-page {
     position: relative;
     min-height: calc(100vh - 160px);
     padding: clamp(1.5rem, 4vw, 3.5rem) 1rem;
-    background: radial-gradient(circle at 20% 20%, rgba(59,130,246,0.15), transparent 55%),
-                radial-gradient(circle at 80% 0%, rgba(14,165,233,0.12), transparent 45%),
-                #f5f6fb;
+    background: #f9fafb;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -34,19 +32,19 @@
     width: 420px;
     height: 420px;
     border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.35;
+    filter: blur(100px);
+    opacity: 0.08;
     z-index: 0;
 }
 
 .auth-page::before {
-    background: #a855f7;
+    background: #8b5cf6;
     top: -120px;
     right: -160px;
 }
 
 .auth-page::after {
-    background: #3b82f6;
+    background: #d1d5db;
     bottom: -160px;
     left: -120px;
 }
@@ -167,25 +165,25 @@
 }
 
 .auth-info {
-    background: linear-gradient(135deg, #10172b 0%, #111c3d 55%, #1d2c5b 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     border-radius: 26px;
     padding: clamp(1.75rem, 3vw, 2.75rem);
-    color: #f8fafc;
+    color: #ffffff;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 30px 80px rgba(15, 23, 42, 0.35);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15);
 }
 
 .register-page .auth-info {
-    background: linear-gradient(135deg, #0f172a 0%, #0b1120 45%, #1d2c5b 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
 }
 
 .auth-info::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 40% 0%, rgba(56,189,248,0.25), transparent 55%);
-    opacity: 0.7;
+    background: radial-gradient(circle at 40% 0%, rgba(139,92,246,0.15), transparent 55%);
+    opacity: 0.5;
     pointer-events: none;
 }
 
@@ -201,10 +199,10 @@
     font-size: 0.8rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: rgba(248,250,252,0.8);
+    color: rgba(255,255,255,0.9);
     padding: 0.35rem 0.9rem;
     border-radius: 999px;
-    border: 1px solid rgba(248,250,252,0.2);
+    border: 1px solid rgba(255,255,255,0.2);
     margin-bottom: 1.2rem;
 }
 
@@ -235,7 +233,7 @@
 }
 
 .auth-info p {
-    color: rgba(248,250,252,0.8);
+    color: rgba(255,255,255,0.85);
     line-height: 1.5;
     font-size: 0.95rem;
     margin-bottom: 1.1rem;
@@ -261,8 +259,8 @@
     width: 42px;
     height: 42px;
     border-radius: 14px;
-    background: rgba(15,23,42,0.45);
-    border: 1px solid rgba(248,250,252,0.2);
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.2);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -275,7 +273,7 @@
 }
 
 .auth-benefits small {
-    color: rgba(248,250,252,0.7);
+    color: rgba(255,255,255,0.7);
     font-size: 0.8rem;
 }
 
@@ -289,8 +287,8 @@
 .auth-stats .stat {
     padding: 0.75rem;
     border-radius: 16px;
-    background: rgba(15,23,42,0.55);
-    border: 1px solid rgba(248,250,252,0.1);
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
     text-align: center;
 }
 
@@ -302,7 +300,7 @@
 
 .auth-stats .stat small {
     font-size: 0.72rem;
-    color: rgba(248,250,252,0.65);
+    color: rgba(255,255,255,0.7);
 }
 
 .auth-info-footer {
@@ -310,8 +308,8 @@
     align-items: center;
     gap: 0.75rem;
     padding-top: 1rem;
-    border-top: 1px solid rgba(248,250,252,0.15);
-    color: rgba(248,250,252,0.8);
+    border-top: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.85);
     font-size: 0.9rem;
 }
 
@@ -327,8 +325,8 @@
 
 .auth-header {
     padding: 2rem clamp(1.5rem, 3vw, 2.5rem) 1.5rem;
-    background: linear-gradient(180deg, rgba(59,130,246,0.08), transparent);
-    border-bottom: 1px solid rgba(15,23,42,0.05);
+    background: linear-gradient(180deg, rgba(139,92,246,0.05), transparent);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
 .mini-pill {
@@ -338,8 +336,8 @@
     font-size: 0.78rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #0f172a;
-    background: rgba(59,130,246,0.12);
+    color: #1a1a1a;
+    background: rgba(139,92,246,0.1);
     padding: 0.3rem 0.85rem;
     border-radius: 999px;
     font-weight: 600;
@@ -348,7 +346,7 @@
 .auth-header h2 {
     margin: 0.8rem 0 0.4rem;
     font-size: 1.4rem;
-    color: #0f172a;
+    color: #1a1a1a;
 }
 
 .auth-header p {
@@ -579,15 +577,15 @@
 }
 
 .social-btn.google {
-    background: #fef3c7;
+    background: #f3f4f6;
 }
 
 .social-btn.yandex {
-    background: #ffe4e6;
+    background: #f3f4f6;
 }
 
 .social-btn.telegram {
-    background: #e0f2ff;
+    background: #f3f4f6;
 }
 
 .support-links {

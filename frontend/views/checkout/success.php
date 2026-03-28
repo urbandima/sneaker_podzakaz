@@ -240,7 +240,7 @@ CheckoutAsset::register($this);
             <div class="products-grid">
                 <?php foreach ($recommendedProducts as $product): ?>
                 <div class="product-card">
-                    <a href="<?= Url::to(['/catalog/product', 'slug' => $product->slug]) ?>" class="product-link">
+                    <a href="<?= $product->getUrl() ?>" class="product-link">
                         <?php if ($product->getMainImage()): ?>
                         <div class="product-image">
                             <img 
@@ -328,10 +328,12 @@ CheckoutAsset::register($this);
 <!-- JS для быстрого добавления в корзину -->
 <script>
 function quickAddToCart(productId) {
-    // Можно добавить AJAX-запрос для добавления в корзину
-    console.log('Add to cart:', productId);
-    // Или редирект на страницу товара
-    window.location.href = '/catalog/product/' + productId;
+    // Используем глобальную функцию addToCart из cart.js
+    if (typeof addToCart === 'function') {
+        addToCart(productId);
+    } else {
+        console.warn('addToCart function not found');
+    }
 }
 
 // Анимация галочки при загрузке

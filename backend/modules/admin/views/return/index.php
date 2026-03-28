@@ -2,7 +2,7 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
-use app\backend\modules\return\models\ReturnRequest;
+use app\backend\modules\returns\models\ReturnRequest;
 
 $this->title = 'Возвраты';
 ?>

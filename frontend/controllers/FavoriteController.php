@@ -16,6 +16,14 @@ class FavoriteController extends Controller
     public $layout = 'main'; // Единый layout
     
     /**
+     * Страница избранного (редирект на каталог/избранное)
+     */
+    public function actionIndex()
+    {
+        return $this->redirect(['/catalog/favorites']);
+    }
+
+    /**
      * Добавить в избранное (AJAX)
      */
     public function actionAdd()

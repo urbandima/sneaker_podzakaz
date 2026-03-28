@@ -337,7 +337,7 @@
     // Экспорт LazyLoad для использования в других скриптах
     window.LazyLoad = {
         init: init,
-        forceLoad: LazyLoadManager.forceLoad
+        forceLoad: LazyLoadUtils.forceLoad
     };
 
     // Запуск при готовности DOM

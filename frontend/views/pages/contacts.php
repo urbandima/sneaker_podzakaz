@@ -107,26 +107,26 @@ $this->params['breadcrumbs'][] = $this->title;
                 <h2 class="h3 mb-4 text-center">Напишите нам</h2>
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
-                        <form>
+                        <form class="contact-form">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="name" class="form-label">Ваше имя</label>
-                                    <input type="text" class="form-control" id="name" placeholder="Иван Иванов">
+                                    <label for="name" class="form-label fw-semibold">Ваше имя</label>
+                                    <input type="text" class="form-control form-control-styled" id="name" placeholder="Иван Иванов" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" placeholder="ivan@example.com">
+                                    <label for="email" class="form-label fw-semibold">Email</label>
+                                    <input type="email" class="form-control form-control-styled" id="email" placeholder="ivan@example.com" required>
                                 </div>
                                 <div class="col-12">
-                                    <label for="subject" class="form-label">Тема сообщения</label>
-                                    <input type="text" class="form-control" id="subject" placeholder="Вопрос о заказе">
+                                    <label for="subject" class="form-label fw-semibold">Тема сообщения</label>
+                                    <input type="text" class="form-control form-control-styled" id="subject" placeholder="Вопрос о заказе" required>
                                 </div>
                                 <div class="col-12">
-                                    <label for="message" class="form-label">Сообщение</label>
-                                    <textarea class="form-control" id="message" rows="5" placeholder="Опишите ваш вопрос..."></textarea>
+                                    <label for="message" class="form-label fw-semibold">Сообщение</label>
+                                    <textarea class="form-control form-control-styled" id="message" rows="5" placeholder="Опишите ваш вопрос..." required></textarea>
                                 </div>
                                 <div class="col-12 text-center">
-                                    <button type="submit" class="btn btn-primary btn-lg">
+                                    <button type="submit" class="btn btn-primary btn-lg btn-styled">
                                         <i class="bi bi-send me-2"></i>Отправить сообщение
                                     </button>
                                 </div>
@@ -201,3 +201,51 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 </div>
+
+<style>
+.contact-form .form-control-styled {
+    border-radius: 12px;
+    border: 1.5px solid #e5e7eb;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    background: #f9fafb;
+    transition: all 0.2s ease;
+}
+
+.contact-form .form-control-styled:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+}
+
+.contact-form .form-control-styled::placeholder {
+    color: #9ca3af;
+}
+
+.contact-form .form-label {
+    font-size: 0.875rem;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.contact-form .btn-styled {
+    border-radius: 12px;
+    padding: 0.875rem 2rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.contact-form .btn-styled:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(139, 92, 246, 0.3);
+}
+
+.contact-form textarea.form-control-styled {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+}
+</style>

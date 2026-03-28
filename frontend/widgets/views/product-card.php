@@ -14,7 +14,7 @@ use app\backend\shared\helpers\ProductCardHelper;
 
 $brandName = Html::encode($product->brand->name ?? '');
 $productName = Html::encode($product->name);
-$productUrl = Url::to(['/catalog/product', 'slug' => $product->slug]);
+$productUrl = Url::to(['/catalog/product/' . $product->slug]);
 $price = Yii::$app->formatter->asDecimal($product->price, 2);
 $oldPrice = $product->old_price ? Yii::$app->formatter->asDecimal($product->old_price, 2) : null;
 $discount = $product->getDiscountPercentage();

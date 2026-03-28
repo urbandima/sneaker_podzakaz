@@ -5,8 +5,8 @@ namespace app\api\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\web\Response;
-use app\backend\modules\return\models\ReturnRequest;
-use app\backend\modules\return\models\ReturnPolicy;
+use app\backend\modules\returns\models\ReturnRequest;
+use app\backend\modules\returns\models\ReturnPolicy;
 
 /**
  * Return API Controller

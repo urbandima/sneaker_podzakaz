@@ -20,18 +20,18 @@
  * - ReturnRequest - модель заявки на возврат
  * - ReturnService - сервис обработки возвратов
  */
-namespace app\backend\modules\return;
+namespace app\backend\modules\returns;
 
 use Yii;
 use yii\base\Module;
 
 class ReturnModule extends Module
 {
-    public $controllerNamespace = 'app\backend\modules\return\controllers';
-    
+    public $controllerNamespace = 'app\backend\modules\returns\controllers';
+
     public function init()
     {
         parent::init();
-        Yii::setAlias('@return', $this->getBasePath());
+        Yii::setAlias('@returns', $this->getBasePath());
     }
 }

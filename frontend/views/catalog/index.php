@@ -215,7 +215,7 @@ setTimeout(function() {
                 <?php endforeach; endif; ?>
                 
                 <!-- ADVANCED FILTERS (скрыты по умолчанию) -->
-                <div class="advanced-filters-wrapper" id="advancedFiltersWrapper" style="display:none" style="display:none">
+                <div class="advanced-filters-wrapper" id="advancedFiltersWrapper" style="display:none">
                 
                 <!-- Размеры (все системы измерения) -->
                 <div class="filter-group">

@@ -22,8 +22,8 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\data\ActiveDataProvider;
-use app\backend\modules\return\models\ReturnRequest;
-use app\backend\modules\return\services\ReturnService;
+use app\backend\modules\returns\models\ReturnRequest;
+use app\backend\modules\returns\services\ReturnService;
 
 class ReturnController extends BaseAdminController
 {

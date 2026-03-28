@@ -153,17 +153,27 @@ class SiteController extends Controller
         ];
         $this->registerJsonLd($websiteSchema, 'website');
         
-        // Загрузка популярных товаров для главной страницы
+        // Загрузка данных для главной страницы
         $popularProducts = $this->getPopularProducts();
+        $categories = $this->getCategories();
+        $brands = $this->getBrands();
         
         // Проверяем, есть ли главная страница в landing
         $landingView = '@frontend/views/landing/index';
         if (file_exists(Yii::getAlias($landingView . '.php'))) {
-            return $this->render($landingView, ['popularProducts' => $popularProducts]);
+            return $this->render($landingView, [
+                'popularProducts' => $popularProducts,
+                'categories' => $categories,
+                'brands' => $brands,
+            ]);
         }
         
         // Если нет landing страницы, показываем базовую главную
-        return $this->render('index', ['popularProducts' => $popularProducts]);
+        return $this->render('index', [
+            'popularProducts' => $popularProducts,
+            'categories' => $categories,
+            'brands' => $brands,
+        ]);
     }
     
     /**
@@ -174,14 +184,53 @@ class SiteController extends Controller
         try {
             // Загружаем 6-8 популярных/новых товаров
             $products = \app\backend\modules\catalog\models\Product::find()
-                ->where(['status' => 1])
-                ->orderBy(['created_at' => SORT_DESC, 'rating' => SORT_DESC])
+                ->where(['is_active' => true])
+                ->with(['brand'])
+                ->orderBy(['created_at' => SORT_DESC])
                 ->limit(8)
                 ->all();
                 
             return $products;
         } catch (\Throwable $e) {
             Yii::error('Failed to load popular products: ' . $e->getMessage(), __METHOD__);
+            return [];
+        }
+    }
+    
+    /**
+     * Получение категорий для главной страницы
+     */
+    private function getCategories()
+    {
+        try {
+            $categories = \app\backend\modules\catalog\models\Category::find()
+                ->where(['is_active' => true])
+                ->orderBy(['sort_order' => SORT_ASC])
+                ->limit(6)
+                ->all();
+                
+            return $categories;
+        } catch (\Throwable $e) {
+            Yii::error('Failed to load categories: ' . $e->getMessage(), __METHOD__);
+            return [];
+        }
+    }
+    
+    /**
+     * Получение брендов для главной страницы
+     */
+    private function getBrands()
+    {
+        try {
+            $brands = \app\backend\modules\catalog\models\Brand::find()
+                ->where(['is_active' => true])
+                ->orderBy(['name' => SORT_ASC])
+                ->limit(12)
+                ->all();
+                
+            return $brands;
+        } catch (\Throwable $e) {
+            Yii::error('Failed to load brands: ' . $e->getMessage(), __METHOD__);
             return [];
         }
     }

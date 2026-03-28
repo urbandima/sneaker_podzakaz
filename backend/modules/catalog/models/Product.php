@@ -132,7 +132,6 @@ class Product extends ActiveRecord
         return [
             [
                 'class' => TimestampBehavior::class,
-                'value' => function() { return date('Y-m-d H:i:s'); },
             ],
             [
                 'class' => SluggableBehavior::class,
@@ -447,20 +446,20 @@ class Product extends ActiveRecord
 
     /**
      * Стили товара
+     * NOTE: Модели Style и Technology не реализованы — методы возвращают пустой массив
+     * до тех пор, пока не будут созданы соответствующие таблицы и модели.
      */
-    public function getStyles()
+    public function getStyles(): array
     {
-        return $this->hasMany(Style::class, ['id' => 'style_id'])
-            ->viaTable('product_style', ['product_id' => 'id']);
+        return [];
     }
 
     /**
      * Технологии товара
      */
-    public function getTechnologies()
+    public function getTechnologies(): array
     {
-        return $this->hasMany(Technology::class, ['id' => 'technology_id'])
-            ->viaTable('product_technology', ['product_id' => 'id']);
+        return [];
     }
 
     /**
@@ -526,7 +525,7 @@ class Product extends ActiveRecord
      */
     public function getUrl()
     {
-        return \yii\helpers\Url::to(['/catalog/product', 'slug' => $this->slug]);
+        return \yii\helpers\Url::to(['/catalog/catalog/product', 'slug' => $this->slug]);
     }
 
     /**
@@ -562,8 +561,8 @@ class Product extends ActiveRecord
             return $this->images[0]->getUrl();
         }
         
-        // 4. Placeholder через data URI (SVG) - только если НИЧЕГО нет
-        return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect width="400" height="400" fill="%23f9fafb"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="%23666"%3E' . urlencode($this->name) . '%3C/text%3E%3C/svg%3E';
+        // 4. Placeholder через data URI (SVG) - красивый placeholder с иконкой
+        return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"%3E%3Crect width="400" height="400" fill="%23f3f4f6"/%3E%3Cg transform="translate(200,180)"%3E%3Cpath d="M-30,-20 L-20,-30 L20,-30 L30,-20 L30,10 L20,20 L-20,20 L-30,10 Z" fill="%23d1d5db" stroke="%23a0a0a0" stroke-width="2"/%3E%3Cellipse cx="0" cy="0" rx="15" ry="10" fill="%23e5e7eb"/%3E%3C/g%3E%3Ctext x="200" y="260" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="14" fill="%239ca3af"%3EИзображение скоро появится%3C/text%3E%3C/svg%3E';
     }
 
     // Метод isFavoriteForUser удален - заменен на FavoriteService::isFavorite()
@@ -920,8 +919,8 @@ class Product extends ActiveRecord
             $filteredWords[] = $word;
         }
         
-        // Берем первые 2-3 значащих слова как модель
-        $modelWords = array_slice($filteredWords, 0, 3);
+        // Берем первые 4-5 значащих слов как модель (увеличено для полных названий)
+        $modelWords = array_slice($filteredWords, 0, 5);
         
         return !empty($modelWords) ? implode(' ', $modelWords) : null;
     }

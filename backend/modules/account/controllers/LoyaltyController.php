@@ -27,6 +27,14 @@ class LoyaltyController extends Controller
     public $layout = 'main';
 
     /**
+     * Проверка авторизации покупателя (сессионная авторизация)
+     */
+    protected function isCustomerLoggedIn()
+    {
+        return Yii::$app->session->get('customer_id') !== null;
+    }
+
+    /**
      * Behaviors
      */
     public function behaviors()
@@ -37,9 +45,14 @@ class LoyaltyController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'roles' => ['@'], // Только для авторизованных
+                        'matchCallback' => function ($rule, $action) {
+                            return $this->isCustomerLoggedIn();
+                        },
                     ],
                 ],
+                'denyCallback' => function ($rule, $action) {
+                    return $this->redirect(['account/account/login']);
+                },
             ],
         ];
     }
@@ -49,7 +62,7 @@ class LoyaltyController extends Controller
      */
     public function actionIndex()
     {
-        $customerId = Yii::$app->user->id;
+        $customerId = Yii::$app->session->get('customer_id');
         $loyaltyService = new LoyaltyService();
         
         // Получаем информацию о программе
@@ -82,8 +95,8 @@ class LoyaltyController extends Controller
         $levels = LoyaltyProgram::find()
             ->orderBy(['min_points' => SORT_ASC])
             ->all();
-        
-        $customerId = Yii::$app->user->id;
+
+        $customerId = Yii::$app->session->get('customer_id');
         $info = $loyaltyService->getCustomerInfo($customerId);
 
         return $this->render('program', [
@@ -99,8 +112,8 @@ class LoyaltyController extends Controller
     public function actionBalance()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
-        $customerId = Yii::$app->user->id;
+
+        $customerId = Yii::$app->session->get('customer_id');
         $loyaltyService = new LoyaltyService();
         
         $balance = $loyaltyService->getCustomerBalance($customerId);

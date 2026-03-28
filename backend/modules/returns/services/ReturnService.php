@@ -14,12 +14,12 @@
  * - updateInventory() - обновление остатков
  * - canReturn() - проверка возможности возврата
  */
-namespace app\backend\modules\return\services;
+namespace app\backend\modules\returns\services;
 
 use Yii;
 use yii\base\Component;
-use app\backend\modules\return\models\ReturnRequest;
-use app\backend\modules\return\models\ReturnPolicy;
+use app\backend\modules\returns\models\ReturnRequest;
+use app\backend\modules\returns\models\ReturnPolicy;
 use app\backend\modules\checkout\models\Order;
 use app\backend\modules\catalog\models\Product;
 

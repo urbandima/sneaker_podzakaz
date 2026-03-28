@@ -43,7 +43,8 @@ use yii\web\Response;
 use app\backend\modules\checkout\models\Order;
 use app\backend\modules\checkout\models\OrderItem;
 use app\backend\modules\checkout\models\OrderHistory;
-use app\backend\modules\catalog\models\Cart;
+use app\backend\modules\cart\models\Cart;
+use app\backend\modules\checkout\services\ShippingService;
 use app\backend\modules\coupon\services\CouponService;
 use app\backend\modules\loyalty\services\LoyaltyService;
 

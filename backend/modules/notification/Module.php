@@ -16,7 +16,7 @@ use Yii;
  * - Внутренние уведомления в личном кабинете
  * - История уведомлений
  */
-class Module extends \yii\base\Module
+class NotificationModule extends \yii\base\Module
 {
     public $controllerNamespace = 'app\backend\modules\notification\controllers';
 

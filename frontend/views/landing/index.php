@@ -23,10 +23,10 @@ $this->title = 'СНИКЕРХЭД — Оригинальные кроссовк
 // Подключаем минималистичный AssetBundle (единый дизайн 100/100)
 AppAsset::register($this);
 
-// Получаем данные
-$popularProducts = $this->params['popularProducts'] ?? [];
-$categories = $this->params['categories'] ?? [];
-$brands = $this->params['brands'] ?? [];
+// Получаем данные (передаются как параметры render())
+$popularProducts = $popularProducts ?? [];
+$categories = $categories ?? [];
+$brands = $brands ?? [];
 ?>
 
 <!-- Hero Section -->
@@ -109,7 +109,7 @@ $brands = $this->params['brands'] ?? [];
             <div class="product-card">
                 <div class="product-image">
                     <img src="<?= $product->getMainImageUrl() ?>" alt="<?= Html::encode($product->name) ?>">
-                    <?php if ($product->isNew): ?>
+                    <?php if ($product->created_at && $product->created_at > (time() - 14 * 86400)): ?>
                         <span class="product-badge badge-new">Новинка</span>
                     <?php endif; ?>
                 </div>
@@ -138,11 +138,11 @@ $brands = $this->params['brands'] ?? [];
             <?php foreach ($categories as $category): ?>
             <a href="<?= $category->getUrl() ?>" class="category-card">
                 <div class="category-image">
-                    <img src="<?= $category->getImageUrl() ?>" alt="<?= Html::encode($category->name) ?>">
+                    <img src="<?= $category->image ? '/' . ltrim($category->image, '/') : '/images/placeholder.png' ?>" alt="<?= Html::encode($category->name) ?>">
                 </div>
                 <div class="category-overlay">
                     <h3 class="category-name"><?= Html::encode($category->name) ?></h3>
-                    <span class="category-count"><?= $category->products_count ?> товаров</span>
+                    <span class="category-count"><?= $category->getTotalProductsCount() ?> товаров</span>
                 </div>
             </a>
             <?php endforeach; ?>

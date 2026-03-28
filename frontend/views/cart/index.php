@@ -1,5 +1,6 @@
 <?php
 use yii\helpers\Html;
+use yii\helpers\Url;
 use app\frontend\assets\CartAsset;
 
 /** @var yii\web\View $this */
@@ -23,7 +24,7 @@ CartAsset::register($this);
                 <i class="bi bi-cart-x"></i>
                 <h2>Корзина пуста</h2>
                 <p>Добавьте товары из каталога</p>
-                <a href="/catalog" class="btn-catalog">Перейти в каталог</a>
+                <a href="<?= Url::to(['/catalog/catalog/index']) ?>" class="btn-catalog">Перейти в каталог</a>
             </div>
         <?php else: ?>
             <div class="cart-layout">
@@ -31,7 +32,7 @@ CartAsset::register($this);
                     <?php foreach ($items as $item): ?>
                         <div class="cart-item" data-cart-id="<?= $item->id ?>">
                             <div class="item-image">
-                                <img src="<?= $item->product->getMainImageUrl() ?>" alt="<?= Html::encode($item->product->name) ?>">
+                                <img src="<?= Html::encode($item->product->getMainImageUrl()) ?>" alt="<?= Html::encode($item->product->name) ?>">
                             </div>
                             
                             <div class="item-info">
@@ -164,7 +165,7 @@ CartAsset::register($this);
                             Оформить заказ
                         </button>
                         
-                        <a href="/catalog" class="btn-continue">Продолжить покупки</a>
+                        <a href="<?= Url::to(['/catalog/catalog/index']) ?>" class="btn-continue">Продолжить покупки</a>
                     </div>
                 </div>
             </div>

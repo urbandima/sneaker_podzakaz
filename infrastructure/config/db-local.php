@@ -12,8 +12,8 @@
 return [
     'class' => 'yii\db\Connection',
     
-    // Локальная MySQL база данных
-    'dsn' => 'mysql:host=localhost;dbname=sneakerhead;charset=utf8mb4',
+    // Локальная MySQL база данных (используем unix_socket для macOS)
+    'dsn' => 'mysql:unix_socket=/tmp/mysql.sock;dbname=sneakerhead;charset=utf8mb4',
     'username' => 'root',
     'password' => '',
     

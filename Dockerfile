@@ -49,7 +49,8 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 # Set permissions
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/runtime \
-    && chmod -R 755 /var/www/web/assets
+    && mkdir -p /var/www/frontend/web/assets \
+    && chmod -R 755 /var/www/frontend/web/assets
 
 # PHP configuration for production
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"

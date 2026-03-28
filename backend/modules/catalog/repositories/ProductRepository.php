@@ -294,7 +294,7 @@ class ProductRepository
                 ->where(['is_active' => true])
                 ->andWhere(['between', 'price', $minPrice, $maxPrice])
                 ->andWhere(['not in', 'id', $excludedIds])
-                ->orderBy(['views' => SORT_DESC, 'created_at' => SORT_DESC])
+                ->orderBy(['views_count' => SORT_DESC, 'created_at' => SORT_DESC])
                 ->limit($remainingLimit)
                 ->all();
         }

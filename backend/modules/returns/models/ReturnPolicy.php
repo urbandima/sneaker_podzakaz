@@ -23,7 +23,7 @@
  * $policy = ReturnPolicy::getDefault();
  * $canReturn = $policy->canReturn($order, $product);
  */
-namespace app\backend\modules\return\models;
+namespace app\backend\modules\returns\models;
 
 use Yii;
 use yii\db\ActiveRecord;

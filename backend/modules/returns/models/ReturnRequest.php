@@ -24,13 +24,13 @@
  * ИСПОЛЬЗОВАНИЕ:
  * $request = ReturnRequest::create($orderId, $items, $reason);
  */
-namespace app\backend\modules\return\models;
+namespace app\backend\modules\returns\models;
 
 use Yii;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 use app\backend\modules\checkout\models\Order;
-use app\backend\modules\return\models\ReturnPolicy;
+use app\backend\modules\returns\models\ReturnPolicy;
 
 /**
  * Модель заявки на возврат

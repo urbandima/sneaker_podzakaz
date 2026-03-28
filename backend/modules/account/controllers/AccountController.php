@@ -33,6 +33,7 @@ use app\backend\modules\checkout\models\Order;
 use app\backend\modules\account\models\Customer;
 use app\backend\modules\account\models\CustomerLoginForm;
 use app\backend\modules\account\models\CustomerRegisterForm;
+use app\backend\shared\components\RateLimiter;
 
 class AccountController extends Controller
 {
@@ -106,9 +107,15 @@ class AccountController extends Controller
             return $this->redirect(['account/profile']);
         }
 
+        // Rate limiting: 5 попыток за 15 минут
+        $ip = Yii::$app->request->userIP;
+        RateLimiter::check('login', $ip, 5, 900);
+
         $model = new CustomerLoginForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            // Сбрасываем лимит после успешного входа
+            RateLimiter::reset('login', $ip);
             Yii::$app->session->setFlash('success', 'Добро пожаловать!');
             return $this->redirect(['account/profile']);
         }
@@ -127,11 +134,17 @@ class AccountController extends Controller
             return $this->redirect(['account/profile']);
         }
 
+        // Rate limiting: 3 попытки за 15 минут
+        $ip = Yii::$app->request->userIP;
+        RateLimiter::check('register', $ip, 3, 900);
+
         $model = new CustomerRegisterForm();
 
         if ($model->load(Yii::$app->request->post())) {
             $customer = $model->register();
             if ($customer) {
+                // Сбрасываем лимит после успешной регистрации
+                RateLimiter::reset('register', $ip);
                 Yii::$app->session->setFlash('success', 'Регистрация успешна! Добро пожаловать!');
                 return $this->redirect(['account/profile']);
             }

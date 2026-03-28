@@ -19,13 +19,21 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\AccessControl;
 use yii\data\ActiveDataProvider;
-use app\backend\modules\return\models\ReturnRequest;
-use app\backend\modules\return\services\ReturnService;
+use app\backend\modules\returns\models\ReturnRequest;
+use app\backend\modules\returns\services\ReturnService;
 use app\backend\modules\checkout\models\Order;
 
 class ReturnController extends Controller
 {
     public $layout = 'main';
+
+    /**
+     * Проверка авторизации покупателя (сессионная авторизация)
+     */
+    protected function isCustomerLoggedIn()
+    {
+        return Yii::$app->session->get('customer_id') !== null;
+    }
 
     /**
      * Behaviors
@@ -38,9 +46,14 @@ class ReturnController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'roles' => ['@'], // Только для авторизованных
+                        'matchCallback' => function ($rule, $action) {
+                            return $this->isCustomerLoggedIn();
+                        },
                     ],
                 ],
+                'denyCallback' => function ($rule, $action) {
+                    return $this->redirect(['account/account/login']);
+                },
             ],
         ];
     }
@@ -50,7 +63,7 @@ class ReturnController extends Controller
      */
     public function actionIndex()
     {
-        $customerId = Yii::$app->user->id;
+        $customerId = Yii::$app->session->get('customer_id');
         
         $query = ReturnRequest::find()
             ->where(['customer_id' => $customerId])
@@ -74,9 +87,9 @@ class ReturnController extends Controller
     public function actionView($id)
     {
         $model = $this->findModel($id);
-        
-        // Проверяем, что заявка принадлежит текущему пользователю
-        if ($model->customer_id != Yii::$app->user->id) {
+
+        // Проверяем, что заявка принадлежит текущему покупателю
+        if ($model->customer_id != Yii::$app->session->get('customer_id')) {
             throw new NotFoundHttpException('Заявка не найдена');
         }
 
@@ -96,8 +109,8 @@ class ReturnController extends Controller
             throw new NotFoundHttpException('Заказ не найден');
         }
         
-        // Проверяем, что заказ принадлежит текущему пользователю
-        if ($order->customer_id != Yii::$app->user->id) {
+        // Проверяем, что заказ принадлежит текущему покупателю
+        if ($order->customer_id != Yii::$app->session->get('customer_id')) {
             throw new NotFoundHttpException('Заказ не найден');
         }
         

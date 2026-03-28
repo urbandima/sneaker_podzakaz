@@ -34,8 +34,8 @@ class CompareController extends Controller
         $products = [];
         if (!empty($compareIds)) {
             $products = Product::find()
-                ->where(['id' => $compareIds, 'status' => 1])
-                ->with(['brand', 'category', 'images', 'characteristics'])
+                ->where(['id' => $compareIds, 'is_active' => 1])
+                ->with(['brand', 'category', 'images', 'characteristicValues'])
                 ->all();
         }
         

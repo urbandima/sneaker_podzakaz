@@ -38,7 +38,7 @@ $config = [
     'controllerNamespace' => 'app\frontend\controllers',
     'viewPath' => dirname(__DIR__, 2) . '/frontend/views',
     'layoutPath' => dirname(__DIR__, 2) . '/frontend/views/layouts',
-    'bootstrap' => ['log', 'sitemapAutoGenerator', 'securityHeaders'],
+    'bootstrap' => ['log', 'sitemapAutoGenerator', 'securityHeaders', 'cspHeaders'],
     'language' => 'ru-RU',
     'timeZone' => 'Europe/Minsk',
     'aliases' => [
@@ -78,14 +78,14 @@ $config = [
         'loyalty' => [
             'class' => 'app\backend\modules\loyalty\LoyaltyModule',
         ],
-        'return' => [
-            'class' => 'app\backend\modules\return\ReturnModule',
+        'returns' => [
+            'class' => 'app\backend\modules\returns\ReturnModule',
         ],
         'compare' => [
-            'class' => 'app\backend\modules\compare\Module',
+            'class' => 'app\backend\modules\compare\CompareModule',
         ],
         'notification' => [
-            'class' => 'app\backend\modules\notification\Module',
+            'class' => 'app\backend\modules\notification\NotificationModule',
         ],
     ],
     'components' => [
@@ -107,23 +107,15 @@ $config = [
             'class' => yii\authclient\Collection::class,
             'clients' => $socialClientConfigs,
         ],
-        'cache' => extension_loaded('redis') && YII_ENV === 'prod' && env('REDIS_HOST')
-            ? [
-                // Redis для production (только если установлен и настроен)
-                'class' => 'yii\redis\Cache',
-                'redis' => 'redis', // Ссылка на компонент redis
-            ]
-            : [
-                // FileCache для dev/fallback
-                'class' => 'yii\caching\FileCache',
-                'cachePath' => '@runtime/cache',
-            ],
-        // Redis компонент для production и dev
+        'cache' => [
+            'class' => 'yii\caching\FileCache',
+            'cachePath' => '@runtime/cache',
+        ],
         'redis' => [
             'class' => 'yii\redis\Connection',
             'hostname' => env('REDIS_HOST', 'localhost'),
             'port' => (int) env('REDIS_PORT', 6379),
-            'database' => (int) env('REDIS_DATABASE', 0),
+            'database' => (int) env('REDIS_DB', 0),
             'password' => env('REDIS_PASSWORD') ?: null,
             'timeout' => 0.5,
         ],
@@ -225,14 +217,16 @@ $config = [
                 'order/<token:[a-zA-Z0-9_-]+>/upload' => 'order/upload-payment',
                 'order/<token:[a-zA-Z0-9_-]+>/download-payment' => 'order/download-payment',
                 
-                // Checkout/Order
-                'checkout' => 'order/create',
+                // Checkout — страница оформления (GET) и создание заказа (AJAX POST)
+                'checkout' => 'order/index',
+                'order/create' => 'order/create',
                 
                 // Каталог товаров
                 'catalog' => 'catalog/catalog/index',
                 'catalog/brand/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
                 'catalog/category/<slug:[a-z0-9-]+>' => 'catalog/catalog/category',
                 'catalog/product/<slug:[a-z0-9-]+>' => 'catalog/catalog/product',
+                'catalog/product' => 'catalog/catalog/product', // Поддержка query параметра ?slug=
                 'catalog/favorites' => 'catalog/catalog/favorites',
                 'catalog/history' => 'catalog/catalog/history',
                 
@@ -256,7 +250,16 @@ $config = [
                 'cart/add' => 'cart/cart/add',
                 'cart/update' => 'cart/cart/update',
                 'cart/remove/<id:\d+>' => 'cart/cart/remove',
+                'cart/clear' => 'cart/cart/clear',
                 'cart/count' => 'cart/cart/count',
+                'cart/has-product' => 'cart/cart/has-product',
+
+                // Сравнение товаров
+                'compare' => 'compare/compare/index',
+                'compare/add' => 'compare/compare/add',
+                'compare/remove' => 'compare/compare/remove',
+                'compare/clear' => 'compare/compare/clear',
+                'compare/count' => 'compare/compare/count',
                 
                 // Личный кабинет покупателя
                 'account' => 'account/account/index',
@@ -271,7 +274,15 @@ $config = [
                 'account/forgot-password' => 'account/account/forgot-password',
                 'account/find-orders' => 'account/account/find-orders',
                 'account/wishlist' => 'account/account/wishlist',
-                
+
+                // Программа лояльности и возвраты в личном кабинете
+                'account/loyalty' => 'account/loyalty/index',
+                'account/loyalty/balance' => 'account/loyalty/balance',
+                'account/returns' => 'account/return/index',
+                'account/returns/create' => 'account/return/create',
+                'account/returns/<id:\d+>' => 'account/return/view',
+                'account/tracking' => 'account/account/orders',
+
                 // Публичный просмотр покупателя (для админки)
                 'customer/view' => 'admin/customer/view',
                 'customer/update' => 'admin/customer/update',
@@ -280,7 +291,8 @@ $config = [
                 'sitemap.xml' => 'sitemap/index',
                 
                 // SEF фильтрация (умный фильтр) - ДОЛЖЕН быть после явных роутов
-                'catalog/filter/<filters:[\w\-/]+>' => 'catalog/filter-sef',
+                // actionFilterSef был удалён; SEF-урл переадресуется на обычный фильтр
+                'catalog/filter/<filters:[\w\-/]+>' => 'catalog/catalog/filter',
                 
                 // Админ-панель
                 'admin' => 'admin/dashboard/index',
@@ -392,7 +404,7 @@ $config = [
                 'admin/import/source' => 'admin/import/source',
                 'admin/import/source/<id:\d+>' => 'admin/import/source',
                 'admin/import/run/<sourceId:\d+>' => 'admin/import/run',
-                'admin/import/run-all' => 'admin/import/runAll',
+                'admin/import/run-all' => 'admin/import/run-all',
                 'admin/import/logs' => 'admin/import/logs',
                 'admin/import/stats' => 'admin/import/stats',
                 'admin/import/settings' => 'admin/import/settings',
@@ -425,9 +437,10 @@ $config = [
             'class' => 'yii\rbac\DbManager',
         ],
         'securityHeaders' => [
-            'class' => 'app\backend\shared\middleware\SecurityHeadersMiddleware',
-            'enableCsp' => !((defined('YII_ENV_DEV') && YII_ENV_DEV)), // CSP только в проде (в dev мешает отладке)
-            'enableHsts' => (defined('YII_ENV_PROD') && YII_ENV_PROD),
+            'class' => 'app\infrastructure\middleware\SecurityHeadersMiddleware',
+        ],
+        'cspHeaders' => [
+            'class' => 'app\infrastructure\middleware\CspHeadersMiddleware',
         ],
     ],
     'params' => $params,
