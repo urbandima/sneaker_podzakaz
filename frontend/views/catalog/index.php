@@ -70,42 +70,32 @@ if (YII_ENV_DEV) {
 $this->registerJs("
 // Инициализация lazy load после загрузки DOM
 setTimeout(function() {
-    console.log('🔍 Checking LazyLoad availability:', !!window.LazyLoad);
-    
     // Проверяем доступен ли LazyLoad класс
     if (window.LazyLoad) {
-        console.log('🚀 Initializing LazyLoad...');
         const lazyLoader = new window.LazyLoad();
         lazyLoader.init();
-        console.log('✅ LazyLoad initialized');
     } else {
-        console.log('⚠️ LazyLoad not available, using fallback...');
         // Fallback: простая загрузка изображений
         const images = document.querySelectorAll('img[data-src]');
-        console.log('Found images to load:', images.length);
-        images.forEach((img, index) => {
+        images.forEach((img) => {
             if (img.dataset.src) {
-                console.log('Loading image', index, img.dataset.src.substring(0, 50) + '...');
                 img.src = img.dataset.src;
                 img.classList.add('lazy-loaded');
             }
         });
-        console.log('✅ Fallback loading completed');
     }
-    
+
     // Управление skeleton grid
     const skeletonGrid = document.getElementById('skeletonGrid');
     const productsContainer = document.getElementById('products');
-    
+
     if (skeletonGrid && productsContainer) {
-        console.log('🦴 Managing skeleton grid...');
         // Показываем skeleton при загрузке
         skeletonGrid.classList.remove('skeleton-grid--hidden');
-        
+
         // Скрываем skeleton когда товары загружены
         setTimeout(() => {
             skeletonGrid.classList.add('skeleton-grid--hidden');
-            console.log('🦴 Skeleton grid hidden');
         }, 1000);
     }
 }, 200);
@@ -893,45 +883,24 @@ function updateScrollButtons() {
     const rightBtn = document.querySelector('.size-nav-right');
     
     if (!container || !leftBtn || !rightBtn) {
-        console.log('❌ Элементы не найдены:', { 
-            container: !!container, 
-            leftBtn: !!leftBtn, 
-            rightBtn: !!rightBtn 
-        });
         return;
     }
-    
+
     // Проверяем, есть ли переполнение (контент шире контейнера)
     const hasOverflow = container.scrollWidth > container.clientWidth;
-    
-    console.log('🔍 Проверка переполнения:', {
-        scrollWidth: container.scrollWidth,
-        clientWidth: container.clientWidth,
-        hasOverflow: hasOverflow,
-        scrollLeft: container.scrollLeft,
-        screenWidth: window.innerWidth
-    });
-    
+
     if (!hasOverflow) {
         leftBtn.style.display = 'none';
         rightBtn.style.display = 'none';
-        console.log('⚠️ Переполнения нет - стрелки скрыты');
         return;
     }
-    
+
     // Показываем/скрываем стрелки в зависимости от позиции прокрутки
     const isAtStart = container.scrollLeft <= 5;
     const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 5;
-    
+
     leftBtn.style.display = isAtStart ? 'none' : 'flex';
     rightBtn.style.display = isAtEnd ? 'none' : 'flex';
-    
-    console.log('✅ Стрелки обновлены:', { 
-        left: leftBtn.style.display, 
-        right: rightBtn.style.display,
-        isAtStart: isAtStart,
-        isAtEnd: isAtEnd
-    });
 }
 
 // Проверка переполнения контейнера размеров
@@ -997,36 +966,31 @@ function syncSizeSelection() {
 
 // Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 Инициализация навигации размеров...');
-    
     // Восстанавливаем последнюю выбранную систему размеров
     const preferredSystem = localStorage.getItem('preferredSizeSystem') || 'eu';
     if (preferredSystem !== 'eu') {
         switchSizeSystem(preferredSystem);
         switchSidebarSizeSystem(preferredSystem);
     }
-    
+
     // Проверяем необходимость стрелок при загрузке (с задержкой для рендеринга)
     setTimeout(() => {
-        console.log('⏰ Запуск checkSizesOverflow через 100ms...');
         checkSizesOverflow();
     }, 100);
-    
+
     // Дополнительная проверка через 500ms (на случай медленной загрузки)
     setTimeout(() => {
-        console.log('⏰ Повторная проверка через 500ms...');
         checkSizesOverflow();
     }, 500);
-    
+
     // Синхронизация размеров
     syncSizeSelection();
-    
+
     // Переключаем при изменении размера окна (debounce 200ms)
     let resizeTimer;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
-            console.log('📐 Resize - обновление стрелок');
             checkSizesOverflow();
         }, 200);
     });

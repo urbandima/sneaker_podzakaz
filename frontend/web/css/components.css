@@ -198,39 +198,14 @@
     font-size: var(--font-size-base);
 }
 
-/* ALERTS */
+/* ALERTS — визуальное различие по типу (стили основные в app.css) */
 .alert {
     padding: var(--spacing-4);
     border-radius: var(--radius-lg);
     margin-bottom: var(--spacing-4);
     font-size: var(--font-size-sm);
     line-height: 1.5;
-    border: 1px solid var(--border-color);
-}
-
-.alert-success {
-    background: var(--surface-secondary);
-    color: var(--text-primary);
-    border-color: var(--border-color);
-}
-
-.alert-danger,
-.alert-error {
-    background: var(--surface-secondary);
-    color: var(--text-primary);
-    border-color: var(--border-color);
-}
-
-.alert-warning {
-    background: var(--surface-secondary);
-    color: var(--text-primary);
-    border-color: var(--border-color);
-}
-
-.alert-info {
-    background: var(--surface-secondary);
-    color: var(--text-primary);
-    border-color: var(--border-color);
+    /* Цвета определены в app.css через семантические классы */
 }
 
 /* MODALS */
