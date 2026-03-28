@@ -107,10 +107,6 @@ class CurrencyService extends Component
                 Yii::warning("Не удалось получить курс CNY/BYN: " . $e->getMessage(), __METHOD__);
                 $this->storeRateInCache($rate, 'fallback');
             }
-        } else {
-            if ($cache->get($this->cacheTimestampKey) === false) {
-                $this->storeRateInCache($rate, $cache->get($this->cacheSourceKey) ?: 'unknown');
-            }
         }
         
         return (float)$rate;
@@ -167,8 +163,11 @@ class CurrencyService extends Component
             try {
                 $data = $this->requestJson($source['url']);
                 $rate = $source['parser']($data);
-                if ($rate > 0) {
+                if ($rate !== null) {
                     $rate = (float)$rate;
+                    if ($rate <= 0) {
+                        continue;
+                    }
                     Yii::info("Получен курс CNY/BYN ({$source['source']}): $rate", __METHOD__);
                     return [
                         'rate' => $rate,

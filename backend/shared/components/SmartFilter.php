@@ -153,7 +153,7 @@ class SmartFilter extends Component
             }
             // price-100-500 или price-min-500 или price-100-max
             elseif (preg_match('/^price-([0-9]+|min)-([0-9]+|max)$/', $part, $m)) {
-                if ($m[1] !== 'min' && $m[1] > 0) {
+                if ($m[1] !== 'min') {
                     $filters['price_from'] = (int)$m[1];
                 }
                 if ($m[2] !== 'max') {

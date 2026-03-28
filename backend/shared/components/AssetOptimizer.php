@@ -365,7 +365,7 @@ JS
         $css = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $css);
         
         // Удаление лишних пробелов
-        $css = str_replace(["\r\n", "\r", "\n", "\t", '  ', '    ', '    '], '', $css);
+        $css = str_replace(["\r\n", "\r", "\n", "\t"], '', $css);
         $css = preg_replace('/\s+/', ' ', $css);
         $css = preg_replace('/\s*([{}:;,>+])\s*/', '$1', $css);
         

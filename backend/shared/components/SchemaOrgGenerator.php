@@ -189,7 +189,10 @@ class SchemaOrgGenerator
             
             // Логотип бренда если есть
             if ($product->brand->logo_url || $product->brand->logo) {
-                $schema['brand']['logo'] = $product->brand->getLogoUrl();
+                $logoUrl = $product->brand->getLogoUrl();
+                if ($logoUrl) {
+                    $schema['brand']['logo'] = $logoUrl;
+                }
             }
         }
 

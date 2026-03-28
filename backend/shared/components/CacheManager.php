@@ -419,22 +419,25 @@ class CacheManager extends Component
      * 
      * @param array $items Ассоциативный массив key => value
      * @param int $duration
-     * @return array
+     * @return bool True если все ключи сохранены успешно
      */
-    public static function multiSet($items, $duration = self::TTL_MEDIUM)
+    public static function multiSet($items, $duration = self::TTL_MEDIUM): bool
     {
         $cache = self::getCache();
-        
+
         if (method_exists($cache, 'multiSet')) {
-            return $cache->multiSet($items, $duration);
+            $result = $cache->multiSet($items, $duration);
+            // Нормализуем: некоторые бэкенды возвращают bool, другие — массив [key => bool]
+            return is_array($result) ? !in_array(false, $result, true) : (bool)$result;
         }
-        
+
         // Fallback
-        $result = [];
         foreach ($items as $key => $value) {
-            $result[$key] = $cache->set($key, $value, $duration);
+            if (!$cache->set($key, $value, $duration)) {
+                return false;
+            }
         }
-        return $result;
+        return true;
     }
     
     /**

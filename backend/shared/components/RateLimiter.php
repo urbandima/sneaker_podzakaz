@@ -27,25 +27,29 @@ class RateLimiter extends Component
     {
         $cache = Yii::$app->cache;
         $key = self::getCacheKey($action, $identifier);
-        
+        $startKey = $key . '_start';
+
         $attempts = $cache->get($key);
-        
+
         if ($attempts === false) {
-            // Первая попытка
+            // Первая попытка — сохраняем счётчик и метку старта окна
             $cache->set($key, 1, $timeWindow);
+            $cache->set($startKey, time(), $timeWindow);
             return;
         }
-        
+
+        // Вычисляем оставшееся время до сброса окна
+        $start = $cache->get($startKey);
+        $remaining = $start !== false ? max(1, ($start + $timeWindow) - time()) : $timeWindow;
+
         if ($attempts >= $maxAttempts) {
-            $ttl = $cache->get($key . '_ttl') ?: $timeWindow;
             throw new TooManyRequestsHttpException(
-                "Слишком много попыток. Попробуйте через " . ceil($ttl / 60) . " минут."
+                "Слишком много попыток. Попробуйте через " . ceil($remaining / 60) . " минут."
             );
         }
-        
-        // Увеличиваем счётчик
-        $cache->set($key, $attempts + 1, $timeWindow);
-        $cache->set($key . '_ttl', $timeWindow, $timeWindow);
+
+        // Увеличиваем счётчик, сохраняя оставшийся TTL окна
+        $cache->set($key, $attempts + 1, $remaining);
     }
     
     /**
@@ -56,7 +60,7 @@ class RateLimiter extends Component
         $cache = Yii::$app->cache;
         $key = self::getCacheKey($action, $identifier);
         $cache->delete($key);
-        $cache->delete($key . '_ttl');
+        $cache->delete($key . '_start');
     }
     
     /**

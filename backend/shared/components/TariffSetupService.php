@@ -127,6 +127,13 @@ class TariffSetupService
             return;
         }
 
+        // Проверяем, что таблица tariff существует перед созданием FK
+        $tariffSchema = Yii::$app->db->schema->getTableSchema('{{%tariff}}', true);
+        if ($tariffSchema === null) {
+            Yii::warning('Таблица tariff не существует — FK создан не будет', __METHOD__);
+            return;
+        }
+
         try {
             $migration->addForeignKey(
                 $fkName,

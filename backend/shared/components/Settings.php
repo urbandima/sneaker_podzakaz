@@ -36,6 +36,7 @@ class Settings extends Component
 {
     private $_company;
     private $_statuses;
+    private static $storage = [];
 
     public function getCompany(): array
     {

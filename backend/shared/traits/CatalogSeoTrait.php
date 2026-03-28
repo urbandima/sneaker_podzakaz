@@ -446,9 +446,11 @@ trait CatalogSeoTrait
         
         if ($product->old_price && $product->old_price > $product->price) {
             $discount = round((($product->old_price - $product->price) / $product->old_price) * 100);
-            $utp[] = "Скидка {$discount}%! Цена: {$product->price} BYN (было {$product->old_price} BYN)";
+            $price    = htmlspecialchars($product->price, ENT_QUOTES, 'UTF-8');
+            $oldPrice = htmlspecialchars($product->old_price, ENT_QUOTES, 'UTF-8');
+            $utp[] = "Скидка {$discount}%! Цена: {$price} BYN (было {$oldPrice} BYN)";
         } else {
-            $utp[] = "Цена: {$product->price} BYN";
+            $utp[] = "Цена: " . htmlspecialchars($product->price, ENT_QUOTES, 'UTF-8') . " BYN";
         }
         
         if ($product->stock_status === 'in_stock') {

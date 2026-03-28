@@ -283,45 +283,57 @@ class ImageHelper
         if (!$image) {
             return false;
         }
-        
-        $width = imagesx($image);
-        $height = imagesy($image);
-        
-        // Если ширина больше максимальной, уменьшаем
-        if ($width > $maxWidth) {
-            $newWidth = $maxWidth;
-            $newHeight = intval($height * ($maxWidth / $width));
-            
-            $newImage = imagecreatetruecolor($newWidth, $newHeight);
-            
-            // Сохраняем прозрачность для PNG
-            if ($imageType == IMAGETYPE_PNG) {
-                imagealphablending($newImage, false);
-                imagesavealpha($newImage, true);
+
+        $newImage = null;
+        try {
+            $width = imagesx($image);
+            $height = imagesy($image);
+
+            // Если ширина больше максимальной, уменьшаем
+            if ($width > $maxWidth) {
+                $newWidth = $maxWidth;
+                $newHeight = intval($height * ($maxWidth / $width));
+
+                $newImage = imagecreatetruecolor($newWidth, $newHeight);
+                if (!$newImage) {
+                    return false;
+                }
+
+                // Сохраняем прозрачность для PNG
+                if ($imageType == IMAGETYPE_PNG) {
+                    imagealphablending($newImage, false);
+                    imagesavealpha($newImage, true);
+                }
+
+                imagecopyresampled($newImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+                imagedestroy($image);
+                $image = $newImage;
+                $newImage = null;
             }
-            
-            imagecopyresampled($newImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-            imagedestroy($image);
-            $image = $newImage;
+
+            // Сохраняем
+            switch ($imageType) {
+                case IMAGETYPE_JPEG:
+                    $result = imagejpeg($image, $path, $quality);
+                    break;
+                case IMAGETYPE_PNG:
+                    $result = imagepng($image, $path, 9);
+                    break;
+                case IMAGETYPE_GIF:
+                    $result = imagegif($image, $path);
+                    break;
+                default:
+                    $result = false;
+            }
+
+            return $result;
+        } finally {
+            if ($image) {
+                imagedestroy($image);
+            }
+            if ($newImage) {
+                imagedestroy($newImage);
+            }
         }
-        
-        // Сохраняем
-        switch ($imageType) {
-            case IMAGETYPE_JPEG:
-                $result = imagejpeg($image, $path, $quality);
-                break;
-            case IMAGETYPE_PNG:
-                $result = imagepng($image, $path, 9);
-                break;
-            case IMAGETYPE_GIF:
-                $result = imagegif($image, $path);
-                break;
-            default:
-                $result = false;
-        }
-        
-        imagedestroy($image);
-        
-        return $result;
     }
 }
