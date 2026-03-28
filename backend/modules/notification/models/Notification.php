@@ -4,6 +4,7 @@ namespace app\backend\modules\notification\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use app\backend\modules\account\models\Customer;
 
 /**
  * Notification — Модель уведомления
@@ -54,7 +55,7 @@ class Notification extends ActiveRecord
 
     public function getCustomer()
     {
-        return $this->hasOne(\app\backend\modules\account\models\Customer::class, ['id' => 'customer_id']);
+        return $this->hasOne(Customer::class, ['id' => 'customer_id']);
     }
 
     /**

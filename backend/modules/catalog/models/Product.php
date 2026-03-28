@@ -106,8 +106,6 @@ use app\backend\modules\catalog\models\ProductReview;
  * @property ProductSize[] $sizes
  * @property ProductColor[] $colors
  * @property ProductFavorite[] $favorites
- * @property Style[] $styles
- * @property Technology[] $technologies
  * @property ProductReview[] $reviews
  */
 class Product extends ActiveRecord
@@ -442,24 +440,6 @@ class Product extends ActiveRecord
     public function getFavorites()
     {
         return $this->hasMany(ProductFavorite::class, ['product_id' => 'id']);
-    }
-
-    /**
-     * Стили товара
-     * NOTE: Модели Style и Technology не реализованы — методы возвращают пустой массив
-     * до тех пор, пока не будут созданы соответствующие таблицы и модели.
-     */
-    public function getStyles(): array
-    {
-        return [];
-    }
-
-    /**
-     * Технологии товара
-     */
-    public function getTechnologies(): array
-    {
-        return [];
     }
 
     /**

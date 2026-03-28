@@ -4,6 +4,7 @@ namespace app\backend\modules\admin\models\import;
 
 use Yii;
 use yii\db\ActiveRecord;
+use app\backend\modules\catalog\models\Product;
 
 /**
  * ImportLog — Модель лога импорта
@@ -22,7 +23,7 @@ use yii\db\ActiveRecord;
  * @property string $created_at
  * 
  * @property ImportTask $task Задача
- * @property \app\backend\modules\catalog\models\Product $product Товар
+ * @property Product $product Товар
  */
 class ImportLog extends ActiveRecord
 {
@@ -61,7 +62,7 @@ class ImportLog extends ActiveRecord
             [['message', 'data', 'error_details'], 'string'],
             [['created_at'], 'safe'],
             [['task_id'], 'exist', 'targetClass' => ImportTask::class, 'targetAttribute' => 'id'],
-            [['product_id'], 'exist', 'targetClass' => '\app\backend\modules\catalog\models\Product', 'targetAttribute' => 'id'],
+            [['product_id'], 'exist', 'targetClass' => Product::class, 'targetAttribute' => 'id'],
         ];
     }
 
@@ -99,7 +100,7 @@ class ImportLog extends ActiveRecord
      */
     public function getProduct()
     {
-        return $this->hasOne('\app\backend\modules\catalog\models\Product', ['id' => 'product_id']);
+        return $this->hasOne(Product::class, ['id' => 'product_id']);
     }
 
     /**

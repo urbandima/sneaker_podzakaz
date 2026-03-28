@@ -7,12 +7,12 @@ use yii\base\Component;
 use yii\httpclient\Client;
 
 /**
- * CurrencyService — Сервис получения курсов валют от НБ РБ
- * 
+ * NbrbRateService — Сервис получения курсов валют от НБ РБ
+ *
  * API Национального банка Республики Беларусь
  * Кэширование курсов в БД
  */
-class CurrencyService extends Component
+class NbrbRateService extends Component
 {
     /**
      * API URL НБ РБ

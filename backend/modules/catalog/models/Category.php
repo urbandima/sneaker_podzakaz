@@ -194,8 +194,7 @@ class Category extends ActiveRecord
      */
     public function getActiveProducts()
     {
-        return $this->hasMany(Product::class, ['category_id' => 'id'])
-            ->where(['is_active' => true]);
+        return $this->getProducts()->where(['is_active' => true]);
     }
 
     /**

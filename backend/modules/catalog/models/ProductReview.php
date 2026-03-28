@@ -10,6 +10,7 @@
 namespace app\backend\modules\catalog\models;
 
 use yii\db\ActiveRecord;
+use app\backend\modules\admin\models\User;
 
 class ProductReview extends ActiveRecord
 {
@@ -35,6 +36,6 @@ class ProductReview extends ActiveRecord
     
     public function getUser()
     {
-        return $this->hasOne(\app\backend\modules\admin\models\User::class, ['id' => 'user_id']);
+        return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 }

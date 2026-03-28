@@ -16,7 +16,7 @@ use app\backend\modules\admin\models\ImportUploadForm;
 use app\backend\modules\admin\services\import\ImportService;
 use app\backend\modules\admin\services\import\ProxyService;
 use app\backend\modules\admin\services\import\CaptchaService;
-use app\backend\modules\admin\services\import\CurrencyService;
+use app\backend\modules\admin\services\import\NbrbRateService;
 
 /**
  * ImportController — Управление импортом товаров
@@ -85,7 +85,7 @@ class ImportController extends Controller
         $stats = $this->getOverallStats();
 
         // Курсы валют
-        $currencyService = new CurrencyService();
+        $currencyService = new NbrbRateService();
         $rates = $currencyService->getAllRates();
 
         return $this->render('index', [
@@ -329,7 +329,7 @@ class ImportController extends Controller
         ];
 
         // Курсы валют
-        $currencyService = new CurrencyService();
+        $currencyService = new NbrbRateService();
         $rates = $currencyService->getAllRates();
         $lastUpdate = $currencyService->getLastUpdateDate();
 
@@ -351,7 +351,7 @@ class ImportController extends Controller
      */
     public function actionUpdateRates()
     {
-        $currencyService = new CurrencyService();
+        $currencyService = new NbrbRateService();
         $results = $currencyService->updateAllRates();
 
         $success = count(array_filter($results, fn($r) => $r['success']));
@@ -393,7 +393,7 @@ class ImportController extends Controller
         
         $service->proxyService = new ProxyService();
         $service->captchaService = new CaptchaService();
-        $service->currencyService = new CurrencyService();
+        $service->currencyService = new NbrbRateService();
 
         return $service;
     }

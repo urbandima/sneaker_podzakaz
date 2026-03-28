@@ -12,7 +12,7 @@ use app\backend\modules\admin\models\import\ImportProductPrice;
 use app\backend\modules\admin\services\import\ImportService;
 use app\backend\modules\admin\services\import\ProxyService;
 use app\backend\modules\admin\services\import\CaptchaService;
-use app\backend\modules\admin\services\import\CurrencyService;
+use app\backend\modules\admin\services\import\NbrbRateService;
 
 /**
  * ImportController — Консольный контроллер для импорта товаров
@@ -280,7 +280,7 @@ class ImportController extends Controller
         
         $service->proxyService = new ProxyService();
         $service->captchaService = new CaptchaService();
-        $service->currencyService = new CurrencyService();
+        $service->currencyService = new NbrbRateService();
 
         return $service;
     }
@@ -291,7 +291,7 @@ class ImportController extends Controller
      */
     protected function updateRates()
     {
-        $currencyService = new CurrencyService();
+        $currencyService = new NbrbRateService();
         
         if ($currencyService->needsUpdate()) {
             return $currencyService->updateAllRates();

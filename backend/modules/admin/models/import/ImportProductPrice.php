@@ -4,6 +4,7 @@ namespace app\backend\modules\admin\models\import;
 
 use Yii;
 use yii\db\ActiveRecord;
+use app\backend\modules\catalog\models\Product;
 
 /**
  * ImportProductPrice — Модель истории цен из разных источников
@@ -52,7 +53,7 @@ class ImportProductPrice extends ActiveRecord
             [['url'], 'string', 'max' => 500],
             [['url'], 'url'],
             [['parsed_at'], 'safe'],
-            [['product_id'], 'exist', 'targetClass' => '\app\backend\modules\catalog\models\Product', 'targetAttribute' => 'id'],
+            [['product_id'], 'exist', 'targetClass' => Product::class, 'targetAttribute' => 'id'],
             [['source_id'], 'exist', 'targetClass' => ImportSource::class, 'targetAttribute' => 'id'],
         ];
     }
@@ -83,7 +84,7 @@ class ImportProductPrice extends ActiveRecord
      */
     public function getProduct()
     {
-        return $this->hasOne('\app\backend\modules\catalog\models\Product', ['id' => 'product_id']);
+        return $this->hasOne(Product::class, ['id' => 'product_id']);
     }
 
     /**

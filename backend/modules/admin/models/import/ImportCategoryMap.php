@@ -4,6 +4,7 @@ namespace app\backend\modules\admin\models\import;
 
 use Yii;
 use yii\db\ActiveRecord;
+use app\backend\modules\catalog\models\Category;
 
 /**
  * ImportCategoryMap — Модель маппинга категорий
@@ -47,7 +48,7 @@ class ImportCategoryMap extends ActiveRecord
             [['source_category_url'], 'url'],
             [['created_at', 'updated_at'], 'safe'],
             [['source_id'], 'exist', 'targetClass' => ImportSource::class, 'targetAttribute' => 'id'],
-            [['category_id'], 'exist', 'targetClass' => '\app\backend\modules\catalog\models\Category', 'targetAttribute' => 'id'],
+            [['category_id'], 'exist', 'targetClass' => Category::class, 'targetAttribute' => 'id'],
         ];
     }
 
@@ -82,7 +83,7 @@ class ImportCategoryMap extends ActiveRecord
      */
     public function getCategory()
     {
-        return $this->hasOne('\app\backend\modules\catalog\models\Category', ['id' => 'category_id']);
+        return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
 
     /**
