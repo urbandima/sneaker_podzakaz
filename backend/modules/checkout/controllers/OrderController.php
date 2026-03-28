@@ -73,8 +73,8 @@ class OrderController extends Controller
         
         Yii::info('Начало создания заказа', 'order');
         
-        // Получаем ID покупателя если авторизован
-        $customerId = Yii::$app->request->post('customer_id');
+        // Получаем ID покупателя из сессии (не из POST — защита от IDOR)
+        $customerId = Yii::$app->session->get('customer_id');
         $useSavedAddress = Yii::$app->request->post('use_saved_address');
         $saveToProfile = Yii::$app->request->post('save_to_profile');
         

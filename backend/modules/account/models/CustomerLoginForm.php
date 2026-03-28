@@ -87,12 +87,16 @@ class CustomerLoginForm extends Model
             // Устанавливаем cookie для rememberMe
             if ($this->rememberMe) {
                 $duration = 3600 * 24 * 30; // 30 дней
+                // HMAC через Yii security вместо MD5: защита от подделки токена
+                $tokenData = $customer->id . ':' . $customer->password_hash;
+                $secureToken = Yii::$app->security->hashData($tokenData, Yii::$app->params['cookieValidationKey'] ?? Yii::$app->request->cookieValidationKey);
                 Yii::$app->response->cookies->add(new \yii\web\Cookie([
                     'name' => 'customer_token',
-                    'value' => $customer->id . ':' . md5($customer->email . $customer->password_hash),
+                    'value' => $secureToken,
                     'expire' => time() + $duration,
                     'httpOnly' => true,
                     'secure' => !YII_ENV_DEV,
+                    'sameSite' => 'Lax',
                 ]));
             }
             

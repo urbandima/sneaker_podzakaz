@@ -87,6 +87,8 @@ class OrderService
             // Применяем скидку если есть
             if (!empty($customerData['promo_code'])) {
                 $discount = $this->applyDiscount($total, $customerData['promo_code'], $order->customer_id);
+                // Скидка не может превышать сумму заказа — итог всегда >= 0
+                $discount = min($discount, $total);
                 $total -= $discount;
                 $order->discount = $discount;
                 $order->promo_code = $customerData['promo_code'];

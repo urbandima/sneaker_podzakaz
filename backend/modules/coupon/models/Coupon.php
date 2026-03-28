@@ -252,27 +252,38 @@ class Coupon extends ActiveRecord
 
     /**
      * Применить купон (увеличить счётчик использований)
-     * 
+     * Атомарный инкремент через updateCounters() — защита от race condition.
+     *
      * @return bool
      */
     public function apply(): bool
     {
-        $this->current_uses++;
-        return $this->save(false, ['current_uses', 'updated_at']);
+        $result = (bool) self::updateAllCounters(['current_uses' => 1], ['id' => $this->id]);
+        if ($result) {
+            $this->current_uses++;
+        }
+        return $result;
     }
 
     /**
      * Отменить применение купона (уменьшить счётчик)
-     * 
+     * Атомарный декремент, не уходит ниже 0.
+     *
      * @return bool
      */
     public function revert(): bool
     {
-        if ($this->current_uses > 0) {
-            $this->current_uses--;
-            return $this->save(false, ['current_uses', 'updated_at']);
+        if ($this->current_uses <= 0) {
+            return true;
         }
-        return true;
+        $result = (bool) Yii::$app->db->createCommand(
+            'UPDATE {{%coupon}} SET current_uses = GREATEST(current_uses - 1, 0) WHERE id = :id',
+            [':id' => $this->id]
+        )->execute();
+        if ($result) {
+            $this->current_uses = max(0, $this->current_uses - 1);
+        }
+        return $result;
     }
 
     /**

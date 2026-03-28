@@ -110,15 +110,15 @@ class CatalogController extends Controller
     }
     
     /**
-     * Найти товар для behaviors
+     * Найти товар для behaviors (кэш привязан к slug)
      */
     protected function findProduct($slug)
     {
-        static $product = null;
-        if ($product === null) {
-            $product = $this->productRepository->findBySlug($slug);
+        static $cache = [];
+        if (!array_key_exists($slug, $cache)) {
+            $cache[$slug] = $this->productRepository->findBySlug($slug);
         }
-        return $product;
+        return $cache[$slug];
     }
 
     /**

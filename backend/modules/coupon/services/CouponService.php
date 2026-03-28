@@ -192,9 +192,9 @@ class CouponService extends Component
     {
         $buyQuantity = $coupon->buy_quantity ?? 1;
         $getQuantity = $coupon->get_quantity ?? 1;
-        
-        // Получаем товары заказа
-        $items = $order->items;
+
+        // Получаем товары заказа через relation (не через публичное свойство $order->items)
+        $items = $order->orderItems;
         if (empty($items)) {
             return 0;
         }
@@ -226,7 +226,8 @@ class CouponService extends Component
      */
     protected function checkApplicability(Coupon $coupon, Order $order): bool
     {
-        $items = $order->items;
+        // Используем relation orderItems, а не публичное свойство items (которое всегда [])
+        $items = $order->orderItems;
         if (empty($items)) {
             return false;
         }

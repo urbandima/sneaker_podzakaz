@@ -178,10 +178,8 @@ class Order extends ActiveRecord
             $history->save();
         }
 
-        // Отправляем уведомление при создании заказа
-        if ($insert) {
-            $this->sendNotification();
-        }
+        // Уведомление при создании заказа отправляется в OrderController::actionCreate()
+        // чтобы избежать двойной отправки email клиенту.
     }
 
     protected function generateOrderNumber()
@@ -192,16 +190,13 @@ class Order extends ActiveRecord
 
         while ($attempt < $maxRetries) {
             try {
-                // Используем транзакцию с блокировкой для атомарности
+                // Транзакция + SELECT FOR UPDATE — блокируем строку на время генерации
                 $transaction = Yii::$app->db->beginTransaction();
-                
-                // Получаем последний заказ с блокировкой строки (FOR UPDATE)
-                $lastOrder = self::find()
-                    ->where(['like', 'order_number', $year])
-                    ->orderBy(['id' => SORT_DESC])
-                    ->limit(1)
-                    ->createCommand()
-                    ->queryOne();
+
+                $lastOrder = Yii::$app->db->createCommand(
+                    'SELECT order_number FROM {{%order}} WHERE order_number LIKE :prefix ORDER BY id DESC LIMIT 1 FOR UPDATE',
+                    [':prefix' => $year . '-%']
+                )->queryOne();
 
                 if ($lastOrder) {
                     $lastNumber = (int)substr($lastOrder['order_number'], -5);
@@ -211,14 +206,14 @@ class Order extends ActiveRecord
                 }
 
                 $orderNumber = sprintf('%s-%05d', $year, $newNumber);
-                
-                // Проверяем уникальность перед коммитом
+
+                // Финальная проверка уникальности под блокировкой
                 $exists = self::find()->where(['order_number' => $orderNumber])->exists();
                 if (!$exists) {
                     $transaction->commit();
                     return $orderNumber;
                 }
-                
+
                 $transaction->rollBack();
                 $attempt++;
                 

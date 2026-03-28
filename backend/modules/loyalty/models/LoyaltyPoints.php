@@ -105,7 +105,7 @@ class LoyaltyPoints extends ActiveRecord
 
     /**
      * Получить текущий баланс клиента
-     * 
+     *
      * @param int $customerId
      * @return int
      */
@@ -115,8 +115,24 @@ class LoyaltyPoints extends ActiveRecord
             ->where(['customer_id' => $customerId])
             ->orderBy(['id' => SORT_DESC])
             ->one();
-        
+
         return $lastRecord ? $lastRecord->balance : 0;
+    }
+
+    /**
+     * Получить суммарное количество заработанных баллов (lifetime earned).
+     * Используется для определения уровня лояльности — уровень не должен
+     * снижаться при списании баллов.
+     *
+     * @param int $customerId
+     * @return int
+     */
+    public static function getTotalEarned(int $customerId): int
+    {
+        return (int) self::find()
+            ->where(['customer_id' => $customerId])
+            ->andWhere(['>', 'points', 0])
+            ->sum('points') ?: 0;
     }
 
     /**

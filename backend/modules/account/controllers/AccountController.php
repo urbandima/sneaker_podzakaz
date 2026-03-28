@@ -341,14 +341,23 @@ class AccountController extends Controller
         }
 
         $query = Order::find()->orderBy(['created_at' => SORT_DESC]);
-        
+
+        // Используем andWhere + OR внутри одного условия, чтобы is_active и прочие
+        // фильтры применялись к обоим вариантам поиска (избегаем утечки данных)
+        $conditions = [];
         if ($email) {
-            $query->andWhere(['client_email' => $email]);
+            $conditions[] = ['client_email' => $email];
             Yii::$app->session->set('customer_email', $email);
         }
         if ($phone) {
-            $query->orWhere(['client_phone' => $phone]);
+            $conditions[] = ['client_phone' => $phone];
             Yii::$app->session->set('customer_phone', $phone);
+        }
+
+        if (count($conditions) === 1) {
+            $query->andWhere($conditions[0]);
+        } else {
+            $query->andWhere(array_merge(['or'], $conditions));
         }
 
         $orders = $query->all();
@@ -380,7 +389,7 @@ class AccountController extends Controller
         if ($email || $phone) {
             // Проверяем, есть ли аккаунт
             $customer = Customer::find()
-                ->where(['status' => Customer::STATUS_ACTIVE])
+                ->where(['is_active' => Customer::STATUS_ACTIVE])
                 ->andWhere(['or', ['email' => $email], ['phone' => $phone]])
                 ->one();
 

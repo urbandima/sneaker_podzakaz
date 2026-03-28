@@ -195,8 +195,7 @@ class ProductRepository
     {
         return Product::find()
             ->where(['is_active' => true])
-            ->andWhere(['like', 'name', $query])
-            ->orWhere(['like', 'model_name', $query])
+            ->andWhere(['or', ['like', 'name', $query], ['like', 'model_name', $query]])
             ->limit($limit)
             ->all();
     }

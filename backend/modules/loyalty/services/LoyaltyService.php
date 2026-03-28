@@ -69,15 +69,17 @@ class LoyaltyService extends Component
     }
 
     /**
-     * Получить уровень клиента
-     * 
+     * Получить уровень клиента.
+     * Уровень определяется по сумме ЗАРАБОТАННЫХ баллов за всё время (lifetime earned),
+     * а не по текущему остатку — чтобы уровень не снижался при расходовании баллов.
+     *
      * @param int $customerId
      * @return LoyaltyProgram|null
      */
     public function getCustomerLevel(int $customerId): ?LoyaltyProgram
     {
-        $balance = LoyaltyPoints::getBalance($customerId);
-        return LoyaltyProgram::getLevelByPoints($balance);
+        $totalEarned = LoyaltyPoints::getTotalEarned($customerId);
+        return LoyaltyProgram::getLevelByPoints($totalEarned);
     }
 
     /**

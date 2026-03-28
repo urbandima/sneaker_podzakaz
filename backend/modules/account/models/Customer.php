@@ -16,10 +16,9 @@
  * - Настройки: subscribe_news, subscribe_promo
  * - Статус: status (active/inactive/deleted)
  * 
- * СТАТУСЫ:
- * - STATUS_ACTIVE = 10 (активный)
- * - STATUS_INACTIVE = 9 (неактивный)
- * - STATUS_DELETED = 0 (удалённый)
+ * СТАТУСЫ (поле is_active):
+ * - STATUS_ACTIVE = 1 (активный)
+ * - STATUS_INACTIVE = 0 (неактивный/удалённый)
  * 
  * СВЯЗИ:
  * - Order[] (заказы покупателя)
@@ -335,27 +334,23 @@ class Customer extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Magic getter для обратной совместимости
+     * Magic getter для виртуальных вычисляемых свойств.
+     * Обрабатывает только явно объявленные виртуальные поля.
+     * Прочие обращения передаются в родительский __get без перехвата исключений,
+     * чтобы опечатки в именах свойств не скрывались.
      */
     public function __get($name)
     {
-        if ($name === 'orders_count') {
-            return $this->getOrdersCount();
+        switch ($name) {
+            case 'orders_count':
+                return $this->getOrdersCount();
+            case 'total_spent':
+                return $this->getTotalSpent();
+            case 'last_order_at':
+                return $this->getLastOrderAt();
         }
-        if ($name === 'total_spent') {
-            return $this->getTotalSpent();
-        }
-        if ($name === 'last_order_at') {
-            return $this->getLastOrderAt();
-        }
-        
-        // Для полей, которые могут не существовать в таблице, пробуем получить безопасно
-        try {
-            return parent::__get($name);
-        } catch (\yii\base\UnknownPropertyException $e) {
-            // Если поле не существует в таблице, возвращаем null
-            return null;
-        }
+
+        return parent::__get($name);
     }
 
     // Relations

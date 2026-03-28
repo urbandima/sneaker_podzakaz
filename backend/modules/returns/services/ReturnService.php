@@ -224,33 +224,41 @@ class ReturnService extends Component
     protected function updateInventory(ReturnRequest $request): bool
     {
         $items = $request->getItems();
-        
+
         foreach ($items as $item) {
             if (!isset($item['product_id'])) {
                 continue;
             }
-            
+
             $product = Product::findOne($item['product_id']);
-            if ($product) {
-                // Увеличиваем количество на складе
-                $quantity = $item['quantity'] ?? 1;
-                
-                // Обновляем остатки товара
-                $product->stock_quantity += $quantity;
-                
-                // Если товар был не в наличии, делаем его доступным
-                if ($product->stock_quantity > 0 && $product->stock_status === Product::STOCK_OUT_OF_STOCK) {
-                    $product->stock_status = Product::STOCK_IN_STOCK;
-                }
-                
-                if ($product->save()) {
-                    Yii::info("Возврат товара #{$product->id} на склад, количество: {$quantity}. Новый остаток: {$product->stock_quantity}", 'return');
-                } else {
-                    Yii::error("Ошибка обновления остатков для товара #{$product->id}: " . implode(', ', $product->getFirstErrors()), 'return');
-                }
+            if (!$product) {
+                continue;
             }
+
+            $quantity = (int)($item['quantity'] ?? 1);
+
+            // Атомарное обновление остатков — защита от race condition
+            $updated = Product::updateAllCounters(
+                ['stock_quantity' => $quantity],
+                ['id' => $product->id]
+            );
+
+            if (!$updated) {
+                // Бросаем исключение чтобы внешняя транзакция (completeReturn) откатилась
+                throw new \RuntimeException("Ошибка обновления остатков для товара #{$product->id}");
+            }
+
+            // Обновляем stock_status если товар был помечен как отсутствующий
+            if ($product->stock_status === Product::STOCK_OUT_OF_STOCK) {
+                Product::updateAll(
+                    ['stock_status' => Product::STOCK_IN_STOCK],
+                    ['id' => $product->id]
+                );
+            }
+
+            Yii::info("Возврат товара #{$product->id} на склад, количество: {$quantity}", 'return');
         }
-        
+
         return true;
     }
 
