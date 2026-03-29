@@ -17,7 +17,7 @@ class CartAsset extends VersionedAssetBundle
     public $baseUrl = '@web';
     
     public $css = [
-        'css/cart.css',
+        'css/pages.css',  // Cart стили (cart-page, cart-item)
     ];
     
     public $js = [

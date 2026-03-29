@@ -1250,6 +1250,39 @@ main {
     position: relative;
 }
 
+.hero-background {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    z-index: 0;
+}
+
+.hero-gradient {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    z-index: 1;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-4);
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    color: var(--color-white);
+    backdrop-filter: blur(10px);
+    margin-bottom: var(--spacing-4);
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
 .hero-content {
     display: grid;
     grid-template-columns: 1fr 1fr;

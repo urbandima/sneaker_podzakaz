@@ -17,8 +17,8 @@ class ProductAsset extends VersionedAssetBundle
     public $baseUrl = '@web';
     
     public $css = [
-        // Product styles - использую минималистичный дизайн из AppAsset
-        // Старые стили отключены для единого дизайна 100/100
+        'css/pages.css',  // Стили для страниц (product-details, brand-block-premium)
+        'css/catalog.css', // Стили карточек товаров
     ];
     
     public $js = [

@@ -38,7 +38,7 @@ $config = [
     'controllerNamespace' => 'app\frontend\controllers',
     'viewPath' => dirname(__DIR__, 2) . '/frontend/views',
     'layoutPath' => dirname(__DIR__, 2) . '/frontend/views/layouts',
-    'bootstrap' => ['log', 'sitemapAutoGenerator', 'securityHeaders', 'cspHeaders', 'redirectMiddleware'],
+    'bootstrap' => ['log', 'sitemapAutoGenerator', 'securityHeaders', 'redirectMiddleware'],
     'language' => 'ru-RU',
     'timeZone' => 'Europe/Minsk',
     'aliases' => [
@@ -456,9 +456,6 @@ $config = [
         ],
         'securityHeaders' => [
             'class' => 'app\infrastructure\middleware\SecurityHeadersMiddleware',
-        ],
-        'cspHeaders' => [
-            'class' => 'app\infrastructure\middleware\CspHeadersMiddleware',
         ],
         'redirectMiddleware' => [
             'class' => 'app\backend\modules\seo\components\RedirectMiddleware',
