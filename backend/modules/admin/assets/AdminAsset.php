@@ -17,7 +17,7 @@ class AdminAsset extends AssetBundle
     public $baseUrl = '@web';
     
     public $css = [
-        'css/admin.css',
+        'css/admin-shopify-2026.css',
     ];
     
     public $js = [

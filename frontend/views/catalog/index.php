@@ -394,6 +394,11 @@ setTimeout(function() {
 
             <!-- Content -->
             <main class="content">
+                <!-- Мобильная кнопка фильтра -->
+                <button type="button" class="btn-filter-mobile">
+                    <i class="bi bi-sliders"></i> Фильтры
+                </button>
+
                 <div class="content-header">
                     <h1><?= isset($h1) ? Html::encode($h1) : 'Каталог' ?> <span class="products-count">(<span id="productsCount"><?= $pagination->totalCount ?></span>)</span></h1>
                     <?php if (isset($description) && !empty($description)): ?>

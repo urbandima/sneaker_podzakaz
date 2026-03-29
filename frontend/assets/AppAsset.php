@@ -20,6 +20,7 @@ class AppAsset extends AssetBundle
     
     public $js = [
         'js/app.js',
+        'js/cart.js',
         'js/mobile-menu.js',
     ];
     

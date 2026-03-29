@@ -41,18 +41,17 @@ class Settings extends Component
     public function getCompany(): array
     {
         if ($this->_company === null) {
-            // Временно возвращаем значения по умолчанию, пока нет таблицы
-            $this->_company = [
+            // B0.5: Загружаем настройки из БД
+            $row = CompanySettings::find()->orderBy(['id' => SORT_ASC])->asArray()->one();
+            
+            // Fallback на значения по умолчанию если таблица пуста
+            $this->_company = $row ?: [
                 'name' => 'СНИКЕРХЭД',
                 'address' => 'Минск, Беларусь',
                 'phone' => '+375 (29) 123-45-67',
                 'email' => 'info@sneakerhead.by',
                 'work_time' => 'Пн-Вс: 10:00-22:00'
             ];
-            
-            // Раскомментировать когда таблица будет создана
-            // $row = CompanySettings::find()->orderBy(['id' => SORT_ASC])->asArray()->one();
-            // $this->_company = $row ?: [];
         }
         return $this->_company;
     }

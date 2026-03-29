@@ -12,6 +12,9 @@ use app\helpers\ProductCardHelper;
 use app\helpers\ImageHelper;
 use app\backend\shared\components\SchemaOrgGenerator;
 
+// Регистрируем AssetBundle для страницы товара (все стили автоматически)
+ProductAsset::register($this);
+
 // Helper функции для поддержки как Product модели, так и stdClass для demo режима
 function getProductProperty($product, $property, $default = null) {
     if (method_exists($product, $property)) {

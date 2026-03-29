@@ -56,11 +56,6 @@ $this->title = 'Вход в админ-панель - СНИКЕРХЭД';
 </div>
 
 <div class="login-footer">
-    <div class="login-hint">
-        <strong>Данные для входа:</strong><br>
-        Логин: <code>admin</code><br>
-        Пароль: <code>admin123</code>
-    </div>
     <p>
         <a href="/" class="login-back-link">← Вернуться на сайт</a>
     </p>

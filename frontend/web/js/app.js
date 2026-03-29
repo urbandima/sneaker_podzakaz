@@ -4,6 +4,28 @@
  */
 
 /* ============================================
+   HEADER SCROLL EFFECT + ACTIVE NAV
+   ============================================ */
+(function () {
+    var header = document.querySelector('.main-header');
+    if (header) {
+        window.addEventListener('scroll', function () {
+            var scrollY = window.scrollY || window.pageYOffset;
+            header.classList.toggle('scrolled', scrollY > 20);
+        }, { passive: true });
+    }
+
+    // Подсветка активного пункта навигации
+    var currentPath = window.location.pathname;
+    document.querySelectorAll('.nav-menu a').forEach(function (link) {
+        var href = link.getAttribute('href');
+        if (href && currentPath.indexOf(href) === 0 && href !== '/') {
+            link.classList.add('active');
+        }
+    });
+})();
+
+/* ============================================
    SEARCH MODAL
    ============================================ */
 
@@ -90,6 +112,29 @@ document.addEventListener('DOMContentLoaded', function () {
     if (searchModal) {
         searchModal.addEventListener('click', function (e) {
             if (e.target.id === 'searchModal') closeSearch();
+        });
+    }
+});
+
+// Мобильное меню каталога (с кнопкой фильтра)
+document.addEventListener('DOMContentLoaded', function() {
+    const filterBtn = document.querySelector('.btn-filter-mobile');
+    const sidebar = document.querySelector('.sidebar');
+    const closeBtn = document.querySelector('.sidebar-header .close-btn');
+
+    if (filterBtn && sidebar) {
+        filterBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            sidebar.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+    }
+
+    if (closeBtn && sidebar) {
+        closeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            sidebar.classList.remove('active');
+            document.body.style.overflow = '';
         });
     }
 });

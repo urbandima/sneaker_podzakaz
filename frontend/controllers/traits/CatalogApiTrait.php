@@ -194,7 +194,7 @@ trait CatalogApiTrait
 
         return Brand::find()
             ->select(['brand.id', 'brand.name', 'brand.slug', 'COUNT(product.id) as products_count'])
-            ->leftJoin('product', 'product.brand_id = brand.id AND product.is_active = 1')
+            ->leftJoin('product', 'product.brand_id = brand.id AND product.is_active = true')
             ->groupBy(['brand.id', 'brand.name', 'brand.slug'])
             ->having('COUNT(product.id) > 0')
             ->orderBy(['products_count' => SORT_DESC, 'brand.name' => SORT_ASC])

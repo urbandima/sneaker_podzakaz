@@ -26,7 +26,7 @@
 
     /* Семантический первичный цвет */
     --color-primary: var(--color-black);
-    
+
     /* Акцентный цвет - фиолетовый */
     --color-accent: #8b5cf6;
     --color-accent-dark: #7c3aed;
@@ -48,19 +48,24 @@
     --border-color-hover: #d1d5db;
 
     /* Шрифты */
-    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-family-display: 'Bebas Neue', 'Arial Black', sans-serif;
+    --font-weight-light: 300;
     --font-weight-normal: 400;
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
     --line-height-normal: 1.5;
-    --font-size-base: 1rem;
+    --line-height-tight: 1.2;
+    --font-size-xs: 0.75rem;
     --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
     --font-size-lg: 1.125rem;
     --font-size-xl: 1.25rem;
     --font-size-2xl: 1.5rem;
     --font-size-3xl: 1.875rem;
     --font-size-4xl: 2.25rem;
+    --font-size-5xl: 3rem;
 
     /* Отступы */
     --spacing-1: 0.25rem;

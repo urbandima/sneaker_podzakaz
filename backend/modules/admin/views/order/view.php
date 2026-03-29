@@ -1,97 +1,3 @@
-.top-action-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.btn-secondary-light {
-    background: #f3f4f6;
-    border-color: #d1d5db;
-}
-
-.public-link-inline {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-}
-
-.public-link-inline label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.public-link-inline-fields {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.public-link-inline input {
-    flex: 1;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    background: #f9fafb;
-    font-size: 0.875rem;
-}
-
-.history-modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.65);
-    backdrop-filter: blur(4px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    padding: 1rem;
-}
-
-.history-modal.active {
-    display: flex;
-}
-
-.history-modal-content {
-    background: #fff;
-    border-radius: 18px;
-    width: min(640px, 100%);
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(15,23,42,0.25);
-}
-
-.history-modal-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #f1f5f9;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.history-modal-header h3 {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.history-modal-body {
-    padding: 1.5rem;
-}
-
-.history-close-btn {
-    border: none;
-    background: transparent;
-    font-size: 1.25rem;
-    cursor: pointer;
-    color: #94a3b8;
-}
-
 <?php
 
 /** @var yii\web\View $this */
@@ -103,9 +9,9 @@ use yii\helpers\Url;
 $this->title = 'Заказ №' . ($model->order_number ?: $model->id);
 $user = Yii::$app->user->identity;
 $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::$app->settings->getStatuses();
-?>
 
-<style>
+// B0.2: CSS вынесен в registerCss()
+$this->registerCss(<<<CSS
 /* Улучшенный CRM-дизайн карточки заказа */
 .order-page {
     background: #f5f6fa;
@@ -180,7 +86,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
     border-radius: 10px;
     font-weight: 600;
     font-size: 0.875rem;
-    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") no-repeat right 0.75rem center/1rem;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%236b7280\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E") no-repeat right 0.75rem center/1rem;
     appearance: none;
     cursor: pointer;
     min-width: 180px;
@@ -581,7 +487,9 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
 .btn-copy:hover {
     background: #f3f4f6;
 }
-</style>
+CSS
+);
+?>
 
 <div class="order-page">
     <div class="order-shell">
