@@ -60,16 +60,19 @@ class m250315_120000_create_coupon_tables extends Migration
         $this->addColumn('{{%order}}', 'coupon_id', $this->integer());
         $this->addColumn('{{%order}}', 'coupon_code', $this->string(50));
         $this->addColumn('{{%order}}', 'discount_amount', $this->decimal(10, 2)->defaultValue(0));
-        
+
         $this->createIndex('idx-order-coupon', '{{%order}}', 'coupon_id');
+        $this->addForeignKey('fk-order-coupon', '{{%order}}', 'coupon_id', '{{%coupon}}', 'id', 'SET NULL');
     }
 
     public function safeDown()
     {
+        $this->dropForeignKey('fk-order-coupon', '{{%order}}');
+        $this->dropIndex('idx-order-coupon', '{{%order}}');
         $this->dropColumn('{{%order}}', 'discount_amount');
         $this->dropColumn('{{%order}}', 'coupon_code');
         $this->dropColumn('{{%order}}', 'coupon_id');
-        
+
         $this->dropTable('{{%coupon_usage}}');
         $this->dropTable('{{%coupon}}');
     }

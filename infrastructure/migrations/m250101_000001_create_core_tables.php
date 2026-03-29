@@ -29,8 +29,9 @@ class m250101_000001_create_core_tables extends Migration
 
     public function safeDown()
     {
+        // Only drop the FK we added and the customer table we created.
+        // The order table was created by an earlier migration and must NOT be dropped here.
         $this->dropForeignKey('fk_order_customer', '{{%order}}');
-        $this->dropTable('{{%order}}');
         $this->dropTable('{{%customer}}');
     }
 }

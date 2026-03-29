@@ -5,7 +5,7 @@ use yii\db\Migration;
 /**
  * Глобальное улучшение админки - добавление всех необходимых таблиц и полей
  */
-class m251222_000000_admin_improvements extends Migration
+class m251222_000001_admin_improvements extends Migration
 {
     public function safeUp()
     {
@@ -132,98 +132,128 @@ class m251222_000000_admin_improvements extends Migration
         ]);
 
         // 4. Таблица отслеживания доставок
-        $this->createTable('{{%delivery_tracking}}', [
-            'id' => $this->primaryKey(),
-            'order_id' => $this->integer()->notNull(),
-            'tracking_number' => $this->string(100),
-            'carrier' => $this->string(100),
-            'status' => $this->string(50)->defaultValue('pending'),
-            'status_description' => $this->string(255),
-            'location' => $this->string(255),
-            'estimated_delivery' => $this->date(),
-            'actual_delivery' => $this->date(),
-            'events_json' => $this->text(),
-            'last_check_at' => $this->dateTime(),
-            'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
-            'updated_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-        ]);
+        try {
+            $this->createTable('{{%delivery_tracking}}', [
+                'id' => $this->primaryKey(),
+                'order_id' => $this->integer()->notNull(),
+                'tracking_number' => $this->string(100),
+                'carrier' => $this->string(100),
+                'status' => $this->string(50)->defaultValue('pending'),
+                'status_description' => $this->string(255),
+                'location' => $this->string(255),
+                'estimated_delivery' => $this->date(),
+                'actual_delivery' => $this->date(),
+                'events_json' => $this->text(),
+                'last_check_at' => $this->dateTime(),
+                'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
+                'updated_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
+            ]);
 
-        $this->addForeignKey(
-            'fk_delivery_tracking_order',
-            '{{%delivery_tracking}}',
-            'order_id',
-            '{{%order}}',
-            'id',
-            'CASCADE'
-        );
-        
-        $this->createIndex('idx_delivery_tracking_order', '{{%delivery_tracking}}', 'order_id');
-        $this->createIndex('idx_delivery_tracking_number', '{{%delivery_tracking}}', 'tracking_number');
+            $this->addForeignKey(
+                'fk_delivery_tracking_order',
+                '{{%delivery_tracking}}',
+                'order_id',
+                '{{%order}}',
+                'id',
+                'CASCADE'
+            );
+
+            $this->createIndex('idx_delivery_tracking_order', '{{%delivery_tracking}}', 'order_id');
+            $this->createIndex('idx_delivery_tracking_number', '{{%delivery_tracking}}', 'tracking_number');
+        } catch (\Exception $e) {
+            echo "⚠ delivery_tracking already exists, skipping\n";
+        }
 
         // 5. Таблица отзывов товаров
-        $this->createTable('{{%product_review}}', [
-            'id' => $this->primaryKey(),
-            'product_id' => $this->integer()->notNull(),
-            'user_id' => $this->integer(),
-            'order_id' => $this->integer(),
-            'author_name' => $this->string(100),
-            'author_email' => $this->string(100),
-            'rating' => $this->tinyInteger()->notNull()->defaultValue(5),
-            'title' => $this->string(255),
-            'content' => $this->text(),
-            'pros' => $this->text(),
-            'cons' => $this->text(),
-            'photos_json' => $this->text(),
-            'is_verified' => $this->boolean()->defaultValue(false),
-            'is_published' => $this->boolean()->defaultValue(false),
-            'is_featured' => $this->boolean()->defaultValue(false),
-            'admin_response' => $this->text(),
-            'admin_response_at' => $this->dateTime(),
-            'helpful_count' => $this->integer()->defaultValue(0),
-            'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
-            'updated_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-        ]);
+        try {
+            $this->createTable('{{%product_review}}', [
+                'id' => $this->primaryKey(),
+                'product_id' => $this->integer()->notNull(),
+                'user_id' => $this->integer(),
+                'order_id' => $this->integer(),
+                'author_name' => $this->string(100),
+                'author_email' => $this->string(100),
+                'rating' => $this->tinyInteger()->notNull()->defaultValue(5),
+                'title' => $this->string(255),
+                'content' => $this->text(),
+                'pros' => $this->text(),
+                'cons' => $this->text(),
+                'photos_json' => $this->text(),
+                'is_verified' => $this->boolean()->defaultValue(false),
+                'is_published' => $this->boolean()->defaultValue(false),
+                'is_featured' => $this->boolean()->defaultValue(false),
+                'admin_response' => $this->text(),
+                'admin_response_at' => $this->dateTime(),
+                'helpful_count' => $this->integer()->defaultValue(0),
+                'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
+                'updated_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
+            ]);
 
-        $this->addForeignKey(
-            'fk_product_review_product',
-            '{{%product_review}}',
-            'product_id',
-            '{{%product}}',
-            'id',
-            'CASCADE'
-        );
-        
-        $this->createIndex('idx_product_review_product', '{{%product_review}}', 'product_id');
-        $this->createIndex('idx_product_review_rating', '{{%product_review}}', 'rating');
-        $this->createIndex('idx_product_review_published', '{{%product_review}}', 'is_published');
+            $this->addForeignKey(
+                'fk_product_review_product',
+                '{{%product_review}}',
+                'product_id',
+                '{{%product}}',
+                'id',
+                'CASCADE'
+            );
+
+            $this->createIndex('idx_product_review_product', '{{%product_review}}', 'product_id');
+            $this->createIndex('idx_product_review_rating', '{{%product_review}}', 'rating');
+            $this->createIndex('idx_product_review_published', '{{%product_review}}', 'is_published');
+        } catch (\Exception $e) {
+            echo "⚠ product_review already exists, adding missing columns\n";
+            // Ensure extended columns exist if table was created by earlier migration
+            foreach (['title', 'pros', 'cons', 'photos_json', 'is_featured', 'admin_response', 'admin_response_at', 'helpful_count'] as $col) {
+                try {
+                    $definitions = [
+                        'title'             => $this->string(255),
+                        'pros'              => $this->text(),
+                        'cons'              => $this->text(),
+                        'photos_json'       => $this->text(),
+                        'is_featured'       => $this->boolean()->defaultValue(false),
+                        'admin_response'    => $this->text(),
+                        'admin_response_at' => $this->dateTime(),
+                        'helpful_count'     => $this->integer()->defaultValue(0),
+                    ];
+                    $this->addColumn('{{%product_review}}', $col, $definitions[$col]);
+                } catch (\Exception $ce) {
+                    // column already exists
+                }
+            }
+        }
 
         // 6. Таблица аналитики и конверсии
-        $this->createTable('{{%analytics_event}}', [
-            'id' => $this->primaryKey(),
-            'event_type' => $this->string(50)->notNull(),
-            'entity_type' => $this->string(50),
-            'entity_id' => $this->integer(),
-            'user_id' => $this->integer(),
-            'session_id' => $this->string(100),
-            'source' => $this->string(100),
-            'utm_source' => $this->string(100),
-            'utm_medium' => $this->string(100),
-            'utm_campaign' => $this->string(100),
-            'device_type' => $this->string(50),
-            'browser' => $this->string(100),
-            'ip_address' => $this->string(45),
-            'country' => $this->string(2),
-            'city' => $this->string(100),
-            'referrer' => $this->string(500),
-            'page_url' => $this->string(500),
-            'meta_json' => $this->text(),
-            'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
-        ]);
-        
-        $this->createIndex('idx_analytics_event_type', '{{%analytics_event}}', 'event_type');
-        $this->createIndex('idx_analytics_entity', '{{%analytics_event}}', ['entity_type', 'entity_id']);
-        $this->createIndex('idx_analytics_created', '{{%analytics_event}}', 'created_at');
-        $this->createIndex('idx_analytics_session', '{{%analytics_event}}', 'session_id');
+        try {
+            $this->createTable('{{%analytics_event}}', [
+                'id' => $this->primaryKey(),
+                'event_type' => $this->string(50)->notNull(),
+                'entity_type' => $this->string(50),
+                'entity_id' => $this->integer(),
+                'user_id' => $this->integer(),
+                'session_id' => $this->string(100),
+                'source' => $this->string(100),
+                'utm_source' => $this->string(100),
+                'utm_medium' => $this->string(100),
+                'utm_campaign' => $this->string(100),
+                'device_type' => $this->string(50),
+                'browser' => $this->string(100),
+                'ip_address' => $this->string(45),
+                'country' => $this->string(2),
+                'city' => $this->string(100),
+                'referrer' => $this->string(500),
+                'page_url' => $this->string(500),
+                'meta_json' => $this->text(),
+                'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
+            ]);
+
+            $this->createIndex('idx_analytics_event_type', '{{%analytics_event}}', 'event_type');
+            $this->createIndex('idx_analytics_entity', '{{%analytics_event}}', ['entity_type', 'entity_id']);
+            $this->createIndex('idx_analytics_created', '{{%analytics_event}}', 'created_at');
+            $this->createIndex('idx_analytics_session', '{{%analytics_event}}', 'session_id');
+        } catch (\Exception $e) {
+            echo "⚠ analytics_event already exists, skipping\n";
+        }
 
         // 7. Таблица ежедневной статистики для быстрых отчетов
         // Создаем таблицу daily_stats с составным первичным ключом

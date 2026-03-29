@@ -88,25 +88,28 @@ class m251222_000000_add_logistics_fields_to_order extends Migration
         }
         
         // Описание товара для таможни
-        $this->addColumn('{{%order}}', 'customs_description', $this->text()->after('comment'));
-        $this->addColumn('{{%order}}', 'item_quantity', $this->integer()->after('customs_description'));
-        $this->addColumn('{{%order}}', 'item_price_cny', $this->decimal(10, 2)->after('item_quantity'));
-        $this->addColumn('{{%order}}', 'product_link', $this->string(500)->after('item_price_cny'));
-        
-        // Тариф и логистика
-        $this->addColumn('{{%order}}', 'dobropost_tariff', $this->string(100)->after('product_link'));
-        $this->addColumn('{{%order}}', 'sneakerhead_order_link', $this->string(500)->after('dobropost_tariff'));
-        
-        // Статусы обработки
-        $this->addColumn('{{%order}}', 'is_processed', $this->boolean()->defaultValue(false)->after('status'));
-        $this->addColumn('{{%order}}', 'is_shipped', $this->boolean()->defaultValue(false)->after('is_processed'));
-        $this->addColumn('{{%order}}', 'customs_cleared', $this->boolean()->defaultValue(false)->after('is_shipped'));
-        $this->addColumn('{{%order}}', 'ms_number', $this->string(50)->after('customs_cleared'));
-        
-        // Цены
-        $this->addColumn('{{%order}}', 'product_price', $this->decimal(10, 2)->after('total_amount'));
-        $this->addColumn('{{%order}}', 'logistics_price', $this->decimal(10, 2)->after('product_price'));
-        $this->addColumn('{{%order}}', 'commission_price', $this->decimal(10, 2)->after('logistics_price'));
+        $directColumns = [
+            ['customs_description', $this->text()->after('comment')],
+            ['item_quantity',       $this->integer()->after('customs_description')],
+            ['item_price_cny',      $this->decimal(10, 2)->after('item_quantity')],
+            ['product_link',        $this->string(500)->after('item_price_cny')],
+            ['dobropost_tariff',    $this->string(100)->after('product_link')],
+            ['sneakerhead_order_link', $this->string(500)->after('dobropost_tariff')],
+            ['is_processed',        $this->boolean()->defaultValue(false)->after('status')],
+            ['is_shipped',          $this->boolean()->defaultValue(false)->after('is_processed')],
+            ['customs_cleared',     $this->boolean()->defaultValue(false)->after('is_shipped')],
+            ['ms_number',           $this->string(50)->after('customs_cleared')],
+            ['product_price',       $this->decimal(10, 2)->after('total_amount')],
+            ['logistics_price',     $this->decimal(10, 2)->after('product_price')],
+            ['commission_price',    $this->decimal(10, 2)->after('logistics_price')],
+        ];
+        foreach ($directColumns as [$col, $def]) {
+            try {
+                $this->addColumn('{{%order}}', $col, $def);
+            } catch (\Exception $e) {
+                echo "⚠ Колонка {$col} уже существует\n";
+            }
+        }
         
         // Индексы для быстрого поиска
         $this->createIndex('idx-order-china_track', '{{%order}}', 'china_track_number');
