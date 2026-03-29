@@ -24,27 +24,27 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
     <div class="container">
         <!-- Breadcrumbs (как в каталоге) -->
         <nav class="breadcrumbs">
-            <a href="/">Главная</a> / 
-            <a href="/catalog">Каталог</a> / 
+            <a href="<?= \yii\helpers\Url::to(['/site/index']) ?>">Главная</a> /
+            <a href="<?= \yii\helpers\Url::to(['/catalog/catalog/index']) ?>">Каталог</a> /
             <span>Избранное</span>
         </nav>
 
         <!-- Content (без sidebar - на всю ширину) -->
-        <div style="width: 100%;">
-            <main class="content" style="max-width: 100%;">
+        <div class="history-full-width">
+            <main class="content history-content">
                 <div class="content-header">
                     <h1>Избранное <span class="products-count">(<span id="productsCount"><?= count($favorites) ?></span>)</span></h1>
                 </div>
-                
+
                 <?php if (empty($favorites)): ?>
-                    <!-- Empty State (улучшенный дизайн) -->
-                    <div style="text-align:center;padding:4rem 2rem;background:#fff;border-radius:12px;border:1px solid #e5e7eb;">
-                        <div style="font-size:4rem;margin-bottom:1rem;opacity:0.3;">
+                    <!-- Empty State -->
+                    <div class="history-empty-box">
+                        <div class="history-empty-icon">
                             <i class="bi bi-heart"></i>
                         </div>
-                        <h3 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;color:#111;">Избранное пустое</h3>
-                        <p style="color:#6b7280;margin-bottom:2rem;">Вы еще не добавили ни одного товара в избранное</p>
-                        <a href="/catalog" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.875rem 1.75rem;background:#000;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;transition:all 0.2s;">
+                        <h3 class="history-empty-title">Избранное пустое</h3>
+                        <p class="history-empty-text">Вы ещё не добавили ни одного товара в избранное</p>
+                        <a href="<?= \yii\helpers\Url::to(['/catalog/catalog/index']) ?>" class="btn btn-primary history-empty-cta">
                             <i class="bi bi-grid-3x3-gap"></i>
                             Перейти в каталог
                         </a>
@@ -53,8 +53,8 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
                     <!-- Toolbar (упрощенный, только сортировка) -->
                     <div class="catalog-toolbar">
                         <div class="toolbar-left">
-                            <span style="color:#6b7280;font-size:0.875rem;">
-                                <i class="bi bi-heart-fill" style="color:#ef4444;"></i> 
+                            <span class="history-toolbar-info">
+                                <i class="bi bi-heart-fill favorites-heart-icon"></i>
                                 <?= count($favorites) ?> <?= count($favorites) === 1 ? 'товар' : (count($favorites) < 5 ? 'товара' : 'товаров') ?>
                             </span>
                         </div>

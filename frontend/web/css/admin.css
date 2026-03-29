@@ -461,3 +461,103 @@ body {
         --admin-border-light: #475569;
     }
 }
+
+/* Bootstrap Icons локальные (inline SVG) */
+.bi {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.bi-speedometer2 {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm-3.5 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zM8 16a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm0-1a7 7 0 1 1 0-14 7 7 0 0 1 0 14z'/%3E%3C/svg%3E");
+}
+
+.bi-box {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5 8.186 1.113zM15 4.239l-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.922V6.893l-6.5-2.6v7.922l6.5 2.6zM7.444.139a.5.5 0 0 1 .372 0l6 2.4a.5.5 0 0 1 .308.462v9.538a.5.5 0 0 1-.308.462l-6 2.4a.5.5 0 0 1-.372 0l-6-2.4A.5.5 0 0 1 1 12.539V3.002a.5.5 0 0 1 .308-.462l6-2.4z'/%3E%3C/svg%3E");
+}
+
+.bi-cart {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'/%3E%3C/svg%3E");
+}
+
+.bi-people {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5 5 0 0 0-4.4 4.68 1 1 0 0 0 .992.94h3.12a1 1 0 0 0 .992-.94 5 5 0 0 0-4.4-4.68 3 3 0 0 0-2.92 2.18 1 1 0 0 0 .992 1.06h.768a1 1 0 0 0 .992-1.06 2 2 0 0 1 1.956-1.32z'/%3E%3C/svg%3E");
+}
+
+.bi-graph-up {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z'/%3E%3C/svg%3E");
+}
+
+.bi-gear {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z'/%3E%3Cpath d='M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292.16c-1.64.892-3.433-.902-2.54-2.541l.159-.292a.873.873 0 0 1 .52-1.255l.319-.094A1.873 1.873 0 0 1 8 0h.001c.834 0 1.591.525 1.888 1.313l.094.319a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.892 3.433-.902 2.54-2.541l-.159-.292a.873.873 0 0 1-.52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.892-1.64-.901-3.434-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319z'/%3E%3C/svg%3E");
+}
+
+.bi-box-arrow-right {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z'/%3E%3Cpath fill-rule='evenodd' d='M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z'/%3E%3C/svg%3E");
+}
+
+.bi-globe {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.204-1.335.82-1.887 1.723A42.05 42.05 0 0 0 5.155 6.01c-.463.715-.814 1.353-1.028 1.855-.214.502-.323.936-.323 1.09v.273c0 .17.11.313.28.384.17.072.373.074.546-.006.172-.08.31-.24.31-.47v-.713c0-.43.165-.876.495-1.338.33-.462.776-.905 1.338-1.328.562-.423 1.191-.784 1.887-1.083.696-.298 1.396-.502 2.1-.612a.43.43 0 0 0 .28-.556 8.02 8.02 0 0 0-.899-1.903zm4.417 2.968a.42.42 0 0 0-.448-.42c-.226.03-.42.182-.42.42v.284c0 .32-.158.72-.474 1.2-.316.48-.73.985-1.24 1.514-.51.53-1.06 1.003-1.65 1.42-.59.415-1.108.7-1.553.855a.43.43 0 0 0-.26.545c.084.24.34.37.59.29 1.155-.39 2.318-1.13 3.49-2.22 1.17-1.09 1.76-2.17 1.76-3.24v-.284z'/%3E%3C/svg%3E");
+}
+
+/* SEO Page Styles */
+.seo-index .card {
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.seo-index .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--admin-shadow-md);
+}
+
+.seo-index .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--admin-text);
+}
+
+.seo-index .card-text {
+    font-size: 0.875rem;
+    color: var(--admin-text-secondary);
+}
+
+.seo-redirects .table,
+.seo-bulk-meta .table {
+    font-size: 0.875rem;
+}
+
+.seo-redirects code,
+.seo-redirect-edit code {
+    background: var(--admin-border-light);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.seo-sitemap .alert-info,
+.seo-robots .alert-info {
+    background: var(--admin-border-light);
+    border: 1px solid var(--admin-border);
+    color: var(--admin-text);
+}
+
+.seo-robots textarea {
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+
+.seo-bulk-meta .form-group label {
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.seo-bulk-meta .hint-block {
+    font-size: 0.75rem;
+    color: var(--admin-text-secondary);
+}

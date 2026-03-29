@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 use app\frontend\assets\AppAsset;
 
 AppAsset::register($this);
@@ -48,38 +49,38 @@ $company = Yii::$app->settings->getCompany();
 <header class="main-header">
     <div class="header-content">
         <!-- Logo -->
-        <a href="/" class="logo">
+        <a href="<?= Url::to(['/site/index']) ?>" class="logo">
             <img src="/images/logo.png" alt="<?= Html::encode($company['name'] ?? 'СНИКЕРХЭД') ?>">
         </a>
-        
+
         <!-- Navigation -->
         <nav class="main-nav">
             <ul class="nav-menu">
-                <li><a href="/catalog">Каталог</a></li>
-                <li><a href="/brands">Бренды</a></li>
-                <li><a href="/sale">Скидки</a></li>
-                <li><a href="/about">О нас</a></li>
-                <li><a href="/contacts">Контакты</a></li>
+                <li><a href="<?= Url::to(['/catalog/catalog/index']) ?>">Каталог</a></li>
+                <li><a href="<?= Url::to(['/catalog/brands/index']) ?>">Бренды</a></li>
+                <li><a href="<?= Url::to(['/catalog/catalog/index', 'sort' => 'sale']) ?>">Скидки</a></li>
+                <li><a href="<?= Url::to(['/page/about']) ?>">О нас</a></li>
+                <li><a href="<?= Url::to(['/page/contacts']) ?>">Контакты</a></li>
             </ul>
         </nav>
-        
+
         <!-- Actions -->
         <div class="header-actions">
             <button class="btn-search" onclick="openSearch()" aria-label="Поиск товаров" aria-haspopup="dialog">
                 <i class="bi bi-search" aria-hidden="true"></i>
             </button>
-            
-            <a href="/account/wishlist" class="btn-wishlist" aria-label="Избранное">
+
+            <a href="<?= Url::to(['/catalog/favorites/index']) ?>" class="btn-wishlist" aria-label="Избранное">
                 <i class="bi bi-heart" aria-hidden="true"></i>
                 <span class="wishlist-counter badge" role="status" aria-live="polite" style="display: none;">0</span>
             </a>
-            
-            <a href="/cart" class="btn-cart" aria-label="Корзина">
+
+            <a href="<?= Url::to(['/cart/cart/index']) ?>" class="btn-cart" aria-label="Корзина">
                 <i class="bi bi-cart3" aria-hidden="true"></i>
                 <span class="cart-counter badge" role="status" aria-live="polite" style="display: none;">0</span>
             </a>
-            
-            <a href="/account" class="btn-account" aria-label="Личный кабинет">
+
+            <a href="<?= Url::to(['/account/account/index']) ?>" class="btn-account" aria-label="Личный кабинет">
                 <i class="bi bi-person" aria-hidden="true"></i>
             </a>
         </div>

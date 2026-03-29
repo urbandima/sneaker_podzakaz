@@ -38,7 +38,7 @@ $config = [
     'controllerNamespace' => 'app\frontend\controllers',
     'viewPath' => dirname(__DIR__, 2) . '/frontend/views',
     'layoutPath' => dirname(__DIR__, 2) . '/frontend/views/layouts',
-    'bootstrap' => ['log', 'sitemapAutoGenerator', 'securityHeaders', 'cspHeaders'],
+    'bootstrap' => ['log', 'sitemapAutoGenerator', 'securityHeaders', 'cspHeaders', 'redirectMiddleware'],
     'language' => 'ru-RU',
     'timeZone' => 'Europe/Minsk',
     'aliases' => [
@@ -223,6 +223,24 @@ $config = [
                 
                 // Каталог товаров
                 'catalog' => 'catalog/catalog/index',
+                // SEO инструменты в админке
+                'admin/seo' => 'admin/seo/index',
+                'admin/seo/redirects' => 'admin/seo/redirects',
+                'admin/seo/redirect-edit' => 'admin/seo/redirect-edit',
+                'admin/seo/redirect-delete/<id:\d+>' => 'admin/seo/redirect-delete',
+                'admin/seo/sitemap' => 'admin/seo/sitemap',
+                'admin/seo/robots' => 'admin/seo/robots',
+                'admin/seo/bulk-meta' => 'admin/seo/bulk-meta',
+                'admin/seo/alt-texts' => 'admin/seo/alt-texts',
+                'admin/seo/update-product-meta' => 'admin/seo/update-product-meta',
+                'admin/seo/update-image-alt' => 'admin/seo/update-image-alt',
+                
+                // Catalog API endpoints (вынесено из CatalogController)
+                'api/catalog/filter' => 'catalog/catalog-api/filter',
+                'api/catalog/load-more' => 'catalog/catalog-api/load-more',
+                'api/catalog/quick-view/<id:\d+>' => 'catalog/catalog-api/quick-view',
+                'api/catalog/get-brands' => 'catalog/catalog-api/get-brands',
+                'api/catalog/products-by-ids' => 'catalog/catalog-api/products-by-ids',
                 'catalog/brand/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
                 'catalog/category/<slug:[a-z0-9-]+>' => 'catalog/catalog/category',
                 'catalog/product/<slug:[a-z0-9-]+>' => 'catalog/catalog/product',
@@ -441,6 +459,9 @@ $config = [
         ],
         'cspHeaders' => [
             'class' => 'app\infrastructure\middleware\CspHeadersMiddleware',
+        ],
+        'redirectMiddleware' => [
+            'class' => 'app\backend\modules\seo\components\RedirectMiddleware',
         ],
     ],
     'params' => $params,

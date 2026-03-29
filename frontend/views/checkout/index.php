@@ -186,7 +186,7 @@ $successUrl = Url::to(['/order/success']);
                     </div>
 
                     <!-- Адрес доставки (скрыт для самовывоза) -->
-                    <div class="form-group mt-3" id="addressGroup" style="display:none">
+                    <div class="form-group mt-3 hidden" id="addressGroup">
                         <label for="field-address">Адрес доставки <span class="text-danger">*</span></label>
                         <input type="text" id="field-address" name="address" class="form-control"
                                placeholder="Город, улица, дом, квартира"
@@ -207,7 +207,7 @@ $successUrl = Url::to(['/order/success']);
                 <!-- Step 4: Успех -->
                 <div class="checkout-step" id="step-4">
                     <div class="order-success text-center py-5">
-                        <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                        <i class="bi bi-check-circle-fill text-success icon-xl"></i>
                         <h2 class="mt-3">Заказ оформлен!</h2>
                         <p class="text-muted">Ваш заказ <strong>#<span id="orderNumber">—</span></strong> успешно создан</p>
                         <p class="text-muted">Мы свяжемся с вами для подтверждения</p>
@@ -435,6 +435,7 @@ function submitOrder() {
 .form-group label { font-weight: 500; margin-bottom: 4px; display: block; }
 .checkout-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
 .order-success i.bi-check-circle-fill { color: #22c55e; }
+.icon-xl { font-size: 4rem; }
 @media (max-width: 768px) {
     .checkout-layout { grid-template-columns: 1fr; }
 }

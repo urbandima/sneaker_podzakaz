@@ -13,11 +13,12 @@
  */
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 
 $company = Yii::$app->settings->getCompany();
 ?>
 
-<footer class="site-footer">
+<footer class="main-footer site-footer">
     <div class="footer-main">
         <div class="container">
             <div class="footer-grid">
@@ -71,12 +72,12 @@ $company = Yii::$app->settings->getCompany();
                 <div class="footer-column">
                     <h4 class="footer-title">Каталог</h4>
                     <ul class="footer-links">
-                        <li><a href="/catalog">Все товары</a></li>
-                        <li><a href="/brands">Бренды</a></li>
-                        <li><a href="/catalog?category=sneakers">Кроссовки</a></li>
-                        <li><a href="/catalog?category=boots">Ботинки</a></li>
-                        <li><a href="/sale">Распродажа</a></li>
-                        <li><a href="/catalog?sort=new">Новинки</a></li>
+                        <li><a href="<?= Url::to(['/catalog/catalog/index']) ?>">Все товары</a></li>
+                        <li><a href="<?= Url::to(['/catalog/brands/index']) ?>">Бренды</a></li>
+                        <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'sneakers']) ?>">Кроссовки</a></li>
+                        <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'boots']) ?>">Ботинки</a></li>
+                        <li><a href="<?= Url::to(['/catalog/catalog/index', 'sort' => 'sale']) ?>">Распродажа</a></li>
+                        <li><a href="<?= Url::to(['/catalog/catalog/index', 'sort' => 'new']) ?>">Новинки</a></li>
                     </ul>
                 </div>
 
@@ -144,86 +145,70 @@ $company = Yii::$app->settings->getCompany();
 </footer>
 
 <style>
-/* Footer Styles */
+/* =====================================================
+   Footer — design tokens
+   ===================================================== */
 .site-footer {
-    background: #0f172a;
-    color: #e2e8f0;
+    background: var(--footer-bg);
+    color: var(--footer-text);
     margin-top: auto;
 }
 
 .footer-main {
-    padding: 0.5rem 0 0.25rem;
+    padding: var(--spacing-2) 0 var(--spacing-1);
 }
 
 .footer-grid {
     display: grid;
     grid-template-columns: 1.5fr repeat(4, 1fr);
-    gap: 0.5rem;
+    gap: var(--spacing-2);
 }
 
 .footer-brand {
-    margin-bottom: 0.25rem;
+    margin-bottom: var(--spacing-1);
 }
 
 .footer-logo {
     height: 20px;
-    margin-bottom: 0.25rem;
+    margin-bottom: var(--spacing-1);
 }
 
 .footer-tagline {
-    color: #999999;
-    font-size: 1rem;
+    color: var(--text-muted);
+    font-size: var(--font-size-base);
     line-height: 1.2;
 }
 
 .footer-badges {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
-    margin-top: 0.5rem;
+    gap: var(--spacing-1);
+    margin-top: var(--spacing-2);
 }
 
 .badge-item {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    font-size: 1rem;
-    color: #999999;
+    gap: var(--spacing-1);
+    font-size: var(--font-size-base);
+    color: var(--text-muted);
 }
 
 .badge-item i {
-    color: #000000;
-    font-size: 0.75rem;
+    color: var(--footer-text);
+    font-size: var(--font-size-xs);
 }
 
 .footer-title {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 1rem;
+    color: var(--color-white);
+    margin-bottom: var(--spacing-4);
 }
 
-.footer-links {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.footer-links li {
-    margin-bottom: 0.25rem;
-}
-
+/* footer-links defined in app.css — extend only what differs */
 .footer-links a {
-    color: #999999;
-    text-decoration: none;
-    display: block;
-    padding: var(--spacing-1) 0;
-    transition: color var(--transition-fast);
-    font-size: 1rem;
-}
-
-.footer-links a:hover {
-    color: #ffffff;
+    font-size: var(--font-size-base);
 }
 
 .footer-contacts {
@@ -235,31 +220,31 @@ $company = Yii::$app->settings->getCompany();
 .footer-contacts li {
     display: flex;
     align-items: flex-start;
-    gap: 0.25rem;
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
+    gap: var(--spacing-1);
+    margin-bottom: var(--spacing-2);
+    font-size: var(--font-size-base);
 }
 
 .footer-contacts i {
-    color: #000000;
-    font-size: 1rem;
+    color: var(--footer-text);
+    font-size: var(--font-size-base);
     margin-top: 0.125rem;
 }
 
 .footer-contacts a {
-    color: #999999;
+    color: var(--text-muted);
     text-decoration: none;
-    transition: color 0.2s;
+    transition: color var(--transition-fast);
 }
 
 .footer-contacts a:hover {
-    color: #ffffff;
+    color: var(--color-white);
 }
 
 .footer-social {
     display: flex;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-3);
 }
 
 .social-link {
@@ -268,21 +253,23 @@ $company = Yii::$app->settings->getCompany();
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    background: #1a1a1a;
-    color: #ffffff;
+    background: var(--color-dark-gray);
+    color: var(--color-white);
     border-radius: var(--radius-md);
-    transition: all var(--transition-normal);
+    transition: background var(--transition-normal), transform var(--transition-normal);
+    text-decoration: none;
 }
 
 .social-link:hover {
-    background: #000000;
-    color: white;
+    background: var(--color-black);
+    color: var(--color-white);
     transform: translateY(-2px);
 }
 
 .footer-bottom {
-    background: #020617;
-    padding: 0.5rem 0;
+    background: var(--color-black);
+    padding: var(--spacing-2) 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .footer-bottom-content {
@@ -294,23 +281,23 @@ $company = Yii::$app->settings->getCompany();
 .payment-methods {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--spacing-2);
 }
 
 .payment-label {
-    color: #64748b;
-    font-size: 0.75rem;
+    color: var(--footer-link);
+    font-size: var(--font-size-xs);
 }
 
 .payment-icons {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--spacing-2);
 }
 
 .payment-icon {
     height: 20px;
     opacity: 0.7;
-    transition: opacity 0.2s;
+    transition: opacity var(--transition-fast);
 }
 
 .payment-icon:hover {
@@ -318,27 +305,27 @@ $company = Yii::$app->settings->getCompany();
 }
 
 .copyright {
-    color: #64748b;
-    font-size: 0.75rem;
+    color: var(--footer-link);
+    font-size: var(--font-size-xs);
 }
 
 /* Responsive */
 @media (max-width: 1024px) {
     .footer-grid {
         grid-template-columns: repeat(3, 1fr);
-        gap: 2rem;
+        gap: var(--spacing-8);
     }
-    
+
     .footer-column:first-child {
         grid-column: 1 / -1;
     }
-    
+
     .footer-brand {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: var(--spacing-4);
     }
-    
+
     .footer-badges {
         flex-direction: row;
         flex-wrap: wrap;
@@ -347,29 +334,29 @@ $company = Yii::$app->settings->getCompany();
 
 @media (max-width: 768px) {
     .footer-main {
-        padding: 3rem 0 2rem;
+        padding: var(--spacing-12) 0 var(--spacing-8);
     }
-    
+
     .footer-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
+        gap: var(--spacing-6);
     }
-    
+
     .footer-column:first-child {
         grid-column: 1 / -1;
     }
-    
+
     .footer-brand {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .footer-bottom-content {
         flex-direction: column;
-        gap: 1rem;
+        gap: var(--spacing-4);
         text-align: center;
     }
-    
+
     .payment-methods {
         flex-direction: column;
     }

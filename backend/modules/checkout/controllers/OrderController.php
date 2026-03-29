@@ -47,10 +47,33 @@ use app\backend\modules\cart\models\Cart;
 use app\backend\modules\checkout\services\ShippingService;
 use app\backend\modules\coupon\services\CouponService;
 use app\backend\modules\loyalty\services\LoyaltyService;
+use app\backend\modules\notification\services\NotificationService;
+use app\backend\modules\notification\services\SmsService;
+use app\backend\modules\notification\services\WebhookService;
 
 class OrderController extends Controller
 {
-    public $layout = 'main'; // Единый layout frontend
+    public $layout = 'main';
+    
+    /** @var NotificationService */
+    private $notificationService;
+    
+    /** @var SmsService */
+    private $smsService;
+    
+    /** @var WebhookService */
+    private $webhookService;
+    
+    public function init()
+    {
+        parent::init();
+        $this->notificationService = new NotificationService();
+        $this->smsService = new SmsService(['provider' => 'test']);
+        $this->webhookService = new WebhookService([
+            'secret' => Yii::$app->params['webhook_secret'] ?? 'default-secret',
+            'endpoints' => Yii::$app->params['webhook_endpoints'] ?? [],
+        ]);
+    }
 
     public function beforeAction($action)
     {
@@ -322,6 +345,9 @@ class OrderController extends Controller
             }
             
             $transaction->commit();
+            
+            // Отправляем уведомления через сервисы
+            $this->sendOrderNotifications($order, $customerId);
             
             Yii::info('Создан заказ #' . $order->id . ' через корзину', 'order');
             
@@ -739,5 +765,30 @@ class OrderController extends Controller
         return Yii::$app->response->sendFile($filePath, 'payment_proof_' . $model->order_number . '.' . pathinfo($model->payment_proof, PATHINFO_EXTENSION), [
             'inline' => true // Показать в браузере вместо скачивания
         ]);
+    }
+    
+    /**
+     * Отправить уведомления о заказе
+     */
+    private function sendOrderNotifications($order, $customerId): void
+    {
+        try {
+            // Внутреннее уведомление клиенту
+            if ($customerId) {
+                $this->notificationService->notifyNewOrder($order->id, $customerId);
+            }
+            
+            // SMS уведомление
+            if ($order->client_phone) {
+                $smsText = "Заказ {$order->order_number} оформлен. Сумма: {$order->total_amount} BYN. Спасибо за покупку!";
+                $this->smsService->send($order->client_phone, $smsText);
+            }
+            
+            // Webhook уведомление для внешних систем
+            $this->webhookService->sendOrderCreated($order);
+            
+        } catch (\Exception $e) {
+            Yii::error('Ошибка отправки уведомлений: ' . $e->getMessage(), 'order');
+        }
     }
 }

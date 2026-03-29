@@ -25,27 +25,27 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
     <div class="container">
         <!-- Breadcrumbs (как в каталоге) -->
         <nav class="breadcrumbs">
-            <a href="/">Главная</a> / 
-            <a href="/catalog">Каталог</a> / 
+            <a href="<?= \yii\helpers\Url::to(['/site/index']) ?>">Главная</a> /
+            <a href="<?= \yii\helpers\Url::to(['/catalog/catalog/index']) ?>">Каталог</a> /
             <span>История просмотров</span>
         </nav>
 
         <!-- Content (без sidebar - на всю ширину) -->
-        <div style="width: 100%;">
-            <main class="content" style="max-width: 100%;">
+        <div class="history-full-width">
+            <main class="content history-content">
                 <div class="content-header">
-                    <h1><i class="bi bi-clock-history"></i> История просмотров <span class="products-count" id="historyCountHeader" style="display:none;">(<span id="productsCount">0</span>)</span></h1>
+                    <h1><i class="bi bi-clock-history"></i> История просмотров <span class="products-count history-count-header" id="historyCountHeader">(<span id="productsCount">0</span>)</span></h1>
                 </div>
-                
+
                 <!-- Пустое состояние (показывается если истории нет) -->
-                <div id="emptyState" style="display:none;">
-                    <div style="text-align:center;padding:4rem 2rem;background:#fff;border-radius:12px;border:1px solid #e5e7eb;">
-                        <div style="font-size:4rem;margin-bottom:1rem;opacity:0.3;">
+                <div id="emptyState" class="history-hidden">
+                    <div class="history-empty-box">
+                        <div class="history-empty-icon">
                             <i class="bi bi-clock-history"></i>
                         </div>
-                        <h3 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;color:#111;">История просмотров пуста</h3>
-                        <p style="color:#6b7280;margin-bottom:2rem;">Вы ещё не смотрели товары</p>
-                        <a href="/catalog" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.875rem 1.75rem;background:#000;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;transition:all 0.2s;">
+                        <h3 class="history-empty-title">История просмотров пуста</h3>
+                        <p class="history-empty-text">Вы ещё не смотрели товары</p>
+                        <a href="<?= \yii\helpers\Url::to(['/catalog/catalog/index']) ?>" class="btn btn-primary history-empty-cta">
                             <i class="bi bi-grid-3x3-gap"></i>
                             Перейти в каталог
                         </a>
@@ -53,18 +53,18 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
                 </div>
 
                 <!-- История (показывается если есть товары) -->
-                <div id="historySection" style="display:none;">
+                <div id="historySection" class="history-hidden">
                     <!-- Toolbar (с кнопкой очистки) -->
                     <div class="catalog-toolbar">
                         <div class="toolbar-left">
-                            <span style="color:#6b7280;font-size:0.875rem;">
-                                <i class="bi bi-clock-history" style="color:#3b82f6;"></i> 
+                            <span class="history-toolbar-info">
+                                <i class="bi bi-clock-history history-toolbar-icon"></i>
                                 <span id="historyCount">0</span> <span id="historyLabel">товаров</span> в истории
                             </span>
                         </div>
-                        
+
                         <div class="toolbar-right">
-                            <button onclick="clearHistoryPage()" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.625rem 1.25rem;background:#fff;border:2px solid #e5e7eb;border-radius:8px;font-weight:600;color:#ef4444;cursor:pointer;transition:all 0.2s;">
+                            <button onclick="clearHistoryPage()" class="btn history-clear-btn" type="button">
                                 <i class="bi bi-trash"></i>
                                 <span>Очистить историю</span>
                             </button>
@@ -73,8 +73,8 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
 
                     <!-- Сетка товаров (точно как в каталоге) -->
                     <div class="products grid-5" id="products">
-                        <div style="grid-column: 1/-1; text-align:center;padding:3rem;color:#6b7280;">
-                            <i class="bi bi-hourglass-split" style="font-size:2rem;display:block;margin-bottom:1rem;"></i>
+                        <div class="history-loading">
+                            <i class="bi bi-hourglass-split history-loading-icon"></i>
                             Загрузка...
                         </div>
                     </div>
@@ -85,12 +85,13 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
 </div>
 
 <style>
-/* Hover эффект для кнопки очистки */
-.toolbar-right button:hover {
-    background: #fef2f2 !important;
-    border-color: #ef4444 !important;
-    transform: translateY(-2px);
-}
+/* =====================================================
+   История просмотров — page-specific styles only
+   (shared empty-state/layout classes live in pages.css)
+   ===================================================== */
+
+/* Счётчик в заголовке h1 — скрыт до инициализации JS */
+.history-count-header { display: none; }
 </style>
 
 <script>
