@@ -4,7 +4,7 @@ $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
 // Загрузка алиасов для совместимости
-require __DIR__ . '/../frontend/config/aliases.php';
+require __DIR__ . '/../../frontend/config/aliases.php';
 
 $socialClientConfigs = [];
 $socialAuth = $params['socialAuth'] ?? [];
