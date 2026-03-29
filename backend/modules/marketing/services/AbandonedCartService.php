@@ -17,9 +17,11 @@ class AbandonedCartService
     private function tableExists(): bool
     {
         try {
-            Yii::$app->db->createCommand("SELECT 1 FROM cart LIMIT 1")->execute();
-            return true;
+            $tableName = Yii::$app->db->schema->getRawTableName('cart');
+            $sql = "SHOW TABLES LIKE :tableName";
+            return Yii::$app->db->createCommand($sql, [':tableName' => $tableName])->queryScalar() !== false;
         } catch (\Exception $e) {
+            Yii::error('Ошибка проверки таблицы cart: ' . $e->getMessage());
             return false;
         }
     }
@@ -79,7 +81,11 @@ class AbandonedCartService
             
             $avgValue = $totalAbandoned > 0 ? $totalValue / $totalAbandoned : 0;
             
-            $recoveredToday = 0; // TODO: добавить отслеживание восстановленных корзин
+            // Отслеживание восстановленных корзин сегодня
+            $recoveredToday = Cart::find()
+                ->where(['>=', 'recovered_at', strtotime('today')])
+                ->andWhere(['>', 'items_count', 0])
+                ->count();
             
             return [
                 'total_abandoned' => $totalAbandoned,
@@ -106,13 +112,20 @@ class AbandonedCartService
     public function sendAbandonedCartEmail(Cart $cart): bool
     {
         if (!$cart->customer || !$cart->customer->email) {
+            Yii::warning('Попытка отправить письмо брошенной корзины без email клиента');
             return false;
         }
         
         $customer = $cart->customer;
         
         try {
-            Yii::$app->mailer->compose('abandoned-cart', [
+            $mailer = Yii::$app->mailer;
+            if (!$mailer) {
+                Yii::error('Mailer компонент не настроен');
+                return false;
+            }
+            
+            $result = $mailer->compose('abandoned-cart', [
                 'customer' => $customer,
                 'cart' => $cart,
                 'recoveryUrl' => Yii::$app->urlManager->createAbsoluteUrl(['/cart/index']),
@@ -122,7 +135,11 @@ class AbandonedCartService
             ->setSubject('Вы забыли товары в корзине!')
             ->send();
             
-            return true;
+            if ($result) {
+                Yii::info('Письмо брошенной корзины отправлено: ' . $customer->email);
+            }
+            
+            return $result;
         } catch (\Exception $e) {
             Yii::error('Ошибка отправки письма о брошенной корзине: ' . $e->getMessage());
             return false;
@@ -170,9 +187,32 @@ class AbandonedCartService
      */
     public function createRecoveryDiscount(Cart $cart, float $discountPercent = 10): ?string
     {
-        // TODO: интеграция с системой купонов
-        $code = 'CART' . strtoupper(substr(md5($cart->id . time()), 0, 8));
-        
-        return $code;
+        try {
+            // Проверяем существование сервиса купонов
+            if (class_exists('\app\backend\modules\coupon\services\CouponService')) {
+                $couponService = Yii::$app->get('couponService');
+                if ($couponService) {
+                    return $couponService->createRecoveryCoupon($cart, $discountPercent);
+                }
+            }
+            
+            // Fallback - генерируем простой код
+            $code = 'CART' . strtoupper(substr(md5($cart->id . time()), 0, 8));
+            
+            // Сохраняем в сессии для применения
+            $session = Yii::$app->session;
+            $recoveryCoupons = $session->get('recovery_coupons', []);
+            $recoveryCoupons[$code] = [
+                'cart_id' => $cart->id,
+                'discount_percent' => $discountPercent,
+                'expires_at' => time() + (24 * 3600), // 24 часа
+            ];
+            $session->set('recovery_coupons', $recoveryCoupons);
+            
+            return $code;
+        } catch (\Exception $e) {
+            Yii::error('Ошибка создания промокода восстановления: ' . $e->getMessage());
+            return null;
+        }
     }
 }

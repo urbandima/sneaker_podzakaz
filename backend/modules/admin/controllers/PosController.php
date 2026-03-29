@@ -90,19 +90,49 @@ class PosController extends BaseAdminController
             // Создаём или находим клиента
             $customer = null;
             if (!empty($data['customer_phone'])) {
-                $customer = Customer::findOne(['phone' => $data['customer_phone']]);
+                // Валидация телефона
+                $phone = preg_replace('/[^0-9+]/', '', $data['customer_phone']);
+                if (strlen($phone) < 9) {
+                    return ['success' => false, 'message' => 'Некорректный номер телефона'];
+                }
+                
+                $customer = Customer::findOne(['phone' => $phone]);
                 
                 if (!$customer && !empty($data['customer_name'])) {
                     $customer = new Customer();
-                    $customer->phone = $data['customer_phone'];
+                    $customer->phone = $phone;
                     $customer->first_name = $data['customer_name'];
                     $customer->email = $data['customer_email'] ?? null;
                     $customer->status = 10;
                     
                     if (!$customer->save()) {
-                        throw new \Exception('Ошибка создания клиента');
+                        throw new \Exception('Ошибка создания клиента: ' . implode(', ', $customer->getFirstErrors()));
                     }
                 }
+            }
+            
+            // Собираем все size_id для загрузки за один запрос
+            $sizeIds = array_column($data['items'], 'size_id');
+            $sizesMap = ProductSize::find()
+                ->where(['id' => $sizeIds])
+                ->with('product')
+                ->indexBy('id')
+                ->all();
+            
+            // Проверяем доступность и считаем сумму
+            $totalAmount = 0;
+            foreach ($data['items'] as $item) {
+                if (!isset($sizesMap[$item['size_id']])) {
+                    throw new \Exception('Товар с размером не найден');
+                }
+                
+                $size = $sizesMap[$item['size_id']];
+                if ($size->stock < $item['quantity']) {
+                    throw new \Exception("Недостаточно товара: {$size->product->name} размер {$size->size}");
+                }
+                
+                $price = $size->price ?: $size->product->price;
+                $totalAmount += $price * $item['quantity'];
             }
             
             // Создаём заказ
@@ -117,21 +147,6 @@ class PosController extends BaseAdminController
             $order->created_by = Yii::$app->user->id;
             $order->created_at = time();
             $order->updated_at = time();
-            
-            $totalAmount = 0;
-            
-            // Добавляем товары
-            foreach ($data['items'] as $item) {
-                $size = ProductSize::findOne($item['size_id']);
-                
-                if (!$size || $size->stock < $item['quantity']) {
-                    throw new \Exception("Недостаточно товара: {$size->product->name} размер {$size->size}");
-                }
-                
-                $price = $size->price ?: $size->product->price;
-                $totalAmount += $price * $item['quantity'];
-            }
-            
             $order->subtotal = $totalAmount;
             $order->total_amount = $totalAmount;
             
@@ -139,9 +154,9 @@ class PosController extends BaseAdminController
                 throw new \Exception('Ошибка создания заказа: ' . Json::encode($order->errors));
             }
             
-            // Создаём позиции заказа
+            // Создаём позиции заказа и обновляем остатки
             foreach ($data['items'] as $item) {
-                $size = ProductSize::findOne($item['size_id']);
+                $size = $sizesMap[$item['size_id']];
                 $price = $size->price ?: $size->product->price;
                 
                 $orderItem = new OrderItem();
@@ -154,7 +169,7 @@ class PosController extends BaseAdminController
                 $orderItem->total = $price * $item['quantity'];
                 
                 if (!$orderItem->save()) {
-                    throw new \Exception('Ошибка добавления товара');
+                    throw new \Exception('Ошибка добавления товара: ' . Json::encode($orderItem->errors));
                 }
                 
                 // Уменьшаем остаток
@@ -174,6 +189,7 @@ class PosController extends BaseAdminController
             
         } catch (\Exception $e) {
             $transaction->rollBack();
+            Yii::error('Ошибка создания POS заказа: ' . $e->getMessage());
             
             return [
                 'success' => false,
@@ -302,7 +318,15 @@ class PosController extends BaseAdminController
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         
-        $data = json_decode(Yii::$app->request->getRawBody(), true);
+        $rawBody = Yii::$app->request->getRawBody();
+        if (empty($rawBody)) {
+            return ['success' => false, 'message' => 'Пустой запрос'];
+        }
+        
+        $data = json_decode($rawBody, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return ['success' => false, 'message' => 'Ошибка JSON: ' . json_last_error_msg()];
+        }
         
         if (empty($data['name'])) {
             return ['success' => false, 'message' => 'Имя обязательно'];
@@ -328,6 +352,7 @@ class PosController extends BaseAdminController
             
             return ['success' => false, 'message' => 'Ошибка сохранения: ' . implode(', ', $customer->getFirstErrors())];
         } catch (\Exception $e) {
+            Yii::error('Ошибка создания клиента в POS: ' . $e->getMessage());
             return ['success' => false, 'message' => $e->getMessage()];
         }
     }
@@ -428,7 +453,15 @@ class PosController extends BaseAdminController
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         
-        $data = json_decode(Yii::$app->request->getRawBody(), true);
+        $rawBody = Yii::$app->request->getRawBody();
+        if (empty($rawBody)) {
+            return ['success' => false, 'message' => 'Пустой запрос'];
+        }
+        
+        $data = json_decode($rawBody, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return ['success' => false, 'message' => 'Ошибка JSON: ' . json_last_error_msg()];
+        }
         
         $discountType = $data['type'] ?? 'percent'; // percent или fixed
         $discountValue = (float)($data['value'] ?? 0);
@@ -474,10 +507,13 @@ class PosController extends BaseAdminController
             return ['results' => []];
         }
         
+        // Экранируем спецсимволы для LIKE
+        $escapedQuery = addcslashes($query, '%_');
+        
         $products = Product::find()
-            ->where(['like', 'name', $query])
-            ->orWhere(['like', 'article', $query])
-            ->orWhere(['like', 'vendor_code', $query])
+            ->where(['like', 'name', $escapedQuery, false])
+            ->orWhere(['like', 'article', $escapedQuery, false])
+            ->orWhere(['like', 'vendor_code', $escapedQuery, false])
             ->andWhere(['is_active' => true])
             ->limit(10)
             ->all();
@@ -486,10 +522,10 @@ class PosController extends BaseAdminController
         foreach ($products as $product) {
             $results[] = [
                 'id' => $product->id,
-                'text' => $product->name . ' (' . $product->article . ')',
-                'name' => $product->name,
-                'article' => $product->article,
-                'price' => $product->price,
+                'text' => Html::encode($product->name . ' (' . $product->article . ')'),
+                'name' => Html::encode($product->name),
+                'article' => Html::encode($product->article),
+                'price' => (float)$product->price,
                 'image' => $product->getMainImageUrl(),
             ];
         }

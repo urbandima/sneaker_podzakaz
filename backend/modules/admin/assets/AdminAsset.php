@@ -17,12 +17,12 @@ class AdminAsset extends AssetBundle
     public $baseUrl = '@web';
     
     public $css = [
-        // Минималистичный дизайн 100/100 - используем единые стили
-        // Старые стили отключены для единого дизайна
+        'css/admin.css',
     ];
     
     public $js = [
-        // JS файл будет добавлен позже
+        'js/admin.js',
+        'js/dashboard.js',
     ];
     
     public $depends = [

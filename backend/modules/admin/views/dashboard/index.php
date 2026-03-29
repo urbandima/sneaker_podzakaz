@@ -204,94 +204,20 @@ $amountFormatted = $totalAmount >= 1000 ? number_format($totalAmount / 1000, 1, 
     <span><b>Время</b> <?= date('H:i:s') ?></span>
 </div>
 
-<!-- Chart.js CDN -->
+<!-- Chart.js CDN с fallback -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
 <script>
-// === Sales Chart ===
-(function() {
-    const chartData = <?= json_encode($chartData ?? []) ?>;
-    const labels = chartData.map(d => d.day);
-    const orders = chartData.map(d => parseInt(d.orders) || 0);
-    const amounts = chartData.map(d => parseFloat(d.amount) || 0);
-
-    const ctx = document.getElementById('salesChart');
-    if (!ctx) return;
-
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-    const textColor = isDark ? '#94a3b8' : '#64748b';
-
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Заказы',
-                    data: orders,
-                    backgroundColor: 'rgba(59,130,246,0.7)',
-                    borderRadius: 6,
-                    yAxisID: 'y',
-                    order: 2
-                },
-                {
-                    label: 'Выручка (BYN)',
-                    data: amounts,
-                    type: 'line',
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16,185,129,0.1)',
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#10b981',
-                    yAxisID: 'y1',
-                    order: 1
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: { position: 'top', labels: { color: textColor, usePointStyle: true, padding: 16, font: { size: 12 } } }
-            },
-            scales: {
-                x: { grid: { display: false }, ticks: { color: textColor } },
-                y: { position: 'left', grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1 }, title: { display: true, text: 'Заказы', color: textColor } },
-                y1: { position: 'right', grid: { display: false }, ticks: { color: textColor }, title: { display: true, text: 'BYN', color: textColor } }
-            }
-        }
-    });
-})();
-
-// === Dark Theme Toggle ===
-(function() {
-    const btn = document.getElementById('theme-toggle');
-    const icon = document.getElementById('theme-icon');
-    const html = document.documentElement;
-
-    function applyTheme(t) {
-        html.setAttribute('data-theme', t);
-        localStorage.setItem('admin-theme', t);
-        icon.className = t === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-    }
-
-    const saved = localStorage.getItem('admin-theme') || 'light';
-    applyTheme(saved);
-
-    btn.addEventListener('click', function() {
-        applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-    });
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && e.key === 'd') { e.preventDefault(); btn.click(); }
-        if (e.ctrlKey && e.key === 'k') { e.preventDefault(); document.querySelector('.dash-action-card')?.focus(); }
-    });
-})();
+// Fallback если CDN не загрузился
+if (typeof Chart === 'undefined') {
+    document.write('<script src="/js/chart.min.js"><\/script>');
+}
 </script>
+
+<!-- Передача данных для chart -->
+<script>
+window.chartData = <?= json_encode($chartData ?? []) ?>;
+</script>
+
 
 <style>
 .dash-subtitle { margin: 0.25rem 0 0; color: var(--admin-text-secondary); font-size: 0.875rem; }
