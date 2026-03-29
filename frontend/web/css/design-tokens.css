@@ -249,8 +249,16 @@
     /* Order status badges */
     --status-new-bg: #dbeafe;
     --status-new-text: #1d4ed8;
+    --status-created-bg: #dbeafe;
+    --status-created-text: #1d4ed8;
+    --status-paid-bg: #ede9fe;
+    --status-paid-text: #6d28d9;
     --status-processing-bg: #fef3c7;
     --status-processing-text: #d97706;
+    --status-shipped-bg: #e0e7ff;
+    --status-shipped-text: #4338ca;
+    --status-delivered-bg: #d1fae5;
+    --status-delivered-text: #059669;
     --status-completed-bg: #d1fae5;
     --status-completed-text: #059669;
     --status-cancelled-bg: #fee2e2;
