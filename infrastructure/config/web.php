@@ -439,9 +439,6 @@ $config = [
         'securityHeaders' => [
             'class' => 'app\infrastructure\middleware\SecurityHeadersMiddleware',
         ],
-        'cspHeaders' => [
-            'class' => 'app\infrastructure\middleware\CspHeadersMiddleware',
-        ],
     ],
     'params' => $params,
 ];

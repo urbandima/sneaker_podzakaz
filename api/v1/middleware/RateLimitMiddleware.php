@@ -20,6 +20,8 @@ class RateLimitMiddleware extends ActionFilter
      */
     public int $window = 60;
 
+    public string $keyPrefix = 'rate_limit';
+
     public function beforeAction($action)
     {
         $key = $this->getRateLimitKey();
@@ -45,19 +47,20 @@ class RateLimitMiddleware extends ActionFilter
         // Добавляем заголовки
         $response = \Yii::$app->response;
         $response->headers->set('X-RateLimit-Limit', $this->maxRequests);
-        $response->headers->set('X-RateLimit-Remaining', $this->maxRequests - $current - 1);
+        $response->headers->set('X-RateLimit-Remaining', max(0, $this->maxRequests - $current - 1));
         $response->headers->set('X-RateLimit-Reset', time() + $this->window);
 
         return true;
     }
 
     /**
-     * Ключ для хранения счётчика
+     * Ключ для хранения счётчика — включает action для изолирования лимитов по эндпоинтам
      */
     private function getRateLimitKey(): string
     {
         $ip = \Yii::$app->request->userIP;
         $userId = \Yii::$app->user->id ?? 'guest';
-        return "rate_limit:{$ip}:{$userId}";
+        $actionId = \Yii::$app->controller->action->id;
+        return "{$this->keyPrefix}:{$ip}:{$userId}:{$actionId}";
     }
 }
