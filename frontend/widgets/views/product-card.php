@@ -2,7 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use app\backend\shared\helpers\ProductCardHelper;
+use app\helpers\ProductCardHelper;
 
 /** @var \app\backend\modules\catalog\models\Product $product */
 /** @var bool $isCriticalCard */

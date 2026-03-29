@@ -3,6 +3,9 @@
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
+// Загрузка алиасов для совместимости
+require __DIR__ . '/../frontend/config/aliases.php';
+
 $socialClientConfigs = [];
 $socialAuth = $params['socialAuth'] ?? [];
 
@@ -54,6 +57,7 @@ $config = [
         '@images' => '@app/frontend/images',
         '@uploads' => '@app/frontend/uploads',
         '@assets' => '@app/frontend/assets',
+        '@helpers' => '@app/backend/shared/helpers',
     ],
     // Feature-based модули (архитектура 2026)
     'modules' => [

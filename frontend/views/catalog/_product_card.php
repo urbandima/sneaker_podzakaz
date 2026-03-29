@@ -1,6 +1,6 @@
 <?php
 
-use app\backend\shared\helpers\ProductCardHelper;
+use app\helpers\ProductCardHelper;
 use yii\helpers\Html;
 
 /**

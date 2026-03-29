@@ -8,8 +8,8 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\helpers\Json;
 use app\frontend\assets\ProductAsset;
-use app\backend\shared\helpers\ProductCardHelper;
-use app\backend\shared\helpers\ImageHelper;
+use app\helpers\ProductCardHelper;
+use app\helpers\ImageHelper;
 use app\backend\shared\components\SchemaOrgGenerator;
 
 // Helper функции для поддержки как Product модели, так и stdClass для demo режима
