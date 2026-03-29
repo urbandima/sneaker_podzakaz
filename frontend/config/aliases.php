@@ -4,7 +4,7 @@
  * Class Aliases - Алиасы для совместимости
  */
 
-Yii::setAlias('@app/helpers', '@app/backend/shared/helpers');
+Yii::setAlias('@app/helpers', dirname(dirname(__DIR__)) . '/backend/shared/helpers');
 
 // Алиасы для классов
 class_alias('app\\backend\\shared\\helpers\\ProductCardHelper', 'app\\helpers\\ProductCardHelper');
