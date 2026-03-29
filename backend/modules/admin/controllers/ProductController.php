@@ -751,4 +751,82 @@ class ProductController extends BaseAdminController
         
         return $model;
     }
+
+    /**
+     * Клонирование товара
+     * 
+     * @param int $id
+     */
+    public function actionClone($id)
+    {
+        $original = $this->findModel($id);
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $clone = new Product();
+            $clone->attributes = $original->attributes;
+            $clone->id = null;
+            $clone->isNewRecord = true;
+            $clone->name = $original->name . ' (копия)';
+            $clone->slug = $original->slug . '-copy-' . time();
+            $clone->is_active = false;
+            $clone->created_at = time();
+            $clone->updated_at = time();
+
+            if (!$clone->save(false)) {
+                throw new \Exception('Ошибка сохранения копии: ' . json_encode($clone->errors));
+            }
+
+            // Копируем размеры
+            foreach ($original->sizes as $size) {
+                $newSize = new ProductSize();
+                $newSize->attributes = $size->attributes;
+                $newSize->id = null;
+                $newSize->isNewRecord = true;
+                $newSize->product_id = $clone->id;
+                $newSize->save(false);
+            }
+
+            $transaction->commit();
+            Yii::info("Товар #{$original->id} клонирован -> #{$clone->id}", 'product');
+            $this->flashSuccess('Товар клонирован. Отредактируйте копию.');
+            return $this->redirect(['/admin/product/edit', 'id' => $clone->id]);
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            $this->flashError('Ошибка клонирования: ' . $e->getMessage());
+            return $this->redirect(['/admin/product/view', 'id' => $id]);
+        }
+    }
+
+    /**
+     * Экспорт каталога товаров в CSV
+     */
+    public function actionExportCsv()
+    {
+        $products = Product::find()
+            ->with(['brand', 'category'])
+            ->orderBy(['id' => SORT_ASC])
+            ->all();
+
+        $csv = "\xEF\xBB\xBF"; // BOM для Excel
+        $csv .= "ID;Название;Бренд;Категория;Цена (BYN);Статус;SKU;Дата создания\n";
+
+        foreach ($products as $p) {
+            $csv .= implode(';', [
+                $p->id,
+                '"' . str_replace('"', '""', $p->name) . '"',
+                '"' . ($p->brand->name ?? '—') . '"',
+                '"' . ($p->category->name ?? '—') . '"',
+                number_format($p->price ?? 0, 2, '.', ''),
+                $p->is_active ? 'Активен' : 'Неактивен',
+                '"' . ($p->sku ?? '') . '"',
+                date('d.m.Y', $p->created_at ?? time()),
+            ]) . "\n";
+        }
+
+        Yii::$app->response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        Yii::$app->response->headers->set('Content-Disposition', 'attachment; filename="products_' . date('Y-m-d') . '.csv"');
+        return $csv;
+    }
 }

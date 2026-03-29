@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 /** @var yii\web\View $this */
-/** @var app\backend\modules\catalog\models\Customer $customer */
+/** @var app\models\Customer $customer */
 /** @var bool $passwordChanged */
 
 $this->title = 'Настройки аккаунта - СНИКЕРХЭД';

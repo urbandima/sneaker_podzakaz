@@ -4,8 +4,8 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 /** @var yii\web\View $this */
-/** @var app\backend\modules\catalog\models\Customer $customer */
-/** @var app\backend\modules\catalog\models\Order $order */
+/** @var app\models\Customer $customer */
+/** @var app\models\Order $order */
 
 $this->title = 'Заказ #' . ($order->order_number ?: $order->id) . ' - СНИКЕРХЭД';
 ?>

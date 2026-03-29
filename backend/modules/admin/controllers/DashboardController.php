@@ -63,6 +63,7 @@ class DashboardController extends BaseAdminController
                 'active' => 1180,
                 'inactive' => 65,
                 'inStock' => 1120,
+                'outOfStock' => 125,
             ];
             $userStats = [
                 'total' => 8,
@@ -196,19 +197,20 @@ class DashboardController extends BaseAdminController
             ];
         }
         
-        $query = Order::find();
+        $baseQuery = Order::find();
         
         if ($user->isLogist()) {
-            $query->andWhere(['assigned_logist' => $user->id]);
+            $baseQuery->andWhere(['assigned_logist' => $user->id]);
         }
         
         return [
-            'total' => (int)$query->count(),
-            'today' => (int)$query->andWhere(['>=', 'created_at', strtotime('today')])->count(),
-            'thisMonth' => (int)$query->andWhere(['>=', 'created_at', strtotime('first day of this month')])->count(),
-            'totalAmount' => $query->sum('total_amount') ?: 0,
-            'pending' => (int)Order::find()->where(['status' => 'created'])->count(),
-            'completed' => (int)Order::find()->where(['status' => 'delivered'])->count(),
+            'total' => (int)(clone $baseQuery)->count(),
+            'today' => (int)(clone $baseQuery)->andWhere(['>=', 'created_at', strtotime('today')])->count(),
+            'thisMonth' => (int)(clone $baseQuery)->andWhere(['>=', 'created_at', strtotime('first day of this month')])->count(),
+            'totalAmount' => (float)((clone $baseQuery)->sum('total_amount') ?: 0),
+            'pending' => (int)(clone $baseQuery)->andWhere(['status' => 'created'])->count(),
+            'processing' => (int)(clone $baseQuery)->andWhere(['status' => ['confirmed', 'paid', 'ordered']])->count(),
+            'completed' => (int)(clone $baseQuery)->andWhere(['status' => ['delivered', 'issued']])->count(),
         ];
     }
     

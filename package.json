@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "СНИКЕРХЭД - интернет-магазин кроссовок",
   "scripts": {
-    "build": "gulp build",
-    "watch": "gulp watch",
-    "minify": "gulp minify"
+    "build": "gulp --gulpfile build/frontend/gulpfile.js build",
+    "watch": "gulp --gulpfile build/frontend/gulpfile.js watch",
+    "minify": "gulp --gulpfile build/frontend/gulpfile.js minify"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

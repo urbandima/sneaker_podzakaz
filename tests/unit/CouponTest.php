@@ -3,12 +3,12 @@
 namespace tests\unit;
 
 use app\backend\modules\coupon\models\Coupon;
-use Codeception\Test\Unit;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Unit тесты для модели Coupon
  */
-class CouponTest extends Unit
+class CouponTest extends TestCase
 {
     /**
      * Тест создания купона

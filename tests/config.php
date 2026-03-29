@@ -3,7 +3,7 @@
  * Конфигурация тестового окружения СНИКЕРХЭД
  */
 
-$params = require __DIR__ . '/../config/params.php';
+$params = require __DIR__ . '/../infrastructure/config/params.php';
 
 return [
     'id' => 'sneakerhead-tests',

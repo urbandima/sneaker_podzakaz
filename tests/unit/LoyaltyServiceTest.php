@@ -3,19 +3,19 @@
 namespace tests\unit;
 
 use app\backend\modules\loyalty\services\LoyaltyService;
-use Codeception\Test\Unit;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Unit тесты для LoyaltyService
  */
-class LoyaltyServiceTest extends Unit
+class LoyaltyServiceTest extends TestCase
 {
     /**
      * @var LoyaltyService
      */
     protected $service;
 
-    protected function _before()
+    protected function setUp(): void
     {
         $this->service = new LoyaltyService();
     }

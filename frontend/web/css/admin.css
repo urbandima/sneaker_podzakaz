@@ -74,6 +74,32 @@ body {
     text-decoration: none;
     font-size: 0.75rem;
     font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.admin-sidebar-logo i {
+    font-size: 1.5rem;
+}
+
+.admin-sidebar-logo span {
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+}
+
+.admin-sidebar:hover .admin-sidebar-logo span {
+    opacity: 1;
+}
+
+/* Header actions */
+.admin-header-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
 }
 
 /* Навигация */
@@ -344,6 +370,11 @@ body {
     color: #ef4444;
 }
 
+.admin-stat-icon.info {
+    background: #dbeafe;
+    color: #3b82f6;
+}
+
 .admin-stat-content {
     flex: 1;
 }
@@ -450,16 +481,82 @@ body {
     color: var(--admin-text);
 }
 
-/* Темная тема */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --admin-bg: #0f172a;
-        --admin-surface: #1e293b;
-        --admin-text: #f8fafc;
-        --admin-text-secondary: #cbd5e1;
-        --admin-border: #334155;
-        --admin-border-light: #475569;
-    }
+/* Темная тема — переключаемая через data-theme */
+[data-theme="dark"] {
+    --admin-bg: #0f172a;
+    --admin-surface: #1e293b;
+    --admin-primary: #f8fafc;
+    --admin-primary-light: #e2e8f0;
+    --admin-text: #f1f5f9;
+    --admin-text-secondary: #94a3b8;
+    --admin-border: #334155;
+    --admin-border-light: #1e293b;
+    --admin-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --admin-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .admin-sidebar {
+    background: #020617;
+}
+
+[data-theme="dark"] .admin-badge-success {
+    background: #064e3b;
+    color: #6ee7b7;
+}
+
+[data-theme="dark"] .admin-badge-warning {
+    background: #78350f;
+    color: #fcd34d;
+}
+
+[data-theme="dark"] .admin-badge-danger {
+    background: #7f1d1d;
+    color: #fca5a5;
+}
+
+[data-theme="dark"] .admin-badge-info {
+    background: #1e3a5f;
+    color: #93c5fd;
+}
+
+[data-theme="dark"] .admin-stat-icon.primary {
+    background: #1e3a5f;
+}
+
+[data-theme="dark"] .admin-stat-icon.success {
+    background: #064e3b;
+}
+
+[data-theme="dark"] .admin-stat-icon.warning {
+    background: #78350f;
+}
+
+[data-theme="dark"] .admin-stat-icon.danger {
+    background: #7f1d1d;
+}
+
+[data-theme="dark"] .admin-stat-icon.info {
+    background: #1e3a5f;
+}
+
+[data-theme="dark"] .admin-table th {
+    background: #0f172a;
+}
+
+[data-theme="dark"] .admin-table tr:hover td {
+    background: #334155;
+}
+
+[data-theme="dark"] .admin-btn-secondary {
+    background: #334155;
+    border-color: #475569;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .admin-form-input {
+    background: #0f172a;
+    border-color: #475569;
+    color: #f1f5f9;
 }
 
 /* Bootstrap Icons локальные (inline SVG) */

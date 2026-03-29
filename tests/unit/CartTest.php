@@ -3,7 +3,7 @@
 namespace tests\unit;
 
 use Yii;
-use yii\codeception\TestCase;
+use PHPUnit\Framework\TestCase;
 use app\backend\modules\cart\models\Cart;
 use app\backend\modules\catalog\models\Product;
 

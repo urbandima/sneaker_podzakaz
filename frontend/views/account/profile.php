@@ -5,8 +5,8 @@ use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 
 /** @var yii\web\View $this */
-/** @var app\backend\modules\catalog\models\Customer $customer */
-/** @var app\backend\modules\catalog\models\Order[] $orders */
+/** @var app\models\Customer $customer */
+/** @var app\models\Order[] $orders */
 
 $this->title = 'Мой профиль - СНИКЕРХЭД';
 
