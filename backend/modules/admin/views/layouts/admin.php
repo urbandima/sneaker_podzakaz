@@ -95,11 +95,84 @@ $controllerId = Yii::$app->controller->id;
             </div>
         </div>
 
+        <!-- B2.2 Global Header Bar -->
+        <div class="admin-topbar" id="admin-topbar">
+            <div class="admin-topbar-left">
+                <button class="admin-topbar-search-btn" onclick="document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',ctrlKey:true,bubbles:true}))" title="Глобальный поиск (Ctrl+K)">
+                    <i class="bi bi-search"></i>
+                    <span class="admin-topbar-search-hint">Поиск <kbd>Ctrl+K</kbd></span>
+                </button>
+            </div>
+            <div class="admin-topbar-right">
+                <!-- "+ Новый заказ" -->
+                <a href="<?= \yii\helpers\Url::to(['/admin/order/create']) ?>" class="admin-btn admin-btn-primary admin-btn-sm">
+                    <i class="bi bi-plus-circle"></i> Новый заказ
+                </a>
+                <!-- Калькулятор -->
+                <button class="admin-topbar-icon-btn" id="calc-open-btn" title="Калькулятор стоимости">
+                    <i class="bi bi-calculator-fill"></i>
+                </button>
+                <!-- Уведомления -->
+                <button class="admin-topbar-icon-btn admin-notif-btn" id="notif-btn" title="Уведомления" onclick="window.location.href='/admin/order?status=created'">
+                    <i class="bi bi-bell-fill"></i>
+                    <span class="admin-notif-badge" id="notif-badge" style="display:none"></span>
+                </button>
+            </div>
+        </div>
+
         <?= $content ?>
     </main>
 </div>
 
+<!-- B2.3 Calc Drawer Overlay -->
+<div id="calc-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:1099;"></div>
 
+<!-- B2.3 Calculator Drawer -->
+<div id="calc-drawer" class="calc-drawer">
+    <div class="calc-drawer-header">
+        <h3 class="calc-drawer-title"><i class="bi bi-calculator-fill"></i> Калькулятор</h3>
+        <button class="admin-topbar-icon-btn" id="calc-close-btn" title="Закрыть"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="calc-drawer-body">
+        <!-- Курс CNY -->
+        <div class="calc-rate-info" id="calc-rate-display">
+            <span>Загрузка курса...</span>
+        </div>
+        <button class="admin-btn admin-btn-secondary admin-btn-sm" id="calc-refresh-rate" style="margin-bottom:1rem;width:100%">
+            <i class="bi bi-arrow-clockwise"></i> Обновить курс
+        </button>
+
+        <!-- Поля расчёта -->
+        <div class="admin-form-group">
+            <label class="admin-form-label" for="calc-cny">Цена в CNY (юань)</label>
+            <input type="number" id="calc-cny" class="admin-form-input" placeholder="0.00" min="0" step="0.01">
+        </div>
+        <div class="admin-form-group">
+            <label class="admin-form-label" for="calc-markup">Наценка %</label>
+            <input type="number" id="calc-markup" class="admin-form-input" placeholder="50" min="0" step="1" value="50">
+        </div>
+        <div class="admin-form-group">
+            <label class="admin-form-label" for="calc-weight">Вес (кг)</label>
+            <input type="number" id="calc-weight" class="admin-form-input" placeholder="0.5" min="0" step="0.01">
+        </div>
+
+        <!-- Разбивка расчёта -->
+        <div id="calc-breakdown" class="calc-breakdown" style="display:none"></div>
+
+        <!-- Итого -->
+        <div class="admin-form-group">
+            <label class="admin-form-label" for="calc-total">Итого BYN</label>
+            <input type="text" id="calc-total" class="admin-form-input calc-total-field" placeholder="—" readonly>
+        </div>
+
+        <a id="calc-create-order" href="#" class="admin-btn admin-btn-primary" style="width:100%;justify-content:center;display:inline-flex">
+            <i class="bi bi-bag-plus-fill"></i> Создать заказ
+        </a>
+    </div>
+</div>
+
+<!-- Admin JS -->
+<script src="/js/admin.js?v=<?= file_exists(Yii::getAlias('@webroot') . '/js/admin.js') ? filemtime(Yii::getAlias('@webroot') . '/js/admin.js') : time() ?>"></script>
 
 <?php $this->endBody() ?>
 </body>
