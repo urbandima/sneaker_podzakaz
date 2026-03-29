@@ -241,10 +241,10 @@ CheckoutAsset::register($this);
                 <?php foreach ($recommendedProducts as $product): ?>
                 <div class="product-card">
                     <a href="<?= $product->getUrl() ?>" class="product-link">
-                        <?php if ($product->getMainImage()): ?>
+                        <?php if ($product->getMainImageUrl()): ?>
                         <div class="product-image">
                             <img 
-                                src="<?= Html::encode($product->getMainImage()->getImageUrl()) ?>" 
+                                src="<?= Html::encode($product->getMainImageUrl()) ?>" 
                                 alt="<?= Html::encode($product->name) ?>"
                                 loading="lazy"
                             >
@@ -262,10 +262,10 @@ CheckoutAsset::register($this);
                             
                             <div class="product-price">
                                 <?php if ($product->hasDiscount()): ?>
-                                    <span class="price-old"><?= number_format($product->price_byn, 2) ?> BYN</span>
-                                    <span class="price-current"><?= number_format($product->getDiscountedPrice(), 2) ?> BYN</span>
+                                    <span class="price-old"><?= number_format($product->old_price, 2) ?> BYN</span>
+                                    <span class="price-current"><?= number_format($product->price, 2) ?> BYN</span>
                                 <?php else: ?>
-                                    <span class="price-current"><?= number_format($product->price_byn, 2) ?> BYN</span>
+                                    <span class="price-current"><?= number_format($product->price, 2) ?> BYN</span>
                                 <?php endif; ?>
                             </div>
                         </div>

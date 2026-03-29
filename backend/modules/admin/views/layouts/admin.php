@@ -19,9 +19,6 @@ $company = Yii::$app->settings->getCompany() ?? ['name' => 'СНИКЕРХЭД']
     <!-- Admin CSS -->
     <link href="/css/admin.css?v=<?= time() ?>" rel="stylesheet">
     
-    <!-- Bootstrap Icons CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
     <?php // Отключаем debug toolbar для админки ?>
     <?php if (class_exists('yii\debug\Module')): ?>
         <style>
@@ -48,11 +45,11 @@ $company = Yii::$app->settings->getCompany() ?? ['name' => 'СНИКЕРХЭД']
                 <span>Главная</span>
             </a>
             <a href="<?= Url::to(['/admin/order']) ?>" class="admin-nav-item <?= Yii::$app->controller->id === 'order' ? 'active' : '' ?>">
-                <i class="bi bi-cart3"></i>
+                <i class="bi bi-cart"></i>
                 <span>Заказы</span>
             </a>
             <a href="<?= Url::to(['/admin/catalog']) ?>" class="admin-nav-item <?= Yii::$app->controller->id === 'catalog' || Yii::$app->controller->id === 'product' ? 'active' : '' ?>">
-                <i class="bi bi-grid"></i>
+                <i class="bi bi-box"></i>
                 <span>Каталог</span>
             </a>
             <a href="<?= Url::to(['/admin/customer']) ?>" class="admin-nav-item <?= Yii::$app->controller->id === 'customer' ? 'active' : '' ?>">
@@ -60,16 +57,20 @@ $company = Yii::$app->settings->getCompany() ?? ['name' => 'СНИКЕРХЭД']
                 <span>Клиенты</span>
             </a>
             <a href="<?= Url::to(['/admin/coupon']) ?>" class="admin-nav-item <?= Yii::$app->controller->id === 'coupon' ? 'active' : '' ?>">
-                <i class="bi bi-ticket-perforated"></i>
+                <i class="bi bi-box"></i>
                 <span>Купоны</span>
             </a>
             <a href="<?= Url::to(['/admin/return']) ?>" class="admin-nav-item <?= Yii::$app->controller->id === 'return' ? 'active' : '' ?>">
-                <i class="bi bi-arrow-counterclockwise"></i>
+                <i class="bi bi-box"></i>
                 <span>Возвраты</span>
             </a>
             <a href="<?= Url::to(['/admin/statistics']) ?>" class="admin-nav-item <?= Yii::$app->controller->id === 'statistics' ? 'active' : '' ?>">
                 <i class="bi bi-graph-up"></i>
                 <span>Статистика</span>
+            </a>
+            <a href="<?= Url::to(['/admin/seo']) ?>" class="admin-nav-item <?= Yii::$app->controller->id === 'seo' ? 'active' : '' ?>">
+                <i class="bi bi-globe"></i>
+                <span>SEO</span>
             </a>
             <a href="<?= Url::to(['/admin/settings']) ?>" class="admin-nav-item <?= Yii::$app->controller->id === 'settings' ? 'active' : '' ?>">
                 <i class="bi bi-gear"></i>
@@ -78,7 +79,7 @@ $company = Yii::$app->settings->getCompany() ?? ['name' => 'СНИКЕРХЭД']
             
             <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--admin-primary-soft);">
                 <a href="<?= Url::to(['/']) ?>" class="admin-nav-item" style="color: var(--admin-text-secondary);">
-                    <i class="bi bi-house"></i>
+                    <i class="bi bi-box"></i>
                     <span>На сайт</span>
                 </a>
                 <a href="<?= Url::to(['/admin/logout']) ?>" class="admin-nav-item" style="color: var(--admin-danger);">

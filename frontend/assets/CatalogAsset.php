@@ -17,7 +17,7 @@ class CatalogAsset extends VersionedAssetBundle
     public $baseUrl = '@web';
     
     public $css = [
-        // CSS подключается через AppAsset в depends
+        'css/catalog.css',  // Стили каталога
     ];
     
     public $js = [
