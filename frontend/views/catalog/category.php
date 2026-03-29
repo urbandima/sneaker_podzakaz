@@ -8,9 +8,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\LinkPager;
-use app\frontend\assets\CatalogAsset;
 
-$this->registerAssetBundle(CatalogAsset::class);
 $this->title = ($category->name ?? 'Категория') . ' - Каталог товаров';
 $this->registerMetaTag(['name' => 'description', 'content' => 'Товары категории ' . ($category->name ?? '')]);
 ?>
@@ -77,3 +75,38 @@ $this->registerMetaTag(['name' => 'description', 'content' => 'Товары ка
         <?php endif; ?>
     </div>
 </div>
+
+<style>
+/* =====================================================
+   Страница категории — design tokens
+   ===================================================== */
+.category-header {
+    margin-bottom: var(--spacing-8);
+}
+
+.category-header h1 {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-2);
+}
+
+.category-description {
+    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+}
+
+/* Category-specific product grid (fallback if main .products grid not used) */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--spacing-6);
+    margin-bottom: var(--spacing-8);
+}
+
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--spacing-8);
+}
+</style>
