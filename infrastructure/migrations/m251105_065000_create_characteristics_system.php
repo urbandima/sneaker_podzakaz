@@ -15,6 +15,12 @@ class m251105_065000_create_characteristics_system extends Migration
     public function safeUp()
     {
         // 1. Таблица типов характеристик (материал, сезон, пол и т.д.)
+        // Guard: m251105_107000 may also create this table; skip if it already exists.
+        if ($this->db->schema->getTableSchema('{{%characteristic}}', true) !== null) {
+            echo "⚠ characteristic tables already exist, skipping creation\n";
+            return true;
+        }
+
         $this->createTable('{{%characteristic}}', [
             'id' => $this->primaryKey(),
             'key' => $this->string(100)->notNull()->unique()->comment('Ключ характеристики (latin)'),
