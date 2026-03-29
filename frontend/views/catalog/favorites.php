@@ -37,24 +37,21 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
                 </div>
                 
                 <?php if (empty($favorites)): ?>
-                    <!-- Empty State (улучшенный дизайн) -->
-                    <div style="text-align:center;padding:4rem 2rem;background:#fff;border-radius:12px;border:1px solid #e5e7eb;">
-                        <div style="font-size:4rem;margin-bottom:1rem;opacity:0.3;">
-                            <i class="bi bi-heart"></i>
-                        </div>
-                        <h3 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;color:#111;">Избранное пустое</h3>
-                        <p style="color:#6b7280;margin-bottom:2rem;">Вы еще не добавили ни одного товара в избранное</p>
-                        <a href="/catalog" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.875rem 1.75rem;background:#000;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;transition:all 0.2s;">
-                            <i class="bi bi-grid-3x3-gap"></i>
-                            Перейти в каталог
+                    <!-- Empty State -->
+                    <div class="empty-state">
+                        <div class="empty-state__icon"><i class="bi bi-heart"></i></div>
+                        <h3 class="empty-state__title">Избранное пустое</h3>
+                        <p class="empty-state__text">Вы еще не добавили ни одного товара в избранное</p>
+                        <a href="/catalog" class="btn btn-primary">
+                            <i class="bi bi-grid-3x3-gap"></i> Перейти в каталог
                         </a>
                     </div>
                 <?php else: ?>
                     <!-- Toolbar (упрощенный, только сортировка) -->
                     <div class="catalog-toolbar">
                         <div class="toolbar-left">
-                            <span style="color:#6b7280;font-size:0.875rem;">
-                                <i class="bi bi-heart-fill" style="color:#ef4444;"></i> 
+                            <span class="toolbar-meta">
+                                <i class="bi bi-heart-fill icon-danger"></i>
                                 <?= count($favorites) ?> <?= count($favorites) === 1 ? 'товар' : (count($favorites) < 5 ? 'товара' : 'товаров') ?>
                             </span>
                         </div>

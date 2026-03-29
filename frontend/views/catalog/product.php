@@ -979,7 +979,7 @@ echo SchemaOrgGenerator::render($product);
                 <h2>
                     <span>🛍️</span>
                     Похожие товары
-                    <span style="color: #6b7280; font-weight: 400; font-size: 0.9em;">(<?= count($similarProducts) ?>)</span>
+                    <span class="related-count">(<?= count($similarProducts) ?>)</span>
                 </h2>
                 <i class="bi bi-chevron-down toggle-icon" id="relatedToggleIcon"></i>
             </div>
@@ -1080,7 +1080,7 @@ echo SchemaOrgGenerator::render($product);
                     <?php endforeach; ?>
                 <?php else: ?>
                     <div class="placeholder-content">
-                        <i class="bi bi-chat-left-text" style="font-size:3rem;color:#ccc;"></i>
+                        <i class="bi bi-chat-left-text placeholder-icon"></i>
                         <h3>Отзывов пока нет</h3>
                         <p>Будьте первым, кто оставит отзыв о этом товаре</p>
                     </div>
@@ -1125,7 +1125,7 @@ echo SchemaOrgGenerator::render($product);
                     <?php endforeach; ?>
                 <?php else: ?>
                     <div class="placeholder-content">
-                        <i class="bi bi-question-circle" style="font-size:3rem;color:#ccc;"></i>
+                        <i class="bi bi-question-circle placeholder-icon"></i>
                         <h3>Вопросов пока нет</h3>
                         <p>Задайте первый вопрос о этом товаре</p>
                     </div>
@@ -1294,7 +1294,7 @@ echo SchemaOrgGenerator::render($product);
                 </div>
             <?php endforeach; ?>
             <?php if ($sizeCount === 0): ?>
-                <div style="padding:1rem;color:#999;text-align:center;">Нет доступных размеров</div>
+                <div class="sizes-empty">Нет доступных размеров</div>
             <?php endif; ?>
         </div>
     </div>

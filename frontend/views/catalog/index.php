@@ -242,7 +242,7 @@ setTimeout(function() {
                                 <?php endif;
                             endforeach;
                         else: ?>
-                            <p style="padding: 1rem; color: #6b7280; font-size: 0.875rem;">Размеры не найдены</p>
+                            <p class="filter-empty-text">Размеры не найдены</p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -350,12 +350,10 @@ setTimeout(function() {
                     <?php endif; ?>
                 <?php endforeach; else: ?>
                     <!-- Fallback: если характеристик нет -->
-                    <div class="alert alert-info" style="margin: 1rem; padding: 1rem; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+                    <div class="filter-info-notice">
                         <i class="bi bi-info-circle"></i>
                         <strong>Характеристики загружаются...</strong>
-                        <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: #666;">
-                            Добавьте характеристики товаров в админ-панели для расширенной фильтрации.
-                        </p>
+                        <p>Добавьте характеристики товаров в админ-панели для расширенной фильтрации.</p>
                     </div>
                 <?php endif; ?>
                 
@@ -1151,7 +1149,7 @@ let thumbsHtml='';
 if(data.images){data.images.forEach(img=>{thumbsHtml+=`<img src="${img}" onclick="document.getElementById('qvMainImg').src='${img}'">`})}
 document.getElementById('qvThumbs').innerHTML=thumbsHtml;
 let sizesHtml='<h4>Размер</h4><div style="display:flex;gap:0.5rem;flex-wrap:wrap">';
-if(data.sizes){data.sizes.forEach(s=>{sizesHtml+=`<span style="padding:0.5rem 1rem;border:2px solid #e5e7eb;border-radius:6px;cursor:pointer">${s}</span>`})}
+if(data.sizes){data.sizes.forEach(s=>{sizesHtml+=`<span class="size-chip">${s}</span>`})}
 sizesHtml+='</div>';
 document.getElementById('qvSizes').innerHTML=sizesHtml;
 qvModal.classList.add('active');

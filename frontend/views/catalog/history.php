@@ -39,15 +39,12 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
                 
                 <!-- Пустое состояние (показывается если истории нет) -->
                 <div id="emptyState" style="display:none;">
-                    <div style="text-align:center;padding:4rem 2rem;background:#fff;border-radius:12px;border:1px solid #e5e7eb;">
-                        <div style="font-size:4rem;margin-bottom:1rem;opacity:0.3;">
-                            <i class="bi bi-clock-history"></i>
-                        </div>
-                        <h3 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;color:#111;">История просмотров пуста</h3>
-                        <p style="color:#6b7280;margin-bottom:2rem;">Вы ещё не смотрели товары</p>
-                        <a href="/catalog" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.875rem 1.75rem;background:#000;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;transition:all 0.2s;">
-                            <i class="bi bi-grid-3x3-gap"></i>
-                            Перейти в каталог
+                    <div class="empty-state">
+                        <div class="empty-state__icon"><i class="bi bi-clock-history"></i></div>
+                        <h3 class="empty-state__title">История просмотров пуста</h3>
+                        <p class="empty-state__text">Вы ещё не смотрели товары</p>
+                        <a href="/catalog" class="btn btn-primary">
+                            <i class="bi bi-grid-3x3-gap"></i> Перейти в каталог
                         </a>
                     </div>
                 </div>
@@ -57,14 +54,14 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
                     <!-- Toolbar (с кнопкой очистки) -->
                     <div class="catalog-toolbar">
                         <div class="toolbar-left">
-                            <span style="color:#6b7280;font-size:0.875rem;">
-                                <i class="bi bi-clock-history" style="color:#3b82f6;"></i> 
+                            <span class="toolbar-meta">
+                                <i class="bi bi-clock-history"></i>
                                 <span id="historyCount">0</span> <span id="historyLabel">товаров</span> в истории
                             </span>
                         </div>
                         
                         <div class="toolbar-right">
-                            <button onclick="clearHistoryPage()" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.625rem 1.25rem;background:#fff;border:2px solid #e5e7eb;border-radius:8px;font-weight:600;color:#ef4444;cursor:pointer;transition:all 0.2s;">
+                            <button onclick="clearHistoryPage()" class="btn-clear-history">
                                 <i class="bi bi-trash"></i>
                                 <span>Очистить историю</span>
                             </button>
@@ -73,8 +70,8 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
 
                     <!-- Сетка товаров (точно как в каталоге) -->
                     <div class="products grid-5" id="products">
-                        <div style="grid-column: 1/-1; text-align:center;padding:3rem;color:#6b7280;">
-                            <i class="bi bi-hourglass-split" style="font-size:2rem;display:block;margin-bottom:1rem;"></i>
+                        <div class="loading-placeholder">
+                            <i class="bi bi-hourglass-split"></i>
                             Загрузка...
                         </div>
                     </div>

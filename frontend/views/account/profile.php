@@ -532,7 +532,7 @@ $this->params['breadcrumbs'][] = 'Профиль';
                     <div class="form-group">
                         <label>Email</label>
                         <input type="email" class="form-control" value="<?= Html::encode($customer->email) ?>" disabled>
-                        <small style="color: #6b7280; font-size: 0.75rem;">Для смены email обратитесь в поддержку</small>
+                        <small class="form-hint">Для смены email обратитесь в поддержку</small>
                     </div>
 
                     <div class="form-section">
