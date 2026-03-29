@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 /** @var yii\web\View $this */
-/** @var app\backend\modules\catalog\models\Order[] $orders */
+/** @var app\models\Order[] $orders */
 /** @var string|null $email */
 
 $this->title = 'Личный кабинет - СНИКЕРХЭД';
@@ -282,7 +282,7 @@ $this->title = 'Личный кабинет - СНИКЕРХЭД';
                     <li><a href="<?= Url::to(['/account/index']) ?>" class="active"><i class="bi bi-house"></i> Главная</a></li>
                     <li><a href="<?= Url::to(['/account/orders']) ?>"><i class="bi bi-bag"></i> Мои заказы</a></li>
                     <li><a href="<?= Url::to(['/catalog/history']) ?>"><i class="bi bi-clock-history"></i> История просмотров</a></li>
-                    <li><a href="<?= Url::to(['/catalog/favorites']) ?>"><i class="bi bi-heart"></i> Избранное</a></li>
+                    <li><a href="<?= Url::to(['/favorite/index']) ?>"><i class="bi bi-heart"></i> Избранное</a></li>
                     <li><a href="<?= Url::to(['/cart/index']) ?>"><i class="bi bi-cart3"></i> Корзина</a></li>
                 </ul>
             </aside>
@@ -341,7 +341,7 @@ $this->title = 'Личный кабинет - СНИКЕРХЭД';
                         <i class="bi bi-grid"></i>
                         <span>Каталог товаров</span>
                     </a>
-                    <a href="<?= Url::to(['/catalog/favorites']) ?>" class="quick-link">
+                    <a href="<?= Url::to(['/favorite/index']) ?>" class="quick-link">
                         <i class="bi bi-heart"></i>
                         <span>Избранное</span>
                     </a>

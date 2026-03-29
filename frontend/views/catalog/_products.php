@@ -1,19 +1,20 @@
 <?php
 
-use app\backend\shared\helpers\ProductCardHelper;
-use app\backend\modules\catalog\models\Product;
+use app\helpers\ProductCardHelper;
+use app\models\Product;
+use Yii;
 
 /**
  * Частичный шаблон каталога для списка товаров.
  *
  * Контракт:
- * - $products — уже подготовленные app\backend\modules\catalog\models\Product (with() должен подтянуть brand/sizes).
+ * - $products — уже подготовленные app\models\Product (with() должен подтянуть brand/sizes).
  * - View ожидает, что размеры и активные фильтры попадают в $_GET (см. CatalogController::actionFilter()).
  *
  * Важно: actionFilter() временно записывает POST-параметры в $_GET ради совместимости с applyFilters().
  * Это место помечено как "Нужен ручной пересмотр" в контроллере — при рефакторинге стоит убрать прямую зависимость view от глобального состояния.
  */
-/** @var $products app\backend\modules\catalog\models\Product[] */
+/** @var $products app\models\Product[] */
 
 $lazyPlaceholder = ProductCardHelper::LAZY_PLACEHOLDER;
 $selectedSizesParam = Yii::$app->request->get('sizes');

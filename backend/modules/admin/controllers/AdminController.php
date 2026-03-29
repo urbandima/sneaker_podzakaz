@@ -53,6 +53,11 @@ class AdminController extends BaseAdminController
     public function behaviors()
     {
         return [
+            'rateLimiter' => [
+                'class' => \yii\filters\RateLimiter::class,
+                'only' => ['login'],
+                'user' => new \app\components\RateLimitUser(),
+            ],
             'access' => [
                 'class' => AccessControl::class,
                 'rules' => [

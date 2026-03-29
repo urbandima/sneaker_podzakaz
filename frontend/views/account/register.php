@@ -5,7 +5,7 @@ use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 
 /** @var yii\web\View $this */
-/** @var app\backend\modules\catalog\models\CustomerRegisterForm $model */
+/** @var app\models\CustomerRegisterForm $model */
 
 $this->title = 'Регистрация - СНИКЕРХЭД';
 echo $this->render('_auth-style');

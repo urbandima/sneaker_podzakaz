@@ -1,214 +1,369 @@
 <?php
-
-/** @var yii\web\View $this */
+/**
+ * Dashboard — Главная панель администратора
+ * Виджеты с реальными данными из БД, графики, топ-товары, складские предупреждения
+ * 
+ * @var yii\web\View $this
+ * @var object $user
+ * @var array $orderStats
+ * @var array $productStats
+ * @var array $userStats
+ * @var array $topProducts
+ * @var array $activeLogists
+ * @var array $chartData
+ * @var array|object $companySettings
+ * @var bool $demoMode
+ */
 
 use yii\helpers\Html;
 use yii\helpers\Url;
 
 $this->title = 'Панель управления';
-$user = Yii::$app->user->identity;
+
+$statusMap = [
+    'created' => ['label' => 'Новый', 'class' => 'info'],
+    'pending' => ['label' => 'Ожидает', 'class' => 'warning'],
+    'processing' => ['label' => 'В обработке', 'class' => 'warning'],
+    'paid' => ['label' => 'Оплачен', 'class' => 'success'],
+    'shipped' => ['label' => 'Отправлен', 'class' => 'primary'],
+    'delivered' => ['label' => 'Доставлен', 'class' => 'success'],
+    'completed' => ['label' => 'Завершён', 'class' => 'success'],
+    'cancelled' => ['label' => 'Отменён', 'class' => 'danger'],
+    'refunded' => ['label' => 'Возврат', 'class' => 'danger'],
+];
+
+$totalAmount = $orderStats['totalAmount'] ?? 0;
+$amountFormatted = $totalAmount >= 1000 ? number_format($totalAmount / 1000, 1, '.', '') . 'K' : number_format($totalAmount, 0, '.', ' ');
 ?>
 
-<!-- Admin Header -->
+<!-- Header -->
 <div class="admin-header">
     <div>
         <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
-        <p style="margin: 0; color: var(--admin-text-secondary);">
-            Привет, <?= Html::encode($user->username) ?>! Добро пожаловать в админ-панель.
+        <p class="dash-subtitle">
+            <?= Html::encode($user->username ?? 'Admin') ?> · <?= date('d.m.Y, H:i') ?>
+            <?php if ($demoMode): ?><span class="admin-badge admin-badge-warning" style="margin-left:0.5rem">Demo</span><?php endif ?>
         </p>
     </div>
     <div class="admin-header-actions">
         <a href="<?= Url::to(['/admin/order/create']) ?>" class="admin-btn admin-btn-primary">
-            <i class="bi bi-plus-circle"></i>
-            Новый заказ
+            <i class="bi bi-plus-circle"></i> Новый заказ
         </a>
-        <button class="admin-btn admin-btn-secondary" onclick="location.reload()">
-            <i class="bi bi-arrow-repeat"></i>
-            Обновить
+        <button class="admin-btn admin-btn-secondary" id="theme-toggle" title="Ctrl+D — тема">
+            <i class="bi bi-moon-fill" id="theme-icon"></i>
+        </button>
+        <button class="admin-btn admin-btn-secondary" onclick="location.reload()" title="Ctrl+R">
+            <i class="bi bi-arrow-clockwise"></i>
         </button>
     </div>
 </div>
 
-<!-- Statistics Cards -->
+<!-- KPI Cards -->
 <div class="admin-stats">
     <div class="admin-stat-card">
-        <p class="admin-stat-number">1,234</p>
-        <p class="admin-stat-label">Всего заказов</p>
-        <div style="margin-top: 0.5rem;">
-            <span class="admin-badge admin-badge-success">+12% сегодня</span>
+        <div class="admin-stat-icon primary"><i class="bi bi-bag-check-fill"></i></div>
+        <div class="admin-stat-content">
+            <div class="admin-stat-value"><?= number_format($orderStats['total'] ?? 0) ?></div>
+            <div class="admin-stat-label">Всего заказов</div>
+            <div class="dash-stat-sub">
+                <span class="admin-badge admin-badge-info"><?= $orderStats['today'] ?? 0 ?> сегодня</span>
+            </div>
         </div>
     </div>
-    <div class="admin-stat-card" style="border-left-color: var(--admin-success);">
-        <p class="admin-stat-number">45.2K BYN</p>
-        <p class="admin-stat-label">Выручка</p>
-        <div style="margin-top: 0.5rem;">
-            <span class="admin-badge admin-badge-success">+8% за неделю</span>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon success"><i class="bi bi-currency-exchange"></i></div>
+        <div class="admin-stat-content">
+            <div class="admin-stat-value"><?= $amountFormatted ?> <small>BYN</small></div>
+            <div class="admin-stat-label">Выручка</div>
+            <div class="dash-stat-sub">
+                <span class="admin-badge admin-badge-success"><?= $orderStats['thisMonth'] ?? 0 ?> за месяц</span>
+            </div>
         </div>
     </div>
-    <div class="admin-stat-card" style="border-left-color: var(--admin-warning);">
-        <p class="admin-stat-number">856</p>
-        <p class="admin-stat-label">Товары</p>
-        <div style="margin-top: 0.5rem;">
-            <span class="admin-badge admin-badge-warning">42 в наличии</span>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon warning"><i class="bi bi-collection"></i></div>
+        <div class="admin-stat-content">
+            <div class="admin-stat-value"><?= number_format($productStats['total'] ?? 0) ?></div>
+            <div class="admin-stat-label">Товары</div>
+            <div class="dash-stat-sub">
+                <span class="admin-badge admin-badge-success"><?= $productStats['active'] ?? 0 ?> активных</span>
+                <?php if (($productStats['outOfStock'] ?? 0) > 0): ?>
+                    <span class="admin-badge admin-badge-danger"><?= $productStats['outOfStock'] ?> нет</span>
+                <?php endif ?>
+            </div>
         </div>
     </div>
-    <div class="admin-stat-card" style="border-left-color: var(--admin-info);">
-        <p class="admin-stat-number">24</p>
-        <p class="admin-stat-label">Клиенты</p>
-        <div style="margin-top: 0.5rem;">
-            <span class="admin-badge admin-badge-info">3 новых</span>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon info"><i class="bi bi-people-fill"></i></div>
+        <div class="admin-stat-content">
+            <div class="admin-stat-value"><?= number_format($userStats['total'] ?? 0) ?></div>
+            <div class="admin-stat-label">Персонал</div>
+            <div class="dash-stat-sub">
+                <span class="admin-badge admin-badge-info"><?= $userStats['admins'] ?? 0 ?> адм</span>
+                <span class="admin-badge admin-badge-warning"><?= $userStats['managers'] ?? 0 ?> мен</span>
+            </div>
         </div>
+    </div>
+</div>
+
+<!-- Order Pipeline -->
+<div class="dash-pipeline">
+    <div class="dash-pipe-item">
+        <div class="dash-pipe-num dash-pipe-info"><?= $orderStats['pending'] ?? 0 ?></div>
+        <div class="dash-pipe-label">Ожидают</div>
+    </div>
+    <div class="dash-pipe-arrow">→</div>
+    <div class="dash-pipe-item">
+        <div class="dash-pipe-num dash-pipe-warning"><?= $orderStats['processing'] ?? 0 ?></div>
+        <div class="dash-pipe-label">В работе</div>
+    </div>
+    <div class="dash-pipe-arrow">→</div>
+    <div class="dash-pipe-item">
+        <div class="dash-pipe-num dash-pipe-success"><?= $orderStats['completed'] ?? 0 ?></div>
+        <div class="dash-pipe-label">Завершены</div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="dash-grid-2">
+    <!-- Sales Chart -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2 class="admin-card-title"><i class="bi bi-bar-chart-line-fill"></i> Продажи за 7 дней</h2>
+        </div>
+        <div style="max-width: 100%; overflow: hidden;">
+            <canvas id="salesChart" height="350" style="max-width: 100%;"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Products -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2 class="admin-card-title"><i class="bi bi-trophy-fill"></i> Топ товары</h2>
+            <span class="admin-badge admin-badge-info">30 дн</span>
+        </div>
+        <?php if (!empty($topProducts)): ?>
+        <div class="dash-top-list">
+            <?php foreach ($topProducts as $i => $p): ?>
+            <div class="dash-top-item">
+                <span class="dash-top-rank"><?= $i + 1 ?></span>
+                <div class="dash-top-info">
+                    <span class="dash-top-name"><?= Html::encode($p['product_name'] ?? '—') ?></span>
+                    <span class="dash-top-meta"><?= (int)($p['order_count'] ?? 0) ?> заказов · <?= (int)($p['total_quantity'] ?? 0) ?> шт</span>
+                </div>
+                <span class="dash-top-price"><?= number_format($p['avg_price'] ?? 0, 0, '.', ' ') ?> BYN</span>
+            </div>
+            <?php endforeach ?>
+        </div>
+        <?php else: ?>
+        <p class="dash-empty">Нет данных о продажах</p>
+        <?php endif ?>
     </div>
 </div>
 
 <!-- Quick Actions -->
 <div class="admin-card">
-    <h2 class="admin-card-title">
-        <i class="bi bi-lightning"></i>
-        Быстрые действия
-    </h2>
-    
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
-        <a href="<?= Url::to(['/admin/product']) ?>" class="admin-btn admin-btn-secondary" style="padding: 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-            <i class="bi bi-box" style="font-size: 2rem;"></i>
+    <div class="admin-card-header">
+        <h2 class="admin-card-title"><i class="bi bi-lightning-fill"></i> Быстрые действия</h2>
+        <kbd class="dash-kbd">Ctrl+K</kbd>
+    </div>
+    <div class="dash-actions-grid">
+        <a href="<?= Url::to(['/admin/order/create']) ?>" class="dash-action-card">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Новый заказ</span>
+        </a>
+        <a href="<?= Url::to(['/admin/product']) ?>" class="dash-action-card">
+            <i class="bi bi-collection"></i>
             <span>Товары</span>
         </a>
-        
-        <a href="<?= Url::to(['/admin/customer']) ?>" class="admin-btn admin-btn-secondary" style="padding: 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-            <i class="bi bi-people" style="font-size: 2rem;"></i>
+        <a href="<?= Url::to(['/admin/customer']) ?>" class="dash-action-card">
+            <i class="bi bi-people-fill"></i>
             <span>Клиенты</span>
         </a>
-        
-        <a href="<?= Url::to(['/admin/coupon']) ?>" class="admin-btn admin-btn-secondary" style="padding: 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-            <i class="bi bi-ticket-perforated" style="font-size: 2rem;"></i>
+        <a href="<?= Url::to(['/admin/coupon']) ?>" class="dash-action-card">
+            <i class="bi bi-ticket-detailed-fill"></i>
             <span>Купоны</span>
         </a>
-        
-        <a href="<?= Url::to(['/admin/statistics']) ?>" class="admin-btn admin-btn-secondary" style="padding: 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-            <i class="bi bi-graph-up" style="font-size: 2rem;"></i>
-            <span>Статистика</span>
+        <a href="<?= Url::to(['/admin/statistics']) ?>" class="dash-action-card">
+            <i class="bi bi-bar-chart-line-fill"></i>
+            <span>Аналитика</span>
+        </a>
+        <a href="<?= Url::to(['/admin/import']) ?>" class="dash-action-card">
+            <i class="bi bi-cloud-arrow-up-fill"></i>
+            <span>Импорт</span>
         </a>
     </div>
 </div>
 
-<!-- Recent Orders -->
-<div class="admin-card">
-    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1.5rem;">
-        <h2 class="admin-card-title">
-            <i class="bi bi-cart3"></i>
-            Последние заказы
-        </h2>
-        <a href="<?= Url::to(['/admin/order']) ?>" class="admin-btn admin-btn-secondary">
-            Все заказы
-        </a>
-    </div>
-    
-    <div style="overflow-x: auto;">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Клиент</th>
-                    <th>Товары</th>
-                    <th>Сумма</th>
-                    <th>Статус</th>
-                    <th>Дата</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>#1234</td>
-                    <td>Иван Петров</td>
-                    <td>Nike Air Max 90</td>
-                    <td>320 BYN</td>
-                    <td><span class="admin-badge admin-badge-success">Оплачен</span></td>
-                    <td>24.03.2026</td>
-                    <td>
-                        <a href="<?= Url::to(['/admin/order/view', 'id' => 1234]) ?>" class="admin-btn admin-btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>#1233</td>
-                    <td>Мария Сидорова</td>
-                    <td>Adidas Ultraboost</td>
-                    <td>280 BYN</td>
-                    <td><span class="admin-badge admin-badge-warning">В обработке</span></td>
-                    <td>24.03.2026</td>
-                    <td>
-                        <a href="<?= Url::to(['/admin/order/view', 'id' => 1233]) ?>" class="admin-btn admin-btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>#1232</td>
-                    <td>Алексей Иванов</td>
-                    <td>Jordan 1 Retro</td>
-                    <td>450 BYN</td>
-                    <td><span class="admin-badge admin-badge-info">Новый</span></td>
-                    <td>23.03.2026</td>
-                    <td>
-                        <a href="<?= Url::to(['/admin/order/view', 'id' => 1232]) ?>" class="admin-btn admin-btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+<!-- System Info Bar -->
+<div class="dash-sys-bar">
+    <span><b>Yii</b> <?= Yii::getVersion() ?></span>
+    <span><b>PHP</b> <?= PHP_VERSION ?></span>
+    <span><b>БД</b> sneakerhead</span>
+    <span><b>ENV</b> <?= YII_ENV ?></span>
+    <span><b>Время</b> <?= date('H:i:s') ?></span>
 </div>
 
-<!-- System Info -->
-<div class="admin-stats" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-    <div class="admin-card" style="padding: 1.5rem;">
-        <h3 style="margin: 0 0 0.5rem 0; font-size: 0.875rem; color: var(--admin-text-secondary);">Система</h3>
-        <p style="margin: 0; font-size: 1.25rem; font-weight: 600;">Yii 2.0.53</p>
-        <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--admin-text-secondary);">PHP 8.4.13</p>
-    </div>
-    
-    <div class="admin-card" style="padding: 1.5rem;">
-        <h3 style="margin: 0 0 0.5rem 0; font-size: 0.875rem; color: var(--admin-text-secondary);">База данных</h3>
-        <p style="margin: 0; font-size: 1.25rem; font-weight: 600;">MySQL</p>
-        <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--admin-text-secondary);">sneakerhead</p>
-    </div>
-    
-    <div class="admin-card" style="padding: 1.5rem;">
-        <h3 style="margin: 0 0 0.5rem 0; font-size: 0.875rem; color: var(--admin-text-secondary);">Окружение</h3>
-        <p style="margin: 0; font-size: 1.25rem; font-weight: 600;">Development</p>
-        <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--admin-text-secondary);">Localhost</p>
-    </div>
-    
-    <div class="admin-card" style="padding: 1.5rem;">
-        <h3 style="margin: 0 0 0.5rem 0; font-size: 0.875rem; color: var(--admin-text-secondary);">Время</h3>
-        <p style="margin: 0; font-size: 1.25rem; font-weight: 600;"><?= date('H:i') ?></p>
-        <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--admin-text-secondary);"><?= date('d.m.Y') ?></p>
-    </div>
-</div>
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+// === Sales Chart ===
+(function() {
+    const chartData = <?= json_encode($chartData ?? []) ?>;
+    const labels = chartData.map(d => d.day);
+    const orders = chartData.map(d => parseInt(d.orders) || 0);
+    const amounts = chartData.map(d => parseFloat(d.amount) || 0);
+
+    const ctx = document.getElementById('salesChart');
+    if (!ctx) return;
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+    const textColor = isDark ? '#94a3b8' : '#64748b';
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Заказы',
+                    data: orders,
+                    backgroundColor: 'rgba(59,130,246,0.7)',
+                    borderRadius: 6,
+                    yAxisID: 'y',
+                    order: 2
+                },
+                {
+                    label: 'Выручка (BYN)',
+                    data: amounts,
+                    type: 'line',
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16,185,129,0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#10b981',
+                    yAxisID: 'y1',
+                    order: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { position: 'top', labels: { color: textColor, usePointStyle: true, padding: 16, font: { size: 12 } } }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: textColor } },
+                y: { position: 'left', grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1 }, title: { display: true, text: 'Заказы', color: textColor } },
+                y1: { position: 'right', grid: { display: false }, ticks: { color: textColor }, title: { display: true, text: 'BYN', color: textColor } }
+            }
+        }
+    });
+})();
+
+// === Dark Theme Toggle ===
+(function() {
+    const btn = document.getElementById('theme-toggle');
+    const icon = document.getElementById('theme-icon');
+    const html = document.documentElement;
+
+    function applyTheme(t) {
+        html.setAttribute('data-theme', t);
+        localStorage.setItem('admin-theme', t);
+        icon.className = t === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+    }
+
+    const saved = localStorage.getItem('admin-theme') || 'light';
+    applyTheme(saved);
+
+    btn.addEventListener('click', function() {
+        applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'd') { e.preventDefault(); btn.click(); }
+        if (e.ctrlKey && e.key === 'k') { e.preventDefault(); document.querySelector('.dash-action-card')?.focus(); }
+    });
+})();
+</script>
 
 <style>
-/* Дополнительные стили для dashboard */
-.admin-header-actions {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
+.dash-subtitle { margin: 0.25rem 0 0; color: var(--admin-text-secondary); font-size: 0.875rem; }
+
+/* Pipeline */
+.dash-pipeline { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: var(--admin-radius-lg); }
+.dash-pipe-item { text-align: center; }
+.dash-pipe-num { font-size: 1.75rem; font-weight: 800; line-height: 1; }
+.dash-pipe-label { font-size: 0.75rem; color: var(--admin-text-secondary); margin-top: 0.25rem; }
+.dash-pipe-arrow { font-size: 1.25rem; color: var(--admin-text-secondary); }
+.dash-pipe-info { color: var(--admin-info); }
+.dash-pipe-warning { color: var(--admin-warning); }
+.dash-pipe-success { color: var(--admin-success); }
+
+/* 2-col grid */
+.dash-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; max-width: 100%; }
+
+/* Chart container fix */
+.dash-grid-2 .admin-card canvas { 
+    max-width: 100% !important; 
+    height: auto !important;
 }
 
+/* Top Products */
+.dash-top-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.dash-top-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid var(--admin-border-light); }
+.dash-top-item:last-child { border-bottom: none; }
+.dash-top-rank { width: 28px; height: 28px; border-radius: 50%; background: var(--admin-border-light); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: var(--admin-text-secondary); flex-shrink: 0; }
+.dash-top-item:nth-child(1) .dash-top-rank { background: #fef3c7; color: #92400e; }
+.dash-top-item:nth-child(2) .dash-top-rank { background: #e2e8f0; color: #475569; }
+.dash-top-item:nth-child(3) .dash-top-rank { background: #fed7aa; color: #9a3412; }
+.dash-top-info { flex: 1; min-width: 0; }
+.dash-top-name { display: block; font-weight: 600; font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-top-meta { font-size: 0.75rem; color: var(--admin-text-secondary); }
+.dash-top-price { font-weight: 700; font-size: 0.875rem; white-space: nowrap; }
+.dash-empty { text-align: center; color: var(--admin-text-secondary); padding: 2rem 0; }
+
+/* Actions Grid */
+.dash-actions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; }
+.dash-action-card { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1.25rem 0.75rem; border: 1px solid var(--admin-border); border-radius: var(--admin-radius-lg); text-decoration: none; color: var(--admin-text); transition: all 0.15s; background: var(--admin-surface); }
+.dash-action-card:hover { border-color: var(--admin-accent); transform: translateY(-2px); box-shadow: var(--admin-shadow-md); color: var(--admin-accent); }
+.dash-action-card i { font-size: 1.5rem; }
+.dash-action-card span { font-size: 0.8rem; font-weight: 600; }
+
+/* Keyboard hint */
+.dash-kbd { background: var(--admin-border-light); border: 1px solid var(--admin-border); border-radius: 4px; padding: 0.15rem 0.4rem; font-size: 0.7rem; font-family: monospace; color: var(--admin-text-secondary); }
+
+/* Stat sub badges */
+.dash-stat-sub { margin-top: 0.25rem; display: flex; gap: 0.25rem; flex-wrap: wrap; }
+.dash-stat-sub .admin-badge { font-size: 0.65rem; padding: 0.15rem 0.5rem; }
+
+/* System bar */
+.dash-sys-bar { display: flex; flex-wrap: wrap; gap: 1.5rem; padding: 0.75rem 1rem; background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: var(--admin-radius); font-size: 0.75rem; color: var(--admin-text-secondary); margin-top: 0.5rem; }
+.dash-sys-bar b { color: var(--admin-text); }
+
+/* Badge additions */
+.admin-badge-info { background: #dbeafe; color: #1e40af; }
+.admin-badge-primary { background: #dbeafe; color: #1e40af; }
+
+/* Responsive */
+@media (max-width: 900px) {
+    .dash-grid-2 { grid-template-columns: 1fr; }
+    .dash-pipeline { flex-wrap: wrap; }
+}
 @media (max-width: 768px) {
-    .admin-header {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-    
-    .admin-header-actions {
-        justify-content: center;
-    }
-    
-    .admin-stats {
-        grid-template-columns: 1fr;
-    }
+    .admin-header { flex-direction: column; gap: 1rem; text-align: center; }
+    .admin-header-actions { justify-content: center; }
+    .admin-stats { grid-template-columns: 1fr 1fr; }
+    .dash-actions-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 480px) {
+    .admin-stats { grid-template-columns: 1fr; }
+    .dash-actions-grid { grid-template-columns: repeat(2, 1fr); }
 }
 </style>

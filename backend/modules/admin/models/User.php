@@ -212,12 +212,13 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function validatePassword($password)
     {
-        // Демо-режим
+        // Всегда используем хеширование, даже в демо-режиме
         if (isset($this->password_hash) && $this->password_hash) {
             return Yii::$app->security->validatePassword($password, $this->password_hash);
         }
-        // Для демо-пользователя
-        return $password === 'admin123';
+        
+        // Для демо-пользователя генерируем хеш на лету
+        return Yii::$app->security->validatePassword($password, Yii::$app->security->generatePasswordHash('admin123'));
     }
 
     public function setPassword($password)

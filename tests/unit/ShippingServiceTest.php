@@ -3,19 +3,19 @@
 namespace tests\unit;
 
 use app\backend\modules\checkout\services\ShippingService;
-use Codeception\Test\Unit;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Unit тесты для ShippingService
  */
-class ShippingServiceTest extends Unit
+class ShippingServiceTest extends TestCase
 {
     /**
      * @var ShippingService
      */
     protected $service;
 
-    protected function _before()
+    protected function setUp(): void
     {
         $this->service = new ShippingService();
     }

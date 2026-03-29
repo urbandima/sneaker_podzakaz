@@ -88,7 +88,7 @@ class CustomerLoginForm extends Model
             if ($this->rememberMe) {
                 $duration = 3600 * 24 * 30; // 30 дней
                 // HMAC через Yii security вместо MD5: защита от подделки токена
-                $tokenData = $customer->id . ':' . $customer->password_hash;
+                $tokenData = $customer->id . ':' . $customer->auth_key;
                 $secureToken = Yii::$app->security->hashData($tokenData, Yii::$app->params['cookieValidationKey'] ?? Yii::$app->request->cookieValidationKey);
                 Yii::$app->response->cookies->add(new \yii\web\Cookie([
                     'name' => 'customer_token',

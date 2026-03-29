@@ -42,6 +42,11 @@ class AccountController extends Controller
     public function behaviors()
     {
         return [
+            'rateLimiter' => [
+                'class' => \yii\filters\RateLimiter::class,
+                'only' => ['login', 'register', 'forgot-password'],
+                'user' => new \app\components\RateLimitUser(),
+            ],
             'access' => [
                 'class' => AccessControl::class,
                 'only' => ['profile', 'orders', 'order-view', 'settings', 'logout', 'wishlist'],

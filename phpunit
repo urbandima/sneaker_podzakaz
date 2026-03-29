@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Запуск PHPUnit из новой директории
+cd "$(dirname "$0")"
+vendor/bin/phpunit --config build/testing/phpunit.xml.dist "$@"
