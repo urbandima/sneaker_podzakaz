@@ -381,9 +381,9 @@ $this->title = 'Настройки аккаунта - СНИКЕРХЭД';
                             <div class="info-label">Статус</div>
                             <div class="info-value">
                                 <?php if ($customer->email_verified): ?>
-                                    <span style="color: #059669;"><i class="bi bi-check-circle-fill"></i> Подтвержден</span>
+                                    <span class="status-verified"><i class="bi bi-check-circle-fill"></i> Подтвержден</span>
                                 <?php else: ?>
-                                    <span style="color: #d97706;"><i class="bi bi-exclamation-circle"></i> Не подтвержден</span>
+                                    <span class="status-unverified"><i class="bi bi-exclamation-circle"></i> Не подтвержден</span>
                                 <?php endif; ?>
                             </div>
                         </div>

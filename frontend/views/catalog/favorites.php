@@ -24,37 +24,34 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
     <div class="container">
         <!-- Breadcrumbs (как в каталоге) -->
         <nav class="breadcrumbs">
-            <a href="<?= \yii\helpers\Url::to(['/site/index']) ?>">Главная</a> /
-            <a href="<?= \yii\helpers\Url::to(['/catalog/catalog/index']) ?>">Каталог</a> /
+            <a href="/">Главная</a> / 
+            <a href="/catalog">Каталог</a> / 
             <span>Избранное</span>
         </nav>
 
         <!-- Content (без sidebar - на всю ширину) -->
-        <div class="history-full-width">
-            <main class="content history-content">
+        <div style="width: 100%;">
+            <main class="content" style="max-width: 100%;">
                 <div class="content-header">
                     <h1>Избранное <span class="products-count">(<span id="productsCount"><?= count($favorites) ?></span>)</span></h1>
                 </div>
-
+                
                 <?php if (empty($favorites)): ?>
                     <!-- Empty State -->
-                    <div class="history-empty-box">
-                        <div class="history-empty-icon">
-                            <i class="bi bi-heart"></i>
-                        </div>
-                        <h3 class="history-empty-title">Избранное пустое</h3>
-                        <p class="history-empty-text">Вы ещё не добавили ни одного товара в избранное</p>
-                        <a href="<?= \yii\helpers\Url::to(['/catalog/catalog/index']) ?>" class="btn btn-primary history-empty-cta">
-                            <i class="bi bi-grid-3x3-gap"></i>
-                            Перейти в каталог
+                    <div class="empty-state">
+                        <div class="empty-state__icon"><i class="bi bi-heart"></i></div>
+                        <h3 class="empty-state__title">Избранное пустое</h3>
+                        <p class="empty-state__text">Вы еще не добавили ни одного товара в избранное</p>
+                        <a href="/catalog" class="btn btn-primary">
+                            <i class="bi bi-grid-3x3-gap"></i> Перейти в каталог
                         </a>
                     </div>
                 <?php else: ?>
                     <!-- Toolbar (упрощенный, только сортировка) -->
                     <div class="catalog-toolbar">
                         <div class="toolbar-left">
-                            <span class="history-toolbar-info">
-                                <i class="bi bi-heart-fill favorites-heart-icon"></i>
+                            <span class="toolbar-meta">
+                                <i class="bi bi-heart-fill icon-danger"></i>
                                 <?= count($favorites) ?> <?= count($favorites) === 1 ? 'товар' : (count($favorites) < 5 ? 'товара' : 'товаров') ?>
                             </span>
                         </div>

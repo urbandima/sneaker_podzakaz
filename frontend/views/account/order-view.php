@@ -341,8 +341,8 @@ $this->title = 'Заказ #' . ($order->order_number ?: $order->id) . ' - СН�
                                     <?php if ($item->product && $item->product->image): ?>
                                         <img src="<?= Html::encode($item->product->image) ?>" alt="" class="item-image">
                                     <?php else: ?>
-                                        <div class="item-image" style="display:flex;align-items:center;justify-content:center;">
-                                            <i class="bi bi-image" style="font-size:2rem;color:#9ca3af;"></i>
+                                        <div class="item-image item-image--placeholder">
+                                            <i class="bi bi-image placeholder-icon"></i>
                                         </div>
                                     <?php endif; ?>
                                     <div class="item-info">
@@ -360,7 +360,7 @@ $this->title = 'Заказ #' . ($order->order_number ?: $order->id) . ' - СН�
                             <?php endforeach; ?>
                         </div>
                     <?php else: ?>
-                        <p style="color: #6b7280;">Информация о товарах недоступна</p>
+                        <p class="text-muted">Информация о товарах недоступна</p>
                     <?php endif; ?>
                     
                     <div class="order-summary">

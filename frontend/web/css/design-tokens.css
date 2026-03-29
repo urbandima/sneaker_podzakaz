@@ -245,6 +245,16 @@
     --pagination-active-bg: var(--color-black);
     --pagination-active-text: var(--color-white);
     --pagination-disabled-opacity: 0.5;
+
+    /* Order status badges */
+    --status-new-bg: #dbeafe;
+    --status-new-text: #1d4ed8;
+    --status-processing-bg: #fef3c7;
+    --status-processing-text: #d97706;
+    --status-completed-bg: #d1fae5;
+    --status-completed-text: #059669;
+    --status-cancelled-bg: #fee2e2;
+    --status-cancelled-text: #dc2626;
 }
 
 /* МЕДИА-ЗАПРОСЫ ДЛЯ ТОКЕНОВ */
