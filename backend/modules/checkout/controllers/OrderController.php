@@ -172,14 +172,31 @@ class OrderController extends Controller
             if (!empty($couponCode)) {
                 $couponService = new CouponService();
                 $coupon = $couponService->validateCoupon($couponCode, $totalAmount, $customerId);
-                
+
                 if ($coupon) {
-                    $discountAmount = $coupon->calculateDiscount($totalAmount, $deliveryCost);
-                    $order->coupon_id = $coupon->id;
-                    $order->coupon_code = $coupon->code;
-                    $order->discount_amount = $discountAmount;
-                    
-                    Yii::info("Применён купон {$couponCode}, скидка: {$discountAmount}", 'order');
+                    // Блокируем строку купона (SELECT FOR UPDATE) внутри транзакции,
+                    // чтобы исключить race condition при одновременном применении.
+                    $lockedCoupon = \app\backend\modules\coupon\models\Coupon::find()
+                        ->where(['id' => $coupon->id])
+                        ->limit(1)
+                        ->createCommand()
+                        ->setSql(
+                            'SELECT * FROM {{%coupon}} WHERE id = :id FOR UPDATE',
+                            [':id' => $coupon->id]
+                        )
+                        ->queryOne();
+
+                    // Повторная проверка лимита уже под блокировкой
+                    if ($lockedCoupon && $coupon->max_uses && $lockedCoupon['current_uses'] >= $coupon->max_uses) {
+                        Yii::warning("Купон {$couponCode}: лимит исчерпан после блокировки", 'order');
+                    } else {
+                        $discountAmount = $coupon->calculateDiscount($totalAmount, $deliveryCost);
+                        $order->coupon_id = $coupon->id;
+                        $order->coupon_code = $coupon->code;
+                        $order->discount_amount = $discountAmount;
+
+                        Yii::info("Применён купон {$couponCode}, скидка: {$discountAmount}", 'order');
+                    }
                 } else {
                     Yii::warning("Купон {$couponCode} невалиден: " . $couponService->getErrorMessage(), 'order');
                 }
@@ -204,7 +221,8 @@ class OrderController extends Controller
                 }
             }
             
-            $order->total_amount = $totalAmount + $deliveryCost - $discountAmount;
+            // Сумма не может быть отрицательной (купон + баллы могут превысить стоимость)
+            $order->total_amount = max(0, $totalAmount + $deliveryCost - $discountAmount);
             
             // Генерируем номер заказа и токен
             $order->order_number = 'WEB-' . date('Ymd') . '-' . strtoupper(Yii::$app->security->generateRandomString(6));
@@ -460,15 +478,17 @@ class OrderController extends Controller
         
         $couponService = new CouponService();
         $coupon = $couponService->validateCoupon($code, $orderAmount, $customerId);
-        
+
         if (!$coupon) {
             return [
                 'success' => false,
                 'message' => $couponService->getErrorMessage()
             ];
         }
-        
-        $discount = $coupon->calculateDiscount($orderAmount, 0);
+
+        // Передаём реальную стоимость доставки для корректного расчёта free_shipping купонов
+        $deliveryCostForPreview = (float)Yii::$app->request->post('delivery_cost', 0);
+        $discount = $coupon->calculateDiscount($orderAmount, $deliveryCostForPreview);
         
         return [
             'success' => true,

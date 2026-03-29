@@ -54,33 +54,35 @@ class CouponController extends Controller
         }
         
         try {
-            $result = $this->couponService->validateCoupon($code, $orderAmount, $customerId);
-            
-            if ($result['valid']) {
-                $coupon = $result['coupon'];
-                $discount = $this->couponService->calculateDiscount($coupon, $orderAmount);
-                
-                return [
-                    'success' => true,
-                    'coupon' => [
-                        'id' => $coupon->id,
-                        'code' => $coupon->code,
-                        'type' => $coupon->type,
-                        'value' => $coupon->value,
-                        'discount' => $discount,
-                        'description' => $coupon->description,
-                        'min_order_amount' => $coupon->min_order_amount,
-                        'max_discount_amount' => $coupon->max_discount_amount,
-                    ],
-                    'discount' => $discount,
-                    'message' => 'Промокод применён'
-                ];
-            } else {
+            // validateCoupon() возвращает ?Coupon (объект или null), не массив
+            $coupon = $this->couponService->validateCoupon($code, $orderAmount, $customerId);
+
+            if (!$coupon) {
                 return [
                     'success' => false,
-                    'message' => $result['message'] ?? 'Недействительный промокод'
+                    'message' => $this->couponService->getErrorMessage() ?? 'Недействительный промокод'
                 ];
             }
+
+            // calculateDiscount() в сервисе ожидает Order, поэтому используем метод модели
+            $deliveryCost = (float) \Yii::$app->request->post('delivery_cost', 0);
+            $discount = $coupon->calculateDiscount($orderAmount, $deliveryCost);
+
+            return [
+                'success' => true,
+                'coupon' => [
+                    'id' => $coupon->id,
+                    'code' => $coupon->code,
+                    'type' => $coupon->type,
+                    'value' => $coupon->value,
+                    'discount' => $discount,
+                    'description' => $coupon->description,
+                    'min_order_amount' => $coupon->min_order_amount,
+                    'max_discount_amount' => $coupon->max_discount ?? null,
+                ],
+                'discount' => $discount,
+                'message' => 'Промокод применён'
+            ];
         } catch (\Exception $e) {
             Yii::error('Coupon validation error: ' . $e->getMessage());
             return [
@@ -100,12 +102,13 @@ class CouponController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
         
         try {
+            // Правильные имена столбцов: is_active, valid_from, valid_until
             $coupons = Coupon::find()
-                ->where(['status' => 'active'])
-                ->andWhere(['<=', 'start_date', date('Y-m-d')])
-                ->andWhere(['>=', 'end_date', date('Y-m-d')])
+                ->where(['is_active' => Coupon::STATUS_ACTIVE])
+                ->andWhere(['<=', 'valid_from', date('Y-m-d')])
+                ->andWhere(['>=', 'valid_until', date('Y-m-d')])
                 ->all();
-            
+
             $result = [];
             foreach ($coupons as $coupon) {
                 $result[] = [
@@ -115,7 +118,7 @@ class CouponController extends Controller
                     'value' => $coupon->value,
                     'description' => $coupon->description,
                     'min_order_amount' => $coupon->min_order_amount,
-                    'end_date' => $coupon->end_date,
+                    'valid_until' => $coupon->valid_until,
                 ];
             }
             
@@ -153,8 +156,14 @@ class CouponController extends Controller
         }
         
         try {
-            $result = $this->couponService->applyCoupon($orderId, $code);
-            
+            // applyCoupon(string $code, Order $order) — нужен объект Order, не ID
+            $order = \app\backend\modules\checkout\models\Order::findOne((int) $orderId);
+            if (!$order) {
+                return ['success' => false, 'message' => 'Заказ не найден'];
+            }
+
+            $result = $this->couponService->applyCoupon($code, $order);
+
             return [
                 'success' => $result['success'],
                 'message' => $result['message'] ?? '',

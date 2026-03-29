@@ -175,7 +175,12 @@ class Order extends ActiveRecord
             if (!Yii::$app instanceof \yii\console\Application && !Yii::$app->user->isGuest) {
                 $history->changed_by = Yii::$app->user->id;
             }
-            $history->save();
+            // Бросаем исключение, чтобы внешняя транзакция откатилась при ошибке
+            if (!$history->save()) {
+                throw new \RuntimeException(
+                    'Не удалось сохранить историю статусов заказа #' . $this->id . ': ' . json_encode($history->errors)
+                );
+            }
         }
 
         // Уведомление при создании заказа отправляется в OrderController::actionCreate()
