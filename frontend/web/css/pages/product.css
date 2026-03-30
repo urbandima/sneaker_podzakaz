@@ -1,0 +1,417 @@
+/**
+ * Product Page B&W Style
+ * ===================================
+ */
+
+.product-page {
+    padding: 32px 0 64px;
+    background: var(--color-surface);
+}
+
+.product-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 64px;
+}
+
+/* Gallery */
+.product-gallery-wrapper {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.product-gallery-swipe {
+    background: var(--color-surface);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 1;
+}
+
+.swipe-track {
+    display: flex;
+    height: 100%;
+}
+
+.swipe-slide {
+    flex: 0 0 100%;
+    position: relative;
+}
+
+.swipe-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 24px;
+}
+
+.gallery-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid var(--color-border);
+    border-ra/**
+ * Product Page B&W Style
+ * =============== c *te * =====================ce */
+
+.product-page {
+    padding: 32piz
+. 1.    padding: 3or    background: var(--co  }
+
+.product-layout {
+    display: grex: 1    display: grirr    grid-templateckground: var(--color-white);
+    transform: translat}
+
+/* Gallery */
+.produ
+
+.ga.product-galpr    position: sticky;
+   ry    to.next { right: 1    height: fiic}
+
+.product-galle: absolute;    background: var(--cri    border-radius: 16px;
+    overfloht    px;
+    background: r    position: relatico    aspect-ratio: 1;
+});}
+
+.swipe-track {
+  100p    di display:    height: 100%;items: center;
+    just    flex: 0 0ce    position: relae:}
+
+.swipe-slide img {
+ 0;
+     width: 100%;
+ac    he2s ease;
+}
+
+.swipe-slide:hove    padding: 24px;
+}
+
+.it}
+
+.gallery-arrownails    position: aum  ails-carousel {
+    di    transfor
+     width: 44px;
+    height: 44:     h    margin-t    background: um    border: 1px solid var(--color-borrf    border-ra/**
+ * Product Page B&W Stylis * Product Page g * =============== c *tete
+.pro   flex: 0 0 80px;
+    aspect-ratio: 1;
+    border    padding: 3an. 1.    padding: er
+.product-layout {
+    display: grex: 1    dis: p    display: gregr    transform: translat}
+
+/* Gallery */
+.produ
+
+.ga.product-galpr    position: sticor
+/* Gallery */
+.produ
+
+ite.produ
+
+.ga.wi
+.g: 100   ry    to.next { right: 1    heightco
+.product-galle: absolute;    background: v-ta    overfloht    px;
+    background: r    position: relatico    aspect-raer    background: r  acing: 0.08em;
+    color: var(--color-muted);
+    margin-botto
+.s8px  100p    di :     just    flex: 0 0ce    position: relae:}
+
+.swip5r
+.swipe-slide img {
+ 0;
+     width: 100%;
+a  l 0;
+height: 1.2;
+    leac    he2s ease;.0}
+
+.swipe-slide-bott}
+
+.it}
+
+.gallery-arrownails    po{
+   
+.gspl    di    transfor
+     width: 44px;
+    height: 44:       width: 44px;24px;
+}
+
+.product-pr * Product Page B&W Stylis * Product Page g * =============== c *tete
+.pr-color-black);
+}
+
+.product-price-o.pro   flex: 0 0 80px;
+    aspect-ratio: 1;
+    border    padding: 3-d    aspect-ratio: 1;
+gh    border    paddi *.product-layout {
+    display: grex: 1    diground: var(--color-
+/* Gallery */
+.produ
+
+.ga.product-g   margin-bottom: 32px;
+    overflow: .produ
+
+.ga.tr
+.ga.tem/* Gallery */
+.produ
+
+ite.produ
+
+.ga  .produ
+
+ite.: center;
+
+.ga.wi
+ify-conten.product-galle: absolute;    background: v-ta      background: r    position: relatico rem;
+    border-right: 1px    color: var(--color-muted);
+    margin-botto
+.s8px  100p    di :     just    flex: us    margin-botto
+.s8px  100p 5r.s8px  100p    va
+.swip5r
+.swipe-slide img {
+ 0;
+     width: 100%;
+a  l 0;
+heigh ma.swipeot 0;
+     width: 1ze  eaa  l 0;
+height: y:height
+     leac   co
+.swipe-slide-bott}
+
+.it  a
+.it}
+
+.gallery-ar;
+
+.g ma gin-bottom: 16px;
+}
+
+.size.git     width: 44px;
+    12    height: 44: ei}
+
+.product-pr * Product Page B&W Style-btn.pr-color-black);
+}
+
+.product-price-o.pro   flex: 0 0 80px;
+    aspect-ratio: 1ol}
+
+.product-pricackgr    aspect-ratio: 1;
+   none;
+    font-    border    paddi cgh    border    paddi *.product-layout {
+          display: grex: 1    diground: var(-or/* Gallery */
+.produ
+
+.ga.product-g   margin-lay: flex;
+    flex-wrap    overflow: .produ
+
+.ga.tr
+.ga.teon
+.ga.tr
+.ga.tem/* G2px.ga.t h.produ
+
+ite.produ
+
+sp
+ite.fle
+.ga  .plig
+ite.: cenent
+.ga.   justifyify-cen    border-right: 1px    color: var(--color-muted);
+    margin-botto
+.s8px  100p    di :     just   ;
+    margin-botto
+.s8px  100p    di :     just    f;
+.s8px  1-select: .s8px  100p 5r.s8px  100p    va
+.swip5r
+.swipe-slide imde.swip5r
+.swipe-slide img {
+ 0;
+
+.swipeop 0;
+     width: 1 b  kga  l 0;
+heigh maor-black);     width: 1ze  ecoheight: y:height
+     lealo     leac   co
+black);
+}
+
+.size-
+.it  a
+.it}
+
+.gae {.it}
+opacity: 0.35;
+    tex}
+
+.size.git     widthough;    12    height: 44: ei}
+}
+.product-pr * Product P-ac}
+
+.product-price-o.pro   flex: 0 0 80px;
+    aspect-rat   ga    aspect-ratio: 1ol}
+
+.product-pric.b
+.product-pricackgr  hei   none;
+    font-    border    paddion    font:          display: grex: 1    diground: var(-or/* Gallery */
+.produ
+
+e).produ
+
+.ga.product-g   margin-lay: flex;
+    flex-wrap    oi
+.ga.
+      flex-wrap    overflow: .prod.b
+.ga.tr
+.ga.teon
+.ga.tr
+.ga.tem/ed) {
+    .ga.groun.ga.t33
+ite.produ
+
+sp
+ite.fle
+.gable
+sp
+ite.opaiity: 0.4;
+ite.: cenr:.ga.   justd;    margin-botto
+.s8px  100p    di :     just   ;
+    margin-botto
+.s8pt-.s8px  100p          margin-botto
+.s8px  100p   lo.s8px  100p    bl.s8px  1-select: .s8px  100p 5r.s-c.swip5r
+.swipe-slide imde.swip5r
+.swipe-slide ior.swipete.swipe-slide img {
+ 0;
+0. 0;
+
+.swipeop 0;
+bu
+.one     widtherheigh maor-black);     wico     lealo     leac   co
+black);
+}
+
+.size-
+.it  dions {black);
+}
+
+.size-
+.it  li}
+
+.si--col.it  rd.it}
+}
+
+.gccoopacity: m     tex}
+
+.sibo
+.size.px solid var(--color-border);
+}
+
+.accordion-header {
+  
+.product-price-o.pro   flfy-content: space-between;
+    align-items
+.product-pric.b
+.product-pricackgr  heisiz.product-pricaon    font-    border    paddionnt.produ
+
+e).produ
+
+.ga.product-g   margin-lay: flex;
+    flex-wrap    oi
+.ga.
+      flex-wrap    ovnsform 0.2
+.ga.pr
+}
+    flex-wrap    oi
+.ga.
+      fon.ga.
+      flex-wrorm: ro.ga.tr
+.ga.teon
+.ga.tr
+.ga.tem/ed)   .ga.tdi.ga.tr
+ 1.ga.t;
+    .ga.grou none;
+    color: var(--color-mutei);.gableinsp
+itghi: ite.: cenr:.ga. on.s8px  100p    di :     just   ;
+    mala    margin-botto
+.s8pt-.s8px  1s .s8pt-milar-produ.s8px  100p   lo.s8px  100p    bl.s8pxr-.swipe-slide imde.swip5r
+.swipe-slide ior.swipete.swipe-slide img {
+ 0;
+0.px.swipe-slide ior.swipetle 0;
+0. 0;
+
+.swipeop 0;
+isplay: none;
+    po0.tion: fixbu
+.one   tt.m:black);
+}
+
+.size-
+.it  dions {black);
+}
+
+.size-
+.it  li}
+
+.si--cole)}
+
+.s paddi.it  2p}
+
+.size-
+.it  li}-top:.it  solid var(--}
+
+.r-border);
+    z-in
+.sibo
+.size.px solid vw: .sizpx}
+
+.accordion-header {
+  
+.product-cta-  
+.product-price-la.:     align-items
+.product-pric.b
+.product-pricackgr: .producetween;
+ .product-prica}
+
+e).produ
+
+.ga.product-g   margin-lay: flex;
+    flex-wrap    oi
+.ga.
+      fle-ct
+.ga.pradd    flex-wrap    oi
+.ga.
+      f m.ga.
+      flex-wr:    }
+.ga.pr
+}(max-width: 1024px) {
+  }
+   oduc.ga.
+      fon.ga. g   -t      flex-wmn.ga.teon
+.ga.tr
+.ga.tem/e;
+.ga.tr
+  .ga.t . 1.ga.t;
+    .ga.grou n {
+      .gaos    color: var(--  itghi: ite.: cenr:.ga. on.s8px  100p   di    mala    margin-botto
+.s8pt-.s8px  1s .s8pt-milar-prord.s8pt-.s8px  1s .s8pt-m b.swipe-slide ior.swipete.swipe-slide img {
+ 0;
+0.px.swipe-slide ior.swipetle 0;
+0. 0;
+
+.swipeop  . 0;
+0.px.swipe-slide ior.swipetle 0;
+0. 0tt0.: 0. 0;
+
+.swipeop 0;
+isplay: nonea {
+        display:     po0.tion
+ .one   tt.m:black)ag}
+
+.size-
+.it  diog-bot.it  10}
+
+.size-
+.it  li}sticky cta */
+    }
+}

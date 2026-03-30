@@ -37,7 +37,7 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
     </div>
     
     <!-- Loyalty Card -->
-    <div class="loyalty-card" style="--level-color: <?= $levelInfo[0] ?>">
+    <div class="loyalty-card" data-level="<?= strtolower($levelInfo[1] ?? 'bronze') ?>" style="--level-color: <?= $levelInfo[0] ?>">
         <div class="card-header">
             <div class="level-badge">
                 <div class="badge-icon">
@@ -61,7 +61,7 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
                 <span><?= number_format($pointsToNext, 0, '', ' ') ?> баллов</span>
             </div>
             <div class="progress-bar-container">
-                <div class="progress-bar" style="width: <?= ($balance / $nextLevel->min_points) * 100 ?>%"></div>
+                <div class="progress-bar" style="--progress-width: <?= ($balance / $nextLevel->min_points) * 100 ?>%"></div>
             </div>
         </div>
         <?php endif; ?>

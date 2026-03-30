@@ -149,6 +149,28 @@ class CartController extends Controller
     }
 
     /**
+     * Получить содержимое корзины для Drawer (AJAX)
+     */
+    public function actionDrawerItems()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $items = Cart::getItems();
+        $total = Cart::getTotal();
+
+        $html = $this->renderPartial('_drawer_items', [
+            'items' => $items,
+        ]);
+
+        return [
+            'success' => true,
+            'html' => $html,
+            'count' => Cart::getItemsCount(),
+            'total' => $total,
+        ];
+    }
+
+    /**
      * Проверить наличие товара в корзине (AJAX)
      */
     public function actionHasProduct($productId)

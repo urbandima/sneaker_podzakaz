@@ -467,11 +467,11 @@ $this->params['breadcrumbs'][] = 'Профиль';
                             <?= mb_strtoupper(mb_substr($customer->first_name ?: $customer->email, 0, 1)) ?>
                         </div>
                         <div class="user-name"><?= Html::encode($customer->getFullName()) ?></div>
-                        <div class="user-email"><?= Html::encode($customer->email) ?></div>
+                        <div class="progress-bar" style="--progress-width: <?= ($balance / $nextLevel->min_points) * 100 ?>%"></div>
                         
                         <div class="user-stats">
                             <div class="stat-item">
-                                <div class="stat-value"><?= $customer->orders_count ?></div>
+                                <div class="loyalty-card" data-level="<?= strtolower($levelInfo[1] ?? 'bronze') ?>">orders_count ?></div>
                                 <div class="stat-label">Заказов</div>
                             </div>
                             <div class="stat-item">
@@ -581,7 +581,7 @@ $this->params['breadcrumbs'][] = 'Профиль';
                         </div>
                     </div>
 
-                    <div style="margin-top: 1.5rem;">
+                    <div class="profile-form-submit">
                         <?= Html::submitButton('Сохранить изменения', ['class' => 'btn-save']) ?>
                     </div>
 

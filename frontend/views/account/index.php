@@ -55,10 +55,10 @@ $this->title = 'Личный кабинет - СНИКЕРХЭД';
                     <p>Ваш email: <strong><?= Html::encode($email) ?></strong></p>
 
                     <?php if (!empty($orders)): ?>
-                        <h3 style="margin-top: var(--spacing-8);">Последние заказы</h3>
+                        <h3 class="account-index-title">Последние заказы</h3>
                         <div class="orders-list">
                             <?php foreach ($orders as $order): ?>
-                                <a href="<?= Url::to(['/order/view', 'token' => $order->token]) ?>" class="order-card" style="display: block; text-decoration: none; color: inherit;">
+                                <a href="<?= Url::to(['/order/view', 'token' => $order->token]) ?>" class="order-card order-card-link">
                                     <div class="order-card-header">
                                         <span class="order-number">Заказ #<?= $order->id ?></span>
                                         <span class="order-status <?= $order->status ?>"><?= $order->getStatusLabel() ?></span>

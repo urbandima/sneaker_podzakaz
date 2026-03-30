@@ -1,0 +1,336 @@
+/**
+ * Catalog Page B&W Style
+ * ===================================
+ */
+
+.catalog-page {
+    padding: 32px 0 64px;
+    background: var(--color-surface);
+}
+
+.catalog-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 32px;
+}
+
+/* Breadcrumbs */
+.breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+}
+
+.breadcrumb a {
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.breadcrumb a:hover {
+    color: var(--color-black);
+}
+
+.breadcrumb li::after {
+    content: "/";
+    margin-left: 8px;
+    color: var(--color-border);
+}
+
+.breadcrumb li:last-child::after {
+    display: none;
+}
+
+.breadcrumb .active {
+    color: var(--color-black);
+}
+
+/* Sidebar & Filters */
+.catalog-sidebar {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: 24px;
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+}
+
+.filter-group {
+    border-bottom: 1px solid var(--color-border);
+    padding: 20px 0;
+}
+
+.filter-group:first-child {
+    padding-top: 0;
+}
+
+.filter-group:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.filter-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* Custom Checkbox */
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    margin-bottom: 12px;
+    font-size: 0.9375rem;
+}
+
+.filter-checkbox:last-child {
+    margin-bottom: 0;
+}
+
+.filter-checkbox input {
+    display: none;
+}
+
+.checkbox-mark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.checkbox-mark::after {
+    content: '\F26A';
+    font-family: 'bootstrap-icons';
+    color: var(--color-white);
+    font-size: 14px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s ease;
+}
+
+.filter-checkbox input:checked+.checkbox-mark {
+    background: var(--color-black);
+    border-color: var(--color-black);
+}
+
+.filter-checkbox input:checked+.checkbox-mark::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.filter-count {
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+    margin-left: auto;
+}
+
+/* Price Slider */
+.price-filter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.price-input {
+    width: 100%;
+    height: 44px;
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    padding: 0 12px;
+    text-align: center;
+    font-family: inherit;
+    font-size: 0.9375rem;
+}
+
+.price-input:focus {
+    border-color: var(--color-black);
+    outline: none;
+}
+
+.price-separator {
+    color: var(--color-muted);
+}
+
+/* Active Filters */
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 100px;
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+    color: var(--color-black);
+}
+
+.filter-tag-remove {
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.filter-tag-remove:hover {
+    color: var(--color-black);
+}
+
+.filter-clear-all {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+    color: var(--color-danger);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Toolbar */
+.catalog-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.toolbar-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.sort-select {
+    height: 44px;
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    padding: 0 36px 0 16px;
+    background: var(--color-white) url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%230F0F0F' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") no-repeat right 12px center/12px 12px;
+    -webkit-appearance: none;
+    appearance: none;
+    font-family: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.sort-select:focus {
+    border-color: var(--color-black);
+    outline: none;
+}
+
+.view-toggle {
+    display: flex;
+    background: var(--color-surface);
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.view-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.view-btn.active {
+    background: var(--color-white);
+    color: var(--color-black);
+    box-shadow: var(--shadow-card);
+}
+
+/* Load More */
+.load-more-container {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.btn-load-more {
+    min-width: 240px;
+}
+
+@media (max-width: 1024px) {
+    .catalog-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .catalog-sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 320px;
+        height: 100vh;
+        z-index: 1050;
+        border-radius: 0;
+        border: none;
+        transition: left 0.3s ease;
+        padding-bottom: 80px;
+        overflow-y: auto;
+    }
+
+    .catalog-sidebar.open {
+        left: 0;
+    }
+
+    .mobile-filter-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+        display: none;
+    }
+
+    .mobile-filter-overlay.open {
+        display: block;
+    }
+
+    .mobile-filter-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 44px;
+        padding: 0 16px;
+        border: 1.5px solid var(--color-border);
+        border-radius: 8px;
+        background: var(--color-white);
+        font-weight: 500;
+        cursor: pointer;
+    }
+}

@@ -99,7 +99,7 @@ echo SchemaOrgGenerator::render($product);
 ?>
 
 <!-- Индикатор "В корзине" -->
-<div class="product-in-cart-indicator" id="productInCartIndicator" style="display:none;" title="Этот товар уже в вашей корзине! Нажмите для перехода в корзину">
+<div class="product-in-cart-indicator" id="productInCartIndicator" title="Этот товар уже в вашей корзине! Нажмите для перехода в корзину">
     <div class="indicator-content">
         <i class="bi bi-cart-check-fill"></i>
         <span class="indicator-text">В корзине</span>
@@ -214,7 +214,7 @@ echo SchemaOrgGenerator::render($product);
                 <?php endif; ?>
                 
                 <!-- Бейдж "под заказ" перед названием -->
-                <div style="margin-bottom: 0.25rem;">
+                <div class="custom-order-badge-container">
                     <span class="custom-order-badge">
                         <i class="bi bi-truck"></i>
                         ПОД ЗАКАЗ
@@ -336,7 +336,7 @@ echo SchemaOrgGenerator::render($product);
                         </div>
                     </div>
                     <!-- Ссылка на каталог с выбранным размером -->
-                    <div class="selected-size-link" id="selectedSizeLink" style="display:none;">
+                    <div class="selected-size-link" id="selectedSizeLink">
                         <i class="bi bi-box-seam"></i>
                         <span>Смотреть другие товары размера <strong id="selectedSizeValue"></strong> →</span>
                     </div>
@@ -495,7 +495,7 @@ echo SchemaOrgGenerator::render($product);
                 </h2>
                 <i class="bi bi-chevron-down toggle-icon" id="mainSpecsToggleIcon"></i>
             </div>
-            <div class="premium-accordion-content" id="mainSpecsContent" style="display:none">
+            <div class="premium-accordion-content" id="mainSpecsContent">
 
                 <!-- Основная информация -->
                 <div class="spec-section">
@@ -672,7 +672,7 @@ echo SchemaOrgGenerator::render($product);
                 <h2>📝 Описание товара</h2>
                 <i class="bi bi-chevron-down" id="descToggleIcon"></i>
             </div>
-            <div class="desc-content" id="descContent" style="display:none">
+            <div class="desc-content" id="descContent">
                 <p><?= nl2br(Html::encode($product->description)) ?></p>
             </div>
         </div>
@@ -1063,7 +1063,7 @@ echo SchemaOrgGenerator::render($product);
                 </h2>
                 <i class="bi bi-chevron-down toggle-icon" id="reviewsToggleIcon"></i>
             </div>
-            <div class="premium-accordion-content reviews-list" id="reviewsContent" style="display:none">
+            <div class="premium-accordion-content reviews-list" id="reviewsContent">
                 <?php if (!empty($product->reviews) && count($product->reviews) > 0): ?>
                     <?php foreach ($product->reviews as $review): ?>
                     <div class="review-item<?= $review->is_verified ? ' verified' : '' ?>">
@@ -1107,7 +1107,7 @@ echo SchemaOrgGenerator::render($product);
                 </h2>
                 <i class="bi bi-chevron-down toggle-icon" id="qaToggleIcon"></i>
             </div>
-            <div class="premium-accordion-content qa-list" id="qaContent" style="display:none">
+            <div class="premium-accordion-content qa-list" id="qaContent">
                 <?php if (!empty($product->questions) && count($product->questions) > 0): ?>
                     <?php foreach ($product->questions as $question): ?>
                     <div class="qa-item">
@@ -1141,7 +1141,7 @@ echo SchemaOrgGenerator::render($product);
 <!-- Sticky Purchase Bar удалён - используется улучшенная версия ниже -->
 
 <!-- Premium Image Gallery Modal -->
-<div class="image-gallery-modal" id="imageGalleryModal" style="display:none">
+<div class="image-gallery-modal" id="imageGalleryModal">
     <div class="gallery-modal-content">
         <button class="gallery-close" onclick="closeImageGallery()">
             <i class="bi bi-x-lg"></i>
@@ -1168,7 +1168,7 @@ echo SchemaOrgGenerator::render($product);
 </div>
 
 <!-- Size Guide Modal -->
-<div class="size-guide-modal" id="sizeGuideModal" style="display:none">
+<div class="size-guide-modal" id="sizeGuideModal">
     <div class="size-guide-content">
         <button class="size-guide-close" onclick="closeSizeGuide()">✕</button>
         
@@ -1311,7 +1311,7 @@ echo SchemaOrgGenerator::render($product);
 </div>
 
 <!-- Модальное окно "Купить в 1 клик" -->
-<div class="quick-order-modal" id="quickOrderModal" style="display:none">
+<div class="quick-order-modal" id="quickOrderModal">
     <div class="quick-order-content">
         <button class="modal-close" onclick="closeQuickOrderModal()">✕</button>
         
@@ -1498,9 +1498,7 @@ function openSizeTableModal() {
                             $priceByn = $size->getPriceByn();
                             $inStock = $size->inStock();
                         ?>
-                        <tr class="size-row <?= $inStock ? 'available' : 'out-of-stock' ?>" 
-                            onclick="selectSizeFromTable('<?= Html::encode($size->size) ?>', <?= $inStock ? 'true' : 'false' ?>)"
-                            style="cursor: <?= $inStock ? 'pointer' : 'not-allowed' ?>">
+                        <tr class="size-row <?= $inStock ? 'available' : 'out-of-stock' ?>">
                             <td><strong><?= Html::encode($size->eu_size ?: $size->size) ?></strong></td>
                             <td><?= Html::encode($size->us_size ?: '—') ?></td>
                             <td><?= Html::encode($size->uk_size ?: '—') ?></td>

@@ -2,12 +2,14 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\frontend\assets\AppAsset;
 
 /** @var yii\web\View $this */
 /** @var app\models\Customer $customer */
 /** @var app\models\Order[] $orders */
 
 $this->title = 'Мои заказы - СНИКЕРХЭД';
+AppAsset::register($this);
 ?>
 
 <div class="account-page">
@@ -55,7 +57,7 @@ $this->title = 'Мои заказы - СНИКЕРХЭД';
                         <i class="bi bi-bag-x"></i>
                         <h3>Заказов пока нет</h3>
                         <p>Перейдите в каталог и выберите понравившиеся товары</p>
-                        <a href="<?= Url::to(['/catalog']) ?>" class="btn-catalog">
+                        <a href="<?= Url::to(['/catalog']) ?>" class="btn btn-primary">
                             <i class="bi bi-grid"></i> Перейти в каталог
                         </a>
                     </div>

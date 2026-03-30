@@ -38,8 +38,7 @@ $brands = $brands ?? [];
     <div class="container">
         <div class="hero-content">
             <div class="hero-badge">
-                <span class="badge-icon"><i class="bi bi-fire"></i></span>
-                <span>Новая коллекция 2024</span>
+                <span>Новая коллекция 2026</span>
             </div>
             
             <h1 class="hero-title">
@@ -53,11 +52,10 @@ $brands = $brands ?? [];
             </p>
             
             <div class="hero-actions">
-                <a href="/catalog" class="btn-hero-primary">
+                <a href="/catalog" class="btn btn-primary">
                     <span>Смотреть каталог</span>
-                    <i class="bi bi-arrow-right"></i>
                 </a>
-                <a href="#popular" class="btn-hero-secondary">
+                <a href="#popular" class="btn btn-secondary">
                     <span>Популярные модели</span>
                 </a>
             </div>
@@ -100,28 +98,13 @@ $brands = $brands ?? [];
         <div class="section-header">
             <h2 class="section-title">Популярные модели</h2>
             <a href="/catalog?sort=popular" class="section-link">
-                Смотреть все <i class="bi bi-arrow-right"></i>
+                Смотреть все
             </a>
         </div>
         
         <div class="products-grid">
             <?php foreach ($popularProducts as $product): ?>
-            <div class="product-card">
-                <div class="product-image">
-                    <img src="<?= $product->getMainImageUrl() ?>" alt="<?= Html::encode($product->name) ?>">
-                    <?php if ($product->created_at && $product->created_at > (time() - 14 * 86400)): ?>
-                        <span class="product-badge badge-new">Новинка</span>
-                    <?php endif; ?>
-                </div>
-                <div class="product-info">
-                    <div class="product-brand"><?= Html::encode($product->brand->name) ?></div>
-                    <h3 class="product-name"><?= Html::encode($product->name) ?></h3>
-                    <div class="product-price">
-                        <span class="current-price"><?= Yii::$app->formatter->asCurrency($product->price, 'BYN') ?></span>
-                    </div>
-                </div>
-                <a href="<?= $product->getUrl() ?>" class="product-link"></a>
-            </div>
+                <?= $this->render('//catalog/_product_card', ['product' => $product]) ?>
             <?php endforeach; ?>
         </div>
     </div>
@@ -156,7 +139,7 @@ $brands = $brands ?? [];
         <div class="section-header">
             <h2 class="section-title">Популярные бренды</h2>
             <a href="/brands" class="section-link">
-                Все бренды <i class="bi bi-arrow-right"></i>
+                Все бренды
             </a>
         </div>
         
@@ -247,28 +230,87 @@ $brands = $brands ?? [];
     </div>
 </section>
 
+<!-- Reviews Section -->
+<section class="reviews-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Отзывы покупателей <span>4.9 <i class="bi bi-star-fill"></i></span></h2>
+        </div>
+        <div class="reviews-grid">
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-avatar">АВ</div>
+                    <div class="review-meta">
+                        <div class="review-author">Александр В.</div>
+                        <div class="review-city">Минск • 12 марта 2026</div>
+                    </div>
+                </div>
+                <div class="review-rating">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p class="review-text">Отличные кроссовки, 100% оригинал. Доставили на следующий день после заказа. Буду заказывать еще!</p>
+            </div>
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-avatar">МС</div>
+                    <div class="review-meta">
+                        <div class="review-author">Мария С.</div>
+                        <div class="review-city">Гомель • 5 марта 2026</div>
+                    </div>
+                </div>
+                <div class="review-rating">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p class="review-text">Долго искала эту модель Nike. Спасибо магазину за быструю доставку и приятную скидку!</p>
+            </div>
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-avatar">ДК</div>
+                    <div class="review-meta">
+                        <div class="review-author">Дмитрий К.</div>
+                        <div class="review-city">Брест • 28 февраля 2026</div>
+                    </div>
+                </div>
+                <div class="review-rating">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p class="review-text">Отличный сервис, помогли подобрать правильный размер. Качество на высоте.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Instagram Section -->
+<section class="instagram-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">@sneakerhead_by</h2>
+            <a href="https://instagram.com" target="_blank" class="btn btn-secondary btn-sm">Подписаться</a>
+        </div>
+        <div class="instagram-grid">
+            <?php for ($i = 1; $i <= 6; $i++): ?>
+            <a href="#" class="instagram-item">
+                <div class="instagram-image-placeholder"></div>
+                <div class="instagram-overlay">
+                    <i class="bi bi-instagram"></i>
+                </div>
+            </a>
+            <?php endfor; ?>
+        </div>
+    </div>
+</section>
+
 <!-- Newsletter -->
 <section class="newsletter-section">
     <div class="container">
         <div class="newsletter-content">
-            <div class="newsletter-text">
-                <h2 class="newsletter-title">Подпишитесь на новости</h2>
-                <p class="newsletter-subtitle">
-                    Получайте эксклюзивные скидки и узнавайте о новинках первыми
-                </p>
-            </div>
+            <h2 class="newsletter-title">Подпишитесь на новости</h2>
+            <p class="newsletter-subtitle">Получайте эксклюзивные скидки и узнавайте о новинках первыми</p>
             
             <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
-                <input type="email" placeholder="Ваш email" required class="newsletter-input">
-                <button type="submit" class="newsletter-btn">
-                    Подписаться
-                </button>
+                <input type="email" placeholder="Ваш email" required class="form-control">
+                <button type="submit" class="btn btn-primary">Подписаться</button>
             </form>
-            
-            <p class="newsletter-note">
-                Нажимая кнопку, вы соглашаетесь с 
-                <a href="/privacy">политикой конфиденциальности</a>
-            </p>
         </div>
     </div>
 </section>

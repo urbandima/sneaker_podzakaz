@@ -1,0 +1,177 @@
+/**
+ * Product Page Inline Styles - B&W Style
+ * ======================================
+ * Все inline стили из product.php перенесены в CSS
+ */
+
+/* Product In Cart Indicator */
+.product-in-cart-indicator {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--color-success);
+    color: var(--color-white);
+    border-radius: 12px;
+    padding: 12px 20px;
+    z-index: 1000;
+    cursor: pointer;
+    box-shadow: var(--shadow-hover);
+}
+
+/* Custom Order Badge */
+.custom-order-badge-container {
+    margin-bottom: 0.25rem;
+}
+
+.custom-order-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-warning);
+    color: var(--color-white);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Selected Size Link */
+.selected-size-link {
+    display: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 16px;
+    align-items: center;
+    gap: 8px;
+}
+
+.selected-size-link i {
+    color: var(--color-black);
+}
+
+.selected-size-link span {
+    color: var(--color-black);
+}
+
+.selected-size-link strong {
+    color: var(--color-accent);
+}
+
+/* Accordion Content */
+.premium-accordion-content {
+    display: none;
+}
+
+.premium-accordion-content.active {
+    display: block;
+}
+
+/* Description Content */
+.desc-content {
+    display: none;
+}
+
+.desc-content.active {
+    display: block;
+}
+
+/* Reviews List */
+.reviews-list {
+    display: none;
+}
+
+.reviews-list.active {
+    display: block;
+}
+
+/* QA List */
+.qa-list {
+    display: none;
+}
+
+.qa-list.active {
+    display: block;
+}
+
+/* Image Gallery Modal */
+.image-gallery-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: var(--z-modal);
+    align-items: center;
+    justify-content: center;
+}
+
+.image-gallery-modal.active {
+    display: flex;
+}
+
+/* Size Guide Modal */
+.size-guide-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: var(--z-modal);
+    align-items: center;
+    justify-content: center;
+}
+
+.size-guide-modal.active {
+    display: flex;
+}
+
+/* Quick Order Modal */
+.quick-order-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: var(--z-modal);
+    align-items: center;
+    justify-content: center;
+}
+
+.quick-order-modal.active {
+    display: flex;
+}
+
+/* Size Table Rows */
+.size-row.available {
+    cursor: pointer;
+}
+
+.size-row.out-of-stock {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Size Table Hover */
+.size-row.available:hover {
+    background: var(--color-surface);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .product-in-cart-indicator {
+        top: 10px;
+        right: 10px;
+        padding: 8px 12px;
+        font-size: 0.875rem;
+    }
+    
+    .custom-order-badge {
+        font-size: 0.6875rem;
+        padding: 3px 8px;
+    }
+    
+    .selected-size-link {
+        padding: 8px 12px;
+        margin-top: 12px;
+    }
+}

@@ -16,25 +16,15 @@ $successUrl = Url::to(['/order/success']);
 
 <div class="checkout-page">
     <div class="container">
-        <h1><i class="bi bi-bag-check"></i> Оформление заказа</h1>
-
         <!-- Progress Bar -->
         <div class="checkout-progress">
             <div class="progress-step active" data-step="1">
                 <span class="step-number">1</span>
-                <span class="step-name">Корзина</span>
+                <span class="step-name">Доставка</span>
             </div>
             <div class="progress-step" data-step="2">
                 <span class="step-number">2</span>
-                <span class="step-name">Данные</span>
-            </div>
-            <div class="progress-step" data-step="3">
-                <span class="step-number">3</span>
-                <span class="step-name">Доставка</span>
-            </div>
-            <div class="progress-step" data-step="4">
-                <span class="step-number">4</span>
-                <span class="step-name">Готово</span>
+                <span class="step-name">Оплата</span>
             </div>
         </div>
 
@@ -42,182 +32,154 @@ $successUrl = Url::to(['/order/success']);
             <!-- Checkout Form -->
             <div class="checkout-form">
 
-                <!-- Step 1: Проверка корзины -->
+                <!-- Step 1: Доставка и контакты -->
                 <div class="checkout-step active" id="step-1">
-                    <h2>Ваши товары</h2>
-                    <?php if (!empty($items)): ?>
-                        <div class="cart-review-list">
-                            <?php foreach ($items as $item): ?>
-                                <?php $prod = $item->product; ?>
-                                <?php if (!$prod) continue; ?>
-                                <div class="cart-review-item">
-                                    <img src="<?= Html::encode($prod->getMainImageUrl()) ?>"
-                                         alt="<?= Html::encode($prod->name) ?>"
-                                         class="cart-review-img">
-                                    <div class="cart-review-info">
-                                        <a href="<?= $prod->getUrl() ?>" class="cart-review-name">
-                                            <?= Html::encode($prod->name) ?>
-                                        </a>
-                                        <?php if ($item->size): ?>
-                                            <small class="text-muted">Размер: <?= Html::encode($item->size) ?></small>
-                                        <?php endif; ?>
-                                        <?php if ($item->color): ?>
-                                            <small class="text-muted">Цвет: <?= Html::encode($item->color) ?></small>
-                                        <?php endif; ?>
-                                        <div class="cart-review-qty">× <?= (int)$item->quantity ?></div>
-                                    </div>
-                                    <div class="cart-review-price">
-                                        <?= number_format($item->price * $item->quantity, 2) ?> BYN
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
+                    <h2>Контактные данные</h2>
+                    
+                    <div class="form-grid">
+                        <div class="floating-input">
+                            <input type="text" id="field-name" name="name" placeholder=" "
+                                   value="<?= Html::encode($customer ? $customer->getFullName() : '') ?>"
+                                   required maxlength="100">
+                            <label for="field-name">Имя и фамилия *</label>
                         </div>
-                    <?php else: ?>
-                        <p class="text-muted">Корзина пуста. <a href="<?= Url::to(['/catalog/catalog/index']) ?>">Перейти в каталог</a></p>
-                    <?php endif; ?>
-                    <button class="btn-next" onclick="goStep(2)">
-                        Далее <i class="bi bi-arrow-right"></i>
-                    </button>
+                        <div class="floating-input">
+                            <input type="tel" id="field-phone" name="phone" placeholder=" "
+                                   value="<?= Html::encode($customer?->phone ?? '') ?>"
+                                   required maxlength="50">
+                            <label for="field-phone">Телефон *</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid full">
+                        <div class="floating-input">
+                            <input type="email" id="field-email" name="email" placeholder=" "
+                                   value="<?= Html::encode($customer?->email ?? '') ?>"
+                                   maxlength="255">
+                            <label for="field-email">Email (для чека)</label>
+                        </div>
+                    </div>
+
+                    <h2 class="mt-8 mb-4">Способ доставки</h2>
+                    <div class="shipping-options">
+                        <label class="option-card selected">
+                            <input type="radio" name="delivery" value="pickup_minsk" checked
+                                   onchange="updateDelivery(0, 'pickup_minsk')">
+                            <div class="option-icon"><i class="bi bi-shop"></i></div>
+                            <div class="option-info">
+                                <span class="option-name">Самовывоз</span>
+                                <span class="option-desc">Минск, ул. Немига 3. Сегодня–завтра</span>
+                            </div>
+                            <div class="option-price">Бесплатно</div>
+                        </label>
+
+                        <label class="option-card">
+                            <input type="radio" name="delivery" value="courier_minsk"
+                                   onchange="updateDelivery(10, 'courier_minsk')">
+                            <div class="option-icon"><i class="bi bi-truck"></i></div>
+                            <div class="option-info">
+                                <span class="option-name">Курьер по Минску</span>
+                                <span class="option-desc">Доставка 1–2 дня до двери</span>
+                            </div>
+                            <div class="option-price">10 BYN</div>
+                        </label>
+
+                        <label class="option-card">
+                            <input type="radio" name="delivery" value="europochta"
+                                   onchange="updateDelivery(5, 'europochta')">
+                            <div class="option-icon"><i class="bi bi-box-seam"></i></div>
+                            <div class="option-info">
+                                <span class="option-name">Европочта</span>
+                                <span class="option-desc">До отделения 3–7 дней</span>
+                            </div>
+                            <div class="option-price">5 BYN</div>
+                        </label>
+                    </div>
+
+                    <!-- Адрес доставки -->
+                    <div class="form-grid full hidden" id="addressGroup">
+                        <div class="floating-input">
+                            <input type="text" id="field-address" name="address" placeholder=" "
+                                   value="<?= Html::encode($customer?->default_address ?? '') ?>"
+                                   maxlength="500">
+                            <label for="field-address">Адрес доставки *</label>
+                        </div>
+                    </div>
+
+                    <div class="checkout-actions">
+                        <a href="<?= Url::to(['/cart/cart/index']) ?>" class="btn-back">
+                            <i class="bi bi-arrow-left"></i> В корзину
+                        </a>
+                        <button class="btn-next" onclick="validateStep1()">
+                            К оплате <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Step 2: Контактные данные -->
+                <!-- Step 2: Оплата -->
                 <div class="checkout-step" id="step-2">
-                    <h2>Ваши данные</h2>
-                    <div class="form-group">
-                        <label for="field-name">Имя и фамилия <span class="text-danger">*</span></label>
-                        <input type="text" id="field-name" name="name" class="form-control"
-                               placeholder="Иван Иванов"
-                               value="<?= Html::encode($customer ? $customer->getFullName() : '') ?>"
-                               required maxlength="100">
+                    <h2>Способ оплаты</h2>
+                    
+                    <div class="payment-options">
+                        <label class="option-card selected">
+                            <input type="radio" name="payment" value="card_online" checked onchange="updatePayment(this)">
+                            <div class="option-icon"><i class="bi bi-credit-card"></i></div>
+                            <div class="option-info">
+                                <span class="option-name">Картой онлайн</span>
+                                <span class="option-desc">Apple Pay, Google Pay, Visa, Mastercard</span>
+                            </div>
+                        </label>
+
+                        <label class="option-card">
+                            <input type="radio" name="payment" value="erip" onchange="updatePayment(this)">
+                            <div class="option-icon"><i class="bi bi-phone"></i></div>
+                            <div class="option-info">
+                                <span class="option-name">Через ЕРИП</span>
+                                <span class="option-desc">Оплата в мобильном банкинге</span>
+                            </div>
+                        </label>
+
+                        <label class="option-card">
+                            <input type="radio" name="payment" value="cash" onchange="updatePayment(this)">
+                            <div class="option-icon"><i class="bi bi-cash-stack"></i></div>
+                            <div class="option-info">
+                                <span class="option-name">При получении</span>
+                                <span class="option-desc">Наличными или картой курьеру</span>
+                            </div>
+                        </label>
                     </div>
-                    <div class="form-group mt-3">
-                        <label for="field-phone">Телефон <span class="text-danger">*</span></label>
-                        <input type="tel" id="field-phone" name="phone" class="form-control"
-                               placeholder="+375 (XX) XXX-XX-XX"
-                               value="<?= Html::encode($customer?->phone ?? '') ?>"
-                               required maxlength="50">
+                    
+                    <div class="form-grid full mt-6">
+                        <div class="floating-input">
+                            <textarea id="field-comment" name="comment" placeholder=" " rows="3" maxlength="1000"></textarea>
+                            <label for="field-comment">Комментарий к заказу (необязательно)</label>
+                        </div>
                     </div>
-                    <div class="form-group mt-3">
-                        <label for="field-email">Email</label>
-                        <input type="email" id="field-email" name="email" class="form-control"
-                               placeholder="example@mail.com"
-                               value="<?= Html::encode($customer?->email ?? '') ?>"
-                               maxlength="255">
-                    </div>
-                    <div class="form-group mt-3">
-                        <label for="field-comment">Комментарий к заказу</label>
-                        <textarea id="field-comment" name="comment" class="form-control"
-                                  rows="3" placeholder="Уточнения по заказу..."
-                                  maxlength="1000"></textarea>
-                    </div>
-                    <div class="checkout-actions mt-4">
+
+                    <div class="checkout-actions">
                         <button class="btn-back" onclick="goStep(1)">
                             <i class="bi bi-arrow-left"></i> Назад
                         </button>
-                        <button class="btn-next" onclick="validateStep2()">
-                            Далее <i class="bi bi-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Step 3: Доставка -->
-                <div class="checkout-step" id="step-3">
-                    <h2>Доставка</h2>
-
-                    <div class="shipping-section">
-                        <h3>Способ доставки</h3>
-                        <div class="shipping-options">
-                            <label class="shipping-option">
-                                <input type="radio" name="delivery" value="pickup_minsk" checked
-                                       onchange="updateDelivery(0, 'pickup_minsk')">
-                                <div class="option-content">
-                                    <div class="option-icon">🏪</div>
-                                    <div class="option-info">
-                                        <span class="option-name">Самовывоз (Минск)</span>
-                                        <span class="option-price">Бесплатно</span>
-                                        <span class="option-time">Сегодня–завтра</span>
-                                    </div>
-                                    <div class="option-radio"></div>
-                                </div>
-                            </label>
-
-                            <label class="shipping-option">
-                                <input type="radio" name="delivery" value="courier_minsk"
-                                       onchange="updateDelivery(10, 'courier_minsk')">
-                                <div class="option-content">
-                                    <div class="option-icon"><i class="bi bi-truck"></i></div>
-                                    <div class="option-info">
-                                        <span class="option-name">Курьер по Минску</span>
-                                        <span class="option-price">10 BYN</span>
-                                        <span class="option-time">1–2 дня</span>
-                                    </div>
-                                    <div class="option-radio"></div>
-                                </div>
-                            </label>
-
-                            <label class="shipping-option">
-                                <input type="radio" name="delivery" value="europochta"
-                                       onchange="updateDelivery(5, 'europochta')">
-                                <div class="option-content">
-                                    <div class="option-icon"><i class="bi bi-envelope"></i></div>
-                                    <div class="option-info">
-                                        <span class="option-name">Европочта</span>
-                                        <span class="option-price">5 BYN</span>
-                                        <span class="option-time">3–7 дней</span>
-                                    </div>
-                                    <div class="option-radio"></div>
-                                </div>
-                            </label>
-
-                            <label class="shipping-option">
-                                <input type="radio" name="delivery" value="belpochta"
-                                       onchange="updateDelivery(4, 'belpochta')">
-                                <div class="option-content">
-                                    <div class="option-icon"><i class="bi bi-mailbox"></i></div>
-                                    <div class="option-info">
-                                        <span class="option-name">Белпочта</span>
-                                        <span class="option-price">4 BYN</span>
-                                        <span class="option-time">5–10 дней</span>
-                                    </div>
-                                    <div class="option-radio"></div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Адрес доставки (скрыт для самовывоза) -->
-                    <div class="form-group mt-3 hidden" id="addressGroup">
-                        <label for="field-address">Адрес доставки <span class="text-danger">*</span></label>
-                        <input type="text" id="field-address" name="address" class="form-control"
-                               placeholder="Город, улица, дом, квартира"
-                               value="<?= Html::encode($customer?->default_address ?? '') ?>"
-                               maxlength="500">
-                    </div>
-
-                    <div class="checkout-actions mt-4">
-                        <button class="btn-back" onclick="goStep(2)">
-                            <i class="bi bi-arrow-left"></i> Назад
-                        </button>
                         <button class="btn-next btn-place-order" onclick="submitOrder()">
-                            <i class="bi bi-bag-check"></i> Оформить заказ
+                            Оформить заказ <i class="bi bi-check2"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Step 4: Успех -->
-                <div class="checkout-step" id="step-4">
-                    <div class="order-success text-center py-5">
-                        <i class="bi bi-check-circle-fill text-success icon-xl"></i>
-                        <h2 class="mt-3">Заказ оформлен!</h2>
-                        <p class="text-muted">Ваш заказ <strong>#<span id="orderNumber">—</span></strong> успешно создан</p>
-                        <p class="text-muted">Мы свяжемся с вами для подтверждения</p>
-                        <div class="mt-4 d-flex gap-3 justify-content-center">
-                            <a href="<?= Url::to(['/account/account/orders']) ?>" class="btn btn-primary">
-                                <i class="bi bi-box-seam"></i> Мои заказы
+                <!-- Step 3: Успех -->
+                <div class="checkout-step" id="step-3">
+                    <div class="success-message">
+                        <div class="success-icon"><i class="bi bi-check-lg"></i></div>
+                        <h2 class="success-title">Заказ #<span id="orderNumber">—</span> принят</h2>
+                        <p class="success-subtitle">Мы отправили информацию о заказе на ваш email</p>
+                        
+                        <div class="mt-8">
+                            <a href="<?= Url::to(['/catalog/catalog/index']) ?>" class="btn btn-primary" style="width: 100%;">
+                                Продолжить покупки
                             </a>
-                            <a href="<?= Url::to(['/catalog/catalog/index']) ?>" class="btn btn-outline-secondary">
-                                <i class="bi bi-grid"></i> Продолжить покупки
-                            </a>
+                            <div class="mt-4">
+                                <a href="#" id="trackOrderLink" class="text-muted" style="text-decoration: underline;">Отследить заказ</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -225,19 +187,22 @@ $successUrl = Url::to(['/order/success']);
 
             <!-- Order Summary -->
             <div class="order-summary">
-                <h3>Ваш заказ</h3>
+                <h3>Состав заказа</h3>
 
                 <div class="summary-items">
                     <?php foreach ($items as $item): ?>
                         <?php if (!$item->product) continue; ?>
                         <div class="summary-item">
-                            <span class="summary-item-name">
-                                <?= Html::encode(mb_strimwidth($item->product->name, 0, 35, '…')) ?>
-                                <?php if ($item->size): ?>
-                                    <small class="text-muted">(<?= Html::encode($item->size) ?>)</small>
-                                <?php endif; ?>
-                                × <?= (int)$item->quantity ?>
-                            </span>
+                            <img src="<?= Html::encode($item->product->getMainImageUrl()) ?>" alt="" class="summary-item-img">
+                            <div class="summary-item-info">
+                                <span class="summary-item-title"><?= Html::encode($item->product->name) ?></span>
+                                <div class="summary-item-meta">
+                                    <?php if ($item->size): ?>
+                                        <span><?= Html::encode($item->size) ?></span>
+                                    <?php endif; ?>
+                                    <span>× <?= (int)$item->quantity ?></span>
+                                </div>
+                            </div>
                             <span class="summary-item-price"><?= number_format($item->price * $item->quantity, 2) ?> BYN</span>
                         </div>
                     <?php endforeach; ?>
@@ -245,15 +210,15 @@ $successUrl = Url::to(['/order/success']);
 
                 <div class="summary-totals">
                     <div class="summary-row">
-                        <span>Товары:</span>
+                        <span>Товары</span>
                         <span id="productsTotal"><?= number_format($total, 2) ?> BYN</span>
                     </div>
                     <div class="summary-row" id="deliveryCostRow">
-                        <span>Доставка:</span>
-                        <span id="deliveryCost">0 BYN</span>
+                        <span>Доставка</span>
+                        <span id="deliveryCost">Бесплатно</span>
                     </div>
                     <div class="summary-total">
-                        <span>Итого:</span>
+                        <span>Итого</span>
                         <span id="finalTotal"><?= number_format($total, 2) ?> BYN</span>
                     </div>
                 </div>
@@ -277,16 +242,22 @@ function goStep(step) {
 
     document.querySelectorAll('.progress-step').forEach(function(el) {
         var s = parseInt(el.dataset.step);
-        el.classList.toggle('completed', s < step);
-        el.classList.toggle('active', s === step);
+        if (step === 3) {
+            el.classList.add('completed');
+            el.classList.remove('active');
+        } else {
+            el.classList.toggle('completed', s < step);
+            el.classList.toggle('active', s === step);
+        }
     });
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function validateStep2() {
+function validateStep1() {
     var name  = document.getElementById('field-name').value.trim();
     var phone = document.getElementById('field-phone').value.trim();
+    var address = document.getElementById('field-address').value.trim();
 
     if (!name) {
         alert('Укажите имя и фамилию');
@@ -298,27 +269,51 @@ function validateStep2() {
         document.getElementById('field-phone').focus();
         return;
     }
-    // Простая валидация телефона
-    if (!/^[\+]?[\d\s\-\(\)]{7,}$/.test(phone)) {
-        alert('Некорректный формат телефона');
-        document.getElementById('field-phone').focus();
+    
+    if (selectedDelivery !== 'pickup_minsk' && !address) {
+        alert('Укажите адрес доставки');
+        document.getElementById('field-address').focus();
         return;
     }
 
-    goStep(3);
+    goStep(2);
 }
 
 function updateDelivery(cost, method) {
     orderDeliveryCost = cost;
     selectedDelivery  = method;
 
-    document.getElementById('deliveryCost').textContent = cost + ' BYN';
+    // Обновляем визуальное выделение карточек
+    document.querySelectorAll('input[name="delivery"]').forEach(radio => {
+        if (radio.checked) {
+            radio.closest('.option-card').classList.add('selected');
+        } else {
+            radio.closest('.option-card').classList.remove('selected');
+        }
+    });
+
+    document.getElementById('deliveryCost').textContent = cost === 0 ? 'Бесплатно' : cost + ' BYN';
     document.getElementById('finalTotal').textContent   = (orderTotal + cost).toFixed(2) + ' BYN';
 
     // Показываем поле адреса для курьерской доставки
     var needAddress = (method !== 'pickup_minsk');
-    document.getElementById('addressGroup').style.display = needAddress ? 'block' : 'none';
-    document.getElementById('field-address').required = needAddress;
+    if (needAddress) {
+        document.getElementById('addressGroup').classList.remove('hidden');
+        document.getElementById('field-address').required = true;
+    } else {
+        document.getElementById('addressGroup').classList.add('hidden');
+        document.getElementById('field-address').required = false;
+    }
+}
+
+function updatePayment(radio) {
+    document.querySelectorAll('input[name="payment"]').forEach(r => {
+        if (r.checked) {
+            r.closest('.option-card').classList.add('selected');
+        } else {
+            r.closest('.option-card').classList.remove('selected');
+        }
+    });
 }
 
 function submitOrder() {
@@ -327,34 +322,19 @@ function submitOrder() {
     var email    = document.getElementById('field-email').value.trim();
     var comment  = document.getElementById('field-comment').value.trim();
     var address  = document.getElementById('field-address').value.trim();
-    var delivery = document.querySelector('input[name="delivery"]:checked');
-
-    // Финальная валидация
-    if (!name || !phone) {
-        alert('Заполните имя и телефон');
-        goStep(2);
-        return;
-    }
-    if (!delivery) {
-        alert('Выберите способ доставки');
-        return;
-    }
-    if (delivery.value !== 'pickup_minsk' && !address) {
-        alert('Укажите адрес доставки');
-        document.getElementById('field-address').focus();
-        return;
-    }
+    var payment  = document.querySelector('input[name="payment"]:checked');
 
     var btn = document.querySelector('.btn-place-order');
     btn.disabled = true;
-    btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Обработка...';
+    btn.innerHTML = '<i class="bi bi-arrow-repeat spinner"></i> Обработка...';
 
     var params = new URLSearchParams();
     params.append('name',     name);
     params.append('phone',    phone);
     params.append('email',    email);
     params.append('comment',  comment);
-    params.append('delivery', delivery.value);
+    params.append('delivery', selectedDelivery);
+    params.append('payment_method', payment ? payment.value : 'card_online');
     params.append('address',  address);
     params.append('country',  'belarus');
 
@@ -371,72 +351,20 @@ function submitOrder() {
     .then(function(data) {
         if (data.success) {
             document.getElementById('orderNumber').textContent = data.order_number || data.order_id;
-            goStep(4);
+            // Установить ссылку на отслеживание
+            document.getElementById('trackOrderLink').href = '/account/account/orders';
+            goStep(3);
         } else {
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-bag-check"></i> Оформить заказ';
+            btn.innerHTML = 'Оформить заказ <i class="bi bi-check2"></i>';
             alert(data.message || 'Ошибка оформления заказа. Попробуйте ещё раз.');
         }
     })
     .catch(function(err) {
         btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-bag-check"></i> Оформить заказ';
+        btn.innerHTML = 'Оформить заказ <i class="bi bi-check2"></i>';
         alert('Ошибка соединения с сервером. Попробуйте позже.');
         console.error('Order create error:', err);
     });
 }
 </script>
-
-<style>
-.checkout-layout {
-    display: grid;
-    grid-template-columns: 1fr 350px;
-    gap: 2rem;
-    align-items: start;
-}
-.cart-review-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #eee;
-}
-.cart-review-img {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
-    border-radius: 6px;
-    background: #f9f9f9;
-}
-.cart-review-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-.cart-review-name {
-    font-weight: 500;
-    text-decoration: none;
-    color: inherit;
-}
-.cart-review-price {
-    font-weight: 600;
-    white-space: nowrap;
-}
-.summary-item {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
-    padding: 0.4rem 0;
-    font-size: 0.9rem;
-    border-bottom: 1px solid #f0f0f0;
-}
-.summary-item-price { white-space: nowrap; font-weight: 500; }
-.form-group label { font-weight: 500; margin-bottom: 4px; display: block; }
-.checkout-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-.order-success i.bi-check-circle-fill { color: #22c55e; }
-.icon-xl { font-size: 4rem; }
-@media (max-width: 768px) {
-    .checkout-layout { grid-template-columns: 1fr; }
-}
-</style>

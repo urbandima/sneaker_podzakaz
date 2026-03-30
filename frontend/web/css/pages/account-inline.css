@@ -1,0 +1,75 @@
+/**
+ * Account Inline Styles - B&W Style
+ * ===================================
+ * Все inline стили из account/*.php перенесены в CSS
+ */
+
+/* Order View Info Items */
+.info-item-spacing-top {
+    margin-top: 1rem;
+}
+
+.info-item-spacing-bottom {
+    margin-bottom: 0.75rem;
+}
+
+/* Profile Form */
+.profile-form-submit {
+    margin-top: 1.5rem;
+}
+
+/* Loyalty Card */
+.loyalty-card {
+    --level-color: var(--color-black);
+}
+
+.loyalty-card[data-level="bronze"] {
+    --level-color: #CD7F32;
+}
+
+.loyalty-card[data-level="silver"] {
+    --level-color: #C0C0C0;
+}
+
+.loyalty-card[data-level="gold"] {
+    --level-color: #FFD700;
+}
+
+.loyalty-card[data-level="platinum"] {
+    --level-color: #E5E4E2;
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: var(--progress-width, 0%);
+}
+
+/* Index Page */
+.account-index-title {
+    margin-top: var(--spacing-8);
+}
+
+.order-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .info-item-spacing-top {
+        margin-top: 0.75rem;
+    }
+    
+    .info-item-spacing-bottom {
+        margin-bottom: 0.5rem;
+    }
+    
+    .profile-form-submit {
+        margin-top: 1rem;
+    }
+    
+    .account-index-title {
+        margin-top: 1rem;
+    }
+}

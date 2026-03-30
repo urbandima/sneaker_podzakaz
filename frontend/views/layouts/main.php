@@ -49,79 +49,46 @@ $company = Yii::$app->settings->getCompany();
 
 <!-- Header -->
 <header class="main-header">
-    <div class="header-content">
+    <div class="header-container">
+        <!-- Mobile Menu Button -->
+        <button class="action-btn burger-menu" onclick="toggleMobileMenu()" aria-label="Меню">
+            <i class="bi bi-list"></i>
+        </button>
+
         <!-- Logo -->
-        <a href="<?= Url::to(['/site/index']) ?>" class="logo">
+        <a href="<?= Url::to(['/site/index']) ?>" class="header-logo">
             <img src="/images/logo.png" alt="<?= Html::encode($company['name'] ?? 'СНИКЕРХЭД') ?>">
         </a>
 
         <!-- Navigation -->
-        <nav class="main-nav">
-            <ul class="nav-menu">
-                <li class="dropdown-container">
-                    <a href="<?= Url::to(['/catalog/catalog/index']) ?>">Каталог <i class="bi bi-chevron-down"></i></a>
-                    <div class="mega-menu">
-                        <div class="mega-menu-grid">
-                            <div class="mega-menu-col">
-                                <h4>Обувь</h4>
-                                <ul>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'sneakers']) ?>">Кроссовки</a></li>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'boots']) ?>">Ботинки</a></li>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'slides']) ?>">Сланцы и сандалии</a></li>
-                                </ul>
-                            </div>
-                            <div class="mega-menu-col">
-                                <h4>Одежда</h4>
-                                <ul>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'tshirts']) ?>">Футболки</a></li>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'hoodies']) ?>">Худи и толстовки</a></li>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'pants']) ?>">Штаны и шорты</a></li>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'jackets']) ?>">Куртки</a></li>
-                                </ul>
-                            </div>
-                            <div class="mega-menu-col">
-                                <h4>Аксессуары</h4>
-                                <ul>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'bags']) ?>">Сумки и рюкзаки</a></li>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'caps']) ?>">Головные уборы</a></li>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'socks']) ?>">Носки</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                <li><a href="<?= Url::to(['/catalog/brands/index']) ?>">Бренды</a></li>
-                <li><a href="<?= Url::to(['/catalog/catalog/index', 'sort' => 'sale']) ?>" class="text-sale">Скидки</a></li>
-                <li><a href="<?= Url::to(['/page/about']) ?>">О нас</a></li>
-                <li><a href="<?= Url::to(['/page/contacts']) ?>">Контакты</a></li>
-            </ul>
+        <nav class="header-nav">
+            <a href="<?= Url::to(['/catalog/catalog/index']) ?>">Каталог</a>
+            <a href="<?= Url::to(['/catalog/brands/index']) ?>">Бренды</a>
+            <a href="<?= Url::to(['/catalog/catalog/index', 'sort' => 'sale']) ?>" class="text-sale">Скидки</a>
+            <a href="<?= Url::to(['/page/about']) ?>">О нас</a>
+            <a href="<?= Url::to(['/page/contacts']) ?>">Контакты</a>
         </nav>
 
         <!-- Actions -->
         <div class="header-actions">
-            <button class="btn-search" onclick="openSearch()" aria-label="Поиск товаров" aria-haspopup="dialog">
-                <i class="bi bi-search" aria-hidden="true"></i>
+            <button class="action-btn" onclick="openSearch()" aria-label="Поиск">
+                <i class="bi bi-search"></i>
             </button>
 
-            <a href="<?= Url::to(['/catalog/favorites/index']) ?>" class="btn-wishlist" aria-label="Избранное">
-                <i class="bi bi-heart" aria-hidden="true"></i>
-                <span class="wishlist-counter badge" role="status" aria-live="polite" style="display: none;">0</span>
+            <a href="<?= Url::to(['/catalog/favorites/index']) ?>" class="action-btn" aria-label="Избранное">
+                <i class="bi bi-heart"></i>
+                <span class="badge-count" style="display: none;">0</span>
             </a>
 
-            <a href="<?= Url::to(['/cart/cart/index']) ?>" class="btn-cart" aria-label="Корзина">
-                <i class="bi bi-cart3" aria-hidden="true"></i>
-                <span class="cart-counter badge" role="status" aria-live="polite" style="display: none;">0</span>
-            </a>
+            <button class="action-btn" onclick="openCartDrawer()" aria-label="Корзина">
+                <i class="bi bi-bag"></i>
+                <span class="badge-count cart-counter" style="display: none;">0</span>
+            </button>
 
-            <a href="<?= Url::to(['/account/account/index']) ?>" class="btn-account" aria-label="Личный кабинет">
-                <i class="bi bi-person" aria-hidden="true"></i>
+            <a href="<?= Url::to(['/account/account/index']) ?>" class="action-btn" aria-label="Профиль">
+                <i class="bi bi-person"></i>
             </a>
         </div>
-        
-        <!-- Mobile Menu Toggle -->
-        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobileMenu">
-            <i class="bi bi-list" aria-hidden="true"></i>
-        </button>
     </div>
 </header>
 
@@ -133,22 +100,51 @@ $company = Yii::$app->settings->getCompany();
 <!-- Footer -->
 <?= $this->render('//partials/footer') ?>
 
-<!-- Mobile Menu -->
-<div class="mobile-menu" id="mobileMenu">
-    <div class="mobile-menu-header">
-        <span>Меню</span>
-        <button class="close-menu" onclick="toggleMobileMenu()">
-            <i class="bi bi-x"></i>
+<!-- Cart Drawer -->
+<div class="cart-drawer-overlay" id="cartDrawerOverlay" onclick="closeCartDrawer()"></div>
+<div class="cart-drawer" id="cartDrawer">
+    <div class="cart-drawer-header">
+        <h3 class="cart-drawer-title">
+            Корзина <span class="cart-drawer-count" id="cartDrawerCount">0 товаров</span>
+        </h3>
+        <button class="cart-drawer-close" onclick="closeCartDrawer()">
+            <i class="bi bi-x-lg"></i>
         </button>
     </div>
-    <nav class="mobile-nav">
-        <a href="<?= Url::to(['/catalog/catalog/index']) ?>" onclick="toggleMobileMenu()">Каталог</a>
-        <a href="<?= Url::to(['/catalog/brands/index']) ?>" onclick="toggleMobileMenu()">Бренды</a>
-        <a href="<?= Url::to(['/catalog/catalog/index', 'sort' => 'sale']) ?>" onclick="toggleMobileMenu()">Скидки</a>
-        <a href="<?= Url::to(['/page/about']) ?>" onclick="toggleMobileMenu()">О нас</a>
-        <a href="<?= Url::to(['/page/contacts']) ?>" onclick="toggleMobileMenu()">Контакты</a>
-        <a href="<?= Url::to(['/account/account/index']) ?>" onclick="toggleMobileMenu()">Личный кабинет</a>
-    </nav>
+    <div class="cart-drawer-body" id="cartDrawerItems">
+        <!-- Содержимое корзины загружается через AJAX -->
+        <div class="cart-empty">
+            <i class="bi bi-bag"></i>
+            <p>Ваша корзина пуста</p>
+        </div>
+    </div>
+    <div class="cart-drawer-footer">
+        <div class="cart-summary-row">
+            <span>Итого:</span>
+            <span class="cart-summary-total cart-total">0 Br</span>
+        </div>
+        <a href="<?= Url::to(['/checkout/index']) ?>" class="btn-checkout">Оформить заказ</a>
+        <a href="#" class="btn-continue" onclick="closeCartDrawer(); return false;">Продолжить покупки</a>
+    </div>
+</div>
+
+<!-- Mobile Menu -->
+<div class="menu-overlay" id="mobileMenuOverlay" onclick="toggleMobileMenu()"></div>
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+        <div class="header-logo">Меню</div>
+        <button class="mobile-menu-close" onclick="toggleMobileMenu()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <div class="mobile-menu-body">
+        <a href="<?= Url::to(['/catalog/catalog/index']) ?>" class="mobile-menu-link">Каталог</a>
+        <a href="<?= Url::to(['/catalog/brands/index']) ?>" class="mobile-menu-link">Бренды</a>
+        <a href="<?= Url::to(['/catalog/catalog/index', 'sort' => 'sale']) ?>" class="mobile-menu-link text-sale">Скидки</a>
+        <a href="<?= Url::to(['/page/about']) ?>" class="mobile-menu-link">О нас</a>
+        <a href="<?= Url::to(['/page/contacts']) ?>" class="mobile-menu-link">Контакты</a>
+        <a href="<?= Url::to(['/account/account/index']) ?>" class="mobile-menu-link">Личный кабинет</a>
+    </div>
 </div>
 
 <!-- Search Modal -->

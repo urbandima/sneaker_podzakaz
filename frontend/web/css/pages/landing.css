@@ -1,0 +1,313 @@
+/**
+ * Landing Page B&W Style
+ * ===================================
+ */
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    padding: 120px 0 80px;
+    background: var(--color-white);
+    overflow: hidden;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 80% 20%, rgba(0,0,0,0.03) 0%, transparent 50%);
+    z-index: 0;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 16px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 100px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+}
+
+.hero-title {
+    font-size: clamp(3rem, 5vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    letter-spacing: -0.03em;
+}
+
+.hero-title-accent {
+    color: var(--color-muted);
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--color-muted);
+    line-height: 1.6;
+    margin-bottom: 40px;
+    max-width: 480px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 64px;
+}
+
+.hero-stats {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+}
+
+.stat-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--color-border);
+}
+
+.hero-image {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50%;
+    height: 120%;
+    z-index: 0;
+}
+
+.hero-sneakers-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: right center;
+}
+
+.hero-floating-card {
+    position: absolute;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    box-shadow: var(--shadow-hover);
+}
+
+.hero-floating-card i {
+    font-size: 1.5rem;
+}
+
+.hero-floating-card.card-1 {
+    top: 20%;
+    left: 10%;
+}
+
+.hero-floating-card.card-2 {
+    bottom: 30%;
+    right: 20%;
+}
+
+/* Reviews */
+.reviews-section {
+    padding: 80px 0;
+    background: var(--color-surface);
+}
+
+.reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.review-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: 32px;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.review-avatar {
+    width: 48px;
+    height: 48px;
+    background: var(--color-black);
+    color: var(--color-white);
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+.review-author {
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+.review-city {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+}
+
+.review-rating {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+}
+
+.review-rating i {
+    font-size: 1rem;
+    color: var(--color-black);
+}
+
+.review-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-black);
+    margin: 0;
+}
+
+/* Instagram */
+.instagram-section {
+    padding: 80px 0;
+    background: var(--color-white);
+}
+
+.instagram-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+}
+
+.instagram-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--color-surface);
+}
+
+.instagram-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.instagram-overlay i {
+    color: var(--color-white);
+    font-size: 2rem;
+}
+
+.instagram-item:hover .instagram-overlay {
+    opacity: 1;
+}
+
+/* Newsletter */
+.newsletter-section {
+    padding: 100px 0;
+    background: var(--color-black);
+    color: var(--color-white);
+    text-align: center;
+}
+
+.newsletter-content {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.newsletter-title {
+    color: var(--color-white);
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+}
+
+.newsletter-subtitle {
+    color: #A1A1AA;
+    font-size: 1.125rem;
+    margin-bottom: 40px;
+}
+
+.newsletter-form {
+    display: flex;
+    gap: 12px;
+}
+
+.newsletter-form input {
+    background: var(--color-white);
+    border: none;
+}
+
+.newsletter-form .btn {
+    background: var(--color-white);
+    color: var(--color-black);
+}
+
+.newsletter-form .btn:hover {
+    background: var(--color-surface);
+}
+
+@media (max-width: 1024px) {
+    .hero-image { display: none; }
+    .hero-content { max-width: 100%; text-align: center; margin: 0 auto; }
+    .hero-actions, .hero-stats { justify-content: center; }
+    .reviews-grid { grid-template-columns: repeat(2, 1fr); }
+    .instagram-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .reviews-grid { 
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 24px;
+    }
+    .review-card {
+        flex: 0 0 85%;
+        scroll-snap-align: center;
+    }
+    .instagram-grid { grid-template-columns: repeat(2, 1fr); }
+    .newsletter-form { flex-direction: column; }
+}

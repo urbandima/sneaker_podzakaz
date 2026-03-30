@@ -19,7 +19,46 @@ function notify(message, type = 'info', duration = 4000) {
     }
 }
 
-// Добавить товар в корзину
+// Cart Drawer Functions
+function openCartDrawer() {
+    document.getElementById('cartDrawerOverlay').classList.add('open');
+    document.getElementById('cartDrawer').classList.add('open');
+    document.body.style.overflow = 'hidden'; // Запрет скролла страницы
+    loadCartDrawerItems();
+}
+
+function closeCartDrawer() {
+    document.getElementById('cartDrawerOverlay').classList.remove('open');
+    document.getElementById('cartDrawer').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function loadCartDrawerItems() {
+    const drawerItems = document.getElementById('cartDrawerItems');
+    drawerItems.innerHTML = '<div class="cart-loading"><i class="bi bi-arrow-repeat spinner"></i> Загрузка...</div>';
+
+    fetch('/cart/drawer-items', {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            drawerItems.innerHTML = data.html;
+            updateCartCount(data.count);
+            document.querySelectorAll('.cart-total').forEach(el => {
+                el.textContent = formatCurrency(data.total);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Load drawer error:', error);
+        drawerItems.innerHTML = '<div class="cart-error">Ошибка загрузки корзины</div>';
+    });
+}
+
+// Переопределяем добавление в корзину для открытия Drawer
 function addToCart(productId, quantity = 1, size = null, color = null) {
     const formData = new FormData();
     formData.append('product_id', productId);
@@ -40,12 +79,9 @@ function addToCart(productId, quantity = 1, size = null, color = null) {
             if (data.success) {
                 // Обновляем счетчик
                 updateCartCount(data.count);
-
-                // Анимация иконки корзины
-                animateCartIcon();
-
-                // Показываем уведомление
-                notify('✓ Товар добавлен в корзину', 'success');
+                
+                // Открываем Drawer вместо показа уведомления
+                openCartDrawer();
             } else {
                 notify(data.message || 'Ошибка добавления', 'error');
             }
@@ -56,7 +92,7 @@ function addToCart(productId, quantity = 1, size = null, color = null) {
         });
 }
 
-// Обновить количество товара
+// Обновить количество товара (с поддержкой Drawer)
 function updateCartItem(id, quantity) {
     quantity = parseInt(quantity);
 

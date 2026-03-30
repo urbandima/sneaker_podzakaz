@@ -17,7 +17,8 @@ class CatalogAsset extends VersionedAssetBundle
     public $baseUrl = '@web';
     
     public $css = [
-        'css/catalog.css',  // Стили каталога
+        'css/pages/catalog.css',  // Новые B&W стили каталога
+        'css/components/product-card.css',  // Стили карточки товара
     ];
     
     public $js = [
