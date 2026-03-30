@@ -26,11 +26,11 @@ $this->registerJsFile('@web/js/cart.js', ['position' => \yii\web\View::POS_END, 
     </header>
 
     <div class="container cart-container">
-        <h1 class="cart-title">🛒 Корзина</h1>
+        <h1 class="cart-title">Корзина</h1>
         
         <!-- Empty cart -->
         <div class="cart-empty" id="emptyCart">
-            <div class="empty-icon">🛒</div>
+            <div class="empty-icon"><i class="bi bi-cart"></i></div>
             <h2 class="empty-title">Корзина пуста</h2>
             <p class="empty-text">Добавьте товары из каталога</p>
             <a href="/catalog" class="btn-primary">
@@ -475,7 +475,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     // Успех! Редирект на страницу благодарности
                     if (window.NotificationManager) {
-                        NotificationManager.success('✅ Заказ успешно оформлен!');
+                        NotificationManager.success('Заказ успешно оформлен!');
                     }
                     
                     // Через 500ms редиректим на success-страницу

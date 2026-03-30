@@ -60,7 +60,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">📊 Какие данные мы собираем</h2>
+                <h2 class="h4 mb-3">Какие данные мы собираем</h2>
                 <div class="data-types">
                     <div class="data-category">
                         <div class="category-header">
@@ -107,7 +107,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">🎯 Цели сбора данных</h2>
+                <h2 class="h4 mb-3">Цели сбора данных</h2>
                 <div class="purposes-grid">
                     <div class="purpose-card">
                         <div class="purpose-icon">
@@ -160,7 +160,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">🍪 Файлы cookie</h2>
+                <h2 class="h4 mb-3">Файлы cookie</h2>
                 <div class="cookie-info">
                     <div class="cookie-section">
                         <h6>Что такое cookie?</h6>
@@ -214,7 +214,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3"><i class="bi bi-clock"></i> Срок хранения данных</h2>
+                <h2 class="h4 mb-3">Срок хранения данных</h2>
                 <div class="storage-periods">
                     <div class="period-item">
                         <div class="period-icon">
@@ -249,7 +249,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">🔐 Защита данных</h2>
+                <h2 class="h4 mb-3">Защита данных</h2>
                 <div class="security-measures">
                     <div class="security-item">
                         <div class="security-icon">
@@ -294,7 +294,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">👥 Передача данных третьим лицам</h2>
+                <h2 class="h4 mb-3">Передача данных третьим лицам</h2>
                 <div class="data-sharing">
                     <div class="alert alert-warning">
                         <h6 class="alert-heading">Важно знать</h6>
@@ -333,7 +333,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">🔑 Ваши права</h2>
+                <h2 class="h4 mb-3">Ваши права</h2>
                 <div class="rights-grid">
                     <div class="right-card">
                         <div class="right-icon">
@@ -370,7 +370,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">👶 Защита данных детей</h2>
+                <h2 class="h4 mb-3">Защита данных детей</h2>
                 <div class="children-protection">
                     <div class="alert alert-info">
                         <h6 class="alert-heading">Возрастные ограничения</h6>
@@ -412,7 +412,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">📖 Законодательство</h2>
+                <h2 class="h4 mb-3">Законодательство</h2>
                 <div class="legal-info">
                     <p>
                         Наша политика конфиденциальности разработана в соответствии с:

@@ -2,6 +2,9 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\frontend\assets\SaleAsset;
+
+SaleAsset::register($this);
 
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -15,7 +18,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <!-- Текущие акции -->
         <section class="current-promotions mb-5">
-            <h2 class="h3 mb-4">🔥 Текущие акции</h2>
+            <h2 class="h3 mb-4">Текущие акции</h2>
             
             <div class="row g-4">
                 <div class="col-md-6">
@@ -58,7 +61,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <!-- Программа лояльности -->
         <section class="loyalty-program mb-5">
-            <h2 class="h3 mb-4">⭐ Программа лояльности</h2>
+            <h2 class="h3 mb-4">Программа лояльности</h2>
             
             <div class="card">
                 <div class="card-body">
@@ -75,7 +78,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         </div>
                         <div class="col-md-4 text-center">
                             <div class="loyalty-badge">
-                                <i class="bi bi-award-fill text-primary" style="font-size: 3rem;"></i>
+                                <i class="bi bi-award-fill text-primary loyalty-icon"></i>
                                 <p class="mt-2 mb-0">Участвуйте в программе лояльности!</p>
                             </div>
                         </div>
@@ -90,7 +93,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <!-- Купоны -->
         <section class="coupons mb-5">
-            <h2 class="h3 mb-4">🎫 Специальные купоны</h2>
+            <h2 class="h3 mb-4">Специальные купоны</h2>
             
             <div class="alert alert-info">
                 <h5 class="alert-heading">Как использовать купоны?</h5>
@@ -147,24 +150,6 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 </div>
 
-<style>
-.promotion-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.promotion-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.loyalty-badge {
-    padding: 1rem;
-    background: rgba(13, 110, 253, 0.1);
-    border-radius: 8px;
-}
-
-.page-sale .badge {
-    font-size: 0.875rem;
-    padding: 0.5rem 1rem;
-}
-</style>
+<?php
+// Стили перенесены в sale-inline.css
+?>

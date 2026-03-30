@@ -12,7 +12,12 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     line-height: 1.15;
     letter-spacing: -0.02em;
     font-weight: 700;
@@ -28,6 +33,11 @@ a {
 
 a:hover {
     color: var(--color-black);
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
 }
 
 /* Base Buttons */
@@ -86,7 +96,7 @@ a:hover {
 .form-control:focus {
     border-color: #0F0F0F;
     outline: none;
-    box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
 }
 
 .form-control::placeholder {

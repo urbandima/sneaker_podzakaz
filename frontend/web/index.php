@@ -22,6 +22,17 @@ if (!defined('YII_DEBUG')) {
     define('YII_DEBUG', YII_ENV !== 'prod');
 }
 
+// Определяем константы окружения для совместимости с Yii2
+if (!defined('YII_ENV_DEV')) {
+    define('YII_ENV_DEV', YII_ENV === 'dev');
+}
+if (!defined('YII_ENV_PROD')) {
+    define('YII_ENV_PROD', YII_ENV === 'prod');
+}
+if (!defined('YII_ENV_TEST')) {
+    define('YII_ENV_TEST', YII_ENV === 'test');
+}
+
 require __DIR__ . '/../../vendor/yiisoft/yii2/Yii.php';
 
 $config = require __DIR__ . '/../../infrastructure/config/web.php';

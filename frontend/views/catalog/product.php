@@ -485,7 +485,7 @@ echo SchemaOrgGenerator::render($product);
         <div class="product-specs-section premium-accordion">
             <div class="premium-accordion-header specs-header-toggle" onclick="toggleMainSpecs()">
                 <h2>
-                    <span class="accordion-icon">📋</span>
+                    <span class="accordion-icon"></span>
                     Характеристики
                     <?php if ($specsCount > 0): ?>
                     <span class="premium-accordion-count">
@@ -669,7 +669,7 @@ echo SchemaOrgGenerator::render($product);
         <?php if ($product->description): ?>
         <div class="product-description-section">
             <div class="desc-header" onclick="toggleDescription()">
-                <h2>📝 Описание товара</h2>
+                <h2>Описание товара</h2>
                 <i class="bi bi-chevron-down" id="descToggleIcon"></i>
             </div>
             <div class="desc-content" id="descContent">
@@ -1232,7 +1232,7 @@ echo SchemaOrgGenerator::render($product);
         </table>
         
         <div class="size-tips">
-            <h4>💡 Советы по выбору размера:</h4>
+            <h4>Советы по выбору размера:</h4>
             <ul>
                 <li>Измеряйте ногу вечером, когда она немного увеличена</li>
                 <li>Стойте при измерении, равномерно распределив вес</li>
@@ -1518,7 +1518,7 @@ function openSizeTableModal() {
             </div>
             <div class="size-table-hint">
                 <i class="bi bi-info-circle"></i>
-                <small>💡 Кликните на строку, чтобы выбрать размер. Измерьте длину стопы в см и сравните с таблицей</small>
+                <small>Кликните на строку, чтобы выбрать размер. Измерьте длину стопы в см и сравните с таблицей</small>
             </div>
         </div>
     `;
@@ -1649,7 +1649,7 @@ function createImageModal() {
             </div>
             <div class="modal-image-counter" id="modalCounter"></div>
             <div class="modal-thumbnails" id="modalThumbnails"></div>
-            <div class="image-modal-zoom-hint">💡 Кликните на фото для увеличения</div>
+            <div class="image-modal-zoom-hint">Кликните на фото для увеличения</div>
         </div>
     `;
     document.body.appendChild(modal);

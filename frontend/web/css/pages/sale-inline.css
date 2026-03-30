@@ -1,0 +1,23 @@
+.loyalty-icon {
+    font-size: 3rem;
+}
+
+.promotion-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.promotion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.loyalty-badge {
+    padding: 1rem;
+    background: rgba(13, 110, 253, 0.1);
+    border-radius: 8px;
+}
+
+.page-sale .badge {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+}

@@ -77,12 +77,12 @@ $company = Yii::$app->settings->getCompany();
 
             <a href="<?= Url::to(['/catalog/favorites/index']) ?>" class="action-btn" aria-label="Избранное">
                 <i class="bi bi-heart"></i>
-                <span class="badge-count" style="display: none;">0</span>
+                <span class="badge-count hidden">0</span>
             </a>
 
             <button class="action-btn" onclick="openCartDrawer()" aria-label="Корзина">
                 <i class="bi bi-bag"></i>
-                <span class="badge-count cart-counter" style="display: none;">0</span>
+                <span class="badge-count cart-counter hidden">0</span>
             </button>
 
             <a href="<?= Url::to(['/account/account/index']) ?>" class="action-btn" aria-label="Профиль">

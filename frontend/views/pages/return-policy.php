@@ -25,7 +25,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">🔄 Общие условия возврата</h2>
+                <h2 class="h4 mb-3">Общие условия возврата</h2>
                 <div class="return-info-cards">
                     <div class="info-card">
                         <div class="info-icon">
@@ -106,7 +106,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">🚫 Товары, не подлежащие возврату</h2>
+                <h2 class="h4 mb-3">Товары, не подлежащие возврату</h2>
                 <div class="alert alert-warning">
                     <h6 class="alert-heading">Внимание!</h6>
                     <p class="mb-3">
@@ -196,7 +196,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">🔧 Возврат товара с дефектом</h2>
+                <h2 class="h4 mb-3">Возврат товара с дефектом</h2>
                 <div class="defect-return-process">
                     <div class="process-card">
                         <h6><i class="bi bi-exclamation-triangle text-warning"></i> Обнаружение дефекта</h6>
@@ -330,7 +330,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
             <div class="content-section">
                 <div class="alert alert-info">
-                    <h6 class="alert-heading">📖 Законодательство</h6>
+                    <h6 class="alert-heading">Законодательство</h6>
                     <p class="mb-0">
                         Возврат товаров осуществляется в соответствии с:<br>
                         • Законом РБ "О защите прав потребителей"<br>

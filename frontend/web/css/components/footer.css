@@ -184,3 +184,76 @@
         text-align: center;
     }
 }
+
+/* Footer badges */
+.footer-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.badge-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+}
+
+.badge-item i {
+    color: var(--color-white);
+    font-size: 1rem;
+}
+
+.footer-brand {
+    margin-bottom: 16px;
+}
+
+.footer-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-bottom-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.copyright {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+}
+
+.payment-label {
+    color: var(--color-muted);
+    font-size: 0.75rem;
+}
+
+.payment-icons {
+    display: flex;
+    gap: 8px;
+}
+
+.payment-icon {
+    height: 24px;
+    opacity: 0.7;
+    filter: grayscale(1);
+}
+
+.payment-icon:hover {
+    opacity: 1;
+    filter: grayscale(0);
+}
+
+.footer-main {
+    padding: 3rem 0 2rem;
+}
+
+.container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 24px;
+}

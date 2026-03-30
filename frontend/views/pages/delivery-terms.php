@@ -93,7 +93,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">💰 Стоимость доставки</h2>
+                <h2 class="h4 mb-3">Стоимость доставки</h2>
                 <div class="table-responsive">
                     <table class="table table-bordered delivery-table">
                         <thead>
@@ -207,7 +207,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">🚫 Ограничения доставки</h2>
+                <h2 class="h4 mb-3">Ограничения доставки</h2>
                 <div class="alert alert-warning">
                     <h6 class="alert-heading">Важная информация</h6>
                     <ul class="mb-0">
