@@ -12,6 +12,56 @@ $company = Yii::$app->settings->getCompany() ?? [];
     <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
 </div>
 
+<!-- Быстрые ссылки -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:24px">
+    <a href="<?= \yii\helpers\Url::to(['/admin/settings/statuses']) ?>" class="admin-card" style="text-decoration:none;color:inherit;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:48px;height:48px;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:12px;display:flex;align-items:center;justify-content:center">
+                <i class="bi bi-diagram-3" style="font-size:24px;color:white"></i>
+            </div>
+            <div>
+                <h3 style="margin:0;font-size:16px;font-weight:600">Статусы заказов</h3>
+                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">Настройка цепочки статусов</p>
+            </div>
+        </div>
+    </a>
+    
+    <a href="<?= \yii\helpers\Url::to(['/admin/settings/integrations']) ?>" class="admin-card" style="text-decoration:none;color:inherit;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:48px;height:48px;background:linear-gradient(135deg,#10b981,#059669);border-radius:12px;display:flex;align-items:center;justify-content:center">
+                <i class="bi bi-plug" style="font-size:24px;color:white"></i>
+            </div>
+            <div>
+                <h3 style="margin:0;font-size:16px;font-weight:600">Интеграции</h3>
+                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">AmoCRM, МойСклад, Telegram</p>
+            </div>
+        </div>
+    </a>
+    
+    <a href="<?= \yii\helpers\Url::to(['/admin/plugin']) ?>" class="admin-card" style="text-decoration:none;color:inherit;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:48px;height:48px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border-radius:12px;display:flex;align-items:center;justify-content:center">
+                <i class="bi bi-plugin" style="font-size:24px;color:white"></i>
+            </div>
+            <div>
+                <h3 style="margin:0;font-size:16px;font-weight:600">Плагины</h3>
+                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">Дополнительные модули</p>
+            </div>
+        </div>
+    </a>
+    <a href="<?= \yii\helpers\Url::to(['/admin/seo']) ?>" class="admin-card" style="text-decoration:none;color:inherit;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:48px;height:48px;background:linear-gradient(135deg,#ec4899,#db2777);border-radius:12px;display:flex;align-items:center;justify-content:center">
+                <i class="bi bi-search-heart" style="font-size:24px;color:white"></i>
+            </div>
+            <div>
+                <h3 style="margin:0;font-size:16px;font-weight:600">SEO</h3>
+                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">Мета-теги, sitemap, robots.txt</p>
+            </div>
+        </div>
+    </a>
+</div>
+
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
     <!-- Компания -->
     <div class="admin-card">

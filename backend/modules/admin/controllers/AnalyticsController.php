@@ -148,6 +148,14 @@ class AnalyticsController extends BaseAdminController
     }
 
     /**
+     * RFM аналитика - сегментация клиентов
+     */
+    public function actionRfm()
+    {
+        return $this->render('rfm');
+    }
+
+    /**
      * Экспорт отчета
      */
     public function actionExport()

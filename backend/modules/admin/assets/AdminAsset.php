@@ -23,6 +23,8 @@ class AdminAsset extends AssetBundle
     public $js = [
         'js/admin.js',
         'js/dashboard.js',
+        'js/admin-search.js',
+        'js/orders.js',
     ];
     
     public $depends = [

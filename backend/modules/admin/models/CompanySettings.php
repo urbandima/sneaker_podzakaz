@@ -38,6 +38,45 @@ class CompanySettings extends ActiveRecord
         return '{{%company_settings}}';
     }
 
+    /**
+     * Получить настройки компании
+     * @return array
+     */
+    public static function getSettings()
+    {
+        try {
+            $settings = self::find()->one();
+            if ($settings) {
+                return [
+                    'name' => $settings->name,
+                    'unp' => $settings->unp,
+                    'address' => $settings->address,
+                    'bank' => $settings->bank,
+                    'bic' => $settings->bic,
+                    'account' => $settings->account,
+                    'phone' => $settings->phone,
+                    'email' => $settings->email,
+                    'offer_url' => $settings->offer_url,
+                ];
+            }
+        } catch (\Exception $e) {
+            // Игнорируем ошибки
+        }
+        
+        // Дефолтные настройки
+        return [
+            'name' => 'СНИКЕРХЭД',
+            'unp' => '',
+            'address' => '',
+            'bank' => '',
+            'bic' => '',
+            'account' => '',
+            'phone' => '',
+            'email' => '',
+            'offer_url' => '',
+        ];
+    }
+
     public function rules()
     {
         return [

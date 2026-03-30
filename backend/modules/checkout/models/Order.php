@@ -308,9 +308,22 @@ class Order extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'created_by']);
     }
 
+    public function getCustomer()
+    {
+        return $this->hasOne(\app\backend\modules\account\models\Customer::class, ['id' => 'customer_id']);
+    }
+
     public function getLogist()
     {
         return $this->hasOne(User::class, ['id' => 'assigned_logist']);
+    }
+
+    /**
+     * Alias для getLogist() для совместимости
+     */
+    public function getAssignedLogist()
+    {
+        return $this->getLogist();
     }
 
     public function getOrderItems()

@@ -86,41 +86,16 @@ class UserController extends BaseAdminController
      */
     public function actionIndex()
     {
-        try {
-            $dataProvider = new ActiveDataProvider([
-                'query' => User::find()->orderBy(['id' => SORT_DESC]),
-                'pagination' => [
-                    'pageSize' => 20,
-                ],
-            ]);
+        $dataProvider = new ActiveDataProvider([
+            'query' => User::find()->orderBy(['id' => SORT_DESC]),
+            'pagination' => [
+                'pageSize' => 20,
+            ],
+        ]);
 
-            return $this->render('index', [
-                'dataProvider' => $dataProvider,
-            ]);
-        } catch (\Exception $e) {
-            // Демо-режим при отсутствии БД
-            $demoUsers = [
-                (object)['id' => 1, 'username' => 'admin', 'email' => 'admin@sneakerhead.by', 'role' => 'admin', 'status' => 10, 'created_at' => time()],
-                (object)['id' => 2, 'username' => 'manager1', 'email' => 'manager1@sneakerhead.by', 'role' => 'manager', 'status' => 10, 'created_at' => time()],
-                (object)['id' => 3, 'username' => 'manager2', 'email' => 'manager2@sneakerhead.by', 'role' => 'manager', 'status' => 10, 'created_at' => time()],
-                (object)['id' => 4, 'username' => 'logist1', 'email' => 'logist1@sneakerhead.by', 'role' => 'logist', 'status' => 10, 'created_at' => time()],
-                (object)['id' => 5, 'username' => 'logist2', 'email' => 'logist2@sneakerhead.by', 'role' => 'logist', 'status' => 10, 'created_at' => time()],
-            ];
-
-            $dataProvider = new \yii\data\ArrayDataProvider([
-                'allModels' => $demoUsers,
-                'pagination' => [
-                    'pageSize' => 20,
-                ],
-                'sort' => [
-                    'attributes' => ['id', 'username', 'email', 'role', 'status'],
-                ],
-            ]);
-
-            return $this->render('index', [
-                'dataProvider' => $dataProvider,
-            ]);
-        }
+        return $this->render('index', [
+            'dataProvider' => $dataProvider,
+        ]);
     }
 
     /**

@@ -10,161 +10,328 @@ use yii\helpers\Url;
 ?>
 
 <div class="import-widget">
-    <!-- Заголовок виджета -->
-    <div class="widget-header d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0">
-            <i class="fas fa-download text-primary me-2"></i>
+    <!-- Заголовок -->
+    <div class="widget-header">
+        <div class="header-title">
+            <div class="icon-circle">
+                <i class="bi bi-download"></i>
+            </div>
             <span>Импорт товаров</span>
-        </h5>
-        <?= Html::a('<i class="fas fa-expand-alt"></i>', ['/admin/import'], [
-            'class' => 'btn btn-sm btn-outline-secondary',
-            'title' => 'Полная версия импорта'
+        </div>
+        <?= Html::a('<i class="bi bi-box-arrow-up-right"></i>', ['/admin/import'], [
+            'class' => 'btn-expand',
+            'title' => 'Полная версия'
         ]) ?>
     </div>
 
     <!-- Статистика -->
-    <div class="row mb-3">
-        <div class="col-6">
-            <div class="stat-item">
-                <div class="stat-value text-primary"><?= $stats['active_sources'] ?>/<?= $stats['total_sources'] ?></div>
-                <div class="stat-label small text-muted">Источников</div>
-            </div>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-number"><?= $stats['active_sources'] ?>/<?= $stats['total_sources'] ?></span>
+            <span class="stat-label">Источников</span>
         </div>
-        <div class="col-6">
-            <div class="stat-item">
-                <div class="stat-value text-success"><?= number_format($stats['total_imported'], 0, '', ' ') ?></div>
-                <div class="stat-label small text-muted">Импортировано</div>
-            </div>
+        <div class="stat-item">
+            <span class="stat-number"><?= number_format($stats['total_imported'], 0, '', ' ') ?></span>
+            <span class="stat-label">Импортировано</span>
         </div>
     </div>
 
     <!-- Быстрые действия -->
-    <div class="quick-actions mb-3">
-        <div class="d-grid gap-2">
-            <?= Html::a('<i class="fas fa-file-upload me-2"></i>Загрузить файл', ['/admin/import/upload'], [
-                'class' => 'btn btn-primary btn-sm'
+    <div class="actions-section">
+        <?= Html::a('<i class="bi bi-upload"></i> Загрузить файл', ['/admin/import/upload'], [
+            'class' => 'btn-import-main'
+        ]) ?>
+        
+        <?php if (!empty($sources)): ?>
+        <div class="sources-list">
+            <?php foreach (array_slice($sources, 0, 2) as $source): ?>
+            <?= Html::a('<i class="bi bi-play-fill"></i> ' . Html::encode($source->name), 
+                ['/admin/import/run', 'sourceId' => $source->id], [
+                'class' => 'btn-source',
+                'data-method' => 'post'
             ]) ?>
-            
-            <?php if (!empty($sources)): ?>
-            <div class="btn-group" role="group">
-                <?php foreach (array_slice($sources, 0, 2) as $source): ?>
-                <?= Html::a('<i class="fas fa-play"></i> ' . Html::encode($source->name), 
-                    ['/admin/import/run', 'sourceId' => $source->id], [
-                    'class' => 'btn btn-outline-success btn-sm',
-                    'data-method' => 'post',
-                    'title' => 'Запустить импорт из ' . Html::encode($source->name)
-                ]) ?>
-                <?php endforeach; ?>
-                <?php if (count($sources) > 2): ?>
-                <?= Html::a('<i class="fas fa-ellipsis-h"></i>', ['/admin/import'], [
-                    'class' => 'btn btn-outline-secondary btn-sm',
-                    'title' => 'Все источники'
-                ]) ?>
-                <?php endif; ?>
-            </div>
+            <?php endforeach; ?>
+            <?php if (count($sources) > 2): ?>
+            <?= Html::a('<i class="bi bi-three-dots"></i>', ['/admin/import'], [
+                'class' => 'btn-more',
+                'title' => 'Все источники'
+            ]) ?>
             <?php endif; ?>
         </div>
+        <?php endif; ?>
     </div>
 
     <!-- Последние задачи -->
     <?php if (!empty($recentTasks)): ?>
     <div class="recent-tasks">
-        <h6 class="text-muted mb-2">Последние импорты</h6>
+        <h6>Последние импорты</h6>
         <div class="task-list">
             <?php foreach ($recentTasks as $task): ?>
-            <div class="task-item d-flex justify-content-between align-items-center py-1">
+            <div class="task-item">
                 <div class="task-info">
-                    <div class="task-name small"><?= Html::encode($task->source->name) ?></div>
-                    <div class="task-time text-muted" style="font-size: 0.75rem;">
-                        <?= Yii::$app->formatter->asRelativeTime($task->created_at) ?>
-                    </div>
+                    <span class="task-name"><?= Html::encode($task->source->name) ?></span>
+                    <span class="task-time"><?= Yii::$app->formatter->asRelativeTime($task->created_at) ?></span>
                 </div>
-                <div class="task-status">
-                    <?php
-                    $colors = [
-                        'pending' => 'secondary',
-                        'running' => 'warning',
-                        'completed' => 'success',
-                        'failed' => 'danger',
-                    ];
-                    $color = $colors[$task->status] ?? 'secondary';
-                    ?>
-                    <span class="badge bg-<?= $color ?> badge-sm">
-                        <?= $task->getStatusLabel() ?>
-                    </span>
-                </div>
+                <?php
+                $statusColors = [
+                    'pending' => ['bg' => '#f3f4f6', 'text' => '#6b7280'],
+                    'running' => ['bg' => '#fef3c7', 'text' => '#d97706'],
+                    'completed' => ['bg' => '#d1fae5', 'text' => '#059669'],
+                    'failed' => ['bg' => '#fee2e2', 'text' => '#dc2626'],
+                ];
+                $color = $statusColors[$task->status] ?? $statusColors['pending'];
+                ?>
+                <span class="task-badge" style="background: <?= $color['bg'] ?>; color: <?= $color['text'] ?>">
+                    <?= $task->getStatusLabel() ?>
+                </span>
             </div>
             <?php endforeach; ?>
         </div>
     </div>
     <?php endif; ?>
 
-    <!-- Ссылка на полную версию -->
-    <div class="widget-footer mt-3 pt-3 border-top">
-        <?= Html::a(
-            '<i class="fas fa-cog me-1"></i>Настройки импорта', 
-            ['/admin/import/settings'], 
-            ['class' => 'text-muted small text-decoration-none']
-        ) ?>
+    <!-- Footer -->
+    <div class="widget-footer">
+        <?= Html::a('<i class="bi bi-gear"></i> Настройки импорта', ['/admin/import/settings']) ?>
     </div>
 </div>
 
 <style>
+/* ===== Modern Import Widget ===== */
 .import-widget {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 0.5rem;
-    padding: 1rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+/* Header */
 .widget-header {
-    border-bottom: 1px solid #e9ecef;
-    padding-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+}
+
+.btn-expand {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-expand:hover {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
 }
 
 .stat-item {
     text-align: center;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 12px;
+    border: 1px solid #f3f4f6;
 }
 
-.stat-value {
-    font-size: 1.25rem;
-    font-weight: 600;
+.stat-number {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
 }
 
 .stat-label {
-    font-size: 0.75rem;
+    font-size: 12px;
+    color: #6b7280;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
+/* Actions */
+.actions-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.btn-import-main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s;
+    border: none;
+}
+
+.btn-import-main:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.sources-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-source {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: #ecfdf5;
+    color: #059669;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border: 1px solid #d1fae5;
+}
+
+.btn-source:hover {
+    background: #d1fae5;
+}
+
+.btn-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: #f3f4f6;
+    color: #6b7280;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-more:hover {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+/* Recent Tasks */
+.recent-tasks {
+    margin-bottom: 16px;
+}
+
+.recent-tasks h6 {
+    margin: 0 0 12px;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #9ca3af;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .task-item {
-    border-bottom: 1px solid #f1f3f4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 10px;
+    border: 1px solid #f3f4f6;
 }
 
-.task-item:last-child {
-    border-bottom: none;
+.task-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.badge-sm {
-    font-size: 0.65rem;
-    padding: 0.2rem 0.4rem;
+.task-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
 }
 
-.btn-sm {
-    font-size: 0.8rem;
+.task-time {
+    font-size: 11px;
+    color: #9ca3af;
 }
 
-.quick-actions .btn-group .btn {
-    border-radius: 0;
+.task-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
 }
 
-.quick-actions .btn-group .btn:first-child {
-    border-top-left-radius: 0.25rem;
-    border-bottom-left-radius: 0.25rem;
+/* Footer */
+.widget-footer {
+    padding-top: 16px;
+    border-top: 1px solid #f3f4f6;
+    text-align: center;
 }
 
-.quick-actions .btn-group .btn:last-child {
-    border-top-right-radius: 0.25rem;
-    border-bottom-right-radius: 0.25rem;
+.widget-footer a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #6b7280;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.widget-footer a:hover {
+    color: #3b82f6;
 }
 </style>

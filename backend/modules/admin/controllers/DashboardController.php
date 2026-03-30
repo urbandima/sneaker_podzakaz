@@ -46,125 +46,43 @@ class DashboardController extends BaseAdminController
         $user = $this->getCurrentUser();
         $demoMode = false;
         
-        // ВРЕМЕННО: Для временной авторизации всегда демо-режим
-        if ($user instanceof \app\backend\modules\admin\models\TemporaryAdminIdentity) {
+        // Пробуем загрузить реальные данные
+        try {
+            // Статистика заказов
+            $orderStats = $this->getOrderStats($user);
+            
+            // Статистика товаров
+            $productStats = $this->getProductStats();
+            
+            // Статистика пользователей
+            $userStats = $this->getUserStats();
+            
+            // Топ товары
+            $topProducts = $this->getTopProducts();
+            
+            // Активные логисты
+            $activeLogists = $this->getActiveLogists();
+            
+            // Данные для графика
+            $chartData = $this->getChartData($user);
+            
+            // Настройки компании
+            $companySettings = CompanySettings::getSettings();
+            
+        } catch (\Exception $e) {
+            // Только при ошибке БД показываем демо
             $demoMode = true;
             $orderStats = [
-                'total' => 156,
-                'pending' => 23,
-                'processing' => 45,
-                'completed' => 88,
-                'today' => 12,
-                'thisMonth' => 45,
-                'totalAmount' => 15420.50,
+                'total' => 0, 'pending' => 0, 'processing' => 0, 'completed' => 0,
+                'today' => 0, 'thisMonth' => 0, 'totalAmount' => 0,
             ];
-            $productStats = [
-                'total' => 1245,
-                'active' => 1180,
-                'inactive' => 65,
-                'inStock' => 1120,
-                'outOfStock' => 125,
-            ];
-            $userStats = [
-                'total' => 8,
-                'active' => 8,
-                'admins' => 2,
-                'managers' => 4,
-                'logists' => 2,
-            ];
-            $topProducts = [
-                ['product_name' => 'Nike Air Max 90', 'order_count' => 45, 'total_quantity' => 67, 'avg_price' => 350.00],
-                ['product_name' => 'Adidas Ultraboost 22', 'order_count' => 38, 'total_quantity' => 52, 'avg_price' => 280.00],
-                ['product_name' => 'Jordan 1 Retro High', 'order_count' => 32, 'total_quantity' => 41, 'avg_price' => 420.00],
-                ['product_name' => 'New Balance 550', 'order_count' => 28, 'total_quantity' => 35, 'avg_price' => 180.00],
-                ['product_name' => 'Yeezy Boost 350', 'order_count' => 25, 'total_quantity' => 30, 'avg_price' => 520.00],
-            ];
+            $productStats = ['total' => 0, 'active' => 0, 'inStock' => 0, 'outOfStock' => 0];
+            $userStats = ['total' => 0, 'active' => 0, 'admins' => 0, 'managers' => 0, 'logists' => 0];
+            $topProducts = [];
             $activeLogists = [];
-            $chartData = [
-                ['date' => '2026-03-09', 'day' => 'Mon', 'orders' => 12, 'amount' => 2100.00],
-                ['date' => '2026-03-10', 'day' => 'Tue', 'orders' => 15, 'amount' => 2800.00],
-                ['date' => '2026-03-11', 'day' => 'Wed', 'orders' => 18, 'amount' => 3200.00],
-                ['date' => '2026-03-12', 'day' => 'Thu', 'orders' => 22, 'amount' => 3800.00],
-                ['date' => '2026-03-13', 'day' => 'Fri', 'orders' => 25, 'amount' => 4500.00],
-                ['date' => '2026-03-14', 'day' => 'Sat', 'orders' => 28, 'amount' => 5200.00],
-                ['date' => '2026-03-15', 'day' => 'Sun', 'orders' => 20, 'amount' => 3500.00],
-            ];
-            $companySettings = [
-                'name' => 'СНИКЕРХЭД',
-                'email' => 'info@sneakerhead.by',
-                'phone' => '+375 (29) 123-45-67',
-            ];
-        } else {
-            // Демо-режим при отсутствии БД
-            try {
-                // Статистика заказов
-                $orderStats = $this->getOrderStats($user);
-                
-                // Статистика товаров
-                $productStats = $this->getProductStats();
-                
-                // Статистика пользователей
-                $userStats = $this->getUserStats();
-                
-                // Топ товары
-                $topProducts = $this->getTopProducts();
-                
-                // Активные логисты
-                $activeLogists = $this->getActiveLogists();
-                
-                // Данные для графика
-                $chartData = $this->getChartData($user);
-                
-                // Настройки компании
-                $companySettings = CompanySettings::getSettings();
-            } catch (\Exception $e) {
-                $demoMode = true;
-                // Демо данные
-                $orderStats = [
-                    'total' => 156,
-                    'pending' => 23,
-                    'processing' => 45,
-                    'completed' => 88,
-                    'today' => 12,
-                    'thisMonth' => 45,
-                    'totalAmount' => 15420.50,
-                ];
-                $productStats = [
-                    'total' => 1245,
-                    'active' => 1180,
-                    'inactive' => 65,
-                    'inStock' => 1120,
-                ];
-                $userStats = [
-                    'total' => 8,
-                    'active' => 8,
-                    'admins' => 2,
-                    'managers' => 4,
-                    'logists' => 2,
-                ];
-                $topProducts = [
-                    ['product_name' => 'Nike Air Max 90', 'order_count' => 45, 'total_quantity' => 67, 'avg_price' => 350.00],
-                    ['product_name' => 'Adidas Ultraboost 22', 'order_count' => 38, 'total_quantity' => 52, 'avg_price' => 280.00],
-                    ['product_name' => 'Jordan 1 Retro High', 'order_count' => 32, 'total_quantity' => 41, 'avg_price' => 420.00],
-                    ['product_name' => 'New Balance 550', 'order_count' => 28, 'total_quantity' => 35, 'avg_price' => 180.00],
-                    ['product_name' => 'Yeezy Boost 350', 'order_count' => 25, 'total_quantity' => 30, 'avg_price' => 520.00],
-                ];
-                $activeLogists = [];
-                $chartData = [
-                    ['date' => '2026-03-09', 'day' => 'Mon', 'orders' => 12, 'amount' => 2100.00],
-                    ['date' => '2026-03-10', 'day' => 'Tue', 'orders' => 15, 'amount' => 2800.00],
-                    ['date' => '2026-03-11', 'day' => 'Wed', 'orders' => 18, 'amount' => 3200.00],
-                    ['date' => '2026-03-12', 'day' => 'Thu', 'orders' => 22, 'amount' => 3800.00],
-                    ['date' => '2026-03-13', 'day' => 'Fri', 'orders' => 25, 'amount' => 4500.00],
-                    ['date' => '2026-03-14', 'day' => 'Sat', 'orders' => 28, 'amount' => 5200.00],
-                    ['date' => '2026-03-15', 'day' => 'Sun', 'orders' => 20, 'amount' => 3500.00],
-                ];
-                $companySettings = [
-                    'name' => 'СНИКЕРХЭД',
-                    'email' => 'info@sneakerhead.by',
-                    'phone' => '+375 (29) 123-45-67',
-                ];
-            }
+            $chartData = [];
+            $companySettings = ['name' => 'СНИКЕРХЭД', 'email' => '', 'phone' => ''];
+            Yii::warning('Dashboard demo mode: ' . $e->getMessage(), 'admin');
         }
         
         return $this->render('index', [
@@ -172,12 +90,31 @@ class DashboardController extends BaseAdminController
             'orderStats' => $orderStats,
             'productStats' => $productStats,
             'userStats' => $userStats,
-                        'topProducts' => $topProducts,
+            'topProducts' => $topProducts,
             'activeLogists' => $activeLogists,
             'chartData' => $chartData,
             'companySettings' => $companySettings,
             'demoMode' => $demoMode,
+            'recentOrders' => $this->getRecentOrders($user),
         ]);
+    }
+    
+    /**
+     * Получить последние заказы для дашборда
+     */
+    private function getRecentOrders($user, int $limit = 10): array
+    {
+        $query = Order::find()
+            ->with(['orderItems', 'creator'])
+            ->orderBy(['created_at' => SORT_DESC])
+            ->limit($limit);
+        
+        // Логист видит только свои заказы
+        if ($user->isLogist()) {
+            $query->andWhere(['assigned_logist' => $user->id]);
+        }
+        
+        return $query->all();
     }
     
     /**
@@ -185,18 +122,6 @@ class DashboardController extends BaseAdminController
      */
     private function getOrderStats($user)
     {
-        // ВРЕМЕННО: Для временной авторизации возвращаем демо-данные
-        if ($user instanceof \app\backend\modules\admin\models\TemporaryAdminIdentity) {
-            return [
-                'total' => 156,
-                'today' => 12,
-                'thisMonth' => 45,
-                'totalAmount' => 15420.50,
-                'pending' => 23,
-                'completed' => 88,
-            ];
-        }
-        
         $baseQuery = Order::find();
         
         if ($user->isLogist()) {
@@ -219,16 +144,6 @@ class DashboardController extends BaseAdminController
      */
     private function getProductStats()
     {
-        // ВРЕМЕННО: Для временной авторизации возвращаем демо-данные
-        if (Yii::$app->user->identity instanceof \app\backend\modules\admin\models\TemporaryAdminIdentity) {
-            return [
-                'total' => 1245,
-                'active' => 1180,
-                'inStock' => 1120,
-                'outOfStock' => 125,
-            ];
-        }
-        
         return [
             'total' => (int)Product::find()->count(),
             'active' => (int)Product::find()->where(['is_active' => true])->count(),
@@ -242,35 +157,13 @@ class DashboardController extends BaseAdminController
      */
     private function getUserStats()
     {
-        // ВРЕМЕННО: Для временной авторизации возвращаем демо-данные
-        if (Yii::$app->user->identity instanceof \app\backend\modules\admin\models\TemporaryAdminIdentity) {
-            return [
-                'total' => 8,
-                'active' => 8,
-                'admins' => 2,
-                'logists' => 2,
-                'managers' => 4,
-            ];
-        }
-        
-        try {
-            return [
-                'total' => (int)User::find()->count(),
-                'active' => (int)User::find()->where(['status' => 'active'])->count(),
-                'admins' => (int)User::find()->where(['role' => 'admin'])->count(),
-                'logists' => (int)User::find()->where(['role' => 'logist'])->count(),
-                'managers' => (int)User::find()->where(['role' => 'manager'])->count(),
-            ];
-        } catch (\Exception $e) {
-            // Демо-данные при отсутствии БД
-            return [
-                'total' => 8,
-                'active' => 8,
-                'admins' => 2,
-                'logists' => 2,
-                'managers' => 4,
-            ];
-        }
+        return [
+            'total' => (int)User::find()->count(),
+            'active' => (int)User::find()->where(['status' => 'active'])->count(),
+            'admins' => (int)User::find()->where(['role' => 'admin'])->count(),
+            'logists' => (int)User::find()->where(['role' => 'logist'])->count(),
+            'managers' => (int)User::find()->where(['role' => 'manager'])->count(),
+        ];
     }
     
     /**
@@ -278,19 +171,7 @@ class DashboardController extends BaseAdminController
      */
     private function getTopProducts()
     {
-        // ВРЕМЕННО: Для временной авторизации возвращаем демо-данные
-        if (Yii::$app->user->identity instanceof \app\backend\modules\admin\models\TemporaryAdminIdentity) {
-            return [
-                ['product_name' => 'Nike Air Max 90', 'order_count' => 45, 'total_quantity' => 67, 'avg_price' => 350.00],
-                ['product_name' => 'Adidas Ultraboost 22', 'order_count' => 38, 'total_quantity' => 52, 'avg_price' => 280.00],
-                ['product_name' => 'Jordan 1 Retro High', 'order_count' => 32, 'total_quantity' => 41, 'avg_price' => 420.00],
-                ['product_name' => 'New Balance 550', 'order_count' => 28, 'total_quantity' => 35, 'avg_price' => 180.00],
-                ['product_name' => 'Yeezy Boost 350', 'order_count' => 25, 'total_quantity' => 30, 'avg_price' => 520.00],
-            ];
-        }
-        
         // Топ товаров по количеству заказов
-        // Используем product_name так как в order_item нет product_id
         $sql = "
             SELECT oi.product_name, SUM(oi.quantity) as total_quantity, 
                    COUNT(DISTINCT oi.order_id) as order_count, AVG(oi.price) as avg_price
@@ -310,20 +191,10 @@ class DashboardController extends BaseAdminController
      */
     private function getActiveLogists()
     {
-        // ВРЕМЕННО: Для временной авторизации возвращаем демо-данные
-        if (Yii::$app->user->identity instanceof \app\backend\modules\admin\models\TemporaryAdminIdentity) {
-            return [];
-        }
-        
-        try {
-            return User::find()
-                ->where(['role' => 'logist', 'status' => 'active'])
-                ->orderBy(['username' => SORT_ASC])
-                ->all();
-        } catch (\Exception $e) {
-            // Демо-данные при отсутствии БД
-            return [];
-        }
+        return User::find()
+            ->where(['role' => 'logist', 'status' => 'active'])
+            ->orderBy(['username' => SORT_ASC])
+            ->all();
     }
 
     /**
@@ -331,19 +202,6 @@ class DashboardController extends BaseAdminController
      */
     private function getChartData($user)
     {
-        // ВРЕМЕННО: Для временной авторизации возвращаем демо-данные
-        if ($user instanceof \app\backend\modules\admin\models\TemporaryAdminIdentity) {
-            return [
-                ['date' => '2026-03-09', 'day' => 'Mon', 'orders' => 12, 'amount' => 2100.00],
-                ['date' => '2026-03-10', 'day' => 'Tue', 'orders' => 15, 'amount' => 2800.00],
-                ['date' => '2026-03-11', 'day' => 'Wed', 'orders' => 18, 'amount' => 3200.00],
-                ['date' => '2026-03-12', 'day' => 'Thu', 'orders' => 22, 'amount' => 3800.00],
-                ['date' => '2026-03-13', 'day' => 'Fri', 'orders' => 25, 'amount' => 4500.00],
-                ['date' => '2026-03-14', 'day' => 'Sat', 'orders' => 28, 'amount' => 5200.00],
-                ['date' => '2026-03-15', 'day' => 'Sun', 'orders' => 20, 'amount' => 3500.00],
-            ];
-        }
-        
         $data = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = date('Y-m-d', strtotime("-$i days"));

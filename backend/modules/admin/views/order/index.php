@@ -96,34 +96,37 @@ $filtersExpanded = $activeFilterCount > 0;
     </div>
 </div>
 
-<!-- Статистика по статусам -->
-<div class="admin-stats">
-    <div class="admin-stat-card">
-        <p class="admin-stat-number"><?= $totalCount ?></p>
-        <p class="admin-stat-label">Всего заказов</p>
+<!-- Статистика по статусам (компактная) -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+    <div class="admin-stat-card" style="padding:12px">
+        <p class="admin-stat-number" style="font-size:24px;margin-bottom:4px"><?= $totalCount ?></p>
+        <p class="admin-stat-label" style="font-size:13px">Всего заказов</p>
     </div>
-    <div class="admin-stat-card" style="border-left-color: var(--admin-success);">
-        <p class="admin-stat-number"><?= $processedCount ?></p>
-        <p class="admin-stat-label">Обработано</p>
+    <div class="admin-stat-card" style="padding:12px;border-left-color:var(--admin-success)">
+        <p class="admin-stat-number" style="font-size:24px;margin-bottom:4px"><?= $processedCount ?></p>
+        <p class="admin-stat-label" style="font-size:13px">Обработано</p>
     </div>
-    <div class="admin-stat-card" style="border-left-color: var(--admin-warning);">
-        <p class="admin-stat-number"><?= $shippedCount ?></p>
-        <p class="admin-stat-label">Отправлено</p>
+    <div class="admin-stat-card" style="padding:12px;border-left-color:var(--admin-warning)">
+        <p class="admin-stat-number" style="font-size:24px;margin-bottom:4px"><?= $shippedCount ?></p>
+        <p class="admin-stat-label" style="font-size:13px">Отправлено</p>
     </div>
-    <div class="admin-stat-card" style="border-left-color: var(--admin-info);">
-        <p class="admin-stat-number"><?= $customsClearedCount ?></p>
-        <p class="admin-stat-label">Таможня пройдена</p>
+    <div class="admin-stat-card" style="padding:12px;border-left-color:var(--admin-info)">
+        <p class="admin-stat-number" style="font-size:24px;margin-bottom:4px"><?= $customsClearedCount ?></p>
+        <p class="admin-stat-label" style="font-size:13px">Таможня пройдена</p>
     </div>
 </div>
 
-<!-- Фильтры -->
-<div class="admin-card">
-    <h2 class="admin-card-title">
+<!-- Фильтры (компактные) -->
+<details class="admin-card" <?= $filtersExpanded ? 'open' : '' ?> style="padding:0">
+    <summary style="cursor:pointer;padding:16px;background:var(--admin-bg);border-radius:8px;list-style:none;display:flex;align-items:center;gap:8px;font-weight:600">
         <i class="bi bi-funnel"></i>
         Фильтры
-    </h2>
+        <?php if ($activeFilterCount > 0): ?>
+            <span class="admin-badge admin-badge-primary" style="margin-left:auto"><?= $activeFilterCount ?></span>
+        <?php endif; ?>
+    </summary>
     
-    <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+    <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; padding: 16px;">
         <div class="form-group">
             <label>Поиск</label>
             <input type="text" name="search" class="form-control" placeholder="№ заказа, клиент..." value="<?= Html::encode($filterSearch) ?>">
@@ -181,7 +184,7 @@ $filtersExpanded = $activeFilterCount > 0;
             </a>
         </div>
     </form>
-</div>
+</details>
 
 <!-- Таблица заказов -->
 <div class="admin-card">
@@ -190,7 +193,19 @@ $filtersExpanded = $activeFilterCount > 0;
             <i class="bi bi-cart3"></i>
             Список заказов
         </h2>
-        <div style="display: flex; gap: 0.5rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <!-- Переключатель видов -->
+            <div class="admin-view-toggle">
+                <button type="button" class="admin-view-btn active" id="view-table-btn" onclick="switchView('table')">
+                    <i class="bi bi-table"></i> Таблица
+                </button>
+                <button type="button" class="admin-view-btn" id="view-kanban-btn" onclick="switchView('kanban')">
+                    <i class="bi bi-kanban"></i> Канбан
+                </button>
+            </div>
+            <a href="<?= Url::to(['/admin/order/export?' . http_build_query($_GET)]) ?>" class="admin-export-btn" title="Excel экспорт">
+                <i class="bi bi-file-earmark-excel"></i>
+            </a>
             <select id="pageSizeSelect" onchange="changePageSize(this.value)" class="form-control" style="width: auto;">
                 <?php foreach ($pageSizeOptions as $size): ?>
                     <option value="<?= $size ?>" <?= $pageSize === $size ? 'selected' : '' ?>><?= $size ?></option>
@@ -199,55 +214,91 @@ $filtersExpanded = $activeFilterCount > 0;
         </div>
     </div>
     
-    <div style="overflow-x: auto;">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th><input type="checkbox" id="selectAll"></th>
-                    <th>ID</th>
-                    <th>Клиент</th>
-                    <th>Телефон</th>
-                    <th>Email</th>
-                    <th>Сумма</th>
-                    <th>Статус</th>
-                    <th>Логист</th>
-                    <th>Создан</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($orders)): ?>
-                    <?php foreach ($orders as $order): ?>
+    <!-- TABLE VIEW -->
+    <div id="table-view">
+        <div style="overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>ID</th>
+                        <th>Клиент</th>
+                        <th>Телефон</th>
+                        <th>Email</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                        <th>Логист</th>
+                        <th>Создан</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($orders)): ?>
+                        <?php foreach ($orders as $order): ?>
+                            <tr onclick="location.href='<?= Url::to(['view', 'id' => $order->id]) ?>'" style="cursor:pointer" class="order-row">
+                                <td onclick="event.stopPropagation()"><input type="checkbox" class="order-checkbox" value="<?= $order->id ?>"></td>
+                                <td style="font-weight: 600;">#<?= $order->id ?></td>
+                                <td><?= Html::encode($order->client_name) ?></td>
+                                <td><?= Html::encode($order->client_phone) ?></td>
+                                <td><?= Html::encode($order->client_email) ?></td>
+                                <td style="font-weight: 600;"><?= number_format($order->total_amount, 2) ?> BYN</td>
+                                <td onclick="event.stopPropagation()">
+                                    <select class="status-select" data-order-id="<?= $order->id ?>" onchange="updateStatus(this)">
+                                        <?php foreach ($statuses as $statusKey => $statusLabel): ?>
+                                            <option value="<?= $statusKey ?>" <?= $order->status === $statusKey ? 'selected' : '' ?>>
+                                                <?= Html::encode($statusLabel) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                                <td><?= Html::encode($logistMap[$order->assigned_logist] ?? '—') ?></td>
+                                <td><?= Yii::$app->formatter->asDatetime($order->created_at) ?></td>
+                                <td onclick="event.stopPropagation()">
+                                    <a href="<?= Url::to(['view', 'id' => $order->id]) ?>" class="admin-btn admin-btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
                         <tr>
-                            <td><input type="checkbox" class="order-checkbox" value="<?= $order->id ?>"></td>
-                            <td style="font-weight: 600;"><?= $order->id ?></td>
-                            <td><?= Html::encode($order->client_name) ?></td>
-                            <td><?= Html::encode($order->client_phone) ?></td>
-                            <td><?= Html::encode($order->client_email) ?></td>
-                            <td style="font-weight: 600;"><?= number_format($order->total_amount, 2) ?> BYN</td>
-                            <td>
-                                <span class="admin-badge admin-badge-<?= $order->status === 'completed' ? 'success' : ($order->status === 'processing' ? 'warning' : 'info') ?>">
-                                    <?= Html::encode($statuses[$order->status] ?? $order->status) ?>
-                                </span>
-                            </td>
-                            <td><?= Html::encode($logistMap[$order->assigned_logist] ?? '—') ?></td>
-                            <td><?= Yii::$app->formatter->asDatetime($order->created_at) ?></td>
-                            <td>
-                                <a href="<?= Url::to(['view', 'id' => $order->id]) ?>" class="admin-btn admin-btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
-                                    <i class="bi bi-eye"></i>
-                                </a>
+                            <td colspan="10" style="text-align: center; padding: 2rem; color: var(--admin-text-secondary);">
+                                Нет заказов по текущим фильтрам
                             </td>
                         </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="10" style="text-align: center; padding: 2rem; color: var(--admin-text-secondary);">
-                            Нет заказов по текущим фильтрам
-                        </td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- KANBAN VIEW -->
+    <div id="kanban-view" style="display: none;">
+        <div class="admin-kanban">
+            <?php 
+            $kanbanStatuses = ['created' => 'Новые', 'paid' => 'Оплачены', 'processing' => 'В работе', 'shipped' => 'Отправлены', 'completed' => 'Завершены'];
+            foreach ($kanbanStatuses as $status => $label): 
+                $statusOrders = array_filter($orders, fn($o) => $o->status === $status);
+            ?>
+                <div class="admin-kanban-column">
+                    <div class="admin-kanban-header">
+                        <span><?= $label ?></span>
+                        <span class="admin-kanban-count"><?= count($statusOrders) ?></span>
+                    </div>
+                    <div class="admin-kanban-items">
+                        <?php foreach ($statusOrders as $order): ?>
+                            <div class="admin-kanban-card" onclick="location.href='<?= Url::to(['view', 'id' => $order->id]) ?>'">
+                                <div class="admin-kanban-card-title">#<?= $order->id ?> <?= Html::encode($order->client_name) ?></div>
+                                <div class="admin-kanban-card-meta">
+                                    <span><?= number_format($order->total_amount, 0) ?> BYN</span>
+                                    <span><?= date('d.m', $order->created_at) ?></span>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
     </div>
     
     <!-- Пагинация -->
@@ -318,6 +369,34 @@ $filtersExpanded = $activeFilterCount > 0;
 </style>
 
 <script>
+function switchView(view) {
+    const tableView = document.getElementById('table-view');
+    const kanbanView = document.getElementById('kanban-view');
+    const tableBtn = document.getElementById('view-table-btn');
+    const kanbanBtn = document.getElementById('view-kanban-btn');
+    
+    if (view === 'table') {
+        tableView.style.display = 'block';
+        kanbanView.style.display = 'none';
+        tableBtn.classList.add('active');
+        kanbanBtn.classList.remove('active');
+    } else {
+        tableView.style.display = 'none';
+        kanbanView.style.display = 'grid';
+        tableBtn.classList.remove('active');
+        kanbanBtn.classList.add('active');
+    }
+    localStorage.setItem('orders-view-mode', view);
+}
+
+// Восстановить сохраненный вид при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    const savedView = localStorage.getItem('orders-view-mode') || 'table';
+    if (savedView === 'kanban') {
+        switchView('kanban');
+    }
+});
+
 function changePageSize(value) {
     const params = new URLSearchParams(window.location.search);
     params.set('per-page', value);
@@ -330,4 +409,33 @@ document.getElementById('selectAll')?.addEventListener('change', function () {
         cb.checked = this.checked;
     });
 });
+
+function updateStatus(select) {
+    const orderId = select.dataset.orderId;
+    const newStatus = select.value;
+    const originalValue = select.querySelector('option[selected]')?.value;
+    
+    fetch(`/admin/order/${orderId}/change-status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            select.style.background = '#dcfce7';
+            setTimeout(() => select.style.background = '', 500);
+        } else {
+            alert('Ошибка: ' + data.message);
+            if (originalValue) select.value = originalValue;
+        }
+    })
+    .catch(err => {
+        alert('Ошибка сети');
+        console.error(err);
+    });
+}
 </script>

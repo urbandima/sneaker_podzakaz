@@ -9,6 +9,7 @@
  */
 namespace app\backend\modules\catalog\models;
 
+use Yii;
 use yii\db\ActiveRecord;
 
 class AnalyticsEvent extends ActiveRecord

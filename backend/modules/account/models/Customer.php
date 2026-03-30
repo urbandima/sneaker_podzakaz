@@ -284,7 +284,7 @@ class Customer extends ActiveRecord implements IdentityInterface
             self::STATUS_ACTIVE => 'Активен',
             self::STATUS_INACTIVE => 'Неактивен',
         ];
-        return $statuses[$this->is_active] ?? 'Неизвестен';
+        return $statuses[$this->status] ?? 'Неизвестен';
     }
 
     public function getStatusBadgeClass()
@@ -293,7 +293,7 @@ class Customer extends ActiveRecord implements IdentityInterface
             self::STATUS_ACTIVE => 'success',
             self::STATUS_INACTIVE => 'warning',
         ];
-        return $classes[$this->is_active] ?? 'secondary';
+        return $classes[$this->status] ?? 'secondary';
     }
 
     public function updateLoginInfo()

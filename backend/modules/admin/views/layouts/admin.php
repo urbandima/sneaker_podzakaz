@@ -18,7 +18,7 @@ $controllerId = Yii::$app->controller->id;
     <title><?= Html::encode($this->title) ?> — Админ</title>
     
     <!-- Admin CSS -->
-    <link href="/css/admin.css?v=<?= file_exists(Yii::getAlias('@webroot') . '/css/admin.css') ? filemtime(Yii::getAlias('@webroot') . '/css/admin.css') : time() ?>" rel="stylesheet">
+    <link href="/css/admin-shopify-2026.css?v=<?= file_exists(Yii::getAlias('@webroot') . '/css/admin-shopify-2026.css') ? filemtime(Yii::getAlias('@webroot') . '/css/admin-shopify-2026.css') : time() ?>" rel="stylesheet">
     
 <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -55,12 +55,13 @@ $controllerId = Yii::$app->controller->id;
                 ['label' => 'Клиенты', 'url' => '/admin/customer', 'icon' => 'bi-people-fill', 'ids' => ['customer']],
                 ['label' => 'Купоны', 'url' => '/admin/coupon', 'icon' => 'bi-ticket-detailed-fill', 'ids' => ['coupon']],
                 ['label' => 'Возвраты', 'url' => '/admin/return', 'icon' => 'bi-arrow-return-left', 'ids' => ['return']],
-                ['label' => 'Аналитика', 'url' => '/admin/statistics', 'icon' => 'bi-bar-chart-line-fill', 'ids' => ['statistics']],
+                ['label' => 'Отзывы', 'url' => '/admin/review', 'icon' => 'bi-star-fill', 'ids' => ['review']],
+                ['label' => 'Аналитика', 'url' => '/admin/analytics', 'icon' => 'bi-bar-chart-line-fill', 'ids' => ['analytics']],
+                ['label' => 'RFM сегменты', 'url' => '/admin/analytics/rfm', 'icon' => 'bi-diagram-3-fill', 'ids' => ['analytics']],
                 ['label' => 'Маркетинг', 'url' => '/admin/marketing', 'icon' => 'bi-megaphone-fill', 'ids' => ['marketing']],
                 ['label' => 'POS-Терминал', 'url' => '/admin/pos', 'icon' => 'bi-shop', 'ids' => ['pos']],
                 ['label' => 'Плагины', 'url' => '/admin/plugin', 'icon' => 'bi-plugin', 'ids' => ['plugin']],
                 ['label' => 'Настройки', 'url' => '/admin/settings', 'icon' => 'bi-gear-wide-connected', 'ids' => ['settings']],
-                ['label' => 'SEO', 'url' => '/admin/seo', 'icon' => 'bi-search-heart', 'ids' => ['seo']],
             ];
             foreach ($navItems as $item): ?>
             <a href="<?= Url::to([$item['url']]) ?>" class="admin-nav-item <?= in_array($controllerId, $item['ids']) ? 'active' : '' ?>">
@@ -109,14 +110,74 @@ $controllerId = Yii::$app->controller->id;
                     <i class="bi bi-plus-circle"></i> Новый заказ
                 </a>
                 <!-- Калькулятор -->
-                <button class="admin-topbar-icon-btn" id="calc-open-btn" title="Калькулятор стоимости">
+                <button class="admin-topbar-icon-btn" id="calc-open-btn" title="Калькулятор стоимости" onclick="openCalculator()">
                     <i class="bi bi-calculator-fill"></i>
                 </button>
                 <!-- Уведомления -->
-                <button class="admin-topbar-icon-btn admin-notif-btn" id="notif-btn" title="Уведомления" onclick="window.location.href='/admin/order?status=created'">
-                    <i class="bi bi-bell-fill"></i>
-                    <span class="admin-notif-badge" id="notif-badge" style="display:none"></span>
-                </button>
+                <div style="position:relative">
+                    <button class="admin-topbar-icon-btn admin-notif-btn" id="notif-btn" title="Уведомления" onclick="toggleNotifications()">
+                        <i class="bi bi-bell-fill"></i>
+                        <?php
+                        $newOrdersCount = \app\backend\modules\checkout\models\Order::find()
+                            ->where(['status' => 'created'])
+                            ->andWhere(['>', 'created_at', time() - 86400])
+                            ->count();
+                        ?>
+                        <?php if ($newOrdersCount > 0): ?>
+                            <span class="admin-notif-badge"><?= $newOrdersCount ?></span>
+                        <?php endif; ?>
+                    </button>
+                    <div id="notif-dropdown" class="admin-notif-dropdown" style="display:none">
+                        <div class="admin-notif-header">
+                            <h4>Уведомления</h4>
+                            <span class="admin-badge admin-badge-primary"><?= $newOrdersCount ?></span>
+                        </div>
+                        <div class="admin-notif-list">
+                            <?php
+                            $newOrders = \app\backend\modules\checkout\models\Order::find()
+                                ->where(['status' => 'created'])
+                                ->orderBy(['created_at' => SORT_DESC])
+                                ->limit(5)
+                                ->all();
+                            ?>
+                            <?php if (!empty($newOrders)): ?>
+                                <?php foreach ($newOrders as $order): ?>
+                                    <a href="<?= \yii\helpers\Url::to(['/admin/order/view', 'id' => $order->id]) ?>" class="admin-notif-item">
+                                        <div class="admin-notif-icon">
+                                            <i class="bi bi-bag-check-fill"></i>
+                                        </div>
+                                        <div class="admin-notif-content">
+                                            <div class="admin-notif-title">Новый заказ #<?= $order->order_number ?></div>
+                                            <div class="admin-notif-text"><?= $order->client_name ?> • <?= number_format($order->total_amount, 2) ?> BYN</div>
+                                            <div class="admin-notif-time"><?= \Yii::$app->formatter->asRelativeTime($order->created_at) ?></div>
+                                        </div>
+                                    </a>
+                                <?php endforeach; ?>
+                                <a href="<?= \yii\helpers\Url::to(['/admin/order', 'status' => 'created']) ?>" class="admin-notif-footer">
+                                    Показать все заказы
+                                </a>
+                            <?php else: ?>
+                                <div class="admin-notif-empty">
+                                    <i class="bi bi-check-circle"></i>
+                                    <p>Нет новых уведомлений</p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                function toggleNotifications() {
+                    const dropdown = document.getElementById('notif-dropdown');
+                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                }
+                document.addEventListener('click', function(e) {
+                    const notifBtn = document.getElementById('notif-btn');
+                    const dropdown = document.getElementById('notif-dropdown');
+                    if (!notifBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.style.display = 'none';
+                    }
+                });
+                </script>
             </div>
         </div>
 
@@ -173,6 +234,9 @@ $controllerId = Yii::$app->controller->id;
 
 <!-- Admin JS -->
 <script src="/js/admin.js?v=<?= file_exists(Yii::getAlias('@webroot') . '/js/admin.js') ? filemtime(Yii::getAlias('@webroot') . '/js/admin.js') : time() ?>"></script>
+<script src="/js/admin-search.js?v=<?= file_exists(Yii::getAlias('@webroot') . '/js/admin-search.js') ? filemtime(Yii::getAlias('@webroot') . '/js/admin-search.js') : time() ?>"></script>
+<script src="/js/dashboard.js?v=<?= file_exists(Yii::getAlias('@webroot') . '/js/dashboard.js') ? filemtime(Yii::getAlias('@webroot') . '/js/dashboard.js') : time() ?>"></script>
+<script src="/js/orders.js?v=<?= file_exists(Yii::getAlias('@webroot') . '/js/orders.js') ? filemtime(Yii::getAlias('@webroot') . '/js/orders.js') : time() ?>"></script>
 
 <?php $this->endBody() ?>
 </body>

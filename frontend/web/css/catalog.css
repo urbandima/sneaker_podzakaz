@@ -831,7 +831,7 @@
 /* Products Grid - unified */
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: var(--spacing-6);
     margin-bottom: var(--spacing-8);
 }
@@ -1912,6 +1912,7 @@
     color: #999;
     text-align: center;
 }
+
 /* Кнопка фильтра для мобильных */
 .btn-filter-mobile {
     display: none;

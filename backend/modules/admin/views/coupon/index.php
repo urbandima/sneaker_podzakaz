@@ -95,15 +95,17 @@ $this->title = 'Купоны';
                                 <?= Html::encode($model->code) ?>
                             </a>
                         </td>
-                        <td><?= Html::encode($model->name) ?></td>
+                        <td><?= Html::encode($model->code) ?></td>
                         <td><?= Html::encode($model->getTypeName()) ?></td>
                         <td><?= $model->getDiscountDescription() ?></td>
                         <td>
                             <?php
-                            $text = $model->current_uses;
-                            if ($model->max_uses) {
-                                $text .= ' / ' . $model->max_uses;
-                                $percent = ($model->current_uses / $model->max_uses) * 100;
+                            $currentUses = $model->current_uses ?? 0;
+                            $maxUses = $model->max_uses ?? null;
+                            $text = $currentUses;
+                            if ($maxUses) {
+                                $text .= ' / ' . $maxUses;
+                                $percent = ($currentUses / $maxUses) * 100;
                                 $color = $percent >= 90 ? 'danger' : ($percent >= 70 ? 'warning' : 'success');
                                 echo $text . ' <span class="admin-badge admin-badge-' . $color . '">' . round($percent) . '%</span>';
                             } else {
@@ -112,22 +114,25 @@ $this->title = 'Купоны';
                             ?>
                         </td>
                         <td>
-                            <?php if (!$model->valid_until): ?>
+                            <?php
+                            $validUntil = $model->valid_until ?? null;
+                            if (!$validUntil):
+                            ?>
                                 —
                             <?php else: ?>
                                 <?php
-                                $date = strtotime($model->valid_until);
+                                $date = strtotime($validUntil);
                                 $now = time();
                                 if ($date < $now): ?>
-                                    <span style="color: var(--admin-danger);"><?= Yii::$app->formatter->asDate($model->valid_until) ?> (истёк)</span>
+                                    <span style="color: var(--admin-danger);"><?= Yii::$app->formatter->asDate($validUntil) ?> (истёк)</span>
                                 <?php else: ?>
-                                    <?= Yii::$app->formatter->asDate($model->valid_until) ?>
+                                    <?= Yii::$app->formatter->asDate($validUntil) ?>
                                 <?php endif; ?>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <span class="admin-badge admin-badge-<?= $model->is_active ? 'success' : 'secondary' ?>">
-                                <?= $model->is_active ? 'Активен' : 'Неактивен' ?>
+                            <span class="admin-badge admin-badge-<?= ($model->is_active ?? true) ? 'success' : 'secondary' ?>">
+                                <?= ($model->is_active ?? true) ? 'Активен' : 'Неактивен' ?>
                             </span>
                         </td>
                         <td>

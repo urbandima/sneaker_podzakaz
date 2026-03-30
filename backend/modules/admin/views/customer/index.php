@@ -372,7 +372,7 @@ $this->title = 'Покупатели';
                 </thead>
                 <tbody>
                     <?php foreach ($dataProvider->getModels() as $customer): ?>
-                        <tr>
+                        <tr onclick="location.href='<?= Url::to(['customer/view', 'id' => $customer->id]) ?>'" style="cursor:pointer" class="customer-row">
                             <td>
                                 <div class="customer-info">
                                     <div class="customer-avatar">
@@ -398,12 +398,12 @@ $this->title = 'Покупатели';
                                 </span>
                             </td>
                             <td><?= Yii::$app->formatter->asDate($customer->created_at, 'short') ?></td>
-                            <td>
+                            <td onclick="event.stopPropagation()">
                                 <div class="actions-cell">
                                     <a href="<?= Url::to(['customer/view', 'id' => $customer->id]) ?>" class="btn-action view" title="Просмотр">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <button type="button" class="btn-action block" title="Блокировка" onclick="toggleStatus(<?= $customer->id ?>)">
+                                    <button type="button" class="btn-action block" title="Блокировка" onclick="toggleStatus(<?= $customer->id ?>)" data-customer-id="<?= $customer->id ?>">
                                         <i class="bi bi-<?= $customer->status == 10 ? 'lock' : 'unlock' ?>"></i>
                                     </button>
                                 </div>

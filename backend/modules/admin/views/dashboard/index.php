@@ -94,6 +94,22 @@ $amountFormatted = $totalAmount >= 1000 ? number_format($totalAmount / 1000, 1, 
         </div>
     </div>
     <div class="admin-stat-card">
+        <div class="admin-stat-icon danger"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <div class="admin-stat-content">
+            <?php
+            $overdue = \app\backend\modules\checkout\models\Order::find()
+                ->where(['<', 'created_at', time() - 259200])
+                ->andWhere(['status' => ['created', 'confirmed']])
+                ->count();
+            ?>
+            <div class="admin-stat-value"><?= $overdue ?></div>
+            <div class="admin-stat-label">Просроченные</div>
+            <div class="dash-stat-sub">
+                <span class="admin-badge admin-badge-danger">&gt; 3 дней</span>
+            </div>
+        </div>
+    </div>
+    <div class="admin-stat-card">
         <div class="admin-stat-icon info"><i class="bi bi-people-fill"></i></div>
         <div class="admin-stat-content">
             <div class="admin-stat-value"><?= number_format($userStats['total'] ?? 0) ?></div>
@@ -124,7 +140,116 @@ $amountFormatted = $totalAmount >= 1000 ? number_format($totalAmount / 1000, 1, 
     </div>
 </div>
 
-<!-- Charts Row -->
+<!-- Воронка конверсий -->
+<?php
+use app\backend\modules\checkout\models\Order;
+$totalOrders = Order::find()->count();
+$paidOrders = Order::find()->where(['status' => ['paid', 'shipped', 'delivered']])->count();
+$deliveredOrders = Order::find()->where(['status' => 'delivered'])->count();
+$conversionRate = $totalOrders > 0 ? round(($deliveredOrders / $totalOrders) * 100, 1) : 0;
+?>
+<div class="admin-card" style="margin-bottom:1.5rem">
+    <div class="admin-card-header">
+        <h2 class="admin-card-title"><i class="bi bi-funnel-fill"></i> Воронка конверсий</h2>
+        <span class="admin-badge admin-badge-success"><?= $conversionRate ?>% конверсия</span>
+    </div>
+    <div class="admin-card-body">
+        <div style="display:flex;flex-direction:column;gap:12px">
+            <!-- Этап 1: Создано заказов -->
+            <div style="display:flex;align-items:center;gap:12px">
+                <div style="flex:0 0 120px;font-size:14px;font-weight:600;color:var(--admin-text-secondary)">Создано</div>
+                <div style="flex:1;background:var(--admin-bg);border-radius:8px;height:40px;position:relative;overflow:hidden">
+                    <div style="position:absolute;inset:0;background:linear-gradient(90deg,#3b82f6,#2563eb);width:100%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700">
+                        <?= $totalOrders ?> заказов (100%)
+                    </div>
+                </div>
+            </div>
+            <!-- Этап 2: Оплачено -->
+            <?php $paidPercent = $totalOrders > 0 ? round(($paidOrders / $totalOrders) * 100, 1) : 0; ?>
+            <div style="display:flex;align-items:center;gap:12px">
+                <div style="flex:0 0 120px;font-size:14px;font-weight:600;color:var(--admin-text-secondary)">Оплачено</div>
+                <div style="flex:1;background:var(--admin-bg);border-radius:8px;height:40px;position:relative;overflow:hidden">
+                    <div style="position:absolute;inset:0;background:linear-gradient(90deg,#10b981,#059669);width:<?= $paidPercent ?>%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700">
+                        <?= $paidOrders ?> (<?= $paidPercent ?>%)
+                    </div>
+                </div>
+            </div>
+            <!-- Этап 3: Доставлено -->
+            <?php $deliveredPercent = $totalOrders > 0 ? round(($deliveredOrders / $totalOrders) * 100, 1) : 0; ?>
+            <div style="display:flex;align-items:center;gap:12px">
+                <div style="flex:0 0 120px;font-size:14px;font-weight:600;color:var(--admin-text-secondary)">Доставлено</div>
+                <div style="flex:1;background:var(--admin-bg);border-radius:8px;height:40px;position:relative;overflow:hidden">
+                    <div style="position:absolute;inset:0;background:linear-gradient(90deg,#f59e0b,#d97706);width:<?= $deliveredPercent ?>%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700">
+                        <?= $deliveredOrders ?> (<?= $deliveredPercent ?>%)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top:16px;padding:12px;background:var(--admin-bg);border-radius:8px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:14px;color:var(--admin-text-secondary)">Средний чек:</span>
+            <strong style="font-size:18px"><?= $totalOrders > 0 ? number_format($orderStats['totalAmount'] / $totalOrders, 2) : 0 ?> BYN</strong>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="admin-card" style="margin-bottom:1.5rem">
+    <div class="admin-card-header" style="display:flex;justify-content:space-between;align-items:center">
+        <h2 class="admin-card-title"><i class="bi bi-clock-history"></i> Последние заказы</h2>
+        <a href="<?= Url::to(['/admin/order']) ?>" class="admin-btn admin-btn-sm admin-btn-secondary">Все заказы</a>
+    </div>
+    <?php if (!empty($recentOrders)): ?>
+    <div class="table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Клиент</th>
+                    <th>Сумма</th>
+                    <th>Статус</th>
+                    <th>Дата</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($recentOrders as $order): ?>
+                <tr onclick="location.href='<?= Url::to(['/admin/order/view', 'id' => $order->id]) ?>'" style="cursor:pointer">
+                    <td style="font-weight:600">#<?= $order->id ?></td>
+                    <td><?= Html::encode($order->client_name) ?></td>
+                    <td><?= Yii::$app->formatter->asCurrency($order->total_amount, 'BYN') ?></td>
+                    <td>
+                        <?php
+                        $statusClass = [
+                            'new' => 'warning',
+                            'paid' => 'info',
+                            'processing' => 'warning',
+                            'shipped' => 'primary',
+                            'delivered' => 'success',
+                            'completed' => 'success',
+                            'cancelled' => 'danger',
+                        ][$order->status] ?? 'secondary';
+                        ?>
+                        <span class="admin-badge admin-badge-<?= $statusClass ?>">
+                            <?= $order->getStatusLabel() ?>
+                        </span>
+                    </td>
+                    <td><?= Yii::$app->formatter->asDatetime($order->created_at, 'short') ?></td>
+                    <td>
+                        <a href="<?= Url::to(['/admin/order/view', 'id' => $order->id]) ?>" class="admin-btn admin-btn-sm admin-btn-secondary" onclick="event.stopPropagation()">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <?php else: ?>
+    <p style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">Нет заказов</p>
+    <?php endif; ?>
+</div>
+
+<!-- Sales Chart & Top Products -->
 <div class="dash-grid-2">
     <!-- Sales Chart -->
     <div class="admin-card">

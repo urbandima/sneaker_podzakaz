@@ -330,10 +330,14 @@ class OrderController extends BaseAdminController
             throw new NotFoundHttpException('Заказ не найден.');
         }
 
+        // Загружаем динамические статусы
+        $statuses = Yii::$app->settings->getStatuses();
+
         // Используем новый улучшенный интерфейс просмотра заказа
         return $this->render('view-wizard-new', [
             'model' => $model,
             'editing' => Yii::$app->request->get('editing', false),
+            'statuses' => $statuses,
         ]);
     }
 
@@ -410,6 +414,12 @@ class OrderController extends BaseAdminController
 
             if (!$model->canChangeStatus($newStatus)) {
                 Yii::warning('Попытка изменить статус без прав: пользователь #' . $user->id . ', заказ #' . $id . ', статус: ' . $newStatus, 'security');
+                
+                if (Yii::$app->request->isAjax) {
+                    Yii::$app->response->format = Response::FORMAT_JSON;
+                    return ['success' => false, 'message' => 'Нет прав на изменение этого статуса'];
+                }
+                
                 $this->flashError('У вас нет прав на изменение этого статуса.');
                 return $this->redirect(['/admin/order/view', 'id' => $model->id]);
             }
@@ -432,11 +442,28 @@ class OrderController extends BaseAdminController
                 }
 
                 Yii::info('Статус заказа #' . $id . ' изменен с "' . $oldStatus . '" на "' . $newStatus . '" пользователем #' . $user->id, 'order');
+                
+                if (Yii::$app->request->isAjax) {
+                    Yii::$app->response->format = Response::FORMAT_JSON;
+                    return ['success' => true, 'message' => 'Статус изменен'];
+                }
+                
                 $this->flashSuccess('Статус заказа изменен.');
             } else {
                 Yii::error('Ошибка изменения статуса заказа #' . $id . ': ' . json_encode($model->errors), 'order');
+                
+                if (Yii::$app->request->isAjax) {
+                    Yii::$app->response->format = Response::FORMAT_JSON;
+                    return ['success' => false, 'message' => 'Ошибка при изменении статуса'];
+                }
+                
                 $this->flashError('Ошибка при изменении статуса.');
             }
+        }
+
+        if (Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ['success' => false, 'message' => 'Invalid request'];
         }
 
         return $this->redirect(['/admin/order/view', 'id' => $model->id]);
