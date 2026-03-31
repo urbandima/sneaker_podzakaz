@@ -71,12 +71,12 @@ $company = Yii::$app->settings->getCompany();
             
             <a href="/account/wishlist" class="btn-wishlist" aria-label="Избранное">
                 <i class="bi bi-heart" aria-hidden="true"></i>
-                <span class="wishlist-counter header-badge" role="status" aria-live="polite" style="display: none;">0</span>
+                <span class="wishlist-counter header-badge d-none" role="status" aria-live="polite">0</span>
             </a>
-            
+
             <a href="/cart" class="btn-cart" aria-label="Корзина">
                 <i class="bi bi-cart3" aria-hidden="true"></i>
-                <span class="cart-counter header-badge" role="status" aria-live="polite" style="display: none;">0</span>
+                <span class="cart-counter header-badge d-none" role="status" aria-live="polite">0</span>
             </a>
             
             <a href="/account" class="btn-account" aria-label="Личный кабинет">

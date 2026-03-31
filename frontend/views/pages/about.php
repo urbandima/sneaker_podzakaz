@@ -29,7 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body p-4">
                                 <div class="mb-3">
-                                    <i class="bi bi-shield-check text-primary" style="font-size: 2rem;"></i>
+                                    <i class="bi bi-shield-check text-primary fs-2"></i>
                                 </div>
                                 <h5 class="card-title">100% подлинность</h5>
                                 <p class="card-text">Гарантируем оригинальность всех товаров. Каждый кроссовок проходит проверку качества.</p>
@@ -40,7 +40,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body p-4">
                                 <div class="mb-3">
-                                    <i class="bi bi-truck text-primary" style="font-size: 2rem;"></i>
+                                    <i class="bi bi-truck text-primary fs-2"></i>
                                 </div>
                                 <h5 class="card-title">Быстрая доставка</h5>
                                 <p class="card-text">Доставка по всей Беларуси в кратчайшие сроки. Отслеживание на каждом этапе.</p>
@@ -72,7 +72,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <div class="col-md-4">
                         <div class="text-center">
                             <div class="mb-3">
-                                <i class="bi bi-award text-warning" style="font-size: 2.5rem;"></i>
+                                <i class="bi bi-award text-warning fs-1"></i>
                             </div>
                             <h5>Гарантия качества</h5>
                             <p class="text-muted">Проверка каждого товара перед отправкой</p>
@@ -81,7 +81,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <div class="col-md-4">
                         <div class="text-center">
                             <div class="mb-3">
-                                <i class="bi bi-headset text-info" style="font-size: 2.5rem;"></i>
+                                <i class="bi bi-headset text-info fs-1"></i>
                             </div>
                             <h5>Поддержка 24/7</h5>
                             <p class="text-muted">Всегда готовы помочь с выбором</p>
@@ -90,7 +90,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <div class="col-md-4">
                         <div class="text-center">
                             <div class="mb-3">
-                                <i class="bi bi-arrow-repeat text-success" style="font-size: 2.5rem;"></i>
+                                <i class="bi bi-arrow-repeat text-success fs-1"></i>
                             </div>
                             <h5>Легкий возврат</h5>
                             <p class="text-muted">Удобный процесс возврата и обмена</p>

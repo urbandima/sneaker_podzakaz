@@ -35,6 +35,8 @@ use app\backend\modules\account\models\ChangePasswordForm;
 use app\backend\modules\checkout\models\Order;
 use app\backend\modules\catalog\models\Product;
 use app\backend\modules\admin\models\User;
+use app\backend\modules\admin\models\Tariff;
+use app\backend\modules\returns\models\ReturnRequest;
 
 class DashboardController extends BaseAdminController
 {
@@ -93,6 +95,11 @@ class DashboardController extends BaseAdminController
                 'email' => 'info@sneakerhead.by',
                 'phone' => '+375 (29) 123-45-67',
             ];
+            $recentOrders = [];
+            $tariffs = [];
+            $statusCounts = [];
+            $overdueOrders = [];
+            $openReturnsCount = 0;
         } else {
             // Демо-режим при отсутствии БД
             try {
@@ -116,6 +123,32 @@ class DashboardController extends BaseAdminController
                 
                 // Настройки компании
                 $companySettings = CompanySettings::getSettings();
+
+                // Последние заказы (24 часа)
+                $recentOrders = Order::find()
+                    ->where(['>=', 'created_at', strtotime('-24 hours')])
+                    ->orderBy(['created_at' => SORT_DESC])
+                    ->limit(8)
+                    ->all();
+
+                // Тарифы для калькулятора
+                $tariffs = Tariff::find()->where(['is_active' => true])->orderBy(['sort' => SORT_ASC])->all();
+
+                // Пайплайн статусов
+                $statusCounts = $this->getPipelineStatusCounts();
+
+                // Просроченные заказы (paid > 3 дней без перехода в ordered)
+                $overdueThreshold = strtotime('-3 days');
+                $overdueOrders = Order::find()
+                    ->where(['status' => 'paid'])
+                    ->andWhere(['<=', 'updated_at', $overdueThreshold])
+                    ->limit(5)
+                    ->all();
+
+                // Открытые возвраты
+                $openReturnsCount = (int)ReturnRequest::find()
+                    ->where(['status' => [ReturnRequest::STATUS_PENDING, ReturnRequest::STATUS_PROCESSING]])
+                    ->count();
             } catch (\Exception $e) {
                 $demoMode = true;
                 // Демо данные
@@ -163,19 +196,29 @@ class DashboardController extends BaseAdminController
                     'email' => 'info@sneakerhead.by',
                     'phone' => '+375 (29) 123-45-67',
                 ];
+                $recentOrders = [];
+                $tariffs = [];
+                $statusCounts = [];
+                $overdueOrders = [];
+                $openReturnsCount = 0;
             }
         }
-        
+
         return $this->render('index', [
             'user' => $user,
             'orderStats' => $orderStats,
             'productStats' => $productStats,
             'userStats' => $userStats,
-                        'topProducts' => $topProducts,
+            'topProducts' => $topProducts,
             'activeLogists' => $activeLogists,
             'chartData' => $chartData,
             'companySettings' => $companySettings,
             'demoMode' => $demoMode,
+            'recentOrders' => $recentOrders ?? [],
+            'tariffs' => $tariffs ?? [],
+            'pipelineStatusCounts' => $statusCounts ?? [],
+            'overdueOrders' => $overdueOrders ?? [],
+            'openReturnsCount' => $openReturnsCount ?? 0,
         ]);
     }
     
@@ -367,6 +410,19 @@ class DashboardController extends BaseAdminController
         }
         
         return $data;
+    }
+
+    /**
+     * Подсчёт заказов по статусам для пайплайна на дашборде
+     */
+    private function getPipelineStatusCounts(): array
+    {
+        $statuses = ['created', 'confirmed', 'paid', 'ordered', 'shipped', 'delivered'];
+        $counts = [];
+        foreach ($statuses as $status) {
+            $counts[$status] = (int)Order::find()->where(['status' => $status])->count();
+        }
+        return $counts;
     }
 
     /**

@@ -42,6 +42,7 @@
     --text-secondary: #666666;
     --text-muted: #999999;
     --text-inverse: #ffffff;
+    --text-disabled: #bbbbbb;
 
     /* Границы */
     --border-color: #e5e7eb;
@@ -129,6 +130,7 @@
     --text-secondary: #cbd5e1;
     --text-muted: #94a3b8;
     --text-inverse: #000000;
+    --text-disabled: #475569;
 
     /* Границы - тёмные */
     --border-color: #334155;

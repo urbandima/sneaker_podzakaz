@@ -28,7 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body p-4">
                                 <div class="mb-3">
-                                    <i class="bi bi-telephone text-primary" style="font-size: 2rem;"></i>
+                                    <i class="bi bi-telephone text-primary fs-2"></i>
                                 </div>
                                 <h5 class="card-title">Телефон</h5>
                                 <p class="card-text">
@@ -44,7 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body p-4">
                                 <div class="mb-3">
-                                    <i class="bi bi-envelope text-primary" style="font-size: 2rem;"></i>
+                                    <i class="bi bi-envelope text-primary fs-2"></i>
                                 </div>
                                 <h5 class="card-title">Email</h5>
                                 <p class="card-text">
@@ -67,7 +67,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="card h-100 border-0 shadow-sm text-center">
                             <div class="card-body p-4">
                                 <div class="mb-3">
-                                    <i class="bi bi-instagram text-danger" style="font-size: 2rem;"></i>
+                                    <i class="bi bi-instagram text-danger fs-2"></i>
                                 </div>
                                 <h5 class="card-title">Instagram</h5>
                                 <p class="card-text">@sneakerhead_by</p>
@@ -79,7 +79,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="card h-100 border-0 shadow-sm text-center">
                             <div class="card-body p-4">
                                 <div class="mb-3">
-                                    <i class="bi bi-telegram text-primary" style="font-size: 2rem;"></i>
+                                    <i class="bi bi-telegram text-primary fs-2"></i>
                                 </div>
                                 <h5 class="card-title">Telegram</h5>
                                 <p class="card-text">@sneakerhead_by</p>
@@ -91,7 +91,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="card h-100 border-0 shadow-sm text-center">
                             <div class="card-body p-4">
                                 <div class="mb-3">
-                                    <i class="bi bi-youtube text-danger" style="font-size: 2rem;"></i>
+                                    <i class="bi bi-youtube text-danger fs-2"></i>
                                 </div>
                                 <h5 class="card-title">YouTube</h5>
                                 <p class="card-text">СНИКЕРХЭД</p>
@@ -187,7 +187,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-0">
                         <div class="bg-light rounded-3 p-5 text-center">
-                            <i class="bi bi-geo-alt text-primary" style="font-size: 3rem;"></i>
+                            <i class="bi bi-geo-alt text-primary fs-1"></i>
                             <h4 class="mt-3">Минск, ул. Купревича 1, корпус 1</h4>
                             <p class="text-muted">Пункт выдачи заказов работает с 10:00 до 20:00</p>
                             <a href="#" class="btn btn-outline-primary">
@@ -202,50 +202,3 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 </div>
 
-<style>
-.contact-form .form-control-styled {
-    border-radius: 12px;
-    border: 1.5px solid #e5e7eb;
-    padding: 0.75rem 1rem;
-    font-size: 0.95rem;
-    background: #f9fafb;
-    transition: all 0.2s ease;
-}
-
-.contact-form .form-control-styled:focus {
-    outline: none;
-    border-color: #8b5cf6;
-    background: #fff;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
-}
-
-.contact-form .form-control-styled::placeholder {
-    color: #9ca3af;
-}
-
-.contact-form .form-label {
-    font-size: 0.875rem;
-    color: #374151;
-    margin-bottom: 0.5rem;
-}
-
-.contact-form .btn-styled {
-    border-radius: 12px;
-    padding: 0.875rem 2rem;
-    font-weight: 600;
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-    border: none;
-    transition: all 0.2s ease;
-}
-
-.contact-form .btn-styled:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 24px rgba(139, 92, 246, 0.3);
-}
-
-.contact-form textarea.form-control-styled {
-    resize: vertical;
-    min-height: 120px;
-    font-family: inherit;
-}
-</style>

@@ -2,14 +2,6 @@
 
 /**
  * Footer - Полный футер сайта
- * 
- * Секции:
- * - О компании
- * - Помощь
- * - Каталог
- * - Контакты
- * - Социальные сети
- * - Способы оплаты
  */
 
 use yii\helpers\Html;
@@ -27,7 +19,7 @@ $company = Yii::$app->settings->getCompany();
                         <img src="/images/logo.png" alt="<?= Html::encode($company['name'] ?? 'СНИКЕРХЭД') ?>" class="footer-logo">
                         <p class="footer-tagline">Оригинальные кроссовки из США и Европы</p>
                     </div>
-                    
+
                     <div class="footer-badges">
                         <div class="badge-item">
                             <i class="bi bi-shield-check"></i>
@@ -43,7 +35,7 @@ $company = Yii::$app->settings->getCompany();
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- О компании -->
                 <div class="footer-column">
                     <h4 class="footer-title">О компании</h4>
@@ -54,7 +46,7 @@ $company = Yii::$app->settings->getCompany();
                         <li><?= Html::a('Реквизиты', ['/page/about']) ?></li>
                     </ul>
                 </div>
-                
+
                 <!-- Помощь -->
                 <div class="footer-column">
                     <h4 class="footer-title">Помощь</h4>
@@ -66,7 +58,7 @@ $company = Yii::$app->settings->getCompany();
                         <li><?= Html::a('Отслеживание заказа', ['/account/orders']) ?></li>
                     </ul>
                 </div>
-                
+
                 <!-- Каталог -->
                 <div class="footer-column">
                     <h4 class="footer-title">Каталог</h4>
@@ -120,7 +112,7 @@ $company = Yii::$app->settings->getCompany();
             </div>
         </div>
     </div>
-    
+
     <div class="footer-bottom">
         <div class="container">
             <div class="footer-bottom-content">
@@ -134,7 +126,7 @@ $company = Yii::$app->settings->getCompany();
                         <img src="/images/payment/erip.svg" alt="ЕРИП" class="payment-icon">
                     </div>
                 </div>
-                
+
                 <div class="copyright">
                     © <?= date('Y') ?> СНИКЕРХЭД. Все права защищены.
                 </div>
@@ -142,236 +134,3 @@ $company = Yii::$app->settings->getCompany();
         </div>
     </div>
 </footer>
-
-<style>
-/* Footer Styles */
-.site-footer {
-    background: #0f172a;
-    color: #e2e8f0;
-    margin-top: auto;
-}
-
-.footer-main {
-    padding: 0.5rem 0 0.25rem;
-}
-
-.footer-grid {
-    display: grid;
-    grid-template-columns: 1.5fr repeat(4, 1fr);
-    gap: 0.5rem;
-}
-
-.footer-brand {
-    margin-bottom: 0.25rem;
-}
-
-.footer-logo {
-    height: 20px;
-    margin-bottom: 0.25rem;
-}
-
-.footer-tagline {
-    color: #999999;
-    font-size: 1rem;
-    line-height: 1.2;
-}
-
-.footer-badges {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    margin-top: 0.5rem;
-}
-
-.badge-item {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 1rem;
-    color: #999999;
-}
-
-.badge-item i {
-    color: #000000;
-    font-size: 0.75rem;
-}
-
-.footer-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 1rem;
-}
-
-.footer-links {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.footer-links li {
-    margin-bottom: 0.25rem;
-}
-
-.footer-links a {
-    color: #999999;
-    text-decoration: none;
-    display: block;
-    padding: var(--spacing-1) 0;
-    transition: color var(--transition-fast);
-    font-size: 1rem;
-}
-
-.footer-links a:hover {
-    color: #ffffff;
-}
-
-.footer-contacts {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.footer-contacts li {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.25rem;
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
-}
-
-.footer-contacts i {
-    color: #000000;
-    font-size: 1rem;
-    margin-top: 0.125rem;
-}
-
-.footer-contacts a {
-    color: #999999;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-.footer-contacts a:hover {
-    color: #ffffff;
-}
-
-.footer-social {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
-}
-
-.social-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    background: #1a1a1a;
-    color: #ffffff;
-    border-radius: var(--radius-md);
-    transition: all var(--transition-normal);
-}
-
-.social-link:hover {
-    background: #000000;
-    color: white;
-    transform: translateY(-2px);
-}
-
-.footer-bottom {
-    background: #020617;
-    padding: 0.5rem 0;
-}
-
-.footer-bottom-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.payment-methods {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.payment-label {
-    color: #64748b;
-    font-size: 0.75rem;
-}
-
-.payment-icons {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.payment-icon {
-    height: 20px;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.payment-icon:hover {
-    opacity: 1;
-}
-
-.copyright {
-    color: #64748b;
-    font-size: 0.75rem;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-    .footer-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2rem;
-    }
-    
-    .footer-column:first-child {
-        grid-column: 1 / -1;
-    }
-    
-    .footer-brand {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    
-    .footer-badges {
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-}
-
-@media (max-width: 768px) {
-    .footer-main {
-        padding: 3rem 0 2rem;
-    }
-    
-    .footer-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-    }
-    
-    .footer-column:first-child {
-        grid-column: 1 / -1;
-    }
-    
-    .footer-brand {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .footer-bottom-content {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-    
-    .payment-methods {
-        flex-direction: column;
-    }
-}
-</style>

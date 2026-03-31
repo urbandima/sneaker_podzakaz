@@ -758,3 +758,82 @@
         font-size: 0.75rem;
     }
 }
+
+/* =============================================
+   OUTLINE BUTTON VARIANTS
+   ============================================= */
+.btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--border-color);
+    color: var(--text-primary);
+    transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-outline:hover,
+.btn-outline:focus {
+    background: var(--surface-secondary);
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+}
+
+.btn-outline-primary {
+    background: transparent;
+    border: 1.5px solid var(--color-primary);
+    color: var(--text-primary);
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background: var(--color-primary);
+    color: var(--text-inverse);
+}
+
+.btn-outline-secondary {
+    background: transparent;
+    border: 1.5px solid var(--border-color);
+    color: var(--text-secondary);
+    transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+    background: var(--surface-secondary);
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+}
+
+.btn-outline-danger {
+    background: transparent;
+    border: 1.5px solid var(--color-error, #ef4444);
+    color: var(--color-error, #ef4444);
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:focus {
+    background: var(--color-error, #ef4444);
+    color: #ffffff;
+}
+
+/* =============================================
+   BACKGROUND UTILITIES
+   ============================================= */
+.bg-light {
+    background-color: var(--surface-secondary) !important;
+}
+
+.bg-white {
+    background-color: var(--surface-primary) !important;
+}
+
+/* =============================================
+   BORDER RADIUS UTILITIES
+   ============================================= */
+.rounded-3 {
+    border-radius: var(--radius-lg) !important;
+}
+
+.rounded-pill {
+    border-radius: var(--radius-full) !important;
+}
