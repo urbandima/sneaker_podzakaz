@@ -129,12 +129,16 @@ class Cart extends ActiveRecord
         ]);
 
         if ($cart) {
-            $newQuantity = $cart->quantity + $quantity;
-            if ($newQuantity > 99) {
+            // Атомарное обновление через UPDATE ... SET quantity = quantity + N,
+            // чтобы исключить race condition при одновременном добавлении товара
+            if ($cart->quantity + $quantity > 99) {
                 Yii::$app->session->setFlash('error', 'Максимальное количество одного товара в корзине — 99');
                 return false;
             }
-            $cart->quantity = $newQuantity;
+            return (bool) self::updateAll(
+                ['quantity' => new \yii\db\Expression('LEAST(quantity + :q, 99)', [':q' => $quantity])],
+                ['id' => $cart->id]
+            );
         } else {
             $cart = new self([
                 'user_id' => $userId,

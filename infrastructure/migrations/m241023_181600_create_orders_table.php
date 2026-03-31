@@ -15,6 +15,9 @@ class m241023_181600_create_orders_table extends Migration
             'client_name' => $this->string(255)->notNull(),
             'client_phone' => $this->string(50),
             'client_email' => $this->string(255),
+
+            // Доставка
+            'delivery_country' => $this->string(50),
             
             // Финансы
             'total_amount' => $this->decimal(10, 2)->notNull()->defaultValue(0),

@@ -42,6 +42,7 @@
     --text-secondary: #666666;
     --text-muted: #999999;
     --text-inverse: #ffffff;
+    --text-disabled: #bbbbbb;
 
     /* Границы */
     --border-color: #e5e7eb;
@@ -134,6 +135,7 @@
     --text-secondary: #cbd5e1;
     --text-muted: #94a3b8;
     --text-inverse: #000000;
+    --text-disabled: #475569;
 
     /* Границы - тёмные */
     --border-color: #334155;
@@ -254,8 +256,16 @@
     /* Order status badges */
     --status-new-bg: #dbeafe;
     --status-new-text: #1d4ed8;
+    --status-created-bg: #dbeafe;
+    --status-created-text: #1d4ed8;
+    --status-paid-bg: #ede9fe;
+    --status-paid-text: #6d28d9;
     --status-processing-bg: #fef3c7;
     --status-processing-text: #d97706;
+    --status-shipped-bg: #e0e7ff;
+    --status-shipped-text: #4338ca;
+    --status-delivered-bg: #d1fae5;
+    --status-delivered-text: #059669;
     --status-completed-bg: #d1fae5;
     --status-completed-text: #059669;
     --status-cancelled-bg: #fee2e2;

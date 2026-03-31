@@ -2,9 +2,6 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use app\frontend\assets\SaleAsset;
-
-SaleAsset::register($this);
 
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -18,7 +15,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <!-- Текущие акции -->
         <section class="current-promotions mb-5">
-            <h2 class="h3 mb-4">Текущие акции</h2>
+            <h2 class="h3 mb-4">🔥 Текущие акции</h2>
             
             <div class="row g-4">
                 <div class="col-md-6">
@@ -61,7 +58,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <!-- Программа лояльности -->
         <section class="loyalty-program mb-5">
-            <h2 class="h3 mb-4">Программа лояльности</h2>
+            <h2 class="h3 mb-4">⭐ Программа лояльности</h2>
             
             <div class="card">
                 <div class="card-body">
@@ -78,7 +75,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         </div>
                         <div class="col-md-4 text-center">
                             <div class="loyalty-badge">
-                                <i class="bi bi-award-fill text-primary loyalty-icon"></i>
+                                <i class="bi bi-award-fill text-primary fs-1"></i>
                                 <p class="mt-2 mb-0">Участвуйте в программе лояльности!</p>
                             </div>
                         </div>
@@ -93,7 +90,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <!-- Купоны -->
         <section class="coupons mb-5">
-            <h2 class="h3 mb-4">Специальные купоны</h2>
+            <h2 class="h3 mb-4">🎫 Специальные купоны</h2>
             
             <div class="alert alert-info">
                 <h5 class="alert-heading">Как использовать купоны?</h5>
@@ -150,6 +147,3 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 </div>
 
-<?php
-// Стили перенесены в sale-inline.css
-?>

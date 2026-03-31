@@ -2,14 +2,6 @@
 
 /**
  * Footer - Полный футер сайта
- * 
- * Секции:
- * - О компании
- * - Помощь
- * - Каталог
- * - Контакты
- * - Социальные сети
- * - Способы оплаты
  */
 
 use yii\helpers\Html;
@@ -28,7 +20,7 @@ $company = Yii::$app->settings->getCompany();
                         <img src="/images/logo.png" alt="<?= Html::encode($company['name'] ?? 'СНИКЕРХЭД') ?>" class="footer-logo">
                         <p class="footer-tagline">Оригинальные кроссовки из США и Европы</p>
                     </div>
-                    
+
                     <div class="footer-badges">
                         <div class="badge-item">
                             <i class="bi bi-shield-check"></i>
@@ -44,7 +36,7 @@ $company = Yii::$app->settings->getCompany();
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- О компании -->
                 <div class="footer-column">
                     <h4 class="footer-title">О компании</h4>
@@ -55,7 +47,7 @@ $company = Yii::$app->settings->getCompany();
                         <li><?= Html::a('Реквизиты', ['/page/about']) ?></li>
                     </ul>
                 </div>
-                
+
                 <!-- Помощь -->
                 <div class="footer-column">
                     <h4 class="footer-title">Помощь</h4>
@@ -67,7 +59,7 @@ $company = Yii::$app->settings->getCompany();
                         <li><?= Html::a('Отслеживание заказа', ['/account/orders']) ?></li>
                     </ul>
                 </div>
-                
+
                 <!-- Каталог -->
                 <div class="footer-column">
                     <h4 class="footer-title">Каталог</h4>
@@ -121,7 +113,7 @@ $company = Yii::$app->settings->getCompany();
             </div>
         </div>
     </div>
-    
+
     <div class="footer-bottom">
         <div class="container">
             <div class="footer-bottom-content">
@@ -135,7 +127,7 @@ $company = Yii::$app->settings->getCompany();
                         <img src="/images/payment/erip.svg" alt="ЕРИП" class="payment-icon">
                     </div>
                 </div>
-                
+
                 <div class="copyright">
                     © <?= date('Y') ?> СНИКЕРХЭД. Все права защищены.
                 </div>

@@ -34,12 +34,14 @@ class m241228_170500_create_customer_social_account_table extends Migration
             'customer_id'
         );
 
-        // Skip foreign key for now - will be added after customer table is created
+        // FK to customer table: customer table is created by m241228_213000 which runs AFTER
+        // this migration (21:30 > 17:05), so we can't add the FK here.
+        // It is added by m241228_213000_add_customer_social_fk (see that migration).
     }
 
     public function safeDown()
     {
-        $this->dropForeignKey('fk-customer_social_account-customer_id', '{{%customer_social_account}}');
+        // FK was not created in safeUp — nothing to drop here.
         $this->dropIndex('idx-customer_social_account-provider-provider_id', '{{%customer_social_account}}');
         $this->dropIndex('idx-customer_social_account-customer_id', '{{%customer_social_account}}');
         $this->dropTable('{{%customer_social_account}}');

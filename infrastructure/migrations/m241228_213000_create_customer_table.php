@@ -74,14 +74,35 @@ class m241228_213000_create_customer_table extends Migration
             'SET NULL',
             'CASCADE'
         );
+
+        // Add FK for customer_social_account created by the earlier m241228_170500 migration
+        // (that migration could not add the FK because customer table didn't exist yet)
+        if ($this->db->schema->getTableSchema('{{%customer_social_account}}', true) !== null) {
+            try {
+                $this->addForeignKey(
+                    'fk-customer_social_account-customer_id',
+                    '{{%customer_social_account}}',
+                    'customer_id',
+                    '{{%customer}}',
+                    'id',
+                    'CASCADE'
+                );
+            } catch (\Exception $e) {
+                echo "⚠ FK fk-customer_social_account-customer_id already exists\n";
+            }
+        }
     }
 
     public function safeDown()
     {
+        try {
+            $this->dropForeignKey('fk-customer_social_account-customer_id', '{{%customer_social_account}}');
+        } catch (\Exception $e) { /* may not exist */ }
+
         $this->dropForeignKey('fk-order-customer_id', '{{%order}}');
         $this->dropIndex('idx-order-customer_id', '{{%order}}');
         $this->dropColumn('{{%order}}', 'customer_id');
-        
+
         $this->dropTable('{{%customer}}');
     }
 }

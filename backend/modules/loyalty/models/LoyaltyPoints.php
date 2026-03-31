@@ -151,23 +151,40 @@ class LoyaltyPoints extends ActiveRecord
         if ($points <= 0) {
             return false;
         }
-        
-        $balance = self::getBalance($customerId);
-        $newBalance = $balance + $points;
-        
-        $record = new self();
-        $record->customer_id = $customerId;
-        $record->points = $points;
-        $record->balance = $newBalance;
-        $record->type = $type;
-        $record->order_id = $orderId;
-        $record->description = $description ?: self::getTypeDescription($type);
-        
-        if ($expiresDays) {
-            $record->expires_at = date('Y-m-d H:i:s', strtotime("+{$expiresDays} days"));
+
+        $db = Yii::$app->db;
+        $transaction = $db->beginTransaction();
+        try {
+            // Блокируем последнюю запись клиента, чтобы исключить race condition
+            // при одновременном начислении/списании баллов
+            $db->createCommand(
+                'SELECT id FROM {{%loyalty_points}} WHERE customer_id = :cid ORDER BY id DESC LIMIT 1 FOR UPDATE',
+                [':cid' => $customerId]
+            )->queryOne();
+
+            $balance = self::getBalance($customerId);
+            $newBalance = $balance + $points;
+
+            $record = new self();
+            $record->customer_id = $customerId;
+            $record->points = $points;
+            $record->balance = $newBalance;
+            $record->type = $type;
+            $record->order_id = $orderId;
+            $record->description = $description ?: self::getTypeDescription($type);
+
+            if ($expiresDays) {
+                $record->expires_at = date('Y-m-d H:i:s', strtotime("+{$expiresDays} days"));
+            }
+
+            $result = $record->save();
+            $transaction->commit();
+            return $result;
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::error('LoyaltyPoints::earn error: ' . $e->getMessage(), 'loyalty');
+            return false;
         }
-        
-        return $record->save();
     }
 
     /**
@@ -184,23 +201,40 @@ class LoyaltyPoints extends ActiveRecord
         if ($points <= 0) {
             return false;
         }
-        
-        $balance = self::getBalance($customerId);
-        if ($balance < $points) {
+
+        $db = Yii::$app->db;
+        $transaction = $db->beginTransaction();
+        try {
+            // Блокируем последнюю запись клиента для атомарного чтения баланса
+            $db->createCommand(
+                'SELECT id FROM {{%loyalty_points}} WHERE customer_id = :cid ORDER BY id DESC LIMIT 1 FOR UPDATE',
+                [':cid' => $customerId]
+            )->queryOne();
+
+            $balance = self::getBalance($customerId);
+            if ($balance < $points) {
+                $transaction->rollBack();
+                return false;
+            }
+
+            $newBalance = $balance - $points;
+
+            $record = new self();
+            $record->customer_id = $customerId;
+            $record->points = -$points;
+            $record->balance = $newBalance;
+            $record->type = self::TYPE_REDEEM;
+            $record->order_id = $orderId;
+            $record->description = $description ?: 'Списание баллов';
+
+            $result = $record->save();
+            $transaction->commit();
+            return $result;
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::error('LoyaltyPoints::redeem error: ' . $e->getMessage(), 'loyalty');
             return false;
         }
-        
-        $newBalance = $balance - $points;
-        
-        $record = new self();
-        $record->customer_id = $customerId;
-        $record->points = -$points;
-        $record->balance = $newBalance;
-        $record->type = self::TYPE_REDEEM;
-        $record->order_id = $orderId;
-        $record->description = $description ?: 'Списание баллов';
-        
-        return $record->save();
     }
 
     /**

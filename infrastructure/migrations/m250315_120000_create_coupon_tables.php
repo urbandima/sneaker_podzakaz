@@ -55,21 +55,27 @@ class m250315_120000_create_coupon_tables extends Migration
         
         $this->addForeignKey('fk-coupon_usage-coupon', '{{%coupon_usage}}', 'coupon_id', '{{%coupon}}', 'id', 'CASCADE');
         $this->addForeignKey('fk-coupon_usage-order', '{{%coupon_usage}}', 'order_id', '{{%order}}', 'id', 'CASCADE');
+        // user_id stores customer.id (the customer who used the coupon)
+        $this->addForeignKey('fk-coupon_usage-customer', '{{%coupon_usage}}', 'user_id', '{{%customer}}', 'id', 'SET NULL');
         
         // Добавляем поля купона в таблицу заказов
         $this->addColumn('{{%order}}', 'coupon_id', $this->integer());
         $this->addColumn('{{%order}}', 'coupon_code', $this->string(50));
         $this->addColumn('{{%order}}', 'discount_amount', $this->decimal(10, 2)->defaultValue(0));
-        
+
         $this->createIndex('idx-order-coupon', '{{%order}}', 'coupon_id');
+        $this->addForeignKey('fk-order-coupon', '{{%order}}', 'coupon_id', '{{%coupon}}', 'id', 'SET NULL');
     }
 
     public function safeDown()
     {
+        $this->dropForeignKey('fk-order-coupon', '{{%order}}');
+        $this->dropIndex('idx-order-coupon', '{{%order}}');
         $this->dropColumn('{{%order}}', 'discount_amount');
         $this->dropColumn('{{%order}}', 'coupon_code');
         $this->dropColumn('{{%order}}', 'coupon_id');
-        
+
+        $this->dropForeignKey('fk-coupon_usage-customer', '{{%coupon_usage}}');
         $this->dropTable('{{%coupon_usage}}');
         $this->dropTable('{{%coupon}}');
     }

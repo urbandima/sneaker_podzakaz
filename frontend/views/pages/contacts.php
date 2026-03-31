@@ -2,111 +2,203 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use app\frontend\assets\ContactsAsset;
 
 /* @var $this yii\web\View */
 
-$this->title = 'Контакты СНИКЕРХЭД';
+$this->title = 'Контакты СНИКЕРХЭД — свяжитесь с нами';
 $this->params['breadcrumbs'][] = $this->title;
 
-ContactsAsset::register($this);
+// SEO мета-теги уже установлены в контроллере
 ?>
 
-<div class="contacts-page">
-    
-    <!-- Заголовок страницы -->
-    <div class="contacts-header">
-        <h1 class="contacts-title">Контакты</h1>
-        <p class="contacts-subtitle">Мы всегда на связи и готовы ответить на ваши вопросы</p>
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            
+            <!-- Заголовок страницы -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold mb-3"><?= Html::encode($this->title) ?></h1>
+                <p class="lead text-muted">Мы всегда на связи и готовы ответить на ваши вопросы</p>
+            </div>
+
+            <!-- Контактная информация -->
+            <section class="mb-5">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <i class="bi bi-telephone text-primary fs-2"></i>
+                                </div>
+                                <h5 class="card-title">Телефон</h5>
+                                <p class="card-text">
+                                    <a href="tel:+375291234567" class="text-decoration-none">
+                                        +375 (29) 123-45-67
+                                    </a>
+                                </p>
+                                <p class="text-muted small">Пн-Вс: 10:00 - 20:00</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <i class="bi bi-envelope text-primary fs-2"></i>
+                                </div>
+                                <h5 class="card-title">Email</h5>
+                                <p class="card-text">
+                                    <a href="mailto:info@sneakerhead.by" class="text-decoration-none">
+                                        info@sneakerhead.by
+                                    </a>
+                                </p>
+                                <p class="text-muted small">Ответ в течение 24 часов</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Социальные сети -->
+            <section class="mb-5">
+                <h2 class="h3 mb-4 text-center">Мы в социальных сетях</h2>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm text-center">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <i class="bi bi-instagram text-danger fs-2"></i>
+                                </div>
+                                <h5 class="card-title">Instagram</h5>
+                                <p class="card-text">@sneakerhead_by</p>
+                                <a href="#" class="btn btn-outline-danger btn-sm">Подписаться</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm text-center">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <i class="bi bi-telegram text-primary fs-2"></i>
+                                </div>
+                                <h5 class="card-title">Telegram</h5>
+                                <p class="card-text">@sneakerhead_by</p>
+                                <a href="#" class="btn btn-outline-primary btn-sm">Подписаться</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm text-center">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <i class="bi bi-youtube text-danger fs-2"></i>
+                                </div>
+                                <h5 class="card-title">YouTube</h5>
+                                <p class="card-text">СНИКЕРХЭД</p>
+                                <a href="#" class="btn btn-outline-danger btn-sm">Подписаться</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Форма обратной связи -->
+            <section class="mb-5">
+                <h2 class="h3 mb-4 text-center">Напишите нам</h2>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <form class="contact-form">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label fw-semibold">Ваше имя</label>
+                                    <input type="text" class="form-control form-control-styled" id="name" placeholder="Иван Иванов" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label fw-semibold">Email</label>
+                                    <input type="email" class="form-control form-control-styled" id="email" placeholder="ivan@example.com" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="subject" class="form-label fw-semibold">Тема сообщения</label>
+                                    <input type="text" class="form-control form-control-styled" id="subject" placeholder="Вопрос о заказе" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="message" class="form-label fw-semibold">Сообщение</label>
+                                    <textarea class="form-control form-control-styled" id="message" rows="5" placeholder="Опишите ваш вопрос..." required></textarea>
+                                </div>
+                                <div class="col-12 text-center">
+                                    <button type="submit" class="btn btn-primary btn-lg btn-styled">
+                                        <i class="bi bi-send me-2"></i>Отправить сообщение
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ -->
+            <section class="mb-5">
+                <h2 class="h3 mb-4 text-center">Часто задаваемые вопросы</h2>
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                Как проверить оригинальность кроссовок?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Все наши кроссовки проходят проверку подлинности. Мы предоставляем сертификаты качества 
+                                и гарантируем оригинальность каждого товара.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                Сколько времени занимает доставка?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Доставка по Беларуси занимает 2-5 рабочих дней. Международная доставка - 7-14 дней.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                Можно ли вернуть или обменять товар?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Да, вы можете вернуть или обменять товар в течение 14 дней после покупки при сохранении 
+                                товарного вида и упаковки.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Карта (заглушка) -->
+            <section class="mb-5">
+                <h2 class="h3 mb-4 text-center">Наш адрес</h2>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="bg-light rounded-3 p-5 text-center">
+                            <i class="bi bi-geo-alt text-primary fs-1"></i>
+                            <h4 class="mt-3">Минск, ул. Купревича 1, корпус 1</h4>
+                            <p class="text-muted">Пункт выдачи заказов работает с 10:00 до 20:00</p>
+                            <a href="#" class="btn btn-outline-primary">
+                                <i class="bi bi-map me-2"></i>Показать на карте
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
     </div>
-
-    <!-- Контактная информация -->
-    <section class="contacts-info">
-        <div class="contact-cards-grid">
-            <div class="contact-card">
-                <div class="contact-icon">
-                    <i class="bi bi-telephone"></i>
-                </div>
-                <h3>Телефон</h3>
-                <p>
-                    <a href="tel:+375291234567">+375 (29) 123-45-67</a>
-                </p>
-                <p>Пн-Вс: 10:00 - 20:00</p>
-            </div>
-            <div class="contact-card">
-                <div class="contact-icon">
-                    <i class="bi bi-envelope"></i>
-                </div>
-                <h3>Email</h3>
-                <p>
-                    <a href="mailto:info@sneakerhead.by">info@sneakerhead.by</a>
-                </p>
-                <p>Ответ в течение 24 часов</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Социальные сети -->
-    <section class="contacts-social">
-        <h2>Мы в социальных сетях</h2>
-        <div class="social-cards-grid">
-            <a href="#" class="social-card">
-                <i class="bi bi-instagram"></i>
-                <h4>Instagram</h4>
-                <span>@sneakerhead_by</span>
-            </a>
-            <a href="#" class="social-card">
-                <i class="bi bi-telegram"></i>
-                <h4>Telegram</h4>
-                <span>@sneakerhead_by</span>
-            </a>
-            <a href="#" class="social-card">
-                <i class="bi bi-youtube"></i>
-                <h4>YouTube</h4>
-                <span>СНИКЕРХЭД</span>
-            </a>
-        </div>
-    </section>
-
-    <!-- Форма обратной связи -->
-    <section class="contacts-form">
-        <h2>Напишите нам</h2>
-        <div class="contact-form-wrapper">
-            <form class="contact-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="name">Ваше имя</label>
-                        <input type="text" id="name" class="form-control" placeholder="Иван Иванов" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" class="form-control" placeholder="ivan@example.com" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="subject">Тема сообщения</label>
-                    <input type="text" id="subject" class="form-control" placeholder="Вопрос о заказе" required>
-                </div>
-                <div class="form-group">
-                    <label for="message">Сообщение</label>
-                    <textarea id="message" class="form-control" rows="5" placeholder="Опишите ваш вопрос..." required></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn-submit">Отправить сообщение</button>
-                </div>
-            </form>
-        </div>
-    </section>
-
-    <!-- Карта -->
-    <section class="contacts-map">
-        <h2>Наш адрес</h2>
-        <div class="map-card">
-            <i class="bi bi-geo-alt"></i>
-            <h4>Минск, ул. Купревича 1, корпус 1</h4>
-            <p>Пункт выдачи заказов работает с 10:00 до 20:00</p>
-            <a href="#" class="btn btn-secondary">Показать на карте</a>
-        </div>
-    </section>
-
 </div>
+

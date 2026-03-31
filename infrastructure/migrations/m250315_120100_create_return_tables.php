@@ -57,6 +57,7 @@ class m250315_120100_create_return_tables extends Migration
         $this->createIndex('idx-return_request-number', '{{%return_request}}', 'return_number', true);
         
         $this->addForeignKey('fk-return_request-order', '{{%return_request}}', 'order_id', '{{%order}}', 'id', 'CASCADE');
+        $this->addForeignKey('fk-return_request-customer', '{{%return_request}}', 'customer_id', '{{%customer}}', 'id', 'SET NULL');
         
         // Вставляем политику по умолчанию
         $this->insert('{{%return_policy}}', [
@@ -77,6 +78,8 @@ class m250315_120100_create_return_tables extends Migration
 
     public function safeDown()
     {
+        $this->dropForeignKey('fk-return_request-customer', '{{%return_request}}');
+        $this->dropForeignKey('fk-return_request-order', '{{%return_request}}');
         $this->dropTable('{{%return_request}}');
         $this->dropTable('{{%return_policy}}');
     }
