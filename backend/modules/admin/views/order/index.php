@@ -220,16 +220,12 @@ $filtersExpanded = $activeFilterCount > 0;
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th><input type="checkbox" id="selectAll"></th>
-                        <th>ID</th>
+                        <th style="width: 40px;"><input type="checkbox" id="selectAll"></th>
+                        <th>Заказ / Товары</th>
                         <th>Клиент</th>
-                        <th>Телефон</th>
-                        <th>Email</th>
-                        <th>Сумма</th>
+                        <th style="text-align: right;">Сумма</th>
                         <th>Статус</th>
-                        <th>Логист</th>
-                        <th>Создан</th>
-                        <th>Действия</th>
+                        <th style="text-align: center;">Действия</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -237,32 +233,74 @@ $filtersExpanded = $activeFilterCount > 0;
                         <?php foreach ($orders as $order): ?>
                             <tr onclick="location.href='<?= Url::to(['view', 'id' => $order->id]) ?>'" style="cursor:pointer" class="order-row">
                                 <td onclick="event.stopPropagation()"><input type="checkbox" class="order-checkbox" value="<?= $order->id ?>"></td>
-                                <td style="font-weight: 600;">#<?= $order->id ?></td>
-                                <td><?= Html::encode($order->client_name) ?></td>
-                                <td><?= Html::encode($order->client_phone) ?></td>
-                                <td><?= Html::encode($order->client_email) ?></td>
-                                <td style="font-weight: 600;"><?= number_format($order->total_amount, 2) ?> BYN</td>
-                                <td onclick="event.stopPropagation()">
-                                    <select class="status-select" data-order-id="<?= $order->id ?>" onchange="updateStatus(this)">
-                                        <?php foreach ($statuses as $statusKey => $statusLabel): ?>
-                                            <option value="<?= $statusKey ?>" <?= $order->status === $statusKey ? 'selected' : '' ?>>
-                                                <?= Html::encode($statusLabel) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
+                                <td>
+                                    <div style="font-weight: 600; font-size: 0.875rem;">#<?= $order->id ?></div>
+                                    <div style="font-size: 0.75rem; color: var(--admin-text-secondary); margin-top: 2px;">
+                                        <?php 
+                                        $productNames = [];
+                                        foreach ($order->orderItems as $item) {
+                                            $productNames[] = $item->product_name;
+                                        }
+                                        $productsText = implode(', ', $productNames);
+                                        echo Html::encode(mb_strlen($productsText) > 35 ? mb_substr($productsText, 0, 35) . '...' : $productsText);
+                                        ?>
+                                    </div>
+                                    <div style="font-size: 0.7rem; color: var(--admin-text-subdued); margin-top: 2px;">
+                                        <?= Yii::$app->formatter->asDatetime($order->created_at, 'short') ?>
+                                    </div>
                                 </td>
-                                <td><?= Html::encode($logistMap[$order->assigned_logist] ?? '—') ?></td>
-                                <td><?= Yii::$app->formatter->asDatetime($order->created_at) ?></td>
+                                <td>
+                                    <?php if ($order->customer_id): ?>
+                                        <a href="<?= Url::to(['/admin/customer/view', 'id' => $order->customer_id]) ?>" onclick="event.stopPropagation()" style="color: var(--admin-text-primary); text-decoration: none; font-weight: 500; font-size: 0.875rem;">
+                                            <?= Html::encode($order->client_name) ?>
+                                        </a>
+                                        <div style="font-size: 0.75rem; color: var(--admin-text-secondary); margin-top: 2px;">
+                                            <?= Html::encode($order->client_phone) ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <div style="font-weight: 500; font-size: 0.875rem;"><?= Html::encode($order->client_name) ?></div>
+                                        <div style="font-size: 0.75rem; color: var(--admin-text-secondary);"><?= Html::encode($order->client_phone) ?></div>
+                                    <?php endif; ?>
+                                </td>
+                                <td style="text-align: right; font-weight: 600; white-space: nowrap;">
+                                    <?= number_format($order->total_amount, 0) ?> BYN
+                                </td>
                                 <td onclick="event.stopPropagation()">
-                                    <a href="<?= Url::to(['view', 'id' => $order->id]) ?>" class="admin-btn admin-btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
+                                    <?php
+                                    $deliveryStatuses = [
+                                        'created' => ['label' => 'Создан', 'class' => 'secondary', 'icon' => 'bi-file-earmark'],
+                                        'paid' => ['label' => 'Оплачен', 'class' => 'warning', 'icon' => 'bi-credit-card'],
+                                        'processing' => ['label' => 'Обработка', 'class' => 'info', 'icon' => 'bi-gear'],
+                                        'shipped' => ['label' => 'Отправлен', 'class' => 'primary', 'icon' => 'bi-truck'],
+                                        'delivered' => ['label' => 'Доставлен', 'class' => 'success', 'icon' => 'bi-check-circle'],
+                                        'canceled' => ['label' => 'Отменен', 'class' => 'danger', 'icon' => 'bi-x-circle'],
+                                    ];
+                                    $deliveryStatus = $deliveryStatuses[$order->status] ?? ['label' => $order->status, 'class' => 'secondary', 'icon' => 'bi-question'];
+                                    ?>
+                                    <span class="admin-badge admin-badge-<?= $deliveryStatus['class'] ?>" style="cursor: pointer;" onclick="showStatusDropdown(<?= $order->id ?>, this)">
+                                        <i class="bi <?= $deliveryStatus['icon'] ?>"></i> <?= $deliveryStatus['label'] ?>
+                                    </span>
+                                    <?php if ($order->track_number): ?>
+                                        <div style="font-size: 0.7rem; margin-top: 3px; color: var(--admin-text-secondary);">
+                                            <i class="bi bi-upc"></i> <?= Html::encode(mb_substr($order->track_number, 0, 12)) ?><?= mb_strlen($order->track_number) > 12 ? '...' : '' ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
+                                <td style="text-align: center;" onclick="event.stopPropagation()">
+                                    <div style="display: flex; gap: 4px; justify-content: center;">
+                                        <a href="<?= Url::to(['view', 'id' => $order->id]) ?>" class="admin-btn admin-btn-sm admin-btn-secondary" title="Просмотр">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="<?= Url::to(['edit', 'id' => $order->id]) ?>" class="admin-btn admin-btn-sm admin-btn-secondary" title="Редактировать">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="10" style="text-align: center; padding: 2rem; color: var(--admin-text-secondary);">
+                            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--admin-text-secondary);">
                                 Нет заказов по текущим фильтрам
                             </td>
                         </tr>
@@ -431,6 +469,101 @@ function updateStatus(select) {
         } else {
             alert('Ошибка: ' + data.message);
             if (originalValue) select.value = originalValue;
+        }
+    })
+    .catch(err => {
+        alert('Ошибка сети');
+        console.error(err);
+    });
+}
+
+// Функция для показа выпадающего списка статусов при клике на бейдж
+function showStatusDropdown(orderId, badgeElement) {
+    // Удаляем существующие дропдауны
+    document.querySelectorAll('.status-dropdown-popup').forEach(el => el.remove());
+    
+    const statuses = <?= json_encode($statuses ?? []) ?>;
+    const currentStatus = badgeElement.textContent.trim();
+    
+    const dropdown = document.createElement('div');
+    dropdown.className = 'status-dropdown-popup';
+    dropdown.style.cssText = `
+        position: absolute;
+        background: white;
+        border: 1px solid var(--admin-border);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+        min-width: 150px;
+        padding: 4px 0;
+    `;
+    
+    Object.entries(statuses).forEach(([key, label]) => {
+        const item = document.createElement('div');
+        item.style.cssText = `
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.15s;
+        `;
+        item.textContent = label;
+        item.onmouseover = () => item.style.background = 'var(--admin-bg)';
+        item.onmouseout = () => item.style.background = 'transparent';
+        item.onclick = () => {
+            changeOrderStatus(orderId, key, badgeElement);
+            dropdown.remove();
+        };
+        dropdown.appendChild(item);
+    });
+    
+    const rect = badgeElement.getBoundingClientRect();
+    dropdown.style.top = (rect.bottom + window.scrollY + 5) + 'px';
+    dropdown.style.left = (rect.left + window.scrollX) + 'px';
+    
+    document.body.appendChild(dropdown);
+    
+    // Закрыть при клике вне
+    setTimeout(() => {
+        document.addEventListener('click', function close(e) {
+            if (!dropdown.contains(e.target)) {
+                dropdown.remove();
+                document.removeEventListener('click', close);
+            }
+        });
+    }, 100);
+}
+
+// Функция для изменения статуса заказа
+function changeOrderStatus(orderId, newStatus, badgeElement) {
+    fetch(`/admin/order/${orderId}/change-status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+        },
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            // Обновляем бейдж
+            const statusConfig = {
+                'created': { class: 'secondary', icon: 'bi-file-earmark', label: 'Создан' },
+                'paid': { class: 'warning', icon: 'bi-credit-card', label: 'Оплачен' },
+                'processing': { class: 'info', icon: 'bi-gear', label: 'Обработка' },
+                'shipped': { class: 'primary', icon: 'bi-truck', label: 'Отправлен' },
+                'delivered': { class: 'success', icon: 'bi-check-circle', label: 'Доставлен' },
+                'canceled': { class: 'danger', icon: 'bi-x-circle', label: 'Отменен' }
+            };
+            const cfg = statusConfig[newStatus] || statusConfig['created'];
+            badgeElement.className = `admin-badge admin-badge-${cfg.class}`;
+            badgeElement.innerHTML = `<i class="bi ${cfg.icon}"></i> ${cfg.label}`;
+            
+            // Визуальный фидбек
+            badgeElement.style.transform = 'scale(1.05)';
+            setTimeout(() => badgeElement.style.transform = 'scale(1)', 200);
+        } else {
+            alert('Ошибка: ' + (data.message || 'Не удалось изменить статус'));
         }
     })
     .catch(err => {

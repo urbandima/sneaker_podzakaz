@@ -447,12 +447,35 @@ function addToCartFromToolbar() {
 
 // Size guide modal
 function openSizeGuide() {
-    // Открытие модального окна с таблицей размеров
-    const sizeTable = document.querySelector('.size-conversion-table');
-    if (sizeTable) {
-        sizeTable.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const modal = document.getElementById('sizeGuideModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
     } else {
-        alert('Таблица размеров доступна ниже на странице');
+        window.open('/size-guide', '_blank');
     }
 }
+
+function closeSizeGuide() {
+    const modal = document.getElementById('sizeGuideModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+// Закрытие при клике вне окна
+document.addEventListener('click', function (e) {
+    const modal = document.getElementById('sizeGuideModal');
+    if (e.target === modal) {
+        closeSizeGuide();
+    }
+});
+
+// Закрытие по ESC
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        closeSizeGuide();
+    }
+});
 </script>

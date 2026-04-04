@@ -18,10 +18,11 @@ class ProductAsset extends VersionedAssetBundle
     
     public $css = [
         'css/pages/product.css',
-        'css/pages/product-inline.css',
     ];
     
     public $js = [
+        'js/cart.js',
+        'js/favorites.js',
         'js/product-page.js',
     ];
     

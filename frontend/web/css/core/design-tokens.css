@@ -1,39 +1,124 @@
-/**
- * DESIGN TOKENS - Sneakerhead E-commerce
- * ===================================
- * Чёрно-белый минимализм
- */
+/* ==============================================
+   DESIGN TOKENS — СНИКЕРХЭД
+   B&W система, Shopify 2026 inspired
+   ============================================== */
 
 :root {
-    /* Colors - B&W System */
-    --color-black: #0F0F0F; /* Текст, кнопки CTA */
-    --color-white: #FFFFFF; /* Фон */
-    --color-surface: #F7F7F7; /* Фон секций, карточки */
-    --color-border: #E5E5E5; /* Все разделители */
-    --color-muted: #6B7280; /* Второстепенный текст */
-    --color-accent: #0F0F0F; /* Акцентный цвет (заменяет все синие/indigo) */
-    
-    /* Semantic Colors */
+    /* === COLORS: Base Palette === */
+    --c-black: #0F0F0F;
+    --c-white: #FFFFFF;
+    --c-gray-50: #F7F7F7;
+    --c-gray-100: #F0F0F0;
+    --c-gray-200: #E5E5E5;
+    --c-gray-400: #9CA3AF;
+    --c-gray-500: #6B7280;
+    --c-gray-700: #374151;
+    --c-gray-900: #111827;
+
+    /* === COLORS: Semantic === */
+    --color-text-primary: var(--c-black);
+    --color-text-secondary: var(--c-gray-700);
+    --color-text-muted: var(--c-gray-500);
+    --color-text-inverse: var(--c-white);
+
+    --color-bg-primary: var(--c-white);
+    --color-bg-secondary: var(--c-gray-50);
+    --color-bg-tertiary: var(--c-gray-100);
+    --color-surface: var(--c-gray-100);
+
+    --color-border: var(--c-gray-200);
+    --color-border-strong: var(--c-gray-700);
+
+    --color-muted: var(--c-gray-500);
+
+    --color-accent: var(--c-black);
+    --color-accent-hover: var(--c-gray-900);
+
+    /* === COLORS: Status (minimalist) === */
     --color-success: #16A34A;
+    --color-success-bg: #DCFCE7;
     --color-danger: #DC2626;
+    --color-danger-bg: #FEE2E2;
     --color-warning: #D97706;
+    --color-warning-bg: #FEF9C3;
+    --color-info: #0369A1;
+    --color-info-bg: #E0F2FE;
 
-    /* Border Radius */
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-pill: 100px;
+    /* === TYPOGRAPHY === */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-    /* Shadows */
-    --shadow-card: 0 1px 8px rgba(0,0,0,0.06);
-    --shadow-hover: 0 4px 16px rgba(0,0,0,0.10);
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+    --text-5xl: 3rem;
 
-    /* Typography */
-    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    
-    /* Z-index */
-    --z-drawer: 1000;
-    --z-modal-backdrop: 1040;
-    --z-modal: 1050;
-    --z-sticky: 100;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-black: 800;
+
+    --leading-tight: 1.15;
+    --leading-snug: 1.375;
+    --leading-normal: 1.6;
+
+    --tracking-tight: -0.025em;
+    --tracking-normal: 0;
+    --tracking-wide: 0.05em;
+    --tracking-wider: 0.1em;
+
+    /* === SPACING === */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-20: 5rem;
+    --space-24: 6rem;
+
+    /* === BORDER RADIUS === */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    --radius-2xl: 28px;
+    --radius-full: 9999px;
+
+    /* === SHADOWS === */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 1px 6px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+    /* === TRANSITIONS === */
+    --duration-fast: 120ms;
+    --duration-base: 200ms;
+    --duration-slow: 350ms;
+    --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+    /* === Z-INDEX === */
+    --z-header: 100;
+    --z-dropdown: 200;
+    --z-drawer: 300;
+    --z-modal: 400;
+    --z-toast: 500;
+
+    /* === LAYOUT === */
+    --container-max: 1280px;
+    --container-pad: clamp(1rem, 5vw, 2rem);
+    --header-height: 72px;
 }

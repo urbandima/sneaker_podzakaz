@@ -181,10 +181,11 @@ class ProductSize extends ActiveRecord
 
     /**
      * В наличии?
+     * Проверяет stock > 0 И is_available = true
      */
     public function inStock()
     {
-        return $this->stock > 0;
+        return $this->stock > 0 && $this->is_available;
     }
     
     /**

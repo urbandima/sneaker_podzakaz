@@ -8,8 +8,14 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\helpers\Json;
 use app\frontend\assets\ProductAsset;
-use app\helpers\ProductCardHelper;
-use app\helpers\ImageHelper;
+
+// Функция для склонения русских слов
+function pluralizeRu($number, $titles) {
+    $cases = [2, 0, 1, 1, 1];
+    return $titles[($number % 100 > 4 && $number % 100 < 20) ? 2 : $cases[min($number % 10, 5)]];
+}
+use app\backend\shared\helpers\ProductCardHelper;
+use app\backend\shared\helpers\ImageHelper;
 use app\backend\shared\components\SchemaOrgGenerator;
 
 // Регистрируем AssetBundle для страницы товара (все стили автоматически)
@@ -92,1481 +98,1337 @@ $this->params['image'] = $product->getMainImageUrl();
 $this->params['og:type'] = 'product';
 
 // ============================================
-// SCHEMA.ORG МИКРОРАЗМЕТКА (JSON-LD)
+// РАЗМЕРЫ И ЦЕНЫ
 // ============================================
-// Используем компонент SchemaOrgGenerator для генерации полной разметки
-echo SchemaOrgGenerator::render($product);
+
+$availableSizes = ProductCardHelper::getAvailableSizes($product);
+$selectedSize = $defaultSizeField;
+
+// Данные для sticky bar
+$priceData = [
+    'price' => $productPriceView['currentPrice'] ? number_format($productPriceView['currentPrice'], 0, '.', ' ') . ' BYN' : number_format($product->price, 0, '.', ' ') . ' BYN',
+    'oldPrice' => $productPriceView['oldPrice'] ? number_format($productPriceView['oldPrice'], 0, '.', ' ') . ' BYN' : null,
+    'discount' => $productPriceView['discountPercent'] ?? 0,
+    'selectedSize' => $selectedSize,
+    'availableSizes' => $availableSizes,
+    'productId' => $productId,
+    'productName' => $productTitle,
+    'productUrl' => $product->getMainImageUrl() ?? '',
+];
+
+// Schema.org разметка
+$schemaData = [
+    '@context' => 'https://schema.org',
+    '@type' => 'Product',
+    'name' => $productTitle,
+    'brand' => [
+        '@type' => 'Brand',
+        'name' => $product->brand?->name ?? ($product->brand_name ?? ''),
+    ],
+    'image' => array_column($galleryImages, 'url'),
+    'description' => $this->params['description'],
+    'offers' => [
+        '@type' => 'Offer',
+        'url' => Url::current(),
+        'priceCurrency' => 'BYN',
+        'price' => $productPriceView['currentPrice'] ?? $product->price,
+        'availability' => 'https://schema.org/InStock',
+    ],
+];
+
+$this->registerJs('window.productData = ' . Json::encode($priceData), \yii\web\View::POS_END);
+$this->registerJs('window.schemaData = ' . Json::encode($schemaData), \yii\web\View::POS_END);
+
+// Данные для JavaScript
+$this->registerJsVar('productData', $priceData);
+$this->registerJsVar('schemaData', $schemaData);
+
+// Подключение модальных окон
+$this->registerJsFile('/js/product-modals.js', [
+    'depends' => [ProductAsset::class],
+    'position' => \yii\web\View::POS_END,
+]);
+
+// Подключение лайтбокса
+$this->registerCssFile('https://cdn.jsdelivr.net/npm/lightbox2@2.11.4/dist/css/lightbox.min.css');
+$this->registerJsFile('https://cdn.jsdelivr.net/npm/lightbox2@2.11.4/dist/js/lightbox-plus-jquery.min.js', [
+    'position' => \yii\web\View::POS_END,
+]);
+
+// Инициализация Lightbox
+$this->registerJs("
+    lightbox.option({
+        'resizeDuration': 200,
+        'wrapAround': true,
+        'albumLabel': 'Фото %1 из %2'
+    });
+", \yii\web\View::POS_READY);
+
+// Инициализация галереи
+$this->registerJs("
+    // Инициализация галереи при загрузке
+    document.addEventListener('DOMContentLoaded', function() {
+        initProductGallery();
+        initSizeSelector();
+        initStickyPurchaseBar();
+    });
+", \yii\web\View::POS_READY);
+
+// Инициализация избранного
+$isFavorite = !empty($isFavorite) ? $isFavorite : false;
+$this->registerJsVar('isFavorite', $isFavorite);
+
+// Данные для похожих товаров
+$similarProductsData = [];
+if (!empty($similarProducts)) {
+    foreach ($similarProducts as $similar) {
+        $similarPrice = ProductCardHelper::calculatePriceView($similar, null, [], $defaultSizeField);
+        $similarProductsData[] = [
+            'id' => $similar->id,
+            'name' => $similar->name,
+            'price' => $similarPrice['currentPrice'] ? number_format($similarPrice['currentPrice'], 0, '.', ' ') . ' BYN' : number_format($similar->price, 0, '.', ' ') . ' BYN',
+            'oldPrice' => $similarPrice['oldPrice'] ? number_format($similarPrice['oldPrice'], 0, '.', ' ') . ' BYN' : null,
+            'discount' => $similarPrice['discountPercent'] ?? 0,
+            'image' => $similar->getMainImageUrl(),
+            'url' => Url::to(['/catalog/product', 'slug' => $similar->slug ?? $similar->id]),
+            'brand' => $similar->brand?->name ?? ($similar->brand_name ?? ''),
+        ];
+    }
+}
+$this->registerJsVar('similarProducts', $similarProductsData);
+
+// Отзывы
+$reviews = [];
+if (!empty($product->reviews)) {
+    foreach ($product->reviews as $review) {
+        $reviews[] = [
+            'id' => $review->id,
+            'author' => $review->author,
+            'rating' => $review->rating,
+            'text' => $review->text,
+            'date' => $review->created_at,
+            'helpful' => $review->helpful ?? 0,
+        ];
+    }
+}
+$this->registerJsVar('productReviews', $reviews);
+
+// Вопросы и ответы
+$questions = [];
+if (!empty($product->questions)) {
+    foreach ($product->questions as $question) {
+        $questions[] = [
+            'id' => $question->id,
+            'question' => $question->question,
+            'answer' => $question->answer,
+            'date' => $question->created_at,
+            'author' => $question->author ?? 'Гость',
+        ];
+    }
+}
+$this->registerJsVar('productQuestions', $questions);
+
+// Данные для видео
+$productVideo = null;
+if (!empty($product->video_url)) {
+    $productVideo = $product->video_url;
+}
+$this->registerJsVar('productVideo', $productVideo);
+
 ?>
 
-<!-- Индикатор "В корзине" -->
-<div class="product-in-cart-indicator" id="productInCartIndicator" title="Этот товар уже в вашей корзине! Нажмите для перехода в корзину">
-    <div class="indicator-content">
-        <i class="bi bi-cart-check-fill"></i>
-        <span class="indicator-text">В корзине</span>
-    </div>
-    <div class="indicator-hint">Нажмите для перехода</div>
-</div>
-
-<!-- Убран catalog-header - back-btn теперь в основном header -->
 <div class="product-page-optimized">
-    <div class="container product-container">
-        <nav class="breadcrumbs">
-            <a href="/">Главная</a> / 
-            <a href="/catalog">Каталог</a> / 
-            <?php if ($product->category ?? null): ?>
-            <a href="<?= $product->category->getUrl() ?>"><?= Html::encode($product->category->name) ?></a> /
-            <?php endif; ?>
-            <span><?= Html::encode($product->name) ?></span>
-        </nav>
+    <!-- Schema.org микроразметка для SEO -->
+    <script type="application/ld+json"><?= Json::encode($schemaData) ?></script>
 
-        <div class="product-layout">
-            <!-- Галерея с миниатюрами -->
-            <div class="product-gallery-wrapper">
-                <!-- Swipe Gallery для mobile + desktop -->
-                <div class="product-gallery-swipe">
-                    <?php if (count($galleryImages) > 1): ?>
-                    <button class="gallery-arrow prev" type="button" onclick="galleryPrevSlide()" aria-label="Предыдущее фото">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <button class="gallery-arrow next" type="button" onclick="galleryNextSlide()" aria-label="Следующее фото">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
-                    <?php endif; ?>
-                    <div class="swipe-track">
-                        <?php foreach ($galleryImages as $index => $image): ?>
-                        <div class="swipe-slide <?= $index === 0 ? 'active' : '' ?><?= $image['placeholder'] ? ' swipe-slide--placeholder' : '' ?>"
-                             data-index="<?= $index ?>"
-                             data-full-src="<?= Html::encode($image['url']) ?>"
-                             data-placeholder="<?= $image['placeholder'] ? '1' : '0' ?>"
-                             onclick="openImageModal(<?= $index ?>)">
-                            <img src="<?= Html::encode($image['url']) ?>"
-                                 alt="<?= Html::encode($image['alt']) ?>"
-                                 loading="<?= $index === 0 ? 'eager' : 'lazy' ?>"
-                                 <?= $index === 0 ? 'fetchpriority="high" decoding="async"' : 'decoding="async"' ?>>
-                            <div class="zoom-icon"><i class="bi bi-zoom-in"></i></div>
+    <!-- Хлебные крошки -->
+    <nav class="breadcrumb">
+        <a href="<?= Url::to(['/']) ?>">Главная</a>
+        <span class="breadcrumb-separator">/</span>
+        <a href="<?= Url::to(['/catalog']) ?>">Каталог</a>
+        <?php if ($product->category): ?>
+            <span class="breadcrumb-separator">/</span>
+            <a href="<?= Url::to(['/catalog/category', 'slug' => $product->category->slug]) ?>">
+                <?= Html::encode($product->category->name) ?>
+            </a>
+        <?php endif; ?>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current"><?= Html::encode($productTitle) ?></span>
+    </nav>
+
+    <!-- Основной контент товара -->
+    <div class="product-content">
+        <!-- Левая колонка - Галерея -->
+        <div class="product-gallery-section">
+            <?php if (count($galleryImages) > 1): ?>
+                <!-- Превью галереи -->
+                <div class="gallery-thumbnails">
+                    <?php foreach ($galleryImages as $idx => $img): ?>
+                        <div class="thumbnail-item <?= $idx === 0 ? 'active' : '' ?>" 
+                             onclick="changeMainImage('<?= $idx ?>')"
+                             data-index="<?= $idx ?>">
+                            <img src="<?= $img['url'] ?>" 
+                                 alt="<?= Html::encode($img['alt']) ?>"
+                                 loading="lazy">
                         </div>
-                        <?php endforeach; ?>
-                    </div>
-                    
-                    <?php if (count($galleryImages) > 1): ?>
-                    <div class="swipe-pagination">
-                        <?php foreach ($galleryImages as $index => $image): ?>
-                        <span class="swipe-dot <?= $index === 0 ? 'active' : '' ?>"></span>
-                        <?php endforeach; ?>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <button class="fav-btn <?= $isFavorite ? 'active' : '' ?>" onclick="toggleFav(event,<?= $product->id ?>)" aria-label="Добавить в избранное">
-                        <i class="bi bi-heart-fill"></i>
-                    </button>
+                    <?php endforeach; ?>
                 </div>
-                
-                <div class="gallery-zoom-view" id="galleryZoomView" aria-hidden="true">
-                    <div class="gallery-zoom-hint">
-                        <i class="bi bi-cursor"></i>
-                        Наведите курсор для увеличения
-                    </div>
-                </div>
-                
-                <!-- Миниатюры под галереей -->
-                <?php if (count($galleryImages) > 1): ?>
-                <div class="product-thumbnails-carousel">
-                    <button class="thumb-nav thumb-prev" onclick="scrollThumbnails('prev')" aria-label="Предыдущие миниатюры">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <div class="thumbnails-wrapper">
-                        <div class="thumbnails-track">
-                            <?php foreach ($galleryImages as $index => $image): ?>
-                            <div class="thumbnail-item <?= $index === 0 ? 'active' : '' ?>" 
-                                 data-index="<?= $index ?>" 
-                                 onclick="switchToSlide(<?= $index ?>)">
-                                <img src="<?= Html::encode($image['url']) ?>" 
-                                     alt="<?= Html::encode($image['alt']) ?>" 
-                                     loading="lazy">
+            <?php endif; ?>
+
+            <!-- Основное изображение -->
+            <div class="main-image-container">
+                <div class="main-image-wrapper">
+                    <?php if ($productVideo): ?>
+                        <!-- Видео превью -->
+                        <div class="video-preview" onclick="openVideoModal()">
+                            <img src="<?= $galleryImages[0]['url'] ?>" 
+                                 alt="<?= Html::encode($productTitle) ?>"
+                                 id="mainImage">
+                            <div class="video-play-button">
+                                <i class="bi bi-play-circle"></i>
+                                <span>Смотреть видео-обзор</span>
                             </div>
-                            <?php endforeach; ?>
                         </div>
+                    <?php else: ?>
+                        <!-- Обычное изображение -->
+                        <img src="<?= $galleryImages[0]['url'] ?>" 
+                             alt="<?= Html::encode($productTitle) ?>"
+                             id="mainImage"
+                             loading="eager">
+                    <?php endif; ?>
+                    
+                    <!-- Бейджи -->
+                    <div class="image-badges">
+                        <?php if ($productPriceView['discountPercent'] > 0): ?>
+                            <span class="badge discount">-<?= $productPriceView['discountPercent'] ?>%</span>
+                        <?php endif; ?>
+                        <?php if ($product->is_new ?? false): ?>
+                            <span class="badge new">Новинка</span>
+                        <?php endif; ?>
+                        <?php if ($product->is_hit ?? false): ?>
+                            <span class="badge hit">Хит</span>
+                        <?php endif; ?>
                     </div>
-                    <button class="thumb-nav thumb-next" onclick="scrollThumbnails('next')" aria-label="Следующие миниатюры">
-                        <i class="bi bi-chevron-right"></i>
+                </div>
+
+                <!-- Кнопки действий на изображении -->
+                <div class="image-actions">
+                    <button class="action-btn" onclick="toggleFavorite()" title="Добавить в избранное">
+                        <i class="bi <?= $isFavorite ? 'bi-heart-fill' : 'bi-heart' ?>"></i>
+                    </button>
+                    <button class="action-btn" onclick="shareProduct()" title="Поделиться">
+                        <i class="bi bi-share"></i>
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Правая колонка - Информация о товаре -->
+        <div class="product-info-section">
+            <!-- Бренд и артикул -->
+            <div class="product-meta">
+                <?php if ($product->brand): ?>
+                    <div class="brand-info">
+                        <img src="<?= $product->brand->logo_url ?? '' ?>" 
+                             alt="<?= Html::encode($product->brand->name) ?>"
+                             class="brand-logo"
+                             onerror="this.style.display='none'">
+                        <span class="brand-name"><?= Html::encode($product->brand->name) ?></span>
+                    </div>
+                <?php endif; ?>
+                
+                <div class="product-sku">
+                    Артикул: <?= $product->sku ?? $product->id ?>
+                </div>
+            </div>
+
+            <!-- Название товара -->
+            <h1 class="product-title"><?= Html::encode($productTitle) ?></h1>
+
+            <!-- Теги товара -->
+            <?= \app\frontend\widgets\ProductTagsWidget::widget([
+                'product' => $product,
+                'style' => 'chips',
+                'limit' => 5,
+                'showLinks' => true,
+                'containerClass' => 'product-tags--inline',
+            ]) ?>
+
+            <!-- Рейтинг и отзывы -->
+            <div class="product-rating-section">
+                <div class="rating-stars">
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <i class="bi bi-star<?= $i <= ($product->rating ?? 4) ? '-fill' : '' ?>"></i>
+                    <?php endfor; ?>
+                </div>
+                <span class="rating-value"><?= $product->rating ?? 4.5 ?></span>
+                <a href="#reviews" class="reviews-link">
+                    (<?= count($reviews) ?> <?= pluralizeRu(count($reviews), ['отзыв', 'отзыва', 'отзывов']) ?>)
+                </a>
+            </div>
+
+            <!-- Цена -->
+            <div class="product-price-section">
+                <div class="price-main">
+                    <span class="current-price"><?= $productPriceView['currentPrice'] ? number_format($productPriceView['currentPrice'], 0, '.', ' ') . ' BYN' : number_format($product->price, 0, '.', ' ') . ' BYN' ?></span>
+                    <?php if (!empty($productPriceView['oldPrice'])): ?>
+                        <span class="old-price"><?= number_format($productPriceView['oldPrice'], 0, '.', ' ') . ' BYN' ?></span>
+                    <?php endif; ?>
+                </div>
+                
+                <?php if (!empty($productPriceView['discountPercent'])): ?>
+                    <div class="discount-info">
+                        <span class="discount-badge">Скидка <?= $productPriceView['discountPercent'] ?>%</span>
+                        <span class="discount-description">
+                            Экономия: <?= Yii::$app->formatter->asCurrency($productPriceView['oldPrice'] - $productPriceView['currentPrice'], 'BYN') ?>
+                        </span>
+                    </div>
                 <?php endif; ?>
             </div>
 
-            <div class="product-details">
-                <?php if ($product->brand): ?>
-                <!-- Красивый блок бренда с логотипом -->
-                <div class="brand-block-premium">
-                    <a href="<?= $product->brand->getUrl() ?>" class="brand-card">
-                        <?php if ($product->brand->logo_url || $product->brand->logo): ?>
-                        <div class="brand-logo">
-                            <img src="<?= $product->brand->getLogoUrl() ?>" alt="<?= Html::encode($product->brand->name) ?>">
-                        </div>
-                        <?php endif; ?>
-                        <div class="brand-info">
-                            <span class="brand-name"><?= Html::encode($product->brand->name) ?></span>
-                            <span class="brand-count"><?= $product->brand->getProductsCount() ?> товаров</span>
-                        </div>
-                        <i class="bi bi-chevron-right brand-arrow"></i>
-                    </a>
+            <!-- Выбор размера -->
+            <div class="size-selector-section">
+                <div class="size-header">
+                    <h3>Выберите размер</h3>
+                    <button type="button" class="size-guide-btn" onclick="openSizeGuide()">
+                        <i class="bi bi-rulers"></i>
+                        Таблица размеров
+                    </button>
                 </div>
-                <?php endif; ?>
-                
-                <!-- Бейдж "под заказ" перед названием -->
-                <div class="custom-order-badge-container">
-                    <span class="custom-order-badge">
-                        <i class="bi bi-truck"></i>
-                        ПОД ЗАКАЗ
-                    </span>
-                </div>
-                
-                <h1><?= Html::encode($product->getDisplayTitle()) ?></h1>
 
-                <!-- Рейтинг -->
-                <?php if ($product->rating > 0): ?>
-                <div class="product-rating">
-                    <div class="stars-large">
-                        <?php 
-                        $fullStars = floor($product->rating);
-                        $hasHalf = ($product->rating - $fullStars) >= 0.5;
-                        for ($i = 0; $i < $fullStars; $i++): ?>
-                            <i class="bi bi-star-fill"></i>
-                        <?php endfor; ?>
-                        <?php if ($hasHalf): ?>
-                            <i class="bi bi-star-half"></i>
-                        <?php endif; ?>
-                        <?php for ($i = $fullStars + ($hasHalf ? 1 : 0); $i < 5; $i++): ?>
-                            <i class="bi bi-star"></i>
-                        <?php endfor; ?>
+                <div class="size-grid" id="sizeGrid">
+                    <?php foreach ($availableSizes as $size => $available): ?>
+                        <button type="button" 
+                                class="size-btn <?= !$available ? 'unavailable' : '' ?> <?= $size === $selectedSize ? 'active' : '' ?>"
+                                data-size="<?= $size ?>"
+                                data-available="<?= $available ? '1' : '0' ?>"
+                                onclick="selectSize('<?= $size ?>')"
+                                <?= !$available ? 'disabled' : '' ?>>
+                            <?= $size ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+
+                <div class="size-info">
+                    <div class="selected-size-display">
+                        Выбрано: <strong id="selectedSizeDisplay"><?= $selectedSize ?></strong>
                     </div>
-                    <span class="rating-score"><?= $product->rating ?></span>
-                    <a href="#reviews" class="reviews-link"><?= $product->reviews_count ?> отзывов</a>
+                    <div class="size-legend">
+                        <span class="legend-item available">● В наличии</span>
+                        <span class="legend-item unavailable">● Нет в наличии</span>
+                    </div>
                 </div>
-                <?php endif; ?>
+            </div>
 
-                <?php
-                    $priceDataAttributes = [
-                        'data-base-price' => $product->price,
-                        'data-has-range' => $productPriceView['showRange'] ? 'true' : 'false',
-                    ];
-                    if ($priceProductMin = $productPriceView['minPrice']) {
-                        $priceDataAttributes['data-min-price'] = $priceProductMin;
-                    }
-                    if ($priceProductMax = $productPriceView['maxPrice']) {
-                        $priceDataAttributes['data-max-price'] = $priceProductMax;
-                    }
-                    $priceAttrString = '';
-                    foreach ($priceDataAttributes as $attr => $value) {
-                        $priceAttrString .= sprintf(' %s="%s"', $attr, Html::encode($value));
-                    }
-                ?>
-                <div class="price-block">
-                    <?php if ($productPriceView['showOldPrice'] && $productPriceView['oldPrice'] !== null): ?>
-                        <span class="old"><?= Yii::$app->formatter->asCurrency($productPriceView['oldPrice'], ProductCardHelper::PRICE_CURRENCY) ?></span>
-                        <?php if ($productPriceView['discountPercent'] !== null): ?>
-                            <span class="disc">-<?= $productPriceView['discountPercent'] ?>%</span>
-                        <?php endif; ?>
-                    <?php endif; ?>
+            <!-- Кнопки покупки -->
+            <div class="purchase-actions">
+                <button type="button" 
+                        class="btn btn-primary btn-large add-to-cart-btn"
+                        onclick="addToCart()"
+                        id="addToCartBtn">
+                    <i class="bi bi-cart-plus"></i>
+                    <span>Добавить в корзину</span>
+                </button>
 
-                    <?php if ($productPriceView['showRange'] && $productPriceView['minPrice'] !== null && $productPriceView['maxPrice'] !== null): ?>
-                        <span class="current" id="productPrice"<?= $priceAttrString ?>>
-                            <?= Yii::$app->formatter->asCurrency($productPriceView['minPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
-                            <span class="price-separator"> - </span>
-                            <?= Yii::$app->formatter->asCurrency($productPriceView['maxPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
-                        </span>
-                    <?php else: ?>
-                        <span class="current" id="productPrice"<?= $priceAttrString ?>>
-                            <?= Yii::$app->formatter->asCurrency($productPriceView['currentPrice'] ?? $product->price, ProductCardHelper::PRICE_CURRENCY) ?>
-                        </span>
-                    <?php endif; ?>
+                <button type="button" 
+                        class="btn btn-secondary btn-large buy-one-click-btn"
+                        onclick="openOneClickModal()">
+                    <i class="bi bi-lightning"></i>
+                    <span>Купить в 1 клик</span>
+                </button>
+            </div>
+
+            <!-- Дополнительные услуги -->
+            <div class="additional-services">
+                <div class="service-item">
+                    <i class="bi bi-truck"></i>
+                    <div class="service-info">
+                        <strong>Быстрая доставка</strong>
+                        <span>Доставка по Минску - 1-2 дня</span>
+                    </div>
                 </div>
+                <div class="service-item">
+                    <i class="bi bi-shield-check"></i>
+                    <div class="service-info">
+                        <strong>Гарантия подлинности</strong>
+                        <span>100% оригинальная продукция</span>
+                    </div>
+                </div>
+                <div class="service-item">
+                    <i class="bi bi-arrow-return-left"></i>
+                    <div class="service-info">
+                        <strong>Возврат товара</strong>
+                        <span>14 дней на возврат</span>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Описание товара -->
+            <?php if (!empty($product->description)): ?>
+                <div class="product-description-section">
+                    <h3>Описание</h3>
+                    <div class="description-content">
+                        <?= $product->description ?>
+                    </div>
+                </div>
+            <?php endif; ?>
 
-                <?php if (!empty($product->sizes)): ?>
+            <!-- Характеристики -->
+            <?php if (!empty($product->attributes)): ?>
+                <div class="product-features-section">
+                    <h3>Характеристики</h3>
+                    <div class="features-grid">
+                        <?php foreach ($product->attributes as $key => $value): ?>
+                            <div class="feature-item">
+                                <span class="feature-name"><?= Html::encode($key) ?>:</span>
+                                <span class="feature-value"><?= Html::encode($value) ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Sticky Purchase Bar -->
+    <div class="sticky-purchase-bar" id="stickyBar">
+        <div class="sticky-content">
+            <div class="sticky-product-info">
+                <img src="<?= $galleryImages[0]['url'] ?>" alt="<?= Html::encode($productTitle) ?>">
+                <div class="sticky-details">
+                    <div class="sticky-title"><?= Html::encode($productTitle) ?></div>
+                    <div class="sticky-price"><?= $productPriceView['currentPrice'] ? number_format($productPriceView['currentPrice'], 0, '.', ' ') . ' BYN' : number_format($product->price, 0, '.', ' ') . ' BYN' ?></div>
+                </div>
+            </div>
+
+            <div class="sticky-size-selector">
+                <button type="button" 
+                        class="sticky-size-btn"
+                        id="stickySizeBtn"
+                        onclick="toggleStickySizeDropdown()">
+                    <span id="stickySizeDisplay"><?= $selectedSize ?></span>
+                    <i class="bi bi-chevron-down"></i>
+                </button>
                 
-                <div class="sizes-section">
-                    <div class="size-header">
-                        <h3>Выберите размер</h3>
-                        <button class="btn-size-guide" onclick="openSizeTableModal()">
-                            <i class="bi bi-table"></i>
-                            Таблица размеров
+                <div class="sticky-size-dropdown" id="stickySizeDropdown">
+                    <?php foreach ($availableSizes as $size => $available): ?>
+                        <button type="button" 
+                                class="sticky-size-option <?= !$available ? 'unavailable' : '' ?>"
+                                data-size="<?= $size ?>"
+                                onclick="selectStickySize('<?= $size ?>')"
+                                <?= !$available ? 'disabled' : '' ?>>
+                            <?= $size ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <div class="sticky-actions">
+                <button type="button" 
+                        class="btn btn-primary sticky-add-cart"
+                        onclick="addToCart()">
+                    В корзину
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Доставка и гарантии -->
+    <div class="delivery-guarantee-section">
+        <div class="delivery-grid">
+            <div class="delivery-item">
+                <i class="bi bi-truck"></i>
+                <h4>Доставка</h4>
+                <ul>
+                    <li>По Минску - 1-2 дня</li>
+                    <li>По Беларуси - 3-5 дней</li>
+                    <li>Самовывоз - сегодня</li>
+                </ul>
+            </div>
+            <div class="delivery-item">
+                <i class="bi bi-shield-check"></i>
+                <h4>Гарантии</h4>
+                <ul>
+                    <li>100% подлинность</li>
+                    <li>14 дней на возврат</li>
+                    <li>Сертификаты качества</li>
+                </ul>
+            </div>
+            <div class="delivery-item">
+                <i class="bi bi-credit-card"></i>
+                <h4>Оплата</h4>
+                <ul>
+                    <li>Картой онлайн</li>
+                    <li>При получении</li>
+                    <li>Рассрочка</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладки с информацией -->
+    <div class="product-tabs-section">
+        <div class="tabs-header">
+            <button class="tab-btn active" data-tab="description">Описание</button>
+            <button class="tab-btn" data-tab="features">Характеристики</button>
+            <button class="tab-btn" data-tab="reviews">Отзывы (<?= count($reviews) ?>)</button>
+            <button class="tab-btn" data-tab="questions">Вопросы (<?= count($questions) ?>)</button>
+        </div>
+
+        <div class="tabs-content">
+            <!-- Описание -->
+            <div class="tab-pane active" id="description-tab">
+                <div class="tab-content-inner">
+                    <?php if (!empty($product->description)): ?>
+                        <?= $product->description ?>
+                    <?php else: ?>
+                        <p>Подробное описание товара появится в ближайшее время.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Характеристики -->
+            <div class="tab-pane" id="features-tab">
+                <div class="tab-content-inner">
+                    <?php if (!empty($product->attributes)): ?>
+                        <div class="features-table">
+                            <?php foreach ($product->attributes as $key => $value): ?>
+                                <div class="feature-row">
+                                    <div class="feature-name"><?= Html::encode($key) ?></div>
+                                    <div class="feature-value"><?= Html::encode($value) ?></div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <p>Характеристики товара будут добавлены в ближайшее время.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Отзывы -->
+            <div class="tab-pane" id="reviews-tab">
+                <div class="tab-content-inner">
+                    <?php if (!empty($reviews)): ?>
+                        <div class="reviews-summary">
+                            <div class="rating-overview">
+                                <div class="rating-large"><?= $product->rating ?? 4.5 ?></div>
+                                <div class="rating-stars-large">
+                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                        <i class="bi bi-star<?= $i <= ($product->rating ?? 4) ? '-fill' : '' ?>"></i>
+                                    <?php endfor; ?>
+                                </div>
+                                <div class="reviews-count"><?= count($reviews) ?> <?= pluralizeRu(count($reviews), ['отзыв', 'отзыва', 'отзывов']) ?></div>
+                            </div>
+                            <button class="btn btn-primary" onclick="openReviewModal()">
+                                <i class="bi bi-pencil"></i>
+                                Написать отзыв
+                            </button>
+                        </div>
+
+                        <div class="reviews-list">
+                            <?php foreach ($reviews as $review): ?>
+                                <div class="review-item">
+                                    <div class="review-header">
+                                        <div class="review-author"><?= Html::encode($review['author']) ?></div>
+                                        <div class="review-date"><?= date('d.m.Y', strtotime($review['date'])) ?></div>
+                                    </div>
+                                    <div class="review-rating">
+                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                            <i class="bi bi-star<?= $i <= $review['rating'] ? '-fill' : '' ?>"></i>
+                                        <?php endfor; ?>
+                                    </div>
+                                    <div class="review-text"><?= Html::encode($review['text']) ?></div>
+                                    <div class="review-actions">
+                                        <button class="btn-link" onclick="markHelpful(<?= $review['id'] ?>)">
+                                            Полезно (<?= $review['helpful'] ?>)
+                                        </button>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="no-reviews">
+                            <i class="bi bi-chat-square-text"></i>
+                            <h3>Отзывов пока нет</h3>
+                            <p>Будьте первым, кто оставит отзыв об этом товаре!</p>
+                            <button class="btn btn-primary" onclick="openReviewModal()">
+                                <i class="bi bi-pencil"></i>
+                                Написать отзыв
+                            </button>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Вопросы и ответы -->
+            <div class="tab-pane" id="questions-tab">
+                <div class="tab-content-inner">
+                    <div class="questions-header">
+                        <h3>Вопросы о товаре</h3>
+                        <button class="btn btn-primary" onclick="openQuestionModal()">
+                            <i class="bi bi-question-circle"></i>
+                            Задать вопрос
                         </button>
                     </div>
-                    
-                    
-                    <!-- Быстрый выбор размера -->
-                    <div class="sizes-quick-select">
-                        <div class="size-system-tabs">
-                            <button class="size-tab active" data-system="eu" onclick="switchSizeSystem('eu')">EU</button>
-                            <button class="size-tab" data-system="us" onclick="switchSizeSystem('us')">US</button>
-                            <button class="size-tab" data-system="uk" onclick="switchSizeSystem('uk')">UK</button>
-                            <button class="size-tab" data-system="cm" onclick="switchSizeSystem('cm')">CM</button>
-                        </div>
-                        <div class="sizes" id="sizesContainer">
-                            <?php foreach ($product->availableSizes as $size): 
-                                $priceByn = $size->getPriceByn();
-                                $inStock = $size->inStock();
-                                
-                                // Формируем tooltip с размерами в разных системах
-                                $sizeTooltip = [];
-                                if (!empty($size->eu_size)) $sizeTooltip[] = 'EU: ' . $size->eu_size;
-                                if (!empty($size->us_size)) $sizeTooltip[] = 'US: ' . $size->us_size;
-                                if (!empty($size->uk_size)) $sizeTooltip[] = 'UK: ' . $size->uk_size;
-                                if (!empty($size->cm_size)) $sizeTooltip[] = 'CM: ' . $size->cm_size;
-                                $tooltipText = !empty($sizeTooltip) ? implode(' | ', $sizeTooltip) : '';
-                            ?>
-                                <label class="size-compact <?= !$inStock ? 'disabled' : '' ?>" 
-                                       data-eu="<?= Html::encode($size->eu_size ?: $size->size) ?>"
-                                       data-us="<?= Html::encode($size->us_size ?: $size->eu_size ?: $size->size) ?>"
-                                       data-uk="<?= Html::encode($size->uk_size ?: $size->eu_size ?: $size->size) ?>"
-                                       data-cm="<?= Html::encode($size->cm_size ?: $size->eu_size ?: $size->size) ?>"
-                                       data-price="<?= $priceByn ?>"
-                                       <?php if ($tooltipText): ?>
-                                       data-size-tooltip="<?= Html::encode($tooltipText) ?>"
-                                       <?php endif; ?>>
-                                    <input type="radio" name="size" value="<?= $size->size ?>" 
-                                           data-price="<?= $priceByn ?>" 
-                                           <?= !$inStock ? 'disabled' : '' ?>>
-                                    <span class="size-value">
-                                        <?= Html::encode($size->eu_size ?: $size->size) ?>
-                                    </span>
-                                </label>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                    <!-- Ссылка на каталог с выбранным размером -->
-                    <div class="selected-size-link" id="selectedSizeLink">
-                        <i class="bi bi-box-seam"></i>
-                        <span>Смотреть другие товары размера <strong id="selectedSizeValue"></strong> →</span>
-                    </div>
-                </div>
-                <?php endif; ?>
 
-
-                <!-- Stock Info (без fake данных) -->
-                <?php if ($product->isInStock() && isset($product->stock_quantity) && $product->stock_quantity > 0 && $product->stock_quantity <= 10): ?>
-                <div class="stock-urgency">
-                    <div class="stock-left">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        <span>Осталось только <strong><?= $product->stock_quantity ?> шт.</strong> в наличии</span>
-                    </div>
-                </div>
-                <?php endif; ?>
-
-                <!-- Кнопки действий -->
-                <div class="action-buttons">
-                    <button class="btn-order primary" onclick="createOrder()">
-                        <i class="bi bi-cart-plus"></i> В корзину
-                    </button>
-                    <button class="btn-order secondary" onclick="openQuickOrderModal()">
-                        <i class="bi bi-lightning-charge-fill"></i> Купить в 1 клик
-                    </button>
-                </div>
-
-                <!-- Telegram поддержка -->
-                <a href="https://t.me/sneakerheadbyweb_bot" target="_blank" class="telegram-support">
-                    <i class="bi bi-telegram"></i>
-                    <span>Есть вопросы? Напишите нам в Telegram</span>
-                    <i class="bi bi-arrow-right"></i>
-                </a>
-
-
-
-            </div>
-        </div>
-
-        <!-- Объединенный блок аутентичности и доверия (перед аккордеонами) -->
-        <div class="product-trust-section">
-            <div class="authenticity-main">
-                <div class="auth-icon">
-                    <i class="bi bi-shield-fill-check"></i>
-                </div>
-                <div class="auth-info">
-                    <div class="auth-title">100% ОРИГИНАЛ</div>
-                    <div class="auth-subtitle">Проверено экспертами</div>
-                </div>
-            </div>
-            
-            <div class="trust-badges">
-                <div class="badge-item">
-                    <i class="bi bi-shield-check"></i>
-                    <span>Защищенный платеж</span>
-                </div>
-                <div class="badge-item">
-                    <i class="bi bi-patch-check"></i>
-                    <span>Гарантия качества</span>
-                </div>
-                <div class="badge-item">
-                    <i class="bi bi-star-fill"></i>
-                    <span><?= number_format($product->rating ?? 0, 1) ?>/5 рейтинг</span>
-                </div>
-            </div>
-        </div>
-
-        <?php
-        $decodedProperties = [];
-        if (!empty($product->properties)) {
-            $decodedProperties = json_decode($product->properties, true);
-            if (!is_array($decodedProperties)) {
-                $decodedProperties = [];
-            }
-        }
-
-        $specsCount = 0;
-        if ($product->brand) {
-            $specsCount++;
-        }
-        if (!empty($product->category)) {
-            $specsCount++;
-        }
-        if ($product->series_name) {
-            $specsCount++;
-        }
-        if ($product->style_code) {
-            $specsCount++;
-        }
-        if (!empty($product->gender)) {
-            $specsCount++;
-        }
-        if (!empty($product->season)) {
-            $specsCount++;
-        }
-        if ($product->country || $product->country_of_origin) {
-            $specsCount++;
-        }
-        if ($product->release_year) {
-            $specsCount++;
-        }
-        if ($product->weight) {
-            $specsCount++;
-        }
-        if (!empty($product->material)) {
-            $specsCount++;
-        }
-        if (!empty($product->fastening)) {
-            $specsCount++;
-        }
-        if (!empty($product->height)) {
-            $specsCount++;
-        }
-        if (!empty($decodedProperties)) {
-            foreach ($decodedProperties as $prop) {
-                if (!empty($prop['key']) && !empty($prop['value'])) {
-                    $specsCount++;
-                }
-            }
-        }
-
-        $reviewsCount = !empty($product->reviews) ? count($product->reviews) : (int)($product->reviews_count ?? 0);
-        $qaCount = !empty($product->questions) ? count($product->questions) : 0;
-
-        $pluralizeRu = static function (int $number, array $forms): string {
-            $number = abs($number) % 100;
-            $n1 = $number % 10;
-
-            if ($number > 10 && $number < 20) {
-                return $forms[2];
-            }
-
-            if ($n1 > 1 && $n1 < 5) {
-                return $forms[1];
-            }
-
-            if ($n1 === 1) {
-                return $forms[0];
-            }
-
-            return $forms[2];
-        };
-        ?>
-
-        <!-- Характеристики товара -->
-        <div class="product-specs-section premium-accordion">
-            <div class="premium-accordion-header specs-header-toggle" onclick="toggleMainSpecs()">
-                <h2>
-                    <span class="accordion-icon"></span>
-                    Характеристики
-                    <?php if ($specsCount > 0): ?>
-                    <span class="premium-accordion-count">
-                        (<?= $specsCount ?> <?= $pluralizeRu($specsCount, ['характеристика', 'характеристики', 'характеристик']) ?>)
-                    </span>
-                    <?php endif; ?>
-                </h2>
-                <i class="bi bi-chevron-down toggle-icon" id="mainSpecsToggleIcon"></i>
-            </div>
-            <div class="premium-accordion-content" id="mainSpecsContent">
-
-                <!-- Основная информация -->
-                <div class="spec-section">
-                    <h3>Основная информация</h3>
-                    <table class="specs-table">
-                        <?php if ($product->brand): ?>
-                        <tr>
-                            <td class="spec-label">Бренд:</td>
-                            <td class="spec-value">
-                                <a href="<?= $product->brand->getUrl() ?>"><?= Html::encode($product->brand->name) ?></a>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                        <tr>
-                            <td class="spec-label">Категория:</td>
-                            <td class="spec-value">
-                                <a href="<?= $product->category->getUrl() ?>"><?= Html::encode($product->category->name) ?></a>
-                            </td>
-                        </tr>
-                        <?php if ($product->series_name): ?>
-                        <tr>
-                            <td class="spec-label">Серия:</td>
-                            <td class="spec-value"><?= Html::encode($product->series_name) ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        <?php if ($product->style_code): ?>
-                        <tr>
-                            <td class="spec-label">Артикул:</td>
-                            <td class="spec-value"><code><?= Html::encode($product->style_code) ?></code></td>
-                        </tr>
-                        <?php endif; ?>
-                        <?php if (!empty($product->gender)): ?>
-                        <tr>
-                            <td class="spec-label">Пол:</td>
-                            <td class="spec-value">
-                                <?php 
-                                $genderLabels = [
-                                    'male' => 'Мужское',
-                                    'female' => 'Женское',
-                                    'unisex' => 'Унисекс'
-                                ];
-                                echo $genderLabels[$product->gender] ?? Html::encode($product->gender);
-                                ?>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                        <?php if (!empty($product->season)): ?>
-                        <tr>
-                            <td class="spec-label">Сезон:</td>
-                            <td class="spec-value">
-                                <?php 
-                                $seasonTranslations = [
-                                    'summer' => 'Лето',
-                                    'winter' => 'Зима',
-                                    'spring' => 'Весна',
-                                    'autumn' => 'Осень',
-                                    'fall' => 'Осень',
-                                    'all-season' => 'Всесезонная',
-                                    'demi-season' => 'Демисезон',
-                                    'demi' => 'Демисезон',
-                                ];
-                                echo Html::encode($seasonTranslations[strtolower($product->season)] ?? $product->season);
-                                ?>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                        <?php if ($product->country || $product->country_of_origin): ?>
-                        <tr>
-                            <td class="spec-label">Страна производства:</td>
-                            <td class="spec-value"><?= Html::encode($product->country ?: $product->country_of_origin) ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        <?php if ($product->release_year): ?>
-                        <tr>
-                            <td class="spec-label">Дата релиза:</td>
-                            <td class="spec-value"><?= $product->release_year ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        <?php if ($product->weight): ?>
-                        <tr>
-                            <td class="spec-label">Вес:</td>
-                            <td class="spec-value"><?= $product->weight ?> г</td>
-                        </tr>
-                        <?php endif; ?>
-                    </table>
-                </div>
-
-                <!-- Материалы и конструкция -->
-                <?php if (!empty($product->material) || !empty($product->fastening) || !empty($product->height)): ?>
-                <div class="spec-section">
-                    <h3>Материалы и конструкция</h3>
-                    <table class="specs-table">
-                        <?php if (!empty($product->material)): ?>
-                        <tr>
-                            <td class="spec-label">Материал:</td>
-                            <td class="spec-value"><?= Html::encode($product->material) ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        <?php if (!empty($product->fastening)): ?>
-                        <tr>
-                            <td class="spec-label">Тип застежки:</td>
-                            <td class="spec-value">
-                                <?php 
-                                $fasteningTranslations = [
-                                    'lace-up' => 'Шнуровка',
-                                    'laces' => 'Шнуровка',
-                                    'velcro' => 'Липучка',
-                                    'zipper' => 'Молния',
-                                    'buckle' => 'Пряжка',
-                                    'slip-on' => 'Без застежки',
-                                    'elastic' => 'Резинка',
-                                    'hook-and-loop' => 'Липучка',
-                                ];
-                                echo Html::encode($fasteningTranslations[strtolower($product->fastening)] ?? $product->fastening);
-                                ?>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                        <?php if (!empty($product->height)): ?>
-                        <tr>
-                            <td class="spec-label">Высота:</td>
-                            <td class="spec-value">
-                                <?php 
-                                $heightTranslations = [
-                                    'low' => 'Низкие',
-                                    'mid' => 'Средние',
-                                    'high' => 'Высокие',
-                                    'ankle' => 'По щиколотку',
-                                    'knee' => 'До колена',
-                                    'over-knee' => 'Выше колена',
-                                ];
-                                echo Html::encode($heightTranslations[strtolower($product->height)] ?? $product->height);
-                                ?>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                    </table>
-                </div>
-                <?php endif; ?>
-
-                <?php 
-                // Дополнительные характеристики из Poizon properties
-                if (!empty($decodedProperties)):
-                ?>
-                <div class="spec-section">
-                    <h3>Дополнительные характеристики</h3>
-                    <table class="specs-table">
-                        <?php 
-                        foreach ($decodedProperties as $prop):
-                            $key = $prop['key'] ?? '';
-                            $value = $prop['value'] ?? '';
-                            if ($key && $value):
-                        ?>
-                        <tr>
-                            <td class="spec-label"><?= Html::encode($key) ?>:</td>
-                            <td class="spec-value"><?= Html::encode($value) ?></td>
-                        </tr>
-                        <?php 
-                            endif;
-                        endforeach;
-                        ?>
-                    </table>
-                </div>
-                <?php 
-                endif;
-                ?>
-            </div>
-        </div>
-        
-        <!-- Описание товара (Аккордеон) -->
-        <?php if ($product->description): ?>
-        <div class="product-description-section">
-            <div class="desc-header" onclick="toggleDescription()">
-                <h2>Описание товара</h2>
-                <i class="bi bi-chevron-down" id="descToggleIcon"></i>
-            </div>
-            <div class="desc-content" id="descContent">
-                <p><?= nl2br(Html::encode($product->description)) ?></p>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Похожие товары - карусель -->
-        <?php
-        // Все похожие товары уже получены из контроллера через ProductRepository
-        // с многоуровневой стратегией поиска (related_products, series_name, brand+category, etc)
-        ?>
-        
-        <!-- Показываем блок только если есть товары -->
-        <?php if (!empty($similarProducts)): ?>
-        <?php $relatedSizeField = ProductCardHelper::resolveSizeField(ProductCardHelper::DEFAULT_SIZE_SYSTEM); ?>
-        
-        <div class="related-products-section">
-            <div class="related-header active" onclick="toggleRelatedProducts()">
-                <h2>
-                    <span>🛍️</span>
-                    Похожие товары
-                    <span class="related-count">(<?= count($similarProducts) ?>)</span>
-                </h2>
-                <i class="bi bi-chevron-down toggle-icon" id="relatedToggleIcon"></i>
-            </div>
-            <div class="related-content" id="relatedContent">
-                <div class="related-carousel">
-                    <button class="carousel-nav-btn prev" onclick="scrollRelatedCarousel(-1)" aria-label="Предыдущий товар">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    
-                    <div class="carousel-wrapper" id="relatedCarouselWrapper">
-                        <div class="carousel-track">
-                            <?php foreach ($similarProducts as $item): 
-                                $priceView = ProductCardHelper::calculatePriceView($item, null, [], $relatedSizeField);
-                                $showRange = $priceView['showRange'] && $priceView['minPrice'] !== null && $priceView['maxPrice'] !== null;
-                            ?>
-                            <a href="<?= $item->getUrl() ?>" class="related-product-card">
-                                <div class="related-product-image">
-                                    <img src="<?= $item->getMainImageUrl() ?>" 
-                                         alt <?= Html::encode($item->name) ?> 
-                                         loading="lazy">
-                                    <?php if ($priceView['discountPercent'] !== null): ?>
-                                        <span class="related-discount-badge">-<?= $priceView['discountPercent'] ?>%</span>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="related-product-info">
-                                    <?php if ($item->brand): ?>
-                                        <div class="related-brand"><?= Html::encode($item->brand->name) ?></div>
-                                    <?php endif; ?>
-                                    <div class="related-product-name"><?= Html::encode($item->name) ?></div>
-                                    <?php if ($showRange): ?>
-                                        <div class="related-price-range">
-                                            <span class="related-price-from">
-                                                от <?= Yii::$app->formatter->asCurrency($priceView['minPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
-                                            </span>
-                                            <span class="related-price-to">
-                                                до <?= Yii::$app->formatter->asCurrency($priceView['maxPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
-                                            </span>
+                    <?php if (!empty($questions)): ?>
+                        <div class="questions-list">
+                            <?php foreach ($questions as $question): ?>
+                                <div class="question-item">
+                                    <div class="question-header">
+                                        <div class="question-author"><?= Html::encode($question['author']) ?></div>
+                                        <div class="question-date"><?= date('d.m.Y', strtotime($question['date'])) ?></div>
+                                    </div>
+                                    <div class="question-text">
+                                        <strong>Вопрос:</strong> <?= Html::encode($question['question']) ?>
+                                    </div>
+                                    <?php if (!empty($question['answer'])): ?>
+                                        <div class="answer-text">
+                                            <strong>Ответ:</strong> <?= Html::encode($question['answer']) ?>
                                         </div>
                                     <?php else: ?>
-                                        <div class="related-price-block">
-                                            <?php if ($priceView['showOldPrice'] && $priceView['oldPrice'] !== null): ?>
-                                                <span class="related-old-price">
-                                                    <?= Yii::$app->formatter->asCurrency($priceView['oldPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
-                                                </span>
-                                            <?php endif; ?>
-                                            <span class="related-price">
-                                                <?= Yii::$app->formatter->asCurrency($priceView['currentPrice'] ?? $item->price, ProductCardHelper::PRICE_CURRENCY) ?>
-                                            </span>
+                                        <div class="answer-pending">
+                                            <i class="bi bi-clock"></i>
+                                            Ожидает ответа от администратора
                                         </div>
                                     <?php endif; ?>
                                 </div>
-                            </a>
                             <?php endforeach; ?>
                         </div>
-                    </div>
-                    
-                    <button class="carousel-nav-btn next" onclick="scrollRelatedCarousel(1)" aria-label="Следующий товар">
+                    <?php else: ?>
+                        <div class="no-questions">
+                            <i class="bi bi-question-circle"></i>
+                            <h3>Вопросов пока нет</h3>
+                            <p>Задайте первый вопрос о этом товаре!</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Похожие товары -->
+    <?php if (!empty($similarProducts)): ?>
+        <div class="similar-products-section">
+            <div class="section-header">
+                <h2>Похожие товары</h2>
+                <div class="carousel-controls">
+                    <button class="carousel-btn prev" onclick="slideSimilarProducts('prev')">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button class="carousel-btn next" onclick="slideSimilarProducts('next')">
                         <i class="bi bi-chevron-right"></i>
                     </button>
                 </div>
             </div>
-        </div>
-        <?php endif; ?>
 
-        <!-- Отзывы покупателей -->
-        <div class="reviews-enhanced premium-accordion" id="reviews">
-            <div class="premium-accordion-header reviews-header" onclick="toggleReviews()">
-                <h2>
-                    <span class="accordion-icon">💬</span>
-                    Отзывы покупателей
-                    <span class="premium-accordion-count">
-                        <?php if ($reviewsCount > 0): ?>
-                            (<?= $reviewsCount ?> <?= $pluralizeRu($reviewsCount, ['отзыв', 'отзыва', 'отзывов']) ?>)
-                        <?php else: ?>
-                            Будьте первым
-                        <?php endif; ?>
-                    </span>
-                </h2>
-                <i class="bi bi-chevron-down toggle-icon" id="reviewsToggleIcon"></i>
-            </div>
-            <div class="premium-accordion-content reviews-list" id="reviewsContent">
-                <?php if (!empty($product->reviews) && count($product->reviews) > 0): ?>
-                    <?php foreach ($product->reviews as $review): ?>
-                    <div class="review-item<?= $review->is_verified ? ' verified' : '' ?>">
-                        <div class="review-header-row">
-                            <div class="reviewer-avatar"><?= strtoupper(mb_substr($review->name, 0, 2)) ?></div>
-                            <div class="reviewer-info">
-                                <div class="reviewer-name"><?= Html::encode($review->name) ?></div>
-                                <?php if ($review->is_verified): ?>
-                                <div class="reviewer-badge">✓ Проверенная покупка</div>
-                                <?php endif; ?>
+            <div class="similar-products-carousel" id="similarProductsCarousel">
+                <div class="carousel-track">
+                    <?php foreach ($similarProducts as $similar): ?>
+                        <?php $similarPrice = ProductCardHelper::calculatePriceView($similar, null, [], $defaultSizeField); ?>
+                        <div class="similar-product-card">
+                            <div class="product-image">
+                                <a href="<?= Url::to(['/catalog/product', 'slug' => $similar->slug ?? $similar->id]) ?>">
+                                    <img src="<?= $similar->getMainImageUrl() ?>" 
+                                         alt="<?= Html::encode($similar->name) ?>"
+                                         loading="lazy">
+                                </a>
                             </div>
-                            <div class="review-date"><?= Yii::$app->formatter->asRelativeTime($review->created_at) ?></div>
-                        </div>
-                        <div class="review-rating-stars"><?= str_repeat('<i class="bi bi-star-fill"></i>', $review->rating) ?></div>
-                        <div class="review-text"><?= Html::encode($review->content) ?></div>
-                    </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="placeholder-content">
-                        <i class="bi bi-chat-left-text placeholder-icon"></i>
-                        <h3>Отзывов пока нет</h3>
-                        <p>Будьте первым, кто оставит отзыв о этом товаре</p>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <!-- Q&A раздел -->
-        <div class="community-qa premium-accordion">
-            <div class="premium-accordion-header qa-header" onclick="toggleQA()">
-                <h2>
-                    <span class="accordion-icon">❓</span>
-                    Вопросы и ответы
-                    <span class="premium-accordion-count">
-                        <?php if ($qaCount > 0): ?>
-                            (<?= $qaCount ?> <?= $pluralizeRu($qaCount, ['вопрос', 'вопроса', 'вопросов']) ?>)
-                        <?php else: ?>
-                            Вопросов пока нет
-                        <?php endif; ?>
-                    </span>
-                </h2>
-                <i class="bi bi-chevron-down toggle-icon" id="qaToggleIcon"></i>
-            </div>
-            <div class="premium-accordion-content qa-list" id="qaContent">
-                <?php if (!empty($product->questions) && count($product->questions) > 0): ?>
-                    <?php foreach ($product->questions as $question): ?>
-                    <div class="qa-item">
-                        <div class="question">
-                            <i class="bi bi-question-circle-fill"></i>
-                            <span><?= Html::encode($question->question) ?></span>
-                        </div>
-                        <?php if ($question->answer): ?>
-                        <div class="answer">
-                            <i class="bi bi-chat-left-text-fill"></i>
-                            <div class="answer-text"><?= Html::encode($question->answer) ?></div>
-                            <div class="answer-meta">
-                                <span class="answer-author">СНИКЕРХЭД</span>
+                            <div class="product-info">
+                                <div class="product-brand"><?= Html::encode($similar->brand?->name ?? '') ?></div>
+                                <h3 class="product-name">
+                                    <a href="<?= Url::to(['/catalog/product', 'slug' => $similar->slug ?? $similar->id]) ?>">
+                                        <?= Html::encode($similar->name) ?>
+                                    </a>
+                                </h3>
+                                <div class="product-price">
+                                    <span class="current-price"><?= $similarPrice['currentPrice'] ? number_format($similarPrice['currentPrice'], 0, '.', ' ') . ' BYN' : number_format($similar->price, 0, '.', ' ') . ' BYN' ?></span>
+                                    <?php if (!empty($similarPrice['oldPrice'])): ?>
+                                        <span class="old-price"><?= number_format($similarPrice['oldPrice'], 0, '.', ' ') . ' BYN' ?></span>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
-                        <?php endif; ?>
-                    </div>
                     <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="placeholder-content">
-                        <i class="bi bi-question-circle placeholder-icon"></i>
-                        <h3>Вопросов пока нет</h3>
-                        <p>Задайте первый вопрос о этом товаре</p>
-                    </div>
-                <?php endif; ?>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Sticky Purchase Bar удалён - используется улучшенная версия ниже -->
-
-<!-- Premium Image Gallery Modal -->
-<div class="image-gallery-modal" id="imageGalleryModal">
-    <div class="gallery-modal-content">
-        <button class="gallery-close" onclick="closeImageGallery()">
-            <i class="bi bi-x-lg"></i>
-        </button>
-        
-        <div class="gallery-scroll-container">
-            <?php if (!empty($product->images)): ?>
-                <?php foreach ($product->images as $index => $img): ?>
-                <div class="gallery-image-item" data-index="<?= $index ?>">
-                    <img src="<?= $img->getUrl() ?>" alt="<?= Html::encode($product->name) ?> - фото <?= $index + 1 ?>" loading="lazy">
-                </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <div class="gallery-image-item" data-index="0">
-                    <img src="<?= $product->getMainImageUrl() ?>" alt="<?= Html::encode($product->name) ?>">
-                </div>
-            <?php endif; ?>
-        </div>
-        
-        <div class="gallery-counter">
-            <span class="gallery-current">1</span> / <span class="gallery-total"><?= !empty($product->images) ? count($product->images) : 1 ?></span>
-        </div>
-    </div>
-</div>
-
-<!-- Size Guide Modal -->
-<div class="size-guide-modal" id="sizeGuideModal">
-    <div class="size-guide-content">
-        <button class="size-guide-close" onclick="closeSizeGuide()">✕</button>
-        
-        <h2>📏 Таблица размеров</h2>
-        
-        <div class="size-calculator">
-            <h3>Подобрать размер</h3>
-            <p class="size-help">Измерьте длину стопы от пятки до кончика большого пальца</p>
-            <div class="calc-input">
-                <label>Длина стопы (см):</label>
-                <input type="number" id="footLength" placeholder="26.5" step="0.1" min="20" max="35">
-                <button onclick="recommendSize()">
-                    <i class="bi bi-calculator"></i>
-                    Рекомендовать
-                </button>
-            </div>
-            <div class="calc-result" id="sizeRecommendation"></div>
-        </div>
-        
-        <table class="size-table">
-            <thead>
-                <tr>
-                    <th>RU/EU</th>
-                    <th>US</th>
-                    <th>UK</th>
-                    <th>CM</th>
-                    <th>Наличие</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php 
-                $sizeChart = [
-                    ['ru' => 38, 'us' => 6, 'uk' => 5, 'cm' => 24.0],
-                    ['ru' => 39, 'us' => 6.5, 'uk' => 5.5, 'cm' => 24.5],
-                    ['ru' => 40, 'us' => 7, 'uk' => 6, 'cm' => 25.0],
-                    ['ru' => 41, 'us' => 8, 'uk' => 7, 'cm' => 26.0],
-                    ['ru' => 42, 'us' => 9, 'uk' => 8, 'cm' => 27.0],
-                    ['ru' => 43, 'us' => 10, 'uk' => 9, 'cm' => 28.0],
-                    ['ru' => 44, 'us' => 11, 'uk' => 10, 'cm' => 29.0],
-                    ['ru' => 45, 'us' => 12, 'uk' => 11, 'cm' => 30.0],
-                ];
-                $availableSizesArray = !empty($product->availableSizes) ? array_column($product->availableSizes, 'size') : [];
-                foreach ($sizeChart as $size): 
-                    $inStock = in_array($size['ru'], $availableSizesArray);
-                ?>
-                <tr class="<?= $inStock ? 'available' : 'out-stock' ?>">
-                    <td><strong><?= $size['ru'] ?></strong></td>
-                    <td><?= $size['us'] ?></td>
-                    <td><?= $size['uk'] ?></td>
-                    <td><?= $size['cm'] ?> см</td>
-                    <td>
-                        <?php if ($inStock): ?>
-                            <span class="stock-badge in">✓ В наличии</span>
-                        <?php else: ?>
-                            <span class="stock-badge out">✗ Нет</span>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        
-        <div class="size-tips">
-            <h4>Советы по выбору размера:</h4>
-            <ul>
-                <li>Измеряйте ногу вечером, когда она немного увеличена</li>
-                <li>Стойте при измерении, равномерно распределив вес</li>
-                <li>Добавьте 0.5-1 см к измеренной длине для комфорта</li>
-                <li>Если размер между двумя значениями, выбирайте больший</li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-<!-- Улучшенная Sticky Purchase Bar с выбором размера -->
-<div class="sticky-purchase-bar" id="stickyBar">
-    <div class="sticky-product-info">
-        <img src="<?= $product->getMainImageUrl() ?>" class="sticky-thumb" alt="<?= Html::encode($product->name) ?>">
-        <div class="sticky-details">
-            <div class="sticky-name"><?= Html::encode($product->name) ?></div>
-            <?php 
-                $stickyPriceRange = $product->getPriceRange();
-                $stickyHasRange = $stickyPriceRange && $product->hasPriceRange();
-            ?>
-            <div
-                class="sticky-price"
-                id="stickyPrice"
-                data-base-price="<?= $product->price ?>"
-                data-has-range="<?= $stickyHasRange ? 'true' : 'false' ?>"
-                <?php if ($stickyHasRange): ?>
-                    data-min-price="<?= $stickyPriceRange['min'] ?>"
-                    data-max-price="<?= $stickyPriceRange['max'] ?>"
-                <?php endif; ?>
-            >
-                <?php if ($stickyHasRange): ?>
-                    <?= Yii::$app->formatter->asCurrency($stickyPriceRange['min'], 'BYN') ?>
-                    <span class="price-separator"> - </span>
-                    <?= Yii::$app->formatter->asCurrency($stickyPriceRange['max'], 'BYN') ?>
-                <?php else: ?>
-                    <?= Yii::$app->formatter->asCurrency($product->price, 'BYN') ?>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-    
-    <?php if (!empty($product->sizes)): ?>
-    <div class="sticky-size-selector">
-        <button class="sticky-size-btn" id="stickySizeBtn" onclick="toggleStickySizeDropdown()">
-            <span id="stickySizeLabel">Размер</span>
-            <i class="bi bi-chevron-down"></i>
-        </button>
-        <div class="sticky-size-dropdown" id="stickySizeDropdown">
-            <?php 
-            $sizeCount = 0;
-            foreach ($product->availableSizes as $size): 
-                $priceByn = $size->getPriceByn();
-                $inStock = $size->inStock();
-                if (!$inStock) continue;
-                $sizeCount++;
-            ?>
-                <div class="sticky-size-option" 
-                     data-size="<?= Html::encode($size->size) ?>"
-                     data-price="<?= $priceByn ?>">
-                    <span class="size"><?= Html::encode($size->eu_size ?: $size->size) ?> EU</span>
-                    <span class="price"><?= Yii::$app->formatter->asCurrency($priceByn, 'BYN') ?></span>
-                </div>
-            <?php endforeach; ?>
-            <?php if ($sizeCount === 0): ?>
-                <div class="sizes-empty">Нет доступных размеров</div>
-            <?php endif; ?>
-        </div>
-    </div>
-    <!-- DEBUG: Всего размеров в наличии: <?= $sizeCount ?> -->
     <?php endif; ?>
-    
-    <button class="sticky-add-cart" onclick="addToCartFromSticky()">
-        <i class="bi bi-cart-plus"></i>
-        <span class="d-none d-md-inline">В корзину</span>
-    </button>
-</div>
 
-<!-- Модальное окно "Купить в 1 клик" -->
-<div class="quick-order-modal" id="quickOrderModal">
-    <div class="quick-order-content">
-        <button class="modal-close" onclick="closeQuickOrderModal()">✕</button>
-        
-        <div class="modal-header">
-            <div class="modal-icon">
-                <i class="bi bi-lightning-charge-fill"></i>
-            </div>
-            <h2>Быстрый заказ</h2>
-            <p class="modal-subtitle">Оформите заказ за 30 секунд</p>
-        </div>
-        
-        <div class="modal-body">
-            <div class="quick-order-product">
-                <img src="<?= $product->getMainImageUrl() ?>" alt="<?= Html::encode($product->name) ?>">
-                <div class="product-info">
-                    <div class="brand"><?= Html::encode($product->brand->name) ?></div>
-                    <div class="name"><?= Html::encode($product->name) ?></div>
-                    <?php 
-                        $quickPriceRange = $product->getPriceRange();
-                        $quickHasRange = $quickPriceRange && $product->hasPriceRange();
-                    ?>
-                    <div
-                        class="price"
-                        id="quickOrderPrice"
-                        data-base-price="<?= $product->price ?>"
-                        data-has-range="<?= $quickHasRange ? 'true' : 'false' ?>"
-                        <?php if ($quickHasRange): ?>
-                            data-min-price="<?= $quickPriceRange['min'] ?>"
-                            data-max-price="<?= $quickPriceRange['max'] ?>"
-                        <?php endif; ?>
-                    >
-                        <?php if ($quickHasRange): ?>
-                            <?= Yii::$app->formatter->asCurrency($quickPriceRange['min'], 'BYN') ?>
-                            <span class="price-separator"> - </span>
-                            <?= Yii::$app->formatter->asCurrency($quickPriceRange['max'], 'BYN') ?>
-                        <?php else: ?>
-                            <?= Yii::$app->formatter->asCurrency($product->price, 'BYN') ?>
-                        <?php endif; ?>
+    <!-- Premium Image Gallery Modal -->
+    <div class="image-gallery-modal" id="imageGalleryModal">
+        <div class="gallery-modal-content">
+            <button class="gallery-close" onclick="closeImageGallery()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            
+            <div class="gallery-scroll-container">
+                <?php if (!empty($product->images)): ?>
+                    <div class="gallery-images-grid">
+                        <?php foreach ($product->images as $idx => $img): ?>
+                            <div class="gallery-image-item">
+                                <img src="<?= ImageHelper::getWebpUrl($img->getUrl()) ?>" 
+                                     alt="<?= Html::encode($product->name . ' — фото ' . ($idx + 1)) ?>"
+                                     loading="lazy">
+                            </div>
+                        <?php endforeach; ?>
                     </div>
-                </div>
+                <?php else: ?>
+                    <div class="gallery-placeholder">
+                        <i class="bi bi-image"></i>
+                        <p>Изображения товара будут добавлены в ближайшее время</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Size Guide Modal -->
+    <div class="size-guide-modal" id="sizeGuideModal">
+        <div class="size-guide-content">
+            <button class="size-guide-close" onclick="closeSizeGuide()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            
+            <h2>Таблица размеров</h2>
+            
+            <div class="size-guide-tabs">
+                <button class="size-tab-btn active" data-system="eu">EU</button>
+                <button class="size-tab-btn" data-system="us">US</button>
+                <button class="size-tab-btn" data-system="uk">UK</button>
+                <button class="size-tab-btn" data-system="cm">CM</button>
             </div>
             
-            <form id="quickOrderForm" onsubmit="submitQuickOrder(event)" data-product-id="<?= $product->id ?>">
-                <?php if (!empty($product->sizes)): ?>
-                <div class="form-group">
-                    <label for="quickOrderSize">
-                        <i class="bi bi-rulers"></i>
-                        Размер *
-                    </label>
-                    <select id="quickOrderSize" name="size" required class="form-control">
-                        <option value="">Выберите размер</option>
-                        <?php foreach ($product->availableSizes as $size): 
-                            $priceByn = $size->getPriceByn();
-                            $inStock = $size->inStock();
-                            if (!$inStock) continue;
-                        ?>
-                            <option value="<?= Html::encode($size->size) ?>" data-price="<?= $priceByn ?>">
-                                <?= Html::encode($size->eu_size ?: $size->size) ?> EU - <?= Yii::$app->formatter->asCurrency($priceByn, 'BYN') ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <?php endif; ?>
-                
-                <div class="form-group">
-                    <label for="quickOrderName">
-                        <i class="bi bi-person"></i>
-                        Ваше имя *
-                    </label>
-                    <input type="text" id="quickOrderName" name="name" required class="form-control" placeholder="Иван">
-                </div>
-                
-                <div class="form-group">
-                    <label for="quickOrderPhone">
-                        <i class="bi bi-telephone"></i>
-                        Телефон *
-                    </label>
-                    <input type="tel" id="quickOrderPhone" name="phone" required class="form-control" 
-                           placeholder="+375 (29) 123-45-67"
-                           pattern="[\+]?[0-9\s\(\)\-]+">
-                </div>
-                
-                <div class="form-group">
-                    <label for="quickOrderComment">
-                        <i class="bi bi-chat-left-text"></i>
-                        Комментарий (необязательно)
-                    </label>
-                    <textarea id="quickOrderComment" name="comment" class="form-control" rows="2" 
-                              placeholder="Удобное время для звонка, дополнительные пожелания..."></textarea>
-                </div>
-                
-                <div class="quick-order-benefits">
-                    <div class="benefit">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>Менеджер свяжется с вами в течение 15 минут</span>
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn-submit" id="quickOrderSubmitBtn">
-                    <i class="bi bi-lightning-charge-fill"></i>
-                    Оформить заказ
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Inline JavaScript для функций с PHP данными -->
-<script>
-// Size System Switcher - глобальная функция
-let currentSizeSystem = 'eu';
-function switchSizeSystem(system) {
-    currentSizeSystem = system;
-    
-    // Update active tab
-    document.querySelectorAll('.size-tab').forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.system === system);
-    });
-    
-    // Update size values in compact labels
-    document.querySelectorAll('.size-compact').forEach(sizeLabel => {
-        const valueSpan = sizeLabel.querySelector('.size-value');
-        let value = '';
-        
-        switch(system) {
-            case 'eu':
-                value = sizeLabel.dataset.eu;
-                break;
-            case 'us':
-                value = sizeLabel.dataset.us || sizeLabel.dataset.eu;
-                break;
-            case 'uk':
-                value = sizeLabel.dataset.uk || sizeLabel.dataset.eu;
-                break;
-            case 'cm':
-                value = sizeLabel.dataset.cm || sizeLabel.dataset.eu;
-                break;
-        }
-        
-        if (valueSpan && value) {
-            valueSpan.textContent = value;
-        }
-    });
-}
-
-// Open Size Table Modal - глобальная функция с PHP данными
-function openSizeTableModal() {
-    <?php 
-    // Группируем размеры по EU размеру
-    $sizesGrouped = [];
-    if (!empty($product->availableSizes)) {
-        foreach ($product->availableSizes as $size) {
-            $euSize = $size->eu_size ?: $size->size;
-            if (!isset($sizesGrouped[$euSize])) {
-                $sizesGrouped[$euSize] = $size;
-            }
-        }
-    }
-    ?>
-    
-    const modal = document.createElement('div');
-    modal.id = 'sizeTableModalElement';
-    modal.className = 'size-table-modal';
-    modal.innerHTML = `
-        <div class="size-table-modal-content">
-            <button class="size-table-modal-close" onclick="closeSizeTableModal()">
-                <i class="bi bi-x"></i>
-            </button>
-            <h2><i class="bi bi-table"></i> Таблица размеров</h2>
-            <div class="table-responsive">
-                <table class="size-table">
+            <div class="size-guide-table">
+                <table>
                     <thead>
                         <tr>
                             <th>EU</th>
                             <th>US</th>
                             <th>UK</th>
                             <th>CM</th>
-                            <th>Наличие</th>
-                            <th>Цена</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($sizesGrouped as $size): 
-                            $priceByn = $size->getPriceByn();
-                            $inStock = $size->inStock();
-                        ?>
-                        <tr class="size-row <?= $inStock ? 'available' : 'out-of-stock' ?>">
-                            <td><strong><?= Html::encode($size->eu_size ?: $size->size) ?></strong></td>
-                            <td><?= Html::encode($size->us_size ?: '—') ?></td>
-                            <td><?= Html::encode($size->uk_size ?: '—') ?></td>
-                            <td><?= Html::encode($size->cm_size ? $size->cm_size . ' см' : '—') ?></td>
-                            <td>
-                                <?php if ($inStock): ?>
-                                    <span class="stock-badge in-stock">✓ В наличии</span>
-                                <?php else: ?>
-                                    <span class="stock-badge out-stock">✗ Нет</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><strong><?= $priceByn ? Yii::$app->formatter->asCurrency($priceByn, 'BYN') : '—' ?></strong></td>
+                        <tr>
+                            <td>36</td>
+                            <td>4</td>
+                            <td>3.5</td>
+                            <td>22.5</td>
                         </tr>
-                        <?php endforeach; ?>
+                        <tr>
+                            <td>37</td>
+                            <td>4.5</td>
+                            <td>4</td>
+                            <td>23</td>
+                        </tr>
+                        <tr>
+                            <td>38</td>
+                            <td>5</td>
+                            <td>4.5</td>
+                            <td>23.5</td>
+                        </tr>
+                        <tr>
+                            <td>39</td>
+                            <td>5.5</td>
+                            <td>5</td>
+                            <td>24</td>
+                        </tr>
+                        <tr>
+                            <td>40</td>
+                            <td>6</td>
+                            <td>5.5</td>
+                            <td>24.5</td>
+                        </tr>
+                        <tr>
+                            <td>41</td>
+                            <td>6.5</td>
+                            <td>6</td>
+                            <td>25</td>
+                        </tr>
+                        <tr>
+                            <td>42</td>
+                            <td>7</td>
+                            <td>6.5</td>
+                            <td>25.5</td>
+                        </tr>
+                        <tr>
+                            <td>43</td>
+                            <td>7.5</td>
+                            <td>7</td>
+                            <td>26</td>
+                        </tr>
+                        <tr>
+                            <td>44</td>
+                            <td>8</td>
+                            <td>7.5</td>
+                            <td>26.5</td>
+                        </tr>
+                        <tr>
+                            <td>45</td>
+                            <td>8.5</td>
+                            <td>8</td>
+                            <td>27</td>
+                        </tr>
+                        <tr>
+                            <td>46</td>
+                            <td>9</td>
+                            <td>8.5</td>
+                            <td>27.5</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
-            <div class="size-table-hint">
-                <i class="bi bi-info-circle"></i>
-                <small>Кликните на строку, чтобы выбрать размер. Измерьте длину стопы в см и сравните с таблицей</small>
+            
+            <div class="size-guide-tips">
+                <h3>Как выбрать правильный размер</h3>
+                <ul>
+                    <li>Измерьте длину стопы от пятки до самого длинного пальца</li>
+                    <li>Добавьте 1-1.5 см для удобства</li>
+                    <li>Если у вас широкая стопа, выберите размер на 0.5 больше</li>
+                    <li>Лучше примерять обувь во второй половине дня, когда нога немного отекает</li>
+                </ul>
             </div>
         </div>
-    `;
-    document.body.appendChild(modal);
-    document.body.style.overflow = 'hidden';
+    </div>
+
+    <!-- Video Modal -->
+    <?php if ($productVideo): ?>
+        <div class="video-modal" id="videoModal">
+            <div class="video-modal-content">
+                <button class="video-modal-close" onclick="closeVideoModal()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+                <div class="video-container">
+                    <?php
+                    $videoId = '';
+                    if (strpos($productVideo, 'youtube.com') !== false || strpos($productVideo, 'youtu.be') !== false) {
+                        if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/', $productVideo, $matches)) {
+                            $videoId = $matches[1];
+                        }
+                    }
+                    ?>
+                    <?php if ($videoId): ?>
+                        <iframe src="https://www.youtube.com/embed/<?= $videoId ?>?rel=0&modestbranding=1" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    <?php else: ?>
+                        <video controls>
+                            <source src="<?= $productVideo ?>" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <!-- One Click Purchase Modal -->
+    <div class="one-click-modal" id="oneClickModal">
+        <div class="one-click-content">
+            <button class="one-click-close" onclick="closeOneClickModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            
+            <h2>Купить в 1 клик</h2>
+            <p>Оставьте номер телефона и мы свяжемся с вами в течение 15 минут</p>
+            
+            <form class="one-click-form" onsubmit="submitOneClickOrder(event)">
+                <div class="form-group">
+                    <label for="oneClickName">Ваше имя</label>
+                    <input type="text" id="oneClickName" required>
+                </div>
+                <div class="form-group">
+                    <label for="oneClickPhone">Телефон</label>
+                    <input type="tel" id="oneClickPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="oneClickSize">Размер</label>
+                    <input type="text" id="oneClickSize" value="<?= $selectedSize ?>" readonly>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large">
+                    <i class="bi bi-telephone"></i>
+                    Заказать звонок
+                </button>
+                
+                <p class="form-note">
+                    Нажимая кнопку, вы соглашаетесь с 
+                    <a href="/privacy" target="_blank">политикой конфиденциальности</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="review-modal" id="reviewModal">
+        <div class="review-modal-content">
+            <button class="review-modal-close" onclick="closeReviewModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            
+            <h2>Написать отзыв</h2>
+            
+            <form class="review-form" onsubmit="submitReview(event)">
+                <div class="form-group">
+                    <label for="reviewName">Ваше имя</label>
+                    <input type="text" id="reviewName" required>
+                </div>
+                <div class="form-group">
+                    <label for="reviewEmail">Email</label>
+                    <input type="email" id="reviewEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Оценка</label>
+                    <div class="rating-input" id="reviewRating">
+                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                            <button type="button" class="rating-star" data-rating="<?= $i ?>" onclick="setReviewRating(<?= $i ?>)">
+                                <i class="bi bi-star"></i>
+                            </button>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reviewText">Отзыв</label>
+                    <textarea id="reviewText" rows="5" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large">
+                    <i class="bi bi-send"></i>
+                    Отправить отзыв
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Question Modal -->
+    <div class="question-modal" id="questionModal">
+        <div class="question-modal-content">
+            <button class="question-modal-close" onclick="closeQuestionModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            
+            <h2>Задать вопрос</h2>
+            
+            <form class="question-form" onsubmit="submitQuestion(event)">
+                <div class="form-group">
+                    <label for="questionName">Ваше имя</label>
+                    <input type="text" id="questionName" required>
+                </div>
+                <div class="form-group">
+                    <label for="questionEmail">Email</label>
+                    <input type="email" id="questionEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="questionText">Вопрос</label>
+                    <textarea id="questionText" rows="4" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large">
+                    <i class="bi bi-send"></i>
+                    Задать вопрос
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Notification -->
+    <div class="success-notification" id="successNotification">
+        <div class="notification-content">
+            <i class="bi bi-check-circle"></i>
+            <span id="notificationText">Товар добавлен в корзину!</span>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript для страницы товара -->
+<script>
+// Глобальные переменные
+let selectedSize = '<?= $selectedSize ?>';
+let productId = <?= $productId ?>;
+let isFavorite = <?= $isFavorite ? 'true' : 'false' ?>;
+
+// Инициализация галереи
+function initProductGallery() {
+    const thumbnails = document.querySelectorAll('.thumbnail-item');
+    const mainImage = document.getElementById('mainImage');
     
-    // Close on background click
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeSizeTableModal();
-        }
+    thumbnails.forEach(thumb => {
+        thumb.addEventListener('click', function() {
+            const index = this.dataset.index;
+            changeMainImage(index);
+        });
     });
 }
 
-function closeSizeTableModal() {
-    const modal = document.getElementById('sizeTableModalElement');
-    if (modal) {
-        modal.remove();
-        document.body.style.overflow = '';
-    }
-}
-
-// Select Size From Table
-function selectSizeFromTable(sizeValue, inStock) {
-    if (!inStock) return;
+// Смена основного изображения
+function changeMainImage(index) {
+    const mainImage = document.getElementById('mainImage');
+    const thumbnails = document.querySelectorAll('.thumbnail-item');
+    const images = window.productGalleryImages;
     
-    // Find and check the radio button with this size
-    const sizeInput = document.querySelector(`input[name="size"][value="${sizeValue}"]`);
-    if (sizeInput && !sizeInput.disabled) {
-        sizeInput.checked = true;
+    if (images && images[index]) {
+        mainImage.src = images[index];
         
-        // Trigger change event to update price
-        const event = new Event('change', { bubbles: true });
-        sizeInput.dispatchEvent(event);
-        
-        // Close modal
-        closeSizeTableModal();
-        
-        // Scroll to quick select
-        const quickSelect = document.querySelector('.sizes-quick-select');
-        if (quickSelect) {
-            quickSelect.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-        
-        // Visual feedback
-        const parent = sizeInput.closest('.size-compact');
-        if (parent) {
-            parent.style.animation = 'pulse 0.5s ease';
-            setTimeout(() => {
-                parent.style.animation = '';
-            }, 500);
-        }
+        thumbnails.forEach((thumb, i) => {
+            thumb.classList.toggle('active', i == index);
+        });
     }
 }
 
-// Close modal on ESC key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeSizeTableModal();
+// Выбор размера
+function selectSize(size) {
+    const sizeBtn = document.querySelector(`.size-btn[data-size="${size}"]`);
+    if (!sizeBtn || sizeBtn.disabled) return;
+    
+    document.querySelectorAll('.size-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    sizeBtn.classList.add('active');
+    selectedSize = size;
+    
+    document.getElementById('selectedSizeDisplay').textContent = size;
+    document.getElementById('stickySizeDisplay').textContent = size;
+    document.getElementById('oneClickSize').value = size;
+    
+    // Обновляем данные товара
+    if (window.productData) {
+        window.productData.selectedSize = size;
+    }
+}
+
+// Sticky размер
+function toggleStickySizeDropdown() {
+    const dropdown = document.getElementById('stickySizeDropdown');
+    dropdown.classList.toggle('show');
+}
+
+function selectStickySize(size) {
+    selectSize(size);
+    toggleStickySizeDropdown();
+}
+
+// Добавление в корзину
+function addToCart() {
+    const btn = document.getElementById('addToCartBtn');
+    const originalText = btn.innerHTML;
+    
+    // Проверка выбранного размера
+    if (!selectedSize) {
+        showNotification('Пожалуйста, выберите размер', 'error');
+        return;
+    }
+    
+    // Анимация загрузки
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> <span>Добавление...</span>';
+    btn.disabled = true;
+    
+    // Симуляция запроса к API
+    setTimeout(() => {
+        // Обновление счетчика корзины
+        const cartCounter = document.querySelector('.cart-counter');
+        if (cartCounter) {
+            const currentCount = parseInt(cartCounter.textContent) || 0;
+            cartCounter.textContent = currentCount + 1;
+        }
+        
+        // Восстановление кнопки
+        btn.innerHTML = '<i class="bi bi-check"></i> <span>Добавлено!</span>';
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }, 1500);
+        
+        showNotification('Товар добавлен в корзину!', 'success');
+    }, 800);
+}
+
+// Избранное
+function toggleFavorite() {
+    const btn = document.querySelector('.action-btn');
+    const icon = btn.querySelector('i');
+    
+    isFavorite = !isFavorite;
+    
+    if (isFavorite) {
+        icon.classList.remove('bi-heart');
+        icon.classList.add('bi-heart-fill');
+        showNotification('Добавлено в избранное', 'success');
+    } else {
+        icon.classList.remove('bi-heart-fill');
+        icon.classList.add('bi-heart');
+        showNotification('Удалено из избранного', 'info');
+    }
+}
+
+// Модальные окна
+function openSizeGuide() {
+    document.getElementById('sizeGuideModal').classList.add('show');
+}
+
+function closeSizeGuide() {
+    document.getElementById('sizeGuideModal').classList.remove('show');
+}
+
+function openVideoModal() {
+    document.getElementById('videoModal').classList.add('show');
+}
+
+function closeVideoModal() {
+    document.getElementById('videoModal').classList.remove('show');
+}
+
+function openOneClickModal() {
+    document.getElementById('oneClickModal').classList.add('show');
+}
+
+function closeOneClickModal() {
+    document.getElementById('oneClickModal').classList.remove('show');
+}
+
+function openReviewModal() {
+    document.getElementById('reviewModal').classList.add('show');
+}
+
+function closeReviewModal() {
+    document.getElementById('reviewModal').classList.remove('show');
+}
+
+function openQuestionModal() {
+    document.getElementById('questionModal').classList.add('show');
+}
+
+function closeQuestionModal() {
+    document.getElementById('questionModal').classList.remove('show');
+}
+
+function openImageGallery() {
+    document.getElementById('imageGalleryModal').classList.add('show');
+}
+
+function closeImageGallery() {
+    document.getElementById('imageGalleryModal').classList.remove('show');
+}
+
+// Всплывающие уведомления
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('successNotification');
+    const text = document.getElementById('notificationText');
+    
+    text.textContent = message;
+    notification.className = `success-notification show ${type}`;
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+}
+
+// Закрытие модальных окон по клику вне
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.classList.remove('show');
     }
 });
 
-// Add pulse animation
-if (!document.getElementById('pulse-animation-style')) {
-    const style = document.createElement('style');
-    style.id = 'pulse-animation-style';
-    style.textContent = `
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-    `;
-    document.head.appendChild(style);
-}
-
-// ============================================================================
-// Функции для работы с изображениями (требуют PHP данные)
-// ============================================================================
-
-// Массив изображений товара
-let currentImageIndex = 0;
-const productImages = [
-    <?php if (!empty($product->images)): ?>
-        <?php foreach ($product->images as $img): ?>
-        '<?= $img->getUrl() ?>',
-        <?php endforeach; ?>
-    <?php else: ?>
-        '<?= $product->getMainImageUrl() ?>',
-    <?php endif; ?>
-];
-
-function openImageModal(index) {
-    currentImageIndex = index;
-    const modal = document.getElementById('imageModal');
-    if (!modal) {
-        createImageModal();
-    }
-    updateModalImage();
-    document.getElementById('imageModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeImageModal() {
-    const modal = document.getElementById('imageModal');
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-}
-
-function createImageModal() {
-    const modal = document.createElement('div');
-    modal.id = 'imageModal';
-    modal.className = 'image-modal';
-    modal.innerHTML = `
-        <div class="image-modal-content">
-            <button class="image-modal-close" onclick="closeImageModal()">
-                <i class="bi bi-x"></i>
-            </button>
-            <button class="modal-nav-btn prev" onclick="prevImage()" id="modalPrevBtn">
-                <i class="bi bi-chevron-left"></i>
-            </button>
-            <button class="modal-nav-btn next" onclick="nextImage()" id="modalNextBtn">
-                <i class="bi bi-chevron-right"></i>
-            </button>
-            <div class="modal-image-container">
-                <img id="modalImage" src="" alt="<?= Html::encode($product->name) ?>">
-            </div>
-            <div class="modal-image-counter" id="modalCounter"></div>
-            <div class="modal-thumbnails" id="modalThumbnails"></div>
-            <div class="image-modal-zoom-hint">Кликните на фото для увеличения</div>
-        </div>
-    `;
-    document.body.appendChild(modal);
+// Инициализация вкладок
+document.addEventListener('DOMContentLoaded', function() {
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
     
-    // Generate thumbnails
-    const thumbsContainer = document.getElementById('modalThumbnails');
-    productImages.forEach((img, index) => {
-        const thumb = document.createElement('div');
-        thumb.className = 'modal-thumb';
-        thumb.innerHTML = `<img src="${img}" alt="">`;
-        thumb.onclick = () => {
-            currentImageIndex = index;
-            updateModalImage();
-        };
-        thumbsContainer.appendChild(thumb);
-    });
-    
-    // Close on background click
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal || e.target.className === 'image-modal-content') {
-            closeImageModal();
-        }
-    });
-    
-    // Keyboard navigation
-    document.addEventListener('keydown', (e) => {
-        if (!modal.classList.contains('active')) return;
-        if (e.key === 'ArrowLeft') prevImage();
-        if (e.key === 'ArrowRight') nextImage();
-        if (e.key === 'Escape') closeImageModal();
-    });
-}
-
-function updateModalImage() {
-    document.getElementById('modalImage').src = productImages[currentImageIndex];
-    document.getElementById('modalCounter').textContent = `${currentImageIndex + 1} / ${productImages.length}`;
-    
-    // Update buttons
-    document.getElementById('modalPrevBtn').disabled = currentImageIndex === 0;
-    document.getElementById('modalNextBtn').disabled = currentImageIndex === productImages.length - 1;
-    
-    // Update thumbnails
-    document.querySelectorAll('.modal-thumb').forEach((thumb, index) => {
-        thumb.classList.toggle('active', index === currentImageIndex);
-    });
-}
-
-function prevImage() {
-    if (currentImageIndex > 0) {
-        currentImageIndex--;
-        updateModalImage();
-    }
-}
-
-function nextImage() {
-    if (currentImageIndex < productImages.length - 1) {
-        currentImageIndex++;
-        updateModalImage();
-    }
-}
-
-// Complete the look - добавить все в корзину
-function addCompleteLook() {
-    <?php if (!empty($similarProducts)): ?>
-    const items = [<?= $product->id ?>, <?= implode(',', array_map(function($p) { return $p->id; }, array_slice($similarProducts, 0, 3))) ?>];
-    
-    if (typeof addToCart === 'function') {
-        items.forEach(id => {
-            addToCart(id, 1, null, null);
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetTab = this.dataset.tab;
+            
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabPanes.forEach(p => p.classList.remove('active'));
+            
+            this.classList.add('active');
+            document.getElementById(targetTab + '-tab').classList.add('active');
         });
-        alert('Все товары из образа добавлены в корзину!');
-    } else {
-        alert('Функция корзины не найдена');
-    }
-    <?php else: ?>
-    alert('Нет похожих товаров');
-    <?php endif; ?>
-}
-
-// ============================================================================
-// Функции для аккордеонов и UI интерактивности
-// ============================================================================
-
-// Accordion для характеристик
-function toggleMainSpecs() {
-    const content = document.getElementById('mainSpecsContent');
-    const icon = document.getElementById('mainSpecsToggleIcon');
-    const header = icon ? icon.closest('.specs-header-toggle') : null;
+    });
     
-    if (content) {
-        if (content.style.display === 'none' || content.style.display === '') {
-            content.style.display = 'block';
-            if (header) header.classList.add('open');
+    // Таблица размеров
+    const sizeTabBtns = document.querySelectorAll('.size-tab-btn');
+    sizeTabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            sizeTabBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+});
+
+// Sticky Purchase Bar
+function initStickyPurchaseBar() {
+    const stickyBar = document.getElementById('stickyBar');
+    const mainBtn = document.getElementById('addToCartBtn');
+    
+    if (!stickyBar || !mainBtn) return;
+    
+    stickyBar.style.position = 'fixed';
+    stickyBar.style.bottom = '0';
+    stickyBar.style.left = '0';
+    stickyBar.style.right = '0';
+    stickyBar.style.zIndex = '1000';
+    stickyBar.style.borderTop = '1px solid #e5e7eb';
+    stickyBar.style.transition = 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out';
+    // Изначально скрыта
+    stickyBar.style.transform = 'translateY(100%)';
+    stickyBar.style.opacity = '0';
+    
+    const SCROLL_THRESHOLD = 200; // Порог 200px для более раннего появления
+
+    const updateStickyVisibility = () => {
+        const offset = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        const mainBtnRect = mainBtn.getBoundingClientRect();
+        
+        // Показываем sticky bar когда основная кнопка уходит за верх экрана
+        // ИЛИ когда прокрутили больше порога
+        if (mainBtnRect.top < 0 || offset > SCROLL_THRESHOLD) {
+            if (!stickyBar.classList.contains('visible')) {
+                stickyBar.classList.add('visible');
+                stickyBar.style.transform = 'translateY(0)';
+                stickyBar.style.opacity = '1';
+            }
         } else {
-            content.style.display = 'none';
-            if (header) header.classList.remove('open');
+            if (stickyBar.classList.contains('visible')) {
+                stickyBar.classList.remove('visible');
+                stickyBar.style.transform = 'translateY(100%)';
+                stickyBar.style.opacity = '0';
+            }
         }
-    }
-}
+    };
 
-// Accordion для блока похожих товаров
-function toggleRelatedProducts() {
-    const content = document.getElementById('relatedContent');
-    const icon = document.getElementById('relatedToggleIcon');
-    const header = icon ? icon.closest('.related-header') : null;
-    
-    if (!content || !icon || !header) return;
-    
-    if (content.style.display === 'none' || content.style.display === '') {
-        content.style.display = 'block';
-        header.classList.add('active');
-    } else {
-        content.style.display = 'none';
-        header.classList.remove('active');
-    }
-}
+    // Находим ВСЕ потенциально скроллируемые элементы и добавляем обработчики
+    const scrollableElements = [
+        window,
+        document,
+        document.documentElement,
+        document.body,
+        document.querySelector('.product-page-optimized'),
+        document.querySelector('main'),
+        document.querySelector('#content')
+    ].filter(el => el !== null);
 
-// Функция прокрутки карусели похожих товаров
-function scrollRelatedCarousel(direction) {
-    const wrapper = document.getElementById('relatedCarouselWrapper');
-    if (!wrapper) return;
+    scrollableElements.forEach(element => {
+        element.addEventListener('scroll', updateStickyVisibility, { passive: true });
+    });
     
-    // Получаем ширину одной карточки + gap
-    const card = wrapper.querySelector('.related-product-card');
-    if (!card) return;
-    
-    const cardWidth = card.offsetWidth;
-    const gap = 16; // 1rem в пикселях (примерно)
-    const scrollAmount = (cardWidth + gap) * 2; // Прокручиваем по 2 карточки
-    
-    if (direction === -1) {
-        wrapper.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-    } else {
-        wrapper.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-}
-
-// Accordion для отзывов
-function toggleReviews() {
-    const content = document.getElementById('reviewsContent');
-    const icon = document.getElementById('reviewsToggleIcon');
-    const header = icon ? icon.closest('.reviews-header') : null;
-    
-    if (content) {
-        if (content.style.display === 'none' || content.style.display === '') {
-            content.style.display = 'block';
-            if (header) header.classList.add('open');
+    // Запасной вариант: проверяем позицию кнопки каждые 200ms
+    setInterval(() => {
+        const mainBtnRect = mainBtn.getBoundingClientRect();
+        const offset = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        
+        if (mainBtnRect.top < 0 || offset > SCROLL_THRESHOLD) {
+            if (!stickyBar.classList.contains('visible')) {
+                stickyBar.classList.add('visible');
+                stickyBar.style.transform = 'translateY(0)';
+                stickyBar.style.opacity = '1';
+            }
         } else {
-            content.style.display = 'none';
-            if (header) header.classList.remove('open');
+            if (stickyBar.classList.contains('visible')) {
+                stickyBar.classList.remove('visible');
+                stickyBar.style.transform = 'translateY(100%)';
+                stickyBar.style.opacity = '0';
+            }
         }
-    }
+    }, 200);
+
+    // Проверяем сразу при загрузке
+    updateStickyVisibility();
 }
 
-// Accordion для Q&A
-function toggleQA() {
-    const content = document.getElementById('qaContent');
-    const icon = document.getElementById('qaToggleIcon');
-    const header = icon ? icon.closest('.qa-header') : null;
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    initProductGallery();
+    initStickyPurchaseBar();
+});
+
+// Закрытие dropdown при клике вне
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('stickySizeDropdown');
+    const btn = document.getElementById('stickySizeBtn');
     
-    if (content) {
-        if (content.style.display === 'none' || content.style.display === '') {
-            content.style.display = 'flex';
-            if (header) header.classList.add('open');
-        } else {
-            content.style.display = 'none';
-            if (header) header.classList.remove('open');
-        }
+    if (!btn.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.remove('show');
     }
-}
+});
 
-// Accordion для описания товара (если есть)
-function toggleDescription() {
-    const content = document.getElementById('descContent');
-    const icon = document.getElementById('descToggleIcon');
+// Frequently Bought Together - Add all to cart
+function addAllToCartFBT() {
+    const fbtCards = document.querySelectorAll('.fbt-product-card');
+    let addedCount = 0;
     
-    if (content && icon) {
-        if (content.style.display === 'none' || content.style.display === '') {
-            content.style.display = 'block';
-            icon.style.transform = 'rotate(180deg)';
-        } else {
-            content.style.display = 'none';
-            icon.style.transform = 'rotate(0deg)';
-        }
-    }
+    fbtCards.forEach((card, index) => {
+        // Get product info from the card
+        const productName = card.querySelector('.fbt-product-name')?.textContent || '';
+        const productPrice = card.querySelector('.fbt-product-price')?.textContent || '';
+        
+        // Add to cart (simulate API call)
+        setTimeout(() => {
+            addedCount++;
+            
+            // Show notification
+            if (addedCount === fbtCards.length) {
+                showNotification('Все товары добавлены в корзину!', 'success');
+                
+                // Update cart counter if exists
+                const cartCounter = document.querySelector('.cart-counter');
+                if (cartCounter) {
+                    const currentCount = parseInt(cartCounter.textContent) || 0;
+                    cartCounter.textContent = currentCount + fbtCards.length;
+                }
+            }
+        }, index * 100);
+    });
 }
 
-// ============================================================================
-// Функции модальных окон теперь в /web/js/product-modals.js
-// ============================================================================
-
-// ============================================================================
-// Дополнительные функции для UI (могут не быть определены в product-page.js)
-// ============================================================================
-
-// Закрытие галереи изображений (если используется)
-function closeImageGallery() {
-    const gallery = document.getElementById('imageGalleryModal');
-    if (gallery) {
-        gallery.style.display = 'none';
-        document.body.style.overflow = '';
+// Helper function to show notifications
+function showNotification(message, type = 'info') {
+    // Check if notification container exists
+    let container = document.getElementById('notification-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'notification-container';
+        container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;';
+        document.body.appendChild(container);
     }
+    
+    // Create notification
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.style.cssText = 'padding:12px 20px;border-radius:8px;background:#333;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:slideIn 0.3s ease;';
+    notification.textContent = message;
+    
+    // Add animation styles if not exists
+    if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            .notification { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; }
+            .notification-success { background: #22c55e !important; }
+            .notification-error { background: #ef4444 !important; }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    container.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
-
-// ВАЖНО: Остальные функции (scrollThumbnails, switchToSlide, selectColor, createOrder,
-// closeSizeGuide, recommendSize, toggleStickySizeDropdown, addToCartFromSticky)
-// определены в product-page.js и должны быть доступны после загрузки файла
 </script>
-

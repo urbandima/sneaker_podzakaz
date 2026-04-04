@@ -158,7 +158,7 @@ $this->title = 'Интеграции';
         <div class="admin-card-body">
             <div style="text-align:center;padding:24px;background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:12px;margin-bottom:16px">
                 <p style="font-size:14px;color:#92400e;margin:0 0 8px">Текущий курс CNY → BYN</p>
-                <p style="font-size:48px;font-weight:700;margin:0;color:#92400e" id="cny-rate">0.28</p>
+                <p style="font-size:48px;font-weight:700;margin:0;color:#92400e" id="cny-rate">—</p>
                 <p style="font-size:12px;color:#92400e;margin:8px 0 0">Обновлено: <span id="cny-updated">—</span></p>
             </div>
             <div class="form-group">
@@ -170,7 +170,7 @@ $this->title = 'Интеграции';
             </div>
             <div class="form-group">
                 <label>Наценка (%)</label>
-                <input type="number" class="admin-form-input" value="15" step="0.1">
+                <input type="number" class="admin-form-input" id="markup-percent" value="" step="0.1" placeholder="Загрузка...">
             </div>
             <button class="admin-btn admin-btn-primary" style="width:100%" onclick="updateCNYRate()">
                 <i class="bi bi-arrow-clockwise"></i> Обновить курс сейчас
@@ -229,26 +229,44 @@ function saveTelegram() {
 }
 
 function updateCNYRate() {
-    const btn = event.target;
+    const btn = document.activeElement;
+    const originalText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Обновление...';
     
-    fetch('/admin/exchange-rate/update', {method: 'POST'})
-    .then(r => r.json())
+    fetch('/admin/exchange-rate/update', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        }
+    })
+    .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    })
     .then(data => {
         if (data.success) {
             document.getElementById('cny-rate').textContent = data.rate;
             document.getElementById('cny-updated').textContent = new Date().toLocaleString('ru-RU');
-            btn.innerHTML = '<i class="bi bi-check-circle"></i> Обновлено';
+            btn.innerHTML = '<i class="bi bi-check-circle"></i> Обновлено!';
+            btn.classList.remove('admin-btn-primary');
+            btn.classList.add('admin-btn-success');
             setTimeout(() => {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Обновить курс сейчас';
+                btn.innerHTML = originalText;
+                btn.classList.add('admin-btn-primary');
+                btn.classList.remove('admin-btn-success');
             }, 2000);
         } else {
-            alert('Ошибка обновления курса');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Обновить курс сейчас';
+            throw new Error(data.message || 'Ошибка обновления');
         }
+    })
+    .catch(err => {
+        console.error('Ошибка:', err);
+        alert('❌ ' + (err.message || 'Ошибка обновления курса'));
+        btn.disabled = false;
+        btn.innerHTML = originalText;
     });
 }
 

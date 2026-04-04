@@ -288,14 +288,24 @@ $brands = $brands ?? [];
             <a href="https://instagram.com" target="_blank" class="btn btn-secondary btn-sm">Подписаться</a>
         </div>
         <div class="instagram-grid">
-            <?php for ($i = 1; $i <= 6; $i++): ?>
+            <?php 
+            $instagramImages = [
+                '/images/instagram/adidas-originals-samba-og-69073567c268b.jpg',
+                '/images/instagram/air-jordan-1-low-wolf-grey-6907356878f09.jpg',
+                '/images/instagram/new-balance-530-beige-69073563682f6.jpg',
+                '/images/instagram/adidas-originals-samba-og-6907358118c45.jpg',
+                '/images/instagram/air-jordan-1-low-wolf-grey-69073581c7e1b.jpg',
+                '/images/instagram/jordan-1-retro-high.jpg',
+            ];
+            foreach ($instagramImages as $img): 
+            ?>
             <a href="#" class="instagram-item">
-                <div class="instagram-image-placeholder"></div>
+                <img src="<?= $img ?>" alt="Sneakerhead Instagram" class="instagram-image">
                 <div class="instagram-overlay">
                     <i class="bi bi-instagram"></i>
                 </div>
             </a>
-            <?php endfor; ?>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>

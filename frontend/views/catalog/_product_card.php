@@ -89,15 +89,33 @@ $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam
         
         <!-- Цена -->
         <div class="product-price">
-            <span class="product-card-price-current">
-                <?= Yii::$app->formatter->asCurrency($priceView['currentPrice'] ?? $product->price, ProductCardHelper::PRICE_CURRENCY) ?>
-            </span>
+            <?php if ($priceView['showRange'] && $priceView['minPrice'] !== null && $priceView['maxPrice'] !== null): ?>
+                <span class="product-card-price-current">
+                    от <?= Yii::$app->formatter->asCurrency($priceView['minPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
+                </span>
+                <span class="product-card-price-range">
+                    до <?= Yii::$app->formatter->asCurrency($priceView['maxPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
+                </span>
+            <?php else: ?>
+                <span class="product-card-price-current">
+                    <?= Yii::$app->formatter->asCurrency($priceView['currentPrice'] ?? $product->price, ProductCardHelper::PRICE_CURRENCY) ?>
+                </span>
+            <?php endif; ?>
             <?php if ($priceView['showOldPrice'] && $priceView['oldPrice'] !== null): ?>
             <span class="product-card-price-old">
                 <?= Yii::$app->formatter->asCurrency($priceView['oldPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
             </span>
             <?php endif; ?>
         </div>
+        
+        <!-- Теги -->
+        <?= \app\frontend\widgets\ProductTagsWidget::widget([
+            'product' => $product,
+            'style' => 'badges',
+            'limit' => 3,
+            'showLinks' => true,
+            'containerClass' => 'product-tags--compact',
+        ]) ?>
         
         <!-- Кнопка -->
         <button class="btn-add-to-cart-card" onclick="quickAddToCart(event, <?= $product->id ?>)">

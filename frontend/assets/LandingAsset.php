@@ -17,7 +17,7 @@ class LandingAsset extends VersionedAssetBundle
     public $baseUrl = '@web';
     
     public $css = [
-        'css/pages.css',  // Стили для landing page (hero, sections)
+        'css/pages/landing.css',  // Стили для landing page (hero, sections)
     ];
     
     public $depends = [

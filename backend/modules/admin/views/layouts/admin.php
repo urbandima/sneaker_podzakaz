@@ -37,8 +37,16 @@ $controllerId = Yii::$app->controller->id;
 <?php $this->beginBody() ?>
 
 <div class="admin-layout">
+    <!-- Mobile Sidebar Overlay -->
+    <div class="admin-sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()" style="display: none;"></div>
+    
     <!-- Sidebar -->
     <aside class="admin-sidebar" id="admin-sidebar">
+        <!-- Mobile Close Button -->
+        <button class="admin-sidebar-close" id="sidebar-close" onclick="closeMobileSidebar()" style="display: none;" title="Закрыть меню">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        
         <div class="admin-sidebar-header">
             <a href="<?= Url::to(['/admin']) ?>" class="admin-sidebar-logo">
                 <i class="bi bi-shop"></i>
@@ -49,35 +57,132 @@ $controllerId = Yii::$app->controller->id;
         <nav class="admin-sidebar-nav">
             <?php
             $navItems = [
-                ['label' => 'Главная', 'url' => '/admin', 'icon' => 'bi-grid-1x2-fill', 'ids' => ['dashboard']],
-                ['label' => 'Заказы', 'url' => '/admin/order', 'icon' => 'bi-bag-check-fill', 'ids' => ['order']],
-                ['label' => 'Каталог', 'url' => '/admin/catalog', 'icon' => 'bi-collection-fill', 'ids' => ['catalog', 'product']],
-                ['label' => 'Клиенты', 'url' => '/admin/customer', 'icon' => 'bi-people-fill', 'ids' => ['customer']],
-                ['label' => 'Купоны', 'url' => '/admin/coupon', 'icon' => 'bi-ticket-detailed-fill', 'ids' => ['coupon']],
-                ['label' => 'Возвраты', 'url' => '/admin/return', 'icon' => 'bi-arrow-return-left', 'ids' => ['return']],
-                ['label' => 'Отзывы', 'url' => '/admin/review', 'icon' => 'bi-star-fill', 'ids' => ['review']],
-                ['label' => 'Аналитика', 'url' => '/admin/analytics', 'icon' => 'bi-bar-chart-line-fill', 'ids' => ['analytics']],
-                ['label' => 'RFM сегменты', 'url' => '/admin/analytics/rfm', 'icon' => 'bi-diagram-3-fill', 'ids' => ['analytics']],
-                ['label' => 'Маркетинг', 'url' => '/admin/marketing', 'icon' => 'bi-megaphone-fill', 'ids' => ['marketing']],
-                ['label' => 'POS-Терминал', 'url' => '/admin/pos', 'icon' => 'bi-shop', 'ids' => ['pos']],
-                ['label' => 'Плагины', 'url' => '/admin/plugin', 'icon' => 'bi-plugin', 'ids' => ['plugin']],
-                ['label' => 'Настройки', 'url' => '/admin/settings', 'icon' => 'bi-gear-wide-connected', 'ids' => ['settings']],
+                // 🏠 ГЛАВНАЯ
+                [
+                    'label' => 'Главная',
+                    'icon' => 'bi-house-fill',
+                    'url' => '/admin',
+                    'ids' => ['dashboard'],
+                    'items' => []
+                ],
+                
+                // 📦 ПРОДАЖИ
+                [
+                    'label' => 'Продажи',
+                    'icon' => 'bi-bag-check-fill',
+                    'items' => [
+                        ['label' => 'Заказы', 'url' => '/admin/order', 'ids' => ['order']],
+                        ['label' => 'Возвраты', 'url' => '/admin/return', 'ids' => ['return']],
+                        ['label' => 'Доставка', 'url' => '/admin/shipping', 'ids' => ['shipping']]
+                    ]
+                ],
+                
+                // 📊 АНАЛИТИКА
+                [
+                    'label' => 'Аналитика',
+                    'icon' => 'bi-bar-chart-line-fill',
+                    'items' => [
+                        ['label' => 'Аналитика и отчеты', 'url' => '/admin/analytics', 'ids' => ['analytics']],
+                        ['label' => 'RFM сегменты', 'url' => '/admin/analytics/rfm', 'ids' => ['rfm']],
+                        ['label' => 'Маркетинг', 'url' => '/admin/marketing', 'ids' => ['marketing']]
+                    ]
+                ],
+                
+                // 🛍️ КАТАЛОГ
+                [
+                    'label' => 'Каталог',
+                    'icon' => 'bi-collection-fill',
+                    'items' => [
+                        ['label' => 'Товары', 'url' => '/admin/catalog', 'ids' => ['catalog', 'product']],
+                        ['label' => 'Теги', 'url' => '/admin/product-tag', 'ids' => ['product-tag']],
+                        ['label' => 'Отзывы', 'url' => '/admin/review', 'ids' => ['review']]
+                    ]
+                ],
+                
+                // 👥 КЛИЕНТЫ
+                [
+                    'label' => 'Клиенты',
+                    'icon' => 'bi-people-fill',
+                    'url' => '/admin/customer',
+                    'ids' => ['customer'],
+                    'items' => []
+                ],
+                
+                // 🎟️ ПРОМО
+                [
+                    'label' => 'Промо',
+                    'icon' => 'bi-ticket-detailed-fill',
+                    'items' => [
+                        ['label' => 'Купоны', 'url' => '/admin/coupon', 'ids' => ['coupon']],
+                        ['label' => 'Маркетинговые кампании', 'url' => '/admin/marketing/campaigns', 'ids' => ['marketing']]
+                    ]
+                ],
+                
+                // 💻 ИНТЕГРАЦИИ
+                [
+                    'label' => 'Интеграции',
+                    'icon' => 'bi-plugin',
+                    'items' => [
+                        ['label' => 'POS-Терминал', 'url' => '/admin/pos', 'ids' => ['pos']],
+                        ['label' => 'Плагины', 'url' => '/admin/plugin', 'ids' => ['plugin']],
+                        ['label' => 'Импорт/Экспорт', 'url' => '/admin/import', 'ids' => ['import']]
+                    ]
+                ],
+                
+                // ⚙️ УПРАВЛЕНИЕ
+                [
+                    'label' => 'Управление',
+                    'icon' => 'bi-gear-wide-connected',
+                    'items' => [
+                        ['label' => 'Настройки', 'url' => '/admin/settings', 'ids' => ['settings']],
+                        ['label' => 'Боковое меню', 'url' => '/admin/sidebar-menu', 'ids' => ['sidebar-menu']]
+                    ]
+                ]
             ];
-            foreach ($navItems as $item): ?>
-            <a href="<?= Url::to([$item['url']]) ?>" class="admin-nav-item <?= in_array($controllerId, $item['ids']) ? 'active' : '' ?>">
-                <i class="bi <?= $item['icon'] ?>"></i>
-                <span><?= $item['label'] ?></span>
-            </a>
-            <?php endforeach ?>
+            
+            foreach ($navItems as $item): 
+                $hasSubmenu = !empty($item['items']);
+                $isActive = isset($item['ids']) && in_array($controllerId, $item['ids']);
+                $isSubmenuActive = false;
+                
+                if ($hasSubmenu) {
+                    foreach ($item['items'] as $subItem) {
+                        if (isset($subItem['ids']) && in_array($controllerId, $subItem['ids'])) {
+                            $isSubmenuActive = true;
+                            break;
+                        }
+                    }
+                }
+            ?>
+            
+            <?php if ($hasSubmenu): ?>
+                <!-- Menu item with submenu -->
+                <div class="admin-nav-group <?= $isSubmenuActive ? 'active' : '' ?>">
+                    <button class="admin-nav-item admin-nav-toggle" onclick="toggleSubmenu(this)">
+                        <i class="bi <?= $item['icon'] ?>"></i>
+                        <span><?= $item['label'] ?></span>
+                        <i class="bi bi-chevron-down admin-nav-chevron"></i>
+                    </button>
+                    <div class="admin-nav-submenu <?= $isSubmenuActive ? 'open' : '' ?>">
+                        <?php foreach ($item['items'] as $subItem): ?>
+                            <a href="<?= Url::to([$subItem['url']]) ?>" class="admin-nav-subitem <?= (isset($subItem['ids']) && in_array($controllerId, $subItem['ids'])) ? 'active' : '' ?>">
+                                <?= $subItem['label'] ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php else: ?>
+                <!-- Simple menu item -->
+                <a href="<?= Url::to([$item['url']]) ?>" class="admin-nav-item <?= $isActive ? 'active' : '' ?>">
+                    <i class="bi <?= $item['icon'] ?>"></i>
+                    <span><?= $item['label'] ?></span>
+                </a>
+            <?php endif; endforeach ?>
 
             <div class="admin-nav-divider" style="margin-top: auto; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);"></div>
             <a href="<?= Url::to(['/']) ?>" class="admin-nav-item" target="_blank">
                 <i class="bi bi-box-arrow-up-right"></i>
                 <span>На сайт</span>
-            </a>
-            <a href="<?= Url::to(['/admin/logout']) ?>" class="admin-nav-item" style="color: rgba(255,255,255,0.6);">
-                <i class="bi bi-power"></i>
-                <span>Выйти</span>
             </a>
         </nav>
     </aside>
@@ -99,6 +204,10 @@ $controllerId = Yii::$app->controller->id;
         <!-- B2.2 Global Header Bar -->
         <div class="admin-topbar" id="admin-topbar">
             <div class="admin-topbar-left">
+                <!-- Mobile Menu Toggle -->
+                <button class="admin-mobile-menu-btn" id="mobile-menu-toggle" onclick="toggleMobileSidebar()" style="display: none;" title="Открыть меню">
+                    <i class="bi bi-list"></i>
+                </button>
                 <button class="admin-topbar-search-btn" onclick="document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',ctrlKey:true,bubbles:true}))" title="Глобальный поиск (Ctrl+K)">
                     <i class="bi bi-search"></i>
                     <span class="admin-topbar-search-hint">Поиск <kbd>Ctrl+K</kbd></span>
@@ -165,16 +274,52 @@ $controllerId = Yii::$app->controller->id;
                         </div>
                     </div>
                 </div>
+                
+                <!-- Профиль пользователя -->
+                <div class="admin-user-profile" style="position:relative">
+                    <button class="admin-topbar-icon-btn admin-profile-btn" id="profile-btn" title="Профиль пользователя" onclick="toggleProfile()">
+                        <i class="bi bi-person-circle"></i>
+                    </button>
+                    <div class="admin-profile-dropdown" id="profile-dropdown" style="display:none;">
+                        <div class="admin-profile-header">
+                            <div class="admin-profile-info">
+                                <div class="admin-profile-name"><?= Html::encode($company['name'] ?? 'Admin') ?></div>
+                                <div class="admin-profile-role">Администратор</div>
+                            </div>
+                        </div>
+                        <div class="admin-profile-divider"></div>
+                        <a href="<?= Url::to(['/admin/settings']) ?>" class="admin-profile-item">
+                            <i class="bi bi-gear"></i> Настройки
+                        </a>
+                        <a href="<?= Url::to(['/']) ?>" class="admin-profile-item" target="_blank">
+                            <i class="bi bi-box-arrow-up-right"></i> На сайт
+                        </a>
+                        <div class="admin-profile-divider"></div>
+                        <a href="<?= Url::to(['/admin/logout']) ?>" class="admin-profile-item admin-profile-logout">
+                            <i class="bi bi-power"></i> Выйти
+                        </a>
+                    </div>
+                </div>
                 <script>
                 function toggleNotifications() {
                     const dropdown = document.getElementById('notif-dropdown');
                     dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
                 }
+                function toggleProfile() {
+                    const dropdown = document.getElementById('profile-dropdown');
+                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                }
                 document.addEventListener('click', function(e) {
                     const notifBtn = document.getElementById('notif-btn');
-                    const dropdown = document.getElementById('notif-dropdown');
-                    if (!notifBtn.contains(e.target) && !dropdown.contains(e.target)) {
-                        dropdown.style.display = 'none';
+                    const notifDropdown = document.getElementById('notif-dropdown');
+                    const profileBtn = document.getElementById('profile-btn');
+                    const profileDropdown = document.getElementById('profile-dropdown');
+                    
+                    if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+                        notifDropdown.style.display = 'none';
+                    }
+                    if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                        profileDropdown.style.display = 'none';
                     }
                 });
                 </script>

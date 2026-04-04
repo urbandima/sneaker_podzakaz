@@ -23,6 +23,7 @@ class CatalogAsset extends VersionedAssetBundle
     
     public $js = [
         'js/lazy-load.js',
+        'js/cart.js',
         'js/favorites.js',
         'js/catalog.js',
     ];

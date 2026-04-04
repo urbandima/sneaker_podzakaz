@@ -118,12 +118,35 @@ function loadMoreProducts() {
                         <i class="bi bi-chevron-down"></i>
                     </div>
                     <div class="filter-content filter-content--open">
-                        <div id="price-slider"></div>
-                        <div class="price-filter">
-                            <input type="number" class="price-input" id="price-from" name="price_from" value="<?= $filters['priceRange']['min'] ?? 0 ?>" readonly>
-                            <span class="price-separator">—</span>
-                            <input type="number" class="price-input" id="price-to" name="price_to" value="<?= $filters['priceRange']['max'] ?? 0 ?>" readonly>
+                        <div class="price-slider-container">
+                            <div class="price-range-slider">
+                                <input type="range" id="price-slider-min" min="<?= $filters['priceRange']['min'] ?? 0 ?>" max="<?= $filters['priceRange']['max'] ?? 10000 ?>" value="<?= $currentFilters['price_from'] ?? ($filters['priceRange']['min'] ?? 0) ?>" class="slider-thumb slider-thumb-min">
+                                <input type="range" id="price-slider-max" min="<?= $filters['priceRange']['min'] ?? 0 ?>" max="<?= $filters['priceRange']['max'] ?? 10000 ?>" value="<?= $currentFilters['price_to'] ?? ($filters['priceRange']['max'] ?? 10000) ?>" class="slider-thumb slider-thumb-max">
+                                <div class="slider-track"></div>
+                                <div class="slider-range" id="slider-range"></div>
+                            </div>
+                            <div class="price-filter">
+                                <input type="number" class="price-input" id="price-from" name="price_from" value="<?= $currentFilters['price_from'] ?? ($filters['priceRange']['min'] ?? 0) ?>">
+                                <span class="price-separator">—</span>
+                                <input type="number" class="price-input" id="price-to" name="price_to" value="<?= $currentFilters['price_to'] ?? ($filters['priceRange']['max'] ?? 10000) ?>">
+                                <span class="price-currency">BYN</span>
+                            </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- В наличии -->
+                <div class="filter-group open" id="filter-stock">
+                    <div class="filter-title" onclick="toggleFilterGroup(this)">
+                        <span>Наличие</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <div class="filter-content filter-content--open">
+                        <label class="filter-checkbox">
+                            <input type="checkbox" name="in_stock" value="1" <?= !empty($currentFilters['in_stock']) ? 'checked' : '' ?>>
+                            <span class="checkbox-mark"></span>
+                            <span>Только в наличии</span>
+                        </label>
                     </div>
                 </div>
 
@@ -380,9 +403,10 @@ function loadMoreProducts() {
 
             <!-- Content -->
             <main class="content">
-                <!-- Мобильная кнопка фильтра -->
-                <button type="button" class="btn-filter-mobile">
-                    <i class="bi bi-sliders"></i> Фильтры
+                <!-- Кнопка открытия фильтра (Desktop) -->
+                <button type="button" class="filter-toggle-btn" onclick="toggleFilters()">
+                    <i class="bi bi-sliders"></i>
+                    <span>Фильтры</span>
                 </button>
 
                 <div class="content-header">
@@ -466,11 +490,18 @@ function loadMoreProducts() {
                     
                     <div class="toolbar-actions">
                         <select class="sort-select" id="sortSelect" onchange="applySort(this.value)">
-                            <option value="popular">Популярные</option>
-                            <option value="price_asc">Сначала дешевые</option>
-                            <option value="price_desc">Сначала дорогие</option>
-                            <option value="new">Новинки</option>
-                            <option value="discount">Со скидкой</option>
+                            <option value="popular" <?= ($currentFilters['sort'] ?? 'popular') === 'popular' ? 'selected' : '' ?>>По популярности</option>
+                            <option value="price_asc" <?= ($currentFilters['sort'] ?? '') === 'price_asc' ? 'selected' : '' ?>>Сначала дешевые</option>
+                            <option value="price_desc" <?= ($currentFilters['sort'] ?? '') === 'price_desc' ? 'selected' : '' ?>>Сначала дорогие</option>
+                            <option value="new" <?= ($currentFilters['sort'] ?? '') === 'new' ? 'selected' : '' ?>>Новинки</option>
+                            <option value="rating" <?= ($currentFilters['sort'] ?? '') === 'rating' ? 'selected' : '' ?>>По рейтингу</option>
+                            <option value="discount" <?= ($currentFilters['sort'] ?? '') === 'discount' ? 'selected' : '' ?>>Со скидкой</option>
+                        </select>
+
+                        <select class="per-page-select" id="perPageSelect" onchange="applyPerPage(this.value)">
+                            <option value="4" <?= ($pagination->pageSize ?? 4) == 4 ? 'selected' : '' ?>>4 товара</option>
+                            <option value="8" <?= ($pagination->pageSize ?? 4) == 8 ? 'selected' : '' ?>>8 товаров</option>
+                            <option value="12" <?= ($pagination->pageSize ?? 4) == 12 ? 'selected' : '' ?>>12 товаров</option>
                         </select>
 
                         <div class="view-toggle">
@@ -1030,7 +1061,13 @@ document.querySelectorAll('.view-btn').forEach(btn => {
     const view = btn.getAttribute('data-view');
     const products = document.getElementById('products');
     
-    products.className = 'products ' + view;
+    if (view === 'list') {
+        products.classList.remove('products-grid');
+        products.classList.add('products-list');
+    } else {
+        products.classList.remove('products-list');
+        products.classList.add('products-grid');
+    }
     localStorage.setItem('catalogView', view);
   });
 });
@@ -1050,6 +1087,92 @@ function applySort(sortValue) {
   const params = new URLSearchParams(window.location.search);
   params.set('sort', sortValue);
   window.location.href = '/catalog?' + params.toString();
+}
+
+// Per page functionality
+function applyPerPage(perPageValue) {
+  const params = new URLSearchParams(window.location.search);
+  params.set('per_page', perPageValue);
+  params.set('page', '1'); // Reset to first page
+  window.location.href = '/catalog?' + params.toString();
+}
+window.applyPerPage = applyPerPage;
+
+// View switcher function
+function switchView(view) {
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.view-btn[data-view="${view}"]`).classList.add('active');
+  
+  const products = document.getElementById('products');
+  if (view === 'list') {
+    products.classList.remove('products-grid');
+    products.classList.add('products-list');
+  } else {
+    products.classList.remove('products-list');
+    products.classList.add('products-grid');
+  }
+  localStorage.setItem('catalogView', view);
+}
+window.switchView = switchView;
+
+// Price Range Slider
+const priceSliderMin = document.getElementById('price-slider-min');
+const priceSliderMax = document.getElementById('price-slider-max');
+const priceInputMin = document.getElementById('price-from');
+const priceInputMax = document.getElementById('price-to');
+const sliderRange = document.getElementById('slider-range');
+
+if (priceSliderMin && priceSliderMax) {
+  const minPrice = parseInt(priceSliderMin.min);
+  const maxPrice = parseInt(priceSliderMin.max);
+  
+  function updateSlider() {
+    let minVal = parseInt(priceSliderMin.value);
+    let maxVal = parseInt(priceSliderMax.value);
+    
+    if (maxVal - minVal < 100) {
+      if (event.target === priceSliderMin) {
+        priceSliderMin.value = maxVal - 100;
+      } else {
+        priceSliderMax.value = minVal + 100;
+      }
+    }
+    
+    minVal = parseInt(priceSliderMin.value);
+    maxVal = parseInt(priceSliderMax.value);
+    
+    const percent1 = ((minVal - minPrice) / (maxPrice - minPrice)) * 100;
+    const percent2 = ((maxVal - minPrice) / (maxPrice - minPrice)) * 100;
+    
+    sliderRange.style.left = percent1 + '%';
+    sliderRange.style.width = (percent2 - percent1) + '%';
+    
+    priceInputMin.value = minVal;
+    priceInputMax.value = maxVal;
+  }
+  
+  function updateInputs() {
+    let minVal = parseInt(priceInputMin.value) || minPrice;
+    let maxVal = parseInt(priceInputMax.value) || maxPrice;
+    
+    if (minVal < minPrice) minVal = minPrice;
+    if (maxVal > maxPrice) maxVal = maxPrice;
+    if (minVal > maxVal) minVal = maxVal;
+    if (maxVal < minVal) maxVal = minVal;
+    
+    priceSliderMin.value = minVal;
+    priceSliderMax.value = maxVal;
+    
+    updateSlider();
+  }
+  
+  priceSliderMin.addEventListener('input', updateSlider);
+  priceSliderMax.addEventListener('input', updateSlider);
+  priceInputMin.addEventListener('change', updateInputs);
+  priceInputMax.addEventListener('change', updateInputs);
+  
+  // Initialize
+  updateSlider();
 }
 
 // УДАЛЕНО: устаревший inline applyFiltersAjax — используется catalog.js

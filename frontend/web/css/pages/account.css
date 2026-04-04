@@ -1,50 +1,50 @@
-/**
- * Account Pages B&W Style
- * ===================================
- */
+/* ==============================================
+   ACCOUNT PAGES — СНИКЕРХЭД
+   Layout, sidebar, orders, profile
+   ============================================== */
 
 .account-page {
-    padding: 32px 0 64px;
-    background: var(--color-surface);
+    padding: var(--space-8) 0 var(--space-16);
+    background: var(--color-bg-secondary);
     min-height: calc(100vh - var(--header-height));
 }
 
 .account-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 var(--space-4);
 }
 
 .account-header {
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-8);
 }
 
 .account-header h1 {
-    font-size: 1.75rem;
-    font-weight: 700;
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-bold);
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: var(--space-3);
 }
 
 .account-grid {
     display: grid;
     grid-template-columns: 280px 1fr;
-    gap: 2rem;
+    gap: var(--space-8);
 }
 
-/* Sidebar */
+/* === SIDEBAR === */
 .account-sidebar {
     position: sticky;
-    top: 100px;
+    top: calc(var(--header-height) + var(--space-4));
 }
 
 .sidebar-card {
-    background: var(--color-white);
+    background: var(--color-bg-primary);
     border: 1px solid var(--color-border);
-    border-radius: 16px;
-    padding: 1.5rem;
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
 }
 
 .user-info {
@@ -57,8 +57,8 @@
 .user-avatar {
     width: 64px;
     height: 64px;
-    background: var(--color-black);
-    color: var(--color-white);
+    background: var(--c-black);
+    color: var(--c-white);
     border-radius: 100px;
     display: flex;
     align-items: center;
@@ -98,7 +98,7 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
-    color: var(--color-black);
+    color: var(--c-black);
     text-decoration: none;
     border-radius: 10px;
     transition: all 0.2s ease;
@@ -111,7 +111,7 @@
 
 .account-menu a.active {
     background: var(--color-surface);
-    border-left: 3px solid var(--color-black);
+    border-left: 3px solid var(--c-black);
     border-radius: 0 10px 10px 0;
 }
 
@@ -170,7 +170,7 @@
 
 .order-card {
     display: block;
-    background: var(--color-white);
+    background: var(--c-white);
     border: 1px solid var(--color-border);
     border-radius: 16px;
     padding: 1.5rem;
@@ -180,7 +180,7 @@
 }
 
 .order-card:hover {
-    border-color: var(--color-black);
+    border-color: var(--c-black);
     box-shadow: var(--shadow-hover);
 }
 
@@ -207,17 +207,37 @@
 
 /* Status Colors (B&W System Adapted) */
 .order-status.created,
-.order-status-badge.created { background: var(--color-surface); color: var(--color-black); border: 1px solid var(--color-border); }
+.order-status-badge.created {
+    background: var(--color-surface);
+    color: var(--c-black);
+    border: 1px solid var(--color-border);
+}
+
 .order-status.processing,
-.order-status-badge.processing { background: #FEF9C3; color: #854D0E; }
+.order-status-badge.processing {
+    background: #FEF9C3;
+    color: #854D0E;
+}
+
 .order-status.shipped,
-.order-status-badge.shipped { background: var(--color-surface); color: var(--color-black); }
+.order-status-badge.shipped {
+    background: var(--color-surface);
+    color: var(--c-black);
+}
+
 .order-status.delivered,
 .order-status-badge.delivered,
 .order-status.completed,
-.order-status-badge.completed { background: #DCFCE7; color: #166534; }
+.order-status-badge.completed {
+    background: #DCFCE7;
+    color: #166534;
+}
+
 .order-status.cancelled,
-.order-status-badge.cancelled { background: #FEE2E2; color: #991B1B; }
+.order-status-badge.cancelled {
+    background: #FEE2E2;
+    color: #991B1B;
+}
 
 .order-card-body {
     display: grid;
@@ -244,7 +264,7 @@
 .empty-orders {
     text-align: center;
     padding: 4rem 2rem;
-    background: var(--color-white);
+    background: var(--c-white);
     border: 1px solid var(--color-border);
     border-radius: 16px;
 }
@@ -280,10 +300,10 @@
     justify-content: center;
     width: 44px;
     height: 44px;
-    background: var(--color-white);
+    background: var(--c-white);
     border: 1px solid var(--color-border);
     border-radius: 12px;
-    color: var(--color-black);
+    color: var(--c-black);
     text-decoration: none;
     transition: all 0.2s;
 }
@@ -313,7 +333,7 @@
 }
 
 .content-card {
-    background: var(--color-white);
+    background: var(--c-white);
     border-radius: 16px;
     border: 1px solid var(--color-border);
     padding: 1.5rem;
@@ -348,7 +368,7 @@
     height: 80px;
     border-radius: 8px;
     object-fit: contain;
-    background: var(--color-white);
+    background: var(--c-white);
 }
 
 .item-info {
@@ -454,13 +474,13 @@
     height: 16px;
     border-radius: 50%;
     background: var(--color-border);
-    border: 3px solid var(--color-white);
+    border: 3px solid var(--c-white);
     box-shadow: 0 0 0 2px var(--color-border);
 }
 
 .timeline-item.active .timeline-dot {
-    background: var(--color-black);
-    box-shadow: 0 0 0 2px var(--color-black);
+    background: var(--c-black);
+    box-shadow: 0 0 0 2px var(--c-black);
 }
 
 .timeline-item.completed .timeline-dot {
@@ -538,7 +558,9 @@
 }
 
 @media (max-width: 991px) {
-    .account-grid, .order-grid {
+
+    .account-grid,
+    .order-grid {
         grid-template-columns: 1fr;
     }
 }
@@ -547,6 +569,7 @@
     .order-card-body {
         grid-template-columns: 1fr 1fr;
     }
+
     .info-grid {
         grid-template-columns: 1fr;
     }

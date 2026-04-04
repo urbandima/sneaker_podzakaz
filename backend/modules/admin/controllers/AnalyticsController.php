@@ -75,7 +75,10 @@ class AnalyticsController extends BaseAdminController
         $popularProducts = AnalyticsEvent::getPopularProducts(10, $dateFrom, $dateTo);
         
         // Статистика заказов по дням
-        $ordersByDay = $this->getOrdersByDay($dateFrom, $dateTo);
+        $salesByDay = $this->getSalesByDay($dateFrom, $dateTo);
+        
+        // Топ продаваемых товаров
+        $topProducts = $this->getTopSellingProducts($dateFrom, $dateTo, 10);
         
         // Статистика выручки
         $revenueStats = $this->getRevenueStats($dateFrom, $dateTo);
@@ -90,7 +93,8 @@ class AnalyticsController extends BaseAdminController
             'conversion' => $conversion,
             'trafficSources' => $trafficSources,
             'popularProducts' => $popularProducts,
-            'ordersByDay' => $ordersByDay,
+            'salesByDay' => $salesByDay,
+            'topProducts' => $topProducts,
             'revenueStats' => $revenueStats,
             'deviceStats' => $deviceStats,
         ]);

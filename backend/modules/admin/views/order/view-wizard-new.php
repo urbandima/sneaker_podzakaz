@@ -1,612 +1,7 @@
 <?php
-
-/** @var yii\web\View $this */
-/** @var app\backend\modules\catalog\models\Order $model */
-
 use yii\helpers\Html;
 use yii\helpers\Url;
-
-$this->title = 'Заказ №' . $model->order_number;
-$user = Yii::$app->user->identity;
-$statuses = Yii::$app->settings->getStatuses();
-$canEdit = !$user->isLogist();
-$isEditing = $canEdit && !empty($editing);
-$inputDisabled = ($canEdit && $isEditing) ? '' : 'disabled';
-$logists = $user->isAdmin()
-    ? (function() {
-        try {
-            return \app\backend\modules\admin\models\User::find()->where(['role' => 'logist'])->orderBy(['username' => SORT_ASC])->all();
-        } catch (\Exception $e) {
-            return [];
-        }
-    })()
-    : [];
-$itemCount = count($model->orderItems);
-$amoDealId = ($model->source === 'amocrm' && $model->source_id) ? $model->source_id : null;
-$amoBase = Yii::$app->params['amocrmDealBaseUrl'] ?? 'https://www.amocrm.ru/leads/detail';
-$amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
-
-// Функция для получения цвета статуса
-function getStatusColor($status) {
-    switch ($status) {
-        case 'created': return 'info';
-        case 'confirmed': return 'warning';
-        case 'paid': return 'warning';
-        case 'ordered': return 'warning';
-        case 'shipped': return 'warning';
-        case 'delivered': return 'success';
-        case 'issued': return 'success';
-        case 'canceled': return 'danger';
-        default: return 'neutral';
-    }
-}
-
-function getStatusIcon($status) {
-    switch ($status) {
-        case 'created': return 'bi-plus-circle';
-        case 'confirmed': return 'bi-check-circle';
-        case 'paid': return 'bi-currency-dollar';
-        case 'ordered': return 'bi-bag';
-        case 'shipped': return 'bi-truck';
-        case 'delivered': return 'bi-box-seam';
-        case 'issued': return 'bi-check2-all';
-        case 'canceled': return 'bi-x-circle';
-        default: return 'bi-question-circle';
-    }
-}
-
-$statusColor = getStatusColor($model->status);
-$statusIcon = getStatusIcon($model->status);
-$statusName = $statuses[$model->status] ?? $model->status;
 ?>
-
-<div class="admin-page-container">
-    <div class="admin-page-shell">
-        <!-- Хедер страницы -->
-        <div class="admin-page-header">
-            <div class="admin-page-header-content">
-                <div class="admin-page-eyebrow">
-                    <?= Html::a('<i class="bi bi-arrow-left"></i> К заказам', ['/admin/order/index'], ['class' => 'admin-link']) ?>
-                </div>
-                <h1 class="admin-page-title">
-                    <i class="bi bi-receipt"></i>
-                    Заказ №<?= Html::encode($model->order_number) ?>
-                </h1>
-                <p class="admin-page-subtitle">
-                    Создан <?= Yii::$app->formatter->asDatetime($model->created_at, 'd MMMM yyyy, HH:mm') ?>
-                    <?php if ($model->updated_at > $model->created_at): ?>
-                        · Обновлён <?= Yii::$app->formatter->asDatetime($model->updated_at, 'd MMM HH:mm') ?>
-                    <?php endif; ?>
-                </p>
-            </div>
-            <div class="admin-page-actions">
-                <?php if ($isEditing): ?>
-                    <button type="submit" form="order-edit-form" class="admin-btn admin-btn--success">
-                        <i class="bi bi-check-lg"></i>
-                        Сохранить
-                    </button>
-                    <?= Html::a('<i class="bi bi-x-lg"></i> Отмена', ['/admin/order/view', 'id' => $model->id], ['class' => 'admin-btn admin-btn--ghost']) ?>
-                <?php elseif ($canEdit): ?>
-                    <?= Html::a('<i class="bi bi-pencil"></i> Редактировать', ['/admin/order/update', 'id' => $model->id], ['class' => 'admin-btn admin-btn--primary']) ?>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <!-- Метрики заказа -->
-        <div class="admin-grid admin-grid--4 admin-mb-6">
-            <div class="admin-metric-card">
-                <span class="admin-metric-label">Статус заказа</span>
-                <span class="admin-metric-value" style="font-size: 1.25rem;">
-                    <span class="admin-badge admin-badge--<?= $statusColor ?>">
-                        <i class="bi <?= $statusIcon ?>"></i>
-                        <?= Html::encode($statusName) ?>
-                    </span>
-                </span>
-                <span class="admin-metric-change">
-                    ID: #<?= $model->id ?>
-                </span>
-            </div>
-            <div class="admin-metric-card">
-                <span class="admin-metric-label">Сумма заказа</span>
-                <span class="admin-metric-value"><?= number_format($model->total_amount ?? 0, 0, ',', ' ') ?> <small>BYN</small></span>
-                <span class="admin-metric-change <?= ($model->delivery_cost > 0) ? 'admin-metric-change--up' : '' ?>">
-                    <?php if ($model->delivery_cost > 0): ?>
-                        +<?= number_format($model->delivery_cost, 0, ',', ' ') ?> доставка
-                    <?php else: ?>
-                        Без доставки
-                    <?php endif; ?>
-                </span>
-            </div>
-            <div class="admin-metric-card">
-                <span class="admin-metric-label">Позиций в заказе</span>
-                <span class="admin-metric-value"><?= $itemCount ?></span>
-                <span class="admin-metric-change">
-                    <?= $model->delivery_method ?: 'Способ доставки не указан' ?>
-                </span>
-            </div>
-            <div class="admin-metric-card">
-                <span class="admin-metric-label">Клиент</span>
-                <span class="admin-metric-value" style="font-size: 1.25rem;"><?= Html::encode($model->client_name) ?></span>
-                <span class="admin-metric-change">
-                    <?= Html::encode($model->client_phone) ?>
-                </span>
-            </div>
-        </div>
-
-        <!-- Основной контент - две колонки -->
-        <div class="admin-grid admin-grid--3 admin-gap-6 admin-mb-6">
-            <!-- Левая колонка (2/3) -->
-            <div class="admin-grid-col-span-2">
-                <?php if ($isEditing): ?>
-                    <?= Html::beginForm(['/admin/order/update', 'id' => $model->id], 'post', ['class' => 'order-edit-form', 'id' => 'order-edit-form']) ?>
-                    <input type="hidden" name="editing" value="1">
-                <?php endif; ?>
-
-                <!-- Клиент и доставка -->
-                <div class="admin-card admin-mb-6">
-                    <div class="admin-card-header">
-                        <h2 class="admin-card-title">
-                            <i class="bi bi-person"></i>
-                            Клиент и доставка
-                        </h2>
-                    </div>
-                    <div class="admin-card-body">
-                        <div class="admin-grid admin-grid--2 admin-gap-4 admin-mb-4">
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">ФИО клиента</label>
-                                <?php if ($isEditing): ?>
-                                    <input type="text" class="admin-form-input" name="client_name" value="<?= Html::encode($model->client_name) ?>">
-                                <?php else: ?>
-                                    <div class="admin-form-value"><?= Html::encode($model->client_name) ?></div>
-                                <?php endif; ?>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Телефон</label>
-                                <?php if ($isEditing): ?>
-                                    <input type="tel" class="admin-form-input" name="client_phone" value="<?= Html::encode($model->client_phone) ?>">
-                                <?php else: ?>
-                                    <div class="admin-form-value"><?= Html::encode($model->client_phone) ?></div>
-                                <?php endif; ?>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Email</label>
-                                <?php if ($isEditing): ?>
-                                    <input type="email" class="admin-form-input" name="client_email" value="<?= Html::encode($model->client_email) ?>">
-                                <?php else: ?>
-                                    <div class="admin-form-value"><?= Html::encode($model->client_email ?: '—') ?></div>
-                                <?php endif; ?>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Способ доставки</label>
-                                <?php if ($isEditing): ?>
-                                    <input type="text" class="admin-form-input" name="delivery_method" value="<?= Html::encode($model->delivery_method) ?>">
-                                <?php else: ?>
-                                    <div class="admin-form-value"><?= Html::encode($model->delivery_method ?: '—') ?></div>
-                                <?php endif; ?>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Адрес доставки</label>
-                                <?php if ($isEditing): ?>
-                                    <input type="text" class="admin-form-input" name="full_address" value="<?= Html::encode($model->full_address) ?>">
-                                <?php else: ?>
-                                    <div class="admin-form-value"><?= Html::encode($model->full_address ?: '—') ?></div>
-                                <?php endif; ?>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Дата доставки</label>
-                                <?php if ($isEditing): ?>
-                                    <input type="date" class="admin-form-input" name="delivery_date" value="<?= $model->delivery_date ?>">
-                                <?php else: ?>
-                                    <div class="admin-form-value">
-                                        <?= $model->delivery_date ? Yii::$app->formatter->asDate($model->delivery_date, 'd MMMM yyyy') : '—' ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-
-                        <?php if ($model->comment || $isEditing): ?>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Комментарий к заказу</label>
-                                <?php if ($isEditing): ?>
-                                    <textarea class="admin-form-textarea" name="comment" rows="3"><?= Html::encode($model->comment) ?></textarea>
-                                <?php else: ?>
-                                    <div class="admin-form-value"><?= Html::encode($model->comment) ?: '<span class="admin-text-muted">Нет комментария</span>' ?></div>
-                                <?php endif; ?>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <!-- Товары в заказе -->
-                <div class="admin-card admin-mb-6">
-                    <div class="admin-card-header admin-flex admin-flex--between admin-flex--wrap">
-                        <h2 class="admin-card-title">
-                            <i class="bi bi-cart3"></i>
-                            Состав заказа
-                        </h2>
-                        <span class="admin-badge admin-badge--neutral">
-                            <?= $itemCount ?> <?= Yii::t('app', '{n, plural, one{товар} few{товара} many{товаров} other{товаров}}', ['n' => $itemCount]) ?>
-                        </span>
-                    </div>
-                    <div class="admin-card-body admin-table-wrapper">
-                        <table class="admin-table admin-table--compact">
-                            <thead>
-                                <tr>
-                                    <th>Наименование</th>
-                                    <th class="text-center">Кол-во</th>
-                                    <th class="text-end">Цена</th>
-                                    <th class="text-end">Сумма</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($model->orderItems as $item): ?>
-                                    <tr>
-                                        <td><?= Html::encode($item->product_name) ?></td>
-                                        <td class="text-center"><?= $item->quantity ?></td>
-                                        <td class="text-end"><?= number_format($item->price ?? 0, 2, ',', ' ') ?> BYN</td>
-                                        <td class="text-end fw-semibold"><?= number_format($item->total ?? 0, 2, ',', ' ') ?> BYN</td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                            <tfoot>
-                                <?php if ($model->delivery_cost > 0): ?>
-                                    <tr class="admin-table-footer">
-                                        <td colspan="3" class="text-end">Доставка:</td>
-                                        <td class="text-end">+<?= number_format($model->delivery_cost, 2, ',', ' ') ?> BYN</td>
-                                    </tr>
-                                <?php endif; ?>
-                                <tr class="admin-table-footer admin-table-footer--total">
-                                    <td colspan="3" class="text-end fw-bold">ИТОГО К ОПЛАТЕ:</td>
-                                    <td class="text-end fw-bold" style="font-size: 1.125rem; color: var(--admin-success);">
-                                        <?= number_format(($model->total_amount ?? 0) + ($model->delivery_cost ?? 0), 2, ',', ' ') ?> BYN
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Паспорт и получатель -->
-                <div class="admin-card admin-mb-6">
-                    <div class="admin-card-header">
-                        <h2 class="admin-card-title">
-                            <i class="bi bi-person-badge"></i>
-                            Данные получателя
-                        </h2>
-                    </div>
-                    <div class="admin-card-body">
-                        <div class="admin-grid admin-grid--2 admin-gap-4">
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Фамилия</label>
-                                <div class="admin-form-value"><?= Html::encode($model->recipient_last_name ?: '—') ?></div>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Имя</label>
-                                <div class="admin-form-value"><?= Html::encode($model->recipient_first_name ?: '—') ?></div>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Отчество</label>
-                                <div class="admin-form-value"><?= Html::encode($model->recipient_middle_name ?: '—') ?></div>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Дата рождения</label>
-                                <div class="admin-form-value">
-                                    <?= $model->birth_date ? Yii::$app->formatter->asDate($model->birth_date, 'd MMMM yyyy') : '—' ?>
-                                </div>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Паспорт серия/номер</label>
-                                <div class="admin-form-value">
-                                    <?= $model->passport_series || $model->passport_number
-                                        ? Html::encode(trim($model->passport_series . ' ' . $model->passport_number))
-                                        : '—' ?>
-                                </div>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Дата выдачи паспорта</label>
-                                <div class="admin-form-value">
-                                    <?= $model->passport_issue_date ? Yii::$app->formatter->asDate($model->passport_issue_date, 'd MMMM yyyy') : '—' ?>
-                                </div>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">ИНН (для РФ)</label>
-                                <div class="admin-form-value"><?= Html::encode($model->inn ?: '—') ?></div>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Индекс</label>
-                                <div class="admin-form-value"><?= Html::encode($model->postal_code ?: '—') ?></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Логистика -->
-                <div class="admin-card admin-mb-6">
-                    <div class="admin-card-header">
-                        <h2 class="admin-card-title">
-                            <i class="bi bi-truck"></i>
-                            Логистика и внешние ссылки
-                        </h2>
-                    </div>
-                    <div class="admin-card-body">
-                        <div class="admin-grid admin-grid--2 admin-gap-4">
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Трек-номер (Китай)</label>
-                                <div class="admin-form-value"><?= Html::encode($model->china_track_number ?: '—') ?></div>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Номер МС</label>
-                                <div class="admin-form-value"><?= Html::encode($model->ms_number ?: '—') ?></div>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Стоимость поставки (CNY)</label>
-                                <div class="admin-form-value">
-                                    <?= $model->shipment_value_cny ? number_format($model->shipment_value_cny, 2, ',', ' ') . ' CNY' : '—' ?>
-                                </div>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Количество (таможня)</label>
-                                <div class="admin-form-value"><?= $model->item_quantity ?: '—' ?></div>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Цена (таможня, CNY)</label>
-                                <div class="admin-form-value">
-                                    <?= $model->item_price_cny ? number_format($model->item_price_cny, 2, ',', ' ') . ' CNY' : '—' ?>
-                                </div>
-                            </div>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Описание для таможни</label>
-                                <div class="admin-form-value"><?= Html::encode($model->customs_description ?: '—') ?></div>
-                            </div>
-                            <div class="admin-form-group admin-grid-col-span-2">
-                                <label class="admin-form-label">Ссылка на товар</label>
-                                <div class="admin-form-value">
-                                    <?php if ($model->product_link): ?>
-                                        <?= Html::a(Html::encode($model->product_link), $model->product_link, ['target' => '_blank', 'class' => 'admin-link']) ?>
-                                    <?php else: ?>
-                                        —
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <div class="admin-form-group admin-grid-col-span-2">
-                                <label class="admin-form-label">Заказ Sneakerhead</label>
-                                <div class="admin-form-value">
-                                    <?php if ($model->sneakerhead_order_link): ?>
-                                        <?= Html::a(Html::encode($model->sneakerhead_order_link), $model->sneakerhead_order_link, ['target' => '_blank', 'class' => 'admin-link']) ?>
-                                    <?php else: ?>
-                                        —
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <?php if ($amoDealUrl): ?>
-                                <div class="admin-form-group admin-grid-col-span-2">
-                                    <label class="admin-form-label">AmoCRM сделка</label>
-                                    <div class="admin-form-value">
-                                        <?= Html::a('<i class="bi bi-box-arrow-up-right"></i> Открыть в AmoCRM', $amoDealUrl, ['target' => '_blank', 'class' => 'admin-link']) ?>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-
-                <?php if ($isEditing): ?>
-                    <?= Html::endForm() ?>
-                <?php endif; ?>
-            </div>
-
-            <!-- Правая колонка (1/3) -->
-            <div>
-                <!-- Публичная ссылка -->
-                <div class="admin-card admin-mb-6">
-                    <div class="admin-card-header">
-                        <h2 class="admin-card-title">
-                            <i class="bi bi-link-45deg"></i>
-                            Публичная ссылка
-                        </h2>
-                    </div>
-                    <div class="admin-card-body">
-                        <div class="admin-form-group admin-mb-3">
-                            <input type="text" class="admin-form-input" readonly value="<?= Url::to(['/order/view', 'token' => $model->token], true) ?>" id="publicLinkInput">
-                        </div>
-                        <button class="admin-btn admin-btn--secondary admin-btn--sm" onclick="copyPublicLink()">
-                            <i class="bi bi-copy"></i>
-                            Копировать ссылку
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Управление статусом -->
-                <div class="admin-card admin-mb-6">
-                    <div class="admin-card-header">
-                        <h2 class="admin-card-title">
-                            <i class="bi bi-sliders"></i>
-                            Управление
-                        </h2>
-                    </div>
-                    <div class="admin-card-body">
-                        <div class="admin-form-group admin-mb-4">
-                            <label class="admin-form-label">Статус заказа</label>
-                            <?php if ($isEditing): ?>
-                                <select class="admin-form-select" name="status">
-                                    <?php foreach ($statuses as $key => $value): ?>
-                                        <option value="<?= $key ?>" <?= $model->status === $key ? 'selected' : '' ?>>
-                                            <?= Html::encode($value) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            <?php else: ?>
-                                <div class="admin-flex admin-gap-2 admin-flex--center">
-                                    <span class="admin-badge admin-badge--<?= $statusColor ?>">
-                                        <i class="bi <?= $statusIcon ?>"></i>
-                                        <?= Html::encode($statusName) ?>
-                                    </span>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-
-                        <?php if ($user->isAdmin()): ?>
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">Назначенный логист</label>
-                                <?php if ($isEditing): ?>
-                                    <select class="admin-form-select" name="assigned_logist">
-                                        <option value="">Не назначен</option>
-                                        <?php foreach ($logists as $logist): ?>
-                                            <option value="<?= $logist->id ?>" <?= $model->assigned_logist == $logist->id ? 'selected' : '' ?>>
-                                                <?= Html::encode($logist->username) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                <?php else: ?>
-                                    <div class="admin-form-value">
-                                        <?php if ($model->assignedLogist): ?>
-                                            <span class="admin-badge admin-badge--success">
-                                                <i class="bi bi-person-check"></i>
-                                                <?= Html::encode($model->assignedLogist->username) ?>
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="admin-text-muted">Не назначен</span>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <!-- Финансы -->
-                <div class="admin-card admin-mb-6">
-                    <div class="admin-card-header">
-                        <h2 class="admin-card-title">
-                            <i class="bi bi-cash-stack"></i>
-                            Финансы
-                        </h2>
-                    </div>
-                    <div class="admin-card-body">
-                        <table class="admin-table admin-table--plain">
-                            <tbody>
-                                <tr>
-                                    <td class="admin-text-muted">Стоимость товаров</td>
-                                    <td class="text-end"><?= number_format($model->product_price ?? 0, 2, ',', ' ') ?> BYN</td>
-                                </tr>
-                                <tr>
-                                    <td class="admin-text-muted">Логистика</td>
-                                    <td class="text-end"><?= number_format($model->logistics_price ?? 0, 2, ',', ' ') ?> BYN</td>
-                                </tr>
-                                <tr>
-                                    <td class="admin-text-muted">Комиссия</td>
-                                    <td class="text-end"><?= number_format($model->commission_price ?? 0, 2, ',', ' ') ?> BYN</td>
-                                </tr>
-                                <?php if ($model->delivery_cost > 0): ?>
-                                    <tr>
-                                        <td class="admin-text-muted">Доставка</td>
-                                        <td class="text-end">+<?= number_format($model->delivery_cost, 2, ',', ' ') ?> BYN</td>
-                                    </tr>
-                                <?php endif; ?>
-                                <tr class="admin-table-footer--total">
-                                    <td class="fw-bold">ИТОГО</td>
-                                    <td class="text-end fw-bold" style="color: var(--admin-success);">
-                                        <?= number_format(($model->total_amount ?? 0) + ($model->delivery_cost ?? 0), 2, ',', ' ') ?> BYN
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Действия -->
-                <div class="admin-card">
-                    <div class="admin-card-header">
-                        <h2 class="admin-card-title">
-                            <i class="bi bi-lightning-charge"></i>
-                            Быстрые действия
-                        </h2>
-                    </div>
-                    <div class="admin-card-body">
-                        <div class="admin-flex admin-flex--column admin-gap-2">
-                            <?= Html::a('<i class="bi bi-file-pdf"></i> Скачать PDF', ['#'], ['class' => 'admin-btn admin-btn--outline admin-btn--sm']) ?>
-                            <?= Html::a('<i class="bi bi-printer"></i> Печать', ['#'], ['class' => 'admin-btn admin-btn--outline admin-btn--sm', 'onclick' => 'window.print(); return false;']) ?>
-                            <?= Html::a('<i class="bi bi-send"></i> Отправить клиенту', ['#'], ['class' => 'admin-btn admin-btn--outline admin-btn--sm']) ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-function copyPublicLink() {
-    const input = document.getElementById('publicLinkInput');
-    input.select();
-    document.execCommand('copy');
-
-    const button = document.querySelector('.admin-card-body button');
-    const originalHTML = button.innerHTML;
-    button.innerHTML = '<i class="bi bi-check-lg"></i> Скопировано!';
-    button.classList.add('admin-btn--success');
-    button.classList.remove('admin-btn--secondary');
-
-    setTimeout(() => {
-        button.innerHTML = originalHTML;
-        button.classList.remove('admin-btn--success');
-        button.classList.add('admin-btn--secondary');
-    }, 2000);
-}
-</script>
-
-<style>
-/* Дополнительные стили для страницы заказа */
-.admin-form-value {
-    padding: 10px 0;
-    font-weight: 500;
-    color: var(--admin-text-primary);
-}
-
-.admin-table-footer {
-    background: var(--admin-surface);
-    font-weight: 600;
-}
-
-.admin-table-footer--total {
-    background: var(--admin-surface-muted);
-    font-size: 1rem;
-}
-
-.admin-table--plain td {
-    padding: 8px 0;
-    border: none;
-}
-
-.admin-table--plain tr:last-child td {
-    padding-top: 12px;
-    border-top: 2px solid var(--admin-border);
-}
-
-.admin-link {
-    color: var(--admin-primary);
-    text-decoration: none;
-}
-
-.admin-link:hover {
-    text-decoration: underline;
-}
-
-/* Для печати */
-@media print {
-    .admin-page-actions,
-    .admin-btn,
-    .admin-card-header {
-        display: none !important;
-    }
-
-    .admin-card {
-        border: 1px solid #ddd;
-        break-inside: avoid;
-    }
-}
-</style>
-
 <style>
 :root {
     --bg: #f8fafc;
@@ -1266,7 +661,7 @@ function copyPublicLink() {
             <h1 class="order-number">Заказ №<?= Html::encode($model->order_number) ?></h1>
             <div class="order-actions-header">
                 <?= Html::a('← Список заказов', ['/admin/order/index'], ['class' => 'btn']) ?>
-                <?php if ($isEditing): ?>
+                <?php if ($editing): ?>
                     <button type="submit" form="order-edit-form" class="btn btn--success">💾 Сохранить</button>
                     <?= Html::a('✕ Отмена', ['/admin/order/view', 'id' => $model->id], ['class' => 'btn btn--secondary']) ?>
                 <?php elseif ($canEdit): ?>
@@ -1277,7 +672,7 @@ function copyPublicLink() {
         
         <div class="order-header-middle">
             <div class="order-meta">
-                <?php if ($isEditing): ?>
+                <?php if ($editing): ?>
                     <select class="control-select" name="status" style="width: auto; margin-right: 8px;">
                         <?php foreach ($statuses as $key => $value): ?>
                             <option value="<?= $key ?>" <?= $model->status === $key ? 'selected' : '' ?>>
@@ -1346,7 +741,7 @@ function copyPublicLink() {
     <div class="order-content">
         <!-- Левая колонка - основная информация -->
         <div class="content-main">
-            <?php if ($isEditing): ?>
+            <?php if ($editing): ?>
             <?= Html::beginForm(['/admin/order/update', 'id' => $model->id], 'post', ['class' => 'order-edit-form', 'id' => 'order-edit-form']) ?>
             <input type="hidden" name="editing" value="1">
             <?php endif; ?>
@@ -1360,7 +755,7 @@ function copyPublicLink() {
                     <div class="contact-row">
                         <div class="contact-item">
                             <span class="contact-label">ФИО:</span>
-                            <?php if ($isEditing): ?>
+                            <?php if ($editing): ?>
                                 <input type="text" class="control-input" name="client_name" value="<?= Html::encode($model->client_name) ?>" <?= $inputDisabled ?>>
                             <?php else: ?>
                                 <span class="contact-value"><?= Html::encode($model->client_name) ?></span>
@@ -1369,7 +764,7 @@ function copyPublicLink() {
                         </div>
                         <div class="contact-item">
                             <span class="contact-label">Телефон:</span>
-                            <?php if ($isEditing): ?>
+                            <?php if ($editing): ?>
                                 <input type="tel" class="control-input" name="client_phone" value="<?= Html::encode($model->client_phone) ?>" <?= $inputDisabled ?>>
                             <?php else: ?>
                                 <span class="contact-value"><?= Html::encode($model->client_phone) ?></span>
@@ -1378,7 +773,7 @@ function copyPublicLink() {
                         </div>
                         <div class="contact-item">
                             <span class="contact-label">Email:</span>
-                            <?php if ($isEditing): ?>
+                            <?php if ($editing): ?>
                                 <input type="email" class="control-input" name="client_email" value="<?= Html::encode($model->client_email) ?>" <?= $inputDisabled ?>>
                             <?php else: ?>
                                 <span class="contact-value"><?= Html::encode($model->client_email ?: 'не указан') ?></span>
@@ -1392,7 +787,7 @@ function copyPublicLink() {
                     <div class="delivery-info">
                         <div class="delivery-item">
                             <span class="delivery-label">Способ доставки:</span>
-                            <?php if ($isEditing): ?>
+                            <?php if ($editing): ?>
                                 <input type="text" class="control-input" name="delivery_method" value="<?= Html::encode($model->delivery_method) ?>" <?= $inputDisabled ?>>
                             <?php else: ?>
                                 <span class="delivery-value"><?= Html::encode($model->delivery_method ?: 'не указан') ?></span>
@@ -1400,7 +795,7 @@ function copyPublicLink() {
                         </div>
                         <div class="delivery-item">
                             <span class="delivery-label">Дата доставки:</span>
-                            <?php if ($isEditing): ?>
+                            <?php if ($editing): ?>
                                 <input type="date" class="control-input" name="delivery_date" value="<?= $model->delivery_date ?>" <?= $inputDisabled ?>>
                             <?php else: ?>
                                 <span class="delivery-value"><?= $model->delivery_date ? Yii::$app->formatter->asDate($model->delivery_date, 'd MMM yyyy') : 'не указана' ?></span>
@@ -1408,16 +803,16 @@ function copyPublicLink() {
                         </div>
                         <div class="delivery-item">
                             <span class="delivery-label">Адрес:</span>
-                            <?php if ($isEditing): ?>
+                            <?php if ($editing): ?>
                                 <input type="text" class="control-input" name="full_address" value="<?= Html::encode($model->full_address) ?>" <?= $inputDisabled ?>>
                             <?php else: ?>
                                 <span class="delivery-value"><?= Html::encode($model->full_address ?: 'не указан') ?></span>
                             <?php endif; ?>
                         </div>
-                        <?php if ($model->postal_code || $isEditing): ?>
+                        <?php if ($model->postal_code || $editing): ?>
                         <div class="delivery-item">
                             <span class="delivery-label">Индекс:</span>
-                            <?php if ($isEditing): ?>
+                            <?php if ($editing): ?>
                                 <input type="text" class="control-input" name="postal_code" value="<?= Html::encode($model->postal_code) ?>" <?= $inputDisabled ?>>
                             <?php else: ?>
                                 <span class="delivery-value"><?= Html::encode($model->postal_code) ?></span>
@@ -1426,10 +821,10 @@ function copyPublicLink() {
                         <?php endif; ?>
                     </div>
                     
-                    <?php if ($model->comment || $isEditing): ?>
+                    <?php if ($model->comment || $editing): ?>
                     <div style="margin-top: 16px; padding: 12px; background: var(--bg); border-radius: 8px;">
                         <strong>Комментарий:</strong> 
-                        <?php if ($isEditing): ?>
+                        <?php if ($editing): ?>
                             <textarea class="control-textarea" name="comment" style="width: 100%; margin-top: 8px;" <?= $inputDisabled ?> placeholder="Добавьте комментарий к заказу..."><?= Html::encode($model->comment) ?></textarea>
                         <?php else: ?>
                             <?= Html::encode($model->comment ?: 'нет комментария') ?>
@@ -1592,7 +987,7 @@ function copyPublicLink() {
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <?php if ($canEdit && $isEditing): ?>
+                        <?php if ($canEdit && $editing): ?>
                         <div class="control-actions">
                             <button class="btn btn--success btn--sm">🔄 Сохранить</button>
                             <button class="btn btn--secondary btn--sm">✕ Отмена</button>
@@ -1603,7 +998,7 @@ function copyPublicLink() {
                     <div class="control-group">
                         <label class="control-label">Комментарий:</label>
                         <textarea class="control-textarea" <?= $inputDisabled ?> placeholder="Добавьте комментарий к заказу..."><?= Html::encode($model->comment) ?></textarea>
-                        <?php if ($canEdit && $isEditing): ?>
+                        <?php if ($canEdit && $editing): ?>
                         <div class="control-actions">
                             <button class="btn btn--success btn--sm">🔄 Сохранить</button>
                             <button class="btn btn--secondary btn--sm">✕ Отмена</button>
@@ -1628,7 +1023,7 @@ function copyPublicLink() {
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <?php if ($canEdit && $isEditing): ?>
+                        <?php if ($canEdit && $editing): ?>
                         <div class="control-actions">
                             <button class="btn btn--success btn--sm">💾 Сохранить</button>
                         </div>
@@ -1672,7 +1067,7 @@ function copyPublicLink() {
     </div>
 </div>
 
-<?php if ($isEditing): ?>
+<?php if ($editing): ?>
 <?= Html::endForm() ?>
 <?php endif; ?>
 

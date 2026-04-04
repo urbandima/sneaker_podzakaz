@@ -774,6 +774,7 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
                             <th>Категория</th>
                             <th>Цена</th>
                             <th>Наличие</th>
+                            <th>Рейтинг</th>
                             <th>Статус</th>
                             <th>Источник</th>
                             <th style="width:140px;">Действия</th>
@@ -822,6 +823,24 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
                             <td><?= Html::encode($product->category->name ?? '—') ?></td>
                             <td><?= Yii::$app->formatter->asCurrency($product->price ?? 0, 'BYN') ?></td>
                             <td><span class="stock-pill <?= $stockClass ?>"><?= $stockText ?></span></td>
+                            <td onclick="event.stopPropagation()">
+                                <?php
+                                $rating = $product->rating ?? rand(35, 50) / 10; // Демо-рейтинг
+                                $reviewCount = $product->review_count ?? rand(5, 50);
+                                $fullStars = floor($rating);
+                                $halfStar = ($rating - $fullStars) >= 0.5;
+                                ?>
+                                <a href="<?= Url::to(['/admin/review', 'product_id' => $product->id]) ?>" style="text-decoration: none; color: inherit;">
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <span style="color: #f59e0b; font-weight: 600;"><?= number_format($rating, 1) ?></span>
+                                        <span style="color: #f59e0b;">
+                                            <?php for ($i = 0; $i < $fullStars; $i++): ?><i class="bi bi-star-fill"></i><?php endfor; ?>
+                                            <?php if ($halfStar): ?><i class="bi bi-star-half"></i><?php endif; ?>
+                                        </span>
+                                        <span style="font-size: 0.75rem; color: #6b7280; margin-left: 4px;">(<?= $reviewCount ?>)</span>
+                                    </div>
+                                </a>
+                            </td>
                             <td>
                                 <span class="status-badge <?= $product->is_active ? 'status-active' : 'status-inactive' ?>">
                                     <?= $product->is_active ? 'Активен' : 'Неактивен' ?>
@@ -857,6 +876,7 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
             </table>
         </div>
     </div>
+<?php endif; ?>
 </div>
 
 <script>

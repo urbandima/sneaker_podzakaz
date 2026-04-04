@@ -324,6 +324,14 @@ class Order extends ActiveRecord
     }
 
     /**
+     * Alias для china_track_number для совместимости
+     */
+    public function getTrack_number()
+    {
+        return $this->china_track_number;
+    }
+
+    /**
      * Alias для getLogist() для совместимости
      */
     public function getAssignedLogist()

@@ -15,7 +15,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <!-- Текущие акции -->
         <section class="current-promotions mb-5">
-            <h2 class="h3 mb-4">🔥 Текущие акции</h2>
+            <h2 class="h3 mb-4"><i class="bi bi-fire"></i> Текущие акции</h2>
             
             <div class="row g-4">
                 <div class="col-md-6">

@@ -59,6 +59,11 @@ use app\backend\shared\components\SitemapNotifier;
 class Brand extends ActiveRecord
 {
     /**
+     * Виртуальное поле для количества товаров (используется в CatalogController)
+     * @var int|null
+     */
+    public $products_count;
+    /**
      * {@inheritdoc}
      */
     public static function tableName()

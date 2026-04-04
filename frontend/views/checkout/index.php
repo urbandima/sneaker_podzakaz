@@ -6,6 +6,9 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\frontend\assets\CheckoutAsset;
+
+CheckoutAsset::register($this);
 
 $this->title = 'Оформление заказа';
 
@@ -34,6 +37,10 @@ $successUrl = Url::to(['/order/success']);
             </div>
             <div class="progress-step" data-step="4">
                 <span class="step-number">4</span>
+                <span class="step-name">Подтверждение</span>
+            </div>
+            <div class="progress-step" data-step="5">
+                <span class="step-number">5</span>
                 <span class="step-name">Готово</span>
             </div>
         </div>
@@ -131,7 +138,7 @@ $successUrl = Url::to(['/order/success']);
                                 <input type="radio" name="delivery" value="pickup_minsk" checked
                                        onchange="updateDelivery(0, 'pickup_minsk')">
                                 <div class="option-content">
-                                    <div class="option-icon">🏪</div>
+                                    <div class="option-icon"><i class="bi bi-shop"></i></div>
                                     <div class="option-info">
                                         <span class="option-name">Самовывоз (Минск)</span>
                                         <span class="option-price">Бесплатно</span>
@@ -198,14 +205,91 @@ $successUrl = Url::to(['/order/success']);
                         <button class="btn-back" onclick="goStep(2)">
                             <i class="bi bi-arrow-left"></i> Назад
                         </button>
-                        <button class="btn-next btn-place-order" onclick="submitOrder()">
-                            <i class="bi bi-bag-check"></i> Оформить заказ
+                        <button class="btn-next" onclick="goToPreview()">
+                            Далее <i class="bi bi-arrow-right"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Step 4: Успех -->
+                <!-- Step 4: Предпросмотр заказа -->
                 <div class="checkout-step" id="step-4">
+                    <h2>Подтверждение заказа</h2>
+                    
+                    <div class="preview-section">
+                        <h3>Контактные данные</h3>
+                        <div class="preview-data" id="preview-contact">
+                            <p><strong>Имя:</strong> <span id="preview-name"></span></p>
+                            <p><strong>Телефон:</strong> <span id="preview-phone"></span></p>
+                            <p><strong>Email:</strong> <span id="preview-email"></span></p>
+                            <?php if (!empty($comment)): ?>
+                            <p><strong>Комментарий:</strong> <span id="preview-comment"></span></p>
+                            <?php endif; ?>
+                        </div>
+                        <button class="btn-edit" onclick="goStep(2)">
+                            <i class="bi bi-pencil"></i> Изменить
+                        </button>
+                    </div>
+                    
+                    <div class="preview-section">
+                        <h3>Доставка</h3>
+                        <div class="preview-data" id="preview-delivery">
+                            <p><strong>Способ:</strong> <span id="preview-delivery-method"></span></p>
+                            <p><strong>Адрес:</strong> <span id="preview-address"></span></p>
+                        </div>
+                        <button class="btn-edit" onclick="goStep(3)">
+                            <i class="bi bi-pencil"></i> Изменить
+                        </button>
+                    </div>
+                    
+                    <div class="preview-section">
+                        <h3>Заказ</h3>
+                        <div class="preview-order-items">
+                            <?php foreach ($items as $item): ?>
+                                <?php if (!$item->product) continue; ?>
+                                <div class="preview-item">
+                                    <img src="<?= Html::encode($item->product->getMainImageUrl()) ?>" 
+                                         alt="<?= Html::encode($item->product->name) ?>"
+                                         class="preview-item-img">
+                                    <div class="preview-item-info">
+                                        <div class="preview-item-name"><?= Html::encode($item->product->name) ?></div>
+                                        <?php if ($item->size): ?>
+                                            <small>Размер: <?= Html::encode($item->size) ?></small>
+                                        <?php endif; ?>
+                                        <div class="preview-item-qty"><?= (int)$item->quantity ?> × <?= number_format($item->price, 2) ?> BYN</div>
+                                    </div>
+                                    <div class="preview-item-price"><?= number_format($item->price * $item->quantity, 2) ?> BYN</div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-total-box">
+                        <div class="preview-total-row">
+                            <span>Товары:</span>
+                            <span><?= number_format($total, 2) ?> BYN</span>
+                        </div>
+                        <div class="preview-total-row" id="preview-delivery-cost-row">
+                            <span>Доставка:</span>
+                            <span id="preview-delivery-cost">0 BYN</span>
+                        </div>
+                        <div class="preview-total-final">
+                            <span>Итого к оплате:</span>
+                            <span id="preview-final-total"><?= number_format($total, 2) ?> BYN</span>
+                        </div>
+                    </div>
+
+                    <div class="checkout-actions mt-4">
+                        <button class="btn-back" onclick="goStep(3)">
+                            <i class="bi bi-arrow-left"></i> Назад
+                        </button>
+                        <button class="btn-next btn-place-order" onclick="submitOrder()">
+                            <i class="bi bi-bag-check"></i> Подтвердить заказ
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 5: Успех -->
+                <div class="checkout-step" id="step-5">
                     <div class="order-success text-center py-5">
                         <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
                         <h2 class="mt-3">Заказ оформлен!</h2>
@@ -252,6 +336,20 @@ $successUrl = Url::to(['/order/success']);
                         <span>Доставка:</span>
                         <span id="deliveryCost">0 BYN</span>
                     </div>
+                    
+                    <!-- Coupon Section -->
+                    <div class="coupon-section" id="couponSection">
+                        <div class="coupon-input-row">
+                            <input type="text" id="couponCode" class="coupon-input" placeholder="Промокод" maxlength="20">
+                            <button type="button" class="coupon-btn" onclick="applyCoupon()">Применить</button>
+                        </div>
+                        <div class="coupon-message" id="couponMessage"></div>
+                    </div>
+                    <div class="summary-row coupon-discount-row" id="couponDiscountRow" style="display:none">
+                        <span>Скидка по промокоду:</span>
+                        <span id="couponDiscount">0 BYN</span>
+                    </div>
+                    
                     <div class="summary-total">
                         <span>Итого:</span>
                         <span id="finalTotal"><?= number_format($total, 2) ?> BYN</span>
@@ -265,6 +363,7 @@ $successUrl = Url::to(['/order/success']);
 <script>
 var orderTotal       = <?= (float)$total ?>;
 var orderDeliveryCost = 0;
+var orderDiscount = 0;
 var selectedDelivery = 'pickup_minsk';
 var csrfToken        = <?= json_encode($csrfToken) ?>;
 var createUrl        = <?= json_encode($createUrl) ?>;
@@ -282,6 +381,71 @@ function goStep(step) {
     });
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Apply Coupon Function
+function applyCoupon() {
+    var code = document.getElementById('couponCode').value.trim().toUpperCase();
+    var messageEl = document.getElementById('couponMessage');
+    
+    if (!code) {
+        showCouponMessage('Введите промокод', 'error');
+        return;
+    }
+    
+    // Test coupon codes (in production - API call)
+    var testCoupons = {
+        'SALE10': { type: 'percent', value: 10, name: 'Скидка 10%' },
+        'SALE20': { type: 'percent', value: 20, name: 'Скидка 20%' },
+        'WELCOME': { type: 'fixed', value: 50, name: 'Скидка 50 BYN' },
+        'FREESHIP': { type: 'shipping', value: 0, name: 'Бесплатная доставка' }
+    };
+    
+    var coupon = testCoupons[code];
+    
+    if (!coupon) {
+        showCouponMessage('Промокод не найден или недействителен', 'error');
+        return;
+    }
+    
+    // Calculate discount
+    if (coupon.type === 'percent') {
+        orderDiscount = orderTotal * (coupon.value / 100);
+    } else if (coupon.type === 'fixed') {
+        orderDiscount = Math.min(coupon.value, orderTotal);
+    } else if (coupon.type === 'shipping') {
+        orderDiscount = orderDeliveryCost;
+    }
+    
+    // Display discount
+    document.getElementById('couponDiscount').textContent = orderDiscount.toFixed(2) + ' BYN';
+    document.getElementById('couponDiscountRow').style.display = 'flex';
+    
+    // Update total
+    updateTotal();
+    
+    showCouponMessage(coupon.name + ' применена!', 'success');
+    
+    // Update preview if on step 4
+    if (document.getElementById('step-4').classList.contains('active')) {
+        document.getElementById('preview-final-total').textContent = (orderTotal + orderDeliveryCost - orderDiscount).toFixed(2) + ' BYN';
+    }
+}
+
+function showCouponMessage(text, type) {
+    var el = document.getElementById('couponMessage');
+    el.textContent = text;
+    el.className = 'coupon-message ' + (type === 'success' ? 'coupon-success' : 'coupon-error');
+    
+    setTimeout(function() {
+        el.textContent = '';
+        el.className = 'coupon-message';
+    }, 5000);
+}
+
+function updateTotal() {
+    var total = orderTotal + orderDeliveryCost - orderDiscount;
+    document.getElementById('finalTotal').textContent = total.toFixed(2) + ' BYN';
 }
 
 function validateStep2() {
@@ -313,12 +477,63 @@ function updateDelivery(cost, method) {
     selectedDelivery  = method;
 
     document.getElementById('deliveryCost').textContent = cost + ' BYN';
-    document.getElementById('finalTotal').textContent   = (orderTotal + cost).toFixed(2) + ' BYN';
+    
+    // Update discount if it was free shipping
+    if (orderDiscount === orderDeliveryCost && method !== 'pickup_minsk') {
+        // Keep the discount
+    }
+    
+    updateTotal();
 
     // Показываем поле адреса для курьерской доставки
     var needAddress = (method !== 'pickup_minsk');
     document.getElementById('addressGroup').style.display = needAddress ? 'block' : 'none';
     document.getElementById('field-address').required = needAddress;
+}
+
+function goToPreview() {
+    // Валидация данных доставки перед предпросмотром
+    var delivery = document.querySelector('input[name="delivery"]:checked');
+    var address = document.getElementById('field-address').value.trim();
+    
+    if (!delivery) {
+        alert('Выберите способ доставки');
+        return;
+    }
+    if (delivery.value !== 'pickup_minsk' && !address) {
+        alert('Укажите адрес доставки');
+        document.getElementById('field-address').focus();
+        return;
+    }
+    
+    // Заполняем данные для предпросмотра
+    var name = document.getElementById('field-name').value.trim();
+    var phone = document.getElementById('field-phone').value.trim();
+    var email = document.getElementById('field-email').value.trim();
+    var comment = document.getElementById('field-comment').value.trim();
+    
+    document.getElementById('preview-name').textContent = name;
+    document.getElementById('preview-phone').textContent = phone;
+    document.getElementById('preview-email').textContent = email || '—';
+    document.getElementById('preview-comment').textContent = comment || '—';
+    
+    // Способы доставки
+    var deliveryMethods = {
+        'pickup_minsk': 'Самовывоз (Минск)',
+        'courier_minsk': 'Курьер по Минску',
+        'europochta': 'Европочта',
+        'belpochta': 'Белпочта',
+        'sdek': 'СДЭК'
+    };
+    
+    document.getElementById('preview-delivery-method').textContent = deliveryMethods[delivery.value] || delivery.value;
+    document.getElementById('preview-address').textContent = delivery.value === 'pickup_minsk' ? 'Самовывоз, пр. Победителей 5' : address;
+    
+    // Обновляем стоимость доставки в предпросмотре
+    document.getElementById('preview-delivery-cost').textContent = orderDeliveryCost + ' BYN';
+    document.getElementById('preview-final-total').textContent = (orderTotal + orderDeliveryCost).toFixed(2) + ' BYN';
+    
+    goStep(4);
 }
 
 function submitOrder() {
@@ -337,11 +552,12 @@ function submitOrder() {
     }
     if (!delivery) {
         alert('Выберите способ доставки');
+        goStep(3);
         return;
     }
     if (delivery.value !== 'pickup_minsk' && !address) {
         alert('Укажите адрес доставки');
-        document.getElementById('field-address').focus();
+        goStep(3);
         return;
     }
 
@@ -371,16 +587,16 @@ function submitOrder() {
     .then(function(data) {
         if (data.success) {
             document.getElementById('orderNumber').textContent = data.order_number || data.order_id;
-            goStep(4);
+            goStep(5);
         } else {
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-bag-check"></i> Оформить заказ';
+            btn.innerHTML = '<i class="bi bi-bag-check"></i> Подтвердить заказ';
             alert(data.message || 'Ошибка оформления заказа. Попробуйте ещё раз.');
         }
     })
     .catch(function(err) {
         btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-bag-check"></i> Оформить заказ';
+        btn.innerHTML = '<i class="bi bi-bag-check"></i> Подтвердить заказ';
         alert('Ошибка соединения с сервером. Попробуйте позже.');
         console.error('Order create error:', err);
     });

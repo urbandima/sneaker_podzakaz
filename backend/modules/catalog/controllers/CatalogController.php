@@ -161,7 +161,7 @@ class CatalogController extends Controller
     {
         // Полный функционал каталога
         $request = Yii::$app->request;
-        $pageSize = $this->module->pageSize ?? 24;
+        $pageSize = $this->module->pageSize ?? 4;
         
         // Получаем параметры фильтрации
         $filters = $request->get('filters', []);
@@ -237,6 +237,14 @@ class CatalogController extends Controller
             ->where(['is_active' => true])
             ->orderBy(['name' => SORT_ASC])
             ->all();
+        
+        // Подсчитываем товары для каждого бренда
+        foreach ($brands as $brand) {
+            $brand->products_count = Product::find()
+                ->where(['brand_id' => $brand->id, 'is_active' => true])
+                ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK])
+                ->count();
+        }
         
         return $this->render('brands', [
             'brands' => $brands,
@@ -516,7 +524,7 @@ class CatalogController extends Controller
         }
         
         $pagination = new Pagination([
-            'defaultPageSize' => 24,
+            'defaultPageSize' => 4,
             'totalCount' => $totalCount,
         ]);
         

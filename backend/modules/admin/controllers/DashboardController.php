@@ -53,18 +53,22 @@ class DashboardController extends BaseAdminController
             $demoMode = true;
             $orderStats = [
                 'total' => 156,
-                'pending' => 23,
-                'processing' => 45,
-                'completed' => 88,
+                'created' => 23,
+                'confirmed' => 15,
+                'ordered' => 12,
+                'paid' => 45,
+                'shipped' => 38,
+                'delivered' => 23,
                 'today' => 12,
-                'thisMonth' => 45,
+                'thisMonth' => 156,
                 'totalAmount' => 15420.50,
             ];
             $productStats = [
-                'total' => 1245,
-                'active' => 1180,
-                'inactive' => 65,
-                'inStock' => 1120,
+                'total' => 5,
+                'active' => 4,
+                'inactive' => 1,
+                'inStock' => 3,
+                'outOfStock' => 2,
             ];
             $userStats = [
                 'total' => 8,
@@ -95,11 +99,46 @@ class DashboardController extends BaseAdminController
                 'email' => 'info@sneakerhead.by',
                 'phone' => '+375 (29) 123-45-67',
             ];
-            $recentOrders = [];
             $tariffs = [];
             $statusCounts = [];
             $overdueOrders = [];
             $openReturnsCount = 0;
+            
+            // Последние заказы (7 дней для более полного списка)
+            try {
+                $recentOrders = Order::find()
+                    ->where(['>=', 'created_at', strtotime('-7 days')])
+                    ->orderBy(['created_at' => SORT_DESC])
+                    ->limit(8)
+                    ->all();
+            } catch (\Exception $e) {
+                // Если нет БД, используем демо-заказы
+                $demoOrder = new \app\backend\modules\checkout\models\Order();
+                $demoOrder->id = 1;
+                $demoOrder->client_name = 'Иван Петров';
+                $demoOrder->client_phone = '+375 (29) 123-45-67';
+                $demoOrder->total_amount = 1250.00;
+                $demoOrder->status = 'paid';
+                $demoOrder->created_at = time() - 3600;
+                
+                $demoOrder2 = new \app\backend\modules\checkout\models\Order();
+                $demoOrder2->id = 2;
+                $demoOrder2->client_name = 'Мария Сидорова';
+                $demoOrder2->client_phone = '+375 (33) 987-65-43';
+                $demoOrder2->total_amount = 2340.50;
+                $demoOrder2->status = 'processing';
+                $demoOrder2->created_at = time() - 7200;
+                
+                $demoOrder3 = new \app\backend\modules\checkout\models\Order();
+                $demoOrder3->id = 3;
+                $demoOrder3->client_name = 'Алексей Иванов';
+                $demoOrder3->client_phone = '+375 (25) 555-44-33';
+                $demoOrder3->total_amount = 899.00;
+                $demoOrder3->status = 'shipped';
+                $demoOrder3->created_at = time() - 10800;
+                
+                $recentOrders = [$demoOrder, $demoOrder2, $demoOrder3];
+            }
         } else {
             // Демо-режим при отсутствии БД
             try {
@@ -124,9 +163,9 @@ class DashboardController extends BaseAdminController
                 // Настройки компании
                 $companySettings = CompanySettings::getSettings();
 
-                // Последние заказы (24 часа)
+                // Последние заказы (7 дней для более полного списка)
                 $recentOrders = Order::find()
-                    ->where(['>=', 'created_at', strtotime('-24 hours')])
+                    ->where(['>=', 'created_at', strtotime('-7 days')])
                     ->orderBy(['created_at' => SORT_DESC])
                     ->limit(8)
                     ->all();
@@ -196,7 +235,32 @@ class DashboardController extends BaseAdminController
                     'email' => 'info@sneakerhead.by',
                     'phone' => '+375 (29) 123-45-67',
                 ];
-                $recentOrders = [];
+                // Демо-заказы для отображения в дашборде
+                $demoOrder = new Order();
+                $demoOrder->id = 1;
+                $demoOrder->client_name = 'Иван Петров';
+                $demoOrder->client_phone = '+375 (29) 123-45-67';
+                $demoOrder->total_amount = 1250.00;
+                $demoOrder->status = 'paid';
+                $demoOrder->created_at = time() - 3600;
+                
+                $demoOrder2 = new Order();
+                $demoOrder2->id = 2;
+                $demoOrder2->client_name = 'Мария Сидорова';
+                $demoOrder2->client_phone = '+375 (33) 987-65-43';
+                $demoOrder2->total_amount = 2340.50;
+                $demoOrder2->status = 'processing';
+                $demoOrder2->created_at = time() - 7200;
+                
+                $demoOrder3 = new Order();
+                $demoOrder3->id = 3;
+                $demoOrder3->client_name = 'Алексей Иванов';
+                $demoOrder3->client_phone = '+375 (25) 555-44-33';
+                $demoOrder3->total_amount = 899.00;
+                $demoOrder3->status = 'shipped';
+                $demoOrder3->created_at = time() - 10800;
+                
+                $recentOrders = [$demoOrder, $demoOrder2, $demoOrder3];
                 $tariffs = [];
                 $statusCounts = [];
                 $overdueOrders = [];
@@ -263,10 +327,10 @@ class DashboardController extends BaseAdminController
         // ВРЕМЕННО: Для временной авторизации возвращаем демо-данные
         if (Yii::$app->user->identity instanceof \app\backend\modules\admin\models\TemporaryAdminIdentity) {
             return [
-                'total' => 1245,
-                'active' => 1180,
-                'inStock' => 1120,
-                'outOfStock' => 125,
+                'total' => 5,
+                'active' => 4,
+                'inStock' => 3,
+                'outOfStock' => 2,
             ];
         }
         

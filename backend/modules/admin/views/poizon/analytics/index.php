@@ -314,21 +314,33 @@ $this->title = '📊 Аналитика и отчеты';
                 <?php 
                 $maxValue = max($conversion['page_views'], 1);
                 $steps = [
-                    ['label' => 'Просмотры', 'value' => $conversion['page_views'], 'icon' => '👁️'],
-                    ['label' => 'Товары', 'value' => $conversion['product_views'], 'icon' => '👟'],
-                    ['label' => 'Корзина', 'value' => $conversion['add_to_cart'], 'icon' => '🛒'],
-                    ['label' => 'Заказы', 'value' => $conversion['orders'], 'icon' => '📦'],
+                    ['label' => 'Просмотры', 'value' => $conversion['page_views'], 'icon' => '👁️', 'url' => '/admin/analytics'],
+                    ['label' => 'Товары', 'value' => $conversion['product_views'], 'icon' => '👟', 'url' => '/admin/product'],
+                    ['label' => 'Корзина', 'value' => $conversion['add_to_cart'], 'icon' => '🛒', 'url' => '/admin/cart'],
+                    ['label' => 'Заказы', 'value' => $conversion['orders'], 'icon' => '📦', 'url' => '/admin/order'],
                 ];
-                foreach ($steps as $step):
+                foreach ($steps as $index => $step):
                     $height = max(40, ($step['value'] / $maxValue) * 200);
+                    $nextStep = $steps[$index + 1] ?? null;
+                    $conversionBetween = $nextStep && $step['value'] > 0 
+                        ? round(($nextStep['value'] / $step['value']) * 100) 
+                        : 0;
                 ?>
                 <div class="funnel-step">
-                    <div class="funnel-bar" style="height: <?= $height ?>px;">
-                        <?= $step['icon'] ?> <?= number_format($step['value']) ?>
-                    </div>
+                    <a href="<?= Url::to([$step['url']]) ?>" class="funnel-bar-link" style="text-decoration:none;width:100%;display:flex;flex-direction:column;align-items:center;">
+                        <div class="funnel-bar" style="height: <?= $height ?>px;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.02)';this.style.boxShadow='0 4px 12px rgba(59,130,246,0.4)';" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none';">
+                            <?= $step['icon'] ?> <?= number_format($step['value']) ?>
+                        </div>
+                    </a>
                     <div class="funnel-label"><?= $step['label'] ?></div>
                     <div class="funnel-value"><?= $maxValue > 0 ? round(($step['value'] / $maxValue) * 100) : 0 ?>%</div>
                 </div>
+                <?php if ($nextStep): ?>
+                <a href="<?= Url::to([$nextStep['url']]) ?>" class="funnel-arrow" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;align-self:center;padding-bottom:40px;cursor:pointer;transition:transform 0.2s;" title="Конверсия: <?= $conversionBetween ?>%" onmouseover="this.style.transform='translateX(5px)';" onmouseout="this.style.transform='translateX(0)';">
+                    <span style="font-size:24px;color:#6b7280;">→</span>
+                    <span style="font-size:11px;color:#3b82f6;font-weight:600;background:#dbeafe;padding:2px 6px;border-radius:4px;white-space:nowrap;"><?= $conversionBetween ?>%</span>
+                </a>
+                <?php endif; ?>
                 <?php endforeach; ?>
             </div>
         </div>

@@ -344,6 +344,7 @@ $this->title = 'Настройки аккаунта - СНИКЕРХЭД';
                     <ul class="account-menu">
                         <li><a href="<?= Url::to(['/account/profile']) ?>"><i class="bi bi-person"></i> Профиль</a></li>
                         <li><a href="<?= Url::to(['/account/orders']) ?>"><i class="bi bi-bag"></i> Мои заказы</a></li>
+                        <li><a href="<?= Url::to(['/account/loyalty']) ?>"><i class="bi bi-gem"></i> Баллы лояльности</a></li>
                         <li><a href="<?= Url::to(['/catalog/favorites']) ?>"><i class="bi bi-heart"></i> Избранное</a></li>
                         <li><a href="<?= Url::to(['/account/settings']) ?>" class="active"><i class="bi bi-gear"></i> Настройки</a></li>
                     </ul>

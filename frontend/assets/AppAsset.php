@@ -14,7 +14,11 @@ class AppAsset extends AssetBundle
         'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
         'css/core/design-tokens.css',
         'css/core/design-system.css',
+        'css/core/container-system.css',
+        'css/layout/public-layout.css',
+        'css/layout/responsive-fixes.css',
         'css/components/header.css',
+        'css/components/sidebar-menu.css',
         'css/components/footer.css',
         'css/components/cart-drawer.css',
         'css/components/product-card.css',
@@ -29,6 +33,8 @@ class AppAsset extends AssetBundle
     
     public $js = [
         'js/app.js',
+        'js/global-helpers.js',
+        'js/favorites.js',
         'js/cart.js',
         'js/mobile-menu.js',
     ];

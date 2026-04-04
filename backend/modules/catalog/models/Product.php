@@ -107,6 +107,7 @@ use app\backend\modules\catalog\models\ProductReview;
  * @property ProductColor[] $colors
  * @property ProductFavorite[] $favorites
  * @property ProductReview[] $reviews
+ * @property ProductTag[] $tags
  */
 class Product extends ActiveRecord
 {
@@ -448,8 +449,48 @@ class Product extends ActiveRecord
     public function getReviews()
     {
         return $this->hasMany(ProductReview::class, ['product_id' => 'id'])
-            ->where(['is_approved' => true])
+            ->where(['is_published' => true])
             ->orderBy(['created_at' => SORT_DESC]);
+    }
+
+    /**
+     * Теги товара
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTags()
+    {
+        return $this->hasMany(ProductTag::class, ['id' => 'tag_id'])
+            ->viaTable('{{%product_tag_assignment}}', ['product_id' => 'id'])
+            ->where(['is_active' => true])
+            ->orderBy(['sort_order' => SORT_ASC, 'name' => SORT_ASC]);
+    }
+
+    /**
+     * Связь с assignments (для управления тегами)
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTagAssignments()
+    {
+        return $this->hasMany(ProductTagAssignment::class, ['product_id' => 'id']);
+    }
+
+    /**
+     * Получить ID тегов товара
+     * @return array
+     */
+    public function getTagIds()
+    {
+        return ProductTagAssignment::getTagIdsByProduct($this->id);
+    }
+
+    /**
+     * Назначить теги товару
+     * @param array $tagIds
+     * @return bool
+     */
+    public function assignTags(array $tagIds)
+    {
+        return ProductTagAssignment::assignTags($this->id, $tagIds);
     }
 
     /**

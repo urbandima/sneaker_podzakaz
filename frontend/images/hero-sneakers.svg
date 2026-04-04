@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="400" fill="url(#bg)"/>
+  <g transform="translate(300,200)">
+    <!-- Sneaker shape simplified -->
+    <path d="M-120,40 Q-140,20 -120,0 L-80,-20 L80,-20 Q120,-20 140,0 L140,40 Q140,60 120,60 L-100,60 Q-120,60 -120,40 Z" fill="#fff" opacity="0.9"/>
+    <ellipse cx="-60" cy="10" rx="30" ry="15" fill="#6366f1" opacity="0.3"/>
+    <ellipse cx="60" cy="10" rx="30" ry="15" fill="#8b5cf6" opacity="0.3"/>
+    <!-- Laces -->
+    <line x1="-40" y1="-10" x2="40" y2="-10" stroke="#e0e7ff" stroke-width="4"/>
+    <line x1="-30" y1="0" x2="30" y2="0" stroke="#e0e7ff" stroke-width="4"/>
+    <!-- Sole -->
+    <rect x="-110" y="50" width="230" height="10" rx="5" fill="#1e1b4b" opacity="0.8"/>
+  </g>
+  <text x="300" y="350" text-anchor="middle" fill="#fff" font-family="system-ui, sans-serif" font-size="24" font-weight="bold">SNEAKERHEAD</text>
+</svg>

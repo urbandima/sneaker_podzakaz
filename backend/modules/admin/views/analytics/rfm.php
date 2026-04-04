@@ -138,6 +138,120 @@ $totalRevenue = array_sum(array_column($rfmSegments, 'revenue'));
     </div>
 </div>
 
+<!-- LTV Сегментация -->
+<?php
+// LTV сегменты
+$ltvSegments = [
+    ['name' => 'VIP', 'min' => 5000, 'max' => null, 'count' => 24, 'color' => '#7c3aed', 'desc' => 'Высокая ценность, требуют особого внимания'],
+    ['name' => 'Высокий', 'min' => 2000, 'max' => 4999, 'count' => 89, 'color' => '#10b981', 'desc' => 'Активные покупатели с хорошим LTV'],
+    ['name' => 'Средний', 'min' => 500, 'max' => 1999, 'count' => 156, 'color' => '#3b82f6', 'desc' => 'Стабильные клиенты с потенциалом роста'],
+    ['name' => 'Низкий', 'min' => 0, 'max' => 499, 'count' => 234, 'color' => '#6b7280', 'desc' => 'Требуют развития и удержания'],
+];
+
+// Покупатели в статусе риска с LTV
+$atRiskCustomers = [
+    ['name' => 'Иванов Иван', 'email' => 'ivan@example.com', 'ltv' => 4500, 'last_order' => '2026-01-15', 'risk' => 'Высокий', 'risk_days' => 75, 'color' => '#dc2626'],
+    ['name' => 'Петрова Мария', 'email' => 'maria@example.com', 'ltv' => 3200, 'last_order' => '2026-02-01', 'risk' => 'Высокий', 'risk_days' => 58, 'color' => '#dc2626'],
+    ['name' => 'Сидоров Алексей', 'email' => 'alex@example.com', 'ltv' => 1800, 'last_order' => '2026-02-20', 'risk' => 'Средний', 'risk_days' => 39, 'color' => '#f59e0b'],
+    ['name' => 'Козлова Елена', 'email' => 'elena@example.com', 'ltv' => 8900, 'last_order' => '2026-01-05', 'risk' => 'Критический', 'risk_days' => 85, 'color' => '#991b1b'],
+    ['name' => 'Морозов Дмитрий', 'email' => 'dmitry@example.com', 'ltv' => 1200, 'last_order' => '2026-02-25', 'risk' => 'Средний', 'risk_days' => 34, 'color' => '#f59e0b'],
+];
+
+$totalAtRisk = count($atRiskCustomers);
+$totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'ltv'));
+?>
+
+<div class="admin-card" style="margin-top:24px">
+    <div class="admin-card-header" style="display:flex;justify-content:space-between;align-items:center">
+        <h2 class="admin-card-title"><i class="bi bi-cash-stack"></i> LTV Сегментация</h2>
+        <span class="admin-badge admin-badge-info"><?= number_format($totalRevenue / $totalCustomers, 0) ?> BYN средний LTV</span>
+    </div>
+    <div class="admin-card-body">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
+            <?php foreach ($ltvSegments as $ltv): ?>
+            <div style="padding:16px;background:var(--admin-bg);border-radius:12px;border-left:4px solid <?= $ltv['color'] ?>;text-align:center">
+                <div style="font-size:2rem;font-weight:700;color:<?= $ltv['color'] ?>"><?= $ltv['count'] ?></div>
+                <div style="font-size:0.875rem;font-weight:600;color:var(--admin-text)"><?= $ltv['name'] ?> LTV</div>
+                <div style="font-size:0.75rem;color:var(--admin-text-secondary);margin-top:4px">
+                    <?= $ltv['min'] ?><?= $ltv['max'] ? '-' . $ltv['max'] : '+' ?> BYN
+                </div>
+                <div style="font-size:0.75rem;color:var(--admin-text-secondary);margin-top:4px"><?= $ltv['desc'] ?></div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+
+<!-- Покупатели в статусе риска -->
+<div class="admin-card" style="margin-top:24px">
+    <div class="admin-card-header" style="display:flex;justify-content:space-between;align-items:center">
+        <h2 class="admin-card-title"><i class="bi bi-exclamation-triangle-fill"></i> Покупатели в статусе риска</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+            <span class="admin-badge admin-badge-danger"><?= $totalAtRisk ?> клиентов</span>
+            <span class="admin-badge admin-badge-warning"><?= number_format($totalAtRiskLTV, 0) ?> BYN LTV</span>
+            <button class="admin-btn admin-btn-sm admin-btn-primary" onclick="exportAtRisk()">
+                <i class="bi bi-download"></i> Экспорт
+            </button>
+        </div>
+    </div>
+    <div class="admin-card-body" style="padding:0">
+        <table style="width:100%;border-collapse:collapse">
+            <thead>
+                <tr style="background:var(--admin-bg)">
+                    <th style="padding:12px 16px;text-align:left;font-size:0.75rem;text-transform:uppercase;color:var(--admin-text-secondary);border-bottom:1px solid var(--admin-border)">Покупатель</th>
+                    <th style="padding:12px 16px;text-align:center;font-size:0.75rem;text-transform:uppercase;color:var(--admin-text-secondary);border-bottom:1px solid var(--admin-border)">LTV</th>
+                    <th style="padding:12px 16px;text-align:center;font-size:0.75rem;text-transform:uppercase;color:var(--admin-text-secondary);border-bottom:1px solid var(--admin-border)">Класс</th>
+                    <th style="padding:12px 16px;text-align:center;font-size:0.75rem;text-transform:uppercase;color:var(--admin-text-secondary);border-bottom:1px solid var(--admin-border)">Последний заказ</th>
+                    <th style="padding:12px 16px;text-align:center;font-size:0.75rem;text-transform:uppercase;color:var(--admin-text-secondary);border-bottom:1px solid var(--admin-border)">Дней без заказа</th>
+                    <th style="padding:12px 16px;text-align:center;font-size:0.75rem;text-transform:uppercase;color:var(--admin-text-secondary);border-bottom:1px solid var(--admin-border)">Уровень риска</th>
+                    <th style="padding:12px 16px;text-align:center;font-size:0.75rem;text-transform:uppercase;color:var(--admin-text-secondary);border-bottom:1px solid var(--admin-border)">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($atRiskCustomers as $customer): 
+                    $ltvClass = $customer['ltv'] >= 5000 ? 'VIP' : ($customer['ltv'] >= 2000 ? 'Высокий' : ($customer['ltv'] >= 500 ? 'Средний' : 'Низкий'));
+                    $ltvColor = $customer['ltv'] >= 5000 ? '#7c3aed' : ($customer['ltv'] >= 2000 ? '#10b981' : ($customer['ltv'] >= 500 ? '#3b82f6' : '#6b7280'));
+                ?>
+                <tr style="border-bottom:1px solid var(--admin-border-light)">
+                    <td style="padding:12px 16px">
+                        <div style="font-weight:600;color:var(--admin-text)"><?= $customer['name'] ?></div>
+                        <div style="font-size:0.75rem;color:var(--admin-text-secondary)"><?= $customer['email'] ?></div>
+                    </td>
+                    <td style="padding:12px 16px;text-align:center;font-weight:700;color:var(--admin-text)">
+                        <?= number_format($customer['ltv'], 0) ?> BYN
+                    </td>
+                    <td style="padding:12px 16px;text-align:center">
+                        <span style="padding:2px 8px;background:<?= $ltvColor ?>20;color:<?= $ltvColor ?>;border-radius:4px;font-size:0.75rem;font-weight:600"><?= $ltvClass ?></span>
+                    </td>
+                    <td style="padding:12px 16px;text-align:center;color:var(--admin-text-secondary);font-size:0.875rem">
+                        <?= $customer['last_order'] ?>
+                    </td>
+                    <td style="padding:12px 16px;text-align:center">
+                        <span style="padding:2px 8px;background:#fee2e2;color:#dc2626;border-radius:4px;font-size:0.75rem;font-weight:600"><?= $customer['risk_days'] ?> дн</span>
+                    </td>
+                    <td style="padding:12px 16px;text-align:center">
+                        <span style="padding:2px 8px;background:<?= $customer['color'] ?>20;color:<?= $customer['color'] ?>;border-radius:4px;font-size:0.75rem;font-weight:600"><?= $customer['risk'] ?></span>
+                    </td>
+                    <td style="padding:12px 16px;text-align:center">
+                        <div style="display:flex;gap:4px;justify-content:center">
+                            <button class="admin-btn admin-btn-xs admin-btn-secondary" onclick="sendEmail('<?= $customer['email'] ?>')" title="Отправить email">
+                                <i class="bi bi-envelope"></i>
+                            </button>
+                            <button class="admin-btn admin-btn-xs admin-btn-secondary" onclick="sendSms('<?= $customer['email'] ?>')" title="Отправить SMS">
+                                <i class="bi bi-chat-dots"></i>
+                            </button>
+                            <button class="admin-btn admin-btn-xs admin-btn-primary" onclick="createOffer('<?= $customer['email'] ?>')" title="Создать персональное предложение">
+                                <i class="bi bi-gift"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <!-- Рекомендации -->
 <div class="admin-card" style="margin-top:24px">
     <div class="admin-card-header">
@@ -192,5 +306,21 @@ $totalRevenue = array_sum(array_column($rfmSegments, 'revenue'));
 <script>
 function showSegmentDetails(segment) {
     alert('Детали сегмента "' + segment + '"\n\nЗдесь будет список клиентов этого сегмента с возможностью экспорта и массовых действий.');
+}
+
+function exportAtRisk() {
+    alert('Экспорт списка покупателей в статусе риска\n\nCSV файл будет содержать: имя, email, LTV, класс LTV, последний заказ, дней без заказа, уровень риска.');
+}
+
+function sendEmail(email) {
+    alert('Отправка email клиенту: ' + email + '\n\nОткроется форма персонального письма для реактивации клиента.');
+}
+
+function sendSms(email) {
+    alert('Отправка SMS клиенту: ' + email + '\n\nОткроется форма SMS-рассылки с предложением.');
+}
+
+function createOffer(email) {
+    alert('Создание персонального предложения для: ' + email + '\n\nМожно создать персональный купон или скидку для этого клиента.');
 }
 </script>

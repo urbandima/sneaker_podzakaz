@@ -22,6 +22,20 @@ $this->title = 'Статусы заказов';
 </div>
 
 <!-- Визуализация цепочки -->
+<?php
+// Массив соответствия цветов для статусов по умолчанию
+$statusColors = [
+    'created' => 'info',
+    'paid' => 'success',
+    'accepted' => 'primary',
+    'ordered' => 'warning',
+    'received' => 'primary',
+    'issued' => 'success',
+    'confirmed' => 'primary',
+    'shipped' => 'info',
+    'delivered' => 'success'
+];
+?>
 <div class="admin-card" style="margin-bottom:24px">
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-arrow-right-circle"></i> Цепочка статусов</h2>
@@ -66,13 +80,13 @@ $this->title = 'Статусы заказов';
                                 <option value="warning" <?= $status['color'] === 'warning' ? 'selected' : '' ?>>Желтый</option>
                                 <option value="danger" <?= $status['color'] === 'danger' ? 'selected' : '' ?>>Красный</option>
                                 <option value="primary" <?= $status['color'] === 'primary' ? 'selected' : '' ?>>Фиолетовый</option>
+                                <option value="secondary" <?= $status['color'] === 'secondary' ? 'selected' : '' ?>>Серый</option>
                             </select>
                             <label style="display:flex;align-items:center;gap:8px;margin:0">
                                 <input type="checkbox" class="status-active" <?= $status['is_active'] ? 'checked' : '' ?>>
                                 <span style="font-size:14px">Активен</span>
                             </label>
                         </div>
-                        <input type="text" class="admin-form-input status-description" value="<?= Html::encode($status['description'] ?? '') ?>" placeholder="Описание" style="font-size:14px">
                     </div>
                 </div>
             </div>
@@ -154,11 +168,9 @@ function saveStatuses() {
     document.querySelectorAll('.status-config-item').forEach((item, index) => {
         statuses.push({
             key: item.dataset.status,
-            order: index,
             label: item.querySelector('.status-label').value,
             color: item.querySelector('.status-color').value,
-            active: item.querySelector('.status-active').checked,
-            description: item.querySelector('.status-description').value
+            active: item.querySelector('.status-active').checked
         });
     });
     
@@ -182,35 +194,38 @@ function saveStatuses() {
 }
 
 function addStatus() {
-    const list = document.getElementById('statuses-list');
-    const newItem = document.createElement('div');
-    newItem.className = 'status-config-item';
-    newItem.dataset.status = 'custom_' + Date.now();
-    newItem.innerHTML = `
+    const container = document.getElementById('statuses-list');
+    const index = container.children.length;
+    
+    const newStatus = document.createElement('div');
+    newStatus.className = 'status-config-item';
+    newStatus.dataset.status = 'new_' + index;
+    newStatus.innerHTML = `
         <div style="display:flex;align-items:center;gap:16px">
             <div class="drag-handle" style="cursor:move;color:var(--admin-text-secondary)">
                 <i class="bi bi-grip-vertical"></i>
             </div>
             <div style="flex:1">
                 <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
-                    <input type="text" class="admin-form-input status-label" value="Новый статус" style="max-width:200px" placeholder="Название">
+                    <input type="text" class="admin-form-input status-label" value="" placeholder="Название" style="max-width:200px">
                     <select class="admin-form-select status-color" style="max-width:150px">
                         <option value="info">Синий</option>
                         <option value="success">Зеленый</option>
                         <option value="warning">Желтый</option>
                         <option value="danger">Красный</option>
                         <option value="primary">Фиолетовый</option>
+                        <option value="secondary">Серый</option>
                     </select>
                     <label style="display:flex;align-items:center;gap:8px;margin:0">
                         <input type="checkbox" class="status-active" checked>
                         <span style="font-size:14px">Активен</span>
                     </label>
                 </div>
-                <input type="text" class="admin-form-input status-description" value="" placeholder="Описание" style="font-size:14px">
             </div>
         </div>
     `;
-    list.appendChild(newItem);
+    
+    container.appendChild(newStatus);
 }
 
 // Drag & Drop для сортировки

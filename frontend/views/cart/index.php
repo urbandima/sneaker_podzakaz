@@ -160,10 +160,10 @@ CartAsset::register($this);
                     
                     <!-- Кнопки действий -->
                     <div class="cart-summary-actions">
-                        <button class="btn-checkout" onclick="openCheckoutModal()">
+                        <a href="<?= Url::to(['/checkout']) ?>" class="btn-checkout">
                             <i class="bi bi-check-circle"></i>
                             Оформить заказ
-                        </button>
+                        </a>
                         
                         <a href="<?= Url::to(['/catalog/catalog/index']) ?>" class="btn-continue">Продолжить покупки</a>
                     </div>

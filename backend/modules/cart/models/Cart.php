@@ -159,6 +159,11 @@ class Cart extends ActiveRecord
      */
     public static function getItems()
     {
+        // Гарантируем активную сессию
+        if (Yii::$app->session->getIsActive() === false) {
+            Yii::$app->session->open();
+        }
+        
         $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
         $sessionId = Yii::$app->session->id;
 
@@ -218,6 +223,11 @@ class Cart extends ActiveRecord
      */
     public static function clear()
     {
+        // Гарантируем активную сессию
+        if (Yii::$app->session->getIsActive() === false) {
+            Yii::$app->session->open();
+        }
+        
         $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
         $sessionId = Yii::$app->session->id;
 
@@ -240,6 +250,16 @@ class Cart extends ActiveRecord
     /**
      * Получить подытог для этой позиции
      */
+    public function getSubtotal()
+    {
+        return $this->price * $this->quantity;
+    }
+}
+    public function getSubtotal()
+    {
+        return $this->price * $this->quantity;
+    }
+}
     public function getSubtotal()
     {
         return $this->price * $this->quantity;

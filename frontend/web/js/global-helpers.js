@@ -4,7 +4,7 @@
  * Загружается везде для избежания дублирования кода
  */
 
-(function() {
+(function () {
     'use strict';
 
     /**
@@ -15,21 +15,24 @@
      * @param {Event} e - событие клика
      * @param {number} id - ID товара
      */
-    window.toggleFav = function(e, id) {
+    window.toggleFav = function (e, id) {
         if (!e || !e.preventDefault) {
             console.error('toggleFav: первый параметр должен быть Event объектом');
             return;
         }
-        
+
         e.preventDefault();
         e.stopPropagation();
-        
+
+        // Получаем кнопку из event
+        const button = e.currentTarget || e.target;
+
         // Вызываем основную функцию из favorites.js
         if (typeof window.toggleFavorite === 'function') {
-            window.toggleFavorite(e, id);
+            window.toggleFavorite(button, id);
         } else {
             console.error('toggleFavorite function not found. Make sure favorites.js is loaded.');
-            
+
             // Fallback: показываем уведомление пользователю
             if (window.NotificationManager) {
                 NotificationManager.error('Ошибка загрузки функционала избранного. Обновите страницу.');
@@ -41,32 +44,31 @@
      * Сброс всех фильтров в каталоге
      * Используется на странице каталога и в empty state
      */
-    window.resetFilters = function() {
+    window.resetFilters = function () {
         // Редирект на чистый каталог без параметров
         window.location.href = '/catalog/';
     };
 
     /**
      * Быстрое добавление в корзину
-     * Placeholder для будущей функциональности
      * 
      * @param {Event} e - событие клика
      * @param {number} productId - ID товара
      */
-    window.quickAddToCart = function(e, productId) {
+    window.quickAddToCart = function (e, productId) {
         if (e) {
             e.preventDefault();
             e.stopPropagation();
         }
-        
-        
-        // TODO: Реализовать добавление в корзину
-        if (window.NotificationManager) {
-            NotificationManager.info('Функция добавления в корзину в разработке');
+
+        // Вызываем реальную функцию добавления в корзину
+        if (typeof addToCart === 'function') {
+            addToCart(productId, 1, null, null);
+        } else {
+            console.error('addToCart function not found. Make sure cart.js is loaded.');
+            // Fallback: редирект на страницу товара
+            window.location.href = '/catalog/product/' + productId;
         }
-        
-        // Временно: редирект на страницу товара
-        window.location.href = '/catalog/product/' + productId;
     };
 
     /**
@@ -76,13 +78,13 @@
      * @param {number} productId - ID товара
      * @param {string} size - выбранный размер
      */
-    window.selectQuickSize = function(e, productId, size) {
+    window.selectQuickSize = function (e, productId, size) {
         if (e) {
             e.preventDefault();
             e.stopPropagation();
         }
-        
-        
+
+
         // Перенаправляем на страницу товара с предвыбранным размером
         window.location.href = '/catalog/product/' + productId + '?size=' + encodeURIComponent(size);
     };
@@ -94,18 +96,18 @@
      * @param {number} brandId - ID бренда
      * @param {string} brandSlug - slug бренда (не используется)
      */
-    window.toggleBrandFilter = function(brandId, brandSlug) {
+    window.toggleBrandFilter = function (brandId, brandSlug) {
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
-        
+
         const button = event.currentTarget;
         const isActive = button.classList.contains('active');
-        
+
         // Переключаем визуальное состояние кнопки
         button.classList.toggle('active');
-        
+
         // Синхронизируем с чекбоксом в сайдбаре
         const checkbox = document.querySelector(`input[name="brands[]"][value="${brandId}"]`);
         if (checkbox) {

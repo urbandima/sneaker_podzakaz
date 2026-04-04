@@ -1,0 +1,62 @@
+/* ==============================================
+   RESPONSIVE FIXES — СНИКЕРХЭД
+   Глобальные mobile фиксы
+   ============================================== */
+
+/* === MOBILE FIRST BASE === */
+@media (max-width: 359px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* === TABLET ADJUSTMENTS === */
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+  
+  .full-width-mobile {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* === DESKTOP ONLY === */
+@media (min-width: 769px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
+
+/* === TOUCH DEVICE OPTIMIZATIONS === */
+@media (hover: none) and (pointer: coarse) {
+  .hover-effect:hover {
+    transform: none;
+  }
+  
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* === SAFARI FIXES === */
+@supports (-webkit-touch-callout: none) {
+  .safari-fix {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
+
+/* === REDUCED MOTION === */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

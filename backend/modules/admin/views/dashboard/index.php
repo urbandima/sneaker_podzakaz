@@ -21,7 +21,7 @@ use yii\helpers\Url;
 $this->title = 'Панель управления';
 
 $statusMap = [
-    'created' => ['label' => 'Новый', 'class' => 'info'],
+    'new' => ['label' => 'Новый', 'class' => 'info'],
     'pending' => ['label' => 'Ожидает', 'class' => 'warning'],
     'processing' => ['label' => 'В обработке', 'class' => 'warning'],
     'paid' => ['label' => 'Оплачен', 'class' => 'success'],
@@ -122,72 +122,62 @@ $amountFormatted = $totalAmount >= 1000 ? number_format($totalAmount / 1000, 1, 
     </div>
 </div>
 
-<!-- Order Pipeline -->
-<div class="dash-pipeline">
-    <div class="dash-pipe-item">
-        <div class="dash-pipe-num dash-pipe-info"><?= $orderStats['pending'] ?? 0 ?></div>
-        <div class="dash-pipe-label">Ожидают</div>
-    </div>
-    <div class="dash-pipe-arrow">→</div>
-    <div class="dash-pipe-item">
-        <div class="dash-pipe-num dash-pipe-warning"><?= $orderStats['processing'] ?? 0 ?></div>
-        <div class="dash-pipe-label">В работе</div>
-    </div>
-    <div class="dash-pipe-arrow">→</div>
-    <div class="dash-pipe-item">
-        <div class="dash-pipe-num dash-pipe-success"><?= $orderStats['completed'] ?? 0 ?></div>
-        <div class="dash-pipe-label">Завершены</div>
-    </div>
-</div>
-
-<!-- Воронка конверсий -->
-<?php
-use app\backend\modules\checkout\models\Order;
-$totalOrders = Order::find()->count();
-$paidOrders = Order::find()->where(['status' => ['paid', 'shipped', 'delivered']])->count();
-$deliveredOrders = Order::find()->where(['status' => 'delivered'])->count();
-$conversionRate = $totalOrders > 0 ? round(($deliveredOrders / $totalOrders) * 100, 1) : 0;
-?>
-<div class="admin-card" style="margin-bottom:1.5rem">
-    <div class="admin-card-header">
-        <h2 class="admin-card-title"><i class="bi bi-funnel-fill"></i> Воронка конверсий</h2>
-        <span class="admin-badge admin-badge-success"><?= $conversionRate ?>% конверсия</span>
+<!-- Order Pipeline - Enhanced KPI Block -->
+<div class="admin-card" style="margin-bottom:1.5rem; border-left: 4px solid var(--admin-accent);">
+    <div class="admin-card-header" style="border-bottom: none; padding-bottom: 0.5rem;">
+        <h2 class="admin-card-title"><i class="bi bi-kanban-fill"></i> Пайплайн заказов</h2>
+        <span class="admin-badge admin-badge-info">В реальном времени</span>
     </div>
     <div class="admin-card-body">
-        <div style="display:flex;flex-direction:column;gap:12px">
-            <!-- Этап 1: Создано заказов -->
-            <div style="display:flex;align-items:center;gap:12px">
-                <div style="flex:0 0 120px;font-size:14px;font-weight:600;color:var(--admin-text-secondary)">Создано</div>
-                <div style="flex:1;background:var(--admin-bg);border-radius:8px;height:40px;position:relative;overflow:hidden">
-                    <div style="position:absolute;inset:0;background:linear-gradient(90deg,#3b82f6,#2563eb);width:100%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700">
-                        <?= $totalOrders ?> заказов (100%)
+        <div class="dash-pipeline-enhanced">
+            <a href="<?= Url::to(['/admin/order', 'status' => 'created']) ?>" class="dash-pipe-step dash-pipe-pending">
+                <div class="dash-pipe-icon"><i class="bi bi-plus-circle-fill"></i></div>
+                <div class="dash-pipe-content">
+                    <div class="dash-pipe-value"><?= $orderStats['created'] ?? 0 ?></div>
+                    <div class="dash-pipe-title">Созданы</div>
+                    <div class="dash-pipe-bar">
+                        <div class="dash-pipe-progress" style="width: <?= min(100, (($orderStats['created'] ?? 0) / max(1, $orderStats['total'] ?? 1)) * 100) ?>%"></div>
                     </div>
                 </div>
+            </a>
+            
+            <div class="dash-pipe-connector">
+                <i class="bi bi-chevron-right"></i>
             </div>
-            <!-- Этап 2: Оплачено -->
-            <?php $paidPercent = $totalOrders > 0 ? round(($paidOrders / $totalOrders) * 100, 1) : 0; ?>
-            <div style="display:flex;align-items:center;gap:12px">
-                <div style="flex:0 0 120px;font-size:14px;font-weight:600;color:var(--admin-text-secondary)">Оплачено</div>
-                <div style="flex:1;background:var(--admin-bg);border-radius:8px;height:40px;position:relative;overflow:hidden">
-                    <div style="position:absolute;inset:0;background:linear-gradient(90deg,#10b981,#059669);width:<?= $paidPercent ?>%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700">
-                        <?= $paidOrders ?> (<?= $paidPercent ?>%)
+            
+            <a href="<?= Url::to(['/admin/order', 'status' => 'paid']) ?>" class="dash-pipe-step dash-pipe-processing">
+                <div class="dash-pipe-icon"><i class="bi bi-credit-card-fill"></i></div>
+                <div class="dash-pipe-content">
+                    <div class="dash-pipe-value"><?= $orderStats['paid'] ?? 0 ?></div>
+                    <div class="dash-pipe-title">Оплачены</div>
+                    <div class="dash-pipe-bar">
+                        <div class="dash-pipe-progress" style="width: <?= min(100, (($orderStats['paid'] ?? 0) / max(1, $orderStats['total'] ?? 1)) * 100) ?>%"></div>
                     </div>
                 </div>
+            </a>
+            
+            <div class="dash-pipe-connector">
+                <i class="bi bi-chevron-right"></i>
             </div>
-            <!-- Этап 3: Доставлено -->
-            <?php $deliveredPercent = $totalOrders > 0 ? round(($deliveredOrders / $totalOrders) * 100, 1) : 0; ?>
-            <div style="display:flex;align-items:center;gap:12px">
-                <div style="flex:0 0 120px;font-size:14px;font-weight:600;color:var(--admin-text-secondary)">Доставлено</div>
-                <div style="flex:1;background:var(--admin-bg);border-radius:8px;height:40px;position:relative;overflow:hidden">
-                    <div style="position:absolute;inset:0;background:linear-gradient(90deg,#f59e0b,#d97706);width:<?= $deliveredPercent ?>%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700">
-                        <?= $deliveredOrders ?> (<?= $deliveredPercent ?>%)
+            
+            <a href="<?= Url::to(['/admin/order', 'status' => 'delivered']) ?>" class="dash-pipe-step dash-pipe-completed">
+                <div class="dash-pipe-icon"><i class="bi bi-check-circle-fill"></i></div>
+                <div class="dash-pipe-content">
+                    <div class="dash-pipe-value"><?= $orderStats['delivered'] ?? 0 ?></div>
+                    <div class="dash-pipe-title">Доставлены</div>
+                    <div class="dash-pipe-bar">
+                        <div class="dash-pipe-progress" style="width: <?= min(100, (($orderStats['delivered'] ?? 0) / max(1, $orderStats['total'] ?? 1)) * 100) ?>%"></div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
-        <div style="margin-top:16px;padding:12px;background:var(--admin-bg);border-radius:8px;display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:14px;color:var(--admin-text-secondary)">Средний чек:</span>
-            <strong style="font-size:18px"><?= $totalOrders > 0 ? number_format($orderStats['totalAmount'] / $totalOrders, 2) : 0 ?> BYN</strong>
+        
+        <!-- Total summary -->
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--admin-border); display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: var(--admin-text-secondary); font-size: 14px;">Всего активных заказов:</span>
+            <strong style="font-size: 24px; font-weight: 800; color: var(--admin-text);">
+                <?= ($orderStats['created'] ?? 0) + ($orderStats['paid'] ?? 0) + ($orderStats['delivered'] ?? 0) ?>
+            </strong>
         </div>
     </div>
 </div>
@@ -220,8 +210,8 @@ $conversionRate = $totalOrders > 0 ? round(($deliveredOrders / $totalOrders) * 1
                     <td>
                         <?php
                         $statusClass = [
-                            'new' => 'warning',
-                            'paid' => 'info',
+                            'new' => 'info',
+                            'paid' => 'success',
                             'processing' => 'warning',
                             'shipped' => 'primary',
                             'delivered' => 'success',
@@ -245,7 +235,18 @@ $conversionRate = $totalOrders > 0 ? round(($deliveredOrders / $totalOrders) * 1
         </table>
     </div>
     <?php else: ?>
-    <p style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">Нет заказов</p>
+    <div class="dash-empty-state">
+        <div class="dash-empty-icon">
+            <i class="bi bi-inbox"></i>
+        </div>
+        <div class="dash-empty-content">
+            <h3>Заказов пока нет</h3>
+            <p>Когда появятся заказы, они будут отображаться здесь</p>
+            <a href="<?= Url::to(['/admin/order/create']) ?>" class="admin-btn admin-btn-primary">
+                <i class="bi bi-plus-circle"></i> Создать первый заказ
+            </a>
+        </div>
+    </div>
     <?php endif; ?>
 </div>
 
@@ -255,9 +256,17 @@ $conversionRate = $totalOrders > 0 ? round(($deliveredOrders / $totalOrders) * 1
     <div class="admin-card">
         <div class="admin-card-header">
             <h2 class="admin-card-title"><i class="bi bi-bar-chart-line-fill"></i> Продажи за 7 дней</h2>
+            <span class="admin-badge admin-badge-info" id="chart-status">Загрузка...</span>
         </div>
-        <div style="max-width: 100%; overflow: hidden;">
+        <div class="dash-chart-container" style="max-width: 100%; overflow: hidden; position: relative; min-height: 350px;">
             <canvas id="salesChart" height="350" style="max-width: 100%;"></canvas>
+            <div class="dash-chart-overlay" id="chart-overlay" style="display: none;">
+                <div class="dash-chart-empty">
+                    <i class="bi bi-bar-chart"></i>
+                    <h3>Нет данных о продажах</h3>
+                    <p>Начните продавать товары, чтобы увидеть статистику</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -281,53 +290,60 @@ $conversionRate = $totalOrders > 0 ? round(($deliveredOrders / $totalOrders) * 1
             <?php endforeach ?>
         </div>
         <?php else: ?>
-        <p class="dash-empty">Нет данных о продажах</p>
+        <div class="dash-empty-state">
+            <div class="dash-empty-icon">
+                <i class="bi bi-trophy"></i>
+            </div>
+            <div class="dash-empty-content">
+                <h3>Топ товары отсутствуют</h3>
+                <p>Проданные товары появятся в этом рейтинге</p>
+                <a href="<?= Url::to(['/admin/catalog']) ?>" class="admin-btn admin-btn-secondary">
+                    <i class="bi bi-collection"></i> Перейти к каталогу
+                </a>
+            </div>
+        </div>
         <?php endif ?>
     </div>
 </div>
 
-<!-- Quick Actions -->
+<!-- Quick Actions - только уникальные действия, не дублирующие навигацию -->
 <div class="admin-card">
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-lightning-fill"></i> Быстрые действия</h2>
         <kbd class="dash-kbd">Ctrl+K</kbd>
     </div>
     <div class="dash-actions-grid">
-        <a href="<?= Url::to(['/admin/order/create']) ?>" class="dash-action-card">
-            <i class="bi bi-plus-circle-fill"></i>
-            <span>Новый заказ</span>
-        </a>
-        <a href="<?= Url::to(['/admin/product']) ?>" class="dash-action-card">
-            <i class="bi bi-collection"></i>
-            <span>Товары</span>
-        </a>
-        <a href="<?= Url::to(['/admin/customer']) ?>" class="dash-action-card">
-            <i class="bi bi-people-fill"></i>
-            <span>Клиенты</span>
-        </a>
-        <a href="<?= Url::to(['/admin/coupon']) ?>" class="dash-action-card">
-            <i class="bi bi-ticket-detailed-fill"></i>
-            <span>Купоны</span>
-        </a>
-        <a href="<?= Url::to(['/admin/statistics']) ?>" class="dash-action-card">
-            <i class="bi bi-bar-chart-line-fill"></i>
-            <span>Аналитика</span>
-        </a>
         <a href="<?= Url::to(['/admin/import']) ?>" class="dash-action-card">
             <i class="bi bi-cloud-arrow-up-fill"></i>
-            <span>Импорт</span>
+            <span>Импорт товаров</span>
+        </a>
+        <a href="<?= Url::to(['/admin/export']) ?>" class="dash-action-card">
+            <i class="bi bi-download"></i>
+            <span>Экспорт заказов</span>
+        </a>
+        <a href="<?= Url::to(['/admin/coupon/create']) ?>" class="dash-action-card">
+            <i class="bi bi-ticket-detailed-fill"></i>
+            <span>Создать купон</span>
+        </a>
+        <a href="<?= Url::to(['/admin/settings']) ?>" class="dash-action-card">
+            <i class="bi bi-gear-fill"></i>
+            <span>Настройки</span>
         </a>
     </div>
 </div>
 
-<!-- System Info Bar -->
-<div class="dash-sys-bar">
+<!-- Недавние действия -->
+<?= \app\backend\modules\admin\widgets\RecentActionsWidget::widget(['limit' => 10]) ?>
+
+<!-- System Info Bar - скрыта, доступна только админам через tooltip или отдельную страницу -->
+<?php if ($user->isAdmin()): ?>
+<div class="dash-sys-bar" style="opacity: 0.6; font-size: 0.7rem;">
     <span><b>Yii</b> <?= Yii::getVersion() ?></span>
     <span><b>PHP</b> <?= PHP_VERSION ?></span>
     <span><b>БД</b> sneakerhead</span>
     <span><b>ENV</b> <?= YII_ENV ?></span>
-    <span><b>Время</b> <?= date('H:i:s') ?></span>
 </div>
+<?php endif; ?>
 
 <!-- Chart.js CDN с fallback -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -341,6 +357,123 @@ if (typeof Chart === 'undefined') {
 <!-- Передача данных для chart -->
 <script>
 window.chartData = <?= json_encode($chartData ?? []) ?>;
+
+// Инициализация графика с обработкой пустых данных
+document.addEventListener('DOMContentLoaded', function() {
+    const chartStatus = document.getElementById('chart-status');
+    const chartOverlay = document.getElementById('chart-overlay');
+    const canvas = document.getElementById('salesChart');
+    
+    if (chartStatus) chartStatus.textContent = 'Инициализация...';
+    
+    // Проверяем, есть ли данные для графика
+    if (!window.chartData || window.chartData.length === 0) {
+        // Показываем empty state для графика
+        if (chartStatus) chartStatus.textContent = 'Нет данных';
+        if (chartOverlay) chartOverlay.style.display = 'flex';
+        if (canvas) canvas.style.display = 'none';
+        return;
+    }
+    
+    // Есть данные - скрываем overlay
+    if (chartOverlay) chartOverlay.style.display = 'none';
+    if (canvas) canvas.style.display = 'block';
+    
+    // Инициализируем Chart.js
+    if (typeof Chart !== 'undefined') {
+        try {
+            const ctx = canvas.getContext('2d');
+            
+            // Подготавливаем данные
+            const labels = window.chartData.map(item => item.day || '');
+            const data = window.chartData.map(item => item.amount || 0);
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Продажи (BYN)',
+                        data: data,
+                        borderColor: '#008060',
+                        backgroundColor: 'rgba(0, 128, 96, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#008060',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(32, 34, 35, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Продажи: ' + context.parsed.y.toLocaleString('ru-RU') + ' BYN';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#6d7175',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#e1e3e5',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#6d7175',
+                                font: {
+                                    size: 12
+                                },
+                                callback: function(value) {
+                                    return value.toLocaleString('ru-RU') + ' BYN';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            if (chartStatus) chartStatus.textContent = 'Обновлено';
+            
+        } catch (error) {
+            console.error('Error initializing chart:', error);
+            if (chartStatus) chartStatus.textContent = 'Ошибка';
+            if (chartOverlay) chartOverlay.style.display = 'flex';
+            if (canvas) canvas.style.display = 'none';
+        }
+    } else {
+        console.error('Chart.js not loaded');
+        if (chartStatus) chartStatus.textContent = 'Ошибка загрузки';
+        if (chartOverlay) chartOverlay.style.display = 'flex';
+        if (canvas) canvas.style.display = 'none';
+    }
+});
 </script>
 
 
@@ -402,19 +535,240 @@ window.chartData = <?= json_encode($chartData ?? []) ?>;
 .admin-badge-info { background: #dbeafe; color: #1e40af; }
 .admin-badge-primary { background: #dbeafe; color: #1e40af; }
 
+/* Enhanced Pipeline KPI Block */
+.dash-pipeline-enhanced {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+}
+
+.dash-pipe-step {
+    flex: 1;
+    max-width: 200px;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    background: var(--admin-bg);
+    border-radius: var(--admin-radius);
+    text-decoration: none;
+    color: var(--admin-text);
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.dash-pipe-step:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--admin-shadow-md);
+}
+
+.dash-pipe-step.dash-pipe-pending:hover { border-color: var(--admin-info); }
+.dash-pipe-step.dash-pipe-processing:hover { border-color: var(--admin-warning); }
+.dash-pipe-step.dash-pipe-completed:hover { border-color: var(--admin-success); }
+
+.dash-pipe-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--admin-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.dash-pipe-pending .dash-pipe-icon { background: var(--admin-info-bg); color: var(--admin-info); }
+.dash-pipe-processing .dash-pipe-icon { background: var(--admin-warning-bg); color: var(--admin-warning); }
+.dash-pipe-completed .dash-pipe-icon { background: var(--admin-success-bg); color: var(--admin-success); }
+
+.dash-pipe-content { flex: 1; }
+.dash-pipe-value { font-size: 32px; font-weight: 800; line-height: 1; margin-bottom: 0.25rem; color: var(--admin-text); }
+.dash-pipe-title { font-size: 14px; font-weight: 500; color: var(--admin-text-secondary); margin-bottom: 0.5rem; }
+
+.dash-pipe-bar {
+    height: 6px;
+    background: var(--admin-border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.dash-pipe-progress {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.dash-pipe-pending .dash-pipe-progress { background: var(--admin-info); }
+.dash-pipe-processing .dash-pipe-progress { background: var(--admin-warning); }
+.dash-pipe-completed .dash-pipe-progress { background: var(--admin-success); }
+
+.dash-pipe-connector {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+    color: var(--admin-border);
+    padding-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .dash-pipeline-enhanced { flex-direction: column; align-items: center; }
+    .dash-pipe-step { max-width: 100%; width: 100%; }
+    .dash-pipe-connector { transform: rotate(90deg); padding: 0; }
+}
+
+/* Empty States */
+.dash-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+    background: var(--admin-surface);
+    border-radius: var(--admin-radius);
+    border: 1px solid var(--admin-border);
+}
+
+.dash-empty-icon {
+    font-size: 3rem;
+    color: var(--admin-text-subdued);
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.dash-empty-content h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--admin-text);
+}
+
+.dash-empty-content p {
+    color: var(--admin-text-secondary);
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+/* Chart Container */
+.dash-chart-container {
+    position: relative;
+}
+
+.dash-chart-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--admin-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--admin-radius);
+}
+
+.dash-chart-empty {
+    text-align: center;
+    padding: 2rem;
+}
+
+.dash-chart-empty i {
+    font-size: 3rem;
+    color: var(--admin-text-subdued);
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.dash-chart-empty h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--admin-text);
+}
+
+.dash-chart-empty p {
+    color: var(--admin-text-secondary);
+    font-size: 0.9rem;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
     .dash-grid-2 { grid-template-columns: 1fr; }
     .dash-pipeline { flex-wrap: wrap; }
+    .admin-stats { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 768px) {
     .admin-header { flex-direction: column; gap: 1rem; text-align: center; }
     .admin-header-actions { justify-content: center; }
     .admin-stats { grid-template-columns: 1fr 1fr; }
     .dash-actions-grid { grid-template-columns: repeat(3, 1fr); }
+    .dash-empty-state { padding: 2rem 1rem; }
+    .admin-main { padding: var(--spacing-lg); }
 }
 @media (max-width: 480px) {
     .admin-stats { grid-template-columns: 1fr; }
     .dash-actions-grid { grid-template-columns: repeat(2, 1fr); }
+    .admin-main { padding: var(--spacing-md); }
+}
+
+/* Improved spacing for better space utilization */
+.admin-card {
+    margin-bottom: 1.5rem;
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius);
+    box-shadow: var(--admin-shadow-sm);
+    transition: box-shadow 0.15s ease;
+}
+
+.admin-card:hover {
+    box-shadow: var(--admin-shadow);
+}
+
+.admin-card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--admin-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.admin-card-body {
+    padding: 1.5rem;
+}
+
+/* Better stats grid utilization */
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Compact pipeline for better space usage */
+.dash-pipeline-enhanced {
+    gap: 0.75rem;
+    padding: 0;
+}
+
+.dash-pipe-step {
+    padding: 1rem;
+    min-width: 160px;
+}
+
+.dash-pipe-value {
+    font-size: 28px;
+}
+
+/* Optimized chart container */
+.dash-chart-container {
+    min-height: 300px;
+}
+
+.dash-chart-container canvas {
+    max-height: 300px;
 }
 </style>
