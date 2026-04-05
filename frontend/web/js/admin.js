@@ -253,7 +253,8 @@
         // Кнопка "Создать заказ"
         var createOrderBtn = document.getElementById('calc-create-order');
         if (createOrderBtn) {
-            createOrderBtn.addEventListener('click', function () {
+            createOrderBtn.addEventListener('click', function (e) {
+                e.preventDefault();
                 var cny = parseFloat(document.getElementById('calc-cny').value) || 0;
                 var markup = parseFloat(document.getElementById('calc-markup').value) || 0;
                 var weight = parseFloat(document.getElementById('calc-weight').value) || 0;

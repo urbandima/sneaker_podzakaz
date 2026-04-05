@@ -167,16 +167,52 @@ class DashboardController extends BaseAdminController
             }
         }
         
+        // B3.1 Operational stats
+        if ($demoMode) {
+            $operationalStats = [
+                'unprocessed2h' => 3,
+                'delayed3d' => 2,
+                'awaitingPoizon' => 7,
+            ];
+        } else {
+            try {
+                $operationalStats = $this->getOperationalStats();
+            } catch (\Exception $e) {
+                $operationalStats = ['unprocessed2h' => 0, 'delayed3d' => 0, 'awaitingPoizon' => 0];
+            }
+        }
+
+        // B3.3 Conversion funnel
+        if ($demoMode) {
+            $funnelData = ['views' => 1240, 'carts' => 310, 'orders' => 88];
+        } else {
+            try {
+                $funnelData = $this->getFunnelData();
+            } catch (\Exception $e) {
+                $funnelData = ['views' => 0, 'carts' => 0, 'orders' => 0];
+            }
+        }
+
+        // B3.4 CNY rate info
+        try {
+            $currencyInfo = Yii::$app->has('currency') ? Yii::$app->currency->getCurrencyInfo() : ['rate' => 0.45, 'updated_at' => null, 'source' => 'default'];
+        } catch (\Exception $e) {
+            $currencyInfo = ['rate' => 0.45, 'updated_at' => null, 'source' => 'default'];
+        }
+
         return $this->render('index', [
             'user' => $user,
             'orderStats' => $orderStats,
             'productStats' => $productStats,
             'userStats' => $userStats,
-                        'topProducts' => $topProducts,
+            'topProducts' => $topProducts,
             'activeLogists' => $activeLogists,
             'chartData' => $chartData,
             'companySettings' => $companySettings,
             'demoMode' => $demoMode,
+            'operationalStats' => $operationalStats,
+            'funnelData' => $funnelData,
+            'currencyInfo' => $currencyInfo,
         ]);
     }
     
@@ -327,48 +363,154 @@ class DashboardController extends BaseAdminController
     }
 
     /**
-     * Получение данных для графика заказов
+     * Получение данных для графика заказов (30 дней + сравнение с предыдущим периодом)
+     * B3.2: Returns current 30 days and prev 30 days side-by-side
      */
     private function getChartData($user)
     {
         // ВРЕМЕННО: Для временной авторизации возвращаем демо-данные
         if ($user instanceof \app\backend\modules\admin\models\TemporaryAdminIdentity) {
-            return [
-                ['date' => '2026-03-09', 'day' => 'Mon', 'orders' => 12, 'amount' => 2100.00],
-                ['date' => '2026-03-10', 'day' => 'Tue', 'orders' => 15, 'amount' => 2800.00],
-                ['date' => '2026-03-11', 'day' => 'Wed', 'orders' => 18, 'amount' => 3200.00],
-                ['date' => '2026-03-12', 'day' => 'Thu', 'orders' => 22, 'amount' => 3800.00],
-                ['date' => '2026-03-13', 'day' => 'Fri', 'orders' => 25, 'amount' => 4500.00],
-                ['date' => '2026-03-14', 'day' => 'Sat', 'orders' => 28, 'amount' => 5200.00],
-                ['date' => '2026-03-15', 'day' => 'Sun', 'orders' => 20, 'amount' => 3500.00],
-            ];
+            $demo = [];
+            for ($i = 29; $i >= 0; $i--) {
+                $ts = strtotime("-$i days");
+                $demo[] = [
+                    'date'         => date('Y-m-d', $ts),
+                    'day'          => date('d.m', $ts),
+                    'orders'       => rand(5, 30),
+                    'amount'       => round(rand(800, 5500) * 1.0, 2),
+                    'prev_orders'  => rand(3, 25),
+                    'prev_amount'  => round(rand(600, 4800) * 1.0, 2),
+                ];
+            }
+            return $demo;
         }
-        
+
         $data = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = date('Y-m-d', strtotime("-$i days"));
-            $dayName = date('D', strtotime("-$i days"));
-            
-            $query = Order::find()
+        for ($i = 29; $i >= 0; $i--) {
+            $date    = date('Y-m-d', strtotime("-$i days"));
+            $dayName = date('d.m', strtotime("-$i days"));
+
+            // Текущий период
+            $qCur = Order::find()
                 ->where(['>=', 'created_at', strtotime($date)])
                 ->andWhere(['<', 'created_at', strtotime($date . ' +1 day')]);
-                
             if ($user->isLogist()) {
-                $query->andWhere(['assigned_logist' => $user->id]);
+                $qCur->andWhere(['assigned_logist' => $user->id]);
             }
-            
-            $count = $query->count();
-            $amount = $query->sum('total_amount') ?: 0;
-            
+            $curCount  = (int)$qCur->count();
+            $curAmount = (float)($qCur->sum('total_amount') ?: 0);
+
+            // Предыдущий период (те же дни, -30 дней)
+            $prevDate = date('Y-m-d', strtotime("-" . ($i + 30) . " days"));
+            $qPrev = Order::find()
+                ->where(['>=', 'created_at', strtotime($prevDate)])
+                ->andWhere(['<', 'created_at', strtotime($prevDate . ' +1 day')]);
+            if ($user->isLogist()) {
+                $qPrev->andWhere(['assigned_logist' => $user->id]);
+            }
+            $prevCount  = (int)$qPrev->count();
+            $prevAmount = (float)($qPrev->sum('total_amount') ?: 0);
+
             $data[] = [
-                'date' => $date,
-                'day' => $dayName,
-                'orders' => $count,
-                'amount' => (float)$amount,
+                'date'        => $date,
+                'day'         => $dayName,
+                'orders'      => $curCount,
+                'amount'      => $curAmount,
+                'prev_orders' => $prevCount,
+                'prev_amount' => $prevAmount,
             ];
         }
-        
+
         return $data;
+    }
+
+    /**
+     * B3.1: Операционная статистика
+     */
+    private function getOperationalStats()
+    {
+        $twoHoursAgo = time() - 7200;
+        $threeDaysAgo = time() - 259200;
+
+        $unprocessed2h = (int)Order::find()
+            ->where(['status' => 'created'])
+            ->andWhere(['<', 'created_at', $twoHoursAgo])
+            ->count();
+
+        // Заказы без изменения статуса более 3 дней
+        // Используем updated_at; если нет такого поля — считаем по created_at
+        try {
+            $delayed3d = (int)Yii::$app->db->createCommand("
+                SELECT COUNT(*) FROM `order`
+                WHERE updated_at < :ts
+                  AND status NOT IN ('delivered','issued','cancelled','refunded','completed')
+            ", [':ts' => $threeDaysAgo])->queryScalar();
+        } catch (\Exception $e) {
+            $delayed3d = 0;
+        }
+
+        $awaitingPoizon = (int)Order::find()
+            ->where(['status' => 'paid'])
+            ->count();
+
+        return [
+            'unprocessed2h' => $unprocessed2h,
+            'delayed3d'     => $delayed3d,
+            'awaitingPoizon' => $awaitingPoizon,
+        ];
+    }
+
+    /**
+     * B3.3: Данные воронки конверсии из analytics_events
+     */
+    private function getFunnelData()
+    {
+        try {
+            $db = Yii::$app->db;
+            $views  = (int)$db->createCommand("SELECT COUNT(*) FROM analytics_event WHERE event_type='view'")->queryScalar();
+            $carts  = (int)$db->createCommand("SELECT COUNT(*) FROM analytics_event WHERE event_type='add_to_cart'")->queryScalar();
+            $orders = (int)$db->createCommand("SELECT COUNT(*) FROM analytics_event WHERE event_type='order'")->queryScalar();
+            return ['views' => $views, 'carts' => $carts, 'orders' => $orders];
+        } catch (\Exception $e) {
+            return ['views' => 0, 'carts' => 0, 'orders' => 0];
+        }
+    }
+
+    /**
+     * B3.4: AJAX — вернуть текущий курс CNY
+     */
+    public function actionCnyRate()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        try {
+            $info = Yii::$app->currency->getCurrencyInfo();
+            return $info;
+        } catch (\Exception $e) {
+            return ['rate' => 0.45, 'updated_at' => null, 'source' => 'fallback'];
+        }
+    }
+
+    /**
+     * B3.4: AJAX — обновить курс CNY через NBRB API
+     */
+    public function actionUpdateCnyRate()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        if (!Yii::$app->request->isAjax && !Yii::$app->request->isPost) {
+            return ['success' => false, 'message' => 'Неверный метод запроса'];
+        }
+        try {
+            /** @var \app\backend\shared\components\CurrencyService $currency */
+            $currency = Yii::$app->currency;
+            // Сбрасываем кэш чтобы форсировать обновление
+            $currency->clearCache();
+            // Получаем свежий курс (логика получения через API — внутри getCurrencyInfo)
+            $rate = $currency->getCnyToBynRate();
+            $info = $currency->getCurrencyInfo();
+            return ['success' => true, 'rate' => $rate, 'updated_at' => $info['updated_at'], 'source' => $info['source']];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
     }
 
     /**

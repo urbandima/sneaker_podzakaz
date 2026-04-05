@@ -4,7 +4,8 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\LinkPager;
 
-$this->title = '⭐ Управление отзывами';
+$this->title = 'Управление отзывами';
+$pendingCount = $stats['pending'] ?? 0;
 ?>
 
 <style>
@@ -298,20 +299,26 @@ $this->title = '⭐ Управление отзывами';
     <!-- Фильтры -->
     <div class="filters">
         <a href="<?= Url::to(['index']) ?>" class="filter-btn <?= !Yii::$app->request->get('status') ? 'active' : '' ?>">
-            Все
+            <i class="bi bi-list-ul"></i> Все
         </a>
         <a href="<?= Url::to(['index', 'status' => 'pending']) ?>" class="filter-btn <?= Yii::$app->request->get('status') === 'pending' ? 'active' : '' ?>">
-            На модерации
+            <i class="bi bi-hourglass-split"></i> На модерации
+            <?php if ($pendingCount > 0): ?>
+                <span class="filter-badge"><?= $pendingCount ?></span>
+            <?php endif; ?>
         </a>
         <a href="<?= Url::to(['index', 'status' => 'published']) ?>" class="filter-btn <?= Yii::$app->request->get('status') === 'published' ? 'active' : '' ?>">
-            Опубликованные
+            <i class="bi bi-check-circle"></i> Опубликованные
+        </a>
+        <a href="<?= Url::to(['index', 'status' => 'rejected']) ?>" class="filter-btn <?= Yii::$app->request->get('status') === 'rejected' ? 'active' : '' ?>">
+            <i class="bi bi-x-circle"></i> Отклоненные
         </a>
         <a href="<?= Url::to(['index', 'status' => 'featured']) ?>" class="filter-btn <?= Yii::$app->request->get('status') === 'featured' ? 'active' : '' ?>">
-            Избранные
+            <i class="bi bi-star-fill"></i> Избранные
         </a>
         <?php for ($i = 5; $i >= 1; $i--): ?>
             <a href="<?= Url::to(['index', 'rating' => $i]) ?>" class="filter-btn <?= Yii::$app->request->get('rating') == $i ? 'active' : '' ?>">
-                <?= $i ?> ⭐
+                <?= $i ?> ★
             </a>
         <?php endfor; ?>
     </div>
@@ -391,23 +398,52 @@ $this->title = '⭐ Управление отзывами';
 
                 <div class="review-actions">
                     <?php if (!$review->is_published): ?>
-                        <?= Html::a('✓ Опубликовать', ['publish', 'id' => $review->id], ['class' => 'btn-action success', 'data' => ['method' => 'post']]) ?>
+                        <?= Html::a('<i class="bi bi-check-lg"></i> Опубликовать', ['publish', 'id' => $review->id], [
+                            'class' => 'btn-action success',
+                            'data' => ['method' => 'post'],
+                        ]) ?>
+                        <?= Html::a('<i class="bi bi-x-lg"></i> Отклонить', ['reject', 'id' => $review->id], [
+                            'class' => 'btn-action danger',
+                            'data' => ['method' => 'post', 'confirm' => 'Отклонить отзыв?'],
+                        ]) ?>
                     <?php else: ?>
-                        <?= Html::a('✗ Снять', ['unpublish', 'id' => $review->id], ['class' => 'btn-action', 'data' => ['method' => 'post']]) ?>
+                        <?= Html::a('<i class="bi bi-eye-slash"></i> Снять', ['unpublish', 'id' => $review->id], ['class' => 'btn-action', 'data' => ['method' => 'post']]) ?>
                     <?php endif; ?>
-                    
+
                     <a href="<?= Url::to(['toggle-featured', 'id' => $review->id]) ?>" class="btn-action">
-                        <?= $review->is_featured ? '☆ Убрать из избранных' : '★ В избранное' ?>
+                        <?= $review->is_featured ? '<i class="bi bi-star-fill"></i> Из избранных' : '<i class="bi bi-star"></i> В избранное' ?>
                     </a>
-                    
-                    <a href="<?= Url::to(['respond', 'id' => $review->id]) ?>" class="btn-action">
-                        💬 Ответить
-                    </a>
-                    
-                    <?= Html::a('🗑️ Удалить', ['delete', 'id' => $review->id], [
+
+                    <button type="button" class="btn-action" onclick="toggleReplyForm(<?= $review->id ?>)">
+                        <i class="bi bi-reply"></i> Ответить
+                    </button>
+
+                    <?= Html::a('<i class="bi bi-trash"></i> Удалить', ['delete', 'id' => $review->id], [
                         'class' => 'btn-action danger',
                         'data' => ['method' => 'post', 'confirm' => 'Удалить отзыв?'],
                     ]) ?>
+                </div>
+
+                <!-- Inline Reply Form -->
+                <div id="reply-form-<?= $review->id ?>" class="reply-form" style="display:none;">
+                    <div class="reply-form-inner">
+                        <label class="reply-label"><i class="bi bi-chat-left-text"></i> Ответ администратора</label>
+                        <textarea
+                            id="reply-text-<?= $review->id ?>"
+                            class="reply-textarea"
+                            rows="3"
+                            placeholder="Введите ответ на отзыв..."
+                        ><?= $review->admin_response ? Html::encode($review->admin_response) : '' ?></textarea>
+                        <div class="reply-actions">
+                            <button type="button" class="btn-action success" onclick="submitReply(<?= $review->id ?>)">
+                                <i class="bi bi-send"></i> Отправить ответ
+                            </button>
+                            <button type="button" class="btn-action" onclick="toggleReplyForm(<?= $review->id ?>)">
+                                Отмена
+                            </button>
+                        </div>
+                        <div id="reply-result-<?= $review->id ?>" class="reply-result" style="display:none;"></div>
+                    </div>
                 </div>
             </div>
         <?php endforeach; ?>
@@ -416,3 +452,141 @@ $this->title = '⭐ Управление отзывами';
     <!-- Пагинация -->
     <?= LinkPager::widget(['pagination' => $dataProvider->pagination]) ?>
 </div>
+
+<style>
+.filter-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ef4444;
+    color: white;
+    border-radius: 9999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    margin-left: 4px;
+}
+.badge-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+.reply-form {
+    margin-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1rem;
+}
+.reply-form-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+.reply-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.reply-textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    resize: vertical;
+    font-family: inherit;
+    color: #1f2937;
+    background: #f9fafb;
+    transition: border-color 0.2s;
+}
+.reply-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: #fff;
+}
+.reply-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+.reply-result {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+}
+.reply-result.success {
+    background: #d1fae5;
+    color: #065f46;
+}
+.reply-result.error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+</style>
+
+<script>
+var reviewReplyUrl = '<?= Url::to(['/admin/review/respond']) ?>';
+var csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').content : '';
+
+function toggleReplyForm(reviewId) {
+    var form = document.getElementById('reply-form-' + reviewId);
+    if (!form) return;
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    if (form.style.display === 'block') {
+        var ta = document.getElementById('reply-text-' + reviewId);
+        if (ta) ta.focus();
+    }
+}
+
+function submitReply(reviewId) {
+    var textarea = document.getElementById('reply-text-' + reviewId);
+    var resultEl = document.getElementById('reply-result-' + reviewId);
+    if (!textarea || !textarea.value.trim()) {
+        if (resultEl) {
+            resultEl.className = 'reply-result error';
+            resultEl.textContent = 'Введите текст ответа';
+            resultEl.style.display = 'block';
+        }
+        return;
+    }
+    var btn = textarea.closest('.reply-form-inner').querySelector('.btn-action.success');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Отправка...'; }
+
+    fetch(reviewReplyUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-Token': csrfToken
+        },
+        body: 'id=' + encodeURIComponent(reviewId) + '&response=' + encodeURIComponent(textarea.value.trim())
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-send"></i> Отправить ответ'; }
+        if (resultEl) {
+            resultEl.style.display = 'block';
+            if (data.success) {
+                resultEl.className = 'reply-result success';
+                resultEl.textContent = 'Ответ сохранён';
+                setTimeout(function() {
+                    document.getElementById('reply-form-' + reviewId).style.display = 'none';
+                }, 1500);
+            } else {
+                resultEl.className = 'reply-result error';
+                resultEl.textContent = data.message || 'Ошибка сохранения';
+            }
+        }
+    })
+    .catch(function() {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-send"></i> Отправить ответ'; }
+        if (resultEl) {
+            resultEl.style.display = 'block';
+            resultEl.className = 'reply-result error';
+            resultEl.textContent = 'Ошибка соединения';
+        }
+    });
+}
+</script>

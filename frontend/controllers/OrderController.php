@@ -348,6 +348,25 @@ class OrderController extends Controller
         return $products;
     }
 
+    /**
+     * Публичный трекер заказа по tracking_token
+     */
+    public function actionTrack($token)
+    {
+        $order = Order::findOne(['tracking_token' => $token]);
+        if ($order === null) {
+            // Fallback: try token field
+            $order = Order::findOne(['token' => $token]);
+        }
+        if ($order === null) {
+            throw new NotFoundHttpException('Заказ не найден.');
+        }
+
+        return $this->render('order/track', [
+            'order' => $order,
+        ]);
+    }
+
     public function actionView($token)
     {
         $model = Order::findOne(['token' => $token]);

@@ -6,6 +6,11 @@ use yii\helpers\Url;
 $this->title = 'Аналитика и отчёты';
 $dateFrom = $dateFrom ?? date('Y-m-d', strtotime('-7 days'));
 $dateTo = $dateTo ?? date('Y-m-d');
+$rfmSegments = $rfmSegments ?? [];
+$teamStats = $teamStats ?? [];
+$conversionFunnel = $conversionFunnel ?? ['views' => 0, 'add_to_cart' => 0, 'orders' => 0];
+
+$activeTab = Yii::$app->request->get('tab', 'analytics');
 ?>
 
 <div class="admin-header">
@@ -16,6 +21,25 @@ $dateTo = $dateTo ?? date('Y-m-d');
         <a href="<?= Url::to(['index', 'period' => 'month']) ?>" class="admin-btn admin-btn-secondary <?= $period === 'month' ? 'active' : '' ?>">Месяц</a>
     </div>
 </div>
+
+<!-- Tab Navigation -->
+<div style="display:flex;gap:0.25rem;margin-bottom:1.5rem;border-bottom:2px solid var(--admin-border,#e2e8f0);padding-bottom:0;">
+    <a href="?tab=analytics&period=<?= Html::encode($period ?? '30') ?>"
+       style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;<?= $activeTab === 'analytics' ? 'background:var(--admin-primary,#2563eb);color:#fff;border-color:var(--admin-primary,#2563eb);' : 'color:var(--admin-text-secondary,#64748b);' ?>">
+        <i class="bi bi-graph-up"></i> Аналитика
+    </a>
+    <a href="?tab=rfm&period=<?= Html::encode($period ?? '30') ?>"
+       style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;<?= $activeTab === 'rfm' ? 'background:var(--admin-primary,#2563eb);color:#fff;border-color:var(--admin-primary,#2563eb);' : 'color:var(--admin-text-secondary,#64748b);' ?>">
+        <i class="bi bi-people"></i> RFM
+    </a>
+    <a href="?tab=team&period=<?= Html::encode($period ?? '30') ?>"
+       style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;<?= $activeTab === 'team' ? 'background:var(--admin-primary,#2563eb);color:#fff;border-color:var(--admin-primary,#2563eb);' : 'color:var(--admin-text-secondary,#64748b);' ?>">
+        <i class="bi bi-person-badge"></i> Команда
+    </a>
+</div>
+
+<!-- ===================== TAB: АНАЛИТИКА ===================== -->
+<div id="tab-analytics" style="<?= $activeTab !== 'analytics' ? 'display:none;' : '' ?>">
 
 <!-- Statistics Cards -->
 <div class="admin-stats">
@@ -118,7 +142,7 @@ $dateTo = $dateTo ?? date('Y-m-d');
         <i class="bi bi-phone"></i>
         Статистика по устройствам
     </h2>
-    
+
     <div style="margin-top: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
         <?php foreach ($deviceStats as $device): ?>
         <div style="text-align: center; padding: 1rem; background: var(--admin-primary-soft); border-radius: 0.5rem;">
@@ -130,3 +154,186 @@ $dateTo = $dateTo ?? date('Y-m-d');
     </div>
 </div>
 <?php endif; ?>
+
+<!-- Conversion Funnel -->
+<div class="admin-card">
+    <h2 class="admin-card-title">
+        <i class="bi bi-filter-circle"></i>
+        Воронка конверсии
+    </h2>
+    <div style="margin-top:1.5rem;display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
+        <?php
+        $funnelSteps = [
+            ['label' => 'Просмотры', 'value' => (int)($conversionFunnel['views'] ?? 0), 'color' => '#3b82f6'],
+            ['label' => 'В корзину',  'value' => (int)($conversionFunnel['add_to_cart'] ?? 0), 'color' => '#f59e0b'],
+            ['label' => 'Заказы',    'value' => (int)($conversionFunnel['orders'] ?? 0), 'color' => '#10b981'],
+        ];
+        $maxVal = max(array_column($funnelSteps, 'value')) ?: 1;
+        foreach ($funnelSteps as $step):
+            $pct = round($step['value'] / $maxVal * 100);
+        ?>
+        <div style="flex:1;min-width:120px;text-align:center;">
+            <div style="height:<?= max($pct, 5) ?>px;background:<?= $step['color'] ?>;border-radius:0.5rem 0.5rem 0 0;transition:height 0.3s;"></div>
+            <div style="padding:0.5rem 0;font-weight:700;font-size:1.1rem;"><?= number_format($step['value']) ?></div>
+            <div style="font-size:0.8rem;color:var(--admin-text-secondary);"><?= Html::encode($step['label']) ?></div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+
+</div><!-- /tab-analytics -->
+
+<!-- ===================== TAB: RFM ===================== -->
+<div id="tab-rfm" style="<?= $activeTab !== 'rfm' ? 'display:none;' : '' ?>">
+
+<div class="admin-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 class="admin-card-title" style="margin:0;">
+            <i class="bi bi-people"></i>
+            RFM-анализ клиентов
+        </h2>
+        <button class="admin-btn admin-btn-secondary" onclick="refreshRfm(this)">
+            <i class="bi bi-arrow-clockwise"></i> Рассчитать RFM
+        </button>
+    </div>
+    <p style="font-size:0.85rem;color:var(--admin-text-secondary);margin-bottom:1.25rem;">
+        Сегментация: <strong>Champion</strong> (R&lt;30д, F&gt;3, M&gt;5000),
+        <strong>Loyal</strong> (F&gt;3), <strong>At Risk</strong> (R&gt;60д, F&gt;1),
+        <strong>Lost</strong> (R&gt;90д, F=1), <strong>New</strong> (остальные)
+    </p>
+
+    <div id="rfm-table-wrap" style="overflow-x:auto;">
+    <table class="admin-table" id="rfm-table">
+        <thead>
+            <tr>
+                <th>Сегмент</th>
+                <th style="text-align:right;">Клиентов</th>
+                <th style="text-align:right;">Средний LTV, BYN</th>
+                <th style="text-align:center;">Экспорт</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            $segmentColors = [
+                'Champion' => '#10b981',
+                'Loyal'    => '#3b82f6',
+                'At Risk'  => '#f59e0b',
+                'Lost'     => '#ef4444',
+                'New'      => '#8b5cf6',
+            ];
+            foreach ($rfmSegments as $seg):
+                $color = $segmentColors[$seg['segment']] ?? '#64748b';
+            ?>
+            <tr>
+                <td>
+                    <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:<?= $color ?>;margin-right:0.4rem;"></span>
+                    <strong><?= Html::encode($seg['segment']) ?></strong>
+                </td>
+                <td style="text-align:right;font-weight:700;"><?= (int)$seg['count'] ?></td>
+                <td style="text-align:right;"><?= number_format((float)$seg['avg_monetary'], 2, ',', ' ') ?></td>
+                <td style="text-align:center;">
+                    <a href="<?= Url::to(['/admin/analytics/export-rfm', 'segment' => $seg['segment']]) ?>"
+                       class="admin-btn admin-btn-secondary" style="font-size:0.75rem;padding:0.3rem 0.7rem;">
+                        <i class="bi bi-download"></i> CSV
+                    </a>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    </div>
+    <div id="rfm-msg" style="display:none;margin-top:0.75rem;padding:0.5rem 0.75rem;border-radius:0.5rem;font-size:0.875rem;"></div>
+</div>
+
+</div><!-- /tab-rfm -->
+
+<!-- ===================== TAB: КОМАНДА ===================== -->
+<div id="tab-team" style="<?= $activeTab !== 'team' ? 'display:none;' : '' ?>">
+
+<div class="admin-card">
+    <h2 class="admin-card-title">
+        <i class="bi bi-person-badge"></i>
+        Отчёт по команде
+    </h2>
+    <div style="margin-top:1.5rem;overflow-x:auto;">
+        <?php if (!empty($teamStats)): ?>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Менеджер / Логист</th>
+                    <th style="text-align:right;">Заказов</th>
+                    <th style="text-align:right;">Выручка, BYN</th>
+                    <th style="text-align:right;">Средний чек, BYN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($teamStats as $row): ?>
+                <tr>
+                    <td><?= Html::encode($row['manager'] ?? 'Не назначен') ?></td>
+                    <td style="text-align:right;font-weight:700;"><?= (int)$row['order_count'] ?></td>
+                    <td style="text-align:right;"><?= number_format((float)$row['revenue'], 0, ',', ' ') ?></td>
+                    <td style="text-align:right;"><?= number_format((float)$row['avg_check'], 0, ',', ' ') ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php else: ?>
+        <p style="text-align:center;color:var(--admin-text-secondary);padding:2rem;">
+            Нет данных по команде (проверьте наличие полей assigned_logist / created_by в таблице order)
+        </p>
+        <?php endif; ?>
+    </div>
+</div>
+
+</div><!-- /tab-team -->
+
+<script>
+function refreshRfm(btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Рассчёт...';
+    var msgEl = document.getElementById('rfm-msg');
+    fetch('<?= Url::to(['/admin/analytics/rfm']) ?>', {
+        method: 'GET',
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Рассчитать RFM';
+        if (data.success && data.segments) {
+            var colors = {Champion:'#10b981',Loyal:'#3b82f6','At Risk':'#f59e0b',Lost:'#ef4444',New:'#8b5cf6'};
+            var tbody = document.querySelector('#rfm-table tbody');
+            if (tbody) {
+                tbody.innerHTML = '';
+                data.segments.forEach(function(seg) {
+                    var c = colors[seg.segment] || '#64748b';
+                    var tr = document.createElement('tr');
+                    var exportUrl = '<?= Url::to(['/admin/analytics/export-rfm']) ?>' + '?segment=' + encodeURIComponent(seg.segment);
+                    tr.innerHTML = '<td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + c + ';margin-right:.4rem;"></span><strong>' + seg.segment + '</strong></td>'
+                        + '<td style="text-align:right;font-weight:700;">' + seg.count + '</td>'
+                        + '<td style="text-align:right;">' + parseFloat(seg.avg_monetary).toFixed(2) + '</td>'
+                        + '<td style="text-align:center;"><a href="' + exportUrl + '" class="admin-btn admin-btn-secondary" style="font-size:.75rem;padding:.3rem .7rem;"><i class="bi bi-download"></i> CSV</a></td>';
+                    tbody.appendChild(tr);
+                });
+            }
+            if (msgEl) {
+                msgEl.style.display = 'block';
+                msgEl.style.background = '#d1fae5';
+                msgEl.style.color = '#065f46';
+                msgEl.textContent = 'RFM пересчитан успешно';
+                setTimeout(function() { msgEl.style.display = 'none'; }, 3000);
+            }
+        }
+    })
+    .catch(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Рассчитать RFM';
+        if (msgEl) {
+            msgEl.style.display = 'block';
+            msgEl.style.background = '#fee2e2';
+            msgEl.style.color = '#991b1b';
+            msgEl.textContent = 'Ошибка при расчёте RFM';
+        }
+    });
+}
+</script>

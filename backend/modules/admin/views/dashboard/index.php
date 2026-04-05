@@ -2,7 +2,7 @@
 /**
  * Dashboard — Главная панель администратора
  * Виджеты с реальными данными из БД, графики, топ-товары, складские предупреждения
- * 
+ *
  * @var yii\web\View $this
  * @var object $user
  * @var array $orderStats
@@ -13,6 +13,9 @@
  * @var array $chartData
  * @var array|object $companySettings
  * @var bool $demoMode
+ * @var array $operationalStats  B3.1
+ * @var array $funnelData        B3.3
+ * @var array $currencyInfo      B3.4
  */
 
 use yii\helpers\Html;
@@ -106,6 +109,51 @@ $amountFormatted = $totalAmount >= 1000 ? number_format($totalAmount / 1000, 1, 
     </div>
 </div>
 
+<!-- B3.1 Operational Control Widgets -->
+<?php
+$opStats = $operationalStats ?? ['unprocessed2h' => 0, 'delayed3d' => 0, 'awaitingPoizon' => 0];
+?>
+<div class="dash-operational-grid">
+    <a href="<?= Url::to(['/admin/order', 'status' => 'created']) ?>" class="dash-op-widget">
+        <div class="dash-op-widget-icon danger"><i class="bi bi-clock-history"></i></div>
+        <div class="dash-op-widget-value danger"><?= (int)($opStats['unprocessed2h'] ?? 0) ?></div>
+        <div class="dash-op-widget-label">Необработанных<br>&gt;2 часов</div>
+    </a>
+    <a href="<?= Url::to(['/admin/order']) ?>" class="dash-op-widget">
+        <div class="dash-op-widget-icon warning"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <div class="dash-op-widget-value warning"><?= (int)($opStats['delayed3d'] ?? 0) ?></div>
+        <div class="dash-op-widget-label">Задержек<br>&gt;3 дней без изменений</div>
+    </a>
+    <a href="<?= Url::to(['/admin/order', 'status' => 'paid']) ?>" class="dash-op-widget">
+        <div class="dash-op-widget-icon info"><i class="bi bi-bag-x-fill"></i></div>
+        <div class="dash-op-widget-value info"><?= (int)($opStats['awaitingPoizon'] ?? 0) ?></div>
+        <div class="dash-op-widget-label">Ожидают Poizon<br>оплачено, не заказано</div>
+    </a>
+</div>
+
+<!-- B3.4 CNY Rate Widget -->
+<?php
+$cnyInfo = $currencyInfo ?? ['rate' => 0.45, 'updated_at' => null, 'source' => 'default'];
+$cnyRate = (float)($cnyInfo['rate'] ?? 0.45);
+$cnyUpdated = $cnyInfo['updated_at'] ?? null;
+?>
+<div class="dash-cny-widget">
+    <div>
+        <div class="dash-cny-rate-main">1 CNY = <?= number_format($cnyRate, 4, '.', '') ?> BYN</div>
+        <div class="dash-cny-rate-meta">
+            <?php if ($cnyUpdated): ?>
+                Обновлено: <?= Html::encode($cnyUpdated) ?>
+            <?php else: ?>
+                Дата обновления неизвестна
+            <?php endif ?>
+            &nbsp;·&nbsp; Источник: <?= Html::encode($cnyInfo['source'] ?? '—') ?>
+        </div>
+    </div>
+    <button class="admin-btn admin-btn-secondary admin-btn-sm" id="dash-update-cny" onclick="updateCnyRate(this)">
+        <i class="bi bi-arrow-clockwise"></i> Обновить
+    </button>
+</div>
+
 <!-- Order Pipeline -->
 <div class="dash-pipeline">
     <div class="dash-pipe-item">
@@ -126,10 +174,18 @@ $amountFormatted = $totalAmount >= 1000 ? number_format($totalAmount / 1000, 1, 
 
 <!-- Charts Row -->
 <div class="dash-grid-2">
-    <!-- Sales Chart -->
+    <!-- Sales Chart — B3.2 30 days + comparison -->
     <div class="admin-card">
         <div class="admin-card-header">
-            <h2 class="admin-card-title"><i class="bi bi-bar-chart-line-fill"></i> Продажи за 7 дней</h2>
+            <h2 class="admin-card-title"><i class="bi bi-bar-chart-line-fill"></i> Продажи за 30 дней</h2>
+            <div class="dash-chart-legend">
+                <span class="dash-chart-legend-item">
+                    <span class="dash-chart-legend-dot" style="background:#008060"></span> Текущий период
+                </span>
+                <span class="dash-chart-legend-item">
+                    <span class="dash-chart-legend-dot" style="background:#94a3b8"></span> Предыдущий период
+                </span>
+            </div>
         </div>
         <div style="max-width: 100%; overflow: hidden;">
             <canvas id="salesChart" height="350" style="max-width: 100%;"></canvas>
@@ -158,6 +214,63 @@ $amountFormatted = $totalAmount >= 1000 ? number_format($totalAmount / 1000, 1, 
         <?php else: ?>
         <p class="dash-empty">Нет данных о продажах</p>
         <?php endif ?>
+    </div>
+</div>
+
+<!-- B3.3 Conversion Funnel -->
+<?php
+$funnel = $funnelData ?? ['views' => 0, 'carts' => 0, 'orders' => 0];
+$fViews = max(1, (int)($funnel['views'] ?? 0));
+$fCarts = (int)($funnel['carts'] ?? 0);
+$fOrders = (int)($funnel['orders'] ?? 0);
+$cartPct = $fViews > 0 ? round($fCarts / $fViews * 100, 1) : 0;
+$orderPct = $fViews > 0 ? round($fOrders / $fViews * 100, 1) : 0;
+$orderFromCartPct = $fCarts > 0 ? round($fOrders / $fCarts * 100, 1) : 0;
+?>
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h2 class="admin-card-title"><i class="bi bi-funnel-fill"></i> Воронка конверсии</h2>
+        <span class="admin-badge admin-badge-info">All time</span>
+    </div>
+    <div class="dash-funnel">
+        <!-- Step 1: Views -->
+        <div class="dash-funnel-step">
+            <div class="dash-funnel-meta">
+                <div class="dash-funnel-count"><?= number_format($funnel['views'] ?? 0) ?></div>
+                <div class="dash-funnel-pct">Просмотры</div>
+            </div>
+            <div class="dash-funnel-bar-wrap">
+                <div class="dash-funnel-bar step-1" style="width:100%">
+                    <span class="dash-funnel-bar-label">100%</span>
+                </div>
+            </div>
+        </div>
+        <div class="dash-funnel-arrow">↓ <?= $cartPct ?>% добавили в корзину</div>
+        <!-- Step 2: Carts -->
+        <div class="dash-funnel-step">
+            <div class="dash-funnel-meta">
+                <div class="dash-funnel-count"><?= number_format($funnel['carts'] ?? 0) ?></div>
+                <div class="dash-funnel-pct">В корзине</div>
+            </div>
+            <div class="dash-funnel-bar-wrap">
+                <div class="dash-funnel-bar step-2" style="width:<?= min(100, $cartPct) ?>%">
+                    <span class="dash-funnel-bar-label"><?= $cartPct ?>%</span>
+                </div>
+            </div>
+        </div>
+        <div class="dash-funnel-arrow">↓ <?= $orderFromCartPct ?>% оформили заказ</div>
+        <!-- Step 3: Orders -->
+        <div class="dash-funnel-step">
+            <div class="dash-funnel-meta">
+                <div class="dash-funnel-count"><?= number_format($funnel['orders'] ?? 0) ?></div>
+                <div class="dash-funnel-pct">Заказы</div>
+            </div>
+            <div class="dash-funnel-bar-wrap">
+                <div class="dash-funnel-bar step-3" style="width:<?= max(2, min(100, $orderPct)) ?>%">
+                    <span class="dash-funnel-bar-label"><?= $orderPct ?>%</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -217,6 +330,121 @@ if (typeof Chart === 'undefined') {
 <script>
 window.chartData = <?= json_encode($chartData ?? []) ?>;
 </script>
+
+<script>
+// B3.2 — Инициализация графика с двумя линиями (30 дней)
+document.addEventListener('DOMContentLoaded', function () {
+    var ctx = document.getElementById('salesChart');
+    if (!ctx || typeof Chart === 'undefined' || !window.chartData || !window.chartData.length) return;
+
+    var labels      = window.chartData.map(function(d){ return d.day || d.date; });
+    var curOrders   = window.chartData.map(function(d){ return d.orders || 0; });
+    var prevOrders  = window.chartData.map(function(d){ return d.prev_orders || 0; });
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Заказы (текущий период)',
+                    data: curOrders,
+                    borderColor: '#008060',
+                    backgroundColor: 'rgba(0,128,96,0.08)',
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    borderWidth: 2,
+                },
+                {
+                    label: 'Заказы (пред. период)',
+                    data: prevOrders,
+                    borderColor: '#94a3b8',
+                    backgroundColor: 'rgba(148,163,184,0.05)',
+                    fill: false,
+                    tension: 0.35,
+                    pointRadius: 2,
+                    pointHoverRadius: 4,
+                    borderWidth: 1.5,
+                    borderDash: [5, 3],
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            return ctx.dataset.label + ': ' + ctx.parsed.y + ' заказов';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(0,0,0,0.04)' },
+                    ticks: { maxTicksLimit: 10, font: { size: 11 } }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.04)' },
+                    ticks: { font: { size: 11 }, precision: 0 }
+                }
+            }
+        }
+    });
+});
+
+// B3.4 — Обновление курса CNY
+function updateCnyRate(btn) {
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-clockwise" style="animation:spin 1s linear infinite"></i> Обновляем...';
+    }
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/admin/dashboard/update-cny-rate', true);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    var csrf = document.querySelector('meta[name="csrf-token"]');
+    xhr.send(csrf ? '_csrf=' + encodeURIComponent(csrf.getAttribute('content')) : '');
+    xhr.onload = function() {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Обновить';
+        }
+        try {
+            var data = JSON.parse(xhr.responseText);
+            if (data.success && data.rate) {
+                // Обновляем отображение
+                var rateEl = document.querySelector('.dash-cny-rate-main');
+                if (rateEl) rateEl.textContent = '1 CNY = ' + parseFloat(data.rate).toFixed(4) + ' BYN';
+                var metaEl = document.querySelector('.dash-cny-rate-meta');
+                if (metaEl && data.updated_at) {
+                    metaEl.innerHTML = 'Обновлено: ' + data.updated_at + ' &nbsp;·&nbsp; Источник: ' + (data.source || 'nbrb');
+                }
+                // Сбрасываем localStorage для калькулятора
+                localStorage.removeItem('cny_rate');
+                localStorage.removeItem('cny_rate_time');
+            } else {
+                alert('Ошибка обновления курса: ' + (data.message || 'неизвестная ошибка'));
+            }
+        } catch(e) { /* ignore */ }
+    };
+    xhr.onerror = function() {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Обновить'; }
+        alert('Сетевая ошибка при обновлении курса');
+    };
+}
+</script>
+
+<style>
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
 
 
 <style>

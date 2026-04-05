@@ -78,10 +78,10 @@ $this->title = 'Купоны';
             <thead>
                 <tr>
                     <th>Код</th>
-                    <th>Название</th>
                     <th>Тип</th>
-                    <th>Скидка</th>
-                    <th>Использований</th>
+                    <th>Значение</th>
+                    <th>Мин. заказ</th>
+                    <th>Исп. / Макс.</th>
                     <th>Действителен до</th>
                     <th>Статус</th>
                     <th>Действия</th>
@@ -95,40 +95,60 @@ $this->title = 'Купоны';
                                 <?= Html::encode($model->code) ?>
                             </a>
                         </td>
-                        <td><?= Html::encode($model->name) ?></td>
-                        <td><?= Html::encode($model->getTypeName()) ?></td>
+                        <td>
+                            <?php $typeLabel = $model->getTypeName(); $isPercent = (strpos(strtolower($typeLabel), 'процент') !== false || strpos($typeLabel, '%') !== false); ?>
+                            <span class="admin-badge admin-badge-<?= $isPercent ? 'info' : 'warning' ?>">
+                                <?= $isPercent ? '%' : 'fix BYN' ?>
+                            </span>
+                        </td>
                         <td><?= $model->getDiscountDescription() ?></td>
+                        <td><?= $model->min_order ? number_format($model->min_order, 2) . ' BYN' : '—' ?></td>
                         <td>
                             <?php
-                            $text = $model->current_uses;
-                            if ($model->max_uses) {
-                                $text .= ' / ' . $model->max_uses;
-                                $percent = ($model->current_uses / $model->max_uses) * 100;
-                                $color = $percent >= 90 ? 'danger' : ($percent >= 70 ? 'warning' : 'success');
-                                echo $text . ' <span class="admin-badge admin-badge-' . $color . '">' . round($percent) . '%</span>';
+                            $usedCount = $model->current_uses ?? $model->used_count ?? 0;
+                            $maxUses = $model->max_uses ?? null;
+                            if ($maxUses) {
+                                $percent = ($usedCount / $maxUses) * 100;
+                                $color = $percent >= 100 ? 'danger' : ($percent >= 70 ? 'warning' : 'success');
+                                echo Html::encode($usedCount) . ' / ' . Html::encode($maxUses);
+                                echo ' <span class="admin-badge admin-badge-' . $color . '">' . round($percent) . '%</span>';
                             } else {
-                                echo $text;
+                                echo Html::encode($usedCount) . ' / ∞';
                             }
                             ?>
                         </td>
                         <td>
-                            <?php if (!$model->valid_until): ?>
+                            <?php
+                            $expiryField = $model->valid_until ?? $model->expires_at ?? $model->expiry ?? null;
+                            if (!$expiryField): ?>
                                 —
                             <?php else: ?>
                                 <?php
-                                $date = strtotime($model->valid_until);
+                                $date = is_numeric($expiryField) ? $expiryField : strtotime($expiryField);
                                 $now = time();
                                 if ($date < $now): ?>
-                                    <span style="color: var(--admin-danger);"><?= Yii::$app->formatter->asDate($model->valid_until) ?> (истёк)</span>
+                                    <span style="color: var(--admin-danger);"><?= date('d.m.Y', $date) ?> (истёк)</span>
                                 <?php else: ?>
-                                    <?= Yii::$app->formatter->asDate($model->valid_until) ?>
+                                    <?= date('d.m.Y', $date) ?>
                                 <?php endif; ?>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <span class="admin-badge admin-badge-<?= $model->is_active ? 'success' : 'secondary' ?>">
-                                <?= $model->is_active ? 'Активен' : 'Неактивен' ?>
-                            </span>
+                            <?php
+                            $expiryTs = isset($expiryField) && $expiryField ? (is_numeric($expiryField) ? $expiryField : strtotime($expiryField)) : null;
+                            $maxUsesV = $model->max_uses ?? null;
+                            $usedV = $model->current_uses ?? $model->used_count ?? 0;
+                            $isActive = $model->is_active ?? true;
+                            if ($expiryTs && $expiryTs < time()):
+                            ?>
+                                <span class="admin-badge admin-badge-secondary">Истёк</span>
+                            <?php elseif ($maxUsesV && $usedV >= $maxUsesV): ?>
+                                <span class="admin-badge admin-badge-danger">Лимит исчерпан</span>
+                            <?php elseif ($isActive): ?>
+                                <span class="admin-badge admin-badge-success">Активный</span>
+                            <?php else: ?>
+                                <span class="admin-badge admin-badge-secondary">Неактивен</span>
+                            <?php endif; ?>
                         </td>
                         <td>
                             <div style="display: flex; gap: 0.25rem;">

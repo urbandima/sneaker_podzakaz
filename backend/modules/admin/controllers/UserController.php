@@ -155,8 +155,115 @@ class UserController extends BaseAdminController
     }
 
     /**
+     * AJAX: Сброс пароля пользователя
+     */
+    public function actionResetPassword()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $id = Yii::$app->request->post('id');
+        if (!$id) {
+            return ['success' => false, 'message' => 'ID не указан'];
+        }
+
+        $currentUser = $this->getCurrentUser();
+        if ($id == $currentUser->id) {
+            return ['success' => false, 'message' => 'Нельзя сбросить собственный пароль через эту форму'];
+        }
+
+        try {
+            $user = User::findOne($id);
+            if (!$user) {
+                return ['success' => false, 'message' => 'Пользователь не найден'];
+            }
+
+            // Generate a secure random password
+            $newPassword = Yii::$app->security->generateRandomString(10);
+            $user->setPassword($newPassword);
+
+            if ($user->save(false)) {
+                Yii::info('Сброшен пароль для пользователя #' . $id . ' (admin #' . $currentUser->id . ')', 'user');
+                return ['success' => true, 'password' => $newPassword];
+            }
+
+            return ['success' => false, 'message' => 'Ошибка сохранения'];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * AJAX: Переключить блокировку пользователя
+     */
+    public function actionToggleBlock()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $id = Yii::$app->request->post('id');
+        if (!$id) {
+            return ['success' => false, 'message' => 'ID не указан'];
+        }
+
+        $currentUser = $this->getCurrentUser();
+        if ($id == $currentUser->id) {
+            return ['success' => false, 'message' => 'Нельзя заблокировать самого себя'];
+        }
+
+        try {
+            $user = User::findOne($id);
+            if (!$user) {
+                return ['success' => false, 'message' => 'Пользователь не найден'];
+            }
+
+            $wasActive = ($user->status == User::STATUS_ACTIVE);
+            $user->status = $wasActive ? User::STATUS_INACTIVE : User::STATUS_ACTIVE;
+
+            if ($user->save(false)) {
+                Yii::info('Статус пользователя #' . $id . ' изменён на ' . $user->status . ' (admin #' . $currentUser->id . ')', 'user');
+                return ['success' => true, 'status' => $user->status, 'blocked' => !$wasActive];
+            }
+
+            return ['success' => false, 'message' => 'Ошибка сохранения'];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Редактирование пользователя
+     *
+     * @param int $id
+     */
+    public function actionEdit($id = null)
+    {
+        if ($id === null) {
+            $id = Yii::$app->request->get('id');
+        }
+
+        $model = $id ? User::findOne($id) : null;
+        if ($model === null) {
+            throw new NotFoundHttpException('Пользователь не найден.');
+        }
+        $model->scenario = 'update';
+
+        if ($model->load(Yii::$app->request->post())) {
+            if (!empty($model->password)) {
+                $model->setPassword($model->password);
+            }
+            if ($model->save()) {
+                $this->flashSuccess('Пользователь обновлён.');
+                return $this->redirect(['/admin/user/index']);
+            } else {
+                $this->flashError('Ошибка: ' . json_encode($model->errors));
+            }
+        }
+
+        return $this->render('update', ['model' => $model]);
+    }
+
+    /**
      * Удаление пользователя
-     * 
+     *
      * @param int $id
      */
     public function actionDelete($id)

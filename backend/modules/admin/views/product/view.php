@@ -523,9 +523,110 @@ function copyToClipboard(text, element) {
     navigator.clipboard.writeText(text).then(() => {
         const original = element.innerHTML;
         element.innerHTML = '<i class="bi bi-check"></i> ' + text;
-        setTimeout(() => {
-            element.innerHTML = original;
-        }, 1000);
+        setTimeout(() => { element.innerHTML = original; }, 1000);
+    });
+}
+
+// B7.2 Inline price edit
+function editPrice(productId, currentPrice) {
+    const newPrice = prompt('Новая цена BYN:', currentPrice);
+    if (newPrice === null || isNaN(parseFloat(newPrice))) return;
+    fetch('/admin/product/update-price', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content||''},
+        body: JSON.stringify({id: productId, price: parseFloat(newPrice)})
+    }).then(r=>r.json()).then(d=>{ if(d.success) location.reload(); else alert(d.message||'Ошибка'); });
+}
+
+// B7.2 Toggle active
+function toggleActive(productId) {
+    fetch('/admin/product/toggle-active', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content||''},
+        body: JSON.stringify({id: productId})
+    }).then(r=>r.json()).then(d=>{ if(d.success) location.reload(); });
+}
+
+// B7.3 Inline size BYN price edit
+document.querySelectorAll('.size-price-byn').forEach(cell => {
+    cell.addEventListener('dblclick', function() {
+        const sizeId = this.dataset.sizeId;
+        const currentVal = this.dataset.price || '0';
+        const input = document.createElement('input');
+        input.type = 'number'; input.value = currentVal; input.step = '0.01';
+        input.style.cssText = 'width:90px;padding:2px 6px;border:1px solid var(--admin-accent);border-radius:4px';
+        const original = this.innerHTML;
+        this.innerHTML = '';
+        this.appendChild(input);
+        input.focus(); input.select();
+        const save = () => {
+            const newVal = parseFloat(input.value);
+            if (isNaN(newVal)) { this.innerHTML = original; return; }
+            fetch('/admin/product/update-size-price', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json','X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content||''},
+                body: JSON.stringify({size_id: sizeId, price_byn: newVal})
+            }).then(r=>r.json()).then(d=>{ this.innerHTML = d.success ? newVal.toFixed(2) + ' BYN' : original; });
+        };
+        input.addEventListener('keydown', e => { if(e.key==='Enter') save(); if(e.key==='Escape') this.innerHTML=original; });
+        input.addEventListener('blur', save);
+    });
+});
+
+// B7.5 Sync Poizon
+function syncPoizon(productId) {
+    const btn = event.currentTarget;
+    btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Синхронизация...';
+    fetch('/admin/product/sync-poizon', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content||''},
+        body: JSON.stringify({id: productId})
+    }).then(r=>r.json()).then(d=>{
+        btn.disabled=false; btn.innerHTML='<i class="bi bi-arrow-repeat"></i> Синхронизировать';
+        if(d.success) location.reload(); else alert(d.message||'Ошибка синхронизации');
     });
 }
 </script>
+
+<!-- B7.2 Quick Actions Bar -->
+<?php $this->registerCss('.product-quick-bar{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;padding:0.75rem 1rem;background:var(--admin-surface);border:1px solid var(--admin-border);border-radius:var(--admin-radius);margin-bottom:1.5rem}') ?>
+<div class="product-quick-bar" style="margin-top:-0.5rem">
+    <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="editPrice(<?= $product->id ?>, <?= $product->price ?? 0 ?>)">
+        <i class="bi bi-pencil"></i> Изменить цену (<?= number_format($product->price ?? 0, 2) ?> BYN)
+    </button>
+    <button class="admin-btn admin-btn-<?= $product->is_active ? 'warning' : 'success' ?> admin-btn-sm" onclick="toggleActive(<?= $product->id ?>)">
+        <i class="bi bi-toggle-<?= $product->is_active ? 'on' : 'off' ?>"></i> <?= $product->is_active ? 'Деактивировать' : 'Активировать' ?>
+    </button>
+    <a href="<?= Url::to(['/admin/order/create', 'product_id' => $product->id]) ?>" class="admin-btn admin-btn-primary admin-btn-sm">
+        <i class="bi bi-bag-plus"></i> Создать заказ
+    </a>
+</div>
+
+<!-- B7.6 Похожие товары -->
+<?php
+try {
+    $similarProducts = \app\backend\modules\catalog\models\Product::find()
+        ->where(['brand_id' => $product->brand_id, 'is_active' => true])
+        ->andWhere(['!=', 'id', $product->id])
+        ->limit(6)->all();
+} catch (\Exception $e) { $similarProducts = []; }
+if (!empty($similarProducts)):
+?>
+<div class="admin-card" style="margin-top:1.5rem">
+    <h2 class="admin-card-title"><i class="bi bi-grid-3x3-gap"></i> Похожие товары</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;padding:1rem">
+        <?php foreach ($similarProducts as $sp): ?>
+        <div style="border:1px solid var(--admin-border);border-radius:var(--admin-radius);overflow:hidden;text-align:center">
+            <?php if ($sp->image_url): ?><img src="<?= Html::encode($sp->image_url) ?>" style="width:100%;height:100px;object-fit:cover" alt="<?= Html::encode($sp->name) ?>"><?php endif ?>
+            <div style="padding:0.5rem">
+                <div style="font-size:0.8rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><?= Html::encode($sp->name) ?></div>
+                <div style="font-size:0.75rem;color:var(--admin-text-secondary)"><?= number_format($sp->price ?? 0, 0) ?> BYN</div>
+                <a href="<?= Url::to(['/admin/order/create', 'product_id' => $sp->id]) ?>" class="admin-btn admin-btn-primary admin-btn-sm" style="margin-top:0.5rem;width:100%;justify-content:center;display:inline-flex;font-size:0.7rem">
+                    <i class="bi bi-bag-plus"></i> Заказ
+                </a>
+            </div>
+        </div>
+        <?php endforeach ?>
+    </div>
+</div>
+<?php endif ?>

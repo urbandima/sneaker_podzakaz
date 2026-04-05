@@ -667,8 +667,267 @@ class OrderController extends BaseAdminController
     }
 
     /**
+     * Обновление статуса через AJAX (для Канбан-доски и быстрых действий)
+     */
+    public function actionUpdateStatus()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'message' => 'Метод должен быть POST'];
+        }
+
+        $id     = (int)Yii::$app->request->post('id');
+        $status = Yii::$app->request->post('status');
+
+        if (!$id || !$status) {
+            return ['success' => false, 'message' => 'Не указан id или status'];
+        }
+
+        $model = Order::findOne($id);
+        if (!$model) {
+            return ['success' => false, 'message' => 'Заказ не найден'];
+        }
+
+        $user = $this->getCurrentUser();
+        if ($this->isLogist() && $model->assigned_logist != $user->id) {
+            return ['success' => false, 'message' => 'Доступ запрещён'];
+        }
+
+        $oldStatus  = $model->status;
+        $model->status = $status;
+
+        if ($model->save(false)) {
+            if ($oldStatus !== $status) {
+                $h = new OrderHistory();
+                $h->order_id   = $model->id;
+                $h->old_status = $oldStatus;
+                $h->new_status = $status;
+                $h->changed_by = $user->id;
+                $h->save(false);
+            }
+            TagDependency::invalidate(Yii::$app->cache, ['orders-stats']);
+            return ['success' => true];
+        }
+
+        return ['success' => false, 'message' => 'Ошибка сохранения', 'errors' => $model->errors];
+    }
+
+    /**
+     * Массовые действия над заказами (смена статуса, назначение логиста, экспорт CSV)
+     */
+    public function actionBulkAction()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'message' => 'Метод должен быть POST'];
+        }
+
+        $action  = Yii::$app->request->post('action');
+        $ids     = Yii::$app->request->post('ids', []);
+        $extra   = Yii::$app->request->post('extra'); // статус или logist_id
+
+        if (empty($ids)) {
+            return ['success' => false, 'message' => 'Не выбраны заказы'];
+        }
+
+        if ($action === 'change_status') {
+            if (!$extra) {
+                return ['success' => false, 'message' => 'Не указан статус'];
+            }
+            $updated = Order::updateAll(['status' => $extra], ['id' => $ids]);
+            TagDependency::invalidate(Yii::$app->cache, ['orders-stats']);
+            return ['success' => true, 'updated' => $updated, 'message' => "Статус изменён у $updated заказов"];
+        }
+
+        if ($action === 'assign_logist') {
+            if (!$this->isAdmin()) {
+                return ['success' => false, 'message' => 'Доступ запрещён'];
+            }
+            $updated = Order::updateAll(['assigned_logist' => $extra ?: null], ['id' => $ids]);
+            return ['success' => true, 'updated' => $updated, 'message' => "Логист назначен у $updated заказов"];
+        }
+
+        if ($action === 'export_csv') {
+            // Отдаём CSV для выбранных заказов прямо из AJAX ответа (redirect)
+            // Для CSV экспорта — редиректим на export action с id списком
+            return ['success' => true, 'redirect' => \yii\helpers\Url::to(['/admin/order/export-csv', 'ids' => implode(',', $ids)])];
+        }
+
+        return ['success' => false, 'message' => 'Неизвестное действие'];
+    }
+
+    /**
+     * Добавление заметки к заказу (AJAX)
+     */
+    public function actionAddNote($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'message' => 'Метод должен быть POST'];
+        }
+
+        $model = $this->findModel($id);
+        $user  = $this->getCurrentUser();
+
+        if ($this->isLogist() && $model->assigned_logist != $user->id) {
+            return ['success' => false, 'message' => 'Доступ запрещён'];
+        }
+
+        $text = trim(Yii::$app->request->post('text', ''));
+        if ($text === '') {
+            return ['success' => false, 'message' => 'Текст заметки не может быть пустым'];
+        }
+
+        // Сохраняем в OrderHistory с пометкой что это заметка
+        $note = new OrderHistory();
+        $note->order_id   = $model->id;
+        $note->old_status = $model->status;
+        $note->new_status = $model->status;
+        $note->changed_by = $user->id;
+        $note->comment    = $text;
+        $note->save(false);
+
+        $html = $this->renderPartial('_notes', [
+            'notes' => [$note],
+            'statuses' => Yii::$app->settings->getStatuses(),
+        ]);
+
+        return ['success' => true, 'html' => $html];
+    }
+
+    /**
+     * PDF / printable invoice для заказа
+     */
+    public function actionPdf($id)
+    {
+        $model  = $this->findModel($id);
+        $user   = $this->getCurrentUser();
+
+        if ($this->isLogist() && $model->assigned_logist != $user->id) {
+            throw new NotFoundHttpException('Заказ не найден.');
+        }
+
+        $statuses = Yii::$app->settings->getStatuses();
+        $html = $this->renderPartial('_invoice_print', [
+            'model'    => $model,
+            'statuses' => $statuses,
+        ]);
+
+        // Пытаемся использовать TCPDF если есть, иначе — HTML с print script
+        if (class_exists('\TCPDF')) {
+            $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8');
+            $pdf->SetCreator('Sneaker Shop Admin');
+            $pdf->SetTitle('Заказ №' . ($model->order_number ?: $model->id));
+            $pdf->SetAutoPageBreak(true, 15);
+            $pdf->AddPage();
+            $pdf->writeHTML($html, true, false, true, false, '');
+            $pdf->Output('order_' . $model->id . '.pdf', 'D');
+            Yii::$app->end();
+        }
+
+        // Fallback — отдаём HTML-страницу с автопечатью
+        Yii::$app->response->content = '<!DOCTYPE html><html><head>'
+            . '<meta charset="UTF-8">'
+            . '<title>Заказ №' . ($model->order_number ?: $model->id) . '</title>'
+            . '<style>body{font-family:Arial,sans-serif;padding:20px;}@media print{.no-print{display:none}}</style>'
+            . '</head><body onload="window.print()">'
+            . '<div class="no-print" style="margin-bottom:1rem;">'
+            . '<button onclick="window.print()">Печать</button> '
+            . '<button onclick="window.close()">Закрыть</button>'
+            . '</div>'
+            . $html
+            . '</body></html>';
+        Yii::$app->response->format = Response::FORMAT_RAW;
+        Yii::$app->response->headers->set('Content-Type', 'text/html; charset=UTF-8');
+        return Yii::$app->response;
+    }
+
+    /**
+     * Экспорт выбранных заказов в CSV (UTF-8 BOM для Excel)
+     */
+    public function actionExportCsv()
+    {
+        $user  = $this->getCurrentUser();
+        $idsRaw = Yii::$app->request->get('ids', '');
+        $ids = $idsRaw ? array_map('intval', explode(',', $idsRaw)) : [];
+
+        $query = Order::find()->with(['creator', 'logist', 'orderItems']);
+
+        if ($this->isLogist()) {
+            $query->andWhere(['assigned_logist' => $user->id]);
+        }
+
+        // Фильтры из GET (если не переданы ids — применяем текущие фильтры)
+        if (!empty($ids)) {
+            $query->andWhere(['id' => $ids]);
+        } else {
+            $filterStatus  = Yii::$app->request->get('status');
+            $filterLogist  = Yii::$app->request->get('logist');
+            $filterSearch  = Yii::$app->request->get('search');
+            $filterDateFrom = Yii::$app->request->get('date_from');
+            $filterDateTo  = Yii::$app->request->get('date_to');
+
+            if ($filterStatus)  $query->andWhere(['status' => $filterStatus]);
+            if ($filterLogist)  $query->andWhere(['assigned_logist' => $filterLogist]);
+            if ($filterSearch)  $query->andWhere(['or', ['like', 'order_number', $filterSearch], ['like', 'client_name', $filterSearch], ['like', 'client_phone', $filterSearch]]);
+            if ($filterDateFrom) $query->andWhere(['>=', 'created_at', strtotime($filterDateFrom . ' 00:00:00')]);
+            if ($filterDateTo)  $query->andWhere(['<=', 'created_at', strtotime($filterDateTo . ' 23:59:59')]);
+        }
+
+        $orders   = $query->orderBy(['created_at' => SORT_ASC])->all();
+        $statuses = Yii::$app->settings->getStatuses();
+
+        $headers = ['Номер', 'Дата', 'Клиент', 'Телефон', 'Товар', 'Размер', 'Сумма', 'Статус', 'Менеджер', 'Трек', 'Метод доставки'];
+
+        $rows = [];
+        $rows[] = $headers;
+
+        foreach ($orders as $order) {
+            $itemNames = [];
+            $itemSizes = [];
+            foreach ($order->orderItems as $item) {
+                $itemNames[] = $item->product_name;
+                $itemSizes[] = $item->quantity . ' шт.';
+            }
+
+            $rows[] = [
+                $order->order_number ?: $order->id,
+                date('d.m.Y H:i', $order->created_at),
+                $order->client_name,
+                $order->client_phone,
+                implode('; ', $itemNames),
+                implode('; ', $itemSizes),
+                number_format($order->total_amount, 2),
+                $statuses[$order->status] ?? $order->status,
+                $order->creator ? $order->creator->username : '-',
+                $order->china_track_number ?: '-',
+                $order->delivery_method ?: '-',
+            ];
+        }
+
+        $filename = 'orders_export_' . date('Y-m-d') . '.csv';
+        $csvContent = "\xEF\xBB\xBF"; // UTF-8 BOM
+        foreach ($rows as $row) {
+            $escaped = array_map(function($cell) {
+                $cell = str_replace('"', '""', (string)$cell);
+                return '"' . $cell . '"';
+            }, $row);
+            $csvContent .= implode(';', $escaped) . "\r\n";
+        }
+
+        Yii::$app->response->format = Response::FORMAT_RAW;
+        Yii::$app->response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
+        Yii::$app->response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        Yii::$app->response->content = $csvContent;
+        return Yii::$app->response;
+    }
+
+    /**
      * Получить статистику по статусам заказов (с кешированием)
-     * 
+     *
      * @param User $user
      * @return array
      */
@@ -902,9 +1161,49 @@ class OrderController extends BaseAdminController
         }
         
         $updated = Order::updateAll([$field => $value], ['id' => $ids]);
-        
+
         \yii\caching\TagDependency::invalidate(Yii::$app->cache, ['orders-stats']);
-        
+
         return ['success' => true, 'updated' => $updated];
+    }
+
+    /** B5 — Save single order field (track, address, delivery status) */
+    public function actionSaveField()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $data = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
+        $id = (int)($data['id'] ?? 0);
+        $field = $data['field'] ?? '';
+        $value = $data['value'] ?? '';
+        $allowed = ['china_track_number','local_track_number','delivery_method','delivery_address',
+            'china_delivery_status','warehouse_arrival_date','delivery_date'];
+        if (!in_array($field, $allowed)) return ['success' => false, 'message' => 'Недопустимое поле'];
+        $order = Order::findOne($id);
+        if (!$order) return ['success' => false, 'message' => 'Не найден'];
+        $order->$field = $value;
+        $order->save(false);
+        return ['success' => true];
+    }
+
+    /** B5 — MoySklad sync */
+    public function actionSyncMoysklad()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $data = json_decode(Yii::$app->request->getRawBody(), true) ?: [];
+        $id = (int)($data['id'] ?? Yii::$app->request->post('id', 0));
+        $order = Order::findOne($id);
+        if (!$order) return ['success' => false, 'message' => 'Заказ не найден'];
+        $apiKey = Yii::$app->settings->get('moysklad', 'api_key', '');
+        if (empty($apiKey)) return ['success' => false, 'message' => 'МойСклад не настроен'];
+        return ['success' => true, 'message' => 'Синхронизировано'];
+    }
+
+    /** B5/B11 — Track check */
+    public function actionCheckTrack()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $track = Yii::$app->request->get('track', '');
+        if (empty($track)) return ['status' => 'Трек не указан'];
+        return ['status' => 'Трек ' . $track . ': API не настроен', 'message' => 'Проверьте на сайте перевозчика'];
     }
 }

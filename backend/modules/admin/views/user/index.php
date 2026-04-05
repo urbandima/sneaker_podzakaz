@@ -44,9 +44,10 @@ $activeFilters = array_filter([
 ], static fn($value) => $value !== null && $value !== '');
 
 $roleMeta = [
-    User::ROLE_ADMIN => ['label' => 'Администратор', 'icon' => 'shield-lock', 'badge' => 'admin-badge admin-badge--danger'],
+    User::ROLE_ADMIN => ['label' => 'Admin', 'icon' => 'shield-lock', 'badge' => 'admin-badge admin-badge--danger'],
     User::ROLE_MANAGER => ['label' => 'Менеджер', 'icon' => 'briefcase', 'badge' => 'admin-badge admin-badge--info'],
-    User::ROLE_LOGIST => ['label' => 'Логист', 'icon' => 'truck', 'badge' => 'admin-badge admin-badge--success'],
+    User::ROLE_LOGIST => ['label' => 'Логист', 'icon' => 'truck', 'badge' => 'admin-badge admin-badge--warning'],
+    'content' => ['label' => 'Контент-мен.', 'icon' => 'file-richtext', 'badge' => 'admin-badge admin-badge--secondary'],
 ];
 
 $statusMeta = [
@@ -214,6 +215,7 @@ $statusMeta = [
                             <th>ID</th>
                             <th>Пользователь</th>
                             <th>Роль</th>
+                            <th>Последний вход</th>
                             <th>Статус</th>
                             <th>Создан</th>
                             <th class="text-end">Действия</th>
@@ -244,6 +246,16 @@ $statusMeta = [
                                     <?php endif; ?>
                                 </td>
                                 <td>
+                                    <?php $lastLogin = $user->last_login_at ?? null; ?>
+                                    <?php if ($lastLogin): ?>
+                                        <span title="<?= Html::encode(Yii::$app->formatter->asDatetime($lastLogin, 'php:d.m.Y H:i')) ?>">
+                                            <?= Html::encode(Yii::$app->formatter->asRelativeTime($lastLogin)) ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span style="color: var(--admin-text-secondary);">Никогда</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
                                     <?php $status = $statusMeta[$user->status] ?? $statusMeta[User::STATUS_INACTIVE]; ?>
                                     <span class="<?= $status['class'] ?>">
                                         <?= Html::encode($status['label']) ?>
@@ -259,19 +271,24 @@ $statusMeta = [
                                             onclick="editUser(<?= (int)$user->id ?>)">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        <button class="admin-btn admin-btn--ghost admin-btn--icon"
-                                            title="Переключить статус"
-                                            onclick="toggleUserStatus(<?= (int)$user->id ?>)">
-                                            <i class="bi bi-<?= $user->status == User::STATUS_ACTIVE ? 'pause-circle' : 'play-circle' ?>"></i>
-                                        </button>
                                         <?php if ($user->id != Yii::$app->user->id): ?>
+                                            <button class="admin-btn admin-btn--ghost admin-btn--icon"
+                                                title="Сбросить пароль"
+                                                onclick="resetPassword(<?= (int)$user->id ?>, '<?= Html::encode($user->username) ?>')">
+                                                <i class="bi bi-key"></i>
+                                            </button>
+                                            <button class="admin-btn admin-btn--<?= $user->status == User::STATUS_ACTIVE ? 'warning' : 'ghost' ?> admin-btn--icon"
+                                                title="<?= $user->status == User::STATUS_ACTIVE ? 'Заблокировать' : 'Разблокировать' ?>"
+                                                onclick="toggleBlock(<?= (int)$user->id ?>, <?= $user->status == User::STATUS_ACTIVE ? 'true' : 'false' ?>)">
+                                                <i class="bi bi-<?= $user->status == User::STATUS_ACTIVE ? 'lock' : 'unlock' ?>"></i>
+                                            </button>
                                             <button class="admin-btn admin-btn--danger admin-btn--icon"
                                                 title="Удалить"
                                                 onclick="deleteUser(<?= (int)$user->id ?>, '<?= Html::encode($user->username) ?>')">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         <?php else: ?>
-                                            <button class="admin-btn admin-btn--ghost admin-btn--icon" title="Нельзя удалить себя" disabled>
+                                            <button class="admin-btn admin-btn--ghost admin-btn--icon" title="Нельзя управлять собой" disabled>
                                                 <i class="bi bi-shield-lock"></i>
                                             </button>
                                         <?php endif; ?>
@@ -454,5 +471,50 @@ function deleteUser(userId, username) {
 
 function bulkExport() {
     window.location.href = '/admin/user/export';
+}
+
+function resetPassword(userId, username) {
+    if (!confirm('Сбросить пароль пользователя «' + username + '»? Новый пароль будет показан один раз.')) return;
+    fetch('/admin/user/reset-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify({ id: userId })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('Новый пароль для «' + username + '»:\n\n' + data.password + '\n\nСкопируйте пароль — он больше не будет показан.');
+        } else {
+            alert('Ошибка: ' + (data.message || 'Не удалось сбросить пароль'));
+        }
+    })
+    .catch(() => alert('Ошибка сети'));
+}
+
+function toggleBlock(userId, isCurrentlyActive) {
+    const action = isCurrentlyActive ? 'заблокировать' : 'разблокировать';
+    if (!confirm('Вы уверены, что хотите ' + action + ' этого пользователя?')) return;
+    fetch('/admin/user/toggle-block', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify({ id: userId })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Ошибка: ' + (data.message || 'Не удалось изменить статус'));
+        }
+    })
+    .catch(() => alert('Ошибка сети'));
 }
 </script>

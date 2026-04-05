@@ -744,6 +744,125 @@ CSS
                 </div>
             </div>
 
+                <!-- ДОСТАВКА 1 — Международная (Poizon → РБ) -->
+                <div class="order-card">
+                    <div class="card-header">
+                        <h3><i class="bi bi-airplane"></i> Доставка из Китая (Poizon → РБ)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Трек Poizon</div>
+                                <div style="display:flex;gap:0.5rem;align-items:center">
+                                    <input type="text" class="form-control" id="china-track-input" value="<?= Html::encode($model->china_track_number ?? '') ?>" placeholder="Введите трек-номер">
+                                    <button class="btn btn-outline-primary" onclick="saveField('china_track_number', document.getElementById('china-track-input').value)"><i class="bi bi-save"></i></button>
+                                    <button class="btn btn-outline-secondary" onclick="checkTrack(document.getElementById('china-track-input').value, this)"><i class="bi bi-search"></i></button>
+                                </div>
+                                <div id="china-track-result" style="margin-top:0.5rem;font-size:0.8125rem;color:#6b7280;"></div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Статус этапа</div>
+                                <select class="form-select" onchange="saveField('china_delivery_status', this.value)">
+                                    <?php foreach(['ordered_poizon'=>'Заказано на Poizon','in_transit_china'=>'В пути из Китая','customs'=>'Таможня','arrived_warehouse'=>'Прибыл на склад'] as $k=>$v): ?>
+                                    <option value="<?= $k ?>" <?= ($model->china_delivery_status ?? '') === $k ? 'selected' : '' ?>><?= $v ?></option>
+                                    <?php endforeach ?>
+                                </select>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Дата прибытия на склад</div>
+                                <input type="date" class="form-control" value="<?= Html::encode($model->warehouse_arrival_date ?? '') ?>" onchange="saveField('warehouse_arrival_date', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ДОСТАВКА 2 — Местная (РБ → Клиент) -->
+                <div class="order-card">
+                    <div class="card-header">
+                        <h3><i class="bi bi-truck"></i> Доставка по РБ</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Служба доставки</div>
+                                <select class="form-select" onchange="saveField('delivery_method', this.value)">
+                                    <?php foreach(['europochta'=>'Европочта','belpochta'=>'Белпочта','cdek'=>'СДЭК','courier_minsk'=>'Курьер Минск','pickup'=>'Самовывоз'] as $k=>$v): ?>
+                                    <option value="<?= $k ?>" <?= ($model->delivery_method ?? '') === $k ? 'selected' : '' ?>><?= $v ?></option>
+                                    <?php endforeach ?>
+                                </select>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Адрес доставки</div>
+                                <input type="text" class="form-control" value="<?= Html::encode($model->delivery_address ?? '') ?>" onchange="saveField('delivery_address', this.value)" placeholder="Город, улица, дом">
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Трек РБ</div>
+                                <div style="display:flex;gap:0.5rem;align-items:center">
+                                    <input type="text" class="form-control" id="local-track-input" value="<?= Html::encode($model->local_track_number ?? '') ?>" placeholder="Локальный трек">
+                                    <button class="btn btn-outline-primary" onclick="saveField('local_track_number', document.getElementById('local-track-input').value)"><i class="bi bi-save"></i></button>
+                                    <button class="btn btn-outline-secondary" onclick="checkTrack(document.getElementById('local-track-input').value, this)"><i class="bi bi-search"></i></button>
+                                </div>
+                                <div id="local-track-result" style="margin-top:0.5rem;font-size:0.8125rem;color:#6b7280;"></div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Распечатать бланк</div>
+                                <a href="<?= Url::to(['/admin/order/pdf', 'id' => $model->id]) ?>" target="_blank" class="btn btn-outline-secondary">
+                                    <i class="bi bi-printer"></i> Печать бланка
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ЗАМЕТКИ КОМАНДЫ -->
+                <div class="order-card">
+                    <div class="card-header">
+                        <h3><i class="bi bi-chat-square-text"></i> Заметки команды</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="order-notes-list" style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
+                            <?php foreach (($model->notes ?? []) as $note): ?>
+                            <div class="order-note-item" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:0.75rem">
+                                <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem">
+                                    <strong style="font-size:0.8125rem"><?= Html::encode($note->author->username ?? 'Система') ?></strong>
+                                    <span style="font-size:0.75rem;color:#9ca3af"><?= Yii::$app->formatter->asDatetime($note->created_at) ?></span>
+                                </div>
+                                <p style="margin:0;font-size:0.875rem"><?= Html::encode($note->text) ?></p>
+                            </div>
+                            <?php endforeach ?>
+                            <?php if (empty($model->notes)): ?>
+                            <p style="color:#9ca3af;font-size:0.875rem;margin:0">Заметок пока нет.</p>
+                            <?php endif ?>
+                        </div>
+                        <div style="display:flex;gap:0.5rem">
+                            <textarea id="new-note-text" class="form-control" rows="2" placeholder="Добавить заметку..." style="resize:vertical"></textarea>
+                            <button class="btn btn-primary" onclick="addOrderNote(<?= $model->id ?>)" style="white-space:nowrap">
+                                <i class="bi bi-send"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- МОИСКЛАД -->
+                <div class="order-card">
+                    <div class="card-header">
+                        <h3><i class="bi bi-cloud-check"></i> МойСклад</h3>
+                    </div>
+                    <div class="card-body">
+                        <?php $msStatus = $model->moysklad_id ?? null; ?>
+                        <?php if ($msStatus): ?>
+                        <p style="color:#008060;font-size:0.875rem"><i class="bi bi-check-circle"></i> Передан в МойСклад</p>
+                        <a href="#" class="btn btn-outline-secondary btn-sm"><i class="bi bi-box-arrow-up-right"></i> Открыть документ</a>
+                        <?php else: ?>
+                        <p style="color:#9ca3af;font-size:0.875rem"><i class="bi bi-circle"></i> Не передан</p>
+                        <?php endif ?>
+                        <button class="btn btn-outline-primary btn-sm mt-2" onclick="syncMoysklad(<?= $model->id ?>)">
+                            <i class="bi bi-arrow-repeat"></i> Синхронизировать
+                        </button>
+                        <span id="ms-sync-result" style="margin-left:0.5rem;font-size:0.8125rem;"></span>
+                    </div>
+                </div>
+
         </div>
 
         <div class="order-sidebar">
@@ -887,6 +1006,53 @@ CSS
 </div>
 
 <script>
+// === НОВЫЕ ФУНКЦИИ B5 ===
+function saveField(field, value) {
+    fetch('/admin/order/save-field', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-Token':document.querySelector('meta[name=csrf-token]')?.content||''},
+        body: JSON.stringify({id: <?= $model->id ?>, field, value})
+    }).then(r=>r.json()).then(d=>{
+        if(d.success) { const el=document.createElement('span'); el.textContent='✓'; el.style.cssText='color:#008060;font-size:0.75rem;margin-left:0.25rem'; setTimeout(()=>el.remove(),2000); }
+    });
+}
+
+function addOrderNote(orderId) {
+    const text = document.getElementById('new-note-text').value.trim();
+    if (!text) return;
+    fetch('/admin/order/add-note', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-Token':document.querySelector('meta[name=csrf-token]')?.content||''},
+        body: JSON.stringify({id: orderId, text})
+    }).then(r=>r.json()).then(d=>{
+        if (d.success) {
+            document.getElementById('order-notes-list').insertAdjacentHTML('beforeend', d.html);
+            document.getElementById('new-note-text').value = '';
+        }
+    });
+}
+
+function syncMoysklad(orderId) {
+    document.getElementById('ms-sync-result').textContent = 'Синхронизация...';
+    fetch('/admin/order/sync-moysklad', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-Token':document.querySelector('meta[name=csrf-token]')?.content||''},
+        body: JSON.stringify({id: orderId})
+    }).then(r=>r.json()).then(d=>{
+        document.getElementById('ms-sync-result').textContent = d.message || (d.success ? 'OK' : 'Ошибка');
+    });
+}
+
+function checkTrack(trackNumber, btn) {
+    if (!trackNumber) return;
+    const resultEl = btn.closest('.info-item').querySelector('[id$="-track-result"]') || btn.closest('.info-item').nextElementSibling?.querySelector('div');
+    if (resultEl) resultEl.textContent = 'Проверка...';
+    fetch('/admin/order/check-track?track=' + encodeURIComponent(trackNumber))
+        .then(r=>r.json())
+        .then(d=>{ if(resultEl) resultEl.textContent = d.status || d.message || 'Нет данных'; })
+        .catch(()=>{ if(resultEl) resultEl.textContent = 'Ошибка проверки'; });
+}
+
 function copyLink(inputId, event) {
     const link = document.getElementById(inputId);
     if (!link) return;

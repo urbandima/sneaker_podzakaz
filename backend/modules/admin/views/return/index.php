@@ -1,47 +1,66 @@
 <?php
 
 use yii\helpers\Html;
-use yii\grid\GridView;
+use yii\helpers\Url;
 use app\backend\modules\returns\models\ReturnRequest;
 
 $this->title = 'Возвраты';
+
+$currentStatus = Yii::$app->request->get('status', '');
+$tabs = [
+    '' => 'Все',
+    'pending' => 'Ожидает',
+    'approved' => 'Одобрен',
+    'rejected' => 'Отклонён',
+];
 ?>
 
 <div class="admin-header">
     <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
-    <a href="<?= \yii\helpers\Url::to(['statistics']) ?>" class="admin-btn admin-btn-secondary">
-        <i class="bi bi-graph-up"></i>
-        Статистика
-    </a>
+    <div class="admin-header-actions">
+        <a href="<?= Url::to(['create']) ?>" class="admin-btn admin-btn-primary">
+            <i class="bi bi-plus-circle"></i>
+            Создать возврат
+        </a>
+    </div>
+</div>
+
+<!-- Фильтр-табы -->
+<div class="admin-card" style="margin-bottom: 1.5rem; padding: 0;">
+    <div style="display: flex; gap: 0; border-bottom: 1px solid var(--admin-border);">
+        <?php foreach ($tabs as $key => $label): ?>
+            <a href="<?= Url::to(['index', 'status' => $key, 'search' => Yii::$app->request->get('search')]) ?>"
+               style="padding: 0.875rem 1.5rem; font-weight: 600; font-size: 0.9rem; text-decoration: none; border-bottom: 3px solid <?= $currentStatus === $key ? 'var(--admin-accent, #2563eb)' : 'transparent' ?>; color: <?= $currentStatus === $key ? 'var(--admin-accent, #2563eb)' : 'var(--admin-text-secondary)' ?>; transition: color 0.2s;">
+                <?= Html::encode($label) ?>
+            </a>
+        <?php endforeach; ?>
+    </div>
 </div>
 
 <div class="admin-card">
     <form method="get" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-        <input type="text" name="search" class="form-control" placeholder="Поиск по номеру или причине" value="<?= Html::encode(Yii::$app->request->get('search')) ?>" style="flex: 1; min-width: 200px;">
-        
-        <select name="status" class="form-control" style="min-width: 150px;">
-            <option value="">Все статусы</option>
-            <?php foreach (ReturnRequest::getStatusList() as $key => $label): ?>
-                <option value="<?= $key ?>" <?= Yii::$app->request->get('status') === $key ? 'selected' : '' ?>><?= $label ?></option>
-            <?php endforeach; ?>
-        </select>
-        
+        <input type="hidden" name="status" value="<?= Html::encode($currentStatus) ?>">
+        <input type="text" name="search" class="form-control" placeholder="Поиск по номеру заказа или клиенту" value="<?= Html::encode(Yii::$app->request->get('search')) ?>" style="flex: 1; min-width: 200px;">
         <button type="submit" class="admin-btn admin-btn-primary">
             <i class="bi bi-search"></i>
             Фильтр
         </button>
+        <a href="<?= Url::to(['index']) ?>" class="admin-btn admin-btn-secondary">
+            <i class="bi bi-x-circle"></i>
+            Сбросить
+        </a>
     </form>
 
     <div style="overflow-x: auto;">
         <table class="admin-table">
             <thead>
                 <tr>
-                    <th>Номер заявки</th>
-                    <th>Заказ</th>
-                    <th>Причина возврата</th>
-                    <th>Сумма возврата</th>
+                    <th># Заказа</th>
+                    <th>Клиент</th>
+                    <th>Сумма</th>
+                    <th>Тип</th>
                     <th>Статус</th>
-                    <th>Создана</th>
+                    <th>Дата</th>
                     <th>Действия</th>
                 </tr>
             </thead>
@@ -49,14 +68,45 @@ $this->title = 'Возвраты';
                 <?php if (!empty($dataProvider->getModels())): ?>
                     <?php foreach ($dataProvider->getModels() as $model): ?>
                         <tr>
-                            <td><?= Html::a($model->return_number, ['view', 'id' => $model->id], ['style' => 'font-weight: 600;']) ?></td>
-                            <td><?= Html::a('Заказ #' . $model->order_id, ['/admin/order/view', 'id' => $model->order_id]) ?></td>
-                            <td><?= Html::encode($model->getReasonName()) ?></td>
-                            <td><?= number_format($model->refund_amount, 2) ?> BYN</td>
-                            <td><span class="admin-badge admin-badge-<?= $model->status === 'completed' ? 'success' : ($model->status === 'pending' ? 'warning' : 'info') ?>"><?= Html::encode($model->getStatusName()) ?></span></td>
-                            <td><?= Yii::$app->formatter->asDatetime($model->created_at) ?></td>
                             <td>
-                                <a href="<?= \yii\helpers\Url::to(['view', 'id' => $model->id]) ?>" class="admin-btn admin-btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                                <?= Html::a(
+                                    '#' . ($model->order_id ?? $model->return_number),
+                                    ['/admin/order/view', 'id' => $model->order_id],
+                                    ['style' => 'font-weight: 600; color: var(--admin-accent, #2563eb);']
+                                ) ?>
+                            </td>
+                            <td>
+                                <?= Html::encode($model->order->client_name ?? $model->client_name ?? '—') ?>
+                                <?php if (!empty($model->order->client_email ?? $model->client_email ?? null)): ?>
+                                    <div style="font-size: 0.75rem; color: var(--admin-text-secondary);"><?= Html::encode($model->order->client_email ?? $model->client_email) ?></div>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= number_format($model->refund_amount ?? 0, 2) ?> BYN</td>
+                            <td>
+                                <?php $rtype = $model->return_type ?? 'refund'; ?>
+                                <span class="admin-badge admin-badge-<?= $rtype === 'commission' ? 'info' : 'warning' ?>">
+                                    <i class="bi bi-<?= $rtype === 'commission' ? 'handshake' : 'cash-coin' ?>"></i>
+                                    <?= $rtype === 'commission' ? 'Комиссия' : 'Возврат' ?>
+                                </span>
+                            </td>
+                            <td>
+                                <?php
+                                $statusColors = [
+                                    'pending' => 'warning',
+                                    'approved' => 'info',
+                                    'processing' => 'primary',
+                                    'completed' => 'success',
+                                    'rejected' => 'danger',
+                                ];
+                                $sc = $statusColors[$model->status] ?? 'secondary';
+                                ?>
+                                <span class="admin-badge admin-badge-<?= $sc ?>">
+                                    <?= Html::encode($model->getStatusName()) ?>
+                                </span>
+                            </td>
+                            <td><?= Yii::$app->formatter->asDate($model->created_at) ?></td>
+                            <td>
+                                <a href="<?= Url::to(['view', 'id' => $model->id]) ?>" class="admin-btn admin-btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" title="Просмотр">
                                     <i class="bi bi-eye"></i>
                                 </a>
                             </td>
@@ -72,7 +122,7 @@ $this->title = 'Возвраты';
             </tbody>
         </table>
     </div>
-    
+
     <?php if ($dataProvider->pagination->pageCount > 1): ?>
         <div style="margin-top: 1.5rem; display: flex; justify-content: center;">
             <?= \yii\widgets\LinkPager::widget([
@@ -94,34 +144,12 @@ $this->title = 'Возвраты';
     font-size: 1rem;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
-
 .form-control:focus {
     outline: none;
     border-color: var(--admin-primary);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
-
-.pagination {
-    display: flex;
-    gap: 0.5rem;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.page-link {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--admin-border);
-    border-radius: 0.375rem;
-    background: var(--admin-bg);
-    color: var(--admin-text-primary);
-    text-decoration: none;
-    transition: all 0.2s;
-}
-
-.page-link:hover {
-    background: var(--admin-primary);
-    color: white;
-    border-color: var(--admin-primary);
-}
+.pagination { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0; }
+.page-link { padding: 0.5rem 0.75rem; border: 1px solid var(--admin-border); border-radius: 0.375rem; background: var(--admin-bg); color: var(--admin-text-primary); text-decoration: none; transition: all 0.2s; }
+.page-link:hover { background: var(--admin-primary); color: white; border-color: var(--admin-primary); }
 </style>

@@ -171,6 +171,72 @@ class ReturnController extends BaseAdminController
     }
 
     /**
+     * AJAX: отметить шаг чек-листа (алиас completeStep → updateStep)
+     */
+    public function actionCompleteStep()
+    {
+        return $this->actionUpdateStep();
+    }
+
+    /**
+     * PDF договора — рендерит _contract.php без layout
+     */
+    public function actionPdf($id)
+    {
+        return $this->actionContract($id);
+    }
+
+    /**
+     * AJAX: отметить шаг чек-листа комиссионного договора выполненным
+     */
+    public function actionUpdateStep()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $id   = Yii::$app->request->post('id');
+        $step = Yii::$app->request->post('step');
+
+        $allowed = ['contract', 'epass', 'e_signature', 'published'];
+        if (!$id || !in_array($step, $allowed, true)) {
+            return ['success' => false, 'message' => 'Неверные параметры'];
+        }
+
+        try {
+            $model = $this->findModel($id);
+            $data  = is_string($model->checklist_data ?? null)
+                ? json_decode($model->checklist_data, true) ?? []
+                : ($model->checklist_data ?? []);
+
+            $currentUser = Yii::$app->user->identity;
+            $author      = $currentUser ? $currentUser->username : 'system';
+            $date        = date('d.m.Y H:i');
+
+            $data[$step] = [
+                'done'   => true,
+                'date'   => $date,
+                'author' => $author,
+            ];
+
+            $model->checklist_data = json_encode($data, JSON_UNESCAPED_UNICODE);
+            $model->save(false);
+
+            return ['success' => true, 'date' => $date, 'author' => $author];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Печатный шаблон комиссионного договора
+     */
+    public function actionContract($id)
+    {
+        $model = $this->findModel($id);
+        $this->layout = false;
+        return $this->render('_contract', ['model' => $model]);
+    }
+
+    /**
      * Статистика возвратов
      */
     public function actionStatistics()

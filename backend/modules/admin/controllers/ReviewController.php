@@ -154,26 +154,6 @@ class ReviewController extends BaseAdminController
     }
 
     /**
-     * Ответ администратора
-     */
-    public function actionRespond($id)
-    {
-        $model = $this->findModel($id);
-        
-        if (Yii::$app->request->isPost) {
-            $response = Yii::$app->request->post('admin_response');
-            $model->addAdminResponse($response);
-            
-            Yii::$app->session->setFlash('success', 'Ответ сохранен');
-            return $this->redirect(['view', 'id' => $id]);
-        }
-        
-        return $this->render('respond', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
      * Массовая публикация
      */
     public function actionBulkPublish()
@@ -199,6 +179,73 @@ class ReviewController extends BaseAdminController
         
         Yii::$app->session->setFlash('success', $model->is_featured ? 'Отзыв добавлен в избранные' : 'Отзыв убран из избранных');
         return $this->redirect(['index']);
+    }
+
+    /**
+     * AJAX модерация отзыва: POST {id, action} → JSON
+     * action: publish | reject
+     */
+    public function actionModerate()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'error' => 'POST required'];
+        }
+
+        $id     = (int)Yii::$app->request->post('id');
+        $action = Yii::$app->request->post('action');
+
+        $model = ProductReview::findOne($id);
+        if (!$model) {
+            return ['success' => false, 'error' => 'Отзыв не найден'];
+        }
+
+        if ($action === 'publish') {
+            $model->is_published = true;
+            $model->save(false);
+            return ['success' => true, 'message' => 'Отзыв опубликован', 'status' => 'published'];
+        } elseif ($action === 'reject') {
+            $model->is_published = false;
+            $model->save(false);
+            return ['success' => true, 'message' => 'Отзыв отклонён', 'status' => 'rejected'];
+        }
+
+        return ['success' => false, 'error' => 'Неизвестное действие'];
+    }
+
+    /**
+     * AJAX ответ администратора: POST {id, response} → JSON
+     * (view-independent version)
+     */
+    public function actionRespond()
+    {
+        if (Yii::$app->request->isAjax && Yii::$app->request->isPost) {
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            $id       = (int)Yii::$app->request->post('id');
+            $response = Yii::$app->request->post('response', '');
+            $model    = ProductReview::findOne($id);
+            if (!$model) {
+                return ['success' => false, 'message' => 'Отзыв не найден'];
+            }
+            $model->admin_response    = $response;
+            $model->admin_response_at = date('Y-m-d H:i:s');
+            $model->save(false);
+            return ['success' => true, 'message' => 'Ответ сохранён'];
+        }
+
+        // HTML fallback
+        $id    = (int)Yii::$app->request->get('id');
+        $model = $this->findModel($id);
+
+        if (Yii::$app->request->isPost) {
+            $resp = Yii::$app->request->post('admin_response');
+            $model->addAdminResponse($resp);
+            Yii::$app->session->setFlash('success', 'Ответ сохранён');
+            return $this->redirect(['view', 'id' => $id]);
+        }
+
+        return $this->render('respond', ['model' => $model]);
     }
 
     protected function findModel($id)

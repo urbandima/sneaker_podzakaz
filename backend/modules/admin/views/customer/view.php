@@ -389,6 +389,123 @@ $this->title = 'Покупатель: ' . $customer->getFullName();
                 </div>
             </div>
 
+            <!-- B6.3 Паспортные данные -->
+            <?php
+            $currentUser = Yii::$app->user->identity;
+            $isAdmin = method_exists($currentUser, 'isAdmin') ? $currentUser->isAdmin() : ($currentUser->role === 'admin');
+            if ($customer->passport_series || $customer->passport_number || $customer->passport_id):
+            ?>
+            <div class="content-card">
+                <h2><i class="bi bi-person-vcard"></i> Паспортные данные</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Серия и номер</div>
+                        <div class="info-value">
+                            <?php if ($isAdmin): ?>
+                                <?= Html::encode(($customer->passport_series ?? '') . ' ' . ($customer->passport_number ?? '')) ?>
+                            <?php else: ?>
+                                АВ **** *****
+                            <?php endif ?>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Идент. номер</div>
+                        <div class="info-value">
+                            <?php if ($isAdmin): ?>
+                                <?= Html::encode($customer->passport_id ?? '—') ?>
+                            <?php else: ?>
+                                * * * * * * * * * * *
+                            <?php endif ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif ?>
+
+            <!-- B6.4 Лояльность -->
+            <div class="content-card">
+                <h2><i class="bi bi-star-fill"></i> Программа лояльности</h2>
+                <?php
+                $points = 0;
+                try {
+                    $loyaltyPoints = \app\backend\modules\loyalty\models\LoyaltyPoints::find()
+                        ->where(['customer_id' => $customer->id])->sum('points') ?: 0;
+                    $points = (int)$loyaltyPoints;
+                } catch (\Exception $e) {}
+                $totalSpent = $customer->total_spent ?? 0;
+                if ($totalSpent >= 50000) { $level = 'Platinum'; $levelColor = '#e5e4e2'; }
+                elseif ($totalSpent >= 15000) { $level = 'Gold'; $levelColor = '#ffd700'; }
+                elseif ($totalSpent >= 5000) { $level = 'Silver'; $levelColor = '#c0c0c0'; }
+                else { $level = 'Bronze'; $levelColor = '#cd7f32'; }
+                $nextLevel = ['Bronze'=>5000,'Silver'=>15000,'Gold'=>50000,'Platinum'=>50000];
+                $progress = min(100, $nextLevel[$level] > 0 ? ($totalSpent / $nextLevel[$level] * 100) : 100);
+                ?>
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+                    <div style="font-size:2rem;font-weight:800;color:var(--admin-accent)"><?= number_format($points) ?> <small style="font-size:0.875rem;font-weight:500;color:var(--admin-text-secondary)">баллов</small></div>
+                    <span style="padding:0.25rem 0.75rem;border-radius:20px;background:<?= $levelColor ?>;color:#1a1a1a;font-weight:700;font-size:0.8rem"><?= $level ?></span>
+                </div>
+                <div style="background:#e1e3e5;border-radius:99px;height:8px;margin-bottom:1.5rem">
+                    <div style="background:var(--admin-accent);height:8px;border-radius:99px;width:<?= $progress ?>%"></div>
+                </div>
+                <div style="display:flex;gap:0.5rem;margin-bottom:1rem">
+                    <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="togglePointsForm('add')">
+                        <i class="bi bi-plus-circle"></i> Начислить
+                    </button>
+                    <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="togglePointsForm('deduct')">
+                        <i class="bi bi-dash-circle"></i> Списать
+                    </button>
+                </div>
+                <div id="points-form" style="display:none;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:1rem">
+                    <input type="number" id="points-amount" class="form-control" placeholder="Кол-во баллов" min="1" style="margin-bottom:0.5rem">
+                    <input type="text" id="points-comment" class="form-control" placeholder="Комментарий (обязательно)" style="margin-bottom:0.5rem">
+                    <button id="points-submit-btn" class="admin-btn admin-btn-primary admin-btn-sm" onclick="submitPoints(<?= $customer->id ?>)">Применить</button>
+                    <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="document.getElementById('points-form').style.display='none'">Отмена</button>
+                </div>
+            </div>
+
+            <!-- B6.5 Заметки команды -->
+            <div class="content-card">
+                <h2><i class="bi bi-chat-square-text"></i> Заметки команды</h2>
+                <div id="customer-notes-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem">
+                    <?php foreach (($customerNotes ?? []) as $note): ?>
+                    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:0.75rem">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem">
+                            <strong style="font-size:0.8rem"><?= Html::encode($note->author->username ?? 'Система') ?></strong>
+                            <span style="font-size:0.75rem;color:#9ca3af"><?= Yii::$app->formatter->asDatetime($note->created_at) ?></span>
+                        </div>
+                        <p style="margin:0;font-size:0.875rem"><?= Html::encode($note->text) ?></p>
+                    </div>
+                    <?php endforeach ?>
+                    <?php if (empty($customerNotes)): ?><p style="color:#9ca3af;font-size:0.875rem">Заметок нет</p><?php endif ?>
+                </div>
+                <div style="display:flex;gap:0.5rem">
+                    <textarea id="customer-note-text" class="form-control" rows="2" placeholder="Добавить заметку..." style="resize:vertical"></textarea>
+                    <button class="admin-btn admin-btn-primary" onclick="addCustomerNote(<?= $customer->id ?>)"><i class="bi bi-send"></i></button>
+                </div>
+            </div>
+
+            <!-- B6.7 Теги -->
+            <div class="content-card">
+                <h2><i class="bi bi-tags-fill"></i> Теги</h2>
+                <div id="customer-tags" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem">
+                    <?php foreach (($customerTags ?? []) as $tag): ?>
+                    <span class="admin-badge admin-badge-info" style="cursor:pointer" onclick="removeTag(<?= $customer->id ?>, '<?= Html::encode($tag) ?>')">
+                        <?= Html::encode($tag) ?> <i class="bi bi-x"></i>
+                    </span>
+                    <?php endforeach ?>
+                    <?php $presetTags = ['VIP','Оптовик','Проблемный'] ?>
+                    <?php foreach ($presetTags as $pt): if (!in_array($pt, ($customerTags ?? []))): ?>
+                    <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="addTag(<?= $customer->id ?>, '<?= $pt ?>')">
+                        + <?= $pt ?>
+                    </button>
+                    <?php endif; endforeach ?>
+                </div>
+                <div style="display:flex;gap:0.5rem">
+                    <input type="text" id="custom-tag-input" class="form-control" placeholder="Кастомный тег..." style="max-width:200px">
+                    <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="addTag(<?= $customer->id ?>, document.getElementById('custom-tag-input').value)">Добавить</button>
+                </div>
+            </div>
+
             <div class="content-card">
                 <h2><i class="bi bi-bag-check"></i> История заказов</h2>
                 
@@ -503,5 +620,62 @@ function linkOrders(id) {
         alert(data.message);
         if (data.success) location.reload();
     });
+}
+
+// B6.4 Points
+var _pointsAction = 'add';
+function togglePointsForm(action) {
+    _pointsAction = action;
+    document.getElementById('points-submit-btn').textContent = action === 'add' ? 'Начислить' : 'Списать';
+    document.getElementById('points-form').style.display = 'block';
+    document.getElementById('points-amount').focus();
+}
+
+function submitPoints(customerId) {
+    const amount = parseInt(document.getElementById('points-amount').value);
+    const comment = document.getElementById('points-comment').value.trim();
+    if (!amount || amount <= 0) return alert('Укажите кол-во баллов');
+    if (!comment) return alert('Комментарий обязателен');
+    const url = '/admin/customer/' + (_pointsAction === 'add' ? 'add-points' : 'deduct-points');
+    fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content||''},
+        body: JSON.stringify({id: customerId, amount, comment})
+    }).then(r=>r.json()).then(d=>{ if(d.success) location.reload(); else alert(d.message||'Ошибка'); });
+}
+
+// B6.5 Notes
+function addCustomerNote(customerId) {
+    const text = document.getElementById('customer-note-text').value.trim();
+    if (!text) return;
+    fetch('/admin/customer/add-note', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content||''},
+        body: JSON.stringify({id: customerId, text})
+    }).then(r=>r.json()).then(d=>{
+        if (d.success) {
+            document.getElementById('customer-notes-list').insertAdjacentHTML('beforeend', d.html);
+            document.getElementById('customer-note-text').value = '';
+        }
+    });
+}
+
+// B6.7 Tags
+function addTag(customerId, tag) {
+    tag = (tag || '').trim();
+    if (!tag) return;
+    fetch('/admin/customer/update-tags', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content||''},
+        body: JSON.stringify({id: customerId, action: 'add', tag})
+    }).then(r=>r.json()).then(d=>{ if(d.success) location.reload(); });
+}
+
+function removeTag(customerId, tag) {
+    fetch('/admin/customer/update-tags', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content||''},
+        body: JSON.stringify({id: customerId, action: 'remove', tag})
+    }).then(r=>r.json()).then(d=>{ if(d.success) location.reload(); });
 }
 </script>

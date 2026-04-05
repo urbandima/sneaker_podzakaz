@@ -83,6 +83,15 @@ class AnalyticsController extends BaseAdminController
         // Статистика по устройствам
         $deviceStats = $this->getDeviceStats($dateFrom, $dateTo);
         
+        // RFM data
+        $rfmSegments = $this->getRfmSegments();
+
+        // Team stats
+        $teamStats = $this->getTeamStats();
+
+        // Conversion funnel
+        $conversionFunnel = $this->getConversionFunnel($dateFrom, $dateTo);
+
         return $this->render('index', [
             'period' => $period,
             'dateFrom' => $dateFrom,
@@ -93,6 +102,13 @@ class AnalyticsController extends BaseAdminController
             'ordersByDay' => $ordersByDay,
             'revenueStats' => $revenueStats,
             'deviceStats' => $deviceStats,
+            // aliases expected by view
+            'salesByDay' => $ordersByDay,
+            'topProducts' => $popularProducts,
+            // new blocks
+            'rfmSegments' => $rfmSegments,
+            'teamStats' => $teamStats,
+            'conversionFunnel' => $conversionFunnel,
         ]);
     }
 
@@ -145,6 +161,37 @@ class AnalyticsController extends BaseAdminController
             'topCategories' => $topCategories,
             'avgOrderValue' => $avgOrderValue,
         ]);
+    }
+
+    /**
+     * RFM-анализ клиентов
+     */
+    public function actionRfm()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $segments = $this->getRfmSegments();
+        return ['success' => true, 'segments' => $segments];
+    }
+
+    /**
+     * Отчёт по команде (менеджеры / логисты)
+     */
+    public function actionTeam()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $team = $this->getTeamStats();
+        return ['success' => true, 'team' => $team];
+    }
+
+    /**
+     * Экспорт RFM-сегмента в CSV
+     */
+    public function actionExportRfm()
+    {
+        $segment = Yii::$app->request->get('segment', '');
+        $rows    = $this->getRfmCustomersForSegment($segment);
+        $filename = 'rfm_' . preg_replace('/[^a-z0-9]/i', '_', $segment) . '_' . date('Y-m-d');
+        return $this->exportCsv($rows, $filename);
     }
 
     /**
@@ -323,6 +370,170 @@ class AnalyticsController extends BaseAdminController
             FROM `order`
             WHERE DATE(created_at) BETWEEN :from AND :to
         ", [':from' => $dateFrom, ':to' => $dateTo])->queryScalar() ?: 0;
+    }
+
+    /**
+     * Конверсионная воронка из таблицы analytics_event
+     */
+    protected function getConversionFunnel($dateFrom, $dateTo)
+    {
+        if (!AnalyticsEvent::isAvailable()) {
+            return ['views' => 0, 'add_to_cart' => 0, 'orders' => 0];
+        }
+
+        $row = Yii::$app->db->createCommand("
+            SELECT
+                SUM(CASE WHEN event_type IN ('view','product_view','page_view') THEN 1 ELSE 0 END) AS views,
+                SUM(CASE WHEN event_type = 'add_to_cart' THEN 1 ELSE 0 END) AS add_to_cart,
+                SUM(CASE WHEN event_type IN ('order','order_created') THEN 1 ELSE 0 END) AS orders
+            FROM analytics_event
+            WHERE DATE(created_at) BETWEEN :from AND :to
+        ", [':from' => $dateFrom, ':to' => $dateTo])->queryOne();
+
+        return $row ?: ['views' => 0, 'add_to_cart' => 0, 'orders' => 0];
+    }
+
+    /**
+     * RFM-сегменты: Champion, Loyal, At Risk, Lost, New
+     * Возвращает массив ['segment' => ..., 'count' => ..., 'avg_monetary' => ...]
+     */
+    protected function getRfmSegments()
+    {
+        $rows = Yii::$app->db->createCommand("
+            SELECT
+                c.id,
+                c.name,
+                c.email,
+                DATEDIFF(NOW(), MAX(o.created_at)) AS recency,
+                COUNT(DISTINCT o.id)               AS frequency,
+                COALESCE(SUM(o.total_amount), 0)   AS monetary
+            FROM customer c
+            JOIN `order` o ON o.customer_id = c.id
+            GROUP BY c.id
+        ")->queryAll();
+
+        $segments = [
+            'Champion'  => ['count' => 0, 'monetary_sum' => 0],
+            'Loyal'     => ['count' => 0, 'monetary_sum' => 0],
+            'At Risk'   => ['count' => 0, 'monetary_sum' => 0],
+            'Lost'      => ['count' => 0, 'monetary_sum' => 0],
+            'New'       => ['count' => 0, 'monetary_sum' => 0],
+        ];
+
+        foreach ($rows as $r) {
+            $r_val = (int)$r['recency'];
+            $f_val = (int)$r['frequency'];
+            $m_val = (float)$r['monetary'];
+
+            if ($r_val < 30 && $f_val > 3 && $m_val > 5000) {
+                $seg = 'Champion';
+            } elseif ($f_val > 3) {
+                $seg = 'Loyal';
+            } elseif ($r_val > 60 && $f_val > 1) {
+                $seg = 'At Risk';
+            } elseif ($r_val > 90 && $f_val === 1) {
+                $seg = 'Lost';
+            } else {
+                $seg = 'New';
+            }
+
+            $segments[$seg]['count']++;
+            $segments[$seg]['monetary_sum'] += $m_val;
+        }
+
+        $result = [];
+        foreach ($segments as $name => $data) {
+            $result[] = [
+                'segment'      => $name,
+                'count'        => $data['count'],
+                'avg_monetary' => $data['count'] > 0 ? round($data['monetary_sum'] / $data['count'], 2) : 0,
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Клиенты конкретного RFM-сегмента (для CSV-экспорта)
+     */
+    protected function getRfmCustomersForSegment(string $segment)
+    {
+        $rows = Yii::$app->db->createCommand("
+            SELECT
+                c.id,
+                c.name,
+                c.email,
+                c.phone,
+                DATEDIFF(NOW(), MAX(o.created_at)) AS recency,
+                COUNT(DISTINCT o.id)               AS frequency,
+                COALESCE(SUM(o.total_amount), 0)   AS monetary
+            FROM customer c
+            JOIN `order` o ON o.customer_id = c.id
+            GROUP BY c.id
+        ")->queryAll();
+
+        $filtered = [];
+        foreach ($rows as $r) {
+            $r_val = (int)$r['recency'];
+            $f_val = (int)$r['frequency'];
+            $m_val = (float)$r['monetary'];
+
+            if ($segment === 'Champion') {
+                $match = $r_val < 30 && $f_val > 3 && $m_val > 5000;
+            } elseif ($segment === 'Loyal') {
+                $match = $f_val > 3 && !($r_val < 30 && $m_val > 5000);
+            } elseif ($segment === 'At Risk') {
+                $match = $r_val > 60 && $f_val > 1;
+            } elseif ($segment === 'Lost') {
+                $match = $r_val > 90 && $f_val === 1;
+            } else {
+                $match = true; // New — всё остальное
+            }
+
+            if ($match) {
+                $filtered[] = [
+                    'ID'        => $r['id'],
+                    'Имя'       => $r['name'],
+                    'Email'     => $r['email'],
+                    'Телефон'   => $r['phone'] ?? '',
+                    'Давность'  => $r_val . ' дн.',
+                    'Заказов'   => $f_val,
+                    'Выручка'   => number_format($m_val, 2),
+                ];
+            }
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * Статистика по команде (менеджеры)
+     */
+    protected function getTeamStats()
+    {
+        // Пробуем сгруппировать по assigned_logist или created_by
+        $colCheck = Yii::$app->db->createCommand("SHOW COLUMNS FROM `order` LIKE 'assigned_logist'")->queryOne();
+        $colBy    = Yii::$app->db->createCommand("SHOW COLUMNS FROM `order` LIKE 'created_by'")->queryOne();
+
+        if ($colCheck) {
+            $groupCol = 'assigned_logist';
+        } elseif ($colBy) {
+            $groupCol = 'created_by';
+        } else {
+            return [];
+        }
+
+        return Yii::$app->db->createCommand("
+            SELECT
+                COALESCE({$groupCol}, 'Не назначен') AS manager,
+                COUNT(*) AS order_count,
+                COALESCE(SUM(total_amount), 0) AS revenue,
+                COALESCE(AVG(total_amount), 0) AS avg_check
+            FROM `order`
+            GROUP BY {$groupCol}
+            ORDER BY revenue DESC
+            LIMIT 50
+        ")->queryAll();
     }
 
     /**

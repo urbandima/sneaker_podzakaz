@@ -802,6 +802,58 @@ class ProductController extends BaseAdminController
     /**
      * Экспорт каталога товаров в CSV
      */
+    /**
+     * Страница массового изменения цен
+     */
+    public function actionBulkPrice()
+    {
+        $brandId    = Yii::$app->request->get('brand');
+        $categoryId = Yii::$app->request->get('category');
+
+        $query = Product::find()->where(['is_active' => true]);
+
+        if ($brandId) {
+            $query->andWhere(['brand_id' => (int)$brandId]);
+        }
+        if ($categoryId) {
+            $query->andWhere(['category_id' => (int)$categoryId]);
+        }
+
+        $products   = $query->with(['brand', 'category'])->limit(200)->all();
+        $brands     = Brand::find()->orderBy(['name' => SORT_ASC])->all();
+        $categories = Category::find()->orderBy(['name' => SORT_ASC])->all();
+
+        return $this->render('bulk-price', [
+            'products'   => $products,
+            'brands'     => $brands,
+            'categories' => $categories,
+        ]);
+    }
+
+    /**
+     * AJAX: массовое обновление цен
+     * POST {prices: [{id, price}, ...]} → JSON
+     */
+    public function actionBulkUpdatePrice()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $prices  = Yii::$app->request->post('prices', []);
+        $updated = 0;
+
+        foreach ($prices as $item) {
+            if (!empty($item['id']) && isset($item['price'])) {
+                Product::updateAll(
+                    ['price' => (float)$item['price']],
+                    ['id' => (int)$item['id'], 'is_active' => true]
+                );
+                $updated++;
+            }
+        }
+
+        return ['success' => true, 'updated' => $updated];
+    }
+
     public function actionExportCsv()
     {
         $products = Product::find()
@@ -828,5 +880,67 @@ class ProductController extends BaseAdminController
         Yii::$app->response->headers->set('Content-Type', 'text/csv; charset=utf-8');
         Yii::$app->response->headers->set('Content-Disposition', 'attachment; filename="products_' . date('Y-m-d') . '.csv"');
         return $csv;
+    }
+
+    /** B7.2 — Update product price via AJAX */
+    public function actionUpdatePrice()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $data = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
+        $id = (int)($data['id'] ?? 0);
+        $price = (float)($data['price'] ?? 0);
+        $product = Product::findOne($id);
+        if (!$product) return ['success' => false, 'message' => 'Не найден'];
+        $product->price = $price;
+        $product->save(false);
+        return ['success' => true, 'price' => $price];
+    }
+
+    /** B7.2 — Toggle product active status */
+    public function actionToggleActive()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $data = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
+        $id = (int)($data['id'] ?? 0);
+        $product = Product::findOne($id);
+        if (!$product) return ['success' => false, 'message' => 'Не найден'];
+        $product->is_active = !$product->is_active;
+        $product->save(false);
+        return ['success' => true, 'is_active' => $product->is_active];
+    }
+
+    /** B7.3 — Update size BYN price via AJAX */
+    public function actionUpdateSizePrice()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $data = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
+        $sizeId = (int)($data['size_id'] ?? 0);
+        $priceByn = (float)($data['price_byn'] ?? 0);
+        try {
+            $size = \app\backend\modules\catalog\models\ProductSize::findOne($sizeId);
+            if (!$size) return ['success' => false, 'message' => 'Размер не найден'];
+            $size->price_byn = $priceByn;
+            $size->save(false);
+            return ['success' => true];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /** B7.5 — Trigger Poizon sync */
+    public function actionSyncPoizon()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $data = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
+        $id = (int)($data['id'] ?? 0);
+        $product = Product::findOne($id);
+        if (!$product || !$product->poizon_id) return ['success' => false, 'message' => 'Товар без Poizon ID'];
+        try {
+            $apiService = new \app\backend\shared\components\PoizonApiService();
+            $apiService->syncProduct($product);
+            return ['success' => true, 'message' => 'Синхронизировано'];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
+        }
     }
 }
