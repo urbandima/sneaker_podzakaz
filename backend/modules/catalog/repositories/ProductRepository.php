@@ -78,7 +78,18 @@ class ProductRepository
         $query = Product::find()->where(['slug' => $slug, 'is_active' => true]);
         
         if ($withRelations) {
-            $query->with(['brand', 'category', 'images', 'sizes', 'colors']);
+            $query->with([
+                'brand', 
+                'category', 
+                'images', 
+                'sizes' => function($q) {
+                    $q->where(['is_available' => true])->orderBy(['size' => SORT_ASC]);
+                }, 
+                'colors',
+                'reviews' => function($q) {
+                    $q->where(['is_published' => true])->orderBy(['created_at' => SORT_DESC]);
+                }
+            ]);
         }
         
         return $query->one();

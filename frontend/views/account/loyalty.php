@@ -33,11 +33,11 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
 
 <div class="loyalty-section">
     <div class="section-header">
-        <h2><i class="bi bi-star-fill"></i> Программа лояльности</h2>
+        <h2>Программа лояльности</h2>
     </div>
     
     <!-- Loyalty Card -->
-    <div class="loyalty-card" style="--level-color: <?= $levelInfo[0] ?>">
+    <div class="loyalty-card" data-level="<?= strtolower($levelInfo[1] ?? 'bronze') ?>" style="--level-color: <?= $levelInfo[0] ?>">
         <div class="card-header">
             <div class="level-badge">
                 <div class="badge-icon">
@@ -61,7 +61,7 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
                 <span><?= number_format($pointsToNext, 0, '', ' ') ?> баллов</span>
             </div>
             <div class="progress-bar-container">
-                <div class="progress-bar" style="width: <?= ($balance / $nextLevel->min_points) * 100 ?>%"></div>
+                <div class="progress-bar" style="--progress-width: <?= ($balance / $nextLevel->min_points) * 100 ?>%"></div>
             </div>
         </div>
         <?php endif; ?>
@@ -112,28 +112,28 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
         <h3>Как заработать баллы</h3>
         <div class="earn-grid">
             <div class="earn-item">
-                <div class="earn-icon">🛒</div>
+                <div class="earn-icon"><i class="bi bi-cart"></i></div>
                 <div class="earn-info">
                     <div class="earn-title">Покупки</div>
                     <div class="earn-value">10 баллов за 1 BYN</div>
                 </div>
             </div>
             <div class="earn-item">
-                <div class="earn-icon">✍️</div>
+                <div class="earn-icon"><i class="bi bi-pencil-square"></i></div>
                 <div class="earn-info">
                     <div class="earn-title">Отзыв о товаре</div>
                     <div class="earn-value">+50 баллов</div>
                 </div>
             </div>
             <div class="earn-item">
-                <div class="earn-icon">👥</div>
+                <div class="earn-icon"><i class="bi bi-people"></i></div>
                 <div class="earn-info">
                     <div class="earn-title">Приглашение друга</div>
                     <div class="earn-value">+200 баллов</div>
                 </div>
             </div>
             <div class="earn-item">
-                <div class="earn-icon">🎉</div>
+                <div class="earn-icon"><i class="bi bi-gift"></i></div>
                 <div class="earn-info">
                     <div class="earn-title">Регистрация</div>
                     <div class="earn-value">+100 баллов</div>
@@ -157,7 +157,6 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
                     <thead>
                         <tr>
                             <th>Дата</th>
-                            <th>Операция</th>
                             <th>Баллы</th>
                             <th>Баланс</th>
                         </tr>

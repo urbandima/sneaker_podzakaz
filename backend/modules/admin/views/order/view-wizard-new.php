@@ -1,59 +1,7 @@
 <?php
-
-/** @var yii\web\View $this */
-/** @var app\backend\modules\catalog\models\Order $model */
-
 use yii\helpers\Html;
 use yii\helpers\Url;
-
-$this->title = 'Заказ №' . $model->order_number;
-$user = Yii::$app->user->identity;
-$statuses = Yii::$app->settings->getStatuses();
-$canEdit = !$user->isLogist();
-$isEditing = $canEdit && !empty($editing);
-$inputDisabled = ($canEdit && $isEditing) ? '' : 'disabled';
-$logists = $user->isAdmin()
-    ? (function() {
-        try {
-            return \app\backend\modules\admin\models\User::find()->where(['role' => 'logist'])->orderBy(['username' => SORT_ASC])->all();
-        } catch (\Exception $e) {
-            return [];
-        }
-    })()
-    : [];
-$itemCount = count($model->orderItems);
-$amoDealId = ($model->source === 'amocrm' && $model->source_id) ? $model->source_id : null;
-$amoBase = Yii::$app->params['amocrmDealBaseUrl'] ?? 'https://www.amocrm.ru/leads/detail';
-$amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
-
-// Функция для получения цвета статуса
-function getStatusColor($status) {
-    switch ($status) {
-        case 'created': return '#3b82f6'; // синий
-        case 'confirmed': return '#f59e0b'; // желтый
-        case 'paid': return '#f59e0b'; // желтый
-        case 'ordered': return '#f59e0b'; // желтый
-        case 'shipped': return '#f59e0b'; // желтый
-        case 'delivered': return '#10b981'; // зеленый
-        case 'canceled': return '#ef4444'; // красный
-        default: return '#64748b'; // серый
-    }
-}
-
-function getStatusIcon($status) {
-    switch ($status) {
-        case 'created': return '🔵';
-        case 'confirmed': return '🟡';
-        case 'paid': return '🟡';
-        case 'ordered': return '🟡';
-        case 'shipped': return '🟡';
-        case 'delivered': return '🟢';
-        case 'canceled': return '🔴';
-        default: return '⚪';
-    }
-}
 ?>
-
 <style>
 :root {
     --bg: #f8fafc;
@@ -713,7 +661,7 @@ function getStatusIcon($status) {
             <h1 class="order-number">Заказ №<?= Html::encode($model->order_number) ?></h1>
             <div class="order-actions-header">
                 <?= Html::a('← Список заказов', ['/admin/order/index'], ['class' => 'btn']) ?>
-                <?php if ($isEditing): ?>
+                <?php if ($editing): ?>
                     <button type="submit" form="order-edit-form" class="btn btn--success">💾 Сохранить</button>
                     <?= Html::a('✕ Отмена', ['/admin/order/view', 'id' => $model->id], ['class' => 'btn btn--secondary']) ?>
                 <?php elseif ($canEdit): ?>
@@ -724,7 +672,7 @@ function getStatusIcon($status) {
         
         <div class="order-header-middle">
             <div class="order-meta">
-                <?php if ($isEditing): ?>
+                <?php if ($editing): ?>
                     <select class="control-select" name="status" style="width: auto; margin-right: 8px;">
                         <?php foreach ($statuses as $key => $value): ?>
                             <option value="<?= $key ?>" <?= $model->status === $key ? 'selected' : '' ?>>
@@ -793,7 +741,7 @@ function getStatusIcon($status) {
     <div class="order-content">
         <!-- Левая колонка - основная информация -->
         <div class="content-main">
-            <?php if ($isEditing): ?>
+            <?php if ($editing): ?>
             <?= Html::beginForm(['/admin/order/update', 'id' => $model->id], 'post', ['class' => 'order-edit-form', 'id' => 'order-edit-form']) ?>
             <input type="hidden" name="editing" value="1">
             <?php endif; ?>
@@ -807,7 +755,7 @@ function getStatusIcon($status) {
                     <div class="contact-row">
                         <div class="contact-item">
                             <span class="contact-label">ФИО:</span>
-                            <?php if ($isEditing): ?>
+                            <?php if ($editing): ?>
                                 <input type="text" class="control-input" name="client_name" value="<?= Html::encode($model->client_name) ?>" <?= $inputDisabled ?>>
                             <?php else: ?>
                                 <span class="contact-value"><?= Html::encode($model->client_name) ?></span>
@@ -816,7 +764,7 @@ function getStatusIcon($status) {
                         </div>
                         <div class="contact-item">
                             <span class="contact-label">Телефон:</span>
-                            <?php if ($isEditing): ?>
+                            <?php if ($editing): ?>
                                 <input type="tel" class="control-input" name="client_phone" value="<?= Html::encode($model->client_phone) ?>" <?= $inputDisabled ?>>
                             <?php else: ?>
                                 <span class="contact-value"><?= Html::encode($model->client_phone) ?></span>
@@ -825,7 +773,7 @@ function getStatusIcon($status) {
                         </div>
                         <div class="contact-item">
                             <span class="contact-label">Email:</span>
-                            <?php if ($isEditing): ?>
+                            <?php if ($editing): ?>
                                 <input type="email" class="control-input" name="client_email" value="<?= Html::encode($model->client_email) ?>" <?= $inputDisabled ?>>
                             <?php else: ?>
                                 <span class="contact-value"><?= Html::encode($model->client_email ?: 'не указан') ?></span>
@@ -839,7 +787,7 @@ function getStatusIcon($status) {
                     <div class="delivery-info">
                         <div class="delivery-item">
                             <span class="delivery-label">Способ доставки:</span>
-                            <?php if ($isEditing): ?>
+                            <?php if ($editing): ?>
                                 <input type="text" class="control-input" name="delivery_method" value="<?= Html::encode($model->delivery_method) ?>" <?= $inputDisabled ?>>
                             <?php else: ?>
                                 <span class="delivery-value"><?= Html::encode($model->delivery_method ?: 'не указан') ?></span>
@@ -847,7 +795,7 @@ function getStatusIcon($status) {
                         </div>
                         <div class="delivery-item">
                             <span class="delivery-label">Дата доставки:</span>
-                            <?php if ($isEditing): ?>
+                            <?php if ($editing): ?>
                                 <input type="date" class="control-input" name="delivery_date" value="<?= $model->delivery_date ?>" <?= $inputDisabled ?>>
                             <?php else: ?>
                                 <span class="delivery-value"><?= $model->delivery_date ? Yii::$app->formatter->asDate($model->delivery_date, 'd MMM yyyy') : 'не указана' ?></span>
@@ -855,16 +803,16 @@ function getStatusIcon($status) {
                         </div>
                         <div class="delivery-item">
                             <span class="delivery-label">Адрес:</span>
-                            <?php if ($isEditing): ?>
+                            <?php if ($editing): ?>
                                 <input type="text" class="control-input" name="full_address" value="<?= Html::encode($model->full_address) ?>" <?= $inputDisabled ?>>
                             <?php else: ?>
                                 <span class="delivery-value"><?= Html::encode($model->full_address ?: 'не указан') ?></span>
                             <?php endif; ?>
                         </div>
-                        <?php if ($model->postal_code || $isEditing): ?>
+                        <?php if ($model->postal_code || $editing): ?>
                         <div class="delivery-item">
                             <span class="delivery-label">Индекс:</span>
-                            <?php if ($isEditing): ?>
+                            <?php if ($editing): ?>
                                 <input type="text" class="control-input" name="postal_code" value="<?= Html::encode($model->postal_code) ?>" <?= $inputDisabled ?>>
                             <?php else: ?>
                                 <span class="delivery-value"><?= Html::encode($model->postal_code) ?></span>
@@ -873,10 +821,10 @@ function getStatusIcon($status) {
                         <?php endif; ?>
                     </div>
                     
-                    <?php if ($model->comment || $isEditing): ?>
+                    <?php if ($model->comment || $editing): ?>
                     <div style="margin-top: 16px; padding: 12px; background: var(--bg); border-radius: 8px;">
                         <strong>Комментарий:</strong> 
-                        <?php if ($isEditing): ?>
+                        <?php if ($editing): ?>
                             <textarea class="control-textarea" name="comment" style="width: 100%; margin-top: 8px;" <?= $inputDisabled ?> placeholder="Добавьте комментарий к заказу..."><?= Html::encode($model->comment) ?></textarea>
                         <?php else: ?>
                             <?= Html::encode($model->comment ?: 'нет комментария') ?>
@@ -1039,7 +987,7 @@ function getStatusIcon($status) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <?php if ($canEdit && $isEditing): ?>
+                        <?php if ($canEdit && $editing): ?>
                         <div class="control-actions">
                             <button class="btn btn--success btn--sm">🔄 Сохранить</button>
                             <button class="btn btn--secondary btn--sm">✕ Отмена</button>
@@ -1050,7 +998,7 @@ function getStatusIcon($status) {
                     <div class="control-group">
                         <label class="control-label">Комментарий:</label>
                         <textarea class="control-textarea" <?= $inputDisabled ?> placeholder="Добавьте комментарий к заказу..."><?= Html::encode($model->comment) ?></textarea>
-                        <?php if ($canEdit && $isEditing): ?>
+                        <?php if ($canEdit && $editing): ?>
                         <div class="control-actions">
                             <button class="btn btn--success btn--sm">🔄 Сохранить</button>
                             <button class="btn btn--secondary btn--sm">✕ Отмена</button>
@@ -1075,7 +1023,7 @@ function getStatusIcon($status) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <?php if ($canEdit && $isEditing): ?>
+                        <?php if ($canEdit && $editing): ?>
                         <div class="control-actions">
                             <button class="btn btn--success btn--sm">💾 Сохранить</button>
                         </div>
@@ -1119,7 +1067,7 @@ function getStatusIcon($status) {
     </div>
 </div>
 
-<?php if ($isEditing): ?>
+<?php if ($editing): ?>
 <?= Html::endForm() ?>
 <?php endif; ?>
 

@@ -18,7 +18,8 @@ class CheckoutAsset extends VersionedAssetBundle
     
     public $css = [
         'css/pages.css',  // Cart стили (cart-page, cart-item)
-    ]; // Checkout стили (checkout-page, shipping-methods)
+        'css/pages/checkout.css',  // Checkout стили (checkout-page, shipping-methods)
+    ];
     
     public $js = [
         'js/checkout.js',

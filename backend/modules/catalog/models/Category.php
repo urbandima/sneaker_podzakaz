@@ -59,10 +59,12 @@ use app\backend\shared\components\SitemapNotifier;
  * @property string|null $meta_keywords SEO ключевые слова
  * @property int $created_at
  * @property int $updated_at
+ * @property string|null $color_code HEX цвет категории
  * 
  * @property Category $parent Родительская категория
  * @property Category[] $children Дочерние категории
  * @property Product[] $products
+ * @property CategoryColor $color Цветовая маркировка
  */
 class Category extends ActiveRecord
 {
@@ -280,5 +282,41 @@ class Category extends ActiveRecord
         return Product::find()
             ->where(['category_id' => $categoryIds, 'is_active' => true])
             ->count();
+    }
+
+    /**
+     * Цветовая маркировка категории
+     * @return \yii\db\ActiveQuery
+     */
+    public function getColor()
+    {
+        return $this->hasOne(CategoryColor::class, ['category_id' => 'id'])
+            ->where(['is_active' => true]);
+    }
+
+    /**
+     * Получить HEX код цвета категории
+     * @return string|null
+     */
+    public function getColorCode()
+    {
+        return $this->color_code ?: ($this->color ? $this->color->color_code : null);
+    }
+
+    /**
+     * Получить HTML индикатор цвета
+     * @return string
+     */
+    public function getColorIndicator()
+    {
+        $colorCode = $this->getColorCode();
+        if (!$colorCode) {
+            return '';
+        }
+
+        return sprintf(
+            '<span class="category-color-indicator" style="background-color: %s;"></span>',
+            $colorCode
+        );
     }
 }

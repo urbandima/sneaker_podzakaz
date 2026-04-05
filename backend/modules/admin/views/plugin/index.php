@@ -125,6 +125,105 @@ $this->title = 'Плагины';
     </p>
 </div>
 
+<h3 style="margin: 2rem 0 1rem 0;">Интеграции</h3>
+<div class="plugins-grid">
+    <!-- МойСклад -->
+    <div class="plugin-card">
+        <div class="plugin-header">
+            <div class="plugin-icon" style="background:#10b981">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <span class="plugin-status inactive">Неактивен</span>
+        </div>
+        <span class="plugin-type-badge" style="background:#d1fae5;color:#065f46">Интеграция</span>
+        <h3 class="plugin-title">МойСклад</h3>
+        <div class="plugin-meta">
+            <span><i class="bi bi-tag"></i> v1.0.0</span>
+            <span><i class="bi bi-person"></i> СНИКЕРХЭД</span>
+        </div>
+        <p class="plugin-description">
+            Автоматическая синхронизация товаров, заказов и остатков с системой МойСклад. Двусторонняя синхронизация в реальном времени.
+        </p>
+        <div class="plugin-actions">
+            <a href="<?= Url::to(['/admin/settings/integrations']) ?>#moysklad" class="admin-btn admin-btn-primary">
+                <i class="bi bi-gear"></i> Настроить
+            </a>
+        </div>
+    </div>
+    
+    <!-- AmoCRM -->
+    <div class="plugin-card">
+        <div class="plugin-header">
+            <div class="plugin-icon" style="background:#3b82f6">
+                <i class="bi bi-people"></i>
+            </div>
+            <span class="plugin-status inactive">Неактивен</span>
+        </div>
+        <span class="plugin-type-badge" style="background:#dbeafe;color:#1e40af">Интеграция</span>
+        <h3 class="plugin-title">AmoCRM</h3>
+        <div class="plugin-meta">
+            <span><i class="bi bi-tag"></i> v1.0.0</span>
+            <span><i class="bi bi-person"></i> СНИКЕРХЭД</span>
+        </div>
+        <p class="plugin-description">
+            Интеграция с CRM-системой AmoCRM. Автоматическое создание сделок и контактов при оформлении заказа.
+        </p>
+        <div class="plugin-actions">
+            <a href="<?= Url::to(['/admin/settings/integrations']) ?>#amocrm" class="admin-btn admin-btn-primary">
+                <i class="bi bi-gear"></i> Настроить
+            </a>
+        </div>
+    </div>
+    
+    <!-- Telegram Bot -->
+    <div class="plugin-card">
+        <div class="plugin-header">
+            <div class="plugin-icon" style="background:#0088cc">
+                <i class="bi bi-telegram"></i>
+            </div>
+            <span class="plugin-status inactive">Неактивен</span>
+        </div>
+        <span class="plugin-type-badge" style="background:#cfe2ff;color:#084298">Интеграция</span>
+        <h3 class="plugin-title">Telegram Bot</h3>
+        <div class="plugin-meta">
+            <span><i class="bi bi-tag"></i> v1.0.0</span>
+            <span><i class="bi bi-person"></i> СНИКЕРХЭД</span>
+        </div>
+        <p class="plugin-description">
+            Уведомления о новых заказах и изменении статусов в Telegram. Поддержка команд для управления заказами.
+        </p>
+        <div class="plugin-actions">
+            <a href="<?= Url::to(['/admin/settings/integrations']) ?>#telegram" class="admin-btn admin-btn-primary">
+                <i class="bi bi-gear"></i> Настроить
+            </a>
+        </div>
+    </div>
+    
+    <!-- Курс валют -->
+    <div class="plugin-card active">
+        <div class="plugin-header">
+            <div class="plugin-icon" style="background:#f59e0b">
+                <i class="bi bi-currency-exchange"></i>
+            </div>
+            <span class="plugin-status active">Активен</span>
+        </div>
+        <span class="plugin-type-badge" style="background:#fef3c7;color:#92400e">Интеграция</span>
+        <h3 class="plugin-title">Курс валют НБРБ</h3>
+        <div class="plugin-meta">
+            <span><i class="bi bi-tag"></i> v1.0.0</span>
+            <span><i class="bi bi-person"></i> СНИКЕРХЭД</span>
+        </div>
+        <p class="plugin-description">
+            Автоматическое обновление курса CNY к BYN с сайта Национального банка РБ. Обновление каждые 24 часа.
+        </p>
+        <div class="plugin-actions">
+            <a href="<?= Url::to(['/admin/settings/integrations']) ?>#currency" class="admin-btn admin-btn-secondary">
+                <i class="bi bi-gear"></i> Настроить
+            </a>
+        </div>
+    </div>
+</div>
+
 <h3 style="margin: 2rem 0 1rem 0;">Платёжные шлюзы</h3>
 <div class="plugins-grid">
     <?php foreach ($plugins as $plugin): ?>

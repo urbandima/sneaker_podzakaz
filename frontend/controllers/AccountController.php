@@ -264,6 +264,44 @@ class AccountController extends Controller
     }
 
     /**
+     * Программа лояльности
+     */
+    public function actionLoyalty()
+    {
+        $customer = $this->getCustomer();
+        if (!$customer) {
+            return $this->redirect(['account/login']);
+        }
+
+        // Заглушка данных лояльности (в реальном проекте - из БД)
+        $loyaltyInfo = [
+            'level' => (object)[
+                'level' => 'silver',
+                'name' => 'Серебро',
+                'points_multiplier' => 1.5,
+                'discount_percent' => 5,
+            ],
+            'balance' => 1250,
+            'nextLevel' => (object)[
+                'name' => 'Золото',
+                'min_points' => 2500,
+            ],
+            'pointsToNextLevel' => 1250,
+            'history' => [
+                ['date' => '2026-03-15', 'type' => 'earn', 'points' => 150, 'description' => 'Покупка кроссовок Nike Air Max'],
+                ['date' => '2026-03-10', 'type' => 'earn', 'points' => 200, 'description' => 'Покупка кроссовок Adidas Ultraboost'],
+                ['date' => '2026-03-01', 'type' => 'spend', 'points' => -500, 'description' => 'Скидка на заказ #1234'],
+                ['date' => '2026-02-20', 'type' => 'earn', 'points' => 100, 'description' => 'Бонус за регистрацию'],
+            ],
+        ];
+
+        return $this->render('loyalty', [
+            'customer' => $customer,
+            'loyaltyInfo' => $loyaltyInfo,
+        ]);
+    }
+
+    /**
      * Восстановление пароля
      */
     public function actionForgotPassword()

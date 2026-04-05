@@ -1,7 +1,6 @@
 <?php
 
 use yii\helpers\Html;
-use yii\helpers\Url;
 use app\frontend\assets\AppAsset;
 
 AppAsset::register($this);
@@ -37,9 +36,7 @@ $company = Yii::$app->settings->getCompany();
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 <?php $this->beginBody() ?>
@@ -51,69 +48,38 @@ $company = Yii::$app->settings->getCompany();
 <header class="main-header">
     <div class="header-content">
         <!-- Logo -->
-        <a href="<?= Url::to(['/site/index']) ?>" class="logo">
+        <a href="/" class="logo">
             <img src="/images/logo.png" alt="<?= Html::encode($company['name'] ?? 'СНИКЕРХЭД') ?>">
         </a>
-
+        
         <!-- Navigation -->
         <nav class="main-nav">
             <ul class="nav-menu">
-                <li class="dropdown-container">
-                    <a href="<?= Url::to(['/catalog/catalog/index']) ?>">Каталог <i class="bi bi-chevron-down"></i></a>
-                    <div class="mega-menu">
-                        <div class="mega-menu-grid">
-                            <div class="mega-menu-col">
-                                <h4>Обувь</h4>
-                                <ul>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'sneakers']) ?>">Кроссовки</a></li>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'boots']) ?>">Ботинки</a></li>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'slides']) ?>">Сланцы и сандалии</a></li>
-                                </ul>
-                            </div>
-                            <div class="mega-menu-col">
-                                <h4>Одежда</h4>
-                                <ul>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'tshirts']) ?>">Футболки</a></li>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'hoodies']) ?>">Худи и толстовки</a></li>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'pants']) ?>">Штаны и шорты</a></li>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'jackets']) ?>">Куртки</a></li>
-                                </ul>
-                            </div>
-                            <div class="mega-menu-col">
-                                <h4>Аксессуары</h4>
-                                <ul>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'bags']) ?>">Сумки и рюкзаки</a></li>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'caps']) ?>">Головные уборы</a></li>
-                                    <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'socks']) ?>">Носки</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                <li><a href="<?= Url::to(['/catalog/brands/index']) ?>">Бренды</a></li>
-                <li><a href="<?= Url::to(['/catalog/catalog/index', 'sort' => 'sale']) ?>" class="text-sale">Скидки</a></li>
-                <li><a href="<?= Url::to(['/page/about']) ?>">О нас</a></li>
-                <li><a href="<?= Url::to(['/page/contacts']) ?>">Контакты</a></li>
+                <li><a href="/catalog">Каталог</a></li>
+                <li><a href="/brands">Бренды</a></li>
+                <li><a href="/sale">Скидки</a></li>
+                <li><a href="/about">О нас</a></li>
+                <li><a href="/contacts">Контакты</a></li>
             </ul>
         </nav>
-
+        
         <!-- Actions -->
         <div class="header-actions">
             <button class="btn-search" onclick="openSearch()" aria-label="Поиск товаров" aria-haspopup="dialog">
                 <i class="bi bi-search" aria-hidden="true"></i>
             </button>
-
-            <a href="<?= Url::to(['/catalog/favorites/index']) ?>" class="btn-wishlist" aria-label="Избранное">
+            
+            <a href="/account/wishlist" class="btn-wishlist" aria-label="Избранное">
                 <i class="bi bi-heart" aria-hidden="true"></i>
-                <span class="wishlist-counter badge" role="status" aria-live="polite" style="display: none;">0</span>
+                <span class="wishlist-counter header-badge d-none" role="status" aria-live="polite">0</span>
             </a>
 
-            <a href="<?= Url::to(['/cart/cart/index']) ?>" class="btn-cart" aria-label="Корзина">
+            <a href="/cart" class="btn-cart" aria-label="Корзина">
                 <i class="bi bi-cart3" aria-hidden="true"></i>
-                <span class="cart-counter badge" role="status" aria-live="polite" style="display: none;">0</span>
+                <span class="cart-counter header-badge d-none" role="status" aria-live="polite">0</span>
             </a>
-
-            <a href="<?= Url::to(['/account/account/index']) ?>" class="btn-account" aria-label="Личный кабинет">
+            
+            <a href="/account" class="btn-account" aria-label="Личный кабинет">
                 <i class="bi bi-person" aria-hidden="true"></i>
             </a>
         </div>
@@ -133,6 +99,9 @@ $company = Yii::$app->settings->getCompany();
 <!-- Footer -->
 <?= $this->render('//partials/footer') ?>
 
+<!-- Mobile Menu Backdrop -->
+<div class="menu-overlay" onclick="closeMobileMenu()"></div>
+
 <!-- Mobile Menu -->
 <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-header">
@@ -142,12 +111,12 @@ $company = Yii::$app->settings->getCompany();
         </button>
     </div>
     <nav class="mobile-nav">
-        <a href="<?= Url::to(['/catalog/catalog/index']) ?>" onclick="toggleMobileMenu()">Каталог</a>
-        <a href="<?= Url::to(['/catalog/brands/index']) ?>" onclick="toggleMobileMenu()">Бренды</a>
-        <a href="<?= Url::to(['/catalog/catalog/index', 'sort' => 'sale']) ?>" onclick="toggleMobileMenu()">Скидки</a>
-        <a href="<?= Url::to(['/page/about']) ?>" onclick="toggleMobileMenu()">О нас</a>
-        <a href="<?= Url::to(['/page/contacts']) ?>" onclick="toggleMobileMenu()">Контакты</a>
-        <a href="<?= Url::to(['/account/account/index']) ?>" onclick="toggleMobileMenu()">Личный кабинет</a>
+        <a href="/catalog" onclick="toggleMobileMenu()">Каталог</a>
+        <a href="/brands" onclick="toggleMobileMenu()">Бренды</a>
+        <a href="/sale" onclick="toggleMobileMenu()">Скидки</a>
+        <a href="/about" onclick="toggleMobileMenu()">О нас</a>
+        <a href="/contacts" onclick="toggleMobileMenu()">Контакты</a>
+        <a href="/account" onclick="toggleMobileMenu()">Личный кабинет</a>
     </nav>
 </div>
 

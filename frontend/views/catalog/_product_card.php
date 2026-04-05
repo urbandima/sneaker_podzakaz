@@ -44,52 +44,34 @@ $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam
                  alt="<?= Html::encode($product->name) ?> - вид 2"
                  loading="lazy">
             <?php endif; ?>
+            <?php else: ?>
+            <img src="/images/placeholder.png" class="product-image primary" alt="<?= Html::encode($product->name) ?>">
             <?php endif; ?>
         </a>
         
         <!-- Бейджи -->
         <div class="product-badges">
-            <?php if ($product->hasDiscount()): ?>
-            <span class="badge badge-discount">-<?= $product->getDiscountPercent() ?>%</span>
-            <?php endif; ?>
             <?php if (ProductCardHelper::isNewProduct($product->created_at ?? null)): ?>
             <span class="badge badge-new">NEW</span>
+            <?php endif; ?>
+            <?php if ($product->hasDiscount()): ?>
+            <span class="badge badge-discount">-<?= $product->getDiscountPercent() ?>%</span>
             <?php endif; ?>
         </div>
         
         <!-- Избранное -->
-        <button class="btn-favorite" onclick="toggleFav(event,<?= $product->id ?>)" 
-                aria-label="Добавить в избранное">
+        <button class="action-btn favorite" onclick="toggleFav(event,<?= $product->id ?>)" aria-label="Добавить в избранное">
             <i class="bi bi-heart"></i>
         </button>
-        
-        <!-- Навигация по галерее -->
-        <?php if (count($galleryImages) > 1): ?>
-        <button class="product-image-nav prev" data-direction="prev" aria-label="Предыдущее">
-            <i class="bi bi-chevron-left"></i>
-        </button>
-        <button class="product-image-nav next" data-direction="next" aria-label="Следующее">
-            <i class="bi bi-chevron-right"></i>
-        </button>
-        <?php endif; ?>
     </div>
     
     <!-- Информация -->
     <div class="product-info">
-        <div class="product-meta">
-            <?php if ($product->brand_name): ?>
-            <span class="product-brand"><?= Html::encode($product->brand_name) ?></span>
-            <?php endif; ?>
-            
-            <?php if (isset($product->rating) && $product->rating > 0): ?>
-            <div class="product-rating">
-                <i class="bi bi-star-fill"></i>
-                <span><?= $product->rating ?></span>
-            </div>
-            <?php endif; ?>
-        </div>
+        <?php if ($product->brand_name): ?>
+        <div class="product-card-brand"><?= Html::encode($product->brand_name) ?></div>
+        <?php endif; ?>
         
-        <h3 class="product-name">
+        <h3 class="product-card-name">
             <a href="<?= $product->getUrl() ?>"><?= Html::encode($product->getDisplayTitle()) ?></a>
         </h3>
         
@@ -97,7 +79,7 @@ $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam
         <?php if (!empty($sizeBadges['badges'])): ?>
         <div class="sizes-quick">
             <?php foreach (array_slice($sizeBadges['badges'], 0, 4) as $badge): ?>
-            <span class="size-badge"><?= Html::encode($badge['value']) ?></span>
+            <span class="size-badge <?= $badge['selected'] ? 'selected' : '' ?>"><?= Html::encode($badge['value']) ?></span>
             <?php endforeach; ?>
             <?php if ($sizeBadges['remaining'] > 0): ?>
             <span class="size-more">+<?= $sizeBadges['remaining'] ?></span>
@@ -107,22 +89,37 @@ $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam
         
         <!-- Цена -->
         <div class="product-price">
+            <?php if ($priceView['showRange'] && $priceView['minPrice'] !== null && $priceView['maxPrice'] !== null): ?>
+                <span class="product-card-price-current">
+                    от <?= Yii::$app->formatter->asCurrency($priceView['minPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
+                </span>
+                <span class="product-card-price-range">
+                    до <?= Yii::$app->formatter->asCurrency($priceView['maxPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
+                </span>
+            <?php else: ?>
+                <span class="product-card-price-current">
+                    <?= Yii::$app->formatter->asCurrency($priceView['currentPrice'] ?? $product->price, ProductCardHelper::PRICE_CURRENCY) ?>
+                </span>
+            <?php endif; ?>
             <?php if ($priceView['showOldPrice'] && $priceView['oldPrice'] !== null): ?>
-            <span class="price-old">
+            <span class="product-card-price-old">
                 <?= Yii::$app->formatter->asCurrency($priceView['oldPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
             </span>
             <?php endif; ?>
-            <span class="price-current">
-                <?= Yii::$app->formatter->asCurrency($priceView['currentPrice'] ?? $product->price, ProductCardHelper::PRICE_CURRENCY) ?>
-            </span>
-            <?php if ($priceView['discountPercent'] !== null): ?>
-            <span class="product-card-discount">-<?= $priceView['discountPercent'] ?>%</span>
-            <?php endif; ?>
         </div>
         
+        <!-- Теги -->
+        <?= \app\frontend\widgets\ProductTagsWidget::widget([
+            'product' => $product,
+            'style' => 'badges',
+            'limit' => 3,
+            'showLinks' => true,
+            'containerClass' => 'product-tags--compact',
+        ]) ?>
+        
         <!-- Кнопка -->
-        <button class="btn-cart" onclick="quickAddToCart(event, <?= $product->id ?>)">
-            <i class="bi bi-cart-plus"></i> В корзину
+        <button class="btn-add-to-cart-card" onclick="quickAddToCart(event, <?= $product->id ?>)">
+            В корзину
         </button>
     </div>
 </article>

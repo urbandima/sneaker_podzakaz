@@ -97,7 +97,17 @@ class ProductImage extends ActiveRecord
      */
     public function getUrl()
     {
-        return $this->image;
+        if (empty($this->image)) {
+            return null;
+        }
+        
+        // Если это полный URL (начинается с http)
+        if (strpos($this->image, 'http') === 0) {
+            return $this->image;
+        }
+        
+        // Если это относительный путь - добавляем baseUrl
+        return Yii::$app->request->baseUrl . '/' . ltrim($this->image, '/');
     }
 
     /**

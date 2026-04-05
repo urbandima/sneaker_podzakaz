@@ -1,0 +1,74 @@
+/**
+ * Page Transitions - Sneakerhead
+ * Плавные переходы между страницами
+ */
+
+/* Fade in animation for page content */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Apply fade in to main content areas */
+.catalog-page,
+.account-page,
+.product-page,
+.cart-page,
+.checkout-page {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Page transition overlay */
+.page-transition {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-bg-primary);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.page-transition.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Link hover transition */
+a {
+    transition: color var(--duration-fast), opacity var(--duration-fast);
+}
+
+/* Button transitions */
+button,
+.btn {
+    transition: all var(--duration-fast);
+}
+
+/* Image loading placeholder */
+img {
+    transition: opacity var(--duration-fast);
+}
+
+img[loading="lazy"] {
+    opacity: 0;
+}
+
+img.loaded,
+img:not([src=""]) {
+    opacity: 1;
+}

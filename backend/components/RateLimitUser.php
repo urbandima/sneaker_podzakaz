@@ -11,7 +11,7 @@
  * - Для форм входа, регистрации, API
  */
 
-namespace app\components;
+namespace app\backend\components;
 
 use yii\filters\RateLimiter;
 use yii\web\User as BaseUser;

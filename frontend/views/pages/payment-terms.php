@@ -91,7 +91,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">🔒 Безопасность платежей</h2>
+                <h2 class="h4 mb-3">Безопасность платежей</h2>
                 <div class="security-features">
                     <div class="security-item">
                         <i class="bi bi-shield-check text-success"></i>
@@ -118,7 +118,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">⏱️ Сроки зачисления средств</h2>
+                <h2 class="h4 mb-3">Сроки зачисления средств</h2>
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
@@ -155,9 +155,9 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
             <div class="content-section">
-                <h2 class="h4 mb-3">🔄 Возврат средств</h2>
+                <h2 class="h4 mb-3">Возврат средств</h2>
                 <div class="alert alert-warning">
-                    <h6 class="alert-heading">💰 Условия возврата</h6>
+                    <h6 class="alert-heading">Условия возврата</h6>
                     <p class="mb-2">
                         Возврат денежных средств осуществляется в течение 5-10 банковских дней с момента получения товара.
                     </p>

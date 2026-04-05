@@ -13,8 +13,8 @@ $this->params['breadcrumbs'][] = $model->code;
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><?= Html::encode($this->title) ?></h1>
         <div>
-            <?= Html::a($model->is_active ? 'Деактивировать' : 'Активировать', ['toggle', 'id' => $model->id], [
-                'class' => 'btn btn-' . ($model->is_active ? 'warning' : 'success'),
+            <?= Html::a(($model->is_active ?? true) ? 'Деактивировать' : 'Активировать', ['toggle', 'id' => $model->id], [
+                'class' => 'btn btn-' . (($model->is_active ?? true) ? 'warning' : 'success'),
                 'data-method' => 'post',
                 'data-confirm' => 'Вы уверены?'
             ]) ?>
@@ -38,8 +38,8 @@ $this->params['breadcrumbs'][] = $model->code;
                         'model' => $model,
                         'attributes' => [
                             'code',
-                            'name',
-                            'description:ntext',
+                            // 'name', // Поле отсутствует в БД
+                            // 'description:ntext', // Поле отсутствует в БД
                             [
                                 'attribute' => 'type',
                                 'value' => $model->getTypeName(),
@@ -53,9 +53,9 @@ $this->params['breadcrumbs'][] = $model->code;
                             [
                                 'attribute' => 'is_active',
                                 'format' => 'raw',
-                                'value' => $model->is_active ? '<span class="badge bg-success">Активен</span>' : '<span class="badge bg-secondary">Неактивен</span>',
+                                'value' => ($model->is_active ?? true) ? '<span class="badge bg-success">Активен</span>' : '<span class="badge bg-secondary">Неактивен</span>',
                             ],
-                            'is_first_order:boolean',
+                            // 'is_first_order:boolean', // Поле отсутствует в БД
                         ],
                     ]) ?>
                 </div>
@@ -76,16 +76,18 @@ $this->params['breadcrumbs'][] = $model->code;
                                 'label' => 'Использований',
                                 'format' => 'raw',
                                 'value' => function ($model) {
-                                    $text = $model->current_uses;
-                                    if ($model->max_uses) {
-                                        $percent = ($model->current_uses / $model->max_uses) * 100;
-                                        $text .= ' из ' . $model->max_uses . ' (' . round($percent) . '%)';
+                                    $currentUses = $model->current_uses ?? 0;
+                                    $maxUses = $model->max_uses ?? null;
+                                    $text = $currentUses;
+                                    if ($maxUses) {
+                                        $percent = ($currentUses / $maxUses) * 100;
+                                        $text .= ' из ' . $maxUses . ' (' . round($percent) . '%)';
                                         return $text . '<div class="progress mt-2"><div class="progress-bar" style="width: ' . $percent . '%"></div></div>';
                                     }
                                     return $text . ' (без ограничений)';
                                 },
                             ],
-                            'max_uses_per_user',
+                            // 'max_uses_per_user', // Поле отсутствует в БД
                             'valid_from:datetime',
                             'valid_until:datetime',
                             'created_at:datetime',

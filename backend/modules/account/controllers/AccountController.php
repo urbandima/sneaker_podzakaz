@@ -45,7 +45,9 @@ class AccountController extends Controller
             'rateLimiter' => [
                 'class' => \yii\filters\RateLimiter::class,
                 'only' => ['login', 'register', 'forgot-password'],
-                'user' => new \app\components\RateLimitUser(),
+                'user' => new \app\backend\components\RateLimitUser([
+                    'identityClass' => 'app\backend\modules\admin\models\User',
+                ]),
             ],
             'access' => [
                 'class' => AccessControl::class,

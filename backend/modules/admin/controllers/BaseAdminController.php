@@ -38,12 +38,21 @@ use Yii;
 use yii\web\Controller;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use app\backend\modules\admin\services\AdminLogService;
 
 abstract class BaseAdminController extends Controller
 {
     protected bool $adminOnly = false;
     public $layout = 'admin'; // Admin layout с сайдбаром
     public $layoutPath = '@backend/modules/admin/views/layouts';
+
+    // Свойства для логирования
+    protected ?array $logOldValues = null;
+    protected ?array $logNewValues = null;
+    protected string $logEntityType = '';
+    protected ?int $logEntityId = null;
+    protected string $logEntityName = '';
+    protected string $logAction = '';
 
     /**
      * @inheritdoc
@@ -197,5 +206,131 @@ abstract class BaseAdminController extends Controller
                 'status' => \app\backend\modules\admin\models\User::STATUS_ACTIVE,
             ]);
         }
+    }
+
+    /**
+     * Логировать создание сущности
+     * 
+     * @param string $entityType Тип сущности (order, product, customer и т.д.)
+     * @param int $entityId ID сущности
+     * @param string $entityName Название/имя сущности
+     * @param array|null $data Дополнительные данные
+     */
+    protected function logCreate(string $entityType, int $entityId, string $entityName, ?array $data = null): void
+    {
+        AdminLogService::logCreate($entityType, $entityId, $entityName, $data);
+    }
+
+    /**
+     * Логировать обновление сущности
+     * 
+     * @param string $entityType Тип сущности
+     * @param int $entityId ID сущности
+     * @param string $entityName Название сущности
+     * @param array $oldValues Старые значения
+     * @param array $newValues Новые значения
+     */
+    protected function logUpdate(string $entityType, int $entityId, string $entityName, array $oldValues, array $newValues): void
+    {
+        AdminLogService::logUpdate($entityType, $entityId, $entityName, $oldValues, $newValues);
+    }
+
+    /**
+     * Логировать удаление сущности
+     * 
+     * @param string $entityType Тип сущности
+     * @param int $entityId ID сущности
+     * @param string $entityName Название сущности
+     * @param array|null $data Данные удаленной сущности
+     */
+    protected function logDelete(string $entityType, int $entityId, string $entityName, ?array $data = null): void
+    {
+        AdminLogService::logDelete($entityType, $entityId, $entityName, $data);
+    }
+
+    /**
+     * Логировать просмотр сущности (для важных операций)
+     * 
+     * @param string $entityType Тип сущности
+     * @param int $entityId ID сущности
+     * @param string $entityName Название сущности
+     */
+    protected function logView(string $entityType, int $entityId, string $entityName): void
+    {
+        AdminLogService::logView($entityType, $entityId, $entityName);
+    }
+
+    /**
+     * Логировать смену статуса
+     * 
+     * @param string $entityType Тип сущности
+     * @param int $entityId ID сущности
+     * @param string $entityName Название сущности
+     * @param string $oldStatus Старый статус
+     * @param string $newStatus Новый статус
+     */
+    protected function logStatusChange(string $entityType, int $entityId, string $entityName, string $oldStatus, string $newStatus): void
+    {
+        AdminLogService::logStatusChange($entityType, $entityId, $entityName, $oldStatus, $newStatus);
+    }
+
+    /**
+     * Логировать экспорт
+     * 
+     * @param string $entityType Тип экспортируемых данных
+     * @param int $count Количество записей
+     * @param string|null $format Формат файла
+     */
+    protected function logExport(string $entityType, int $count, ?string $format = null): void
+    {
+        AdminLogService::logExport($entityType, $count, $format);
+    }
+
+    /**
+     * Логировать импорт
+     * 
+     * @param string $entityType Тип импортируемых данных
+     * @param int $successCount Успешно импортировано
+     * @param int $errorCount Ошибок
+     */
+    protected function logImport(string $entityType, int $successCount, int $errorCount = 0): void
+    {
+        AdminLogService::logImport($entityType, $successCount, $errorCount);
+    }
+
+    /**
+     * Логировать массовое действие
+     * 
+     * @param string $action Действие (delete, update, activate и т.д.)
+     * @param string $entityType Тип сущности
+     * @param int $count Количество
+     * @param array|null $params Дополнительные параметры
+     */
+    protected function logBulkAction(string $action, string $entityType, int $count, ?array $params = null): void
+    {
+        AdminLogService::logBulkAction($action, $entityType, $count, $params);
+    }
+
+    /**
+     * Логировать произвольное действие
+     * 
+     * @param string $action Тип действия
+     * @param string $entityType Тип сущности
+     * @param int|null $entityId ID сущности
+     * @param string|null $entityName Название
+     * @param string|null $description Описание
+     * @param array|null $oldValues Старые значения
+     * @param array|null $newValues Новые значения
+     */
+    protected function logAction(
+        string $action,
+        string $entityType,
+        ?int $entityId = null,
+        ?string $entityName = null,
+        ?string $description = null,
+        ?array $oldValues = null,
+        ?array $newValues = null
+    ): void {
+        AdminLogService::log($action, $entityType, $entityId, $entityName, $description, $oldValues, $newValues);
     }
 }

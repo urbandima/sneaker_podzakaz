@@ -26,14 +26,14 @@ function checkProductInCart(productId) {
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.inCart) {
-            showProductInCartIndicator();
-        }
-    })
-    .catch(error => {
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.inCart) {
+                showProductInCartIndicator();
+            }
+        })
+        .catch(error => {
+        });
 }
 
 // Показать индикатор "Товар в корзине"
@@ -41,9 +41,9 @@ function showProductInCartIndicator() {
     const indicator = document.getElementById('productInCartIndicator');
     if (indicator) {
         indicator.style.display = 'block';
-        
+
         // При клике на индикатор - переход в корзину
-        indicator.addEventListener('click', function() {
+        indicator.addEventListener('click', function () {
             window.location.href = '/cart';
         });
     }
@@ -63,14 +63,14 @@ function showSizeRequiredNotification() {
     const sizesSection = document.querySelector('.sizes-section');
     if (sizesSection) {
         sizesSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
+
         // Добавляем подсветку
         sizesSection.classList.add('size-required-highlight');
         setTimeout(() => {
             sizesSection.classList.remove('size-required-highlight');
         }, 2000);
     }
-    
+
     // Показываем уведомление
     if (window.NotificationManager && typeof window.NotificationManager.warning === 'function') {
         window.NotificationManager.warning('Пожалуйста, выберите размер', 5000);
@@ -83,10 +83,10 @@ function showSizeRequiredNotification() {
             <span>Пожалуйста, выберите размер</span>
         `;
         document.body.appendChild(notification);
-        
+
         // Анимация появления
         setTimeout(() => notification.classList.add('show'), 10);
-        
+
         // Удаляем через 5 секунд
         setTimeout(() => {
             notification.classList.remove('show');
@@ -107,7 +107,7 @@ if (productIdMeta) {
 }
 
 // Back button в header (вместо catalog-header)
-(function() {
+(function () {
     // Добавляем back-btn в navbar
     const navbar = document.querySelector('.navbar .container, .navbar .container-fluid');
     if (navbar && document.referrer.includes('/catalog')) {
@@ -127,7 +127,7 @@ if (productIdMeta) {
 
 
 // Обновление цены при выборе размера
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const sizeInputs = document.querySelectorAll('input[name="size"]');
     const priceElement = document.getElementById('productPrice');
     const sizeLinkElement = document.getElementById('selectedSizeLink');
@@ -198,22 +198,22 @@ document.addEventListener('DOMContentLoaded', function() {
         resetQuickOrderPrice: renderQuickOrderPriceDefault,
         formatter: currencyFormatter
     };
-    
+
     if (sizeInputs.length > 0 && priceElement) {
         const hasRange = priceElement.dataset.hasRange === 'true';
         const minPrice = parseFloat(priceElement.dataset.minPrice);
         const maxPrice = parseFloat(priceElement.dataset.maxPrice);
-        
+
         sizeInputs.forEach(input => {
-            input.addEventListener('change', function() {
+            input.addEventListener('change', function () {
                 if (this.checked) {
                     const newPrice = parseFloat(this.dataset.price);
                     const selectedSize = this.value;
-                    
+
                     if (newPrice && newPrice > 0) {
                         // Показываем конкретную цену выбранного размера
                         priceElement.textContent = currencyFormatter.format(newPrice);
-                        
+
                         // Добавляем плавную анимацию
                         priceElement.style.transform = 'scale(1.1)';
                         setTimeout(() => {
@@ -223,33 +223,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     updateStickyPriceDisplay(newPrice);
                     updateQuickOrderPriceDisplay(newPrice);
-                    
+
                     // Показываем ссылку на каталог с выбранным размером
                     if (sizeLinkElement && sizeValueElement && selectedSize) {
                         sizeValueElement.textContent = selectedSize;
                         sizeLinkElement.style.display = 'flex';
-                        sizeLinkElement.onclick = function() {
+                        sizeLinkElement.onclick = function () {
                             window.location.href = '/catalog?size=' + encodeURIComponent(selectedSize);
                         };
                     }
                 }
             });
         });
-        
+
         // Если убрали выбор размера - возвращаем диапазон и скрываем ссылку
         if (hasRange) {
             // Следим за сбросом выбора
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 // Если кликнули на уже выбранный размер - сбрасываем
                 if (e.target.matches('input[name="size"]:checked')) {
                     setTimeout(() => {
                         const anyChecked = document.querySelector('input[name="size"]:checked');
                         if (!anyChecked) {
                             // Возвращаем диапазон цен
-                            priceElement.innerHTML = currencyFormatter.format(minPrice) + 
-                                '<span class="price-separator"> - </span>' + 
+                            priceElement.innerHTML = currencyFormatter.format(minPrice) +
+                                '<span class="price-separator"> - </span>' +
                                 currencyFormatter.format(maxPrice);
-                            
+
                             // Скрываем ссылку на каталог
                             if (sizeLinkElement) {
                                 sizeLinkElement.style.display = 'none';
@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const quickOrderSelect = document.getElementById('quickOrderSize');
     if (quickOrderSelect) {
-        quickOrderSelect.addEventListener('change', function() {
+        quickOrderSelect.addEventListener('change', function () {
             const option = this.selectedOptions[0];
             const optionPrice = option ? parseFloat(option.dataset.price || '0') : 0;
             if (optionPrice && optionPrice > 0) {
@@ -280,12 +280,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function createOrder(){
+function createOrder() {
     const productIdMeta = document.querySelector('meta[name="product-id"]');
     const productId = productIdMeta ? productIdMeta.getAttribute('content') : null;
     const sizeInput = document.querySelector('input[name="size"]:checked');
     const size = sizeInput ? sizeInput.value : null;
-    
+
     // Проверяем есть ли на странице размеры
     const hasSizes = document.querySelectorAll('input[name="size"]').length > 0;
     if (!size && hasSizes) {
@@ -293,7 +293,7 @@ function createOrder(){
         showSizeRequiredNotification();
         return;
     }
-    
+
     if (typeof addToCart === 'function') {
         addToCart(productId, 1, size, null);
         // Показываем индикатор после добавления
@@ -308,7 +308,7 @@ function createOrder(){
 function toggleStickySizeDropdown() {
     const dropdown = document.getElementById('stickySizeDropdown');
     const btn = document.getElementById('stickySizeBtn');
-    
+
     if (dropdown && btn) {
         dropdown.classList.toggle('show');
         btn.classList.toggle('active');
@@ -316,39 +316,39 @@ function toggleStickySizeDropdown() {
 }
 
 // Инициализация обработчиков размеров после загрузки DOM
-document.addEventListener('DOMContentLoaded', function() {
-    
+document.addEventListener('DOMContentLoaded', function () {
+
     // Event Delegation на родительский dropdown
     const dropdown = document.getElementById('stickySizeDropdown');
-    
+
     if (dropdown) {
-        
-        dropdown.addEventListener('click', function(e) {
-            
+
+        dropdown.addEventListener('click', function (e) {
+
             // Находим ближайший .sticky-size-option
             const sizeOption = e.target.closest('.sticky-size-option');
-            
+
             if (!sizeOption) {
                 return;
             }
-            
-            
+
+
             const size = sizeOption.dataset.size;
             const price = sizeOption.dataset.price;
-            
-            
+
+
             if (!size) {
                 console.error('❌ size пустой!');
                 return;
             }
-            
+
             // Обновляем текст кнопки
             const label = document.getElementById('stickySizeLabel');
             if (label) {
                 label.textContent = size;
                 // Обновлен label
             }
-            
+
             // Обновляем цену в sticky bar
             const stickyPrice = document.querySelector('#stickyBar .sticky-price');
             if (stickyPrice && price) {
@@ -358,27 +358,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     minimumFractionDigits: 2
                 });
                 stickyPrice.textContent = formatter.format(price);
-                
+
                 // Анимация изменения цены
                 stickyPrice.style.transform = 'scale(1.1)';
                 setTimeout(() => {
                     stickyPrice.style.transform = 'scale(1)';
                 }, 200);
             }
-            
+
             // Выделяем выбранный размер
             const allOptions = document.querySelectorAll('.sticky-size-option');
             allOptions.forEach(opt => opt.classList.remove('selected'));
             sizeOption.classList.add('selected');
-            
+
             // Сохраняем выбранный размер
             window.selectedStickySize = size;
             // Размер сохранён
-            
+
             // Закрываем dropdown
             toggleStickySizeDropdown();
         });
-        
+
         // Проверяем сколько опций есть
         const options = dropdown.querySelectorAll('.sticky-size-option');
         options.forEach((opt, idx) => {
@@ -390,9 +390,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Добавление в корзину из sticky панели
 function addToCartFromSticky() {
-    
+
     const size = window.selectedStickySize;
-    
+
     if (!size) {
         console.warn('⚠️ Размер не выбран');
         notify('Пожалуйста, выберите размер', 'warning');
@@ -404,10 +404,10 @@ function addToCartFromSticky() {
         }
         return;
     }
-    
+
     const productIdMeta = document.querySelector('meta[name="product-id"]');
     const productId = productIdMeta ? productIdMeta.getAttribute('content') : null;
-    
+
     // Добавляем товар в корзину через функцию из cart.js
     if (typeof addToCart === 'function') {
         // Вызываем addToCart
@@ -420,11 +420,11 @@ function addToCartFromSticky() {
         formData.append('product_id', productId);
         formData.append('quantity', 1);
         formData.append('size', size);
-        
+
         // Получаем CSRF токен
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
         formData.append('_csrf', csrfToken);
-        
+
         fetch('/cart/add', {
             method: 'POST',
             body: formData,
@@ -432,37 +432,37 @@ function addToCartFromSticky() {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                notify('✓ Товар добавлен в корзину', 'success');
-                // Показываем индикатор
-                setTimeout(() => showProductInCartIndicator(), 500);
-                // Обновляем счетчик корзины
-                if (typeof updateCartCount === 'function') {
-                    updateCartCount(data.count);
-                } else {
-                    const cartCount = document.getElementById('cartCount');
-                    if (cartCount) {
-                        cartCount.textContent = data.count;
-                        cartCount.style.display = data.count > 0 ? 'flex' : 'none';
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    notify('✓ Товар добавлен в корзину', 'success');
+                    // Показываем индикатор
+                    setTimeout(() => showProductInCartIndicator(), 500);
+                    // Обновляем счетчик корзины
+                    if (typeof updateCartCount === 'function') {
+                        updateCartCount(data.count);
+                    } else {
+                        const cartCount = document.getElementById('cartCount');
+                        if (cartCount) {
+                            cartCount.textContent = data.count;
+                            cartCount.style.display = data.count > 0 ? 'flex' : 'none';
+                        }
                     }
+                } else {
+                    notify(data.message || 'Ошибка добавления в корзину', 'error');
                 }
-            } else {
-                notify(data.message || 'Ошибка добавления в корзину', 'error');
-            }
-        })
-        .catch(error => {
-            notify('Ошибка соединения', 'error');
-        });
+            })
+            .catch(error => {
+                notify('Ошибка соединения', 'error');
+            });
     }
 }
 
 // Закрытие dropdown при клике вне его
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     const dropdown = document.getElementById('stickySizeDropdown');
     const btn = document.getElementById('stickySizeBtn');
-    
+
     if (dropdown && btn && dropdown.classList.contains('show')) {
         if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
             toggleStickySizeDropdown();
@@ -481,7 +481,7 @@ function toggleDescription() {
     const content = document.getElementById('descContent');
     const icon = document.getElementById('descToggleIcon');
     const header = icon.closest('.desc-header');
-    
+
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'block';
         header.classList.add('open');
@@ -500,7 +500,7 @@ function toggleMainSpecs() {
     const content = document.getElementById('mainSpecsContent');
     const icon = document.getElementById('mainSpecsToggleIcon');
     const header = icon ? icon.closest('.specs-header-toggle') : null;
-    
+
     if (content) {
         if (content.style.display === 'none' || content.style.display === '') {
             content.style.display = 'block';
@@ -516,7 +516,7 @@ function toggleMainSpecs() {
 function toggleSizeRec() {
     const content = document.getElementById('sizeRecContent');
     const icon = document.getElementById('sizeRecToggleIcon');
-    
+
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'block';
         icon.style.transform = 'rotate(180deg)';
@@ -531,7 +531,7 @@ function toggleCompleteLook() {
     const content = document.getElementById('completeLookContent');
     const icon = document.getElementById('completeLookToggleIcon');
     const header = icon.closest('.look-header');
-    
+
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'block';
         header.classList.add('open');
@@ -546,7 +546,7 @@ function toggleVariants() {
     const content = document.getElementById('variantsContent');
     const icon = document.getElementById('variantsToggleIcon');
     const header = icon.closest('.variants-header');
-    
+
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'block';
         header.classList.add('open');
@@ -561,7 +561,7 @@ function toggleReviews() {
     const content = document.getElementById('reviewsContent');
     const icon = document.getElementById('reviewsToggleIcon');
     const header = icon.closest('.reviews-header');
-    
+
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'block';
         header.classList.add('open');
@@ -576,7 +576,7 @@ function toggleRelatedCarousel() {
     const content = document.getElementById('relatedCarouselContent');
     const icon = document.getElementById('relatedCarouselToggleIcon');
     const header = icon.closest('.carousel-header');
-    
+
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'block';
         header.classList.add('active');
@@ -594,9 +594,9 @@ function toggleRelatedProducts() {
     const content = document.getElementById('relatedContent');
     const icon = document.getElementById('relatedToggleIcon');
     const header = icon.closest('.related-header');
-    
+
     if (!content || !icon || !header) return;
-    
+
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'block';
         header.classList.add('active');
@@ -610,15 +610,15 @@ function toggleRelatedProducts() {
 function scrollRelatedCarousel(direction) {
     const wrapper = document.getElementById('relatedCarouselWrapper');
     if (!wrapper) return;
-    
+
     // Получаем ширину одной карточки + gap
     const card = wrapper.querySelector('.related-product-card');
     if (!card) return;
-    
+
     const cardWidth = card.offsetWidth;
     const gap = 16; // 1rem в пикселях (примерно)
     const scrollAmount = (cardWidth + gap) * 2; // Прокручиваем по 2 карточки
-    
+
     if (direction === -1) {
         wrapper.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
     } else {
@@ -631,7 +631,7 @@ function toggleQA() {
     const content = document.getElementById('qaContent');
     const icon = document.getElementById('qaToggleIcon');
     const header = icon.closest('.qa-header');
-    
+
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'flex';
         header.classList.add('open');
@@ -646,7 +646,7 @@ function toggleSimilar() {
     const content = document.getElementById('similarContent');
     const icon = document.getElementById('similarToggleIcon');
     const header = icon.closest('.similar-header');
-    
+
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'grid';
         header.classList.add('open');
@@ -677,9 +677,9 @@ function switchToSlide(index) {
     const track = document.querySelector('.swipe-track');
     const thumbnails = document.querySelectorAll('.thumbnail-item');
     const dots = document.querySelectorAll('.swipe-dot');
-    
+
     if (!slides.length || !track) return;
-    
+
     gallerySlidesCache = slides;
     galleryDotsCache = dots;
     galleryThumbsCache = thumbnails;
@@ -688,20 +688,20 @@ function switchToSlide(index) {
     slides.forEach((slide, i) => {
         slide.classList.toggle('active', i === index);
     });
-    
+
     // Скроллим к нужному слайду
     track.style.transform = `translateX(-${index * 100}%)`;
-    
+
     // Обновляем активную миниатюру
     thumbnails.forEach((thumb, i) => {
         thumb.classList.toggle('active', i === index);
     });
-    
+
     // Обновляем точки пагинации
     dots.forEach((dot, i) => {
         dot.classList.toggle('active', i === index);
     });
-    
+
     // Скроллим миниатюры, чтобы активная была видна
     const activeThumb = document.querySelector('.thumbnail-item.active');
     if (activeThumb) {
@@ -716,10 +716,10 @@ function switchToSlide(index) {
 function scrollThumbnails(direction) {
     const wrapper = document.querySelector('.thumbnails-wrapper');
     if (!wrapper) return;
-    
+
     const scrollAmount = 120; // ширина одной миниатюры + gap
     const currentScroll = wrapper.scrollLeft;
-    
+
     if (direction === 'prev') {
         wrapper.scrollTo({ left: currentScroll - scrollAmount, behavior: 'smooth' });
     } else {
@@ -728,34 +728,34 @@ function scrollThumbnails(direction) {
 }
 
 // Touch swipe для галереи (улучшенная версия)
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const track = document.querySelector('.swipe-track');
     const slides = document.querySelectorAll('.swipe-slide');
-    
+
     if (!track || !slides.length) return;
-    
+
     let startX = 0;
     let currentX = 0;
     let isDragging = false;
     let currentImageIndex = 0;
-    
+
     track.addEventListener('touchstart', (e) => {
         startX = e.touches[0].clientX;
         isDragging = true;
     }, { passive: true });
-    
+
     track.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
         currentX = e.touches[0].clientX;
     }, { passive: true });
-    
+
     track.addEventListener('touchend', () => {
         if (!isDragging) return;
         isDragging = false;
-        
+
         const diff = startX - currentX;
         const threshold = 50;
-        
+
         if (Math.abs(diff) > threshold) {
             if (diff > 0 && currentIndex < slides.length - 1) {
                 currentIndex++;
@@ -765,27 +765,27 @@ document.addEventListener('DOMContentLoaded', function() {
             switchToSlide(currentIndex);
         }
     });
-    
+
     // Mouse drag для десктопа
     track.addEventListener('mousedown', (e) => {
         startX = e.clientX;
         isDragging = true;
         track.style.cursor = 'grabbing';
     });
-    
+
     document.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
         currentX = e.clientX;
     });
-    
+
     document.addEventListener('mouseup', () => {
         if (!isDragging) return;
         isDragging = false;
         track.style.cursor = 'grab';
-        
+
         const diff = startX - currentX;
         const threshold = 50;
-        
+
         if (Math.abs(diff) > threshold) {
             if (diff > 0 && currentIndex < slides.length - 1) {
                 currentIndex++;
@@ -918,7 +918,7 @@ function openSizeFinder() {
             <div class="size-finder-step active" data-step="1">
                 <h3>1. Ваш обычный размер обуви (RU)</h3>
                 <div class="size-finder-options">
-                    ${[38,39,40,41,42,43,44,45].map(s => `
+                    ${[38, 39, 40, 41, 42, 43, 44, 45].map(s => `
                         <button class="size-finder-btn" data-value="${s}" onclick="selectSize(${s})">${s}</button>
                     `).join('')}
                 </div>
@@ -983,7 +983,7 @@ function openSizeFinder() {
     `;
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
-    
+
     window.sizeFinderData = { step: 1, size: null, fit: null, preference: null };
 }
 
@@ -1019,7 +1019,7 @@ function selectPreference(preference) {
 function nextStep() {
     const data = window.sizeFinderData;
     const currentStep = data.step;
-    
+
     if (currentStep === 1 && !data.size) {
         alert('Пожалуйста, выберите размер');
         return;
@@ -1032,7 +1032,7 @@ function nextStep() {
         alert('Пожалуйста, выберите вариант');
         return;
     }
-    
+
     if (currentStep < 3) {
         data.step++;
         document.querySelectorAll('.size-finder-step').forEach((step, i) => {
@@ -1061,18 +1061,18 @@ function calculateRecommendation() {
     const data = window.sizeFinderData;
     let recommendedSize = data.size;
     let adjustment = 0;
-    
+
     // Алгоритм подбора размера
     if (data.fit === 'tight') adjustment += 0.5;
     if (data.fit === 'loose') adjustment -= 0.5;
     if (data.preference === 'tight') adjustment -= 0.5;
     if (data.preference === 'loose') adjustment += 0.5;
-    
+
     recommendedSize = Math.round(recommendedSize + adjustment);
-    
+
     // Уверенность в рекомендации
     const confidence = Math.abs(adjustment) < 1 ? '95%' : '85%';
-    
+
     // Показываем результат
     document.querySelectorAll('.size-finder-step').forEach(step => step.classList.remove('active'));
     document.querySelector('.size-finder-nav').style.display = 'none';
@@ -1095,7 +1095,7 @@ function applySizeRecommendation() {
 function recommendSize() {
     const footLength = parseFloat(document.getElementById('footLength').value);
     const resultEl = document.getElementById('sizeRecommendation');
-    
+
     if (!footLength || footLength < 20 || footLength > 35) {
         resultEl.textContent = 'Пожалуйста, введите корректную длину стопы (20-35 см)';
         resultEl.style.background = '#fef2f2';
@@ -1104,19 +1104,19 @@ function recommendSize() {
         resultEl.classList.add('show');
         return;
     }
-    
+
     // Таблица соответствия длины стопы и размера
     const sizeChart = [
-        {cm: 24.0, size: 38},
-        {cm: 24.5, size: 39},
-        {cm: 25.0, size: 40},
-        {cm: 26.0, size: 41},
-        {cm: 27.0, size: 42},
-        {cm: 28.0, size: 43},
-        {cm: 29.0, size: 44},
-        {cm: 30.0, size: 45},
+        { cm: 24.0, size: 38 },
+        { cm: 24.5, size: 39 },
+        { cm: 25.0, size: 40 },
+        { cm: 26.0, size: 41 },
+        { cm: 27.0, size: 42 },
+        { cm: 28.0, size: 43 },
+        { cm: 29.0, size: 44 },
+        { cm: 30.0, size: 45 },
     ];
-    
+
     // Находим подходящий размер
     let recommendedSize = 38;
     for (let i = 0; i < sizeChart.length; i++) {
@@ -1128,13 +1128,13 @@ function recommendSize() {
             recommendedSize = 45;
         }
     }
-    
+
     resultEl.textContent = `✓ Рекомендуем размер: ${recommendedSize} (EU/RU)`;
     resultEl.style.background = '#ecfdf5';
     resultEl.style.borderColor = '#10b981';
     resultEl.style.color = '#059669';
     resultEl.classList.add('show');
-    
+
     // Подсветим рекомендуемый размер в таблице
     const sizeTables = document.querySelectorAll('.size-table');
     sizeTables.forEach(table => {
@@ -1152,7 +1152,7 @@ function recommendSize() {
 }
 
 // Закрытие Size Guide по клику вне окна
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     const modal = document.getElementById('sizeGuideModal');
     if (e.target === modal) {
         closeSizeGuide();
@@ -1160,7 +1160,7 @@ document.addEventListener('click', function(e) {
 });
 
 // Закрытие по ESC
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
         closeSizeGuide();
     }
@@ -1169,19 +1169,19 @@ document.addEventListener('keydown', function(e) {
 // NotificationManager загружается глобально из web/js/notifications.js
 
 // Back button event listener
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const backBtn = document.getElementById('backBtn');
     if (backBtn) {
-        backBtn.addEventListener('click', function(e) {
+        backBtn.addEventListener('click', function (e) {
             e.preventDefault();
             history.back();
         });
     }
-    
+
     // Sticky panel — правильная логика с оптимальным порогом
     const stickyBar = document.getElementById('stickyBar');
     const mainBtn = document.querySelector('.btn-order');
-    
+
     if (stickyBar && mainBtn) {
         // ПРИНУДИТЕЛЬНО устанавливаем критичные стили inline
         stickyBar.style.position = 'fixed';
@@ -1202,13 +1202,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Изначально скрыта
         stickyBar.style.transform = 'translateY(100%)';
         stickyBar.style.opacity = '0';
-        
+
         const SCROLL_THRESHOLD = 200; // Порог 200px для более раннего появления
 
         const updateStickyVisibility = () => {
             const offset = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
             const mainBtnRect = mainBtn.getBoundingClientRect();
-            
+
             // Показываем sticky bar когда основная кнопка уходит за верх экрана
             // ИЛИ когда прокрутили больше порога
             if (mainBtnRect.top < 0 || offset > SCROLL_THRESHOLD) {
@@ -1240,12 +1240,12 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollableElements.forEach(element => {
             element.addEventListener('scroll', updateStickyVisibility, { passive: true });
         });
-        
+
         // Запасной вариант: проверяем позицию кнопки каждые 200ms
         setInterval(() => {
             const mainBtnRect = mainBtn.getBoundingClientRect();
             const offset = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-            
+
             if (mainBtnRect.top < 0 || offset > SCROLL_THRESHOLD) {
                 if (!stickyBar.classList.contains('visible')) {
                     stickyBar.classList.add('visible');
@@ -1267,23 +1267,98 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Финальная проверка доступности всех функций
-window.addEventListener('load', function() {
-    
+window.addEventListener('load', function () {
+
     // Проверяем наличие элементов
     const stickyBar = document.getElementById('stickyBar');
     const stickyDropdown = document.getElementById('stickySizeDropdown');
     const stickyBtn = document.getElementById('stickySizeBtn');
     const addBtn = document.querySelector('.sticky-add-cart');
-    
-    
+
+
     if (stickyDropdown) {
         const options = stickyDropdown.querySelectorAll('.sticky-size-option');
         if (options.length > 0) {
-            
+
             // Проверяем обработчики
-            const hasListeners = options[0].onclick !== null || 
-                                (options[0]._listeners && options[0]._listeners.click);
+            const hasListeners = options[0].onclick !== null ||
+                (options[0]._listeners && options[0]._listeners.click);
         }
     }
-    
+
 });
+
+// Frequently Bought Together - Add all to cart
+function addAllToCartFBT() {
+    const fbtCards = document.querySelectorAll('.fbt-product-card');
+    let addedCount = 0;
+
+    fbtCards.forEach((card, index) => {
+        // Get product info from the card
+        const productName = card.querySelector('.fbt-product-name')?.textContent || '';
+        const productPrice = card.querySelector('.fbt-product-price')?.textContent || '';
+
+        // Add to cart (simulate API call)
+        setTimeout(() => {
+            addedCount++;
+
+            // Show notification
+            if (addedCount === fbtCards.length) {
+                showNotification('Все товары добавлены в корзину!', 'success');
+
+                // Update cart counter if exists
+                const cartCounter = document.querySelector('.cart-counter');
+                if (cartCounter) {
+                    const currentCount = parseInt(cartCounter.textContent) || 0;
+                    cartCounter.textContent = currentCount + fbtCards.length;
+                }
+            }
+        }, index * 100);
+    });
+}
+
+// Helper function to show notifications
+function showNotification(message, type = 'info') {
+    // Check if notification container exists
+    let container = document.getElementById('notification-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'notification-container';
+        container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;';
+        document.body.appendChild(container);
+    }
+
+    // Create notification
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.style.cssText = 'padding:12px 20px;border-radius:8px;background:#333;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:slideIn 0.3s ease;';
+    notification.textContent = message;
+
+    // Add animation styles if not exists
+    if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            .notification { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; }
+            .notification-success { background: #22c55e !important; }
+            .notification-error { background: #ef4444 !important; }
+        `;
+        document.head.appendChild(style);
+    }
+
+    container.appendChild(notification);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}

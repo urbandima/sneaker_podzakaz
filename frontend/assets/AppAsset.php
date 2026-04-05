@@ -11,15 +11,30 @@ class AppAsset extends AssetBundle
     
     // Модульная CSS архитектура - версии добавятся автоматически в init()
     public $css = [
-        'css/design-tokens.css', // Design tokens - подключается первым
-        'css/components.css',    // Переиспользуемые компоненты
-        'css/pages.css',         // Стили для конкретных страниц
-        'css/utilities.css',     // Утилитарные классы
-        'css/app.css',           // Основные стили (legacy)
+        'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+        'css/core/design-tokens.css',
+        'css/core/design-system.css',
+        'css/core/container-system.css',
+        'css/layout/public-layout.css',
+        'css/layout/responsive-fixes.css',
+        'css/components/header.css',
+        'css/components/sidebar-menu.css',
+        'css/components/footer.css',
+        'css/components/cart-drawer.css',
+        'css/components/product-card.css',
+        'css/components/modals.css',
+        'css/pages/landing.css',
+        'css/pages/catalog.css',
+        'css/pages/product.css',
+        'css/pages/cart.css',
+        'css/pages/checkout.css',
+        'css/pages/account.css',
     ];
     
     public $js = [
         'js/app.js',
+        'js/global-helpers.js',
+        'js/favorites.js',
         'js/cart.js',
         'js/mobile-menu.js',
     ];

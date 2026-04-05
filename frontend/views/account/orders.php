@@ -2,12 +2,14 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\frontend\assets\AppAsset;
 
 /** @var yii\web\View $this */
 /** @var app\models\Customer $customer */
 /** @var app\models\Order[] $orders */
 
 $this->title = 'Мои заказы - СНИКЕРХЭД';
+AppAsset::register($this);
 ?>
 
 <div class="account-page">
@@ -30,6 +32,7 @@ $this->title = 'Мои заказы - СНИКЕРХЭД';
                     <ul class="account-menu">
                         <li><a href="<?= Url::to(['/account/profile']) ?>"><i class="bi bi-person"></i> Профиль</a></li>
                         <li><a href="<?= Url::to(['/account/orders']) ?>" class="active"><i class="bi bi-bag"></i> Мои заказы</a></li>
+                        <li><a href="<?= Url::to(['/account/loyalty']) ?>"><i class="bi bi-gem"></i> Баллы лояльности</a></li>
                         <li><a href="<?= Url::to(['/catalog/favorites']) ?>"><i class="bi bi-heart"></i> Избранное</a></li>
                         <li><a href="<?= Url::to(['/account/settings']) ?>"><i class="bi bi-gear"></i> Настройки</a></li>
                     </ul>
@@ -55,7 +58,7 @@ $this->title = 'Мои заказы - СНИКЕРХЭД';
                         <i class="bi bi-bag-x"></i>
                         <h3>Заказов пока нет</h3>
                         <p>Перейдите в каталог и выберите понравившиеся товары</p>
-                        <a href="<?= Url::to(['/catalog']) ?>" class="btn-catalog">
+                        <a href="<?= Url::to(['/catalog']) ?>" class="btn btn-primary">
                             <i class="bi bi-grid"></i> Перейти в каталог
                         </a>
                     </div>

@@ -142,14 +142,15 @@ $config = [
             'linkAssets' => true,
         ],
         'user' => [
-            'identityClass' => (defined('YII_ENV_DEV') && YII_ENV_DEV) ? 'app\backend\modules\admin\models\TemporaryAdminIdentity' : 'app\backend\modules\admin\models\User',
+            'identityClass' => (defined('YII_ENV') && YII_ENV === 'dev') 
+                ? 'app\backend\modules\admin\models\TemporaryAdminIdentity' 
+                : 'app\backend\modules\admin\models\User',
             'enableAutoLogin' => true,
             'loginUrl' => ['/admin/login'],
-            // ВРЕМЕННО: Для разработки - используем временную авторизацию
             'identityCookie' => [
                 'name' => '_identity-admin',
                 'httpOnly' => true,
-                'secure' => !(defined('YII_ENV_DEV') && YII_ENV_DEV),
+                'secure' => !(defined('YII_ENV') && YII_ENV === 'dev'),
             ],
         ],
         'errorHandler' => [
@@ -191,6 +192,13 @@ $config = [
             'class' => 'app\backend\shared\components\CurrencyService',
             'cnyToBynRate' => 0.45, // Курс CNY к BYN (обновляется автоматически через API)
             'cacheDuration' => 86400, // 24 часа
+        ],
+        'formatter' => [
+            'class' => 'yii\i18n\Formatter',
+            'currencyCode' => 'BYN',
+            'locale' => 'ru-RU',
+            'timeZone' => 'Europe/Minsk',
+            'defaultTimeZone' => 'Europe/Minsk',
         ],
         'urlManager' => [
             'enablePrettyUrl' => true,

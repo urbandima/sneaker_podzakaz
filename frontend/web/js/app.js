@@ -117,13 +117,13 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Мобильное меню каталога (с кнопкой фильтра)
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const filterBtn = document.querySelector('.btn-filter-mobile');
     const sidebar = document.querySelector('.sidebar');
     const closeBtn = document.querySelector('.sidebar-header .close-btn');
 
     if (filterBtn && sidebar) {
-        filterBtn.addEventListener('click', function(e) {
+        filterBtn.addEventListener('click', function (e) {
             e.preventDefault();
             sidebar.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -131,10 +131,51 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (closeBtn && sidebar) {
-        closeBtn.addEventListener('click', function(e) {
+        closeBtn.addEventListener('click', function (e) {
             e.preventDefault();
             sidebar.classList.remove('active');
             document.body.style.overflow = '';
         });
     }
 });
+
+/* ============================================
+   SIDEBAR MENU (Боковое меню в шапке)
+   ============================================ */
+
+function toggleSidebarMenu() {
+    var sidebar = document.getElementById('sidebarMenu');
+    var overlay = document.getElementById('sidebarMenuOverlay');
+    var toggleBtn = document.querySelector('.sidebar-menu-toggle');
+
+    if (!sidebar || !overlay) return;
+
+    var isActive = sidebar.classList.contains('active');
+
+    if (isActive) {
+        // Закрываем
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        sidebar.setAttribute('aria-hidden', 'true');
+        if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+    } else {
+        // Открываем
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+        sidebar.setAttribute('aria-hidden', 'false');
+        if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// Закрытие по ESC
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        var sidebar = document.getElementById('sidebarMenu');
+        if (sidebar && sidebar.classList.contains('active')) {
+            toggleSidebarMenu();
+        }
+    }
+});
+

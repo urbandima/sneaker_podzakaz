@@ -17,11 +17,12 @@ class ProductAsset extends VersionedAssetBundle
     public $baseUrl = '@web';
     
     public $css = [
-        'css/pages.css',  // Стили для страниц (product-details, brand-block-premium)
-        'css/catalog.css', // Стили карточек товаров
+        'css/pages/product.css',
     ];
     
     public $js = [
+        'js/cart.js',
+        'js/favorites.js',
         'js/product-page.js',
     ];
     

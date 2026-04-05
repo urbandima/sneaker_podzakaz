@@ -175,7 +175,12 @@ class Order extends ActiveRecord
             if (!Yii::$app instanceof \yii\console\Application && !Yii::$app->user->isGuest) {
                 $history->changed_by = Yii::$app->user->id;
             }
-            $history->save();
+            // Бросаем исключение, чтобы внешняя транзакция откатилась при ошибке
+            if (!$history->save()) {
+                throw new \RuntimeException(
+                    'Не удалось сохранить историю статусов заказа #' . $this->id . ': ' . json_encode($history->errors)
+                );
+            }
         }
 
         // Уведомление при создании заказа отправляется в OrderController::actionCreate()
@@ -308,9 +313,30 @@ class Order extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'created_by']);
     }
 
+    public function getCustomer()
+    {
+        return $this->hasOne(\app\backend\modules\account\models\Customer::class, ['id' => 'customer_id']);
+    }
+
     public function getLogist()
     {
         return $this->hasOne(User::class, ['id' => 'assigned_logist']);
+    }
+
+    /**
+     * Alias для china_track_number для совместимости
+     */
+    public function getTrack_number()
+    {
+        return $this->china_track_number;
+    }
+
+    /**
+     * Alias для getLogist() для совместимости
+     */
+    public function getAssignedLogist()
+    {
+        return $this->getLogist();
     }
 
     public function getOrderItems()

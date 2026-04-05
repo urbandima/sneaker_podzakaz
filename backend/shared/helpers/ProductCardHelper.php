@@ -253,4 +253,60 @@ class ProductCardHelper
 
         return $timestamp > (time() - self::NEW_BADGE_PERIOD);
     }
+
+    /**
+     * Возвращает доступные размеры товара в формате [размер => доступность]
+     * 
+     * @param Product $product
+     * @return array
+     */
+    public static function getAvailableSizes(Product $product): array
+    {
+        $availableSizes = [];
+        
+        if (empty($product->sizes) || !is_array($product->sizes)) {
+            // Если размеров нет, возвращаем стандартные размеры
+            return [
+                '36' => true,
+                '37' => true,
+                '38' => true,
+                '39' => true,
+                '40' => true,
+                '41' => true,
+                '42' => true,
+                '43' => true,
+                '44' => true,
+                '45' => true,
+                '46' => true,
+            ];
+        }
+        
+        $sizeField = self::resolveSizeField(self::DEFAULT_SIZE_SYSTEM);
+        
+        foreach ($product->sizes as $size) {
+            if (!empty($size->$sizeField)) {
+                $sizeValue = (string)$size->$sizeField;
+                $availableSizes[$sizeValue] = !empty($size->is_available);
+            }
+        }
+        
+        // Если размеры не найдены, возвращаем стандартные
+        if (empty($availableSizes)) {
+            return [
+                '36' => true,
+                '37' => true,
+                '38' => true,
+                '39' => true,
+                '40' => true,
+                '41' => true,
+                '42' => true,
+                '43' => true,
+                '44' => true,
+                '45' => true,
+                '46' => true,
+            ];
+        }
+        
+        return $availableSizes;
+    }
 }

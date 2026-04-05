@@ -15,7 +15,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <!-- Текущие акции -->
         <section class="current-promotions mb-5">
-            <h2 class="h3 mb-4">🔥 Текущие акции</h2>
+            <h2 class="h3 mb-4"><i class="bi bi-fire"></i> Текущие акции</h2>
             
             <div class="row g-4">
                 <div class="col-md-6">
@@ -75,7 +75,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         </div>
                         <div class="col-md-4 text-center">
                             <div class="loyalty-badge">
-                                <i class="bi bi-award-fill text-primary" style="font-size: 3rem;"></i>
+                                <i class="bi bi-award-fill text-primary fs-1"></i>
                                 <p class="mt-2 mb-0">Участвуйте в программе лояльности!</p>
                             </div>
                         </div>
@@ -147,24 +147,3 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 </div>
 
-<style>
-.promotion-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.promotion-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.loyalty-badge {
-    padding: 1rem;
-    background: rgba(13, 110, 253, 0.1);
-    border-radius: 8px;
-}
-
-.page-sale .badge {
-    font-size: 0.875rem;
-    padding: 0.5rem 1rem;
-}
-</style>

@@ -1,0 +1,302 @@
+/* ==============================================
+   STATIC PAGES — СНИКЕРХЭД
+   About, contacts, privacy, terms
+   ============================================== */
+
+.static-page {
+  padding: var(--space-16) 0;
+}
+
+.static-page-title {
+  font-size: clamp(var(--text-2xl), 5vw, var(--text-4xl));
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-8);
+  text-align: center;
+}
+
+.static-page-subtitle {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin-bottom: var(--space-10);
+}
+
+/* === ABOUT PAGE === */
+.about-hero {
+  text-align: center;
+  margin-bottom: var(--space-12);
+}
+
+.about-hero h1 {
+  font-size: clamp(var(--text-2xl), 5vw, var(--text-4xl));
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-4);
+}
+
+.about-hero p {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+}
+
+/* Cards Grid */
+.about-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+  margin-bottom: var(--space-12);
+}
+
+.about-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+
+.about-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-md);
+}
+
+.about-card-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-5);
+}
+
+.about-card-icon i {
+  font-size: var(--text-2xl);
+  color: var(--color-accent);
+}
+
+.about-card h3 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-3);
+}
+
+.about-card p {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-snug);
+  margin: 0;
+}
+
+/* Mission Section */
+.about-mission {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-10);
+  margin-bottom: var(--space-12);
+}
+
+.about-mission h2 {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-6);
+}
+
+.about-mission p {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
+  margin-bottom: var(--space-4);
+}
+
+.about-mission p:last-child {
+  margin-bottom: 0;
+}
+
+/* Stats */
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-8);
+  margin-bottom: var(--space-12);
+}
+
+.stat-card {
+  text-align: center;
+  padding: var(--space-8);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+}
+
+.stat-card-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-5);
+}
+
+.stat-card-icon i {
+  font-size: var(--text-3xl);
+  color: var(--color-accent);
+}
+
+.stat-card h4 {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-2);
+}
+
+.stat-card p {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* CTA Section */
+.about-cta {
+  text-align: center;
+  padding: var(--space-12);
+  background: var(--c-black);
+  color: var(--c-white);
+  border-radius: var(--radius-xl);
+}
+
+.about-cta h2 {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-4);
+  color: var(--c-white);
+}
+
+.about-cta p {
+  font-size: var(--text-base);
+  color: var(--c-gray-400);
+  margin-bottom: var(--space-8);
+}
+
+.btn-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 52px;
+  padding: 0 var(--space-8);
+  background: var(--c-white);
+  color: var(--c-black);
+  border-radius: var(--radius-full);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  transition: background var(--duration-fast);
+}
+
+.btn-cta:hover {
+  background: var(--c-gray-100);
+}
+
+/* === CONTENT STYLES === */
+.static-content h2 {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-top: var(--space-10);
+  margin-bottom: var(--space-4);
+}
+
+.static-content h3 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-3);
+}
+
+.static-content p {
+  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
+  margin-bottom: var(--space-4);
+}
+
+.static-content ul,
+.static-content ol {
+  margin-bottom: var(--space-4);
+  padding-left: var(--space-6);
+}
+
+.static-content li {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+  line-height: var(--leading-normal);
+}
+
+.static-content a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.static-content a:hover {
+  text-decoration: underline;
+}
+
+/* === CONTACTS PAGE === */
+.contacts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+  margin-bottom: var(--space-12);
+}
+
+.contact-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  text-align: center;
+}
+
+.contact-card i {
+  font-size: var(--text-3xl);
+  color: var(--color-accent);
+  margin-bottom: var(--space-4);
+}
+
+.contact-card h3 {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-2);
+}
+
+.contact-card p {
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.contact-card a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .about-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .about-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .contacts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-mission {
+    padding: var(--space-6);
+  }
+
+  .about-cta {
+    padding: var(--space-8) var(--space-6);
+  }
+}

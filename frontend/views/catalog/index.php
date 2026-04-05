@@ -16,54 +16,9 @@ CatalogAsset::register($this);
 $this->title = isset($h1) ? $h1 : 'Каталог товаров';
 $this->registerMetaTag(['name' => 'description', 'content' => 'Оригинальные товары из США и Европы']);
 
-// Infinite scroll settings - КРИТИЧНО: Устанавливаем ПЕРЕД загрузкой ui-enhancements
-$this->registerJs("
-document.body.dataset.infiniteScroll = 'true'; 
-document.body.dataset.totalPages = '{$pagination->pageCount}';
-
-// Инициализация InfiniteScroll после загрузки ui-enhancements.js
-function initInfiniteScrollCatalog() {
-    if (window.UIEnhancements && window.UIEnhancements.InfiniteScroll) {
-        const productsContainer = document.getElementById('products');
-        
-        if (productsContainer) {
-            window.catalogInfiniteScroll = new window.UIEnhancements.InfiniteScroll({
-                container: productsContainer,
-                loadMoreUrl: '/catalog/load-more',
-                totalPages: {$pagination->pageCount},
-                threshold: 300
-            });
-        }
-    } else {
-        setTimeout(initInfiniteScrollCatalog, 500);
-    }
-}
-
-// Запускаем инициализацию
-initInfiniteScrollCatalog();
-", \yii\web\View::POS_READY);
-
 // Измерение производительности (только в dev режиме)
 if (YII_ENV_DEV) {
     AssetOptimizer::measurePerformance($this);
-    
-    // Удаление DEBUG блока пагинации (если он создаётся динамически)
-    $this->registerJs("
-    function removeDebugBlock() {
-        const debugBlocks = document.querySelectorAll('[style*=\"background:#fef3c7\"], [style*=\"background: #fef3c7\"]');
-        debugBlocks.forEach(block => {
-            if (block.textContent.includes('DEBUG MODE') || block.textContent.includes('пагинации')) {
-                block.remove();
-            }
-        });
-    }
-    
-    // Удаляем сразу и через интервалы (на случай динамического создания)
-    removeDebugBlock();
-    setTimeout(removeDebugBlock, 100);
-    setTimeout(removeDebugBlock, 500);
-    setTimeout(removeDebugBlock, 1000);
-    ", \yii\web\View::POS_READY);
 }
 
 // Инициализация Lazy Load
@@ -99,65 +54,121 @@ setTimeout(function() {
         }, 1000);
     }
 }, 200);
+
+// Load More Logic
+function loadMoreProducts() {
+    const btn = document.getElementById('btnLoadMore');
+    if (!btn) return;
+    
+    let currentPage = parseInt(btn.dataset.page);
+    let totalPages = parseInt(btn.dataset.total);
+    
+    if (currentPage >= totalPages) return;
+    
+    const nextPage = currentPage + 1;
+    btn.innerHTML = '<i class=\"bi bi-arrow-repeat spinner\"></i> Загрузка...';
+    btn.disabled = true;
+    
+    // Получаем текущий URL и добавляем/меняем параметр page
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', nextPage);
+    
+    fetch(url.toString(), {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success && data.html) {
+            const container = document.getElementById('products');
+            container.insertAdjacentHTML('beforeend', data.html);
+            
+            btn.dataset.page = nextPage;
+            btn.innerHTML = 'Показать ещё';
+            btn.disabled = false;
+            
+            if (nextPage >= totalPages) {
+                btn.style.display = 'none';
+            }
+        }
+    });
+}
 ", \yii\web\View::POS_READY);
 ?>
 
 <div class="catalog-page">
     <div class="container">
         <!-- Breadcrumbs -->
-        <nav class="breadcrumbs">
-            <a href="/">Главная</a> / 
-            <a href="/catalog">Каталог</a>
+        <ul class="breadcrumb">
+            <li><a href="/">Главная</a></li>
+            <li><a href="/catalog">Каталог</a></li>
             <?php if (isset($h1) && $h1 !== 'Каталог товаров' && $h1 !== 'Каталог'): ?>
-                / <span><?= Html::encode($h1) ?></span>
+                <li class="active"><?= Html::encode($h1) ?></li>
             <?php endif; ?>
-        </nav>
+        </ul>
 
         <div class="catalog-layout">
             <!-- Sidebar -->
-            <aside class="sidebar" id="sidebar">
-                <div class="sidebar-header">
-                    <h3>Фильтры</h3>
-                    <button class="close-btn" type="button"><i class="bi bi-x"></i></button>
-                </div>
-
+            <aside class="catalog-sidebar" id="sidebar">
                 <!-- Price (открыт по умолчанию) -->
                 <div class="filter-group open" id="filter-price">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
-                        <span><i class="bi bi-currency-dollar"></i> Цена</span>
+                    <div class="filter-title" onclick="toggleFilterGroup(this)">
+                        <span>Цена</span>
                         <i class="bi bi-chevron-down"></i>
-                    </h4>
+                    </div>
                     <div class="filter-content filter-content--open">
-                        <div id="price-slider"></div>
-                        <div class="price-inputs">
-                            <input type="number" id="price-from" name="price_from" value="<?= $filters['priceRange']['min'] ?? 0 ?>" readonly>
-                            <span>—</span>
-                            <input type="number" id="price-to" name="price_to" value="<?= $filters['priceRange']['max'] ?? 0 ?>" readonly>
+                        <div class="price-slider-container">
+                            <div class="price-range-slider">
+                                <input type="range" id="price-slider-min" min="<?= $filters['priceRange']['min'] ?? 0 ?>" max="<?= $filters['priceRange']['max'] ?? 10000 ?>" value="<?= $currentFilters['price_from'] ?? ($filters['priceRange']['min'] ?? 0) ?>" class="slider-thumb slider-thumb-min">
+                                <input type="range" id="price-slider-max" min="<?= $filters['priceRange']['min'] ?? 0 ?>" max="<?= $filters['priceRange']['max'] ?? 10000 ?>" value="<?= $currentFilters['price_to'] ?? ($filters['priceRange']['max'] ?? 10000) ?>" class="slider-thumb slider-thumb-max">
+                                <div class="slider-track"></div>
+                                <div class="slider-range" id="slider-range"></div>
+                            </div>
+                            <div class="price-filter">
+                                <input type="number" class="price-input" id="price-from" name="price_from" value="<?= $currentFilters['price_from'] ?? ($filters['priceRange']['min'] ?? 0) ?>">
+                                <span class="price-separator">—</span>
+                                <input type="number" class="price-input" id="price-to" name="price_to" value="<?= $currentFilters['price_to'] ?? ($filters['priceRange']['max'] ?? 10000) ?>">
+                                <span class="price-currency">BYN</span>
+                            </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- В наличии -->
+                <div class="filter-group open" id="filter-stock">
+                    <div class="filter-title" onclick="toggleFilterGroup(this)">
+                        <span>Наличие</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <div class="filter-content filter-content--open">
+                        <label class="filter-checkbox">
+                            <input type="checkbox" name="in_stock" value="1" <?= !empty($currentFilters['in_stock']) ? 'checked' : '' ?>>
+                            <span class="checkbox-mark"></span>
+                            <span>Только в наличии</span>
+                        </label>
                     </div>
                 </div>
 
                 <!-- Brands (открыт по умолчанию) -->
                 <div class="filter-group open" id="filter-brands">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
-                        <span><i class="bi bi-tags-fill"></i> Бренд</span>
+                    <div class="filter-title" onclick="toggleFilterGroup(this)">
+                        <span>Бренд</span>
                         <i class="bi bi-chevron-down"></i>
-                    </h4>
+                    </div>
                     <div class="filter-content filter-content--open">
-                        <?php if (!empty($filters['brands']) && count($filters['brands']) > 8): ?>
-                            <input type="text" class="filter-search" placeholder="Поиск бренда..." oninput="searchInFilter(this, '.brand-item')">
-                        <?php endif; ?>
                         <div class="filter-scroll">
                             <?php if (!empty($filters['brands'])): foreach ($filters['brands'] as $brand): ?>
-                                <label class="filter-item brand-item <?= $brand['count'] == 0 ? 'disabled' : '' ?>">
+                                <label class="filter-checkbox <?= $brand['count'] == 0 ? 'disabled' : '' ?>">
                                     <input type="checkbox" 
                                            name="brands[]" 
                                            value="<?= $brand['id'] ?>" 
                                            data-slug="<?= $brand['slug'] ?>"
                                            <?= in_array($brand['id'], $currentFilters['brands'] ?? []) ? 'checked' : '' ?>
                                            <?= $brand['count'] == 0 ? 'disabled' : '' ?>>
+                                    <span class="checkbox-mark"></span>
                                     <span><?= Html::encode($brand['name']) ?></span>
-                                    <span class="count"><?= $brand['count'] ?></span>
+                                    <span class="filter-count"><?= $brand['count'] ?></span>
                                 </label>
                             <?php endforeach; endif; ?>
                         </div>
@@ -166,26 +177,24 @@ setTimeout(function() {
 
                 <!-- Categories (аккордеон) -->
                 <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
-                        <span><i class="bi bi-grid-3x3-gap"></i> Категория</span>
+                    <div class="filter-title" onclick="toggleFilterGroup(this)">
+                        <span>Категория</span>
                         <i class="bi bi-chevron-down"></i>
-                    </h4>
+                    </div>
                     <div class="filter-content">
-                        <?php if (!empty($filters['categories']) && count($filters['categories']) > 8): ?>
-                            <input type="text" class="filter-search" placeholder="Поиск категории..." oninput="searchInFilter(this, '.cat-item')">
-                        <?php endif; ?>
                         <div class="filter-scroll">
                             <?php if (!empty($filters['categories'])): foreach ($filters['categories'] as $cat): ?>
                                 <?php $catCount = isset($cat['count']) ? $cat['count'] : (isset($cat['products_count']) ? $cat['products_count'] : 0); ?>
-                                <label class="filter-item cat-item <?= $catCount == 0 ? 'disabled' : '' ?>">
+                                <label class="filter-checkbox <?= $catCount == 0 ? 'disabled' : '' ?>">
                                     <input type="checkbox" 
                                            name="categories[]" 
                                            value="<?= $cat['id'] ?>" 
                                            data-slug="<?= $cat['slug'] ?>"
                                            <?= in_array($cat['id'], $currentFilters['categories'] ?? []) ? 'checked' : '' ?>
                                            <?= $catCount == 0 ? 'disabled' : '' ?>>
+                                    <span class="checkbox-mark"></span>
                                     <span><?= Html::encode($cat['name']) ?></span>
-                                    <span class="count"><?= $catCount ?></span>
+                                    <span class="filter-count"><?= $catCount ?></span>
                                 </label>
                             <?php endforeach; endif; ?>
                         </div>
@@ -394,9 +403,10 @@ setTimeout(function() {
 
             <!-- Content -->
             <main class="content">
-                <!-- Мобильная кнопка фильтра -->
-                <button type="button" class="btn-filter-mobile">
-                    <i class="bi bi-sliders"></i> Фильтры
+                <!-- Кнопка открытия фильтра (Desktop) -->
+                <button type="button" class="filter-toggle-btn" onclick="toggleFilters()">
+                    <i class="bi bi-sliders"></i>
+                    <span>Фильтры</span>
                 </button>
 
                 <div class="content-header">
@@ -476,29 +486,31 @@ setTimeout(function() {
                 
                 <!-- Toolbar -->
                 <div class="catalog-toolbar">
-                    <div class="toolbar-left">
-                        <button class="filter-toggle-btn" type="button" onclick="toggleFilters()">
-                            <i class="bi bi-funnel"></i>
-                            <span>Фильтры</span>
-                            <?php if (!empty($activeFilters)): ?>
-                                <span class="filters-count" id="filtersCountBadge"><?= count($activeFilters) ?></span>
-                            <?php else: ?>
-                                <span class="filters-count" id="filtersCountBadge" style="display:none">0</span>
-                            <?php endif; ?>
-                        </button>
-                    </div>
+                    <h1 class="toolbar-title"><?= isset($h1) ? Html::encode($h1) : 'Каталог' ?> <span class="filter-count">(<?= $pagination->totalCount ?>)</span></h1>
                     
-                    <div class="toolbar-right">
-                        <div class="sort-select">
-                            <label><i class="bi bi-sort-down"></i> Сортировка:</label>
-                            <select id="sortSelect" onchange="applySort(this.value)">
-                                <option value="popular">Популярные</option>
-                                <option value="price_asc">Цена: по возрастанию</option>
-                                <option value="price_desc">Цена: по убыванию</option>
-                                <option value="new">Новинки</option>
-                                <option value="rating">По рейтингу</option>
-                                <option value="discount">Скидки</option>
-                            </select>
+                    <div class="toolbar-actions">
+                        <select class="sort-select" id="sortSelect" onchange="applySort(this.value)">
+                            <option value="popular" <?= ($currentFilters['sort'] ?? 'popular') === 'popular' ? 'selected' : '' ?>>По популярности</option>
+                            <option value="price_asc" <?= ($currentFilters['sort'] ?? '') === 'price_asc' ? 'selected' : '' ?>>Сначала дешевые</option>
+                            <option value="price_desc" <?= ($currentFilters['sort'] ?? '') === 'price_desc' ? 'selected' : '' ?>>Сначала дорогие</option>
+                            <option value="new" <?= ($currentFilters['sort'] ?? '') === 'new' ? 'selected' : '' ?>>Новинки</option>
+                            <option value="rating" <?= ($currentFilters['sort'] ?? '') === 'rating' ? 'selected' : '' ?>>По рейтингу</option>
+                            <option value="discount" <?= ($currentFilters['sort'] ?? '') === 'discount' ? 'selected' : '' ?>>Со скидкой</option>
+                        </select>
+
+                        <select class="per-page-select" id="perPageSelect" onchange="applyPerPage(this.value)">
+                            <option value="4" <?= ($pagination->pageSize ?? 4) == 4 ? 'selected' : '' ?>>4 товара</option>
+                            <option value="8" <?= ($pagination->pageSize ?? 4) == 8 ? 'selected' : '' ?>>8 товаров</option>
+                            <option value="12" <?= ($pagination->pageSize ?? 4) == 12 ? 'selected' : '' ?>>12 товаров</option>
+                        </select>
+
+                        <div class="view-toggle">
+                            <button class="view-btn active" data-view="grid" onclick="switchView('grid')">
+                                <i class="bi bi-grid-fill"></i>
+                            </button>
+                            <button class="view-btn" data-view="list" onclick="switchView('list')">
+                                <i class="bi bi-list-ul"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -506,45 +518,31 @@ setTimeout(function() {
                 <?php if (!empty($activeFilters)): ?>
                 <div class="active-filters">
                     <?php foreach ($activeFilters as $filter): ?>
-                        <div class="tag">
+                        <div class="filter-tag">
                             <?= Html::encode($filter['label']) ?>
-                            <a href="<?= $filter['removeUrl'] ?>"><i class="bi bi-x"></i></a>
+                            <a href="<?= $filter['removeUrl'] ?>" class="filter-tag-remove"><i class="bi bi-x"></i></a>
                         </div>
                     <?php endforeach; ?>
-                    <a href="/catalog/" class="clear-all">Сбросить все</a>
+                    <a href="/catalog/" class="filter-clear-all">Очистить все</a>
                 </div>
                 <?php endif; ?>
 
-                <!-- Skeleton Loading -->
-                <div class="skeleton-grid skeleton-grid--hidden" id="skeletonGrid">
-                    <?php for($i=0; $i<8; $i++): ?>
-                    <div class="product-skeleton">
-                        <div class="skeleton-img"></div>
-                        <div class="skeleton-info">
-                            <div class="skeleton-line short"></div>
-                            <div class="skeleton-line"></div>
-                            <div class="skeleton-line medium"></div>
-                            <div class="skeleton-line short"></div>
-                        </div>
-                    </div>
-                    <?php endfor; ?>
-                </div>
-
-                <div class="products grid-5" id="products">
+                <div class="products-grid" id="products">
                     <?= $this->render('_products', ['products' => $products]) ?>
                 </div>
 
-                <!-- Пагинация (показывается только если страниц > 1) -->
-                <?php if (!empty($products) && $pagination->pageCount > 1): ?>
-                <div class="pagination">
-                    <?= LinkPager::widget([
-                        'pagination' => $pagination,
-                        'prevPageLabel' => '<i class="bi bi-chevron-left"></i>',
-                        'nextPageLabel' => '<i class="bi bi-chevron-right"></i>',
-                        'maxButtonCount' => 7,
-                        'options' => ['class' => 'pagination'],
-                    ]) ?>
+                <!-- Load More Button -->
+                <?php if ($pagination->pageCount > 1 && $pagination->page < $pagination->pageCount - 1): ?>
+                <div class="load-more-container">
+                    <button type="button" class="btn btn-secondary btn-load-more" 
+                            id="btnLoadMore"
+                            data-page="<?= $pagination->page ?>" 
+                            data-total="<?= $pagination->pageCount ?>"
+                            onclick="loadMoreProducts()">
+                        Показать ещё
+                    </button>
                 </div>
+                <?php endif; ?>
                 
                 <!-- Статическая пагинация для краулеров -->
                 <div class="static-pagination" style="display: none;">
@@ -569,7 +567,6 @@ setTimeout(function() {
                         <a href="<?= Html::encode($url) ?>"<?= $rel ?>>Страница <?= $i ?></a>
                     <?php endfor; ?>
                 </div>
-                <?php endif; ?>
             </main>
         </div>
     </div>
@@ -1064,7 +1061,13 @@ document.querySelectorAll('.view-btn').forEach(btn => {
     const view = btn.getAttribute('data-view');
     const products = document.getElementById('products');
     
-    products.className = 'products ' + view;
+    if (view === 'list') {
+        products.classList.remove('products-grid');
+        products.classList.add('products-list');
+    } else {
+        products.classList.remove('products-list');
+        products.classList.add('products-grid');
+    }
     localStorage.setItem('catalogView', view);
   });
 });
@@ -1084,6 +1087,92 @@ function applySort(sortValue) {
   const params = new URLSearchParams(window.location.search);
   params.set('sort', sortValue);
   window.location.href = '/catalog?' + params.toString();
+}
+
+// Per page functionality
+function applyPerPage(perPageValue) {
+  const params = new URLSearchParams(window.location.search);
+  params.set('per_page', perPageValue);
+  params.set('page', '1'); // Reset to first page
+  window.location.href = '/catalog?' + params.toString();
+}
+window.applyPerPage = applyPerPage;
+
+// View switcher function
+function switchView(view) {
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.view-btn[data-view="${view}"]`).classList.add('active');
+  
+  const products = document.getElementById('products');
+  if (view === 'list') {
+    products.classList.remove('products-grid');
+    products.classList.add('products-list');
+  } else {
+    products.classList.remove('products-list');
+    products.classList.add('products-grid');
+  }
+  localStorage.setItem('catalogView', view);
+}
+window.switchView = switchView;
+
+// Price Range Slider
+const priceSliderMin = document.getElementById('price-slider-min');
+const priceSliderMax = document.getElementById('price-slider-max');
+const priceInputMin = document.getElementById('price-from');
+const priceInputMax = document.getElementById('price-to');
+const sliderRange = document.getElementById('slider-range');
+
+if (priceSliderMin && priceSliderMax) {
+  const minPrice = parseInt(priceSliderMin.min);
+  const maxPrice = parseInt(priceSliderMin.max);
+  
+  function updateSlider() {
+    let minVal = parseInt(priceSliderMin.value);
+    let maxVal = parseInt(priceSliderMax.value);
+    
+    if (maxVal - minVal < 100) {
+      if (event.target === priceSliderMin) {
+        priceSliderMin.value = maxVal - 100;
+      } else {
+        priceSliderMax.value = minVal + 100;
+      }
+    }
+    
+    minVal = parseInt(priceSliderMin.value);
+    maxVal = parseInt(priceSliderMax.value);
+    
+    const percent1 = ((minVal - minPrice) / (maxPrice - minPrice)) * 100;
+    const percent2 = ((maxVal - minPrice) / (maxPrice - minPrice)) * 100;
+    
+    sliderRange.style.left = percent1 + '%';
+    sliderRange.style.width = (percent2 - percent1) + '%';
+    
+    priceInputMin.value = minVal;
+    priceInputMax.value = maxVal;
+  }
+  
+  function updateInputs() {
+    let minVal = parseInt(priceInputMin.value) || minPrice;
+    let maxVal = parseInt(priceInputMax.value) || maxPrice;
+    
+    if (minVal < minPrice) minVal = minPrice;
+    if (maxVal > maxPrice) maxVal = maxPrice;
+    if (minVal > maxVal) minVal = maxVal;
+    if (maxVal < minVal) maxVal = minVal;
+    
+    priceSliderMin.value = minVal;
+    priceSliderMax.value = maxVal;
+    
+    updateSlider();
+  }
+  
+  priceSliderMin.addEventListener('input', updateSlider);
+  priceSliderMax.addEventListener('input', updateSlider);
+  priceInputMin.addEventListener('change', updateInputs);
+  priceInputMax.addEventListener('change', updateInputs);
+  
+  // Initialize
+  updateSlider();
 }
 
 // УДАЛЕНО: устаревший inline applyFiltersAjax — используется catalog.js

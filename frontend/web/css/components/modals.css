@@ -1,0 +1,344 @@
+/**
+ * Modals and Notifications Components
+ * ===================================
+ */
+
+/* Search Modal */
+.search-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.97);
+    z-index: var(--z-modal);
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(8px);
+}
+
+.search-modal.open {
+    display: block;
+    opacity: 1;
+}
+
+.search-modal-content {
+    max-width: 800px;
+    margin: 100px auto 0;
+    padding: 0 24px;
+}
+
+.search-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    border-bottom: 2px solid var(--color-black);
+    padding-bottom: 16px;
+}
+
+.search-header i {
+    font-size: 1.5rem;
+    color: var(--color-black);
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--color-black);
+    padding: 0;
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: var(--color-muted);
+}
+
+.search-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--color-black);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-results {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--color-black);
+    transition: background 0.2s ease;
+}
+
+.search-result-item:hover {
+    background: var(--color-surface);
+}
+
+.search-result-img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: var(--color-white);
+}
+
+.search-result-info {
+    flex: 1;
+}
+
+.search-result-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.search-result-price {
+    font-weight: 700;
+}
+
+/* Quick Buy Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: var(--z-modal-backdrop);
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+
+.modal-overlay.open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+}
+
+.modal-content {
+    background: var(--color-white);
+    border-radius: 20px;
+    padding: 32px;
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.open .modal-content {
+    transform: translateY(0);
+}
+
+.modal-close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: var(--color-surface);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.25rem;
+    transition: background 0.2s ease;
+}
+
+.modal-close:hover {
+    background: var(--color-border);
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+}
+
+/* Notifications / Toasts */
+.notification-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.toast {
+    background: var(--color-black);
+    color: var(--color-white);
+    padding: 16px 24px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateX(120%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    min-width: 300px;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast-success {
+    border-left: 4px solid var(--color-success);
+}
+
+.toast-success i {
+    color: var(--color-success);
+}
+
+.toast-error {
+    border-left: 4px solid var(--color-danger);
+}
+
+.toast-error i {
+    color: var(--color-danger);
+}
+
+.toast-icon {
+    font-size: 1.25rem;
+}
+
+.toast-message {
+    flex: 1;
+    font-weight: 500;
+    font-size: 0.9375rem;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: var(--color-muted);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.toast-close:hover {
+    color: var(--color-white);
+}
+
+/* Cookies Banner */
+.cookies-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--color-black);
+    color: var(--color-white);
+    padding: 24px;
+    z-index: 1900;
+    transform: translateY(100%);
+    transition: transform 0.4s ease;
+    border-radius: 16px 16px 0 0;
+}
+
+.cookies-banner.show {
+    transform: translateY(0);
+}
+
+.cookies-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.cookies-text {
+    flex: 1;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+}
+
+.cookies-text a {
+    color: var(--color-white);
+    text-decoration: underline;
+}
+
+.cookies-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-cookies-accept {
+    background: var(--color-white);
+    color: var(--color-black);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 100px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-cookies-settings {
+    background: transparent;
+    color: var(--color-white);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 12px 24px;
+    border-radius: 100px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .cookies-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .cookies-actions {
+        width: 100%;
+    }
+    
+    .cookies-actions button {
+        flex: 1;
+    }
+    
+    .search-modal-content {
+        margin-top: 60px;
+    }
+    
+    .notification-container {
+        bottom: auto;
+        top: 24px;
+        left: 24px;
+        right: 24px;
+    }
+    
+    .toast {
+        min-width: 0;
+        width: 100%;
+        transform: translateY(-120%);
+    }
+    
+    .toast.show {
+        transform: translateY(0);
+    }
+}

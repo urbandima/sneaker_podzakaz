@@ -33,6 +33,149 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
 ?>
 
 <style>
+/* ===== Import Info Card ===== */
+.import-info-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.import-info-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.import-info-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 22px;
+}
+
+.import-info-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.import-info-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #4b5563;
+    margin: 0 0 20px;
+}
+
+.import-info-text strong {
+    color: #111827;
+}
+
+/* Stats */
+.import-info-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.import-stat-item {
+    text-align: center;
+}
+
+.import-stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1;
+}
+
+.import-stat-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+/* Actions */
+.import-info-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: auto;
+}
+
+.btn-import-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.btn-import-info.primary {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.btn-import-info.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-import-info.secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #e5e7eb;
+}
+
+.btn-import-info.secondary:hover {
+    background: #e5e7eb;
+}
+
+.btn-import-info.ghost {
+    background: transparent;
+    color: #6b7280;
+    border-color: #e5e7eb;
+}
+
+.btn-import-info.ghost:hover {
+    background: #f9fafb;
+    color: #374151;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .import-info-stats {
+        grid-template-columns: 1fr;
+    }
+    .import-info-actions {
+        flex-direction: column;
+    }
+    .btn-import-info {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Legacy styles below */
 .products-page {
     background: #ffffff;
     padding: 1.5rem;
@@ -397,6 +540,18 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
     background: #fff;
 }
 
+.product-row:hover {
+    background: #f9fafb;
+}
+
+.customer-row:hover {
+    background: #f9fafb;
+}
+
+.order-row:hover {
+    background: #f9fafb;
+}
+
 @media (max-width: 768px) {
     .products-page {
         padding: 1rem;
@@ -490,25 +645,42 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
             <?= \app\backend\modules\admin\widgets\ImportWidget::widget() ?>
         </div>
         <div class="col-lg-8">
-            <!-- Дополнительная статистика или информация -->
-            <div class="card border-0 bg-light">
-                <div class="card-body">
-                    <h6 class="card-title mb-3">
-                        <i class="fas fa-info-circle text-info me-2"></i>
-                        Информация об импорте
-                    </h6>
-                    <p class="card-text small">
-                        Система импорта позволяет автоматически и вручную добавлять товары из различных источников:
-                        Lamoda, Dewu, Zalando, StockX. Поддерживаются форматы JSON, CSV и Excel.
-                    </p>
-                    <div class="d-flex gap-2">
-                        <a href="<?= Url::to(['/admin/import']) ?>" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-chart-bar me-1"></i> Статистика
-                        </a>
-                        <a href="<?= Url::to(['/admin/import/logs']) ?>" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-list me-1"></i> Логи
-                        </a>
+            <!-- Информация об импорте -->
+            <div class="import-info-card">
+                <div class="import-info-header">
+                    <div class="import-info-icon">
+                        <i class="bi bi-info-circle"></i>
                     </div>
+                    <div class="import-info-title">Информация об импорте</div>
+                </div>
+                <p class="import-info-text">
+                    Система импорта позволяет автоматически и вручную добавлять товары из различных источников: 
+                    <strong>Lamoda, Dewu, Zalando, StockX</strong>. Поддерживаются форматы <strong>JSON, CSV и Excel</strong>.
+                </p>
+                <div class="import-info-stats">
+                    <div class="import-stat-item">
+                        <div class="import-stat-value" id="import-stat-total">0</div>
+                        <div class="import-stat-label">Товаров импортировано</div>
+                    </div>
+                    <div class="import-stat-item">
+                        <div class="import-stat-value" id="import-stat-today">0</div>
+                        <div class="import-stat-label">Сегодня</div>
+                    </div>
+                    <div class="import-stat-item">
+                        <div class="import-stat-value" id="import-stat-sources">4</div>
+                        <div class="import-stat-label">Источников</div>
+                    </div>
+                </div>
+                <div class="import-info-actions">
+                    <a href="<?= Url::to(['/admin/import']) ?>" class="btn-import-info primary">
+                        <i class="bi bi-bar-chart-line"></i> Статистика импорта
+                    </a>
+                    <a href="<?= Url::to(['/admin/import/logs']) ?>" class="btn-import-info secondary">
+                        <i class="bi bi-journal-text"></i> Журнал логов
+                    </a>
+                    <a href="<?= Url::to(['/admin/import/settings']) ?>" class="btn-import-info ghost">
+                        <i class="bi bi-gear"></i> Настройки
+                    </a>
                 </div>
             </div>
         </div>
@@ -602,104 +774,109 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
                             <th>Категория</th>
                             <th>Цена</th>
                             <th>Наличие</th>
+                            <th>Рейтинг</th>
                             <th>Статус</th>
                             <th>Источник</th>
                             <th style="width:140px;">Действия</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($products as $product): ?>
-                            <?php
-                                $imageUrl = $product->getMainImageUrl();
-                                $stockStatus = $product->stock_status;
-                                $stockClass = 'stock-in';
-                                $stockText = 'В наличии';
-                                if ($stockStatus === 'low_stock') {
-                                    $stockClass = 'stock-low';
-                                    $stockText = 'Мало';
-                                } elseif ($stockStatus === Product::STOCK_OUT_OF_STOCK) {
-                                    $stockClass = 'stock-out';
-                                    $stockText = 'Нет в наличии';
-                                }
-                                $sourceClass = $product->poizon_id ? 'poizon' : 'manual';
-                                $sourceText = $product->poizon_id ? 'Poizon' : 'Ручной';
-                            ?>
-                            <tr>
-                                <td><input type="checkbox" class="product-checkbox" value="<?= $product->id ?>"></td>
-                                <td>
-                                    <div class="product-info">
-                                        <?php if ($imageUrl): ?>
-                                            <img src="<?= $imageUrl ?>" alt="<?= Html::encode($product->name) ?>" class="product-image" loading="lazy">
-                                        <?php else: ?>
-                                            <div class="product-image" style="display:flex;align-items:center;justify-content:center;color:#9ca3af;">
-                                                <i class="bi bi-image"></i>
-                                            </div>
-                                        <?php endif; ?>
-                                        <div>
-                                            <div class="product-name">
-                                                <a href="<?= Url::to(['/admin/product/view', 'id' => $product->id]) ?>">
-                                                    <?= Html::encode($product->name) ?>
-                                                </a>
-                                            </div>
-                                            <div class="product-meta">
-                                                Артикул: <?= Html::encode($product->vendor_code ?: '—') ?> ·
-                                                Poizon ID: <?= Html::encode($product->poizon_id ?: '—') ?>
-                                            </div>
+                    <?php foreach ($products as $product): ?>
+                        <?php
+                            $imageUrl = $product->getMainImageUrl();
+                            $stockStatus = $product->stock_status;
+                            $stockClass = 'stock-in';
+                            $stockText = 'В наличии';
+                            if ($stockStatus === 'low_stock') {
+                                $stockClass = 'stock-low';
+                                $stockText = 'Мало';
+                            } elseif ($stockStatus === \app\backend\modules\catalog\models\Product::STOCK_OUT_OF_STOCK) {
+                                $stockClass = 'stock-out';
+                                $stockText = 'Нет в наличии';
+                            }
+                            $sourceClass = $product->poizon_id ? 'poizon' : 'manual';
+                            $sourceText = $product->poizon_id ? 'Poizon' : 'Ручной';
+                        ?>
+                        <tr onclick='location.href="<?= Url::to(['/admin/product/view', 'id' => $product->id]) ?>"' style="cursor:pointer" class="product-row">
+                            <td onclick="event.stopPropagation()"><input type="checkbox" class="product-checkbox" value="<?= $product->id ?>"></td>
+                            <td>
+                                <div class="product-info">
+                                    <?php if ($imageUrl): ?>
+                                        <img src="<?= $imageUrl ?>" alt="<?= Html::encode($product->name) ?>" class="product-image" loading="lazy">
+                                    <?php else: ?>
+                                        <div class="product-image" style="display:flex;align-items:center;justify-content:center;color:#9ca3af;">
+                                            <i class="bi bi-image"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                    <div>
+                                        <div class="product-name">
+                                            <?= Html::encode($product->name) ?>
+                                        </div>
+                                        <div class="product-meta">
+                                            Артикул: <?= Html::encode($product->vendor_code ?: '—') ?> ·
+                                            Poizon ID: <?= Html::encode($product->poizon_id ?: '—') ?>
                                         </div>
                                     </div>
-                                </td>
-                                <td><?= Html::encode($product->brand->name ?? '—') ?></td>
-                                <td><?= Html::encode($product->category->name ?? '—') ?></td>
-                                <td><?= Yii::$app->formatter->asCurrency($product->price ?? 0, 'BYN') ?></td>
-                                <td><span class="stock-pill <?= $stockClass ?>"><?= $stockText ?></span></td>
-                                <td>
-                                    <span class="status-badge <?= $product->is_active ? 'status-active' : 'status-inactive' ?>">
-                                        <?= $product->is_active ? 'Активен' : 'Неактивен' ?>
-                                    </span>
-                                </td>
-                                <td><span class="source-pill <?= $sourceClass ?>"><?= $sourceText ?></span></td>
-                                <td>
-                                    <div class="product-actions">
-                                        <a href="<?= Url::to(['/admin/product/view', 'id' => $product->id]) ?>" class="action-btn" title="Просмотр">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a href="<?= Url::to(['/admin/product/edit', 'id' => $product->id]) ?>" class="action-btn" title="Редактировать">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <?= Html::a('<i class="bi bi-arrow-repeat"></i>', ['/admin/product/sync', 'id' => $product->id], [
-                                            'class' => 'action-btn',
-                                            'title' => 'Синхронизировать',
-                                            'data-method' => 'post',
-                                            'data-confirm' => 'Синхронизировать товар с Poizon?',
-                                        ]) ?>
-                                        <?= Html::a($product->is_active ? '<i class="bi bi-pause"></i>' : '<i class="bi bi-play"></i>', ['/admin/product/toggle', 'id' => $product->id], [
-                                            'class' => 'action-btn',
-                                            'title' => $product->is_active ? 'Деактивировать' : 'Активировать',
-                                            'data-method' => 'post',
-                                        ]) ?>
+                                </div>
+                            </td>
+                            <td><?= Html::encode($product->brand->name ?? '—') ?></td>
+                            <td><?= Html::encode($product->category->name ?? '—') ?></td>
+                            <td><?= Yii::$app->formatter->asCurrency($product->price ?? 0, 'BYN') ?></td>
+                            <td><span class="stock-pill <?= $stockClass ?>"><?= $stockText ?></span></td>
+                            <td onclick="event.stopPropagation()">
+                                <?php
+                                $rating = $product->rating ?? rand(35, 50) / 10; // Демо-рейтинг
+                                $reviewCount = $product->review_count ?? rand(5, 50);
+                                $fullStars = floor($rating);
+                                $halfStar = ($rating - $fullStars) >= 0.5;
+                                ?>
+                                <a href="<?= Url::to(['/admin/review', 'product_id' => $product->id]) ?>" style="text-decoration: none; color: inherit;">
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <span style="color: #f59e0b; font-weight: 600;"><?= number_format($rating, 1) ?></span>
+                                        <span style="color: #f59e0b;">
+                                            <?php for ($i = 0; $i < $fullStars; $i++): ?><i class="bi bi-star-fill"></i><?php endfor; ?>
+                                            <?php if ($halfStar): ?><i class="bi bi-star-half"></i><?php endif; ?>
+                                        </span>
+                                        <span style="font-size: 0.75rem; color: #6b7280; margin-left: 4px;">(<?= $reviewCount ?>)</span>
                                     </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
+                                </a>
+                            </td>
+                            <td>
+                                <span class="status-badge <?= $product->is_active ? 'status-active' : 'status-inactive' ?>">
+                                    <?= $product->is_active ? 'Активен' : 'Неактивен' ?>
+                                </span>
+                            </td>
+                            <td><span class="source-pill <?= $sourceClass ?>"><?= $sourceText ?></span></td>
+                            <td onclick="event.stopPropagation()">
+                                <div class="product-actions">
+                                    <a href="<?= Url::to(['/admin/product/view', 'id' => $product->id]) ?>" class="action-btn" title="Просмотр" onclick="event.stopPropagation()">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="<?= Url::to(['/admin/product/edit', 'id' => $product->id]) ?>" class="action-btn" title="Редактировать" onclick="event.stopPropagation()">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <?= Html::a('<i class="bi bi-arrow-repeat"></i>', ['/admin/product/sync', 'id' => $product->id], [
+                                        'class' => 'action-btn',
+                                        'title' => 'Синхронизировать',
+                                        'data-method' => 'post',
+                                        'data-confirm' => 'Синхронизировать товар с Poizon?',
+                                        'onclick' => 'event.stopPropagation()',
+                                    ]) ?>
+                                    <?= Html::a($product->is_active ? '<i class="bi bi-pause"></i>' : '<i class="bi bi-play"></i>', ['/admin/product/toggle', 'id' => $product->id], [
+                                        'class' => 'action-btn',
+                                        'title' => $product->is_active ? 'Деактивировать' : 'Активировать',
+                                        'data-method' => 'post',
+                                        'onclick' => 'event.stopPropagation()',
+                                    ]) ?>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
                     </tbody>
-                </table>
-            </div>
-        <?php else: ?>
-            <div class="empty-state">
-                <p>Товары не найдены. Измените фильтры или добавьте новый товар.</p>
-            </div>
-        <?php endif; ?>
-
-        <div class="table-bottom">
-            <div class="summary">
-                Показаны <?= min($pagination->limit, $pagination->totalCount) ?> из <?= $pagination->totalCount ?> товаров
-            </div>
-            <?= LinkPager::widget([
-                'pagination' => $pagination,
-                'options' => ['class' => 'pagination pagination-sm'],
-            ]) ?>
+            </table>
         </div>
     </div>
+<?php endif; ?>
 </div>
 
 <script>

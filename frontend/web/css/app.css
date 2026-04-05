@@ -1,78 +1,8 @@
 /**
  * APP.CSS - Чёрно-белый минимализм для Sneakerhead
  * ==========================================
- * Production-ready, чистый дизайн, без лишних эффектов
+ * Токены — в design-tokens.css. Здесь: базовый сброс, компоненты, совместимость.
  */
-
-/* CSS переменные - чёрно-белый минимализм */
-:root {
-    /* Цвета - только чёрно-белые */
-    --color-black: #000000;
-    --color-dark-gray: #1a1a1a;
-    --color-gray: #666666;
-    --color-light-gray: #e5e5e5;
-    --color-white: #ffffff;
-
-    /* Поверхности */
-    --surface-primary: #ffffff;
-    --surface-secondary: #f5f5f5;
-    --surface-tertiary: #e5e5e5;
-
-    /* Текст */
-    --text-primary: #000000;
-    --text-secondary: #666666;
-    --text-muted: #999999;
-    --text-inverse: #ffffff;
-
-    /* Границы */
-    --border-color: #e5e7eb;
-
-    /* Шрифты */
-    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-family-display: 'Bebas Neue', 'Arial Black', sans-serif;
-    --font-size-xs: 0.75rem;
-    --font-size-sm: 0.875rem;
-    --font-size-base: 1rem;
-    --font-size-lg: 1.125rem;
-    --font-size-xl: 1.25rem;
-    --font-size-2xl: 1.5rem;
-    --font-size-3xl: 1.875rem;
-
-    /* Отступы */
-    --spacing-1: 0.25rem;
-    --spacing-2: 0.5rem;
-    --spacing-3: 0.75rem;
-    --spacing-4: 1rem;
-    --spacing-5: 1.25rem;
-    --spacing-6: 1.5rem;
-    --spacing-8: 2rem;
-    --spacing-12: 3rem;
-    --spacing-16: 4rem;
-
-    /* Скругления */
-    --radius-sm: 4px;
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    --radius-xl: 16px;
-    --radius-full: 9999px;
-
-    /* Тени */
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.12);
-    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.16);
-    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-    --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
-
-    /* Переходы */
-    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-
-    /* Hover эффекты */
-    --hover-lift: translateY(-4px);
-    --hover-lift-sm: translateY(-2px);
-}
 
 /* Базовый сброс */
 *,
@@ -91,34 +21,25 @@ html {
 body {
     font-family: var(--font-family);
     font-size: var(--font-size-base);
-    font-weight: 400;
-    line-height: 1.6;
+    line-height: 1.5;
     color: var(--text-primary);
     background: var(--surface-primary);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    letter-spacing: -0.01em;
 }
 
 /* Контейнер — определён в utilities.css через var(--container-xl) */
 
 /* Header */
 .main-header {
-    background: rgba(255, 255, 255, 0.96);
+    background: var(--surface-primary);
     border-bottom: 1px solid var(--border-color);
-    padding: 0;
+    padding: var(--spacing-4) 0;
     position: sticky;
     top: 0;
     z-index: var(--z-sticky);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 1px 0 var(--border-color);
-    transition: box-shadow var(--transition-fast);
-}
-
-.main-header.scrolled {
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm);
 }
 
 .header-content {
@@ -128,7 +49,6 @@ body {
     max-width: var(--container-xl);
     margin: 0 auto;
     padding: 0 var(--spacing-4);
-    height: 64px;
 }
 
 .logo {
@@ -136,23 +56,19 @@ body {
     align-items: center;
     text-decoration: none;
     color: var(--text-primary);
-    font-family: var(--font-family-display);
-    font-size: 1.75rem;
-    letter-spacing: 0.06em;
-    line-height: 1;
-    transition: opacity var(--transition-fast);
-    flex-shrink: 0;
+    font-weight: 700;
+    font-size: var(--font-size-xl);
+    transition: transform var(--transition-fast);
 }
 
 .logo:hover {
-    opacity: 0.75;
+    transform: scale(1.02);
 }
 
 .logo img {
-    height: 36px;
-    margin-right: var(--spacing-2);
-    border-radius: var(--radius-sm);
-    object-fit: contain;
+    height: 48px;
+    margin-right: var(--spacing-3);
+    border-radius: var(--radius-md);
 }
 
 /* Навигация */
@@ -169,43 +85,22 @@ body {
     gap: var(--spacing-8);
     margin: 0;
     padding: 0;
-    align-items: center;
-}
-
-.nav-menu>li {
-    position: relative;
-    display: flex;
-    align-items: center;
 }
 
 .nav-menu a {
-    color: var(--text-secondary);
+    color: var(--text-primary);
     text-decoration: none;
     font-weight: 500;
-    font-size: 0.9rem;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    padding: var(--spacing-4) 0;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    font-size: var(--font-size-base);
+    padding: var(--spacing-2) 0;
     position: relative;
     transition: color var(--transition-fast);
-}
-
-.nav-menu a i {
-    font-size: 0.75rem;
-    transition: transform 0.3s ease;
-}
-
-.nav-menu a.text-sale {
-    color: #ef4444;
 }
 
 .nav-menu a::after {
     content: '';
     position: absolute;
-    bottom: calc(var(--spacing-4) - 2px);
+    bottom: 0;
     left: 0;
     width: 0;
     height: 2px;
@@ -213,16 +108,8 @@ body {
     transition: width var(--transition-normal);
 }
 
-.nav-menu a.text-sale::after {
-    background: #ef4444;
-}
-
 .nav-menu a:hover {
     color: var(--color-black);
-}
-
-.nav-menu a.text-sale:hover {
-    color: #dc2626;
 }
 
 .nav-menu a:hover::after {
@@ -231,102 +118,6 @@ body {
 
 .nav-menu a.active {
     color: var(--color-black);
-}
-
-.nav-menu a.text-sale.active {
-    color: #dc2626;
-}
-
-.nav-menu a.active::after {
-    width: 100%;
-}
-
-/* Mega Menu */
-.dropdown-container:hover .mega-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-    pointer-events: auto;
-}
-
-.dropdown-container:hover>a i {
-    transform: rotate(180deg);
-}
-
-.mega-menu {
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(10px);
-    width: max-content;
-    background: var(--surface-primary);
-    box-shadow: var(--shadow-xl);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-8);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 100;
-    border: 1px solid var(--border-color);
-}
-
-/* Псевдоэлемент чтобы меню не закрывалось при переходе мыши */
-.mega-menu::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: 0;
-    width: 100%;
-    height: 20px;
-}
-
-.mega-menu-grid {
-    display: flex;
-    gap: var(--spacing-12);
-}
-
-.mega-menu-col h4 {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: var(--spacing-4);
-    font-weight: 600;
-}
-
-.mega-menu-col ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-    min-width: 180px;
-}
-
-.mega-menu-col ul li {
-    display: block;
-}
-
-.mega-menu-col ul a {
-    text-transform: none;
-    letter-spacing: normal;
-    font-size: var(--font-size-base);
-    color: var(--text-primary);
-    padding: 0;
-    font-weight: 400;
-    transition: all var(--transition-fast);
-}
-
-.mega-menu-col ul a::after {
-    display: none;
-    /* Убираем подчеркивание для подменю */
-}
-
-.mega-menu-col ul a:hover {
-    color: var(--color-black);
-    transform: translateX(4px);
 }
 
 /* Действия в header */
@@ -402,229 +193,56 @@ main {
     min-height: calc(100vh - 200px);
 }
 
-/* ============================================
-   FOOTER
-   ============================================ */
-.site-footer {
-    background: #000000;
-    color: #ffffff;
-    padding: var(--spacing-16) 0 var(--spacing-6);
-    margin-top: auto;
+/* Footer */
+.main-footer {
+    background: var(--color-gray-900);
+    color: var(--color-gray-300);
+    padding: var(--spacing-12) 0 var(--spacing-6);
+    margin-top: var(--spacing-16);
 }
 
-.footer-main {
-    max-width: var(--container-xl);
+.footer-content {
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 var(--spacing-4);
-}
-
-.footer-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--spacing-8);
-    margin-bottom: var(--spacing-12);
 }
 
-.footer-brand {
-    margin-bottom: var(--spacing-6);
-}
-
-.footer-logo {
-    height: 40px;
+.footer-section h3 {
+    color: var(--color-white);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
     margin-bottom: var(--spacing-4);
-    filter: invert(1);
-    /* Делаем логотип белым на черном фоне */
-}
-
-.footer-tagline {
-    color: var(--text-muted);
-    font-size: var(--font-size-sm);
-    line-height: 1.6;
-    max-width: 250px;
-}
-
-.footer-badges {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-}
-
-.footer-badges .badge-item {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-2);
-    color: var(--color-light-gray);
-    font-size: var(--font-size-sm);
-}
-
-.footer-badges .badge-item i {
-    font-size: 1.25rem;
-    color: #ffffff;
-}
-
-.footer-title {
-    color: #ffffff;
-    font-family: var(--font-family-display);
-    font-size: 1.5rem;
-    font-weight: 400;
-    letter-spacing: 0.05em;
-    margin-bottom: var(--spacing-6);
-    text-transform: uppercase;
 }
 
 .footer-links {
     list-style: none;
     padding: 0;
     margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
 }
 
 .footer-links a {
-    color: var(--text-muted);
+    color: var(--color-gray-400);
     text-decoration: none;
-    font-size: var(--font-size-sm);
+    display: block;
+    padding: var(--spacing-1) 0;
     transition: color var(--transition-fast);
+    font-size: var(--font-size-sm);
 }
 
 .footer-links a:hover {
-    color: #ffffff;
-}
-
-.footer-contacts {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-4);
-}
-
-.footer-contacts li {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--spacing-3);
-    color: var(--text-muted);
-    font-size: var(--font-size-sm);
-    line-height: 1.5;
-}
-
-.footer-contacts i {
-    color: #ffffff;
-    font-size: 1.25rem;
-    margin-top: -2px;
-}
-
-.footer-contacts a {
-    color: var(--text-muted);
-    text-decoration: none;
-    transition: color var(--transition-fast);
-}
-
-.footer-contacts a:hover {
-    color: #ffffff;
-}
-
-.social-links {
-    display: flex;
-    gap: var(--spacing-3);
-    margin-top: var(--spacing-4);
-}
-
-.social-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-full);
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-    text-decoration: none;
-    font-size: 1.25rem;
-    transition: all var(--transition-fast);
-}
-
-.social-link:hover {
-    background: #ffffff;
-    color: #000000;
-    transform: translateY(-2px);
+    color: var(--color-white);
 }
 
 .footer-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    border-top: 1px solid var(--color-gray-800);
+    margin-top: var(--spacing-8);
     padding-top: var(--spacing-6);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text-muted);
+    text-align: center;
+    color: var(--color-gray-500);
     font-size: var(--font-size-sm);
-}
-
-.payment-methods {
-    display: flex;
-    gap: var(--spacing-2);
-}
-
-.payment-methods img {
-    height: 24px;
-    opacity: 0.7;
-    transition: opacity var(--transition-fast);
-}
-
-.payment-methods img:hover {
-    opacity: 1;
-}
-
-@media (max-width: 1024px) {
-    .footer-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .footer-column:first-child {
-        grid-column: span 3;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .footer-badges {
-        flex-direction: row;
-    }
-}
-
-@media (max-width: 768px) {
-    .footer-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .footer-column:first-child {
-        grid-column: span 2;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--spacing-6);
-    }
-
-    .footer-badges {
-        flex-direction: column;
-    }
-
-    .footer-bottom {
-        flex-direction: column;
-        gap: var(--spacing-4);
-        text-align: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .footer-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .footer-column:first-child {
-        grid-column: span 1;
-    }
 }
 
 /* Кнопки */
@@ -1466,7 +1084,6 @@ main {
     margin-bottom: var(--spacing-2);
     display: -webkit-box;
     -webkit-line-clamp: 2;
-    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -2299,7 +1916,6 @@ main {
     margin-bottom: var(--spacing-2);
     display: -webkit-box;
     -webkit-line-clamp: 2;
-    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }

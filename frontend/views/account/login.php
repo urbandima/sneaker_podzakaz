@@ -11,7 +11,7 @@ $this->title = 'Вход в личный кабинет - СНИКЕРХЭД';
 echo $this->render('_auth-style');
 ?>
 
-<div class="auth-page auth-wide login-page">
+<div class="auth-page login-page">
     <div class="auth-container">
         <a href="<?= Url::to(['/catalog']) ?>" class="back-to-site">
             <i class="bi bi-arrow-left"></i>
@@ -19,72 +19,14 @@ echo $this->render('_auth-style');
         </a>
 
         <div class="auth-grid">
-            <section class="auth-info">
-                <span class="info-pill">
-                    <i class="bi bi-stars"></i>
-                    Новый облик 2025
-                </span>
-
-                <div class="auth-logo">
-                    <img src="https://sneaker-head.by/images/logo.png" alt="СНИКЕРХЭД">
-                    <span>СНИКЕРХЭД</span>
-                </div>
-
-                <h1>Быстрый вход</h1>
-                <p>История заказов, бонусы и статусы доставки всегда под рукой.</p>
-
-                <ul class="auth-benefits">
-                    <li>
-                        <span class="icon-ring"><i class="bi bi-shield-check"></i></span>
-                        <div>
-                            <strong>Безопасное подключение</strong>
-                            <small>Обновленные протоколы и защита сессии.</small>
-                        </div>
-                    </li>
-                    <li>
-                        <span class="icon-ring"><i class="bi bi-bell"></i></span>
-                        <div>
-                            <strong>Умные уведомления</strong>
-                            <small>Отслеживайте статус доставки и новые релизы.</small>
-                        </div>
-                    </li>
-                    <li>
-                        <span class="icon-ring"><i class="bi bi-lightning-charge"></i></span>
-                        <div>
-                            <strong>Мгновенная авторизация</strong>
-                            <small>Запоминаем предпочтения и ускоряем вход.</small>
-                        </div>
-                    </li>
-                </ul>
-
-                <div class="auth-stats">
-                    <div class="stat">
-                        <span>12 000+</span>
-                        <small>заказов по СНГ</small>
-                    </div>
-                    <div class="stat">
-                        <span>4.9/5</span>
-                        <small>оценка сервиса</small>
-                    </div>
-                </div>
-
-                <div class="auth-info-footer">
-                    <i class="bi bi-headset"></i>
-                    <div>
-                        <strong>Поддержка 24/7</strong><br>
-                        <small>Телеграм, телефон и email</small>
-                    </div>
-                </div>
-            </section>
-
             <section class="auth-card">
                 <div class="auth-header">
-                    <span class="mini-pill">
-                        <i class="bi bi-lock"></i>
-                        Секьюрный вход
-                    </span>
+                    <div class="auth-logo">
+                        <img src="https://sneaker-head.by/images/logo.png" alt="СНИКЕРХЭД">
+                        <span>СНИКЕРХЭД</span>
+                    </div>
                     <h2>Вход в личный кабинет</h2>
-                    <p>Продолжите покупки с того места, где остановились, и отслеживайте статусы заказов онлайн.</p>
+                    <p>История заказов, бонусы и статусы доставки всегда под рукой.</p>
                 </div>
 
                 <div class="auth-body">
@@ -121,7 +63,7 @@ echo $this->render('_auth-style');
                     <?= Html::submitButton('<i class="bi bi-box-arrow-in-right"></i><span>Войти</span>', ['class' => 'btn-auth']) ?>
                     <div class="secure-badge">
                         <i class="bi bi-shield-lock-fill"></i>
-                        Соединение защищено SSL / ISO 27001
+                        Соединение защищено SSL
                     </div>
 
                     <?php ActiveForm::end(); ?>
@@ -129,20 +71,10 @@ echo $this->render('_auth-style');
                     <div class="auth-divider"><span>или</span></div>
 
                     <div class="social-login">
-                        <a href="#" class="social-btn yandex">
-                            <i class="bi bi-yelp"></i>
-                            Яндекс ID
-                        </a>
                         <a href="#" class="social-btn telegram">
                             <i class="bi bi-telegram"></i>
                             Telegram
                         </a>
-                    </div>
-
-                    <div class="support-links">
-                        <a href="tel:+375447009001"><i class="bi bi-telephone"></i> +375 (44) 700-90-01</a>
-                        <a href="mailto:sneakerkultura@gmail.com"><i class="bi bi-envelope"></i> sneakerkultura@gmail.com</a>
-                        <small>Нажимая «Войти» вы соглашаетесь с договором оферты и политикой конфиденциальности.</small>
                     </div>
                 </div>
 

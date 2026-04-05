@@ -18,7 +18,7 @@ $controllerId = Yii::$app->controller->id;
     <title><?= Html::encode($this->title) ?> — Админ</title>
     
     <!-- Admin CSS -->
-    <link href="/css/admin.css?v=<?= file_exists(Yii::getAlias('@webroot') . '/css/admin.css') ? filemtime(Yii::getAlias('@webroot') . '/css/admin.css') : time() ?>" rel="stylesheet">
+    <link href="/css/admin-shopify-2026.css?v=<?= file_exists(Yii::getAlias('@webroot') . '/css/admin-shopify-2026.css') ? filemtime(Yii::getAlias('@webroot') . '/css/admin-shopify-2026.css') : time() ?>" rel="stylesheet">
     
 <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -37,8 +37,16 @@ $controllerId = Yii::$app->controller->id;
 <?php $this->beginBody() ?>
 
 <div class="admin-layout">
+    <!-- Mobile Sidebar Overlay -->
+    <div class="admin-sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()" style="display: none;"></div>
+    
     <!-- Sidebar -->
     <aside class="admin-sidebar" id="admin-sidebar">
+        <!-- Mobile Close Button -->
+        <button class="admin-sidebar-close" id="sidebar-close" onclick="closeMobileSidebar()" style="display: none;" title="Закрыть меню">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        
         <div class="admin-sidebar-header">
             <a href="<?= Url::to(['/admin']) ?>" class="admin-sidebar-logo">
                 <i class="bi bi-shop"></i>
@@ -49,34 +57,132 @@ $controllerId = Yii::$app->controller->id;
         <nav class="admin-sidebar-nav">
             <?php
             $navItems = [
-                ['label' => 'Главная', 'url' => '/admin', 'icon' => 'bi-grid-1x2-fill', 'ids' => ['dashboard']],
-                ['label' => 'Заказы', 'url' => '/admin/order', 'icon' => 'bi-bag-check-fill', 'ids' => ['order']],
-                ['label' => 'Каталог', 'url' => '/admin/catalog', 'icon' => 'bi-collection-fill', 'ids' => ['catalog', 'product']],
-                ['label' => 'Клиенты', 'url' => '/admin/customer', 'icon' => 'bi-people-fill', 'ids' => ['customer']],
-                ['label' => 'Купоны', 'url' => '/admin/coupon', 'icon' => 'bi-ticket-detailed-fill', 'ids' => ['coupon']],
-                ['label' => 'Возвраты', 'url' => '/admin/return', 'icon' => 'bi-arrow-return-left', 'ids' => ['return']],
-                ['label' => 'Аналитика', 'url' => '/admin/statistics', 'icon' => 'bi-bar-chart-line-fill', 'ids' => ['statistics']],
-                ['label' => 'Маркетинг', 'url' => '/admin/marketing', 'icon' => 'bi-megaphone-fill', 'ids' => ['marketing']],
-                ['label' => 'POS-Терминал', 'url' => '/admin/pos', 'icon' => 'bi-shop', 'ids' => ['pos']],
-                ['label' => 'Плагины', 'url' => '/admin/plugin', 'icon' => 'bi-plugin', 'ids' => ['plugin']],
-                ['label' => 'Настройки', 'url' => '/admin/settings', 'icon' => 'bi-gear-wide-connected', 'ids' => ['settings']],
-                ['label' => 'SEO', 'url' => '/admin/seo', 'icon' => 'bi-search-heart', 'ids' => ['seo']],
+                // 🏠 ГЛАВНАЯ
+                [
+                    'label' => 'Главная',
+                    'icon' => 'bi-house-fill',
+                    'url' => '/admin',
+                    'ids' => ['dashboard'],
+                    'items' => []
+                ],
+                
+                // 📦 ПРОДАЖИ
+                [
+                    'label' => 'Продажи',
+                    'icon' => 'bi-bag-check-fill',
+                    'items' => [
+                        ['label' => 'Заказы', 'url' => '/admin/order', 'ids' => ['order']],
+                        ['label' => 'Возвраты', 'url' => '/admin/return', 'ids' => ['return']],
+                        ['label' => 'Доставка', 'url' => '/admin/shipping', 'ids' => ['shipping']]
+                    ]
+                ],
+                
+                // 📊 АНАЛИТИКА
+                [
+                    'label' => 'Аналитика',
+                    'icon' => 'bi-bar-chart-line-fill',
+                    'items' => [
+                        ['label' => 'Аналитика и отчеты', 'url' => '/admin/analytics', 'ids' => ['analytics']],
+                        ['label' => 'RFM сегменты', 'url' => '/admin/analytics/rfm', 'ids' => ['rfm']],
+                        ['label' => 'Маркетинг', 'url' => '/admin/marketing', 'ids' => ['marketing']]
+                    ]
+                ],
+                
+                // 🛍️ КАТАЛОГ
+                [
+                    'label' => 'Каталог',
+                    'icon' => 'bi-collection-fill',
+                    'items' => [
+                        ['label' => 'Товары', 'url' => '/admin/catalog', 'ids' => ['catalog', 'product']],
+                        ['label' => 'Теги', 'url' => '/admin/product-tag', 'ids' => ['product-tag']],
+                        ['label' => 'Отзывы', 'url' => '/admin/review', 'ids' => ['review']]
+                    ]
+                ],
+                
+                // 👥 КЛИЕНТЫ
+                [
+                    'label' => 'Клиенты',
+                    'icon' => 'bi-people-fill',
+                    'url' => '/admin/customer',
+                    'ids' => ['customer'],
+                    'items' => []
+                ],
+                
+                // 🎟️ ПРОМО
+                [
+                    'label' => 'Промо',
+                    'icon' => 'bi-ticket-detailed-fill',
+                    'items' => [
+                        ['label' => 'Купоны', 'url' => '/admin/coupon', 'ids' => ['coupon']],
+                        ['label' => 'Маркетинговые кампании', 'url' => '/admin/marketing/campaigns', 'ids' => ['marketing']]
+                    ]
+                ],
+                
+                // 💻 ИНТЕГРАЦИИ
+                [
+                    'label' => 'Интеграции',
+                    'icon' => 'bi-plugin',
+                    'items' => [
+                        ['label' => 'POS-Терминал', 'url' => '/admin/pos', 'ids' => ['pos']],
+                        ['label' => 'Плагины', 'url' => '/admin/plugin', 'ids' => ['plugin']],
+                        ['label' => 'Импорт/Экспорт', 'url' => '/admin/import', 'ids' => ['import']]
+                    ]
+                ],
+                
+                // ⚙️ УПРАВЛЕНИЕ
+                [
+                    'label' => 'Управление',
+                    'icon' => 'bi-gear-wide-connected',
+                    'items' => [
+                        ['label' => 'Настройки', 'url' => '/admin/settings', 'ids' => ['settings']],
+                        ['label' => 'Боковое меню', 'url' => '/admin/sidebar-menu', 'ids' => ['sidebar-menu']]
+                    ]
+                ]
             ];
-            foreach ($navItems as $item): ?>
-            <a href="<?= Url::to([$item['url']]) ?>" class="admin-nav-item <?= in_array($controllerId, $item['ids']) ? 'active' : '' ?>">
-                <i class="bi <?= $item['icon'] ?>"></i>
-                <span><?= $item['label'] ?></span>
-            </a>
-            <?php endforeach ?>
+            
+            foreach ($navItems as $item): 
+                $hasSubmenu = !empty($item['items']);
+                $isActive = isset($item['ids']) && in_array($controllerId, $item['ids']);
+                $isSubmenuActive = false;
+                
+                if ($hasSubmenu) {
+                    foreach ($item['items'] as $subItem) {
+                        if (isset($subItem['ids']) && in_array($controllerId, $subItem['ids'])) {
+                            $isSubmenuActive = true;
+                            break;
+                        }
+                    }
+                }
+            ?>
+            
+            <?php if ($hasSubmenu): ?>
+                <!-- Menu item with submenu -->
+                <div class="admin-nav-group <?= $isSubmenuActive ? 'active' : '' ?>">
+                    <button class="admin-nav-item admin-nav-toggle" onclick="toggleSubmenu(this)">
+                        <i class="bi <?= $item['icon'] ?>"></i>
+                        <span><?= $item['label'] ?></span>
+                        <i class="bi bi-chevron-down admin-nav-chevron"></i>
+                    </button>
+                    <div class="admin-nav-submenu <?= $isSubmenuActive ? 'open' : '' ?>">
+                        <?php foreach ($item['items'] as $subItem): ?>
+                            <a href="<?= Url::to([$subItem['url']]) ?>" class="admin-nav-subitem <?= (isset($subItem['ids']) && in_array($controllerId, $subItem['ids'])) ? 'active' : '' ?>">
+                                <?= $subItem['label'] ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php else: ?>
+                <!-- Simple menu item -->
+                <a href="<?= Url::to([$item['url']]) ?>" class="admin-nav-item <?= $isActive ? 'active' : '' ?>">
+                    <i class="bi <?= $item['icon'] ?>"></i>
+                    <span><?= $item['label'] ?></span>
+                </a>
+            <?php endif; endforeach ?>
 
             <div class="admin-nav-divider" style="margin-top: auto; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);"></div>
             <a href="<?= Url::to(['/']) ?>" class="admin-nav-item" target="_blank">
                 <i class="bi bi-box-arrow-up-right"></i>
                 <span>На сайт</span>
-            </a>
-            <a href="<?= Url::to(['/admin/logout']) ?>" class="admin-nav-item" style="color: rgba(255,255,255,0.6);">
-                <i class="bi bi-power"></i>
-                <span>Выйти</span>
             </a>
         </nav>
     </aside>
@@ -98,6 +204,10 @@ $controllerId = Yii::$app->controller->id;
         <!-- B2.2 Global Header Bar -->
         <div class="admin-topbar" id="admin-topbar">
             <div class="admin-topbar-left">
+                <!-- Mobile Menu Toggle -->
+                <button class="admin-mobile-menu-btn" id="mobile-menu-toggle" onclick="toggleMobileSidebar()" style="display: none;" title="Открыть меню">
+                    <i class="bi bi-list"></i>
+                </button>
                 <button class="admin-topbar-search-btn" onclick="document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',ctrlKey:true,bubbles:true}))" title="Глобальный поиск (Ctrl+K)">
                     <i class="bi bi-search"></i>
                     <span class="admin-topbar-search-hint">Поиск <kbd>Ctrl+K</kbd></span>
@@ -109,14 +219,110 @@ $controllerId = Yii::$app->controller->id;
                     <i class="bi bi-plus-circle"></i> Новый заказ
                 </a>
                 <!-- Калькулятор -->
-                <button class="admin-topbar-icon-btn" id="calc-open-btn" title="Калькулятор стоимости">
+                <button class="admin-topbar-icon-btn" id="calc-open-btn" title="Калькулятор стоимости" onclick="openCalculator()">
                     <i class="bi bi-calculator-fill"></i>
                 </button>
                 <!-- Уведомления -->
-                <button class="admin-topbar-icon-btn admin-notif-btn" id="notif-btn" title="Уведомления" onclick="window.location.href='/admin/order?status=created'">
-                    <i class="bi bi-bell-fill"></i>
-                    <span class="admin-notif-badge" id="notif-badge" style="display:none"></span>
-                </button>
+                <div style="position:relative">
+                    <button class="admin-topbar-icon-btn admin-notif-btn" id="notif-btn" title="Уведомления" onclick="toggleNotifications()">
+                        <i class="bi bi-bell-fill"></i>
+                        <?php
+                        $newOrdersCount = \app\backend\modules\checkout\models\Order::find()
+                            ->where(['status' => 'created'])
+                            ->andWhere(['>', 'created_at', time() - 86400])
+                            ->count();
+                        ?>
+                        <?php if ($newOrdersCount > 0): ?>
+                            <span class="admin-notif-badge"><?= $newOrdersCount ?></span>
+                        <?php endif; ?>
+                    </button>
+                    <div id="notif-dropdown" class="admin-notif-dropdown" style="display:none">
+                        <div class="admin-notif-header">
+                            <h4>Уведомления</h4>
+                            <span class="admin-badge admin-badge-primary"><?= $newOrdersCount ?></span>
+                        </div>
+                        <div class="admin-notif-list">
+                            <?php
+                            $newOrders = \app\backend\modules\checkout\models\Order::find()
+                                ->where(['status' => 'created'])
+                                ->orderBy(['created_at' => SORT_DESC])
+                                ->limit(5)
+                                ->all();
+                            ?>
+                            <?php if (!empty($newOrders)): ?>
+                                <?php foreach ($newOrders as $order): ?>
+                                    <a href="<?= \yii\helpers\Url::to(['/admin/order/view', 'id' => $order->id]) ?>" class="admin-notif-item">
+                                        <div class="admin-notif-icon">
+                                            <i class="bi bi-bag-check-fill"></i>
+                                        </div>
+                                        <div class="admin-notif-content">
+                                            <div class="admin-notif-title">Новый заказ #<?= $order->order_number ?></div>
+                                            <div class="admin-notif-text"><?= $order->client_name ?> • <?= number_format($order->total_amount, 2) ?> BYN</div>
+                                            <div class="admin-notif-time"><?= \Yii::$app->formatter->asRelativeTime($order->created_at) ?></div>
+                                        </div>
+                                    </a>
+                                <?php endforeach; ?>
+                                <a href="<?= \yii\helpers\Url::to(['/admin/order', 'status' => 'created']) ?>" class="admin-notif-footer">
+                                    Показать все заказы
+                                </a>
+                            <?php else: ?>
+                                <div class="admin-notif-empty">
+                                    <i class="bi bi-check-circle"></i>
+                                    <p>Нет новых уведомлений</p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Профиль пользователя -->
+                <div class="admin-user-profile" style="position:relative">
+                    <button class="admin-topbar-icon-btn admin-profile-btn" id="profile-btn" title="Профиль пользователя" onclick="toggleProfile()">
+                        <i class="bi bi-person-circle"></i>
+                    </button>
+                    <div class="admin-profile-dropdown" id="profile-dropdown" style="display:none;">
+                        <div class="admin-profile-header">
+                            <div class="admin-profile-info">
+                                <div class="admin-profile-name"><?= Html::encode($company['name'] ?? 'Admin') ?></div>
+                                <div class="admin-profile-role">Администратор</div>
+                            </div>
+                        </div>
+                        <div class="admin-profile-divider"></div>
+                        <a href="<?= Url::to(['/admin/settings']) ?>" class="admin-profile-item">
+                            <i class="bi bi-gear"></i> Настройки
+                        </a>
+                        <a href="<?= Url::to(['/']) ?>" class="admin-profile-item" target="_blank">
+                            <i class="bi bi-box-arrow-up-right"></i> На сайт
+                        </a>
+                        <div class="admin-profile-divider"></div>
+                        <a href="<?= Url::to(['/admin/logout']) ?>" class="admin-profile-item admin-profile-logout">
+                            <i class="bi bi-power"></i> Выйти
+                        </a>
+                    </div>
+                </div>
+                <script>
+                function toggleNotifications() {
+                    const dropdown = document.getElementById('notif-dropdown');
+                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                }
+                function toggleProfile() {
+                    const dropdown = document.getElementById('profile-dropdown');
+                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                }
+                document.addEventListener('click', function(e) {
+                    const notifBtn = document.getElementById('notif-btn');
+                    const notifDropdown = document.getElementById('notif-dropdown');
+                    const profileBtn = document.getElementById('profile-btn');
+                    const profileDropdown = document.getElementById('profile-dropdown');
+                    
+                    if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+                        notifDropdown.style.display = 'none';
+                    }
+                    if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                        profileDropdown.style.display = 'none';
+                    }
+                });
+                </script>
             </div>
         </div>
 
@@ -173,6 +379,9 @@ $controllerId = Yii::$app->controller->id;
 
 <!-- Admin JS -->
 <script src="/js/admin.js?v=<?= file_exists(Yii::getAlias('@webroot') . '/js/admin.js') ? filemtime(Yii::getAlias('@webroot') . '/js/admin.js') : time() ?>"></script>
+<script src="/js/admin-search.js?v=<?= file_exists(Yii::getAlias('@webroot') . '/js/admin-search.js') ? filemtime(Yii::getAlias('@webroot') . '/js/admin-search.js') : time() ?>"></script>
+<script src="/js/dashboard.js?v=<?= file_exists(Yii::getAlias('@webroot') . '/js/dashboard.js') ? filemtime(Yii::getAlias('@webroot') . '/js/dashboard.js') : time() ?>"></script>
+<script src="/js/orders.js?v=<?= file_exists(Yii::getAlias('@webroot') . '/js/orders.js') ? filemtime(Yii::getAlias('@webroot') . '/js/orders.js') : time() ?>"></script>
 
 <?php $this->endBody() ?>
 </body>

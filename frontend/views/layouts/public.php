@@ -132,11 +132,10 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
             </div>
             
             <div class="header-search">
-                <div class="search-box">
-                    <i class="bi bi-search"></i>
-                    <input type="text" placeholder="Поиск товаров, брендов..." id="headerSearch">
-                    <button class="search-voice"><i class="bi bi-mic"></i></button>
-                </div>
+                <div class="earn-icon"><i class="bi bi-gift"></i></div>
+                <i class="bi bi-search"></i>
+                <input type="text" placeholder="Поиск товаров, брендов..." id="headerSearch">
+                <button class="search-voice"><i class="bi bi-mic"></i></button>
             </div>
             
             <div class="header-actions">
@@ -188,21 +187,21 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                     <div class="mega-menu">
                         <div class="mega-content">
                             <div class="mega-col">
-                                <h4>👟 Обувь</h4>
+                                <h4>Обувь</h4>
                                 <a href="/catalog?cat=sneakers">Кроссовки</a>
                                 <a href="/catalog?cat=boots">Ботинки</a>
                                 <a href="/catalog?cat=sandals">Сандалии</a>
                                 <a href="/catalog?cat=slippers">Слипоны</a>
                             </div>
                             <div class="mega-col">
-                                <h4>👕 Одежда</h4>
+                                <h4>Одежда</h4>
                                 <a href="/catalog?cat=tshirts">Футболки</a>
                                 <a href="/catalog?cat=hoodies">Толстовки</a>
                                 <a href="/catalog?cat=jackets">Куртки</a>
                                 <a href="/catalog?cat=pants">Брюки</a>
                             </div>
                             <div class="mega-col">
-                                <h4>🎒 Аксессуары</h4>
+                                <h4>Аксессуары</h4>
                                 <a href="/catalog?cat=bags">Сумки</a>
                                 <a href="/catalog?cat=caps">Кепки</a>
                                 <a href="/catalog?cat=socks">Носки</a>
@@ -210,7 +209,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                             </div>
                             <div class="mega-col mega-promo">
                                 <div class="promo-banner">
-                                    <span class="promo-badge">🔥 HOT</span>
+                                    <span class="promo-badge">HOT</span>
                                     <h3>Новая коллекция</h3>
                                     <p>Скидки до 50%</p>
                                     <a href="/catalog?sale=1" class="promo-btn">Смотреть</a>
