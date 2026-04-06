@@ -15,6 +15,9 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="import-logs">
+    <?php if ($task && $task->status === 'running'): ?>
+    <div id="logs-config" style="display:none" data-task-id="<?= $task->id ?>"></div>
+    <?php endif; ?>
     <!-- Информация о задаче -->
     <?php if ($task): ?>
     <div class="card mb-4">
