@@ -135,3 +135,116 @@ function initSalesChart() {
         }
     });
 }
+
+/* -- dashboard/index.php (B3.2 chart, B3.4 CNY) -- */
+
+/* B3.2 — Инициализация графика заказов с двумя линиями (30 дней + прошлый период) */
+function initOrdersChart() {
+    var ctx = document.getElementById('salesChart');
+    if (!ctx || typeof Chart === 'undefined' || !window.chartData || !window.chartData.length) return;
+
+    var labels     = window.chartData.map(function(d) { return d.day || d.date; });
+    var curOrders  = window.chartData.map(function(d) { return d.orders || 0; });
+    var prevOrders = window.chartData.map(function(d) { return d.prev_orders || 0; });
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Заказы (текущий период)',
+                    data: curOrders,
+                    borderColor: 'var(--admin-accent, #008060)',
+                    backgroundColor: 'rgba(0,128,96,0.08)',
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    borderWidth: 2,
+                },
+                {
+                    label: 'Заказы (пред. период)',
+                    data: prevOrders,
+                    borderColor: '#94a3b8',
+                    backgroundColor: 'rgba(148,163,184,0.05)',
+                    fill: false,
+                    tension: 0.35,
+                    pointRadius: 2,
+                    pointHoverRadius: 4,
+                    borderWidth: 1.5,
+                    borderDash: [5, 3],
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            return ctx.dataset.label + ': ' + ctx.parsed.y + ' заказов';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(0,0,0,0.04)' },
+                    ticks: { maxTicksLimit: 10, font: { size: 11 } }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.04)' },
+                    ticks: { font: { size: 11 }, precision: 0 }
+                }
+            }
+        }
+    });
+}
+
+/* B3.4 — Обновление курса CNY */
+function updateCnyRate(btn) {
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-clockwise" style="animation:spin 1s linear infinite"></i> Обновляем...';
+    }
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/admin/dashboard/update-cny-rate', true);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    var csrf = document.querySelector('meta[name="csrf-token"]');
+    xhr.send(csrf ? '_csrf=' + encodeURIComponent(csrf.getAttribute('content')) : '');
+    xhr.onload = function() {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Обновить';
+        }
+        try {
+            var data = JSON.parse(xhr.responseText);
+            if (data.success && data.rate) {
+                var rateEl = document.querySelector('.dash-cny-rate-main');
+                if (rateEl) rateEl.textContent = '1 CNY = ' + parseFloat(data.rate).toFixed(4) + ' BYN';
+                var metaEl = document.querySelector('.dash-cny-rate-meta');
+                if (metaEl && data.updated_at) {
+                    metaEl.innerHTML = 'Обновлено: ' + data.updated_at + ' &nbsp;·&nbsp; Источник: ' + (data.source || 'nbrb');
+                }
+                localStorage.removeItem('cny_rate');
+                localStorage.removeItem('cny_rate_time');
+            } else {
+                alert('Ошибка обновления курса: ' + (data.message || 'неизвестная ошибка'));
+            }
+        } catch(e) { /* ignore */ }
+    };
+    xhr.onerror = function() {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Обновить'; }
+        alert('Сетевая ошибка при обновлении курса');
+    };
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initOrdersChart();
+});
