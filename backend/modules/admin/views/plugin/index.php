@@ -7,7 +7,7 @@ $this->title = 'Плагины';
 ?>
 
 
-<div class="admin-header">
+<div class="admin-header" id="plugin-page" data-toggle-url="<?= Url::to(['plugin/toggle']) ?>">
     <h1 class="admin-header-title">
         <i class="bi bi-plugin"></i> Плагины
     </h1>
