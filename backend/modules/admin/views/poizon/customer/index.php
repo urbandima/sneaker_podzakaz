@@ -136,24 +136,3 @@ $this->title = 'Покупатели';
         <?php endif; ?>
     </div>
 </div>
-
-<script>
-function toggleStatus(id) {
-    if (!confirm('Изменить статус покупателя?')) return;
-    
-    fetch('/admin/customer/' + id + '/toggle-status', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-        }
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.message);
-        }
-    });
-}
-</script>

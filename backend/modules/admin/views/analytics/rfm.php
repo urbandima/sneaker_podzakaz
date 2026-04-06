@@ -302,25 +302,3 @@ $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'ltv'));
         </div>
     </div>
 </div>
-
-<script>
-function showSegmentDetails(segment) {
-    alert('Детали сегмента "' + segment + '"\n\nЗдесь будет список клиентов этого сегмента с возможностью экспорта и массовых действий.');
-}
-
-function exportAtRisk() {
-    alert('Экспорт списка покупателей в статусе риска\n\nCSV файл будет содержать: имя, email, LTV, класс LTV, последний заказ, дней без заказа, уровень риска.');
-}
-
-function sendEmail(email) {
-    alert('Отправка email клиенту: ' + email + '\n\nОткроется форма персонального письма для реактивации клиента.');
-}
-
-function sendSms(email) {
-    alert('Отправка SMS клиенту: ' + email + '\n\nОткроется форма SMS-рассылки с предложением.');
-}
-
-function createOffer(email) {
-    alert('Создание персонального предложения для: ' + email + '\n\nМожно создать персональный купон или скидку для этого клиента.');
-}
-</script>

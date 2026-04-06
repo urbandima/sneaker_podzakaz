@@ -409,3 +409,54 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
 }); // end DOMContentLoaded
+
+
+/* -- order/create.php -- */
+document.addEventListener('DOMContentLoaded', function() {
+
+});
+
+
+/* -- order/view-new-style.php -- */
+document.addEventListener('DOMContentLoaded', function() {
+function openHistoryModal() {
+    document.getElementById('history-modal').style.display = 'flex';
+    fetch('/admin/order-api/history?id=' + document.getElementById('order-page-data').dataset.orderId + '')
+        .then(r => r.json())
+        .then(data => {
+            const html = data.history.map(h => `
+                <div style="padding:12px;border-bottom:1px solid var(--admin-border)">
+                    <strong>${h.created_by}</strong> 
+                    <small style="color:var(--admin-text-secondary)">${h.created_at}</small>
+                    <p style="margin:4px 0 0">${h.comment}</p>
+                </div>
+            `).join('');
+            document.getElementById('history-content').innerHTML = html || '<p>Нет записей</p>';
+        });
+}
+function closeHistoryModal() {
+    document.getElementById('history-modal').style.display = 'none';
+}
+function checkTracking(track) {
+    alert('Проверка трек-номера: ' + track);
+}
+function addNote() {
+    const text = document.getElementById('new-note').value;
+    if (!text) return;
+    fetch('/admin/order-api/add-note?id=<?= $model->id ?>', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'note=' + encodeURIComponent(text) + '&_csrf=<?= Yii::$app->request->csrfToken ?>'
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) location.reload();
+    });
+}
+});
+
+
+/* -- poizon/order/view-new.php -- */
+document.addEventListener('DOMContentLoaded', function() {
+
+});

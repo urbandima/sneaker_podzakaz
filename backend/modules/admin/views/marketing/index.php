@@ -76,7 +76,9 @@ $this->title = 'Маркетинг';
             </div>
         </div>
         <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--admin-border);">
-            <button type="button" class="admin-btn admin-btn-primary" style="width: 100%;" onclick="sendBulkReminders()">
+            <button type="button" class="admin-btn admin-btn-primary" style="width: 100%;"
+                    onclick="sendBulkReminders(this)"
+                    data-bulk-url="<?= Url::to(['marketing/send-bulk-reminders']) ?>">
                 <i class="bi bi-send"></i> Отправить напоминания
             </button>
         </div>
@@ -101,7 +103,9 @@ $this->title = 'Маркетинг';
                     </div>
                     <div style="display: flex; align-items: center; gap: 1rem;">
                         <div class="cart-value"><?= Yii::$app->formatter->asCurrency($cart->total_amount, 'BYN') ?></div>
-                        <button type="button" class="admin-btn admin-btn-primary admin-btn-sm" onclick="sendReminder(<?= $cart->id ?>)">
+                        <button type="button" class="admin-btn admin-btn-primary admin-btn-sm"
+                                onclick="sendReminder(<?= $cart->id ?>, this)"
+                                data-reminder-url="<?= Url::to(['marketing/send-reminder']) ?>">
                             <i class="bi bi-send"></i> Напомнить
                         </button>
                     </div>
@@ -123,40 +127,3 @@ $this->title = 'Маркетинг';
         </div>
     <?php endif; ?>
 </div>
-
-<script>
-function sendReminder(cartId) {
-    if (!confirm('Отправить напоминание клиенту?')) return;
-    
-    fetch('<?= Url::to(['marketing/send-reminder']) ?>', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: 'cart_id=' + cartId
-    })
-    .then(r => r.json())
-    .then(data => {
-        alert(data.message);
-        if (data.success) {
-            location.reload();
-        }
-    });
-}
-
-function sendBulkReminders() {
-    if (!confirm('Отправить напоминания всем клиентам с брошенными корзинами?')) return;
-    
-    fetch('<?= Url::to(['marketing/send-bulk-reminders']) ?>', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-        }
-    })
-    .then(r => r.json())
-    .then(data => {
-        alert(data.message);
-    });
-}
-</script>

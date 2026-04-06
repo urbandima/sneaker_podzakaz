@@ -100,32 +100,3 @@ $this->title = 'Вход в админ-панель - СНИКЕРХЭД';
     width: 100%;
 }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const firstInput = document.querySelector('#login-form input');
-    if (firstInput) {
-        firstInput.focus();
-    }
-    
-    // Кнопка показать/скрыть пароль
-    const passwordToggle = document.querySelector('.password-toggle');
-    const passwordInput = document.querySelector('#loginform-password');
-    
-    if (passwordToggle && passwordInput) {
-        passwordToggle.addEventListener('click', function() {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            
-            const icon = this.querySelector('i');
-            if (type === 'text') {
-                icon.classList.remove('bi-eye');
-                icon.classList.add('bi-eye-slash');
-            } else {
-                icon.classList.remove('bi-eye-slash');
-                icon.classList.add('bi-eye');
-            }
-        });
-    }
-});
-</script>

@@ -411,39 +411,8 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
     <i class="bi bi-check-circle"></i> Сохранено
 </div>
 
-<script>
-function copyLink() {
-    const input = document.getElementById('publicLink');
-    navigator.clipboard.writeText(input.value).then(() => {
-        showSaveIndicator('Ссылка скопирована');
-    });
-}
-
-function showSaveIndicator(message) {
-    const indicator = document.getElementById('saveIndicator');
-    indicator.innerHTML = '<i class="bi bi-check-circle"></i> ' + (message || 'Сохранено');
-    indicator.classList.add('show');
-    setTimeout(() => indicator.classList.remove('show'), 2000);
-}
-
-document.querySelectorAll('.js-flag').forEach(flag => {
-    flag.addEventListener('change', function() {
-        const field = this.dataset.field;
-        const value = this.checked ? 1 : 0;
-        const formData = new FormData();
-        formData.append('field', field);
-        formData.append('value', value);
-        formData.append('<?= Yii::$app->request->csrfParam ?>', '<?= Yii::$app->request->csrfToken ?>');
-
-        fetch('<?= Url::to(['/admin/order/update-field', 'id' => $model->id]) ?>', {
-            method: 'POST',
-            body: formData
-        }).then(response => response.json())
-          .then(data => {
-              if (data.success) {
-                  showSaveIndicator('Флаг сохранён');
-              }
-          });
-    });
-});
-</script>
+<div id="order-view-config" style="display:none;"
+    data-update-field-url="<?= Url::to(['/admin/order/update-field', 'id' => $model->id]) ?>"
+    data-csrf-param="<?= Yii::$app->request->csrfParam ?>"
+    data-csrf-token="<?= Yii::$app->request->csrfToken ?>">
+</div>

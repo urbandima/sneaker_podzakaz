@@ -107,7 +107,7 @@ $statusMeta = [
             </div>
         </div>
 
-        <div class="admin-card admin-mb-6" id="usersFiltersCard" data-open="false">
+        <div class="admin-card admin-mb-6" id="usersFiltersCard" data-active-filters="<?= htmlspecialchars(json_encode($activeFilters), ENT_QUOTES) ?>" data-open="false">
             <div class="admin-card-header admin-flex admin-flex--between admin-flex--wrap">
                 <div>
                     <h2 class="admin-card-title">
@@ -375,71 +375,3 @@ $statusMeta = [
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const filtersCard = document.getElementById('usersFiltersCard');
-    const toggleBtn = document.getElementById('usersFiltersToggle');
-
-    const toggleFilters = () => {
-        const isOpen = filtersCard.getAttribute('data-open') === 'true';
-        filtersCard.setAttribute('data-open', String(!isOpen));
-        filtersCard.classList.toggle('is-collapsed', isOpen);
-        filtersCard.querySelector('.admin-card-body').style.display = isOpen ? 'none' : 'block';
-    };
-
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', toggleFilters);
-    }
-
-    // Скрываем тело фильтра, если нет активных критериев
-    if (Object.keys(<?= json_encode($activeFilters) ?>).length === 0) {
-        filtersCard.querySelector('.admin-card-body').style.display = 'none';
-    } else {
-        filtersCard.setAttribute('data-open', 'true');
-    }
-});
-
-function editUser(userId) {
-    window.location.href = `/admin/user/edit?id=${userId}`;
-}
-
-function toggleUserStatus(userId) {
-    if (confirm('Изменить статус пользователя?')) {
-        fetch(`/admin/user/${userId}/toggle`, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
-            }
-        })
-            .then(response => response.json())
-            .then(data => data.success ? window.location.reload() : alert(data.message || 'Ошибка при изменении статуса'))
-            .catch(() => alert('Ошибка сети'));
-    }
-}
-
-function deleteUser(userId, username) {
-    if (confirm(`Удалить пользователя «${username}»? Это действие нельзя отменить.`)) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/admin/user/delete?id=${userId}`;
-
-        const csrfToken = document.querySelector('meta[name="csrf-token"]');
-        if (csrfToken) {
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = '_csrf';
-            csrfInput.value = csrfToken.content;
-            form.appendChild(csrfInput);
-        }
-
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-
-function bulkExport() {
-    window.location.href = '/admin/user/export';
-}
-</script>

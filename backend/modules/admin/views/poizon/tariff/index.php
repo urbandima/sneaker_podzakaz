@@ -178,56 +178,7 @@ $calculationHistory = $calculationHistory ?? [];
     </div>
 </div>
 
-<script>
-function calculateCost() {
-    const tariffId = document.getElementById('calcTariff').value;
-    const priceCny = document.getElementById('calcPrice').value;
-    const weightKg = document.getElementById('calcWeight').value;
-    const note = document.getElementById('calcNote').value;
-    
-    fetch('<?= Url::to(['calculate']) ?>', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRF-Token': '<?= Yii::$app->request->csrfToken ?>'
-        },
-        body: `tariff_id=${tariffId}&price_cny=${priceCny}&weight_kg=${weightKg}&note=${encodeURIComponent(note)}&save_history=1`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const result = document.getElementById('calcResult');
-            const breakdown = document.getElementById('calcBreakdown');
-            
-            let html = '';
-            for (const [label, value] of Object.entries(data.calculation.breakdown)) {
-                html += `<div class="result-row">
-                    <span class="result-label">${label}</span>
-                    <span class="result-value">${value}</span>
-                </div>`;
-            }
-            
-            breakdown.innerHTML = html;
-            result.classList.add('show');
-            
-            // Show save notification
-            if (data.history_id) {
-                showNotification('Расчет сохранен в историю', 'success');
-            }
-        }
-    });
-}
-
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = 'admin-toast ' + (type === 'success' ? 'admin-toast--success' : '');
-    notification.innerHTML = `<i class="bi bi-check-circle"></i> ${message}`;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => notification.classList.add('show'), 100);
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
-</script>
+<div id="tariff-calc-config" style="display:none;"
+    data-calc-url="<?= Url::to(['calculate']) ?>"
+    data-csrf-token="<?= Yii::$app->request->csrfToken ?>">
+</div>

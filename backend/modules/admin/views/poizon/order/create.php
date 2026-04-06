@@ -194,7 +194,7 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                     <div class="panel__title">Позиции заказа</div>
                     <div class="panel__hint">Добавьте хотя бы один товар</div>
                 </div>
-                <div class="order-items-builder" id="orderItemsBuilder">
+                <div class="order-items-builder" id="orderItemsBuilder" data-item-count="<?= count($orderItems) ?>" data-initial-index="<?= count($orderItems) ?>">
                     <?php foreach ($orderItems as $index => $item): ?>
                         <div class="order-item-row" data-index="<?= $index ?>">
                             <div class="form-field">
@@ -305,69 +305,3 @@ $orderItems = Yii::$app->request->post('OrderItem', [
 
     <?php ActiveForm::end(); ?>
 </div>
-
-<script>
-const orderItemsBuilder = document.getElementById('orderItemsBuilder');
-const addItemBtn = document.getElementById('addItemBtn');
-let orderItemIndex = <?= count($orderItems) ?>;
-
-function updateRemoveButtons() {
-    const rows = orderItemsBuilder.querySelectorAll('.order-item-row');
-    rows.forEach((row, idx) => {
-        const btn = row.querySelector('.remove-item');
-        btn.disabled = rows.length === 1;
-    });
-    document.getElementById('itemCountDisplay').textContent = rows.length;
-    recalcTotal();
-}
-
-function recalcTotal() {
-    let total = 0;
-    orderItemsBuilder.querySelectorAll('.order-item-row').forEach(row => {
-        const qty = parseFloat(row.querySelector('input[name*="[quantity]"]').value) || 0;
-        const price = parseFloat(row.querySelector('input[name*="[price]"]').value) || 0;
-        total += qty * price;
-    });
-    document.getElementById('orderTotalDisplay').textContent = total ? total.toFixed(2) + ' BYN' : '—';
-}
-
-orderItemsBuilder.addEventListener('input', (e) => {
-    if (e.target.matches('input[type="number"]')) {
-        recalcTotal();
-    }
-});
-
-orderItemsBuilder.addEventListener('click', (e) => {
-    if (e.target.classList.contains('remove-item')) {
-        e.target.closest('.order-item-row').remove();
-        updateRemoveButtons();
-    }
-});
-
-addItemBtn.addEventListener('click', () => {
-    const tpl = document.createElement('div');
-    tpl.className = 'order-item-row';
-    tpl.dataset.index = orderItemIndex;
-    tpl.innerHTML = `
-        <div class="form-field">
-            <label>Название</label>
-            <input type="text" name="OrderItem[${orderItemIndex}][product_name]" placeholder="Название товара">
-        </div>
-        <div class="form-field">
-            <label>Кол-во</label>
-            <input type="number" name="OrderItem[${orderItemIndex}][quantity]" value="1" min="1">
-        </div>
-        <div class="form-field">
-            <label>Цена, BYN</label>
-            <input type="number" step="0.01" name="OrderItem[${orderItemIndex}][price]" placeholder="0.00">
-        </div>
-        <button type="button" class="remove-item">×</button>
-    `;
-    orderItemsBuilder.appendChild(tpl);
-    orderItemIndex++;
-    updateRemoveButtons();
-});
-
-updateRemoveButtons();
-recalcTotal();
-</script>

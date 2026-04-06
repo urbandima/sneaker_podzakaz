@@ -55,31 +55,3 @@ $unreadCount = ImportNotification::getUnreadCount();
         </a>
     </div>
 </li>
-
-<?php
-$this->registerJs(<<<JS
-// Отметить уведомление как прочитанное
-$('.notification-item').click(function(e) {
-    e.preventDefault();
-    var id = $(this).data('id');
-    
-    $.post('/admin/import-ajax/mark-notification-read', {id: id}, function(data) {
-        if (data.success) {
-            location.reload();
-        }
-    });
-});
-
-// Отметить все как прочитанные
-$('#mark-all-read').click(function(e) {
-    e.preventDefault();
-    
-    $.post('/admin/import-ajax/mark-all-notifications-read', function(data) {
-        if (data.success) {
-            location.reload();
-        }
-    });
-});
-JS
-);
-?>

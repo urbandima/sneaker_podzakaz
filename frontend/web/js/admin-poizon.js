@@ -995,3 +995,134 @@ function linkOrders(id) {
         if (data.success) location.reload();
     });
 }
+
+
+/* -- poizon/run.php -- */
+document.addEventListener('DOMContentLoaded', function() {
+// Drag and Drop
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('file-input');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const submitBtn = document.getElementById('submit-file-btn');
+
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            showFileInfo(files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            showFileInfo(e.target.files[0]);
+        }
+    });
+
+    function showFileInfo(file) {
+        fileName.textContent = file.name + ' (' + formatFileSize(file.size) + ')';
+        fileInfo.classList.remove('d-none');
+        uploadArea.style.display = 'none';
+        submitBtn.disabled = false;
+    }
+
+    function clearFile() {
+        fileInput.value = '';
+        fileInfo.classList.add('d-none');
+        uploadArea.style.display = 'block';
+        submitBtn.disabled = true;
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+});
+
+
+/* -- poizon/view.php -- */
+function copyFullLog() {
+        const logContainer = document.getElementById('fullLogContainer');
+        const text = logContainer.innerText;
+        navigator.clipboard.writeText(text).then(function() {
+            alert('Лог скопирован в буфер обмена!');
+        });
+    }
+    
+    function toggleLogExpand() {
+        const logContainer = document.getElementById('fullLogContainer');
+        const expandText = document.getElementById('expandText');
+        
+        if (logContainer.style.maxHeight === '500px') {
+            logContainer.style.maxHeight = 'none';
+            expandText.textContent = 'Свернуть';
+        } else {
+            logContainer.style.maxHeight = '500px';
+            expandText.textContent = 'Развернуть';
+        }
+    }
+
+
+/* -- poizon/product/view.php -- */
+// Копирование цены в юанях в буфер обмена
+function copyToClipboard(text, element) {
+    // Используем Clipboard API
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(function() {
+            // Показываем уведомление
+            const originalHTML = element.innerHTML;
+            element.innerHTML = '✓ Скопировано!';
+            element.classList.remove('bg-info');
+            element.classList.add('bg-success');
+            
+            setTimeout(function() {
+                element.innerHTML = originalHTML;
+                element.classList.remove('bg-success');
+                element.classList.add('bg-info');
+            }, 1500);
+        }).catch(function(err) {
+            console.error('Ошибка копирования:', err);
+            alert('Не удалось скопировать: ' + text);
+        });
+    } else {
+        // Фолбэк для старых браузеров
+        const tempInput = document.createElement('input');
+        tempInput.value = text;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        
+        const originalHTML = element.innerHTML;
+        element.innerHTML = '✓ Скопировано!';
+        element.classList.add('bg-success');
+        
+        setTimeout(function() {
+            element.innerHTML = originalHTML;
+            element.classList.remove('bg-success');
+            element.classList.add('bg-info');
+        }, 1500);
+    }
+}
+
+
+/* -- poizon/tariff/index.php -- */
+

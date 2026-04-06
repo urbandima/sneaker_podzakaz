@@ -1187,11 +1187,9 @@ function createOffer(email) {
 /* === MARKETING pages === */
 
 /* -- marketing/index.php -- */
-function sendReminder(cartId) {
+function sendReminder(cartId, btn) {
     if (!confirm('Отправить напоминание клиенту?')) return;
-    var reminderUrl = (document.getElementById('marketing-config') || {}).dataset
-        ? (document.getElementById('marketing-config').dataset.sendReminderUrl || '/admin/marketing/send-reminder')
-        : '/admin/marketing/send-reminder';
+    var reminderUrl = (btn && btn.dataset.reminderUrl) ? btn.dataset.reminderUrl : '/admin/marketing/send-reminder';
 
     fetch(reminderUrl, {
         method: 'POST',
@@ -1208,11 +1206,9 @@ function sendReminder(cartId) {
     });
 }
 
-function sendBulkReminders() {
+function sendBulkReminders(btn) {
     if (!confirm('Отправить напоминания всем клиентам с брошенными корзинами?')) return;
-    var bulkUrl = (document.getElementById('marketing-config') || {}).dataset
-        ? (document.getElementById('marketing-config').dataset.sendBulkUrl || '/admin/marketing/send-bulk-reminders')
-        : '/admin/marketing/send-bulk-reminders';
+    var bulkUrl = (btn && btn.dataset.bulkUrl) ? btn.dataset.bulkUrl : '/admin/marketing/send-bulk-reminders';
 
     fetch(bulkUrl, {
         method: 'POST',
@@ -1634,4 +1630,220 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     load();
+});
+
+
+/* -- settings/integrations.php -- */
+document.addEventListener('DOMContentLoaded', function() {
+function testAmoCRM() {
+    alert('Тестирование подключения к AmoCRM...');
+    // TODO: AJAX запрос к /admin/amo-crm/test
+}
+
+function saveAmoCRM() {
+    alert('Сохранение настроек AmoCRM...');
+    // TODO: AJAX запрос к /admin/amo-crm/save
+}
+
+function testMoySklad() {
+    alert('Тестирование подключения к МойСклад...');
+    // TODO: AJAX запрос к /admin/moy-sklad/test
+}
+
+function saveMoySklad() {
+    alert('Сохранение настроек МойСклад...');
+    // TODO: AJAX запрос к /admin/moy-sklad/save
+}
+
+function testTelegram() {
+    const token = document.getElementById('telegram-token').value;
+    if (!token) {
+        alert('Введите Bot Token');
+        return;
+    }
+    
+    fetch('/admin/telegram-bot/test', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({token})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Тестовое сообщение отправлено!');
+        } else {
+            alert('❌ Ошибка: ' + data.message);
+        }
+    });
+}
+
+function saveTelegram() {
+    alert('Сохранение настроек Telegram...');
+    // TODO: AJAX запрос к /admin/telegram-bot/save
+}
+
+function updateCNYRate() {
+    const btn = document.activeElement;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Обновление...';
+    
+    fetch('/admin/exchange-rate/update', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        }
+    })
+    .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    })
+    .then(data => {
+        if (data.success) {
+            document.getElementById('cny-rate').textContent = data.rate;
+            document.getElementById('cny-updated').textContent = new Date().toLocaleString('ru-RU');
+            btn.innerHTML = '<i class="bi bi-check-circle"></i> Обновлено!';
+            btn.classList.remove('admin-btn-primary');
+            btn.classList.add('admin-btn-success');
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                btn.classList.add('admin-btn-primary');
+                btn.classList.remove('admin-btn-success');
+            }, 2000);
+        } else {
+            throw new Error(data.message || 'Ошибка обновления');
+        }
+    })
+    .catch(err => {
+        console.error('Ошибка:', err);
+        alert('❌ ' + (err.message || 'Ошибка обновления курса'));
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+
+// Загрузка текущего курса при открытии страницы
+fetch('/admin/exchange-rate/current')
+    .then(r => r.json())
+    .then(data => {
+        if (data.rate) {
+            document.getElementById('cny-rate').textContent = data.rate;
+            document.getElementById('cny-updated').textContent = data.updated_at;
+        }
+    });
+});
+
+
+/* -- settings/telegram.php -- */
+document.addEventListener('DOMContentLoaded', function() {
+function saveSettings(btn) {
+    const settings = {};
+    document.querySelectorAll('[data-setting]').forEach(el => {
+        const key = el.getAttribute('data-setting');
+        settings[key] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    
+    fetch('/admin/settings/save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify(settings)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('Настройки сохранены');
+        } else {
+            alert('Ошибка: ' + data.message);
+        }
+    });
+}
+
+function testTelegramConnection() {
+    alert('Проверка подключения...\n\nФункция будет реализована после настройки Bot Token');
+}
+
+function sendTestNotification() {
+    alert('Тестовое уведомление отправлено!\n\n(Функция будет активна после настройки бота)');
+}
+});
+
+
+/* -- poizon/user/index.php -- */
+document.addEventListener('DOMContentLoaded', () => {
+    const filtersCard = document.getElementById('usersFiltersCard');
+    const toggleBtn = document.getElementById('usersFiltersToggle');
+
+    const toggleFilters = () => {
+        const isOpen = filtersCard.getAttribute('data-open') === 'true';
+        filtersCard.setAttribute('data-open', String(!isOpen));
+        filtersCard.classList.toggle('is-collapsed', isOpen);
+        filtersCard.querySelector('.admin-card-body').style.display = isOpen ? 'none' : 'block';
+    };
+
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', toggleFilters);
+    }
+
+    // Скрываем тело фильтра, если нет активных критериев
+    if (Object.keys(JSON.parse(document.getElementById('users-filters-card')?.dataset.activeFilters || '{}')).length === 0) {
+        filtersCard.querySelector('.admin-card-body').style.display = 'none';
+    } else {
+        filtersCard.setAttribute('data-open', 'true');
+    }
+});
+
+function editUser(userId) {
+    window.location.href = `/admin/user/edit?id=${userId}`;
+}
+
+function toggleUserStatus(userId) {
+    if (confirm('Изменить статус пользователя?')) {
+        fetch(`/admin/user/${userId}/toggle`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            }
+        })
+            .then(response => response.json())
+            .then(data => data.success ? window.location.reload() : alert(data.message || 'Ошибка при изменении статуса'))
+            .catch(() => alert('Ошибка сети'));
+    }
+}
+
+function deleteUser(userId, username) {
+    if (confirm(`Удалить пользователя «${username}»? Это действие нельзя отменить.`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/user/delete?id=${userId}`;
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_csrf';
+            csrfInput.value = csrfToken.content;
+            form.appendChild(csrfInput);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function bulkExport() {
+    window.location.href = '/admin/user/export';
+}
+
+
+/* === POS TERMINAL === */
+
+/* -- pos/index.php -- */
+document.addEventListener('DOMContentLoaded', function() {
+
 });

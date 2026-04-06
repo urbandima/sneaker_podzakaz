@@ -193,29 +193,6 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
         </div>
     </div>
-    
-    <script>
-    function copyFullLog() {
-        const logContainer = document.getElementById('fullLogContainer');
-        const text = logContainer.innerText;
-        navigator.clipboard.writeText(text).then(function() {
-            alert('Лог скопирован в буфер обмена!');
-        });
-    }
-    
-    function toggleLogExpand() {
-        const logContainer = document.getElementById('fullLogContainer');
-        const expandText = document.getElementById('expandText');
-        
-        if (logContainer.style.maxHeight === '500px') {
-            logContainer.style.maxHeight = 'none';
-            expandText.textContent = 'Свернуть';
-        } else {
-            logContainer.style.maxHeight = '500px';
-            expandText.textContent = 'Развернуть';
-        }
-    }
-    </script>
     <?php endif; ?>
 
     <!-- Логи (таблица) -->

@@ -168,38 +168,3 @@ $this->title = 'Настройки Telegram-бота';
         </button>
     </div>
 </div>
-
-<script>
-function saveSettings(btn) {
-    const settings = {};
-    document.querySelectorAll('[data-setting]').forEach(el => {
-        const key = el.getAttribute('data-setting');
-        settings[key] = el.type === 'checkbox' ? el.checked : el.value;
-    });
-    
-    fetch('<?= Url::to(['/admin/settings/save']) ?>', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify(settings)
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            alert('Настройки сохранены');
-        } else {
-            alert('Ошибка: ' + data.message);
-        }
-    });
-}
-
-function testTelegramConnection() {
-    alert('Проверка подключения...\n\nФункция будет реализована после настройки Bot Token');
-}
-
-function sendTestNotification() {
-    alert('Тестовое уведомление отправлено!\n\n(Функция будет активна после настройки бота)');
-}
-</script>
