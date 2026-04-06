@@ -150,7 +150,8 @@ $statusColor = $statusColors[$model->status] ?? 'secondary';
                         <?php if (!$done): ?>
                             <button class="admin-btn admin-btn-primary"
                                     style="padding: 0.35rem 0.9rem; font-size: 0.8rem;"
-                                    onclick="markStepDone(<?= $model->id ?>, '<?= $stepKey ?>', this)">
+                                    onclick="markStepDone(<?= $model->id ?>, '<?= $stepKey ?>', this)"
+                                    data-update-url="<?= \yii\helpers\Url::to(['/admin/return/update-step']) ?>">
                                 <i class="bi bi-check2"></i> Выполнено
                             </button>
                         <?php else: ?>
