@@ -134,22 +134,3 @@ $tabs = [
     <?php endif; ?>
 </div>
 
-<style>
-.form-control {
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--admin-border);
-    border-radius: 0.5rem;
-    background: var(--admin-bg);
-    color: var(--admin-text-primary);
-    font-size: 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-.form-control:focus {
-    outline: none;
-    border-color: var(--admin-primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-.pagination { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0; }
-.page-link { padding: 0.5rem 0.75rem; border: 1px solid var(--admin-border); border-radius: 0.375rem; background: var(--admin-bg); color: var(--admin-text-primary); text-decoration: none; transition: all 0.2s; }
-.page-link:hover { background: var(--admin-primary); color: white; border-color: var(--admin-primary); }
-</style>
