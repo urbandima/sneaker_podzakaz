@@ -5,33 +5,36 @@ namespace app\backend\modules\admin\assets;
 use yii\web\AssetBundle;
 
 /**
- * Asset bundle для админ-панели
- * 
- * РЕФАКТОРИНГ 2025:
- * - CSS объединены в admin-bundle.min.css
- * - JS объединены в admin-bundle.min.js
+ * Asset bundle для админ-панели.
+ *
+ * Порядок CSS важен: design-tokens → admin-tokens → компоненты → страницы.
  */
 class AdminAsset extends AssetBundle
 {
     public $basePath = '@webroot';
-    public $baseUrl = '@web';
-    
+    public $baseUrl  = '@web';
+
     public $css = [
-        'css/admin-shopify-2026.css',
+        'css/core/design-tokens.css',    // Frontend-токены (--color-*, --space-*, --text-*)
+        'css/admin-tokens.css',          // Admin-маппинг на core-токены (--admin-*)
+        'css/admin-shopify-2026.css',    // Компонентные стили панели
+        'css/admin-pages.css',           // Page-specific стили (вынесенные inline)
+        'css/admin-wizard.css',          // Wizard-страницы (create/view-wizard)
     ];
-    
+
     public $js = [
         'js/admin.js',
-        'js/dashboard.js',
         'js/admin-search.js',
+        'js/dashboard.js',
         'js/orders.js',
+        'js/admin-orders.js',
+        'js/admin-products.js',
+        'js/admin-customers.js',
+        'js/admin-settings.js',
+        'js/admin-wizard.js',
     ];
-    
+
     public $depends = [
-        'app\backend\assets\AdminAsset', // Основной AdminAsset с минималистичными стилями
         'yii\web\YiiAsset',
-        // Bootstrap5 отключен для минималистичного дизайна
-        // 'yii\bootstrap5\BootstrapAsset',
-        // 'yii\bootstrap5\BootstrapPluginAsset',
     ];
 }

@@ -2,6 +2,9 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\modules\admin\assets\AdminAsset;
+
+AdminAsset::register($this);
 
 $company = Yii::$app->settings->getCompany() ?? ['name' => 'СНИКЕРХЭД'];
 $controllerId = Yii::$app->controller->id;
@@ -17,10 +20,7 @@ $controllerId = Yii::$app->controller->id;
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?> — Админ</title>
     
-    <!-- Admin CSS -->
-    <link href="/css/admin-shopify-2026.css?v=<?= file_exists(Yii::getAlias('@webroot') . '/css/admin-shopify-2026.css') ? filemtime(Yii::getAlias('@webroot') . '/css/admin-shopify-2026.css') : time() ?>" rel="stylesheet">
-    
-<!-- Bootstrap Icons -->
+    <!-- Bootstrap Icons (CDN — нет npm-пакета в проекте) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <!-- Restore theme before paint -->
@@ -300,29 +300,6 @@ $controllerId = Yii::$app->controller->id;
                         </a>
                     </div>
                 </div>
-                <script>
-                function toggleNotifications() {
-                    const dropdown = document.getElementById('notif-dropdown');
-                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-                }
-                function toggleProfile() {
-                    const dropdown = document.getElementById('profile-dropdown');
-                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-                }
-                document.addEventListener('click', function(e) {
-                    const notifBtn = document.getElementById('notif-btn');
-                    const notifDropdown = document.getElementById('notif-dropdown');
-                    const profileBtn = document.getElementById('profile-btn');
-                    const profileDropdown = document.getElementById('profile-dropdown');
-                    
-                    if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
-                        notifDropdown.style.display = 'none';
-                    }
-                    if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
-                        profileDropdown.style.display = 'none';
-                    }
-                });
-                </script>
             </div>
         </div>
 
@@ -376,12 +353,6 @@ $controllerId = Yii::$app->controller->id;
         </a>
     </div>
 </div>
-
-<!-- Admin JS -->
-<script src="/js/admin.js?v=<?= file_exists(Yii::getAlias('@webroot') . '/js/admin.js') ? filemtime(Yii::getAlias('@webroot') . '/js/admin.js') : time() ?>"></script>
-<script src="/js/admin-search.js?v=<?= file_exists(Yii::getAlias('@webroot') . '/js/admin-search.js') ? filemtime(Yii::getAlias('@webroot') . '/js/admin-search.js') : time() ?>"></script>
-<script src="/js/dashboard.js?v=<?= file_exists(Yii::getAlias('@webroot') . '/js/dashboard.js') ? filemtime(Yii::getAlias('@webroot') . '/js/dashboard.js') : time() ?>"></script>
-<script src="/js/orders.js?v=<?= file_exists(Yii::getAlias('@webroot') . '/js/orders.js') ? filemtime(Yii::getAlias('@webroot') . '/js/orders.js') : time() ?>"></script>
 
 <?php $this->endBody() ?>
 </body>

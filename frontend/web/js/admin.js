@@ -410,3 +410,33 @@
     }
 
 })();
+
+/* ========== TOPBAR DROPDOWNS (extracted from admin layout) ========== */
+
+function toggleNotifications() {
+    var dropdown = document.getElementById('notif-dropdown');
+    if (dropdown) {
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+function toggleProfile() {
+    var dropdown = document.getElementById('profile-dropdown');
+    if (dropdown) {
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+document.addEventListener('click', function (e) {
+    var notifBtn      = document.getElementById('notif-btn');
+    var notifDropdown = document.getElementById('notif-dropdown');
+    var profileBtn    = document.getElementById('profile-btn');
+    var profileDropdown = document.getElementById('profile-dropdown');
+
+    if (notifBtn && notifDropdown && !notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+        notifDropdown.style.display = 'none';
+    }
+    if (profileBtn && profileDropdown && !profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+        profileDropdown.style.display = 'none';
+    }
+});
