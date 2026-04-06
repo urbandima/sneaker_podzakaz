@@ -1907,3 +1907,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+/* === IMPORT STATS === */
+
+/* -- import/stats.php -- */
+/* Note: Chart data read from canvas#dailyChart data-* attributes */
+document.addEventListener('DOMContentLoaded', function() {
+    var canvas = document.getElementById('dailyChart');
+    if (!canvas) return;
+
+    var labels   = JSON.parse(canvas.dataset.labels   || '[]');
+    var imported = JSON.parse(canvas.dataset.imported || '[]');
+    var updated  = JSON.parse(canvas.dataset.updated  || '[]');
+    var errors   = JSON.parse(canvas.dataset.errors   || '[]');
+
+    if (typeof Chart === 'undefined') return;
+
+    new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: 'Импортировано', data: imported, backgroundColor: 'rgba(25, 135, 84, 0.7)' },
+                { label: 'Обновлено',     data: updated,  backgroundColor: 'rgba(13, 202, 240, 0.7)' },
+                { label: 'Ошибок',        data: errors,   backgroundColor: 'rgba(220, 53, 69, 0.7)' }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true }
+            }
+        }
+    });
+});
