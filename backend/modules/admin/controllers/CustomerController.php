@@ -545,6 +545,7 @@ class CustomerController extends BaseAdminController
                 [':id' => $customerId]
             )->queryAll();
         } catch (\Exception $e) {
+            Yii::warning('getCustomerNotes failed: ' . $e->getMessage(), 'customer');
             return [];
         }
     }
@@ -561,6 +562,7 @@ class CustomerController extends BaseAdminController
             )->queryColumn();
             return $rows ?: [];
         } catch (\Exception $e) {
+            Yii::warning('getCustomerTags failed: ' . $e->getMessage(), 'customer');
             return [];
         }
     }
