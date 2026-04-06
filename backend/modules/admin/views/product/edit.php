@@ -49,6 +49,10 @@ $characteristicsFromRegistry = !$product->isNewRecord
     : [];
 ?>
 
+<?php if (!$product->isNewRecord): ?>
+<span id="js-product-id" data-id="<?= $product->id ?>" style="display:none;"></span>
+<?php endif; ?>
+
 <div class="product-edit">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -1469,93 +1473,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
     </div>
 </div>
 
-<script>
-// Выбор размерной сетки
-document.addEventListener('DOMContentLoaded', function() {
-    const gridSelect = document.getElementById('size-grid-select');
-    const addBtn = document.getElementById('add-from-grid-btn');
-    
-    if (gridSelect && addBtn) {
-        gridSelect.addEventListener('change', function() {
-            if (this.value) {
-                const url = addBtn.getAttribute('href').replace('__GRID_ID__', this.value);
-                addBtn.setAttribute('href', url);
-                addBtn.style.display = 'inline-block';
-            } else {
-                addBtn.style.display = 'none';
-            }
-        });
-    }
-});
-</script>
 <?php endif; ?>
-<script>
-// Копирование цены в юанях в буфер обмена
-function copyToClipboard(text, element) {
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(function() {
-            const originalHTML = element.innerHTML;
-            element.innerHTML = '✓ Скопировано!';
-            element.classList.remove('bg-info');
-            element.classList.add('bg-success');
-            
-            setTimeout(function() {
-                element.innerHTML = originalHTML;
-                element.classList.remove('bg-success');
-                element.classList.add('bg-info');
-            }, 1500);
-        }).catch(function(err) {
-            console.error('Ошибка копирования:', err);
-            alert('Не удалось скопировать: ' + text);
-        });
-    } else {
-        const tempInput = document.createElement('input');
-        tempInput.value = text;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-        
-        const originalHTML = element.innerHTML;
-        element.innerHTML = '✓ Скопировано!';
-        element.classList.add('bg-success');
-        
-        setTimeout(function() {
-            element.innerHTML = originalHTML;
-            element.classList.remove('bg-success');
-            element.classList.add('bg-info');
-        }, 1500);
-    }
-}
-</script>
-
-<script>
-// Подсветка активной секции в навигации
-document.addEventListener('DOMContentLoaded', function() {
-    const sections = document.querySelectorAll('[id^="section-"]');
-    const navLinks = document.querySelectorAll('.quick-nav-sticky a');
-    
-    function highlightNav() {
-        let current = '';
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (pageYOffset >= (sectionTop - 150)) {
-                current = section.getAttribute('id');
-            }
-        });
-        
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === '#' + current) {
-                link.classList.add('active');
-            }
-        });
-    }
-    
-    window.addEventListener('scroll', highlightNav);
-});
-</script>
 
 <!-- Modal: Добавление характеристики -->
 <?php if (!$product->isNewRecord): ?>
