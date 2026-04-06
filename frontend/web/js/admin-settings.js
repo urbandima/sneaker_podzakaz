@@ -718,3 +718,611 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+/* === IMPORT pages === */
+
+/* -- import/index.php -- */
+document.addEventListener('DOMContentLoaded', function() {
+    // Running task progress polling
+    function updateRunningTasks() {
+        document.querySelectorAll('.running-task').forEach(function(row) {
+            var taskId = row.dataset.taskId;
+            if (!taskId) return;
+            fetch('/admin/import-ajax/progress?taskId=' + taskId)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.success && !data.is_running) {
+                        location.reload();
+                    }
+                });
+        });
+    }
+
+    if (document.querySelectorAll('.running-task').length > 0) {
+        setInterval(updateRunningTasks, 3000);
+    }
+
+    // Stop task button
+    document.querySelectorAll('.btn-stop-task').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var taskId = this.dataset.taskId;
+            if (!confirm('Остановить задачу #' + taskId + '?')) return;
+            fetch('/admin/import-ajax/stop', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+                },
+                body: 'taskId=' + taskId
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.error);
+                }
+            });
+        });
+    });
+});
+
+/* -- import/upload.php -- */
+function downloadTemplate(format) {
+    var content, filename, mimeType;
+
+    if (format === 'json') {
+        content = JSON.stringify([
+            {
+                name: 'Nike Air Max 90',
+                sku: 'NM-90-001',
+                description: 'Классические кроссовки Nike',
+                price: 299.99,
+                brand_name: 'Nike',
+                is_active: true
+            },
+            {
+                name: 'Adidas Ultraboost',
+                sku: 'AD-UB-001',
+                description: 'Беговые кроссовки Adidas',
+                price: 349.99,
+                brand_name: 'Adidas',
+                is_active: true
+            }
+        ], null, 2);
+        filename = 'import-template.json';
+        mimeType = 'application/json';
+    } else if (format === 'csv') {
+        content = 'name;sku;description;price;brand_name;is_active\n' +
+            '"Nike Air Max 90";"NM-90-001";"Классические кроссовки Nike";299.99;"Nike";1\n' +
+            '"Adidas Ultraboost";"AD-UB-001";"Беговые кроссовки Adidas";349.99;"Adidas";1';
+        filename = 'import-template.csv';
+        mimeType = 'text/csv';
+    }
+
+    var blob = new Blob([content], {type: mimeType});
+    var url = window.URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
+
+/* -- layouts/_import_notifications.php (jQuery-based, kept compatible) -- */
+document.addEventListener('DOMContentLoaded', function() {
+    // Notification read — jQuery version kept inline; vanilla fallback here
+    document.querySelectorAll('.notification-item').forEach(function(item) {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            var id = this.dataset.id;
+            if (typeof $ !== 'undefined') {
+                $.post('/admin/import-ajax/mark-notification-read', {id: id}, function(data) {
+                    if (data.success) location.reload();
+                });
+            }
+        });
+    });
+
+    var markAllBtn = document.getElementById('mark-all-read');
+    if (markAllBtn) {
+        markAllBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (typeof $ !== 'undefined') {
+                $.post('/admin/import-ajax/mark-all-notifications-read', function(data) {
+                    if (data.success) location.reload();
+                });
+            }
+        });
+    }
+});
+
+/* === COUPON pages === */
+
+/* -- coupon/analytics.php -- */
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.btn-period').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.btn-period').forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+            var period = this.dataset.period;
+            fetch('/admin/coupon/analytics?period=' + period)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    updateCouponDashboard(data);
+                });
+        });
+    });
+
+    function updateCouponDashboard(data) {
+        // KPI and chart update placeholder — extend as needed
+    }
+});
+
+/* -- coupon/_form.php and coupon/create.php -- */
+function generateCouponCode() {
+    var generateUrl = (document.getElementById('coupon-form-config') || {}).dataset
+        ? document.getElementById('coupon-form-config').dataset.generateUrl
+        : '/admin/coupon/generate-code';
+
+    fetch(generateUrl || '/admin/coupon/generate-code', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+        },
+        body: 'prefix=&length=8'
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        var codeInput = document.querySelector('#coupon-code');
+        if (codeInput) codeInput.value = data.code;
+    });
+}
+
+function updateDiscountFields(type) {
+    var valueField = document.querySelector('#value-field');
+    var valueInput = document.querySelector('#coupon-value');
+
+    if (!valueField) return;
+
+    // free_shipping is the static string used in create.php;
+    // coupon/_form.php uses TYPE_FREE_SHIPPING constant rendered server-side.
+    // The data-free-shipping attribute carries that value.
+    var freeShippingValue = (document.getElementById('coupon-type') || {}).dataset
+        ? (document.getElementById('coupon-type').dataset.freeShippingValue || 'free_shipping')
+        : 'free_shipping';
+
+    if (type === freeShippingValue || type === 'free_shipping') {
+        valueField.style.display = 'none';
+        if (valueInput) valueInput.value = 0;
+    } else {
+        valueField.style.display = 'block';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var typeSelect = document.querySelector('#coupon-type');
+    if (typeSelect && typeSelect.value) {
+        updateDiscountFields(typeSelect.value);
+    }
+});
+
+/* === LOYALTY pages === */
+
+/* -- loyalty/index.php -- */
+function saveLoyaltySettings() {
+    var btn = document.getElementById('saveLoyaltyBtn');
+    var saveUrl = (document.getElementById('loyalty-config') || {}).dataset
+        ? (document.getElementById('loyalty-config').dataset.saveUrl || '/admin/settings/save-loyalty')
+        : '/admin/settings/save-loyalty';
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Сохранение...';
+
+    var data = {
+        loyalty: {
+            enabled:       document.getElementById('loyaltyEnabled').checked ? 1 : 0,
+            public_page:   document.getElementById('publicPageEnabled').checked ? 1 : 0,
+            bronze_min:    document.getElementById('level_bronze_min').value,
+            bronze_mult:   document.getElementById('level_bronze_mult').value,
+            silver_min:    document.getElementById('level_silver_min').value,
+            silver_mult:   document.getElementById('level_silver_mult').value,
+            gold_min:      document.getElementById('level_gold_min').value,
+            gold_mult:     document.getElementById('level_gold_mult').value,
+            platinum_min:  document.getElementById('level_platinum_min').value,
+            platinum_mult: document.getElementById('level_platinum_mult').value
+        }
+    };
+
+    fetch(saveUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+        },
+        body: JSON.stringify(data)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        btn.disabled = false;
+        if (res.success) {
+            btn.innerHTML = '<i class="bi bi-check2-circle"></i> Сохранено!';
+            btn.classList.replace('admin-btn-primary', 'admin-btn-success');
+            setTimeout(function() {
+                btn.innerHTML = '<i class="bi bi-check-circle"></i> Сохранить настройки';
+                btn.classList.replace('admin-btn-success', 'admin-btn-primary');
+            }, 2500);
+        } else {
+            btn.innerHTML = '<i class="bi bi-exclamation-circle"></i> Ошибка';
+            alert(res.message || 'Ошибка сохранения');
+            setTimeout(function() { btn.innerHTML = '<i class="bi bi-check-circle"></i> Сохранить настройки'; }, 2000);
+        }
+    })
+    .catch(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-circle"></i> Сохранить настройки';
+        alert('Ошибка соединения');
+    });
+}
+
+/* === RETURN pages === */
+
+/* -- return/view.php -- */
+function markStepDone(returnId, stepKey, btn) {
+    var updateUrl = (document.getElementById('return-config') || {}).dataset
+        ? (document.getElementById('return-config').dataset.updateStepUrl || '/admin/return/update-step')
+        : '/admin/return/update-step';
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+
+    fetch(updateUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+        },
+        body: JSON.stringify({id: returnId, step: stepKey})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        if (res.success) {
+            var stepEl = document.getElementById('step-' + stepKey);
+            stepEl.classList.add('checklist-step--done');
+            var iconEl = stepEl.querySelector('.checklist-step-icon i');
+            if (iconEl) iconEl.className = 'bi bi-check-circle-fill';
+            var numEl = stepEl.querySelector('.checklist-step-number');
+            if (numEl) numEl.style.background = '#22c55e';
+            var actionEl = stepEl.querySelector('.checklist-step-action');
+            actionEl.innerHTML = '<span class="admin-badge admin-badge-success"><i class="bi bi-check2-circle"></i> Готово</span>';
+            var contentEl = stepEl.querySelector('.checklist-step-content');
+            var meta = document.createElement('div');
+            meta.className = 'checklist-step-meta';
+            meta.innerHTML = '<i class="bi bi-calendar3"></i> ' + (res.date || 'только что') +
+                (res.author ? ' &bull; <i class="bi bi-person"></i> ' + res.author : '');
+            contentEl.appendChild(meta);
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check2"></i> Выполнено';
+            alert(res.message || 'Ошибка обновления шага');
+        }
+    })
+    .catch(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check2"></i> Выполнено';
+        alert('Ошибка соединения');
+    });
+}
+
+/* === PLUGIN pages === */
+
+/* -- plugin/index.php -- */
+function togglePlugin(id, action) {
+    if (!confirm('Вы уверены?')) return;
+
+    fetch('/admin/plugin/toggle', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+        },
+        body: 'id=' + id + '&action=' + action
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    });
+}
+
+/* === SEO pages === */
+
+/* -- seo/bulk-meta.php -- */
+function updateProductMeta(id, field, value) {
+    fetch('/admin/seo/update-product-meta', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRF-Token': (typeof yii !== 'undefined' ? yii.getCsrfToken() : ((document.querySelector('meta[name="csrf-token"]') || {}).content || ''))
+        },
+        body: 'id=' + id + '&field=' + field + '&value=' + encodeURIComponent(value)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showAdminNotification('Сохранено!', 'success');
+        } else {
+            showAdminNotification('Ошибка сохранения', 'error');
+        }
+    });
+}
+
+function applyTemplate(type, template) {
+    if (type === 'title') {
+        document.getElementById('meta_title_pattern').value = template;
+    } else if (type === 'desc') {
+        document.getElementById('meta_description_pattern').value = template;
+    } else if (type === 'keywords') {
+        document.getElementById('meta_keywords_pattern').value = template;
+    }
+    showAdminNotification('Шаблон применён!', 'success');
+}
+
+/* -- seo/alt-texts.php -- */
+function updateImageAlt(id, value) {
+    fetch('/admin/seo/update-image-alt', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRF-Token': (typeof yii !== 'undefined' ? yii.getCsrfToken() : ((document.querySelector('meta[name="csrf-token"]') || {}).content || ''))
+        },
+        body: 'id=' + id + '&alt_text=' + encodeURIComponent(value)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showAdminNotification('ALT текст сохранён!', 'success');
+        } else {
+            showAdminNotification('Ошибка сохранения', 'error');
+        }
+    });
+}
+
+/* -- shared SEO notification helper -- */
+function showAdminNotification(message, type) {
+    var div = document.createElement('div');
+    div.className = 'alert alert-' + (type === 'success' ? 'success' : 'danger');
+    div.textContent = message;
+    div.style.position = 'fixed';
+    div.style.top = '20px';
+    div.style.right = '20px';
+    div.style.zIndex = '9999';
+    div.style.padding = '10px 20px';
+    document.body.appendChild(div);
+    setTimeout(function() { div.remove(); }, 3000);
+}
+
+/* === ANALYTICS pages === */
+
+/* -- analytics/index.php -- */
+document.addEventListener('DOMContentLoaded', function() {
+    window.refreshRfm = function(btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Рассчёт...';
+        var msgEl = document.getElementById('rfm-msg');
+        var rfmUrl = (document.getElementById('analytics-config') || {}).dataset
+            ? (document.getElementById('analytics-config').dataset.rfmUrl || '/admin/analytics/rfm')
+            : '/admin/analytics/rfm';
+
+        fetch(rfmUrl, {
+            method: 'GET',
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Рассчитать RFM';
+            if (data.success && data.segments) {
+                var colors = {Champion: '#10b981', Loyal: '#3b82f6', 'At Risk': '#f59e0b', Lost: '#ef4444', New: '#8b5cf6'};
+                var tbody = document.querySelector('#rfm-table tbody');
+                var exportBaseUrl = (document.getElementById('analytics-config') || {}).dataset
+                    ? (document.getElementById('analytics-config').dataset.exportRfmUrl || '/admin/analytics/export-rfm')
+                    : '/admin/analytics/export-rfm';
+                if (tbody) {
+                    tbody.innerHTML = '';
+                    data.segments.forEach(function(seg) {
+                        var c = colors[seg.segment] || '#64748b';
+                        var tr = document.createElement('tr');
+                        var exportUrl = exportBaseUrl + '?segment=' + encodeURIComponent(seg.segment);
+                        tr.innerHTML = '<td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + c + ';margin-right:.4rem;"></span><strong>' + seg.segment + '</strong></td>'
+                            + '<td style="text-align:right;font-weight:700;">' + seg.count + '</td>'
+                            + '<td style="text-align:right;">' + parseFloat(seg.avg_monetary).toFixed(2) + '</td>'
+                            + '<td style="text-align:center;"><a href="' + exportUrl + '" class="admin-btn admin-btn-secondary" style="font-size:.75rem;padding:.3rem .7rem;"><i class="bi bi-download"></i> CSV</a></td>';
+                        tbody.appendChild(tr);
+                    });
+                }
+                if (msgEl) {
+                    msgEl.style.display = 'block';
+                    msgEl.style.background = '#d1fae5';
+                    msgEl.style.color = '#065f46';
+                    msgEl.textContent = 'RFM пересчитан успешно';
+                    setTimeout(function() { msgEl.style.display = 'none'; }, 3000);
+                }
+            }
+        })
+        .catch(function() {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Рассчитать RFM';
+            if (msgEl) {
+                msgEl.style.display = 'block';
+                msgEl.style.background = '#fee2e2';
+                msgEl.style.color = '#991b1b';
+                msgEl.textContent = 'Ошибка при расчёте RFM';
+            }
+        });
+    };
+});
+
+/* -- analytics/rfm.php -- */
+function showSegmentDetails(segment) {
+    alert('Детали сегмента "' + segment + '"\n\nЗдесь будет список клиентов этого сегмента с возможностью экспорта и массовых действий.');
+}
+
+function exportAtRisk() {
+    alert('Экспорт списка покупателей в статусе риска\n\nCSV файл будет содержать: имя, email, LTV, класс LTV, последний заказ, дней без заказа, уровень риска.');
+}
+
+function sendEmail(email) {
+    alert('Отправка email клиенту: ' + email + '\n\nОткроется форма персонального письма для реактивации клиента.');
+}
+
+function sendSms(email) {
+    alert('Отправка SMS клиенту: ' + email + '\n\nОткроется форма SMS-рассылки с предложением.');
+}
+
+function createOffer(email) {
+    alert('Создание персонального предложения для: ' + email + '\n\nМожно создать персональный купон или скидку для этого клиента.');
+}
+
+/* === MARKETING pages === */
+
+/* -- marketing/index.php -- */
+function sendReminder(cartId) {
+    if (!confirm('Отправить напоминание клиенту?')) return;
+    var reminderUrl = (document.getElementById('marketing-config') || {}).dataset
+        ? (document.getElementById('marketing-config').dataset.sendReminderUrl || '/admin/marketing/send-reminder')
+        : '/admin/marketing/send-reminder';
+
+    fetch(reminderUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+        },
+        body: 'cart_id=' + cartId
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        alert(data.message);
+        if (data.success) location.reload();
+    });
+}
+
+function sendBulkReminders() {
+    if (!confirm('Отправить напоминания всем клиентам с брошенными корзинами?')) return;
+    var bulkUrl = (document.getElementById('marketing-config') || {}).dataset
+        ? (document.getElementById('marketing-config').dataset.sendBulkUrl || '/admin/marketing/send-bulk-reminders')
+        : '/admin/marketing/send-bulk-reminders';
+
+    fetch(bulkUrl, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+        }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        alert(data.message);
+    });
+}
+
+/* === FRONTEND MAIN LAYOUT (layouts/main.php) === */
+
+/* -- layouts/main.php -- */
+function toggleMobileMenu() {
+    var menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    menu.classList.toggle('open');
+    document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+}
+
+function openSearch() {
+    var modal = document.getElementById('searchModal');
+    if (!modal) return;
+    modal.classList.add('open');
+    var input = document.getElementById('searchInput');
+    if (input) input.focus();
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSearch() {
+    var modal = document.getElementById('searchModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function handleSearch(event) {
+    if (event.key === 'Escape') {
+        closeSearch();
+        return;
+    }
+
+    var query = event.target.value.trim();
+    var resultsContainer = document.getElementById('searchResults');
+    if (!resultsContainer) return;
+
+    if (query.length < 2) {
+        resultsContainer.innerHTML = '';
+        return;
+    }
+
+    fetch('/api/v1/products/search?q=' + encodeURIComponent(query))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.length > 0) {
+                resultsContainer.innerHTML = data.map(function(product) {
+                    return '<a href="/product/' + product.id + '" class="search-result-item" onclick="closeSearch()">' +
+                        '<img src="' + (product.image || '/images/placeholder.png') + '" alt="' + product.name + '">' +
+                        '<div class="search-result-info">' +
+                            '<div class="search-result-name">' + product.name + '</div>' +
+                            '<div class="search-result-price">' + product.price + ' BYN</div>' +
+                        '</div>' +
+                    '</a>';
+                }).join('');
+            } else {
+                resultsContainer.innerHTML = '<div class="search-no-results">Ничего не найдено</div>';
+            }
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var searchModal = document.getElementById('searchModal');
+    if (searchModal) {
+        searchModal.addEventListener('click', function(e) {
+            if (e.target.id === 'searchModal') closeSearch();
+        });
+    }
+});
+
+/* === ADMIN LOGIN === */
+
+/* -- admin/login.php -- */
+document.addEventListener('DOMContentLoaded', function() {
+    var firstInput = document.querySelector('#login-form input');
+    if (firstInput) firstInput.focus();
+
+    var passwordToggle = document.querySelector('.password-toggle');
+    var passwordInput  = document.querySelector('#loginform-password');
+
+    if (passwordToggle && passwordInput) {
+        passwordToggle.addEventListener('click', function() {
+            var type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            var icon = this.querySelector('i');
+            if (type === 'text') {
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        });
+    }
+});
