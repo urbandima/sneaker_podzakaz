@@ -863,11 +863,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* -- coupon/_form.php and coupon/create.php -- */
 function generateCouponCode() {
-    var generateUrl = (document.getElementById('coupon-form-config') || {}).dataset
-        ? document.getElementById('coupon-form-config').dataset.generateUrl
-        : '/admin/coupon/generate-code';
+    var btn = document.querySelector('[data-generate-url]');
+    var generateUrl = btn ? btn.dataset.generateUrl : '/admin/coupon/generate-code';
 
-    fetch(generateUrl || '/admin/coupon/generate-code', {
+    fetch(generateUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
