@@ -56,29 +56,6 @@ $unreadCount = ImportNotification::getUnreadCount();
     </div>
 </li>
 
-<style>
-.navbar-badge {
-    font-size: .7rem;
-    font-weight: 400;
-    position: absolute;
-    top: 9px;
-    right: 5px;
-    padding: 2px 4px;
-}
-
-.notification-item:hover {
-    background-color: #f8f9fa;
-}
-
-.notification-item .media-body {
-    margin-left: 10px;
-}
-
-.notification-item p {
-    font-size: 0.875rem;
-}
-</style>
-
 <?php
 $this->registerJs(<<<JS
 // Отметить уведомление как прочитанное

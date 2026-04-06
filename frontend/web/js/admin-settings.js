@@ -1114,9 +1114,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.disabled = true;
         btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Рассчёт...';
         var msgEl = document.getElementById('rfm-msg');
-        var rfmUrl = (document.getElementById('analytics-config') || {}).dataset
-            ? (document.getElementById('analytics-config').dataset.rfmUrl || '/admin/analytics/rfm')
-            : '/admin/analytics/rfm';
+        var rfmUrl = (btn && btn.dataset.rfmUrl) ? btn.dataset.rfmUrl : '/admin/analytics/rfm';
 
         fetch(rfmUrl, {
             method: 'GET',
@@ -1129,9 +1127,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success && data.segments) {
                 var colors = {Champion: '#10b981', Loyal: '#3b82f6', 'At Risk': '#f59e0b', Lost: '#ef4444', New: '#8b5cf6'};
                 var tbody = document.querySelector('#rfm-table tbody');
-                var exportBaseUrl = (document.getElementById('analytics-config') || {}).dataset
-                    ? (document.getElementById('analytics-config').dataset.exportRfmUrl || '/admin/analytics/export-rfm')
-                    : '/admin/analytics/export-rfm';
+                var exportBaseUrl = (btn && btn.dataset.exportRfmUrl) ? btn.dataset.exportRfmUrl : '/admin/analytics/export-rfm';
                 if (tbody) {
                     tbody.innerHTML = '';
                     data.segments.forEach(function(seg) {
