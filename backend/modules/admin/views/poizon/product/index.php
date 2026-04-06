@@ -32,6 +32,9 @@ $brandOptions = ArrayHelper::map($brands, 'id', 'name');
 $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
 ?>
 
+<input type="hidden" id="exportBaseUrl" value="<?= Url::to(['/admin/product/export']) ?>">
+<input type="hidden" id="bulkUpdateUrl" value="<?= Url::to(['/admin/product/bulk-update']) ?>">
+<input type="hidden" id="bulkDeleteUrl" value="<?= Url::to(['/admin/product/bulk-delete']) ?>">
 
 <div class="products-page">
     <div class="products-header">
