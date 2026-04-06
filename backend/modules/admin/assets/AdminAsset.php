@@ -31,6 +31,7 @@ class AdminAsset extends AssetBundle
         'js/admin-products.js',
         'js/admin-customers.js',
         'js/admin-settings.js',
+        'js/admin-poizon.js',
         'js/admin-wizard.js',
     ];
 
