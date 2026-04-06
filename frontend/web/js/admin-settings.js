@@ -1018,7 +1018,10 @@ function markStepDone(returnId, stepKey, btn) {
 function togglePlugin(id, action) {
     if (!confirm('Вы уверены?')) return;
 
-    fetch('/admin/plugin/toggle', {
+    var pluginPage = document.getElementById('plugin-page');
+    var toggleUrl = (pluginPage && pluginPage.dataset.toggleUrl) ? pluginPage.dataset.toggleUrl : '/admin/plugin/toggle';
+
+    fetch(toggleUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
