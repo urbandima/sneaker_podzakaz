@@ -526,349 +526,54 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
     </div>
 </div>
 
-<script>
-// === НОВЫЕ ФУНКЦИИ B5 ===
-function saveField(field, value) {
-    fetch('/admin/order/save-field', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json','X-CSRF-Token':document.querySelector('meta[name=csrf-token]')?.content||''},
-        body: JSON.stringify({id: <?= $model->id ?>, field, value})
-    }).then(r=>r.json()).then(d=>{
-        if(d.success) { const el=document.createElement('span'); el.textContent='✓'; el.style.cssText='color:#008060;font-size:0.75rem;margin-left:0.25rem'; setTimeout(()=>el.remove(),2000); }
-    });
-}
-
-function addOrderNote(orderId) {
-    const text = document.getElementById('new-note-text').value.trim();
-    if (!text) return;
-    fetch('/admin/order/add-note', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json','X-CSRF-Token':document.querySelector('meta[name=csrf-token]')?.content||''},
-        body: JSON.stringify({id: orderId, text})
-    }).then(r=>r.json()).then(d=>{
-        if (d.success) {
-            document.getElementById('order-notes-list').insertAdjacentHTML('beforeend', d.html);
-            document.getElementById('new-note-text').value = '';
-        }
-    });
-}
-
-function syncMoysklad(orderId) {
-    document.getElementById('ms-sync-result').textContent = 'Синхронизация...';
-    fetch('/admin/order/sync-moysklad', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json','X-CSRF-Token':document.querySelector('meta[name=csrf-token]')?.content||''},
-        body: JSON.stringify({id: orderId})
-    }).then(r=>r.json()).then(d=>{
-        document.getElementById('ms-sync-result').textContent = d.message || (d.success ? 'OK' : 'Ошибка');
-    });
-}
-
-function checkTrack(trackNumber, btn) {
-    if (!trackNumber) return;
-    const resultEl = btn.closest('.info-item').querySelector('[id$="-track-result"]') || btn.closest('.info-item').nextElementSibling?.querySelector('div');
-    if (resultEl) resultEl.textContent = 'Проверка...';
-    fetch('/admin/order/check-track?track=' + encodeURIComponent(trackNumber))
-        .then(r=>r.json())
-        .then(d=>{ if(resultEl) resultEl.textContent = d.status || d.message || 'Нет данных'; })
-        .catch(()=>{ if(resultEl) resultEl.textContent = 'Ошибка проверки'; });
-}
-
-function copyLink(inputId, event) {
-    const link = document.getElementById(inputId);
-    if (!link) return;
-
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(link.value).then(function() {
-            showCopyNotification(event);
-        }).catch(function(err) {
-            fallbackCopy(link, event);
-        });
-    } else {
-        fallbackCopy(link, event);
-    }
-}
-
-function fallbackCopy(input, event) {
-    input.select();
-    try {
-        document.execCommand('copy');
-        showCopyNotification(event);
-    } catch (err) {
-        showCopyError(event);
-    }
-}
-
-function showCopyError(event) {
-    if (!event) return;
-    const btn = event.target.closest('button');
-    if (!btn) return;
-    const originalHTML = btn.innerHTML;
-    btn.innerHTML = '<i class="bi bi-x-circle"></i> Ошибка';
-    btn.classList.add('btn-danger');
-    btn.classList.remove('btn-outline-secondary');
-    
-    setTimeout(function() {
-        btn.innerHTML = originalHTML;
-        btn.classList.remove('btn-danger');
-        btn.classList.remove('btn-outline-secondary');
-    }, 2000);
-}
-
-function showCopyNotification(event) {
-    if (!event) return;
-    const btn = event.target.closest('button');
-    if (!btn) return;
-    const originalHTML = btn.innerHTML;
-    btn.innerHTML = '<i class="bi bi-check"></i> Скопировано!';
-    btn.classList.add('btn-success');
-    btn.classList.remove('btn-outline-secondary');
-    
-    setTimeout(function() {
-        btn.innerHTML = originalHTML;
-        btn.classList.remove('btn-success');
-        btn.classList.add('btn-outline-secondary');
-    }, 2000);
-}
-
-// Inline редактирование полей
-function makeFieldEditable(element) {
-    element.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        if (element.classList.contains('saving')) return;
-        
-        const field = element.dataset.field;
-        const id = element.dataset.id;
-        const currentValue = element.textContent.trim();
-        const isTextarea = field === 'comment';
-        
-        // Создаем поле ввода
-        const input = document.createElement(isTextarea ? 'textarea' : 'input');
-        input.type = 'text';
-        input.className = isTextarea ? 'inline-edit-textarea' : 'inline-edit-input';
-        input.value = currentValue;
-        
-        // Создаем кнопки действий
-        const actions = document.createElement('div');
-        actions.className = 'inline-edit-actions';
-        actions.innerHTML = `
-            <button type="button" class="inline-edit-save">Сохранить</button>
-            <button type="button" class="inline-edit-cancel">Отмена</button>
-        `;
-        
-        // Заменяем содержимое
-        element.innerHTML = '';
-        element.appendChild(input);
-        element.appendChild(actions);
-        element.classList.add('saving');
-        
-        // Фокус на поле ввода
-        input.focus();
-        input.select();
-        
-        // Обработчики
-        const saveBtn = actions.querySelector('.inline-edit-save');
-        const cancelBtn = actions.querySelector('.inline-edit-cancel');
-        
-        function save() {
-            const newValue = input.value.trim();
-            
-            fetch('/admin/order/update-field?id=' + id, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: 'field=' + encodeURIComponent(field) + '&value=' + encodeURIComponent(newValue)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    element.textContent = newValue || '-';
-                    element.classList.remove('saving');
-                    showNotification('Поле успешно обновлено', 'success');
-                } else {
-                    element.textContent = currentValue;
-                    element.classList.remove('saving');
-                    showNotification(data.message || 'Ошибка сохранения', 'error');
-                }
-            })
-            .catch(error => {
-                element.textContent = currentValue;
-                element.classList.remove('saving');
-                showNotification('Ошибка соединения', 'error');
-            });
-        }
-        
-        function cancel() {
-            element.textContent = currentValue;
-            element.classList.remove('saving');
-        }
-        
-        saveBtn.addEventListener('click', save);
-        cancelBtn.addEventListener('click', cancel);
-        
-        // Сохранение по Enter
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !isTextarea) {
-                e.preventDefault();
-                save();
-            } else if (e.key === 'Escape') {
-                e.preventDefault();
-                cancel();
-            }
-        });
-        
-        // Отмена по клику вне поля
-        document.addEventListener('click', function outsideClick(e) {
-            if (!element.contains(e.target)) {
-                cancel();
-                document.removeEventListener('click', outsideClick);
-            }
-        });
-    });
-}
-
-// Показ уведомлений
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 1.5rem;
-        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
-        color: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        z-index: 10000;
-        animation: slideIn 0.3s ease;
-    `;
-    notification.textContent = message;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
-
-// Инициализация editable полей
-document.addEventListener('DOMContentLoaded', function() {
-    const editableFields = document.querySelectorAll('.editable-field');
-    editableFields.forEach(makeFieldEditable);
-});
-
-// CSS анимации
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-`;
-document.head.appendChild(style);
-document.addEventListener('DOMContentLoaded', function() {
-    const toggleBtn = document.getElementById('toggleEditMode');
-    const cancelBtn = document.getElementById('cancelEdit');
-    const viewMode = document.getElementById('viewMode');
-    const editMode = document.getElementById('editMode');
-    const viewModeItems = document.getElementById('viewModeItems');
-    const editModeItems = document.getElementById('editModeItems');
-    const editModeText = document.getElementById('editModeText');
-    
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', function() {
-            if (viewMode.style.display === 'none') {
-                // Возврат к просмотру
-                viewMode.style.display = 'block';
-                editMode.style.display = 'none';
-                viewModeItems.style.display = 'block';
-                editModeItems.style.display = 'none';
-                editModeText.textContent = 'Редактировать';
-                toggleBtn.className = 'btn btn-primary';
-            } else {
-                // Переход к редактированию
-                viewMode.style.display = 'none';
-                editMode.style.display = 'block';
-                viewModeItems.style.display = 'none';
-                editModeItems.style.display = 'block';
-                editModeText.textContent = 'Отменить редактирование';
-                toggleBtn.className = 'btn btn-warning';
-            }
-        });
-    }
-    
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', function() {
-            viewMode.style.display = 'block';
-            editMode.style.display = 'none';
-            viewModeItems.style.display = 'block';
-            editModeItems.style.display = 'none';
-            editModeText.textContent = 'Редактировать';
-            toggleBtn.className = 'btn btn-primary';
-        });
-    }
-    
-    // Добавление нового товара
-    const addItemBtn = document.getElementById('add-item-edit');
-    let itemIndex = <?= count($model->orderItems) ?>;
-    
-    if (addItemBtn) {
-        addItemBtn.addEventListener('click', function() {
-            const newItem = `
-                <div class="order-item row mb-3">
-                    <div class="col-md-5">
-                        <label class="form-label">Название товара</label>
-                        <input type="text" class="form-control" name="OrderItem[${itemIndex}][product_name]">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Количество</label>
-                        <input type="number" class="form-control" name="OrderItem[${itemIndex}][quantity]" value="1" min="1">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Цена (BYN)</label>
-                        <input type="number" step="0.01" class="form-control" name="OrderItem[${itemIndex}][price]">
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="button" class="btn btn-outline-danger remove-item">Удалить</button>
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('order-items-edit').insertAdjacentHTML('beforeend', newItem);
-            itemIndex++;
-            updateRemoveButtons();
-        });
-    }
-    
-    // Удаление товара
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-item') || e.target.closest('.remove-item')) {
-            const btn = e.target.classList.contains('remove-item') ? e.target : e.target.closest('.remove-item');
-            btn.closest('.order-item').remove();
-            updateRemoveButtons();
-        }
-    });
-    
-    function updateRemoveButtons() {
-        const items = document.querySelectorAll('#order-items-edit .order-item');
-        if (items.length === 1) {
-            items[0].querySelector('.remove-item').disabled = true;
-        } else {
-            items.forEach(item => {
-                item.querySelector('.remove-item').disabled = false;
-            });
-        }
-    }
-    
-    updateRemoveButtons();
-});
-</script>
+<?php
+// PHP-dependent JS: saveField, js-flag handler, add-item-edit
+$_csrfParam = Yii::$app->request->csrfParam;
+$_csrfToken = Yii::$app->request->csrfToken;
+$_updateFieldUrl = \yii\helpers\Url::to(['/admin/order/update-field', 'id' => $model->id]);
+$_itemCount = count($model->orderItems);
+$_modelId = $model->id;
+$this->registerJs(
+    'window.saveField = function(field, value) {'
+    . '    fetch("/admin/order/save-field", {'
+    . '        method: "POST",'
+    . '        headers: {"Content-Type":"application/json","X-CSRF-Token": document.querySelector("meta[name=csrf-token]") ? document.querySelector("meta[name=csrf-token]").content : ""},'
+    . '        body: JSON.stringify({id: ' . $_modelId . ', field: field, value: value})'
+    . '    }).then(function(r){ return r.json(); }).then(function(d){'
+    . '        if(d.success) { var el=document.createElement("span"); el.textContent="\u2713"; el.style.cssText="color:var(--admin-accent,#008060);font-size:0.75rem;margin-left:0.25rem"; setTimeout(function(){el.remove();},2000); }'
+    . '    });'
+    . '};'
+    . 'document.querySelectorAll(".js-flag").forEach(function(flag) {'
+    . '    flag.addEventListener("change", function() {'
+    . '        var field = this.dataset.field;'
+    . '        var value = this.checked ? 1 : 0;'
+    . '        var fd = new FormData();'
+    . '        fd.append("field", field); fd.append("value", value);'
+    . '        fd.append("' . $_csrfParam . '", "' . $_csrfToken . '");'
+    . '        fetch("' . $_updateFieldUrl . '", {method:"POST",body:fd})'
+    . '            .then(function(r){return r.json();})'
+    . '            .then(function(data){if(data.success && window.showSaveIndicator){showSaveIndicator("Флаг сохранён");}});'
+    . '    });'
+    . '});'
+    . '(function(){'
+    . '    var addItemBtn = document.getElementById("add-item-edit");'
+    . '    var itemIndex = ' . $_itemCount . ';'
+    . '    if (addItemBtn) {'
+    . '        addItemBtn.addEventListener("click", function() {'
+    . '            var newItem = '<div class="order-item row mb-3">''
+    . '                + '<div class="col-md-5"><label class="form-label">Название товара</label>''
+    . '                + '<input type="text" class="form-control" name="OrderItem[' + itemIndex + '][product_name]"></div>''
+    . '                + '<div class="col-md-2"><label class="form-label">Количество</label>''
+    . '                + '<input type="number" class="form-control" name="OrderItem[' + itemIndex + '][quantity]" value="1" min="1"></div>''
+    . '                + '<div class="col-md-3"><label class="form-label">Цена (BYN)</label>''
+    . '                + '<input type="number" step="0.01" class="form-control" name="OrderItem[' + itemIndex + '][price]"></div>''
+    . '                + '<div class="col-md-2 d-flex align-items-end"><button type="button" class="btn btn-outline-danger remove-item">Удалить</button></div>''
+    . '                + "</div>";'
+    . '            var container = document.getElementById("order-items-edit");'
+    . '            if (container) { container.insertAdjacentHTML("beforeend", newItem); itemIndex++; }'
+    . '        });'
+    . '    }'
+    . '})();',
+    \yii\web\View::POS_END
+);
+?>
