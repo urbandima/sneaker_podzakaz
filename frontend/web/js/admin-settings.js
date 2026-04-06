@@ -969,9 +969,7 @@ function saveLoyaltySettings() {
 
 /* -- return/view.php -- */
 function markStepDone(returnId, stepKey, btn) {
-    var updateUrl = (document.getElementById('return-config') || {}).dataset
-        ? (document.getElementById('return-config').dataset.updateStepUrl || '/admin/return/update-step')
-        : '/admin/return/update-step';
+    var updateUrl = (btn && btn.dataset.updateUrl) ? btn.dataset.updateUrl : '/admin/return/update-step';
 
     btn.disabled = true;
     btn.innerHTML = '<i class="bi bi-hourglass-split"></i>';
