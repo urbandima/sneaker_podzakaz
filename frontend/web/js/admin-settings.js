@@ -684,3 +684,37 @@ document.addEventListener('DOMContentLoaded', function() {
 /* === COUPON & LOYALTY === */
 
 /* === SEO === */
+
+/* === SIZE GRID pages === */
+
+/* -- size-grid/index.php -- */
+document.addEventListener('DOMContentLoaded', function() {
+    window.applyBrandTemplate = function(btn) {
+        var brand = btn.dataset.brand;
+        var sizes = JSON.parse(btn.dataset.sizes);
+        document.getElementById('templateModalTitle').textContent = 'Шаблон: ' + brand;
+        var tbody = document.getElementById('templateSizesBody');
+        tbody.innerHTML = '';
+        sizes.forEach(function(s) {
+            var tr = document.createElement('tr');
+            tr.innerHTML = '<td>US ' + s.us + '</td><td>EU ' + s.eu + '</td>';
+            tbody.appendChild(tr);
+        });
+        document.getElementById('templatePreviewModal').style.display = 'flex';
+    };
+
+    window.closeTemplateModal = function() {
+        document.getElementById('templatePreviewModal').style.display = 'none';
+    };
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') window.closeTemplateModal();
+    });
+
+    var modal = document.getElementById('templatePreviewModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) window.closeTemplateModal();
+        });
+    }
+});
