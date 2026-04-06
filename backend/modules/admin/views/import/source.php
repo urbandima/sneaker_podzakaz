@@ -259,16 +259,3 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php ActiveForm::end(); ?>
 </div>
 
-<?php
-$this->registerJs(<<<JS
-// Показать/скрыть настройки прокси
-$('#importsource-proxy_enabled').change(function() {
-    if ($(this).is(':checked')) {
-        $('#proxy-settings').slideDown();
-    } else {
-        $('#proxy-settings').slideUp();
-    }
-});
-JS
-);
-?>

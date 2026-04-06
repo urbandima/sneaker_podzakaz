@@ -1847,3 +1847,63 @@ function bulkExport() {
 document.addEventListener('DOMContentLoaded', function() {
 
 });
+
+/* === IMPORT LOGS === */
+
+/* -- import/logs.php -- */
+/* Note: taskId read from #logs-config data-task-id attribute */
+document.addEventListener('DOMContentLoaded', function() {
+    var logsConfig = document.getElementById('logs-config');
+    if (!logsConfig) return;
+
+    var taskId = logsConfig.dataset.taskId;
+    if (!taskId) return;
+
+    var lastLogId = 0;
+
+    function updateLogs() {
+        if (typeof $ !== 'undefined') {
+            $.get('/admin/import-ajax/logs', {taskId: taskId, lastId: lastLogId}, function(data) {
+                if (data.success && data.logs.length > 0) {
+                    lastLogId = data.last_id;
+                    data.logs.forEach(function(log) {
+                        var colorMap = {created: 'success', updated: 'info', duplicate: 'warning', error: 'danger'};
+                        var color = colorMap[log.action] || 'secondary';
+                        var row = '<tr>'
+                            + '<td><small>' + log.time + '</small></td>'
+                            + '<td><span class="badge bg-' + color + '">' + log.action_label + '</span></td>'
+                            + '<td>' + (log.sku || '') + '</td>'
+                            + '<td>' + log.product_name + '</td>'
+                            + '<td>' + log.message + '</td>'
+                            + '</tr>';
+                        $('table tbody').prepend(row);
+                    });
+                }
+                if (data.task_status !== 'running') {
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    setInterval(updateLogs, 2000);
+});
+
+/* === IMPORT SOURCE === */
+
+/* -- import/source.php -- */
+document.addEventListener('DOMContentLoaded', function() {
+    var proxyToggle = document.getElementById('importsource-proxy_enabled');
+    if (!proxyToggle) return;
+
+    proxyToggle.addEventListener('change', function() {
+        var proxySettings = document.getElementById('proxy-settings');
+        if (!proxySettings) return;
+        if (typeof $ !== 'undefined') {
+            if (this.checked) { $(proxySettings).slideDown(); }
+            else { $(proxySettings).slideUp(); }
+        } else {
+            proxySettings.style.display = this.checked ? '' : 'none';
+        }
+    });
+});

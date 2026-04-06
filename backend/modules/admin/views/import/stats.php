@@ -61,7 +61,17 @@ $this->params['breadcrumbs'][] = $this->title;
             <h5 class="mb-0">Статистика по дням (последние 30 дней)</h5>
         </div>
         <div class="card-body">
-            <canvas id="dailyChart" height="100"></canvas>
+            <?php
+            $chartLabels = array_map(fn($d) => date('d.m', strtotime($d['date'])), array_reverse($dailyStats));
+            $chartImported = array_map(fn($d) => (int)$d['imported'], array_reverse($dailyStats));
+            $chartUpdated = array_map(fn($d) => (int)$d['updated'], array_reverse($dailyStats));
+            $chartErrors = array_map(fn($d) => (int)$d['errors'], array_reverse($dailyStats));
+            ?>
+            <canvas id="dailyChart" height="100"
+                data-labels="<?= Html::encode(json_encode($chartLabels)) ?>"
+                data-imported="<?= Html::encode(json_encode($chartImported)) ?>"
+                data-updated="<?= Html::encode(json_encode($chartUpdated)) ?>"
+                data-errors="<?= Html::encode(json_encode($chartErrors)) ?>"></canvas>
         </div>
     </div>
 
