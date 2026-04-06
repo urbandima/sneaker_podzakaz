@@ -143,14 +143,3 @@ $this->params['breadcrumbs'][] = $this->title;
 </div>
 <?php endif; ?>
 
-<style>
-.detail-table th {
-    background: #f8f9fa;
-    text-align: left;
-}
-.badge-type-link { background: #e3f2fd; color: #1565c0; }
-.badge-type-banner { background: #fff3e0; color: #e65100; }
-.badge-type-divider { background: #f5f5f5; color: #666; }
-.badge-type-header { background: #e8f5e9; color: #2e7d32; }
-.table-muted { opacity: 0.6; }
-</style>

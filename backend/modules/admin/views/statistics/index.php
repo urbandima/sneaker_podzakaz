@@ -250,12 +250,3 @@ $statusColors = [
 })();
 </script>
 
-<style>
-.stat-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
-.stat-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-top: 1rem; }
-.stat-legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; }
-.stat-legend-item b { margin-left: auto; }
-.stat-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.stat-rank { display: inline-flex; width: 24px; height: 24px; border-radius: 50%; background: var(--admin-border-light); align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
-@media (max-width: 900px) { .stat-grid-2 { grid-template-columns: 1fr; } }
-</style>

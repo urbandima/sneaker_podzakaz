@@ -33,7 +33,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <th style="width: 120px;">Действия</th>
                 </tr>
             </thead>
-            <tbody id="sortable-list">
+            <tbody id="sortable-list" data-sort-url="<?= Url::to(['sort']) ?>">
                 <?php foreach ($dataProvider->getModels() as $model): ?>
                 <tr data-id="<?= $model->id ?>" class="<?= $model->is_active ? '' : 'table-muted' ?>">
                     <td>
@@ -95,74 +95,3 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 </div>
 
-<style>
-.drag-handle {
-    cursor: grab;
-    color: #999;
-    display: inline-block;
-    padding: 4px;
-}
-.drag-handle:hover {
-    color: #333;
-}
-.drag-handle:active {
-    cursor: grabbing;
-}
-.table-muted {
-    opacity: 0.6;
-}
-.badge-type-link { background: #e3f2fd; color: #1565c0; }
-.badge-type-banner { background: #fff3e0; color: #e65100; }
-.badge-type-divider { background: #f5f5f5; color: #666; }
-.badge-type-header { background: #e8f5e9; color: #2e7d32; }
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const tbody = document.getElementById('sortable-list');
-    if (!tbody) return;
-
-    let draggedRow = null;
-
-    tbody.querySelectorAll('tr').forEach(row => {
-        row.draggable = true;
-
-        row.addEventListener('dragstart', function(e) {
-            draggedRow = this;
-            this.style.opacity = '0.5';
-        });
-
-        row.addEventListener('dragend', function(e) {
-            this.style.opacity = '';
-            draggedRow = null;
-
-            // Отправляем новый порядок на сервер
-            const rows = tbody.querySelectorAll('tr');
-            const items = Array.from(rows).map(row => row.dataset.id);
-
-            fetch('<?= Url::to(['sort']) ?>', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: 'items=' + JSON.stringify(items)
-            });
-        });
-
-        row.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            if (this === draggedRow) return;
-
-            const rect = this.getBoundingClientRect();
-            const midpoint = rect.top + rect.height / 2;
-
-            if (e.clientY < midpoint) {
-                tbody.insertBefore(draggedRow, this);
-            } else {
-                tbody.insertBefore(draggedRow, this.nextSibling);
-            }
-        });
-    });
-});
-</script>
