@@ -64,7 +64,8 @@ $this->title = 'Создать купон';
             
             <div class="form-group">
                 <label>Тип скидки *</label>
-                <select name="Coupon[type]" id="coupon-type" class="form-control" onchange="updateDiscountFields(this.value)" required>
+                <select name="Coupon[type]" id="coupon-type" class="form-control" onchange="updateDiscountFields(this.value)" required
+                    data-free-shipping-value="free_shipping">
                     <option value="">Выберите тип скидки</option>
                     <option value="percentage">Процентная скидка</option>
                     <option value="fixed">Фиксированная сумма</option>
@@ -195,81 +196,3 @@ $this->title = 'Создать купон';
     </form>
 </div>
 
-<style>
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--admin-text-primary);
-    font-size: 0.875rem;
-}
-
-.form-control {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--admin-border);
-    border-radius: 0.5rem;
-    background: var(--admin-bg);
-    color: var(--admin-text-primary);
-    font-size: 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: var(--admin-primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-small {
-    font-size: 0.75rem;
-    display: block;
-    margin-top: 0.25rem;
-}
-
-h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-}
-</style>
-
-<script>
-function generateCouponCode() {
-    fetch('<?= \yii\helpers\Url::to(['generate-code']) ?>', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRF-Token': '<?= Yii::$app->request->csrfToken ?>'
-        },
-        body: 'prefix=&length=8'
-    })
-    .then(response => response.json())
-    .then(data => {
-        document.querySelector('#coupon-code').value = data.code;
-    });
-}
-
-function updateDiscountFields(type) {
-    const valueField = document.querySelector('#value-field');
-    const valueInput = document.querySelector('#coupon-value');
-    
-    if (type === 'free_shipping') {
-        valueField.style.display = 'none';
-        valueInput.value = 0;
-    } else {
-        valueField.style.display = 'block';
-    }
-}
-
-// Инициализация при загрузке
-document.addEventListener('DOMContentLoaded', function() {
-    const typeSelect = document.querySelector('#coupon-type');
-    if (typeSelect && typeSelect.value) {
-        updateDiscountFields(typeSelect.value);
-    }
-});
-</script>
