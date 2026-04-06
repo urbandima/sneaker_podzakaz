@@ -210,25 +210,3 @@ $this->title = 'Плагины';
     <?php endforeach; ?>
 </div>
 
-<script>
-function togglePlugin(id, action) {
-    if (!confirm('Вы уверены?')) return;
-    
-    fetch('<?= Url::to(['plugin/toggle']) ?>', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: 'id=' + id + '&action=' + action
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.message);
-        }
-    });
-}
-</script>
