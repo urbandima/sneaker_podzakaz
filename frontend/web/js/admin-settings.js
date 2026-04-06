@@ -1323,3 +1323,318 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+/* === ORDER pages (create form) === */
+
+/* -- order/create.php and poizon/order/create.php -- */
+/* Note: orderItemIndex is initialized from data-initial-index attribute on #orderItemsBuilder */
+document.addEventListener('DOMContentLoaded', function() {
+    var orderItemsBuilder = document.getElementById('orderItemsBuilder');
+    if (!orderItemsBuilder) return;
+    var addItemBtn = document.getElementById('addItemBtn');
+    var orderItemIndex = parseInt(orderItemsBuilder.dataset.initialIndex || '1', 10);
+
+    function updateRemoveButtons() {
+        var rows = orderItemsBuilder.querySelectorAll('.order-item-row');
+        rows.forEach(function(row) {
+            var btn = row.querySelector('.remove-item');
+            if (btn) btn.disabled = rows.length === 1;
+        });
+        var countEl = document.getElementById('itemCountDisplay');
+        if (countEl) countEl.textContent = rows.length;
+        recalcTotal();
+    }
+
+    function recalcTotal() {
+        var total = 0;
+        orderItemsBuilder.querySelectorAll('.order-item-row').forEach(function(row) {
+            var qty = parseFloat(row.querySelector('input[name*="[quantity]"]').value) || 0;
+            var price = parseFloat(row.querySelector('input[name*="[price]"]').value) || 0;
+            total += qty * price;
+        });
+        var display = document.getElementById('orderTotalDisplay');
+        if (display) display.textContent = total ? total.toFixed(2) + ' BYN' : '—';
+    }
+
+    orderItemsBuilder.addEventListener('input', function(e) {
+        if (e.target.matches('input[type="number"]')) recalcTotal();
+    });
+
+    orderItemsBuilder.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-item')) {
+            e.target.closest('.order-item-row').remove();
+            updateRemoveButtons();
+        }
+    });
+
+    if (addItemBtn) {
+        addItemBtn.addEventListener('click', function() {
+            var tpl = document.createElement('div');
+            tpl.className = 'order-item-row';
+            tpl.dataset.index = orderItemIndex;
+            tpl.innerHTML =
+                '<div class="form-field"><label>Название</label>' +
+                '<input type="text" name="OrderItem[' + orderItemIndex + '][product_name]" placeholder="Название товара"></div>' +
+                '<div class="form-field"><label>Кол-во</label>' +
+                '<input type="number" name="OrderItem[' + orderItemIndex + '][quantity]" value="1" min="1"></div>' +
+                '<div class="form-field"><label>Цена, BYN</label>' +
+                '<input type="number" step="0.01" name="OrderItem[' + orderItemIndex + '][price]" placeholder="0.00"></div>' +
+                '<button type="button" class="remove-item">×</button>';
+            orderItemsBuilder.appendChild(tpl);
+            orderItemIndex++;
+            updateRemoveButtons();
+        });
+    }
+
+    updateRemoveButtons();
+    recalcTotal();
+});
+
+/* === POIZON module pages === */
+
+/* -- poizon/customer/index.php -- */
+function toggleStatus(id) {
+    if (!confirm('Изменить статус покупателя?')) return;
+
+    fetch('/admin/customer/' + id + '/toggle-status', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+        }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    });
+}
+
+/* -- poizon/order/view-new.php -- */
+function copyLink() {
+    var input = document.getElementById('publicLink');
+    if (!input) return;
+    navigator.clipboard.writeText(input.value).then(function() {
+        showSaveIndicator('Ссылка скопирована');
+    });
+}
+
+function showSaveIndicator(message) {
+    var indicator = document.getElementById('saveIndicator');
+    if (!indicator) return;
+    indicator.innerHTML = '<i class="bi bi-check-circle"></i> ' + (message || 'Сохранено');
+    indicator.classList.add('show');
+    setTimeout(function() { indicator.classList.remove('show'); }, 2000);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.js-flag').forEach(function(flag) {
+        flag.addEventListener('change', function() {
+            var field = this.dataset.field;
+            var value = this.checked ? 1 : 0;
+            var config = document.getElementById('order-view-config');
+            var updateUrl = config ? (config.dataset.updateFieldUrl || '/admin/order/update-field') : '/admin/order/update-field';
+            var orderId = config ? config.dataset.orderId : '';
+            var csrfToken = config ? config.dataset.csrfToken : ((document.querySelector('meta[name="csrf-token"]') || {}).content || '');
+            var csrfParam = config ? config.dataset.csrfParam : '_csrf';
+            var formData = new FormData();
+            formData.append('field', field);
+            formData.append('value', value);
+            formData.append(csrfParam, csrfToken);
+            fetch(updateUrl + (orderId ? '?id=' + orderId : ''), {
+                method: 'POST',
+                body: formData
+            }).then(function(response) { return response.json(); })
+              .then(function(data) {
+                  if (data.success) showSaveIndicator('Флаг сохранён');
+              });
+        });
+    });
+});
+
+/* -- poizon/tariff/index.php -- */
+function calculateCost() {
+    var tariffId = document.getElementById('calcTariff').value;
+    var priceCny = document.getElementById('calcPrice').value;
+    var weightKg = document.getElementById('calcWeight').value;
+    var note = document.getElementById('calcNote').value;
+    var config = document.getElementById('tariff-calc-config');
+    var calcUrl = config ? (config.dataset.calcUrl || '/admin/poizon/tariff/calculate') : '/admin/poizon/tariff/calculate';
+    var csrfToken = config ? config.dataset.csrfToken : ((document.querySelector('meta[name="csrf-token"]') || {}).content || '');
+
+    fetch(calcUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRF-Token': csrfToken
+        },
+        body: 'tariff_id=' + tariffId + '&price_cny=' + priceCny + '&weight_kg=' + weightKg + '&note=' + encodeURIComponent(note) + '&save_history=1'
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.success) {
+            var result = document.getElementById('calcResult');
+            var breakdown = document.getElementById('calcBreakdown');
+            var html = '';
+            for (var label in data.calculation.breakdown) {
+                if (data.calculation.breakdown.hasOwnProperty(label)) {
+                    html += '<div class="result-row"><span class="result-label">' + label + '</span><span class="result-value">' + data.calculation.breakdown[label] + '</span></div>';
+                }
+            }
+            breakdown.innerHTML = html;
+            result.classList.add('show');
+            if (data.history_id) {
+                showTariffNotification('Расчет сохранен в историю', 'success');
+            }
+        }
+    });
+}
+
+function showTariffNotification(message, type) {
+    var notification = document.createElement('div');
+    notification.className = 'admin-toast ' + (type === 'success' ? 'admin-toast--success' : '');
+    notification.innerHTML = '<i class="bi bi-check-circle"></i> ' + message;
+    document.body.appendChild(notification);
+    setTimeout(function() { notification.classList.add('show'); }, 100);
+    setTimeout(function() {
+        notification.classList.remove('show');
+        setTimeout(function() { notification.remove(); }, 300);
+    }, 3000);
+}
+
+/* === POS module pages === */
+
+/* -- pos/index.php -- */
+/* Note: URLs read from data-* attributes on #pos-config element */
+document.addEventListener('DOMContentLoaded', function() {
+    var cfg = document.getElementById('pos-config');
+    if (!cfg) return;
+
+    var URLS = {
+        getProducts:    cfg.dataset.getProductsUrl    || '/admin/pos/get-products',
+        getCustomers:   cfg.dataset.getCustomersUrl   || '/admin/pos/get-customers',
+        createCustomer: cfg.dataset.createCustomerUrl || '/admin/pos/create-customer',
+        getOrders:      cfg.dataset.getOrdersUrl      || '/admin/pos/get-customer-orders',
+        completeOrder:  cfg.dataset.completeOrderUrl  || '/admin/pos/complete-order',
+        applyDiscount:  cfg.dataset.applyDiscountUrl  || '/admin/pos/apply-discount',
+        quickOrder:     cfg.dataset.quickOrderUrl     || '/admin/pos/quick-order'
+    };
+
+    var cart = [], customer = null, payment = 'cash', products = [], customers = [],
+        selectedSize = null, discount = {type:'percent', value:0, amount:0};
+
+    function getCsrf() {
+        return (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+    }
+
+    function load() {
+        fetch(URLS.getProducts).then(function(r){return r.json();}).then(function(d){products=d.products||[];show();});
+    }
+    function show(list) {
+        var g = document.getElementById('products'), l = list || products;
+        if (!l.length) { g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--admin-text-secondary)">Нет товаров</div>'; return; }
+        g.innerHTML = l.map(function(p){ return '<div class="pos-product ' + (p.total_stock===0?'out':'') + '" onclick="' + (p.total_stock>0 ? 'posAdd('+p.id+')' : '') + '"><img src="'+p.image+'"><div class="name">'+p.name+'</div><div class="price">'+p.price+' BYN</div><div class="stock">'+(p.total_stock>0?p.total_stock+' шт':'Нет')+'</div></div>'; }).join('');
+    }
+    function filter() {
+        var cat=document.getElementById('cat-filter').value, brand=document.getElementById('brand-filter').value, search=document.getElementById('search').value.toLowerCase();
+        var filtered=products;
+        if(cat) filtered=filtered.filter(function(p){return p.category_id==cat;});
+        if(brand) filtered=filtered.filter(function(p){return p.brand_id==brand;});
+        if(search) filtered=filtered.filter(function(p){return p.name.toLowerCase().includes(search)||p.article.toLowerCase().includes(search);});
+        if(selectedSize&&selectedSize!=='all') filtered=filtered.filter(function(p){return p.sizes&&p.sizes.some(function(s){return s.size==selectedSize&&s.stock>0;});});
+        show(filtered);
+    }
+    function toggleSize(size) {
+        selectedSize=size==='all'?null:size;
+        document.querySelectorAll('.pos-size-btn').forEach(function(b){b.classList.toggle('active',b.textContent===size||(!selectedSize&&b.textContent==='Все'));});
+        filter();
+    }
+    function switchTab(tab) { document.querySelectorAll('.pos-tab').forEach(function(t){t.classList.toggle('active',t.textContent.toLowerCase().includes(tab));});}
+    function posAdd(id) {
+        var p=products.find(function(x){return x.id===id;});
+        if(!p||!p.sizes) return;
+        var avail=p.sizes.filter(function(s){return s.stock>0;});
+        if(!avail.length){alert('Нет в наличии');return;}
+        var s;
+        if(avail.length===1) s=avail[0];
+        else {
+            var size=prompt('Размеры: '+avail.map(function(z){return z.size+'('+z.stock+')';}).join(', ')+'\nВведите размер:');
+            if(!size) return;
+            s=avail.find(function(x){return x.size==size;});
+            if(!s){alert('Размер не найден');return;}
+        }
+        var e=cart.find(function(i){return i.product_id===p.id&&i.size_id===s.id;});
+        if(e){if(e.quantity<s.stock)e.quantity++;else{alert('Лимит');return;}}
+        else cart.push({product_id:p.id,size_id:s.id,name:p.name,size:s.size,price:s.price||p.price,image:p.image,quantity:1,max_stock:s.stock});
+        upd();
+    }
+    function upd() {
+        var cont=document.getElementById('cart'),countEl=document.getElementById('count'),subEl=document.getElementById('subtotal'),totEl=document.getElementById('total'),btn=document.getElementById('checkout-btn');
+        if(!cart.length){cont.innerHTML='<div class="pos-cart-empty"><i class="bi bi-cart" style="font-size:2rem;display:block;margin-bottom:0.5rem"></i>Корзина пуста</div>';countEl.textContent='0';subEl.textContent='0 BYN';totEl.textContent='0 BYN';btn.disabled=true;discount={type:'percent',value:0,amount:0};document.getElementById('discount-row').style.display='none';return;}
+        var sub=0,c=0;
+        cont.innerHTML=cart.map(function(it,i){var itt=it.price*it.quantity;sub+=itt;c+=it.quantity;return '<div class="pos-cart-item"><img src="'+it.image+'"><div class="pos-cart-item-info"><div class="pos-cart-item-name">'+it.name+'</div><div class="pos-cart-item-meta">'+it.size+'</div></div><div class="pos-cart-item-qty"><button class="pos-qty-btn" onclick="posChg('+i+',-1)">-</button><span>'+it.quantity+'</span><button class="pos-qty-btn" onclick="posChg('+i+',1)" '+(it.quantity>=it.max_stock?'disabled':'')+'>+</button></div><div class="pos-cart-item-total">'+Math.round(itt)+'</div><button class="pos-qty-btn" onclick="posRem('+i+')" style="color:var(--admin-danger)"><i class="bi bi-trash"></i></button></div>';}).join('');
+        var tot=sub-discount.amount;countEl.textContent=c;subEl.textContent=sub.toFixed(2)+' BYN';totEl.textContent=tot.toFixed(2)+' BYN';
+        if(discount.amount>0){document.getElementById('discount-row').style.display='flex';document.getElementById('discount-amt').textContent='-'+discount.amount.toFixed(2)+' BYN';}
+        else document.getElementById('discount-row').style.display='none';
+        btn.disabled=false;
+    }
+    function posChg(i,d){var it=cart[i],n=it.quantity+d;if(n<=0)posRem(i);else if(n<=it.max_stock){it.quantity=n;upd();}}
+    function posRem(i){cart.splice(i,1);upd();}
+    function applyDiscount(){
+        var val=parseFloat(document.getElementById('discount-val').value)||0,type=document.getElementById('discount-type').value,sub=cart.reduce(function(a,i){return a+i.price*i.quantity;},0);
+        if(val<=0) return;
+        fetch(URLS.applyDiscount,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':getCsrf()},body:JSON.stringify({type:type,value:val,subtotal:sub})}).then(function(r){return r.json();}).then(function(d){if(d.success){discount={type:type,value:val,amount:d.discount_amount};upd();}else alert(d.message);});
+    }
+    function selectPayment(m){payment=m;document.querySelectorAll('.pos-payment-btn').forEach(function(b){b.classList.toggle('active',b.dataset.method===m);});document.getElementById('split-payment').classList.toggle('active',m==='split');}
+    function openCustomer(){fetch(URLS.getCustomers).then(function(r){return r.json();}).then(function(d){customers=d.customers||[];renderCustomers();document.getElementById('customer-modal').classList.add('active');});}
+    function closeCustomer(){document.getElementById('customer-modal').classList.remove('active');}
+    function renderCustomers(list){var l=list||customers,cont=document.getElementById('cust-list');if(!l.length){cont.innerHTML='<div style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">Нет клиентов</div>';return;}cont.innerHTML=l.map(function(c){return '<div class="pos-customer-row" onclick="posSelectCustomer('+c.id+')"><div><div style="font-weight:600">'+c.name+'</div><div style="font-size:0.8rem;color:var(--admin-text-secondary)">'+(c.phone||'')+'</div></div><button class="admin-btn admin-btn-primary admin-btn-sm">Выбрать</button></div>';}).join('');}
+    function searchCustomers(){var q=document.getElementById('cust-search').value.toLowerCase();renderCustomers(customers.filter(function(c){return c.name.toLowerCase().includes(q)||(c.phone&&c.phone.includes(q));}));}
+    function posSelectCustomer(id){customer=customers.find(function(c){return c.id===id;});if(customer){document.getElementById('cust-info').innerHTML='<div class="pos-customer-name">'+customer.name+'</div><div class="pos-customer-phone">'+(customer.phone||'')+'</div>';}closeCustomer();}
+    function createCustomer(){var name=prompt('Имя клиента:');if(!name) return;var phone=prompt('Телефон:');fetch(URLS.createCustomer,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':getCsrf()},body:JSON.stringify({name:name,phone:phone})}).then(function(r){return r.json();}).then(function(d){if(d.success){customer=d.customer;posSelectCustomer(customer.id);customers.push(customer);}else alert(d.message);});}
+    function openOrders(){if(!customer){alert('Выберите клиента');return;}fetch(URLS.getOrders+'?customer_id='+customer.id).then(function(r){return r.json();}).then(function(d){if(d.success){renderOrders(d.orders);document.getElementById('orders-modal').classList.add('active');}else alert(d.message||'Ошибка загрузки заказов');});}
+    function closeOrders(){document.getElementById('orders-modal').classList.remove('active');}
+    function renderOrders(orders){var cont=document.getElementById('orders-list');if(!orders.length){cont.innerHTML='<div style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">Нет готовых заказов</div>';return;}cont.innerHTML=orders.map(function(o){return '<div class="pos-order-row"><div class="pos-order-header"><div class="pos-order-number">#'+o.order_number+'</div><span class="pos-order-status '+o.status+'">'+o.status+'</span></div><div class="pos-order-items">'+o.items_count+' товаров</div><div class="pos-order-total">'+o.total_amount+' BYN</div><div class="pos-actions"><button class="admin-btn admin-btn-success admin-btn-sm" onclick="posCompleteOrder('+o.id+')"><i class="bi bi-check-circle"></i> Выдать</button></div></div>';}).join('');}
+    function posCompleteOrder(id){if(!confirm('Выдать заказ клиенту?')) return;fetch(URLS.completeOrder,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRF-Token':getCsrf()},body:'order_id='+id}).then(function(r){return r.json();}).then(function(d){if(d.success){alert('Заказ #'+d.order_number+' выдан');closeOrders();}else alert(d.message);});}
+    function openScan(){document.getElementById('scan-modal').classList.add('active');setTimeout(function(){document.getElementById('barcode').focus();},100);}
+    function closeScan(){document.getElementById('scan-modal').classList.remove('active');}
+    function scan(){var code=document.getElementById('barcode').value.trim();if(!code) return;var p=products.find(function(x){return x.article===code||x.sku===code;});if(p){posAdd(p.id);closeScan();document.getElementById('barcode').value='';}else alert('Товар не найден');}
+    function checkout(){
+        if(!cart.length) return;
+        var paymentData={method:payment};
+        if(payment==='split'){var cash=parseFloat(document.getElementById('cash-amt').value)||0,card=parseFloat(document.getElementById('card-amt').value)||0,total=cart.reduce(function(a,i){return a+i.price*i.quantity;},0)-discount.amount;if(cash+card<total){alert('Сумма оплаты меньше итога');return;}paymentData={method:'split',cash_amount:cash,card_amount:card};}
+        var data={items:cart,customer_id:customer?customer.id:null,customer_name:customer?customer.name:'Гость',customer_phone:customer?customer.phone:'',payment_method:payment,payment_data:paymentData,discount:discount.amount>0?discount:null};
+        fetch(URLS.quickOrder,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':getCsrf()},body:JSON.stringify(data)}).then(function(r){return r.json();}).then(function(d){if(d.success){alert('Заказ #'+d.order_number+' создан!\nСумма: '+d.total+' BYN');cart=[];customer=null;discount={type:'percent',value:0,amount:0};document.getElementById('cust-info').innerHTML='<div class="pos-customer-name">Гость</div><div class="pos-customer-phone"></div>';document.getElementById('discount-val').value='';upd();}else alert(d.message);});
+    }
+
+    // Expose functions to window for inline onclick handlers
+    window.posAdd = posAdd;
+    window.posChg = posChg;
+    window.posRem = posRem;
+    window.applyDiscount = applyDiscount;
+    window.selectPayment = selectPayment;
+    window.openCustomer = openCustomer;
+    window.closeCustomer = closeCustomer;
+    window.searchCustomers = searchCustomers;
+    window.posSelectCustomer = posSelectCustomer;
+    window.createCustomer = createCustomer;
+    window.openOrders = openOrders;
+    window.closeOrders = closeOrders;
+    window.posCompleteOrder = posCompleteOrder;
+    window.openScan = openScan;
+    window.closeScan = closeScan;
+    window.scan = scan;
+    window.checkout = checkout;
+    window.toggleSize = toggleSize;
+    window.switchTab = switchTab;
+    window.filter = filter;
+
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'f') { e.preventDefault(); document.getElementById('search').focus(); }
+        if (e.key === 'Escape') document.querySelectorAll('.pos-modal').forEach(function(m){ m.classList.remove('active'); });
+    });
+
+    load();
+});
