@@ -3762,3 +3762,127 @@ code {
     border-radius: 0.25rem;
     font-size: 0.875em;
 }
+
+/* === SIZE GRID pages === */
+
+/* -- size-grid/index.php -- */
+.brand-templates-section {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+.brand-templates-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+.brand-templates-header h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--admin-text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.brand-templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+}
+.brand-template-card {
+    border: 1px solid var(--admin-border);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    background: var(--admin-surface);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.brand-template-name {
+    font-weight: 700;
+    color: var(--admin-accent);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.brand-template-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+.size-chip {
+    background: var(--admin-border);
+    color: var(--admin-text);
+    border-radius: 4px;
+    padding: 0.15rem 0.45rem;
+    font-size: 0.72rem;
+    white-space: nowrap;
+}
+.size-chip.muted {
+    opacity: 0.6;
+}
+/* Template Modal */
+.template-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.template-modal-content {
+    background: var(--admin-surface);
+    border-radius: 1rem;
+    max-width: 480px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+.template-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--admin-border);
+}
+.template-modal-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+.template-modal-body {
+    padding: 1.5rem;
+}
+.modal-help {
+    font-size: 0.875rem;
+    color: var(--admin-text-secondary, #64748b);
+    margin-bottom: 1rem;
+}
+.template-sizes-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+.template-sizes-table th,
+.template-sizes-table td {
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--admin-border);
+    text-align: center;
+}
+.template-sizes-table thead th {
+    background: var(--admin-surface);
+    font-weight: 700;
+}
+.template-modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--admin-border);
+    display: flex;
+    justify-content: flex-end;
+}
