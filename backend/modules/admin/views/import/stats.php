@@ -205,59 +205,6 @@ $this->params['breadcrumbs'][] = $this->title;
 </div>
 
 <?php
-// График Chart.js
+// Подключаем Chart.js для графика
 $this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', ['position' => \yii\web\View::POS_HEAD]);
-
-$labels = array_map(fn($d) => date('d.m', strtotime($d['date'])), array_reverse($dailyStats));
-$importedData = array_map(fn($d) => (int)$d['imported'], array_reverse($dailyStats));
-$updatedData = array_map(fn($d) => (int)$d['updated'], array_reverse($dailyStats));
-$errorData = array_map(fn($d) => (int)$d['errors'], array_reverse($dailyStats));
-
-$this->registerJs(<<<JS
-var ctx = document.getElementById('dailyChart').getContext('2d');
-var chart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: {$this->renderPhpValue($labels)},
-        datasets: [
-            {
-                label: 'Импортировано',
-                data: {$this->renderPhpValue($importedData)},
-                backgroundColor: 'rgba(25, 135, 84, 0.7)',
-            },
-            {
-                label: 'Обновлено',
-                data: {$this->renderPhpValue($updatedData)},
-                backgroundColor: 'rgba(13, 202, 240, 0.7)',
-            },
-            {
-                label: 'Ошибок',
-                data: {$this->renderPhpValue($errorData)},
-                backgroundColor: 'rgba(220, 53, 69, 0.7)',
-            }
-        ]
-    },
-    options: {
-        responsive: true,
-        scales: {
-            x: { stacked: true },
-            y: { stacked: true, beginAtZero: true }
-        }
-    }
-});
-JS
-);
-?>
-
-<?php
-// Вспомогательный метод для рендеринга PHP значений в JS
-$this->registerJs("
-    // Helper для рендеринга PHP массивов в JS
-    (function() {
-        var renderPhpValue = function(value) {
-            return JSON.stringify(value);
-        };
-        window.renderPhpValue = renderPhpValue;
-    })();
-", \yii\web\View::POS_BEGIN);
 ?>
