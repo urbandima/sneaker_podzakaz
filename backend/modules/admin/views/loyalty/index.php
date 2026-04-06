@@ -126,7 +126,8 @@ $levels = [
                     <a href="/loyalty" target="_blank" style="color: var(--admin-accent, #2563eb);">Публичная страница: /loyalty</a>
                 </p>
         </div>
-        <button class="admin-btn admin-btn-primary" id="saveLoyaltyBtn" onclick="saveLoyaltySettings()">
+        <button class="admin-btn admin-btn-primary" id="saveLoyaltyBtn" onclick="saveLoyaltySettings()"
+            data-save-url="<?= Url::to(['/admin/settings/save-loyalty']) ?>">
             <i class="bi bi-check-circle"></i>
             Сохранить настройки
         </button>
