@@ -4,30 +4,34 @@ namespace app\backend\modules\admin\controllers;
 
 use app\backend\modules\admin\models\SidebarMenuItem;
 use yii\data\ActiveDataProvider;
-use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
 
 /**
  * SidebarMenuController
- * Управление боковым меню в админ панели
+ * Управление боковым меню в админ панели (только Admin)
  */
-class SidebarMenuController extends Controller
+class SidebarMenuController extends BaseAdminController
 {
-    /**
-     * {@inheritdoc}
-     */
     public function behaviors(): array
     {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::class,
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
+        $behaviors = parent::behaviors();
+        // Разрешаем только администраторам
+        $behaviors['access']['rules'] = [
+            [
+                'allow' => true,
+                'roles' => ['@'],
+                'matchCallback' => function () {
+                    return !Yii::$app->user->isGuest
+                        && Yii::$app->user->identity->isAdmin();
+                },
             ],
         ];
+        $behaviors['verbs'] = [
+            'class' => \yii\filters\VerbFilter::class,
+            'actions' => ['delete' => ['POST']],
+        ];
+        return $behaviors;
     }
 
     /**

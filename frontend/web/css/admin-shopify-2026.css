@@ -1097,3 +1097,28 @@ body {
     --admin-border-subdued: #2e2e2e;
 }
 
+
+/* === PAGE-SPECIFIC: SEO pages === */
+.seo-index .card {
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.seo-index .card:hover { transform: translateY(-2px); box-shadow: var(--admin-shadow-md); }
+.seo-index .card-title { font-size: 1rem; font-weight: 600; color: var(--admin-text); }
+.seo-index .card-text  { font-size: 0.875rem; color: var(--admin-text-secondary); }
+.seo-redirects .table, .seo-bulk-meta .table { font-size: 0.875rem; }
+.seo-redirects code, .seo-redirect-edit code {
+    background: var(--admin-border-light);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+.seo-sitemap .alert-info, .seo-robots .alert-info {
+    background: var(--admin-border-light);
+    border: 1px solid var(--admin-border);
+    color: var(--admin-text);
+}
+.seo-robots textarea { font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.seo-bulk-meta .form-group label { font-weight: 500; font-size: 0.875rem; }
+.seo-bulk-meta .hint-block { font-size: 0.75rem; color: var(--admin-text-secondary); }

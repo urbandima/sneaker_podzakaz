@@ -18,7 +18,7 @@ use yii\helpers\Url;
     <title><?= Html::encode($this->title) ?></title>
     
     <!-- Admin CSS -->
-    <link href="/css/admin.css?v=<?= time() ?>" rel="stylesheet">
+    <link href="/css/admin-shopify-2026.css?v=<?= time() ?>" rel="stylesheet">
     
     <!-- Bootstrap Icons CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">

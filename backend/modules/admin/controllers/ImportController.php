@@ -34,18 +34,24 @@ use app\backend\modules\admin\services\import\NbrbRateService;
  */
 class ImportController extends Controller
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::class,
                 'actions' => [
-                    'run' => ['POST'],
+                    'run'     => ['POST'],
                     'run-all' => ['POST'],
-                    'stop' => ['POST'],
+                    'stop'    => ['POST'],
                 ],
             ],
         ];

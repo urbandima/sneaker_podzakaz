@@ -15,18 +15,41 @@ class WebhookController extends Controller
     public $enableCsrfValidation = false;
 
     /**
+     * Проверяет HMAC-подпись входящего вебхука.
+     * Секрет берётся из настроек: settings.get('webhook', 'secret').
+     */
+    private function verifySignature(string $payload, string $headerName = 'X-Webhook-Signature'): bool
+    {
+        $secret = Yii::$app->settings->get('webhook', 'secret', '');
+        if (empty($secret)) {
+            // Если секрет не настроен — логируем предупреждение, но пропускаем
+            Yii::warning('Webhook secret not configured — signature check skipped', 'webhook');
+            return true;
+        }
+        $provided = Yii::$app->request->headers->get($headerName, '');
+        $expected = 'sha256=' . hash_hmac('sha256', $payload, $secret);
+        return hash_equals($expected, $provided);
+    }
+
+    /**
      * Webhook от МойСклад
      */
     public function actionMoysklad()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $payload = file_get_contents('php://input');
+
+        if (!$this->verifySignature($payload)) {
+            Yii::$app->response->statusCode = 403;
+            return ['success' => false, 'error' => 'Invalid signature'];
+        }
+
         $data = json_decode($payload, true);
-        
+
         // Логирование
         Yii::info('МойСклад webhook: ' . $payload, 'moysklad');
-        
+
         if (!$data) {
             return ['success' => false, 'error' => 'Invalid JSON'];
         }
