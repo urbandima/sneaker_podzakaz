@@ -914,9 +914,7 @@ document.addEventListener('DOMContentLoaded', function() {
 /* -- loyalty/index.php -- */
 function saveLoyaltySettings() {
     var btn = document.getElementById('saveLoyaltyBtn');
-    var saveUrl = (document.getElementById('loyalty-config') || {}).dataset
-        ? (document.getElementById('loyalty-config').dataset.saveUrl || '/admin/settings/save-loyalty')
-        : '/admin/settings/save-loyalty';
+    var saveUrl = (btn && btn.dataset.saveUrl) ? btn.dataset.saveUrl : '/admin/settings/save-loyalty';
 
     btn.disabled = true;
     btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Сохранение...';
