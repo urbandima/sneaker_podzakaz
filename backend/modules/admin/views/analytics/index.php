@@ -192,7 +192,9 @@ $activeTab = Yii::$app->request->get('tab', 'analytics');
             <i class="bi bi-people"></i>
             RFM-анализ клиентов
         </h2>
-        <button class="admin-btn admin-btn-secondary" onclick="refreshRfm(this)">
+        <button class="admin-btn admin-btn-secondary" onclick="refreshRfm(this)"
+            data-rfm-url="<?= Url::to(['/admin/analytics/rfm']) ?>"
+            data-export-rfm-url="<?= Url::to(['/admin/analytics/export-rfm']) ?>">
             <i class="bi bi-arrow-clockwise"></i> Рассчитать RFM
         </button>
     </div>

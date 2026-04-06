@@ -66,36 +66,3 @@ $this->title = 'ALT тексты изображений';
     </div>
 </div>
 
-<script>
-function updateImageAlt(id, value) {
-    fetch('/admin/seo/update-image-alt', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRF-Token': yii.getCsrfToken(),
-        },
-        body: 'id=' + id + '&alt_text=' + encodeURIComponent(value)
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('ALT текст сохранён!', 'success');
-        } else {
-            showNotification('Ошибка сохранения', 'error');
-        }
-    });
-}
-
-function showNotification(message, type) {
-    const div = document.createElement('div');
-    div.className = 'alert alert-' + (type === 'success' ? 'success' : 'danger');
-    div.textContent = message;
-    div.style.position = 'fixed';
-    div.style.top = '20px';
-    div.style.right = '20px';
-    div.style.zIndex = '9999';
-    div.style.padding = '10px 20px';
-    document.body.appendChild(div);
-    setTimeout(() => div.remove(), 3000);
-}
-</script>
