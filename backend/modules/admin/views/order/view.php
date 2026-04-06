@@ -10,14 +10,7 @@ $this->title = 'Заказ №' . ($model->order_number ?: $model->id);
 $user = Yii::$app->user->identity;
 $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::$app->settings->getStatuses();
 
-// B0.2: CSS вынесен в registerCss()
-$this->registerCss(<<<CSS
-/* Улучшенный CRM-дизайн карточки заказа */
-.order-page {
-    background: #f5f6fa;
-    min-height: 100vh;
-    padding: 1rem;
-}
+// CSS moved to frontend/web/css/admin-pages.css (/* -- order/view.php -- */)
 
 .order-shell {
     max-width: 1400px;
