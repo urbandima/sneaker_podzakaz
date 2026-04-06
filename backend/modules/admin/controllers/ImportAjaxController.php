@@ -3,47 +3,31 @@
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
-use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
-use yii\filters\AccessControl;
 use app\backend\modules\admin\models\import\ImportTask;
 use app\backend\modules\admin\models\import\ImportLog;
 use app\backend\modules\admin\models\import\ImportSource;
 
 /**
  * ImportAjaxController — AJAX запросы для импорта
- * 
+ *
  * Actions:
  * - status: Статус задачи
  * - progress: Прогресс выполнения
  * - stop: Остановка задачи
  * - logs: Логи задачи в реальном времени
  */
-class ImportAjaxController extends Controller
+class ImportAjaxController extends BaseAdminController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function behaviors()
+    public function behaviors(): array
     {
-        return [
-            'access' => [
-                'class' => AccessControl::class,
-                'rules' => [
-                    [
-                        'allow' => true,
-                        'roles' => ['admin', 'manager'],
-                    ],
-                ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::class,
-                'actions' => [
-                    'stop' => ['POST'],
-                ],
-            ],
+        $behaviors = parent::behaviors();
+        $behaviors['verbs'] = [
+            'class' => VerbFilter::class,
+            'actions' => ['stop' => ['POST']],
         ];
+        return $behaviors;
     }
 
     /**

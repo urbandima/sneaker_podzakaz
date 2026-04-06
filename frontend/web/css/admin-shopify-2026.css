@@ -1067,7 +1067,6 @@ body {
 .dash-delta-negative { color: var(--admin-danger); font-weight: 600; }
 
 /* Stat icon layout */
-.admin-stat-card { display: flex; gap: 1rem; align-items: flex-start; }
 .admin-stat-icon {
     width: 44px;
     height: 44px;
