@@ -27,7 +27,8 @@ use app\backend\modules\coupon\models\Coupon;
                     'placeholder' => 'SUMMER2024',
                     'style' => 'text-transform: uppercase;'
                 ])->hint('Уникальный код купона (будет преобразован в верхний регистр)') ?>
-                <button type="button" class="admin-btn admin-btn-secondary" style="margin-top: 0.5rem;" onclick="generateCouponCode()">
+                <button type="button" class="admin-btn admin-btn-secondary" style="margin-top: 0.5rem;" onclick="generateCouponCode()"
+                    data-generate-url="<?= \yii\helpers\Url::to(['generate-code']) ?>">
                     <i class="bi bi-arrow-repeat"></i> Сгенерировать код
                 </button>
             </div>
@@ -45,6 +46,8 @@ use app\backend\modules\coupon\models\Coupon;
             
             <?= $form->field($model, 'type')->dropDownList(Coupon::getTypeList(), [
                 'prompt' => 'Выберите тип скидки',
+                'id' => 'coupon-type',
+                'data-free-shipping-value' => Coupon::TYPE_FREE_SHIPPING,
                 'onchange' => 'updateDiscountFields(this.value)'
             ]) ?>
 
