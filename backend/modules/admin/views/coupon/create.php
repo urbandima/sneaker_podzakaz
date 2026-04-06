@@ -33,7 +33,8 @@ $this->title = 'Создать купон';
                 <input type="text" name="Coupon[code]" id="coupon-code" class="form-control" 
                        placeholder="SUMMER2024" style="text-transform: uppercase;" required>
                 <small style="color: var(--admin-text-secondary);">Уникальный код купона (будет преобразован в верхний регистр)</small>
-                <button type="button" class="admin-btn admin-btn-secondary" style="margin-top: 0.5rem;" onclick="generateCouponCode()">
+                <button type="button" class="admin-btn admin-btn-secondary" style="margin-top: 0.5rem;" onclick="generateCouponCode()"
+                    data-generate-url="<?= \yii\helpers\Url::to(['generate-code']) ?>">
                     <i class="bi bi-arrow-repeat"></i> Сгенерировать код
                 </button>
             </div>
