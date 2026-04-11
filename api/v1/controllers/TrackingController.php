@@ -35,17 +35,26 @@ class TrackingController extends Controller
     public function actionIndex($orderId)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         try {
-            $order = Order::findOne($orderId);
-            
+            $order = Order::findOne((int) $orderId);
+
             if (!$order) {
                 return [
                     'success' => false,
                     'message' => 'Заказ не найден'
                 ];
             }
-            
+
+            // Проверка авторизации: заказ принадлежит текущему пользователю
+            $customerId = Yii::$app->user->id;
+            if ($customerId && $order->customer_id != $customerId) {
+                return [
+                    'success' => false,
+                    'message' => 'Заказ не найден'
+                ];
+            }
+
             $tracking = DeliveryTracking::findOne(['order_id' => $orderId]);
             
             if (!$tracking) {

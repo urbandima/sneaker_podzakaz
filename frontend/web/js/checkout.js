@@ -147,10 +147,9 @@ function submitOrder() {
             }
         })
         .catch(function (error) {
-            console.error('Order submit error:', error);
-            SH.notify('О��ибка при оф��рмлении заказа', 'error');
+            SH.notify('Ошибка при оформлении заказа', 'error');
             btn.disabled = false;
-            btn.innerHTML = 'Оформить з��каз';
+            btn.innerHTML = 'Оформить заказ';
         });
 }
 

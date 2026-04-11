@@ -35,7 +35,7 @@
                 return JSON.parse(favorites);
             }
         } catch (e) {
-            console.error('Error reading favorites:', e);
+            /* production: silent */
         }
 
         // Из DOM (для залогиненных)

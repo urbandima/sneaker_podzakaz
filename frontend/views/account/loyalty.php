@@ -37,7 +37,7 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
     </div>
     
     <!-- Loyalty Card -->
-    <div class="loyalty-card" data-level="<?= strtolower($levelInfo[1] ?? 'bronze') ?>" style="--level-color: <?= $levelInfo[0] ?>">
+    <div class="loyalty-card" data-level="<?= Html::encode(strtolower($levelInfo[1] ?? 'bronze')) ?>" style="--level-color: <?= Html::encode($levelInfo[0] ?? '#cd7f32') ?>">
         <div class="card-header">
             <div class="level-badge">
                 <div class="badge-icon">

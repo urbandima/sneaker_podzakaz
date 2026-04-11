@@ -83,10 +83,10 @@ function hideConsentBanner() {
 
 function loadAnalyticsScripts() {
     if (localStorage.getItem('analytics_consent') === 'true') {
-        console.log('Analytics scripts loaded');
+        /* production: analytics scripts loaded */
     }
     if (localStorage.getItem('marketing_consent') === 'true') {
-        console.log('Marketing scripts loaded');
+        /* production: marketing scripts loaded */
     }
 }
 

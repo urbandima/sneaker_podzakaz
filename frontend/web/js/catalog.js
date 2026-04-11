@@ -263,9 +263,7 @@
             // ИСПРАВЛЕНО: Проверяем тип контента перед парсингом
             const contentType = response.headers.get('content-type');
             if (!contentType || !contentType.includes('application/json')) {
-                console.error('❌ Сервер вернул не JSON:', contentType);
                 return response.text().then(text => {
-                    console.error('HTML ответ:', text.substring(0, 500));
                     throw new Error('Сервер вернул HTML вместо JSON. Проверьте роуты и контроллер.');
                 });
             }
@@ -278,7 +276,6 @@
             
             // Проверяем структуру ответа
             if (!data || typeof data !== 'object') {
-                console.error('❌ Неправильная структура ответа:', data);
                 throw new Error('Некорректный ответ от сервера');
             }
             
@@ -320,8 +317,6 @@
                     hideLoadingIndicator();
                 });
             } else {
-                console.error('❌ Проблема с данными. data.success:', data.success, 'data.html:', !!data.html);
-                console.error('Полный ответ:', data);
                 showError('Ошибка загрузки товаров');
                 hideLoadingIndicator();
             }
@@ -333,9 +328,6 @@
                 // Просто возвращаемся без ошибки
                 return;
             }
-            
-            // Логируем ошибку для отладки
-            console.error('❌ Ошибка AJAX запроса:', error);
             
             // Показываем понятное сообщение пользователю
             if (error.message.includes('JSON')) {
@@ -355,7 +347,6 @@
     function renderProducts(products) {
         const container = document.getElementById('products');
         if (!container) {
-            console.error('Контейнер #products не найден!');
             return;
         }
 
@@ -845,7 +836,6 @@
             }
         })
         .catch(error => {
-            console.warn('Failed to update favorites count:', error);
             // Fallback: подсчитываем визуально
             const activeCount = document.querySelectorAll('.btn-favorite.active, .fav-btn.active').length;
             const badge = document.getElementById('favCount');
@@ -1023,7 +1013,6 @@
         if (typeof window.toggleFavorite === 'function') {
             window.toggleFavorite(e, id);
         } else {
-            console.error('toggleFavorite не определена. Убедитесь, что favorites.js загружен.');
         }
     };
     
@@ -1077,7 +1066,6 @@
         }, 1500);
     })
     .catch(error => {
-        console.error('quickAddToCart error:', error);
         button.innerHTML = '<i class="bi bi-x-circle"></i> <span>Ошибка</span>';
         button.classList.remove('loading');
         button.classList.add('error');

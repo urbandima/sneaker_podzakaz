@@ -45,7 +45,7 @@ async function loadLoyaltyBalance() {
             updateLoyaltyUI();
         }
     } catch (error) {
-        console.error('Error loading loyalty balance:', error);
+        /* production: silent */
     }
 }
 
@@ -123,7 +123,6 @@ async function applyPromoCode() {
             showError('promoError', data.message || 'Недействительный промокод');
         }
     } catch (error) {
-        console.error('Error applying promo code:', error);
         showError('promoError', 'Ошибка при применении промокода');
     }
 }

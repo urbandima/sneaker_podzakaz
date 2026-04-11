@@ -17,7 +17,6 @@
      */
     window.toggleFav = function (e, id) {
         if (!e || !e.preventDefault) {
-            console.error('toggleFav: первый параметр должен быть Event объектом');
             return;
         }
 
@@ -31,8 +30,6 @@
         if (typeof window.toggleFavorite === 'function') {
             window.toggleFavorite(button, id);
         } else {
-            console.error('toggleFavorite function not found. Make sure favorites.js is loaded.');
-
             // Fallback: показываем уведомление пользователю
             if (window.NotificationManager) {
                 NotificationManager.error('Ошибка загрузки функционала избранного. Обновите страницу.');
@@ -65,7 +62,6 @@
         if (typeof addToCart === 'function') {
             addToCart(productId, 1, null, null);
         } else {
-            console.error('addToCart function not found. Make sure cart.js is loaded.');
             // Fallback: редирект на страницу товара
             window.location.href = '/catalog/product/' + productId;
         }
@@ -97,13 +93,15 @@
      * @param {string} brandSlug - slug бренда (не используется)
      */
     window.toggleBrandFilter = function (brandId, brandSlug) {
-        if (event) {
-            event.preventDefault();
-            event.stopPropagation();
+        var e = window.event; // Совместимость с inline onclick
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
         }
 
-        const button = event.currentTarget;
-        const isActive = button.classList.contains('active');
+        var button = e ? (e.currentTarget || e.target) : null;
+        if (!button) return;
+        var isActive = button.classList.contains('active');
 
         // Переключаем визуальное состояние кнопки
         button.classList.toggle('active');
@@ -115,7 +113,6 @@
             // Триггерим событие change для применения фильтров
             checkbox.dispatchEvent(new Event('change', { bubbles: true }));
         } else {
-            console.warn('⚠️ Чекбокс бренда не найден:', brandId);
         }
     };
 

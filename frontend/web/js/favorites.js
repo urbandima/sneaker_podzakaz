@@ -56,7 +56,6 @@ function toggleFavorite(button, productId) {
             }
         })
         .catch(function (error) {
-            console.error('Favorite toggle error:', error);
             button.classList.remove('loading');
             button.disabled = false;
             SH.notify('Не удалось обновить избранное', 'error');

@@ -195,16 +195,14 @@ abstract class BaseAdminController extends Controller
     protected function getCurrentUser()
     {
         try {
-            return Yii::$app->user->identity;
+            $user = Yii::$app->user->identity;
+            if ($user === null) {
+                Yii::warning('getCurrentUser: no authenticated user', 'security');
+            }
+            return $user;
         } catch (\Exception $e) {
-            // Демо-пользователь
-            return new \app\backend\modules\admin\models\User([
-                'id' => 1,
-                'username' => 'admin',
-                'email' => 'admin@example.com',
-                'role' => \app\backend\modules\admin\models\User::ROLE_ADMIN,
-                'status' => \app\backend\modules\admin\models\User::STATUS_ACTIVE,
-            ]);
+            Yii::error('getCurrentUser exception: ' . $e->getMessage(), 'security');
+            return null;
         }
     }
 

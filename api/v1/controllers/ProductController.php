@@ -36,12 +36,12 @@ class ProductController extends Controller
             ->active()
             ->with(['brand', 'category', 'sizes']);
 
-        // Фильтрация
+        // Фильтрация (приведение к int для защиты от SQL-инъекций)
         if ($categoryId = \Yii::$app->request->get('category_id')) {
-            $query->andWhere(['category_id' => $categoryId]);
+            $query->andWhere(['category_id' => (int) $categoryId]);
         }
         if ($brandId = \Yii::$app->request->get('brand_id')) {
-            $query->andWhere(['brand_id' => $brandId]);
+            $query->andWhere(['brand_id' => (int) $brandId]);
         }
 
         // Пагинация

@@ -1717,7 +1717,6 @@ function updateCNYRate() {
         }
     })
     .catch(err => {
-        console.error('Ошибка:', err);
         alert('❌ ' + (err.message || 'Ошибка обновления курса'));
         btn.disabled = false;
         btn.innerHTML = originalText;

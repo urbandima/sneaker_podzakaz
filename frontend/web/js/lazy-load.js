@@ -323,15 +323,7 @@
         new LazyBackgroundLoader();
         new LazyIframeLoader();
 
-        // Логирование в dev режиме
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            console.log('Lazy Load initialized:', {
-                images: document.querySelectorAll('img[data-src]').length,
-                backgrounds: document.querySelectorAll('[data-bg]').length,
-                iframes: document.querySelectorAll('iframe[data-src]').length,
-                supportsIO: supportsIntersectionObserver
-            });
-        }
+        // Dev logging removed for production
     }
 
     // Экспорт LazyLoad для использования в других скриптах

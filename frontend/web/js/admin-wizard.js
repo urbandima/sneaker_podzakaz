@@ -413,7 +413,7 @@ function loadFromLocalStorage() {
         }
         if (saveData.step && saveData.step !== currentStep) { changeStep(saveData.step - currentStep); }
         showMessage('Черновик заказа восстановлен', 'success');
-    } catch(e) { console.error('Error loading draft:', e); }
+    } catch(e) { /* production: silent */ }
 }
 
 function showAutosaveIndicator() {

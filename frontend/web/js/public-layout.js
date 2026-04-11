@@ -56,7 +56,6 @@ function loadBrands() {
       `).join('');
     })
     .catch(err => {
-      console.error('Error loading brands:', err);
       const grid = document.getElementById('brandsGrid');
       if (grid) {
         grid.innerHTML = '<p style="text-align:center;padding:2rem;color:#ef4444">Ошибка загрузки</p>';

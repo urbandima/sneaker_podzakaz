@@ -1,0 +1,113 @@
+/**
+ * Order Tracking Page — стили для публичной страницы отслеживания заказа.
+ */
+
+.order-track {
+    max-width: 700px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+.order-track h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* Status chain */
+.status-chain {
+    display: flex;
+    overflow-x: auto;
+    gap: 0;
+    margin: 2rem 0;
+    align-items: flex-start;
+}
+
+.status-step {
+    flex: 1;
+    text-align: center;
+    min-width: 80px;
+}
+
+.status-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.status-dot--active {
+    background: var(--color-success, #008060);
+    color: #fff;
+}
+
+.status-dot--inactive {
+    background: var(--c-gray-200, #e1e3e5);
+    color: var(--color-text-muted, #6d7175);
+}
+
+.status-label {
+    font-size: 0.7rem;
+    margin-top: 0.4rem;
+}
+
+.status-label--active {
+    color: var(--color-success, #008060);
+}
+
+.status-label--inactive {
+    color: var(--color-text-muted, #6d7175);
+}
+
+.status-connector {
+    flex: 0 0 1rem;
+    border-top: 2px solid var(--c-gray-200, #e1e3e5);
+    margin-top: 16px;
+}
+
+.status-connector--active {
+    border-color: var(--color-success, #008060);
+}
+
+/* Order info */
+.order-items-box {
+    background: var(--c-gray-50, #f7f8fa);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.order-items-box h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+}
+
+.order-item-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--c-gray-200, #e1e3e5);
+}
+
+.order-item-price {
+    font-weight: 600;
+}
+
+.order-total {
+    text-align: right;
+    font-weight: 700;
+    margin-top: 0.5rem;
+}
+
+.order-cancelled {
+    background: #fff0f0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+    color: #b71c1c;
+}

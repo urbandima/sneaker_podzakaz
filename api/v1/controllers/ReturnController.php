@@ -82,14 +82,23 @@ class ReturnController extends Controller
         
         try {
             $return = ReturnRequest::findOne($id);
-            
+
             if (!$return) {
                 return [
                     'success' => false,
                     'message' => 'Заявка не найдена'
                 ];
             }
-            
+
+            // Проверка авторизации: возврат принадлежит текущему пользователю
+            $customerId = Yii::$app->user->id;
+            if ($customerId && $return->customer_id != $customerId) {
+                return [
+                    'success' => false,
+                    'message' => 'Заявка не найдена'
+                ];
+            }
+
             return [
                 'success' => true,
                 'return' => [

@@ -69,7 +69,7 @@
                 fetch('/admin/search/global?q=' + encodeURIComponent(query))
                     .then(r => r.json())
                     .then(data => renderSearchResults(data))
-                    .catch(err => console.error('Search error:', err));
+                    .catch(err => { /* production: silent */ });
             }, 200);
         });
     }
@@ -250,7 +250,7 @@
                     calculatePrice();
                 }
             })
-            .catch(err => console.error('Rate fetch error:', err));
+            .catch(err => { /* production: silent */ });
     };
 
 })();

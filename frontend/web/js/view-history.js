@@ -80,7 +80,6 @@
                 }
             })
             .catch(error => {
-                console.error('Error loading view history:', error);
                 container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#ef4444;"><i class="bi bi-exclamation-triangle"></i> Ошибка загрузки</div>';
             });
     }

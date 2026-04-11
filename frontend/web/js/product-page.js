@@ -307,7 +307,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             if (!size) {
-                console.error('❌ size пустой!');
                 return;
             }
 
@@ -353,7 +352,6 @@ document.addEventListener('DOMContentLoaded', function () {
         options.forEach((opt, idx) => {
         });
     } else {
-        console.error('❌ Dropdown не найден!');
     }
 });
 
@@ -363,7 +361,6 @@ function addToCartFromSticky() {
     const size = window.selectedStickySize;
 
     if (!size) {
-        console.warn('⚠️ Размер не выбран');
         notify('Пожалуйста, выберите размер', 'warning');
         // Открываем dropdown размеров
         const dropdown = document.getElementById('stickySizeDropdown');

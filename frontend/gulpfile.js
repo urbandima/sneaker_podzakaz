@@ -61,6 +61,7 @@ const paths = {
         // Каталог
         catalog: [
             'web/js/catalog.js',
+            'web/js/catalog-filter.js',
             'web/js/price-slider.js'
         ],
         // Страница товара

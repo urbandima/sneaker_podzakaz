@@ -62,10 +62,12 @@ class AdminImportController extends Controller
     public function actionRun()
     {
         if (Yii::$app->request->isPost) {
-            // Запускаем импорт в фоне через exec
-            $limit = Yii::$app->request->post('limit', 100);
-            $command = "php " . Yii::getAlias('@app') . "/yii poizon-import/run --limit={$limit} > /dev/null 2>&1 &";
-            
+            // Валидация: limit должен быть целым числом в разумном диапазоне
+            $limit = (int) Yii::$app->request->post('limit', 100);
+            $limit = max(1, min($limit, 10000));
+
+            $command = "php " . escapeshellarg(Yii::getAlias('@app') . "/yii") . " poizon-import/run --limit=" . escapeshellarg((string) $limit) . " > /dev/null 2>&1 &";
+
             exec($command);
             
             Yii::$app->session->setFlash('success', 'Импорт запущен в фоновом режиме');

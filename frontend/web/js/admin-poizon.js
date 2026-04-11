@@ -1099,7 +1099,6 @@ function copyToClipboard(text, element) {
                 element.classList.add('bg-info');
             }, 1500);
         }).catch(function(err) {
-            console.error('Ошибка копирования:', err);
             alert('Не удалось скопировать: ' + text);
         });
     } else {

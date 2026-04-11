@@ -103,7 +103,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 </style>
 
 <!-- PREMIUM E-COMMERCE HEADER -->
-<header class="ecom-header" style="display: block !important; visibility: visible !important; opacity: 1 !important;">
+<header class="ecom-header">
     <!-- Main Header -->
     <div class="main-header">
         <div class="container">
@@ -286,7 +286,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                         <div class="mega-content">
                             <div class="brands-dropdown-header">Популярные бренды</div>
                             <div class="brands-grid" id="brandsGrid">
-                                <div style="text-align:center;padding:2rem">
+                                <div class="text-center py-4">
                                     <i class="bi bi-hourglass-split"></i> Загрузка...
                                 </div>
                             </div>
@@ -454,14 +454,14 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 <main role="main" class="flex-shrink-0">
     <div class="container-fluid p-0">
         <?php if (Yii::$app->session->hasFlash('success')): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin: 1rem;">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <?= Yii::$app->session->getFlash('success') ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
 
         <?php if (Yii::$app->session->hasFlash('error')): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin: 1rem;">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <?= Yii::$app->session->getFlash('error') ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>

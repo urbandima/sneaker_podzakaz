@@ -64,7 +64,6 @@ function submitQuickOrder(event) {
             }
         })
         .catch(function (error) {
-            console.error('Quick order error:', error);
             submitBtn.innerHTML = '<i class="bi bi-x-circle"></i> Ошибка';
             submitBtn.classList.add('error');
             SH.notify(error.message || 'Ошибка отправки заказа. Попробуйте позже.', 'error');

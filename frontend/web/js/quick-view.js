@@ -20,7 +20,7 @@ function openQuickView(productId) {
             }
         })
         .catch(function (error) {
-            console.error('Error loading quick view:', error);
+            /* production: silent */
         });
 }
 

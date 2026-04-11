@@ -234,7 +234,6 @@ function copyToClipboard(text, element) {
                 element.classList.add('bg-info');
             }, 1500);
         }).catch(function(err) {
-            console.error('Ошибка копирования:', err);
             alert('Не удалось скопировать: ' + text);
         });
     } else {
@@ -392,7 +391,6 @@ async function saveCharacteristic(id) {
             alert('Ошибка: ' + data.message);
         }
     } catch (error) {
-        console.error('Ошибка сохранения:', error);
         alert('Ошибка сохранения характеристики');
     }
 }
@@ -418,7 +416,6 @@ async function deleteCharacteristicInline(id) {
             alert('Ошибка: ' + data.message);
         }
     } catch (error) {
-        console.error('Ошибка удаления:', error);
         alert('Ошибка удаления характеристики');
     }
 }
@@ -525,7 +522,7 @@ async function loadCharacteristics() {
             populateCharacteristicSelect();
         }
     } catch (error) {
-        console.error('Ошибка загрузки характеристик:', error);
+        /* production: silent */
     }
 }
 
@@ -621,7 +618,6 @@ async function createNewCharacteristic() {
         }
     } catch (error) {
         showMessage('Ошибка создания характеристики', 'danger');
-        console.error(error);
     }
 }
 
@@ -668,7 +664,6 @@ async function createNewValue() {
         }
     } catch (error) {
         showMessage('Ошибка создания значения', 'danger');
-        console.error(error);
     }
 }
 
@@ -738,7 +733,6 @@ async function addCharacteristicToProduct() {
         }
     } catch (error) {
         showMessage('Ошибка добавления характеристики', 'danger');
-        console.error(error);
     }
 }
 
@@ -767,7 +761,6 @@ async function deleteCharacteristic(id) {
         }
     } catch (error) {
         showMessage('Ошибка удаления характеристики', 'danger');
-        console.error(error);
     }
 }
 

@@ -3,25 +3,7 @@
    Main header, navigation, actions
    ============================================== */
 
-/* === SKIP LINK (Accessibility) === */
-.skip-link {
-    position: absolute;
-    top: -100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--c-black);
-    color: var(--c-white);
-    padding: var(--space-3) var(--space-6);
-    border-radius: var(--radius-md);
-    font-weight: var(--font-weight-medium);
-    text-decoration: none;
-    z-index: calc(var(--z-header) + 1);
-    transition: top var(--duration-fast);
-}
-
-.skip-link:focus {
-    top: var(--space-4);
-}
+/* NOTE: .skip-link defined in core/design-system.css — single source of truth */
 
 /* === HEADER === */
 .main-header {

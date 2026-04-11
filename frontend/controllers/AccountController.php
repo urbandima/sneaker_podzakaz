@@ -314,17 +314,15 @@ class AccountController extends Controller
         $sent = false;
 
         if ($email) {
+            // Единый ответ для предотвращения перечисления email-адресов (email enumeration)
             $customer = Customer::findByEmail($email);
             if ($customer) {
                 $customer->generatePasswordResetToken();
-                if ($customer->save(false)) {
-                    // Здесь можно добавить отправку email
-                    $sent = true;
-                    Yii::$app->session->setFlash('success', 'Инструкции по восстановлению пароля отправлены на вашу почту');
-                }
-            } else {
-                Yii::$app->session->setFlash('error', 'Пользователь с таким email не найден');
+                $customer->save(false);
             }
+            // Всегда показываем одно и то же сообщение — независимо от того, найден ли пользователь
+            $sent = true;
+            Yii::$app->session->setFlash('success', 'Если аккаунт с таким email существует, инструкции по восстановлению пароля отправлены на вашу почту');
         }
 
         return $this->render('forgot-password', [

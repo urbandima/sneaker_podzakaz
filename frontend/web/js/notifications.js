@@ -6,35 +6,69 @@
 (function () {
     'use strict';
 
-    // Создаем глобальный объект
+    /**
+     * Escape HTML для предотвращения XSS
+     * @param {string} str
+     * @returns {string}
+     */
+    function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
     window.NotificationManager = {
         /**
          * Показать уведомление
          * @param {string} message - Текст сообщения
          * @param {string} type - Тип: 'success', 'error', 'warning', 'info'
-         * @param {number} duration - Длительность в мс (по умолчанию 3000)
+         * @param {number} duration - Длительность в мс (по умолчанию 4000)
          */
-        show: function (message, type = 'info', duration = 4000) {
-            const notification = document.createElement('div');
-            notification.className = `toast toast-${type}`;
+        show: function (message, type, duration) {
+            type = type || 'info';
+            duration = duration || 4000;
 
-            // Иконка по типу
-            const icons = {
-                success: '<i class="bi bi-check-circle"></i>',
-                error: '<i class="bi bi-x-circle"></i>',
-                warning: '<i class="bi bi-exclamation-triangle"></i>',
-                info: '<i class="bi bi-info-circle"></i>'
+            // Валидация типа
+            var validTypes = ['success', 'error', 'warning', 'info'];
+            if (validTypes.indexOf(type) === -1) type = 'info';
+
+            var notification = document.createElement('div');
+            notification.className = 'toast toast-' + type;
+
+            // Иконка (безопасный HTML — нет пользовательских данных)
+            var iconMap = {
+                success: 'bi-check-circle',
+                error: 'bi-x-circle',
+                warning: 'bi-exclamation-triangle',
+                info: 'bi-info-circle'
             };
 
-            notification.innerHTML = `
-                <div class="toast-icon">${icons[type] || icons.info}</div>
-                <div class="toast-message">${message}</div>
-                <button class="toast-close" onclick="this.parentElement.classList.remove('show'); setTimeout(() => this.parentElement.remove(), 300)">
-                    <i class="bi bi-x"></i>
-                </button>
-            `;
+            var iconEl = document.createElement('div');
+            iconEl.className = 'toast-icon';
+            var icon = document.createElement('i');
+            icon.className = 'bi ' + iconMap[type];
+            iconEl.appendChild(icon);
 
-            let container = document.querySelector('.notification-container');
+            var messageEl = document.createElement('div');
+            messageEl.className = 'toast-message';
+            messageEl.textContent = message; // textContent — XSS-безопасно
+
+            var closeBtn = document.createElement('button');
+            closeBtn.className = 'toast-close';
+            closeBtn.setAttribute('aria-label', 'Закрыть');
+            var closeIcon = document.createElement('i');
+            closeIcon.className = 'bi bi-x';
+            closeBtn.appendChild(closeIcon);
+            closeBtn.addEventListener('click', function () {
+                notification.classList.remove('show');
+                setTimeout(function () { notification.remove(); }, 300);
+            });
+
+            notification.appendChild(iconEl);
+            notification.appendChild(messageEl);
+            notification.appendChild(closeBtn);
+
+            var container = document.querySelector('.notification-container');
             if (!container) {
                 container = document.createElement('div');
                 container.className = 'notification-container';
@@ -43,21 +77,16 @@
 
             container.appendChild(notification);
 
-            // Анимация появления
-            setTimeout(() => {
+            setTimeout(function () {
                 notification.classList.add('show');
             }, 10);
 
-            // Автоудаление
-            setTimeout(() => {
+            setTimeout(function () {
                 notification.classList.remove('show');
-                setTimeout(() => notification.remove(), 300);
+                setTimeout(function () { notification.remove(); }, 300);
             }, duration);
         },
 
-        /**
-         * Сокращения для типов
-         */
         success: function (message, duration) {
             this.show(message, 'success', duration);
         },

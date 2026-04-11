@@ -34,21 +34,24 @@ trait CatalogApiTrait
         $page = (int)$request->post('page', 1);
         $perPage = (int)$request->post('perPage', 24);
         
-        // Временно добавляем в GET для совместимости с applyFilters()
-        $_GET['brands'] = $brands;
-        $_GET['categories'] = $categories;
-        $_GET['sizes'] = $sizes;
-        $_GET['size_system'] = $sizeSystem;
-        $_GET['price_from'] = $priceFrom;
-        $_GET['price_to'] = $priceTo;
-        $_GET['sort'] = $sort;
-        
+        // Передаём POST-параметры через GET для совместимости с applyFilters().
+        // Используем setQueryParams() вместо прямой модификации $_GET (безопаснее).
+        $queryParams = Yii::$app->request->getQueryParams();
+        $queryParams['brands'] = $brands;
+        $queryParams['categories'] = $categories;
+        $queryParams['sizes'] = $sizes;
+        $queryParams['size_system'] = $sizeSystem;
+        $queryParams['price_from'] = $priceFrom;
+        $queryParams['price_to'] = $priceTo;
+        $queryParams['sort'] = $sort;
+
         // Характеристики из POST
         foreach ($request->post() as $key => $value) {
             if (strpos($key, 'char_') === 0 && !empty($value)) {
-                $_GET[$key] = $this->decodeJsonParam($value);
+                $queryParams[$key] = $this->decodeJsonParam($value);
             }
         }
+        Yii::$app->request->setQueryParams($queryParams);
         
         // Строим запрос
         $query = Product::find()

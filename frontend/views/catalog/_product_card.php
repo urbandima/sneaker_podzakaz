@@ -55,7 +55,7 @@ $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam
             <span class="badge badge-new">NEW</span>
             <?php endif; ?>
             <?php if ($product->hasDiscount()): ?>
-            <span class="badge badge-discount">-<?= $product->getDiscountPercent() ?>%</span>
+            <span class="badge badge-discount">-<?= (int) $product->getDiscountPercent() ?>%</span>
             <?php endif; ?>
         </div>
         
@@ -82,7 +82,7 @@ $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam
             <span class="size-badge <?= $badge['selected'] ? 'selected' : '' ?>"><?= Html::encode($badge['value']) ?></span>
             <?php endforeach; ?>
             <?php if ($sizeBadges['remaining'] > 0): ?>
-            <span class="size-more">+<?= $sizeBadges['remaining'] ?></span>
+            <span class="size-more">+<?= (int) $sizeBadges['remaining'] ?></span>
             <?php endif; ?>
         </div>
         <?php endif; ?>

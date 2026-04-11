@@ -30,7 +30,6 @@ function loadCartDrawerItems() {
         }
     })
     .catch(function (error) {
-        console.error('Load drawer error:', error);
         drawerItems.innerHTML = '<div class="cart-error">Ошибка загрузки корзины</div>';
     });
 }
@@ -53,7 +52,6 @@ function addToCart(productId, quantity = 1, size = null, color = null) {
             }
         })
         .catch(function (error) {
-            console.error('Cart error:', error);
             SH.notify('Ошибка соединения', 'error');
         });
 }
@@ -143,7 +141,6 @@ function updateCartItem(id, quantity) {
             }
         })
         .catch(function (error) {
-            console.error('Update cart error:', error);
             if (cartItem) {
                 const qtyInput = cartItem.querySelector('input[type="number"]');
                 if (qtyInput) qtyInput.value = previousQuantity;
@@ -248,7 +245,7 @@ function animateCartIcon() {
 document.addEventListener('DOMContentLoaded', function () {
     SH.fetch('/cart/count')
         .then(function (data) { if (data.count) updateCartCount(data.count); })
-        .catch(function (error) { console.error('Load cart count error:', error); });
+        .catch(function () { /* production: silent */ });
 
     // Добавляем CSS для анимаций если еще нет
     if (!document.getElementById('cart-animations-css')) {
