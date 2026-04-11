@@ -119,7 +119,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                 ?>
                 <a href="<?= $logoUrl ?>" class="logo">
                     <span class="logo-image">
-                        <img src="https://sneaker-head.by/images/logo.png" alt="Сникерхэд" loading="lazy">
+                        <img src="/images/logo.png" alt="Сникерхэд" loading="lazy">
                     </span>
                     <span class="logo-text">
                         <strong>СНИКЕРХЭД</strong>
@@ -481,7 +481,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                     <div class="footer-brand">
                         <div class="footer-logo">
                             <span class="footer-logo-image">
-                                <img src="https://sneaker-head.by/images/logo.png" alt="Сникерхэд" loading="lazy">
+                                <img src="/images/logo.png" alt="Сникерхэд" loading="lazy">
                             </span>
                             <div class="footer-logo-text">
                                 <strong>СНИКЕРХЭД</strong>

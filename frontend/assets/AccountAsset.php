@@ -11,7 +11,6 @@ class AccountAsset extends AssetBundle
     
     public $css = [
         'css/pages/account.css',
-        'css/pages/account-inline.css',
     ];
     
     public $depends = [

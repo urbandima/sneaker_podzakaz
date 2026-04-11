@@ -1,0 +1,210 @@
+/**
+ * 404 Page Styles
+ */
+
+.page-404 {
+    min-height: 80vh;
+}
+
+.error-hero {
+    padding: var(--space-16, 4rem) 0 var(--space-8, 2rem);
+    text-align: center;
+}
+
+.error-content {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.error-number {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-2, 0.5rem);
+    margin-bottom: var(--space-6, 1.5rem);
+}
+
+.digit {
+    font-size: clamp(4rem, 12vw, 8rem);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--c-black, #000);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.digit.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.sneaker-icon i {
+    font-size: clamp(3rem, 10vw, 6rem);
+    color: var(--c-gray-400, #9ca3af);
+}
+
+.error-title {
+    font-size: var(--text-2xl, 1.5rem);
+    font-weight: 700;
+    margin-bottom: var(--space-3, 0.75rem);
+}
+
+.error-description {
+    color: var(--color-text-secondary, #6b7280);
+    margin-bottom: var(--space-8, 2rem);
+    line-height: 1.6;
+}
+
+/* Search */
+.search-wrapper {
+    margin-bottom: var(--space-6, 1.5rem);
+}
+
+.search-input-group {
+    display: flex;
+    align-items: center;
+    background: var(--c-white, #fff);
+    border: 2px solid var(--c-gray-200, #e5e7eb);
+    border-radius: var(--radius-lg, 12px);
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+
+.search-input-group.focused {
+    border-color: var(--c-black, #000);
+}
+
+.search-icon {
+    padding: 0 var(--space-4, 1rem);
+    color: var(--c-gray-400, #9ca3af);
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    padding: var(--space-3, 0.75rem) 0;
+    font-size: var(--text-base, 1rem);
+    outline: none;
+    background: transparent;
+}
+
+.search-button {
+    padding: var(--space-3, 0.75rem) var(--space-6, 1.5rem);
+    background: var(--c-black, #000);
+    color: var(--c-white, #fff);
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search-button:hover {
+    background: var(--c-gray-800, #1f2937);
+}
+
+/* Quick actions */
+.quick-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-3, 0.75rem);
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2, 0.5rem);
+    padding: var(--space-3, 0.75rem) var(--space-5, 1.25rem);
+    border-radius: var(--radius-md, 8px);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: var(--text-sm, 0.875rem);
+    transition: all 0.2s;
+}
+
+.action-btn.btn-primary {
+    background: var(--c-black, #000);
+    color: var(--c-white, #fff);
+}
+
+.action-btn.btn-primary:hover {
+    background: var(--c-gray-800, #1f2937);
+}
+
+.action-btn.btn-secondary {
+    background: var(--c-gray-100, #f3f4f6);
+    color: var(--c-black, #000);
+}
+
+.action-btn.btn-secondary:hover {
+    background: var(--c-gray-200, #e5e7eb);
+}
+
+/* Help section */
+.help-section {
+    padding: var(--space-8, 2rem) 0;
+}
+
+.help-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4, 1rem);
+    background: var(--c-gray-50, #f9fafb);
+    border-radius: var(--radius-lg, 12px);
+    padding: var(--space-6, 1.5rem);
+}
+
+.help-icon i {
+    font-size: 2rem;
+    color: var(--c-gray-400, #9ca3af);
+}
+
+.help-content {
+    flex: 1;
+}
+
+.help-title {
+    font-size: var(--text-lg, 1.125rem);
+    font-weight: 700;
+    margin: 0 0 var(--space-1, 0.25rem);
+}
+
+.help-description {
+    color: var(--color-text-secondary, #6b7280);
+    margin: 0;
+    font-size: var(--text-sm, 0.875rem);
+}
+
+.btn-telegram {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2, 0.5rem);
+    padding: var(--space-3, 0.75rem) var(--space-5, 1.25rem);
+    background: #0088cc;
+    color: #fff;
+    border-radius: var(--radius-md, 8px);
+    text-decoration: none;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.btn-telegram:hover {
+    background: #006daa;
+}
+
+@media (max-width: 640px) {
+    .help-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .quick-actions {
+        flex-direction: column;
+    }
+
+    .action-btn {
+        justify-content: center;
+    }
+}

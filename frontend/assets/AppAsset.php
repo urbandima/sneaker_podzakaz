@@ -32,6 +32,8 @@ class AppAsset extends AssetBundle
     ];
     
     public $js = [
+        'js/utils.js',
+        'js/notifications.js',
         'js/app.js',
         'js/global-helpers.js',
         'js/favorites.js',

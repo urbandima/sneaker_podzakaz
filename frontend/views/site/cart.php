@@ -6,7 +6,7 @@
 $this->title = 'Корзина - СНИКЕРХЭД';
 
 // Стили
-$this->registerCssFile('@web/css/mobile-first.css', ['position' => \yii\web\View::POS_HEAD]);
+// mobile-first.css removed — styles are in cart.css and design-system.css
 $this->registerCssFile('@web/css/cart.css', ['position' => \yii\web\View::POS_HEAD]);
 $this->registerJsFile('@web/js/cart.js', ['position' => \yii\web\View::POS_END, 'depends' => [\yii\web\JqueryAsset::class]]);
 ?>
@@ -45,7 +45,7 @@ $this->registerJsFile('@web/js/cart.js', ['position' => \yii\web\View::POS_END, 
                 <!-- Example cart item (будет заменён на dynamic) -->
                 <!-- 
                 <div class="cart-item" data-cart-id="1">
-                    <img src="/img/product.jpg" class="cart-item-image" alt="Product">
+                    <img src="/images/placeholder.png" class="cart-item-image" alt="Product">
                     <div class="cart-item-info">
                         <span class="cart-item-brand">Nike</span>
                         <h3 class="cart-item-name">Air Max 90</h3>

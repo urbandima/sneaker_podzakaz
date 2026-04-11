@@ -43,7 +43,7 @@ $this->registerMetaTag(['name' => 'description', 'content' => 'Товары ка
             <div class="product-card">
                 <a href="<?= Url::to(['/catalog/catalog/product', 'slug' => $product['slug'] ?? ($product['id'] ?? '')]) ?>">
                     <div class="product-image">
-                        <img src="<?= Html::encode($product['image'] ?? '/images/placeholder.jpg') ?>" 
+                        <img src="<?= Html::encode($product['image'] ?? '/images/placeholder.png') ?>" 
                              alt="<?= Html::encode($product['name'] ?? 'Товар') ?>"
                              loading="lazy">
                     </div>

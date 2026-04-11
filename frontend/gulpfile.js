@@ -52,7 +52,10 @@ const paths = {
             'web/js/utils.js',
             'web/js/global-helpers.js',
             'web/js/notifications.js',
-            'web/js/lazy-load.js'
+            'web/js/lazy-load.js',
+            'web/js/app.js',
+            'web/js/cookies-consent.js',
+            'web/js/dark-mode.js'
         ],
         // Bootstrap JS
         bootstrap: [
@@ -62,23 +65,30 @@ const paths = {
         catalog: [
             'web/js/catalog.js',
             'web/js/catalog-filter.js',
-            'web/js/price-slider.js'
+            'web/js/price-slider.js',
+            'web/js/favorites.js',
+            'web/js/quick-view.js'
         ],
         // Страница товара
         product: [
             'web/js/product-page.js',
-            'web/js/product-modals.js'
+            'web/js/product-modals.js',
+            'web/js/sticky-bar.js'
         ],
         // UI улучшения
         ui: [
             'web/js/ui-enhancements.js',
-            'web/js/sticky-bar.js',
             'web/js/header-enhancements.js'
         ],
         // Корзина
         cart: [
             'web/js/cart.js',
-            'web/js/cart-mobile.js'
+            'web/js/cart-mobile.js',
+            'web/js/cart-promo-loyalty.js'
+        ],
+        // Чекаут
+        checkout: [
+            'web/js/checkout.js'
         ],
         // Мобильные
         mobile: [
@@ -181,6 +191,14 @@ gulp.task('cart-js', function () {
         .pipe(gulp.dest(paths.js.dest));
 });
 
+// Checkout JS
+gulp.task('checkout-js', function () {
+    return gulp.src(paths.js.checkout)
+        .pipe(concat('checkout-bundle.min.js'))
+        .pipe(terser())
+        .pipe(gulp.dest(paths.js.dest));
+});
+
 // Mobile JS
 gulp.task('mobile-js', function () {
     return gulp.src(paths.js.mobile)
@@ -217,6 +235,7 @@ gulp.task('js-bundles', gulp.parallel(
     'product-js',
     'ui-js',
     'cart-js',
+    'checkout-js',
     'mobile-js'
 ));
 

@@ -33,7 +33,7 @@ $this->title = 'Купить оригинальные кроссовки в Бе
             </div>
         </div>
         <div class="hero-image">
-            <img src="/images/hero-sneakers.jpg"
+            <img src="/images/hero-sneakers.svg"
                  alt="Оригинальные кроссовки — купить в Беларуси"
                  loading="eager"
                  fetchpriority="high">

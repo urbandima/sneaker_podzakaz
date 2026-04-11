@@ -22,7 +22,7 @@ echo $this->render('_auth-style');
             <section class="auth-card">
                 <div class="auth-header">
                     <div class="auth-logo">
-                        <img src="https://sneaker-head.by/images/logo.png" alt="СНИКЕРХЭД">
+                        <img src="/images/logo.png" alt="СНИКЕРХЭД">
                         <span>СНИКЕРХЭД</span>
                     </div>
                     <h2>Вход в личный кабинет</h2>

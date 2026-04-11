@@ -13,7 +13,7 @@ use app\frontend\assets\VersionedAssetBundle;
  */
 class LandingAsset extends VersionedAssetBundle
 {
-    public $sourcePath = '@frontend';  // Источник файлов
+    public $basePath = '@webroot';
     public $baseUrl = '@web';
     
     public $css = [

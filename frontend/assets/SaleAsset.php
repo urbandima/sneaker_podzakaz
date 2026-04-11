@@ -10,7 +10,7 @@ class SaleAsset extends AssetBundle
     public $baseUrl = '@web';
     
     public $css = [
-        'css/pages/sale-inline.css',
+        // sale-inline.css was removed — styles are in the main CSS bundle
     ];
     
     public $depends = [

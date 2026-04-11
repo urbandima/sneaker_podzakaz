@@ -25,7 +25,7 @@ echo $this->render('_auth-style');
                 </span>
 
                 <div class="auth-logo">
-                    <img src="https://sneaker-head.by/images/logo.png" alt="СНИКЕРХЭД">
+                    <img src="/images/logo.png" alt="СНИКЕРХЭД">
                     <span>СНИКЕРХЭД</span>
                 </div>
 

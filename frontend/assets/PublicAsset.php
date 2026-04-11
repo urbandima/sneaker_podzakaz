@@ -10,7 +10,7 @@ class PublicAsset extends VersionedAssetBundle
     public $jsOptions = ['position' => \yii\web\View::POS_HEAD];
 
     public $css = [
-        'css/public-layout.css',
+        'css/layout/public-layout.css',
     ];
 
     public $js = [
