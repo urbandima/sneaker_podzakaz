@@ -33,10 +33,19 @@
 .swipe-track {
     display: flex;
     height: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.swipe-track::-webkit-scrollbar {
+    display: none;
 }
 
 .swipe-slide {
     flex: 0 0 100%;
+    scroll-snap-align: center;
     position: relative;
     display: flex;
     align-items: center;

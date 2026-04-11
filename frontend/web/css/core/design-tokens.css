@@ -128,3 +128,39 @@
     --container-pad: clamp(1rem, 5vw, 2rem);
     --header-height: 72px;
 }
+
+/* === DARK MODE === */
+[data-theme="dark"] {
+    --c-black: #F7F7F7;
+    --c-white: #0F0F0F;
+    --c-gray-50: #1A1A1A;
+    --c-gray-100: #222222;
+    --c-gray-200: #333333;
+    --c-gray-400: #777777;
+    --c-gray-500: #999999;
+    --c-gray-700: #BBBBBB;
+    --c-gray-900: #EEEEEE;
+
+    --color-bg-primary: #0F0F0F;
+    --color-bg-secondary: #1A1A1A;
+    --color-bg-tertiary: #222222;
+    --color-surface: #1A1A1A;
+
+    --color-text-primary: #F7F7F7;
+    --color-text-secondary: #BBBBBB;
+    --color-text-muted: #999999;
+    --color-text-inverse: #0F0F0F;
+
+    --color-border: #333333;
+    --color-border-strong: #BBBBBB;
+
+    --color-accent: #F7F7F7;
+    --color-accent-hover: #EEEEEE;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-sm: 0 1px 6px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.35);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.4);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.4);
+}

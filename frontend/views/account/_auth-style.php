@@ -7,20 +7,20 @@
 ?>
 <style>
 :root {
-    --auth-dark: #0f172a;
-    --auth-accent: #3b82f6;
-    --auth-accent-dark: #1d4ed8;
-    --auth-muted: #94a3b8;
-    --auth-border: rgba(15, 23, 42, 0.08);
+    --auth-dark: #0f0f0f;
+    --auth-accent: #0f0f0f;
+    --auth-accent-dark: #1f1f1f;
+    --auth-muted: #6b7280;
+    --auth-border: rgba(0, 0, 0, 0.08);
 }
 
 .auth-page {
     position: relative;
     min-height: calc(100vh - 160px);
     padding: clamp(1.5rem, 4vw, 3.5rem) 1rem;
-    background: radial-gradient(circle at 20% 20%, rgba(59,130,246,0.15), transparent 55%),
-                radial-gradient(circle at 80% 0%, rgba(14,165,233,0.12), transparent 45%),
-                #f5f6fb;
+    background: radial-gradient(circle at 20% 20%, rgba(0, 0, 0, 0.04), transparent 55%),
+                radial-gradient(circle at 80% 0%, rgba(0, 0, 0, 0.03), transparent 45%),
+                #f7f7f7;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -35,18 +35,18 @@
     height: 420px;
     border-radius: 50%;
     filter: blur(80px);
-    opacity: 0.35;
+    opacity: 0.15;
     z-index: 0;
 }
 
 .auth-page::before {
-    background: #a855f7;
+    background: #374151;
     top: -120px;
     right: -160px;
 }
 
 .auth-page::after {
-    background: #3b82f6;
+    background: #111827;
     bottom: -160px;
     left: -120px;
 }
@@ -167,7 +167,7 @@
 }
 
 .auth-info {
-    background: linear-gradient(135deg, #10172b 0%, #111c3d 55%, #1d2c5b 100%);
+    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 55%, #2d2d2d 100%);
     border-radius: 26px;
     padding: clamp(1.75rem, 3vw, 2.75rem);
     color: #f8fafc;
@@ -177,14 +177,14 @@
 }
 
 .register-page .auth-info {
-    background: linear-gradient(135deg, #0f172a 0%, #0b1120 45%, #1d2c5b 100%);
+    background: linear-gradient(135deg, #0f0f0f 0%, #111111 45%, #252525 100%);
 }
 
 .auth-info::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 40% 0%, rgba(56,189,248,0.25), transparent 55%);
+    background: radial-gradient(circle at 40% 0%, rgba(255, 255, 255, 0.08), transparent 55%);
     opacity: 0.7;
     pointer-events: none;
 }

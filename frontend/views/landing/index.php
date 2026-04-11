@@ -93,7 +93,7 @@ $brands = $brands ?? [];
 </section>
 
 <!-- Popular Products -->
-<section id="popular" class="popular-section">
+<section id="popular" class="popular-section reveal">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Популярные модели</h2>
@@ -111,7 +111,7 @@ $brands = $brands ?? [];
 </section>
 
 <!-- Categories -->
-<section class="categories-section">
+<section class="categories-section reveal">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Категории</h2>
@@ -134,7 +134,7 @@ $brands = $brands ?? [];
 </section>
 
 <!-- Brands -->
-<section class="brands-section">
+<section class="brands-section reveal">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Популярные бренды</h2>
@@ -154,7 +154,7 @@ $brands = $brands ?? [];
 </section>
 
 <!-- Benefits -->
-<section class="benefits-section">
+<section class="benefits-section reveal">
     <div class="container">
         <div class="section-header center">
             <h2 class="section-title">Почему выбирают нас</h2>
@@ -231,7 +231,7 @@ $brands = $brands ?? [];
 </section>
 
 <!-- Reviews Section -->
-<section class="reviews-section">
+<section class="reviews-section reveal">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Отзывы покупателей <span>4.9 <i class="bi bi-star-fill"></i></span></h2>
@@ -281,7 +281,7 @@ $brands = $brands ?? [];
 </section>
 
 <!-- Instagram Section -->
-<section class="instagram-section">
+<section class="instagram-section reveal">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">@sneakerhead_by</h2>
@@ -311,7 +311,7 @@ $brands = $brands ?? [];
 </section>
 
 <!-- Newsletter -->
-<section class="newsletter-section">
+<section class="newsletter-section reveal">
     <div class="container">
         <div class="newsletter-content">
             <h2 class="newsletter-title">Подпишитесь на новости</h2>

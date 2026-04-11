@@ -54,6 +54,7 @@ const paths = {
             'web/js/notifications.js',
             'web/js/lazy-load.js',
             'web/js/app.js',
+            'web/js/scroll-reveal.js',
             'web/js/cookies-consent.js',
             'web/js/dark-mode.js'
         ],

@@ -139,6 +139,43 @@
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
+    user-select: none;
+}
+
+.filter-title::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--color-text-muted);
+    border-bottom: 2px solid var(--color-text-muted);
+    transform: rotate(45deg);
+    transition: transform var(--duration-fast);
+    flex-shrink: 0;
+}
+
+.filter-group.collapsed .filter-title {
+    margin-bottom: 0;
+}
+
+.filter-group.collapsed .filter-title::after {
+    transform: rotate(-45deg);
+}
+
+.filter-group .filter-content {
+    overflow: hidden;
+    transition: max-height var(--duration-base) var(--ease-out);
+    max-height: 500px;
+}
+
+.filter-group.collapsed .filter-content {
+    max-height: 0;
+}
+
+.filter-count {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-normal);
+    margin-left: var(--space-2);
 }
 
 /* Custom Checkbox */
