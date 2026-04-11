@@ -219,7 +219,7 @@ class OrderController extends BaseAdminController
         if (Yii::$app->request->isAjax && Yii::$app->request->get('scroll') === '1') {
             Yii::$app->response->format = Response::FORMAT_JSON;
             $orders = $dataProvider->getModels();
-            $rowsHtml = $this->renderPartial('@app/views/admin/order/_table_rows', [
+            $rowsHtml = $this->renderPartial('_table_rows', [
                 'orders' => $orders,
                 'statuses' => $statuses,
                 'formatter' => Yii::$app->formatter,

@@ -18,7 +18,7 @@ $this->registerMetaTag(['name' => 'description', 'content' => 'Товары ка
         <!-- Breadcrumbs -->
         <nav class="breadcrumbs">
             <a href="<?= Url::to(['/site/index']) ?>">Главная</a> /
-            <a href="<?= Url::to(['/catalog/catalog/index']) ?>">Каталог</a> /
+            <a href="<?= Url::to(['/catalog']) ?>">Каталог</a> /
             <span><?= Html::encode($category->name ?? 'Категория') ?></span>
         </nav>
 
@@ -41,7 +41,7 @@ $this->registerMetaTag(['name' => 'description', 'content' => 'Товары ка
         <div class="products-grid">
             <?php foreach ($products as $product): ?>
             <div class="product-card">
-                <a href="<?= Url::to(['/catalog/catalog/product', 'slug' => $product['slug'] ?? ($product['id'] ?? '')]) ?>">
+                <a href="<?= Url::to(['/catalog/product', 'slug' => $product['slug'] ?? ($product['id'] ?? '')]) ?>">
                     <div class="product-image">
                         <img src="<?= Html::encode($product['image'] ?? '/images/placeholder.png') ?>" 
                              alt="<?= Html::encode($product['name'] ?? 'Товар') ?>"
@@ -70,7 +70,7 @@ $this->registerMetaTag(['name' => 'description', 'content' => 'Товары ка
         <div class="empty-state">
             <i class="bi bi-box"></i>
             <p>Товары не найдены</p>
-            <a href="<?= Url::to(['/catalog/catalog/index']) ?>" class="btn btn-primary">Перейти в каталог</a>
+            <a href="<?= Url::to(['/catalog']) ?>" class="btn btn-primary">Перейти в каталог</a>
         </div>
         <?php endif; ?>
     </div>

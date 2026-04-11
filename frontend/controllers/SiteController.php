@@ -236,6 +236,14 @@ class SiteController extends Controller
     }
     
     /**
+     * Страница договора оферты
+     */
+    public function actionOfferAgreement()
+    {
+        return $this->render('offer-agreement');
+    }
+
+    /**
      * Страница входа в систему
      *
      * @return string|Response

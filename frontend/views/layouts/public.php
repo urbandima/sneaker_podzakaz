@@ -431,12 +431,12 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
         
         <ul class="mobile-nav mobile-nav-info">
             <li class="mobile-nav-item">
-                <a href="/site/about">
+                <a href="/about">
                     <i class="bi bi-info-circle"></i> О нас
                 </a>
             </li>
             <li class="mobile-nav-item">
-                <a href="/site/contacts">
+                <a href="/contacts">
                     <i class="bi bi-envelope"></i> Контакты
                 </a>
             </li>
@@ -504,8 +504,8 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                         <a href="/catalog?new=1">Новинки</a>
                         <span class="nav-divider">|</span>
                         <a href="/site/offer-agreement">Договор оферты</a>
-                        <a href="https://sneaker-head.by/page/politika-konfidencialnosti" target="_blank">Политика конфиденциальности</a>
-                        <a href="https://sneaker-head.by/page/dostavka-i-oplata" target="_blank">Доставка и оплата</a>
+                        <a href="/privacy" target="_blank">Политика конфиденциальности</a>
+                        <a href="/delivery" target="_blank">Доставка и оплата</a>
                     </div>
                 </div>
                 
@@ -536,7 +536,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
             <div class="footer-legal">
                 <p>Общество с ограниченной ответственностью «СникерКультура». УНП 193618972, зарегистрировано 15 марта 2022 года Минским Горисполкомом.</p>
                 <p>Юридический адрес: Беларусь, 220004, г.Минск, пр-т Победителей 5 (БЦ «Александровский»), офис 9. Время приема заявок - круглосуточно.</p>
-                <p>Магазин зарегистрирован в торговом реестре 11.08.2022 №539453. <a href="/site/privacy">Политика конфиденциальности</a></p>
+                <p>Магазин зарегистрирован в торговом реестре 11.08.2022 №539453. <a href="/privacy">Политика конфиденциальности</a></p>
             </div>
             
             <div class="footer-bottom-content">

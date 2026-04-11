@@ -64,12 +64,12 @@ $company = Yii::$app->settings->getCompany();
                 <div class="footer-column">
                     <h4 class="footer-title">Каталог</h4>
                     <ul class="footer-links">
-                        <li><a href="<?= Url::to(['/catalog/catalog/index']) ?>">Все товары</a></li>
+                        <li><a href="<?= Url::to(['/catalog']) ?>">Все товары</a></li>
                         <li><a href="<?= Url::to(['/catalog/brands/index']) ?>">Бренды</a></li>
-                        <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'sneakers']) ?>">Кроссовки</a></li>
-                        <li><a href="<?= Url::to(['/catalog/catalog/index', 'category' => 'boots']) ?>">Ботинки</a></li>
-                        <li><a href="<?= Url::to(['/catalog/catalog/index', 'sort' => 'sale']) ?>">Распродажа</a></li>
-                        <li><a href="<?= Url::to(['/catalog/catalog/index', 'sort' => 'new']) ?>">Новинки</a></li>
+                        <li><a href="<?= Url::to(['/catalog', 'category' => 'sneakers']) ?>">Кроссовки</a></li>
+                        <li><a href="<?= Url::to(['/catalog', 'category' => 'boots']) ?>">Ботинки</a></li>
+                        <li><a href="<?= Url::to(['/catalog', 'sort' => 'sale']) ?>">Распродажа</a></li>
+                        <li><a href="<?= Url::to(['/catalog', 'sort' => 'new']) ?>">Новинки</a></li>
                     </ul>
                 </div>
 

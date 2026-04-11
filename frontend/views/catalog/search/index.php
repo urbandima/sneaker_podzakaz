@@ -17,7 +17,7 @@ use yii\widgets\LinkPager;
 use app\backend\modules\catalog\models\ProductTag;
 
 $this->title = $query ? 'Поиск: ' . Html::encode($query) : ($currentTag ? $currentTag->name : 'Поиск товаров');
-$this->params['breadcrumbs'][] = ['label' => 'Каталог', 'url' => ['/catalog/catalog/index']];
+$this->params['breadcrumbs'][] = ['label' => 'Каталог', 'url' => ['/catalog']];
 $this->params['breadcrumbs'][] = $this->title;
 
 // SEO

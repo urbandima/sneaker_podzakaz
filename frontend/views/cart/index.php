@@ -24,7 +24,7 @@ CartAsset::register($this);
                 <i class="bi bi-cart-x"></i>
                 <h2>Корзина пуста</h2>
                 <p>Добавьте товары из каталога</p>
-                <a href="<?= Url::to(['/catalog/catalog/index']) ?>" class="btn-catalog">Перейти в каталог</a>
+                <a href="<?= Url::to(['/catalog']) ?>" class="btn-catalog">Перейти в каталог</a>
             </div>
         <?php else: ?>
             <div class="cart-layout">
@@ -165,7 +165,7 @@ CartAsset::register($this);
                             Оформить заказ
                         </a>
                         
-                        <a href="<?= Url::to(['/catalog/catalog/index']) ?>" class="btn-continue">Продолжить покупки</a>
+                        <a href="<?= Url::to(['/catalog']) ?>" class="btn-continue">Продолжить покупки</a>
                     </div>
                 </div>
             </div>

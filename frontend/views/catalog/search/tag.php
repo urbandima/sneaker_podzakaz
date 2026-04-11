@@ -14,7 +14,7 @@ use yii\helpers\Url;
 use yii\widgets\LinkPager;
 
 $this->title = $tag->name . ' - Товары с тегом';
-$this->params['breadcrumbs'][] = ['label' => 'Каталог', 'url' => ['/catalog/catalog/index']];
+$this->params['breadcrumbs'][] = ['label' => 'Каталог', 'url' => ['/catalog']];
 $this->params['breadcrumbs'][] = ['label' => 'Теги', 'url' => ['/catalog/search/index']];
 $this->params['breadcrumbs'][] = $tag->name;
 
@@ -69,7 +69,7 @@ $this->registerMetaTag(['name' => 'description', 'content' => 'Товары с �
                 <?php if (empty($products)): ?>
                     <div class="tag-empty">
                         <p>В данный момент нет товаров с этим тегом.</p>
-                        <a href="<?= Url::to(['/catalog/catalog/index']) ?>" class="btn btn-primary">
+                        <a href="<?= Url::to(['/catalog']) ?>" class="btn btn-primary">
                             Перейти в каталог
                         </a>
                     </div>

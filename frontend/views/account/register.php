@@ -131,7 +131,7 @@ echo $this->render('_auth-style');
                         <?= Html::activeCheckbox($model, 'agree_terms', ['label' => false, 'id' => 'agree_terms']) ?>
                         <label for="agree_terms">
                             Я принимаю условия <a href="<?= Url::to(['/site/offer-agreement']) ?>" target="_blank">договора оферты</a>
-                            и <a href="https://sneaker-head.by/page/politika-konfidencialnosti" target="_blank">политики конфиденциальности</a>.
+                            и <a href="/privacy" target="_blank">политики конфиденциальности</a>.
                         </label>
                     </div>
                     <?= Html::error($model, 'agree_terms', ['class' => 'invalid-feedback']) ?>

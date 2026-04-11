@@ -9,37 +9,29 @@ const paths = {
     css: {
         // Критические стили (инлайнятся в head)
         critical: [
-            'css/core/design-system.css',
-            'css/core/critical.css',
-            'css/core/container-system.css',
-            'css/layout/skeleton-loading.css'
+            'web/css/core/design-system.css',
+            'web/css/core/container-system.css'
         ],
         // Публичные стили (основной сайт)
         public: [
-            'css/core/design-system.css',
-            'css/layout/public-layout.css',
-            'css/features/accessibility.css',
-            'css/features/micro-interactions.css',
-            'css/features/dark-mode.css',
-            'css/features/mobile-menu.css',
-            'css/layout/responsive-fixes.css'
+            'web/css/core/design-system.css',
+            'web/css/layout/public-layout.css',
+            'web/css/components/micro-interactions.css',
+            'web/css/layout/responsive-fixes.css'
         ],
         // Каталог
         catalog: [
-            'css/pages/catalog.css',
-            'css/pages/catalog-grid.css'
+            'web/css/pages/catalog.css',
+            'web/css/components/product-card.css'
         ],
         // Страница товара
         product: [
-            'css/pages/product.css'
+            'web/css/pages/product.css'
         ],
         // Админка
         admin: [
-            'css/pages/admin.css'
-        ],
-        // Vendor CSS
-        vendor: [
-            'web/assets/vendor/bootstrap/css/bootstrap.min.css'
+            'web/css/admin-shopify-2026.css',
+            'web/css/admin-pages.css'
         ],
         dest: 'web/css/dist/'
     },

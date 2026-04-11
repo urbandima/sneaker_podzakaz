@@ -64,7 +64,7 @@ $this->registerCssFile('@web/css/page-404.css', ['depends' => [\app\assets\AppAs
                         <i class="bi bi-grid-3x3"></i>
                         <span>Каталог</span>
                     </a>
-                    <a href="<?= Url::to(['/site/contacts']) ?>" class="action-btn btn-secondary">
+                    <a href="<?= Url::to(['/page/contacts']) ?>" class="action-btn btn-secondary">
                         <i class="bi bi-headset"></i>
                         <span>Поддержка</span>
                     </a>

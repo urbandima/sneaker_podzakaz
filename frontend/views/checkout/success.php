@@ -51,10 +51,10 @@ CheckoutAsset::register($this);
         <?php endif; ?>
 
         <div class="success-actions">
-            <a href="<?= Url::to(['/account/account/orders']) ?>" class="btn-track-order">
+            <a href="<?= Url::to(['/account/orders']) ?>" class="btn-track-order">
                 Отследить заказ <i class="bi bi-arrow-right"></i>
             </a>
-            <a href="<?= Url::to(['/catalog/catalog/index']) ?>" class="btn-continue-shopping">
+            <a href="<?= Url::to(['/catalog']) ?>" class="btn-continue-shopping">
                 Продолжить покупки
             </a>
         </div>

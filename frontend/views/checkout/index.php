@@ -80,7 +80,7 @@ $successUrl = Url::to(['/order/success']);
                             <?php endforeach; ?>
                         </div>
                     <?php else: ?>
-                        <p class="text-muted">Корзина пуста. <a href="<?= Url::to(['/catalog/catalog/index']) ?>">Перейти в каталог</a></p>
+                        <p class="text-muted">Корзина пуста. <a href="<?= Url::to(['/catalog']) ?>">Перейти в каталог</a></p>
                     <?php endif; ?>
                     <button class="btn-next" onclick="goStep(2)">
                         Далее <i class="bi bi-arrow-right"></i>
@@ -296,10 +296,10 @@ $successUrl = Url::to(['/order/success']);
                         <p class="text-muted">Ваш заказ <strong>#<span id="orderNumber">—</span></strong> успешно создан</p>
                         <p class="text-muted">Мы свяжемся с вами для подтверждения</p>
                         <div class="mt-4 d-flex gap-3 justify-content-center">
-                            <a href="<?= Url::to(['/account/account/orders']) ?>" class="btn btn-primary">
+                            <a href="<?= Url::to(['/account/orders']) ?>" class="btn btn-primary">
                                 <i class="bi bi-box-seam"></i> Мои заказы
                             </a>
-                            <a href="<?= Url::to(['/catalog/catalog/index']) ?>" class="btn btn-outline-secondary">
+                            <a href="<?= Url::to(['/catalog']) ?>" class="btn btn-outline-secondary">
                                 <i class="bi bi-grid"></i> Продолжить покупки
                             </a>
                         </div>

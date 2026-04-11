@@ -11,7 +11,7 @@ use yii\helpers\Url;
     <div class="cart-empty">
         <i class="bi bi-bag"></i>
         <p>Ваша корзина пуста</p>
-        <a href="<?= Url::to(['/catalog/catalog/index']) ?>" class="btn btn-primary" style="margin-top: 16px;" onclick="closeCartDrawer()">Перейти в каталог</a>
+        <a href="<?= Url::to(['/catalog']) ?>" class="btn btn-primary" style="margin-top: 16px;" onclick="closeCartDrawer()">Перейти в каталог</a>
     </div>
 <?php else: ?>
     <?php foreach ($items as $item): ?>
@@ -22,7 +22,7 @@ use yii\helpers\Url;
                 
                 <div class="cart-item-info">
                     <div class="cart-item-brand"><?= Html::encode($product->brand->name ?? '') ?></div>
-                    <a href="<?= Url::to(['/catalog/catalog/product', 'slug' => $product->slug]) ?>" class="cart-item-title" onclick="closeCartDrawer()">
+                    <a href="<?= Url::to(['/catalog/product', 'slug' => $product->slug]) ?>" class="cart-item-title" onclick="closeCartDrawer()">
                         <?= Html::encode($product->name) ?>
                     </a>
                     

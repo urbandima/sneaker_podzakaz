@@ -240,7 +240,7 @@ CheckoutAsset::register($this);
 
                                 <label class="offer-checkbox-bottom">
                                     <input type="checkbox" name="offer_accepted" value="1" id="offer_accepted" required>
-                                    <span>Подтверждаю, что согласен с <a href="<?= \yii\helpers\Url::to(['/site/offer-agreement']) ?>" target="_blank">договором оферты</a> и <a href="https://sneaker-head.by/policy" target="_blank">политикой обработки данных</a></span>
+                                    <span>Подтверждаю, что согласен с <a href="<?= \yii\helpers\Url::to(['/site/offer-agreement']) ?>" target="_blank">договором оферты</a> и <a href="/privacy" target="_blank">политикой обработки данных</a></span>
                                 </label>
 
                                 <div class="confirmation-actions">
@@ -323,7 +323,7 @@ CheckoutAsset::register($this);
             <p>Мы используем файлы cookie для улучшения работы сайта, анализа трафика и персонализации контента. Продолжая использовать сайт, вы соглашаетесь с использованием cookie.</p>
         </div>
         <div class="cookie-actions">
-            <a href="https://sneaker-head.by/page/politika-konfidencialnosti" target="_blank" class="btn-cookie-learn">Подробнее</a>
+            <a href="/privacy" target="_blank" class="btn-cookie-learn">Подробнее</a>
             <button onclick="acceptCookies()" class="btn-cookie-accept">Принять</button>
         </div>
     </div>
