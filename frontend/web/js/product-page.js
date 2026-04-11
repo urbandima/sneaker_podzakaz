@@ -7,17 +7,7 @@ let galleryNextButton = null;
 let galleryZoomView = null;
 let galleryEnableZoom = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-// КРИТИЧНО: Определяем все глобальные функции ДО загрузки cart.js
-
-function notify(message, type = 'info', duration = 4000) {
-    if (!window.NotificationManager) {
-        return;
-    }
-
-    if (typeof window.NotificationManager.show === 'function') {
-        window.NotificationManager.show(message, type, duration);
-    }
-}
+// Глобальные функции страницы товара. Использует SH.* из utils.js
 
 // Проверка наличия товара в корзине
 function checkProductInCart(productId) {
@@ -71,28 +61,7 @@ function showSizeRequiredNotification() {
         }, 2000);
     }
 
-    // Показываем уведомление
-    if (window.NotificationManager && typeof window.NotificationManager.warning === 'function') {
-        window.NotificationManager.warning('Пожалуйста, выберите размер', 5000);
-    } else {
-        // Создаем собственное уведомление
-        const notification = document.createElement('div');
-        notification.className = 'size-required-toast';
-        notification.innerHTML = `
-            <i class="bi bi-exclamation-triangle-fill"></i>
-            <span>Пожалуйста, выберите размер</span>
-        `;
-        document.body.appendChild(notification);
-
-        // Анимация появления
-        setTimeout(() => notification.classList.add('show'), 10);
-
-        // Удаляем через 5 секунд
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 300);
-        }, 5000);
-    }
+    SH.notify('Пожалуйста, выберите размер', 'warning', 5000);
 }
 
 // Инициализация при загрузке
@@ -422,8 +391,7 @@ function addToCartFromSticky() {
         formData.append('size', size);
 
         // Получаем CSRF токен
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-        formData.append('_csrf', csrfToken);
+        formData.append('_csrf', SH.getCsrfToken());
 
         fetch('/cart/add', {
             method: 'POST',
@@ -1317,48 +1285,7 @@ function addAllToCartFBT() {
     });
 }
 
-// Helper function to show notifications
-function showNotification(message, type = 'info') {
-    // Check if notification container exists
-    let container = document.getElementById('notification-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'notification-container';
-        container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;';
-        document.body.appendChild(container);
-    }
-
-    // Create notification
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.style.cssText = 'padding:12px 20px;border-radius:8px;background:#333;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:slideIn 0.3s ease;';
-    notification.textContent = message;
-
-    // Add animation styles if not exists
-    if (!document.getElementById('notification-styles')) {
-        const style = document.createElement('style');
-        style.id = 'notification-styles';
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-            .notification { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; }
-            .notification-success { background: #22c55e !important; }
-            .notification-error { background: #ef4444 !important; }
-        `;
-        document.head.appendChild(style);
-    }
-
-    container.appendChild(notification);
-
-    // Remove after 3 seconds
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
+// Delegate to global SH.notify from utils.js
+function showNotification(message, type) {
+    SH.notify(message, type || 'info');
 }

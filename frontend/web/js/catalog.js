@@ -905,18 +905,9 @@
 
     // Утилиты
 
-    function debounce(func, delay) {
-        let timeoutId;
-        return function(...args) {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => func.apply(this, args), delay);
-        };
-    }
-
-    function getCsrfToken() {
-        const meta = document.querySelector('meta[name="csrf-token"]');
-        return meta ? meta.content : '';
-    }
+    // debounce and getCsrfToken are provided by SH.* from utils.js
+    var debounce = SH.debounce;
+    function getCsrfToken() { return SH.getCsrfToken(); }
 
     function escapeHtml(text) {
         const div = document.createElement('div');

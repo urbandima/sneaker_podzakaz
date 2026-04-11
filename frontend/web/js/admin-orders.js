@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').content : ''
+                'X-CSRF-Token': SH.getCsrfToken()
             },
             body: new URLSearchParams({ action: action, ids: JSON.stringify(ids), extra: extra })
         })
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').content : ''
+                'X-CSRF-Token': SH.getCsrfToken()
             },
             body: new URLSearchParams({ id: orderId, status: newStatus })
         })
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-Token': SH.getCsrfToken()
                     },
                     body: 'field=' + encodeURIComponent(field) + '&value=' + encodeURIComponent(newValue)
                 })
@@ -314,28 +314,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelectorAll('.editable-field').forEach(makeFieldEditable);
 
-    /* ── SHOW NOTIFICATION ── */
+    /* ── SHOW NOTIFICATION (delegate to SH.notify) ── */
     window.showNotification = function(message, type) {
-        type = type || 'info';
-        var notification = document.createElement('div');
-        notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:1rem 1.5rem;background:' +
-            (type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6') +
-            ';color:white;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);z-index:10000;animation:slideIn 0.3s ease;';
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        setTimeout(function() {
-            notification.style.animation = 'slideOut 0.3s ease';
-            setTimeout(function() { notification.remove(); }, 300);
-        }, 3000);
+        SH.notify(message, type || 'info');
     };
-
-    /* CSS animations injected once */
-    if (!document.getElementById('order-view-animations')) {
-        var style = document.createElement('style');
-        style.id = 'order-view-animations';
-        style.textContent = '@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}@keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}';
-        document.head.appendChild(style);
-    }
 
     /* ── EDIT MODE TOGGLE (view.php) ── */
     var toggleBtn = document.getElementById('toggleEditMode');

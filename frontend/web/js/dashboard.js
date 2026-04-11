@@ -216,8 +216,7 @@ function updateCnyRate(btn) {
     xhr.open('POST', '/admin/dashboard/update-cny-rate', true);
     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    var csrf = document.querySelector('meta[name="csrf-token"]');
-    xhr.send(csrf ? '_csrf=' + encodeURIComponent(csrf.getAttribute('content')) : '');
+    xhr.send('_csrf=' + encodeURIComponent(SH.getCsrfToken()));
     xhr.onload = function() {
         if (btn) {
             btn.disabled = false;

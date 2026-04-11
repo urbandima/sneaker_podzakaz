@@ -1,0 +1,65 @@
+/**
+ * Account Settings Page — стили, вынесенные из inline <style> в settings.php.
+ * Стили для .account-page, .account-sidebar и т.д. уже определены в pages/account.css.
+ * Здесь — только уникальные стили для страницы настроек.
+ */
+
+.account-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 640px) {
+    .account-info {
+        grid-template-columns: 1fr;
+    }
+}
+
+.info-item {
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 10px;
+}
+
+.info-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+}
+
+.info-value {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.status-verified {
+    color: #059669;
+}
+
+.status-unverified {
+    color: #d97706;
+}
+
+.danger-zone {
+    border: 2px solid #fee2e2;
+    border-radius: 12px;
+    padding: 1.25rem;
+    background: #fef2f2;
+}
+
+.danger-zone h3 {
+    color: #dc2626;
+    font-size: 1rem;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.danger-zone p {
+    color: #7f1d1d;
+    font-size: 0.875rem;
+    margin: 0 0 1rem 0;
+}

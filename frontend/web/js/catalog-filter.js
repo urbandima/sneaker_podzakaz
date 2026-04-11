@@ -1,25 +1,30 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Управление открытием сайдбара с фильтрами
-    const filterBtn = document.querySelector('.btn-filter');
-    const sidebar = document.querySelector('.sidebar');
-    const closeBtn = document.querySelector('.sidebar .close-btn');
+/**
+ * Catalog Filter — управление открытием/закрытием сайдбара с фильтрами.
+ * Uses SH.* utilities from utils.js for scroll lock.
+ */
+document.addEventListener('DOMContentLoaded', function () {
+    var filterBtn = document.querySelector('.btn-filter');
+    var sidebar = document.querySelector('.sidebar');
+    var closeBtn = document.querySelector('.sidebar .close-btn');
 
     if (filterBtn && sidebar) {
-        filterBtn.addEventListener('click', () => {
-            sidebar.classList.add('active');
-            document.body.style.overflow = 'hidden';
+        filterBtn.addEventListener('click', function () {
+            SH.openModal(sidebar);
         });
     }
 
     if (closeBtn && sidebar) {
-        closeBtn.addEventListener('click', () => {
-            sidebar.classList.remove('active');
-            document.body.style.overflow = '';
+        closeBtn.addEventListener('click', function () {
+            SH.closeModal(sidebar);
         });
     }
 
     // Закрытие при клике вне сайдбара
-    document.addEventListener('click', (e) => {
-        if (sidebar && sidebar.classList.contains('active') && !sidebar.contains(e.target) && !document.addEventListener('DOMContentLoaded', function() {
-    // Управлени?     // Управление открытием сайдб
+    document.addEventListener('click', function (e) {
+        if (sidebar && sidebar.classList.contains('active') &&
+            !sidebar.contains(e.target) &&
+            e.target !== filterBtn && !filterBtn.contains(e.target)) {
+            SH.closeModal(sidebar);
+        }
+    });
 });

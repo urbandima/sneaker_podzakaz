@@ -32,42 +32,11 @@ $this->params['breadcrumbs'][] = 'Профиль';
         </div>
 
         <div class="account-grid">
-            <aside class="account-sidebar">
-                <div class="sidebar-card">
-                    <div class="user-info">
-                        <div class="user-avatar">
-                            <?= mb_strtoupper(mb_substr($customer->first_name ?: $customer->email, 0, 1)) ?>
-                        </div>
-                        <div class="user-name"><?= Html::encode($customer->getFullName()) ?></div>
-                        <div class="user-email"><?= Html::encode($customer->email) ?></div>
-                        
-                        <div class="user-stats">
-                            <div class="stat-item">
-                                <div class="stat-value"><?= count($orders) ?></div>
-                                <div class="stat-label">Заказов</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value"><?= Yii::$app->formatter->asCurrency($customer->total_spent ?? 0, 'BYN') ?></div>
-                                <div class="stat-label">Потрачено</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <ul class="account-menu">
-                        <li><a href="<?= Url::to(['/account/profile']) ?>" class="active"><i class="bi bi-person"></i> Профиль</a></li>
-                        <li><a href="<?= Url::to(['/account/orders']) ?>"><i class="bi bi-bag"></i> Мои заказы</a></li>
-                        <li><a href="<?= Url::to(['/account/loyalty']) ?>"><i class="bi bi-gem"></i> Баллы лояльности</a></li>
-                        <li><a href="<?= Url::to(['/catalog/favorites']) ?>"><i class="bi bi-heart"></i> Избранное</a></li>
-                        <li><a href="<?= Url::to(['/account/settings']) ?>"><i class="bi bi-gear"></i> Настройки</a></li>
-                    </ul>
-                    
-                    <?= Html::beginForm(['/account/logout'], 'post') ?>
-                        <button type="submit" class="logout-btn">
-                            <i class="bi bi-box-arrow-right"></i> Выйти
-                        </button>
-                    <?= Html::endForm() ?>
-                </div>
-            </aside>
+            <?= $this->render('_sidebar', [
+                'customer' => $customer,
+                'activePage' => 'profile',
+                'orders' => $orders,
+            ]) ?>
 
             <main class="account-content">
                 <div class="content-card">

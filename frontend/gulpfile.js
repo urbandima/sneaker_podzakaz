@@ -49,6 +49,7 @@ const paths = {
             'web/assets/vendor/jquery/jquery.min.js',
             'web/assets/vendor/yii2/js/yii.js',
             'web/assets/vendor/yii2/js/yii.activeForm.js',
+            'web/js/utils.js',
             'web/js/global-helpers.js',
             'web/js/notifications.js',
             'web/js/lazy-load.js'

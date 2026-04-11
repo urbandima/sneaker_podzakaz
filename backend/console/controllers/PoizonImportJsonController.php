@@ -12,6 +12,7 @@ use app\backend\modules\catalog\models\Brand;
 use app\backend\modules\catalog\models\Category;
 use app\backend\modules\catalog\models\ImportBatch;
 use app\backend\modules\catalog\models\ImportLog;
+use app\backend\shared\helpers\SlugHelper;
 use app\backend\modules\catalog\models\ProductSizeImage;
 use app\backend\modules\admin\models\CurrencySetting;
 use app\backend\modules\catalog\models\Characteristic;
@@ -1228,10 +1229,7 @@ class PoizonImportJsonController extends Controller
      */
     private function slugify($text)
     {
-        $text = mb_strtolower($text);
-        $text = preg_replace('/[^a-z0-9а-я\s-]/u', '', $text);
-        $text = preg_replace('/[\s-]+/', '_', $text);
-        return trim($text, '_');
+        return SlugHelper::slugify($text);
     }
     
     /**

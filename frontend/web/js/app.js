@@ -1,6 +1,7 @@
 /**
  * APP.JS — Глобальные функции Sneakerhead
- * Поиск, мобильное меню, корзина/избранное счётчики
+ * Поиск, мобильное меню, корзина/избранное счётчики.
+ * Uses SH.* utilities from utils.js
  */
 
 /* ============================================
@@ -35,18 +36,19 @@ function openSearch() {
     modal.classList.add('open');
     var input = document.getElementById('searchInput');
     if (input) input.focus();
-    document.body.style.overflow = 'hidden';
+    SH.lockScroll();
 }
 
 function closeSearch() {
     var modal = document.getElementById('searchModal');
     if (!modal) return;
     modal.classList.remove('open');
-    document.body.style.overflow = '';
+    SH.unlockScroll();
 }
 
-/** Debounce для поиска */
-var _searchTimer = null;
+var _handleSearchDebounced = SH.debounce(function (query, container) {
+    _doSearch(query, container);
+}, 300);
 
 function handleSearch(event) {
     if (event.key === 'Escape') {
@@ -63,20 +65,14 @@ function handleSearch(event) {
         return;
     }
 
-    clearTimeout(_searchTimer);
-    _searchTimer = setTimeout(function () {
-        _doSearch(query, resultsContainer);
-    }, 300);
+    _handleSearchDebounced(query, resultsContainer);
 }
 
 function _doSearch(query, container) {
     container.innerHTML =
         '<div class="search-loading"><div class="spinner"></div><p>Поиск товаров...</p></div>';
 
-    fetch('/catalog/search?q=' + encodeURIComponent(query), {
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-        .then(function (r) { return r.json(); })
+    SH.fetch('/catalog/search?q=' + encodeURIComponent(query))
         .then(function (data) {
             if (data.results && data.results.length > 0) {
                 var html = data.results.map(function (p) {
@@ -116,29 +112,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// Мобильное меню каталога (с кнопкой фильтра)
-document.addEventListener('DOMContentLoaded', function () {
-    const filterBtn = document.querySelector('.btn-filter-mobile');
-    const sidebar = document.querySelector('.sidebar');
-    const closeBtn = document.querySelector('.sidebar-header .close-btn');
-
-    if (filterBtn && sidebar) {
-        filterBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            sidebar.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        });
-    }
-
-    if (closeBtn && sidebar) {
-        closeBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            sidebar.classList.remove('active');
-            document.body.style.overflow = '';
-        });
-    }
-});
-
 /* ============================================
    SIDEBAR MENU (Боковое меню в шапке)
    ============================================ */
@@ -153,19 +126,15 @@ function toggleSidebarMenu() {
     var isActive = sidebar.classList.contains('active');
 
     if (isActive) {
-        // Закрываем
-        sidebar.classList.remove('active');
-        overlay.classList.remove('active');
+        SH.closeModal(sidebar);
+        SH.closeModal(overlay);
         sidebar.setAttribute('aria-hidden', 'true');
         if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
     } else {
-        // Открываем
-        sidebar.classList.add('active');
-        overlay.classList.add('active');
+        SH.openModal(sidebar);
+        SH.openModal(overlay);
         sidebar.setAttribute('aria-hidden', 'false');
         if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
-        document.body.style.overflow = 'hidden';
     }
 }
 
@@ -178,4 +147,3 @@ document.addEventListener('keydown', function (e) {
         }
     }
 });
-

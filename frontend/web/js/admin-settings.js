@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         fetch(urls.saveCompany, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content},
+            headers: {'Content-Type': 'application/json', 'X-CSRF-Token': SH.getCsrfToken()},
             body: JSON.stringify(data)
         })
         .then(function(r) { return r.json(); })
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                'X-CSRF-Token': SH.getCsrfToken()
             },
             body: JSON.stringify({})
         })
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                'X-CSRF-Token': SH.getCsrfToken()
             },
             body: JSON.stringify({})
         })
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                'X-CSRF-Token': SH.getCsrfToken()
             },
             body: JSON.stringify(data)
         })
@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').content : ''
+                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]') ? SH.getCsrfToken() : ''
             },
             body: JSON.stringify({statuses: statuses})
         })
@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.calculateCost = function() {
         var calcEl = document.getElementById('tariff-calculator');
         var calculateUrl = calcEl ? calcEl.dataset.calculateUrl : '/admin/tariff/calculate';
-        var csrfToken = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+        var csrfToken = SH.getCsrfToken();
 
         var tariffId  = document.getElementById('calcTariff').value;
         var priceCny  = document.getElementById('calcPrice').value;
@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     var reviewContainer = document.getElementById('review-page-container');
     var reviewReplyUrl = reviewContainer ? reviewContainer.dataset.replyUrl : '/admin/review/respond';
-    var csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').content : '';
+    var csrfToken = document.querySelector('meta[name="csrf-token"]') ? SH.getCsrfToken() : '';
 
     window.toggleReplyForm = function(reviewId) {
         var form = document.getElementById('reply-form-' + reviewId);
@@ -520,7 +520,7 @@ function toggleUserStatus(userId) {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+                'X-CSRF-Token': SH.getCsrfToken()
             }
         })
         .then(function(response) { return response.json(); })
@@ -566,7 +566,7 @@ function resetPassword(userId, username) {
         headers: {
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+            'X-CSRF-Token': SH.getCsrfToken()
         },
         body: JSON.stringify({ id: userId })
     })
@@ -589,7 +589,7 @@ function toggleBlock(userId, isCurrentlyActive) {
         headers: {
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+            'X-CSRF-Token': SH.getCsrfToken()
         },
         body: JSON.stringify({ id: userId })
     })
@@ -631,7 +631,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                    'X-CSRF-Token': SH.getCsrfToken()
                 },
                 body: 'items=' + JSON.stringify(items)
             });
@@ -751,7 +751,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+                    'X-CSRF-Token': SH.getCsrfToken()
                 },
                 body: 'taskId=' + taskId
             })
@@ -870,7 +870,7 @@ function generateCouponCode() {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+            'X-CSRF-Token': SH.getCsrfToken()
         },
         body: 'prefix=&length=8'
     })
@@ -938,7 +938,7 @@ function saveLoyaltySettings() {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+            'X-CSRF-Token': SH.getCsrfToken()
         },
         body: JSON.stringify(data)
     })
@@ -978,7 +978,7 @@ function markStepDone(returnId, stepKey, btn) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+            'X-CSRF-Token': SH.getCsrfToken()
         },
         body: JSON.stringify({id: returnId, step: stepKey})
     })
@@ -1025,7 +1025,7 @@ function togglePlugin(id, action) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+            'X-CSRF-Token': SH.getCsrfToken()
         },
         body: 'id=' + id + '&action=' + action
     })
@@ -1047,7 +1047,7 @@ function updateProductMeta(id, field, value) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRF-Token': (typeof yii !== 'undefined' ? yii.getCsrfToken() : ((document.querySelector('meta[name="csrf-token"]') || {}).content || ''))
+            'X-CSRF-Token': (typeof yii !== 'undefined' ? yii.getCsrfToken() : (SH.getCsrfToken()))
         },
         body: 'id=' + id + '&field=' + field + '&value=' + encodeURIComponent(value)
     })
@@ -1078,7 +1078,7 @@ function updateImageAlt(id, value) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRF-Token': (typeof yii !== 'undefined' ? yii.getCsrfToken() : ((document.querySelector('meta[name="csrf-token"]') || {}).content || ''))
+            'X-CSRF-Token': (typeof yii !== 'undefined' ? yii.getCsrfToken() : (SH.getCsrfToken()))
         },
         body: 'id=' + id + '&alt_text=' + encodeURIComponent(value)
     })
@@ -1195,7 +1195,7 @@ function sendReminder(cartId, btn) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+            'X-CSRF-Token': SH.getCsrfToken()
         },
         body: 'cart_id=' + cartId
     })
@@ -1213,7 +1213,7 @@ function sendBulkReminders(btn) {
     fetch(bulkUrl, {
         method: 'POST',
         headers: {
-            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+            'X-CSRF-Token': SH.getCsrfToken()
         }
     })
     .then(function(r) { return r.json(); })
@@ -1392,7 +1392,7 @@ function toggleStatus(id) {
     fetch('/admin/customer/' + id + '/toggle-status', {
         method: 'POST',
         headers: {
-            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+            'X-CSRF-Token': SH.getCsrfToken()
         }
     })
     .then(function(r) { return r.json(); })
@@ -1430,7 +1430,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var config = document.getElementById('order-view-config');
             var updateUrl = config ? (config.dataset.updateFieldUrl || '/admin/order/update-field') : '/admin/order/update-field';
             var orderId = config ? config.dataset.orderId : '';
-            var csrfToken = config ? config.dataset.csrfToken : ((document.querySelector('meta[name="csrf-token"]') || {}).content || '');
+            var csrfToken = config ? config.dataset.csrfToken : (SH.getCsrfToken());
             var csrfParam = config ? config.dataset.csrfParam : '_csrf';
             var formData = new FormData();
             formData.append('field', field);
@@ -1455,7 +1455,7 @@ function calculateCost() {
     var note = document.getElementById('calcNote').value;
     var config = document.getElementById('tariff-calc-config');
     var calcUrl = config ? (config.dataset.calcUrl || '/admin/poizon/tariff/calculate') : '/admin/poizon/tariff/calculate';
-    var csrfToken = config ? config.dataset.csrfToken : ((document.querySelector('meta[name="csrf-token"]') || {}).content || '');
+    var csrfToken = config ? config.dataset.csrfToken : (SH.getCsrfToken());
 
     fetch(calcUrl, {
         method: 'POST',
@@ -1519,7 +1519,7 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedSize = null, discount = {type:'percent', value:0, amount:0};
 
     function getCsrf() {
-        return (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+        return SH.getCsrfToken();
     }
 
     function load() {
@@ -1749,7 +1749,7 @@ function saveSettings(btn) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+            'X-CSRF-Token': SH.getCsrfToken()
         },
         body: JSON.stringify(settings)
     })

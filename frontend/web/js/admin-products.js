@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportBaseUrl = document.getElementById('js-export-base-url')?.dataset.url || '';
     const bulkUpdateUrl = document.getElementById('js-bulk-update-url')?.dataset.url || '';
     const bulkDeleteUrl = document.getElementById('js-bulk-delete-url')?.dataset.url || '';
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    const csrfToken = SH.getCsrfToken();
 
     window.toggleProductFilters = function() {
         if (filtersPanel) filtersPanel.classList.toggle('collapsed');
@@ -365,7 +365,7 @@ async function saveCharacteristic(id) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+                'X-CSRF-Token': SH.getCsrfToken()
             },
             body: postData
         });
@@ -404,7 +404,7 @@ async function deleteCharacteristicInline(id) {
         const response = await fetch(`/admin/delete-characteristic?id=${id}`, {
             method: 'POST',
             headers: {
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+                'X-CSRF-Token': SH.getCsrfToken()
             }
         });
 
@@ -601,7 +601,7 @@ async function createNewCharacteristic() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+                'X-CSRF-Token': SH.getCsrfToken()
             },
             body: `name=${encodeURIComponent(name)}&type=${type}`
         });
@@ -644,7 +644,7 @@ async function createNewValue() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+                'X-CSRF-Token': SH.getCsrfToken()
             },
             body: `characteristic_id=${currentCharacteristicId}&value=${encodeURIComponent(value)}`
         });
@@ -719,7 +719,7 @@ async function addCharacteristicToProduct() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+                'X-CSRF-Token': SH.getCsrfToken()
             },
             body: `product_id=${productId}&characteristic_id=${charId}&value_id=${valueId || ''}&value_text=${encodeURIComponent(valueText || '')}&value_number=${valueNumber || ''}`
         });
@@ -749,7 +749,7 @@ async function deleteCharacteristic(id) {
         const response = await fetch(`/admin/delete-characteristic?id=${id}`, {
             method: 'POST',
             headers: {
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+                'X-CSRF-Token': SH.getCsrfToken()
             }
         });
 

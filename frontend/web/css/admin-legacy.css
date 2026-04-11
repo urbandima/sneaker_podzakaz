@@ -3,44 +3,10 @@
  * =====================================
  */
 
-/* CSS переменные */
-:root {
-    --admin-bg: #f8fafc;
-    --admin-surface: #ffffff;
-    --admin-primary: #0f172a;
-    --admin-primary-light: #1e293b;
-    --admin-accent: #3b82f6;
-    --admin-accent-hover: #2563eb;
-    --admin-text: #0f172a;
-    --admin-text-secondary: #64748b;
-    --admin-border: #e2e8f0;
-    --admin-border-light: #f1f5f9;
-    --admin-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    --admin-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --admin-radius: 8px;
-    --admin-radius-lg: 12px;
-    --admin-primary-soft: rgba(255, 255, 255, 0.15);
-    --admin-danger: #ef4444;
-    --admin-success: #10b981;
-    --admin-warning: #f59e0b;
-    --admin-info: #3b82f6;
-}
-
-/* Сброс */
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--admin-bg);
-    color: var(--admin-text);
-    line-height: 1.5;
-}
+/**
+ * NOTE: CSS variables are defined in admin-tokens.css (bridges to core design tokens).
+ * CSS reset is in core/design-system.css. Body styles for admin use .admin-layout scope.
+ */
 
 /* Админ layout */
 .admin-layout {

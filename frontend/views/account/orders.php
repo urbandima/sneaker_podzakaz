@@ -19,31 +19,10 @@ AppAsset::register($this);
         </div>
 
         <div class="account-grid">
-            <aside class="account-sidebar">
-                <div class="sidebar-card">
-                    <div class="user-info">
-                        <div class="user-avatar">
-                            <?= mb_strtoupper(mb_substr($customer->first_name ?: $customer->email, 0, 1)) ?>
-                        </div>
-                        <div class="user-name"><?= Html::encode($customer->getShortName()) ?></div>
-                        <div class="user-email"><?= Html::encode($customer->email) ?></div>
-                    </div>
-                    
-                    <ul class="account-menu">
-                        <li><a href="<?= Url::to(['/account/profile']) ?>"><i class="bi bi-person"></i> Профиль</a></li>
-                        <li><a href="<?= Url::to(['/account/orders']) ?>" class="active"><i class="bi bi-bag"></i> Мои заказы</a></li>
-                        <li><a href="<?= Url::to(['/account/loyalty']) ?>"><i class="bi bi-gem"></i> Баллы лояльности</a></li>
-                        <li><a href="<?= Url::to(['/catalog/favorites']) ?>"><i class="bi bi-heart"></i> Избранное</a></li>
-                        <li><a href="<?= Url::to(['/account/settings']) ?>"><i class="bi bi-gear"></i> Настройки</a></li>
-                    </ul>
-                    
-                    <?= Html::beginForm(['/account/logout'], 'post') ?>
-                        <button type="submit" class="logout-btn">
-                            <i class="bi bi-box-arrow-right"></i> Выйти
-                        </button>
-                    <?= Html::endForm() ?>
-                </div>
-            </aside>
+            <?= $this->render('_sidebar', [
+                'customer' => $customer,
+                'activePage' => 'orders',
+            ]) ?>
 
             <main class="account-content">
                 <div class="content-header">

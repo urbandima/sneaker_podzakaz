@@ -1,58 +1,35 @@
 /**
  * Функционал корзины - Vanilla JS (без jQuery)
- * ИСПРАВЛЕНО: использует глобальный NotificationManager
+ * Использует SH.* утилиты из utils.js
  */
-
-// Получить CSRF токен
-function getCsrfToken() {
-    const meta = document.querySelector('meta[name="csrf-token"]');
-    return meta ? meta.content : '';
-}
-
-function notify(message, type = 'info', duration = 4000) {
-    if (!window.NotificationManager) {
-        return;
-    }
-
-    if (typeof window.NotificationManager.show === 'function') {
-        window.NotificationManager.show(message, type, duration);
-    }
-}
 
 // Cart Drawer Functions
 function openCartDrawer() {
-    document.getElementById('cartDrawerOverlay').classList.add('open');
-    document.getElementById('cartDrawer').classList.add('open');
-    document.body.style.overflow = 'hidden'; // Запрет скролла страницы
+    SH.openModal(document.getElementById('cartDrawerOverlay'), 'open');
+    SH.openModal(document.getElementById('cartDrawer'), 'open');
     loadCartDrawerItems();
 }
 
 function closeCartDrawer() {
-    document.getElementById('cartDrawerOverlay').classList.remove('open');
-    document.getElementById('cartDrawer').classList.remove('open');
-    document.body.style.overflow = '';
+    SH.closeModal(document.getElementById('cartDrawerOverlay'), 'open');
+    SH.closeModal(document.getElementById('cartDrawer'), 'open');
 }
 
 function loadCartDrawerItems() {
     const drawerItems = document.getElementById('cartDrawerItems');
     drawerItems.innerHTML = '<div class="cart-loading"><i class="bi bi-arrow-repeat spinner"></i> Загрузка...</div>';
 
-    fetch('/cart/drawer-items', {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
+    SH.fetch('/cart/drawer-items')
+    .then(function (data) {
         if (data.success) {
             drawerItems.innerHTML = data.html;
             updateCartCount(data.count);
-            document.querySelectorAll('.cart-total').forEach(el => {
-                el.textContent = formatCurrency(data.total);
+            document.querySelectorAll('.cart-total').forEach(function (el) {
+                el.textContent = SH.formatCurrency(data.total);
             });
         }
     })
-    .catch(error => {
+    .catch(function (error) {
         console.error('Load drawer error:', error);
         drawerItems.innerHTML = '<div class="cart-error">Ошибка загрузки корзины</div>';
     });
@@ -66,29 +43,18 @@ function addToCart(productId, quantity = 1, size = null, color = null) {
     if (size) formData.append('size', size);
     if (color) formData.append('color', color);
 
-    fetch('/cart/add', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-Token': getCsrfToken()
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
+    SH.fetch('/cart/add', { method: 'POST', body: formData })
+        .then(function (data) {
             if (data.success) {
-                // Обновляем счетчик
                 updateCartCount(data.count);
-                
-                // Открываем Drawer вместо показа уведомления
                 openCartDrawer();
             } else {
-                notify(data.message || 'Ошибка добавления', 'error');
+                SH.notify(data.message || 'Ошибка добавления', 'error');
             }
         })
-        .catch(error => {
+        .catch(function (error) {
             console.error('Cart error:', error);
-            notify('Ошибка соединения', 'error');
+            SH.notify('Ошибка соединения', 'error');
         });
 }
 
@@ -98,7 +64,7 @@ function updateCartItem(id, quantity) {
 
     // Валидация
     if (quantity < 1 || quantity > 99) {
-        notify('Количество должно быть от 1 до 99', 'warning');
+        SH.notify('Количество должно быть от 1 до 99', 'warning');
         return;
     }
 
@@ -116,16 +82,8 @@ function updateCartItem(id, quantity) {
     formData.append('id', id);
     formData.append('quantity', quantity);
 
-    fetch('/cart/update', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-Token': getCsrfToken()
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
+    SH.fetch('/cart/update', { method: 'POST', body: formData })
+        .then(function (data) {
 
             if (data.success) {
                 // Обновляем количество в инпуте
@@ -175,39 +133,23 @@ function updateCartItem(id, quantity) {
                 // Обновляем счётчик корзины
                 updateCartCount(data.count);
 
-                // Уведомление
-                notify('Количество обновлено', 'success');
+                SH.notify('Количество обновлено', 'success');
             } else {
-                // Восстанавливаем предыдущее значение при ошибке
                 if (cartItem) {
                     const qtyInput = cartItem.querySelector('input[type="number"]');
-                    if (qtyInput) {
-                        qtyInput.value = previousQuantity;
-                    }
+                    if (qtyInput) qtyInput.value = previousQuantity;
                 }
-
-                notify(data.message || 'Ошибка обновления', 'error');
+                SH.notify(data.message || 'Ошибка обновления', 'error');
             }
         })
-        .catch(error => {
+        .catch(function (error) {
             console.error('Update cart error:', error);
-
-            // Восстанавливаем предыдущее значение при ошибке соединения
             if (cartItem) {
                 const qtyInput = cartItem.querySelector('input[type="number"]');
-                if (qtyInput) {
-                    qtyInput.value = previousQuantity;
-                }
+                if (qtyInput) qtyInput.value = previousQuantity;
             }
-
-            notify('Ошибка соединения', 'error');
+            SH.notify('Ошибка соединения', 'error');
         });
-}
-
-// Форматировать валюту в формате "X,XX Br" (как Yii formatter)
-function formatCurrency(amount) {
-    const formatted = parseFloat(amount).toFixed(2).replace('.', ',');
-    return formatted + ' Br';
 }
 
 // Обновить количество (+ или -)
@@ -225,7 +167,7 @@ function updateQuantity(cartId, delta) {
     }
 
     if (newQty > 99) {
-        notify('Максимальное количество: 99', 'warning');
+        SH.notify('Максимальное количество: 99', 'warning');
         return;
     }
 
@@ -246,52 +188,30 @@ function removeCartItem(id) {
     cartItem.style.opacity = '0';
     cartItem.style.transform = 'translateX(-20px)';
 
-    // Отправляем запрос на сервер
-    fetch('/cart/remove/' + id, {
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-Token': getCsrfToken()
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
+    SH.fetch('/cart/remove/' + id, { method: 'POST' })
+        .then(function (data) {
             if (data.success) {
-                // Ждем завершения анимации, затем удаляем элемент
-                setTimeout(() => {
+                setTimeout(function () {
                     cartItem.remove();
-
-                    // Обновляем счетчик и суммы
                     updateCartCount(data.count);
-
-                    // Используем глобальную функцию updateCartTotals если она существует
                     if (typeof updateCartTotals === 'function') {
                         updateCartTotals(data.total, data.count);
                     }
-
-                    // Если корзина пуста - перезагружаем страницу
-                    const remainingItems = document.querySelectorAll('.cart-item');
-                    if (remainingItems.length === 0) {
+                    if (document.querySelectorAll('.cart-item').length === 0) {
                         location.reload();
                     }
                 }, 300);
-
-                // Показываем уведомление
-                notify('Товар удален из корзины', 'success');
+                SH.notify('Товар удален из корзины', 'success');
             } else {
-                // Отменяем анимацию при ошибке
                 cartItem.style.opacity = '1';
                 cartItem.style.transform = 'translateX(0)';
-
-                notify(data.message || 'Ошибка удаления', 'error');
+                SH.notify(data.message || 'Ошибка удаления', 'error');
             }
         })
-        .catch(error => {
-            // Отменяем анимацию при ошибке
+        .catch(function () {
             cartItem.style.opacity = '1';
             cartItem.style.transform = 'translateX(0)';
-
-            notify('Ошибка соединения', 'error');
+            SH.notify('Ошибка соединения', 'error');
         });
 }
 
@@ -326,18 +246,9 @@ function animateCartIcon() {
 
 // Загрузить текущее количество при загрузке страницы
 document.addEventListener('DOMContentLoaded', function () {
-    fetch('/cart/count', {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.count) {
-                updateCartCount(data.count);
-            }
-        })
-        .catch(error => console.error('Load cart count error:', error));
+    SH.fetch('/cart/count')
+        .then(function (data) { if (data.count) updateCartCount(data.count); })
+        .catch(function (error) { console.error('Load cart count error:', error); });
 
     // Добавляем CSS для анимаций если еще нет
     if (!document.getElementById('cart-animations-css')) {

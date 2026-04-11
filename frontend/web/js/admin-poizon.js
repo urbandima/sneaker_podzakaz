@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* -- poizon/order/index.php -- */
 document.addEventListener('DOMContentLoaded', function() {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    const csrfToken = SH.getCsrfToken();
     const filtersAccordionToggle = document.getElementById('filtersAccordionToggle');
     const filtersAccordionContent = document.getElementById('filtersAccordionContent');
     const filtersAccordionIcon = document.getElementById('filtersAccordionIcon');
@@ -560,7 +560,7 @@ function confirmBulkStatusUpdate() {
     formData.append('ids', JSON.stringify(selected));
     formData.append('status', status);
     if (comment) formData.append('comment', comment);
-    formData.append('_csrf', document.querySelector('meta[name="csrf-token"]')?.content);
+    formData.append('_csrf', SH.getCsrfToken());
 
     fetch('/admin/order/bulk-update-status', {
         method: 'POST',
@@ -633,7 +633,7 @@ function confirmBulkLogistAssign() {
     const formData = new FormData();
     formData.append('ids', JSON.stringify(selected));
     formData.append('logist_id', logistId);
-    formData.append('_csrf', document.querySelector('meta[name="csrf-token"]')?.content);
+    formData.append('_csrf', SH.getCsrfToken());
 
     fetch('/admin/order/bulk-assign-logist', {
         method: 'POST',
@@ -740,7 +740,7 @@ function bulkUpdateField(field, value, actionText) {
     formData.append('ids', JSON.stringify(selected));
     formData.append('field', field);
     formData.append('value', value);
-    formData.append('_csrf', document.querySelector('meta[name="csrf-token"]')?.content);
+    formData.append('_csrf', SH.getCsrfToken());
 
     fetch('/admin/order/bulk-update-field', {
         method: 'POST',
@@ -884,7 +884,7 @@ function bulkUpdateProducts(field, value) {
         return;
     }
 
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    const csrfToken = SH.getCsrfToken();
     const bulkUpdateUrl = document.getElementById('bulkUpdateUrl')?.value || '/admin/product/bulk-update';
 
     const formData = new FormData();
@@ -920,7 +920,7 @@ function confirmBulkDelete() {
 }
 
 function bulkDeleteProducts(ids) {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    const csrfToken = SH.getCsrfToken();
     const bulkDeleteUrl = document.getElementById('bulkDeleteUrl')?.value || '/admin/product/bulk-delete';
 
     const formData = new FormData();
@@ -958,7 +958,7 @@ function toggleStatus(id) {
 
     fetch('/admin/customer/' + id + '/toggle-status', {
         method: 'POST',
-        headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content }
+        headers: { 'X-CSRF-Token': SH.getCsrfToken() }
     })
     .then(r => r.json())
     .then(data => {
@@ -972,7 +972,7 @@ function resetPassword(id) {
 
     fetch('/admin/customer/' + id + '/reset-password', {
         method: 'POST',
-        headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content }
+        headers: { 'X-CSRF-Token': SH.getCsrfToken() }
     })
     .then(r => r.json())
     .then(data => {
@@ -987,7 +987,7 @@ function resetPassword(id) {
 function linkOrders(id) {
     fetch('/admin/customer/' + id + '/link-orders', {
         method: 'POST',
-        headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content }
+        headers: { 'X-CSRF-Token': SH.getCsrfToken() }
     })
     .then(r => r.json())
     .then(data => {

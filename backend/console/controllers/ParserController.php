@@ -8,6 +8,7 @@ use yii\console\ExitCode;
 use app\backend\modules\catalog\models\Product;
 use app\backend\modules\catalog\models\Brand;
 use app\backend\modules\catalog\models\Category;
+use app\backend\shared\helpers\SlugHelper;
 
 /**
  * Парсер товаров с poizonshop.ru
@@ -294,32 +295,7 @@ class ParserController extends Controller
      */
     private function generateSlug($name)
     {
-        // Транслитерация
-        $converter = [
-            'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd',
-            'е' => 'e', 'ё' => 'e', 'ж' => 'zh', 'з' => 'z', 'и' => 'i',
-            'й' => 'y', 'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n',
-            'о' => 'o', 'п' => 'p', 'р' => 'r', 'с' => 's', 'т' => 't',
-            'у' => 'u', 'ф' => 'f', 'х' => 'h', 'ц' => 'c', 'ч' => 'ch',
-            'ш' => 'sh', 'щ' => 'sch', 'ь' => '', 'ы' => 'y', 'ъ' => '',
-            'э' => 'e', 'ю' => 'yu', 'я' => 'ya',
-        ];
-
-        $slug = mb_strtolower($name);
-        $slug = strtr($slug, $converter);
-        $slug = preg_replace('/[^a-z0-9\s-]/', '', $slug);
-        $slug = preg_replace('/[\s-]+/', '-', $slug);
-        $slug = trim($slug, '-');
-        $slug = substr($slug, 0, 100);
-        
-        // Проверяем уникальность
-        $originalSlug = $slug;
-        $counter = 1;
-        while (Product::findOne(['slug' => $slug])) {
-            $slug = $originalSlug . '-' . $counter++;
-        }
-        
-        return $slug;
+        return SlugHelper::uniqueProductSlug($name);
     }
 
     /**
