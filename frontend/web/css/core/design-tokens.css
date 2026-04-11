@@ -34,6 +34,12 @@
     --color-accent: var(--c-black);
     --color-accent-hover: var(--c-gray-900);
 
+    /* Акцентный цвет для скидок, sale, промо-элементов */
+    --color-sale: #DC2626;
+    --color-sale-bg: #FEE2E2;
+    --color-new: #059669;
+    --color-new-bg: #D1FAE5;
+
     /* === COLORS: Status (minimalist) === */
     --color-success: #16A34A;
     --color-success-bg: #DCFCE7;

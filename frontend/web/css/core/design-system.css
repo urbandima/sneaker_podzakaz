@@ -109,7 +109,7 @@ select {
     align-items: center;
     justify-content: center;
     gap: var(--space-2);
-    padding: var(--space-3) var(--space-6);
+    padding: var(--space-4) var(--space-6);
     border-radius: var(--radius-full);
     font-weight: var(--font-weight-semibold);
     font-size: var(--text-base);

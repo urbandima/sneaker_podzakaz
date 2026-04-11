@@ -417,7 +417,7 @@
 /* === NEWSLETTER === */
 .newsletter-section {
     padding: var(--space-20) 0;
-    background: var(--c-black);
+    background: var(--c-gray-900);
     color: var(--c-white);
     text-align: center;
 }
