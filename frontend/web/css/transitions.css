@@ -64,11 +64,7 @@ img {
     transition: opacity var(--duration-fast);
 }
 
+/* Lazy-loaded images: показываем сразу, плавный переход при смене src */
 img[loading="lazy"] {
-    opacity: 0;
-}
-
-img.loaded,
-img:not([src=""]) {
     opacity: 1;
 }
