@@ -8,13 +8,18 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: border-color var(--duration-base), box-shadow var(--duration-base);
+    transition: border-color var(--duration-base), box-shadow var(--duration-base), transform var(--duration-base);
     position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-shadow: var(--shadow-xs);
 }
 
 .product-card:hover {
-    border-color: var(--c-black);
-    box-shadow: var(--shadow-md);
+    border-color: rgba(0, 0, 0, 0.25);
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-3px);
 }
 
 /* Hover-эффект смены фото только когда есть второе изображение */
@@ -92,15 +97,6 @@
     border: 1px solid var(--c-black);
 }
 
-.badge-sale {
-    background: var(--color-danger);
-    color: var(--c-white);
-}
-
-.badge-popular {
-    background: var(--c-gray-900);
-    color: var(--c-white);
-}
 
 /* === FAVORITE BUTTON === */
 .action-btn.favorite {
@@ -140,6 +136,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
+    flex: 1;
 }
 
 .product-card-brand {
@@ -151,10 +148,14 @@
 }
 
 .product-card-name {
-    font-size: var(--text-lg);
+    font-size: var(--text-base);
     font-weight: var(--font-weight-semibold);
     line-height: var(--leading-snug);
     margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .product-card-name a {
@@ -210,7 +211,8 @@
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    margin-top: var(--space-1);
+    margin-top: auto;
+    padding-top: var(--space-2);
 }
 
 .product-card-price-current {
@@ -225,11 +227,6 @@
     text-decoration: line-through;
 }
 
-.product-card-price-sale {
-    font-size: var(--text-lg);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-danger);
-}
 
 /* === ADD TO CART BUTTON === */
 .btn-add-to-cart-card {
@@ -261,7 +258,13 @@
 .products-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-6);
+    gap: var(--space-4);
+    align-items: stretch;
+}
+
+/* Ensure all cards in a grid row stretch to consistent heights */
+.products-grid .product-card {
+    height: 100%;
 }
 
 @media (max-width: 1200px) {

@@ -16,24 +16,52 @@
      * @param {number} id - ID товара
      */
     window.toggleFav = function (e, id) {
-        if (!e || !e.preventDefault) {
-            return;
+        if (e && e.preventDefault) {
+            e.preventDefault();
+            e.stopPropagation();
         }
 
-        e.preventDefault();
-        e.stopPropagation();
-
-        // Получаем кнопку из event
-        const button = e.currentTarget || e.target;
+        // Получаем кнопку из event — ищем closest button
+        const button = (e && (e.currentTarget || e.target))
+            ? (e.currentTarget || e.target).closest('button') || (e.currentTarget || e.target)
+            : null;
 
         // Вызываем основную функцию из favorites.js
         if (typeof window.toggleFavorite === 'function') {
             window.toggleFavorite(button, id);
         } else {
-            // Fallback: показываем уведомление пользователю
-            if (window.NotificationManager) {
-                NotificationManager.error('Ошибка загрузки функционала избранного. Обновите страницу.');
-            }
+            // Прямой AJAX fallback
+            if (!id) return;
+            const isActive = button && button.classList.contains('active');
+            const url = isActive ? '/catalog/remove-favorite' : '/catalog/add-favorite';
+            const csrf = document.querySelector('meta[name="csrf-token"]');
+            const csrfToken = csrf ? csrf.getAttribute('content') : '';
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: 'product_id=' + id + '&_csrf=' + encodeURIComponent(csrfToken)
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.success && button) {
+                        button.classList.toggle('active');
+                        const icon = button.querySelector('i');
+                        if (icon) {
+                            icon.className = isActive ? 'bi bi-heart' : 'bi bi-heart-fill';
+                        }
+                        const badge = document.getElementById('favCount');
+                        if (badge && data.count !== undefined) {
+                            badge.textContent = data.count;
+                            badge.style.display = data.count > 0 ? 'flex' : 'none';
+                        }
+                    }
+                })
+                .catch(function () { });
         }
     };
 

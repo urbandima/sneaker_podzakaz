@@ -9,15 +9,17 @@
     inset: 0;
     background: rgba(255, 255, 255, 0.97);
     z-index: var(--z-modal);
-    display: none;
+    visibility: hidden;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
     backdrop-filter: blur(8px);
 }
 
 .search-modal.open {
-    display: block;
+    visibility: visible;
     opacity: 1;
+    pointer-events: auto;
 }
 
 .search-modal-content {
@@ -55,7 +57,8 @@
     color: var(--color-muted);
 }
 
-.search-close {
+.search-close,
+.close-search {
     background: none;
     border: none;
     font-size: 2rem;

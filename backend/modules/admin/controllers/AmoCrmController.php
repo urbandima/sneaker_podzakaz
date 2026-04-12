@@ -78,13 +78,16 @@ class AmoCrmController extends BaseAdminController
         $pipelineId = Yii::$app->settings->get('amocrm', 'pipeline_id', '');
 
         $statusMap = [
-            'created' => 1,
-            'confirmed' => 2,
-            'paid' => 3,
+            'new' => 1,
+            'paid' => 2,
+            'confirmed_and_paid' => 3,
             'ordered' => 4,
-            'shipped' => 5,
-            'delivered' => 6,
-            'completed' => 7,
+            'awaiting_warehouse' => 5,
+            'international_delivery' => 6,
+            'at_warehouse' => 7,
+            'local_delivery' => 8,
+            'delivered' => 9,
+            'canceled' => 10,
         ];
 
         $statusId = $statusMap[$order->status] ?? 1;

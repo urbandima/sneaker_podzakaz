@@ -16,7 +16,7 @@ use Yii;
  * - Просмотр таблицы сравнения
  * - Очистка списка сравнения
  */
-class CompareModule extends \yii\base\Module
+class Module extends \yii\base\Module
 {
     public $controllerNamespace = 'app\backend\modules\compare\controllers';
 

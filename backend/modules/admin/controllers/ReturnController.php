@@ -24,6 +24,7 @@ use yii\filters\VerbFilter;
 use yii\data\ActiveDataProvider;
 use app\backend\modules\returns\models\ReturnRequest;
 use app\backend\modules\returns\services\ReturnService;
+use app\backend\modules\checkout\models\Order;
 
 class ReturnController extends BaseAdminController
 {
@@ -78,6 +79,36 @@ class ReturnController extends BaseAdminController
 
         return $this->render('index', [
             'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    /**
+     * Создание заявки на возврат из админки
+     */
+    public function actionCreate()
+    {
+        $model = new ReturnRequest();
+
+        if ($model->load(Yii::$app->request->post())) {
+            $model->return_number = 'R' . date('Ymd') . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
+            $model->status = ReturnRequest::STATUS_PENDING;
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Заявка на возврат создана: ' . $model->return_number);
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
+        }
+
+        $orders = Order::find()
+            ->select(['id', 'order_number', 'client_name', 'total_amount'])
+            ->orderBy(['created_at' => SORT_DESC])
+            ->limit(200)
+            ->asArray()
+            ->all();
+
+        return $this->render('create', [
+            'model' => $model,
+            'orders' => $orders,
+            'reasonList' => ReturnRequest::getReasonList(),
         ]);
     }
 

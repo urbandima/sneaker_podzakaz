@@ -9,7 +9,7 @@
 /* === PRODUCT INDEX === */
 
 /* -- product/index.php -- */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const filtersPanel = document.getElementById('filtersPanel');
     const exportDropdown = document.getElementById('exportDropdown');
     const selectAllCheckbox = document.getElementById('selectAllProducts');
@@ -20,24 +20,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportBaseUrl = document.getElementById('js-export-base-url')?.dataset.url || '';
     const bulkUpdateUrl = document.getElementById('js-bulk-update-url')?.dataset.url || '';
     const bulkDeleteUrl = document.getElementById('js-bulk-delete-url')?.dataset.url || '';
-    const csrfToken = SH.getCsrfToken();
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-    window.toggleProductFilters = function() {
+    window.toggleProductFilters = function () {
         if (filtersPanel) filtersPanel.classList.toggle('collapsed');
     };
 
-    window.toggleExportMenu = function() {
+    window.toggleExportMenu = function () {
         if (exportDropdown) exportDropdown.classList.toggle('visible');
     };
 
-    document.addEventListener('click', function(event) {
+    document.addEventListener('click', function (event) {
         if (exportDropdown && !event.target.closest('.export-menu')) {
             exportDropdown.classList.remove('visible');
         }
     });
 
     if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function() {
+        selectAllCheckbox.addEventListener('change', function () {
             productCheckboxes.forEach(cb => cb.checked = this.checked);
             updateBulkState();
         });
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    window.showBulkActions = function() {
+    window.showBulkActions = function () {
         if (bulkActionsEl) bulkActionsEl.classList.toggle('show');
     };
 
@@ -65,14 +65,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return Array.from(document.querySelectorAll('.product-checkbox:checked')).map(cb => cb.value);
     }
 
-    window.changeProductPageSize = function(size) {
+    window.changeProductPageSize = function (size) {
         const url = new URL(window.location.href);
         url.searchParams.set('per-page', size);
         url.searchParams.delete('page');
         window.location.href = url.toString();
     };
 
-    window.bulkUpdateProducts = function(field, value) {
+    window.bulkUpdateProducts = function (field, value) {
         const ids = getSelectedProductIds();
         if (!ids.length) {
             alert('Выберите товары');
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(() => alert('Ошибка сети'));
     };
 
-    window.confirmBulkDelete = function() {
+    window.confirmBulkDelete = function () {
         const ids = getSelectedProductIds();
         if (!ids.length) {
             alert('Выберите товары');
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(() => alert('Ошибка сети'));
     }
 
-    window.bulkExportSelected = function() {
+    window.bulkExportSelected = function () {
         const ids = getSelectedProductIds();
         if (!ids.length) {
             window.location.href = exportBaseUrl;
@@ -144,13 +144,13 @@ document.addEventListener('DOMContentLoaded', function() {
 /* === PRODUCT EDIT === */
 
 /* -- product/edit.php -- */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Size grid quick-add button
     const gridSelect = document.getElementById('size-grid-select');
     const addBtn = document.getElementById('add-from-grid-btn');
 
     if (gridSelect && addBtn) {
-        gridSelect.addEventListener('change', function() {
+        gridSelect.addEventListener('change', function () {
             if (this.value) {
                 const url = addBtn.getAttribute('href').replace('__GRID_ID__', this.value);
                 addBtn.setAttribute('href', url);
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Characteristics modal: load on open
     const modal = document.getElementById('manageCharacteristicsModal');
     if (modal) {
-        modal.addEventListener('show.bs.modal', function() {
+        modal.addEventListener('show.bs.modal', function () {
             loadCharacteristics();
         });
     }
@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Characteristic select change handler
     const charSelect = document.getElementById('characteristicSelect');
     if (charSelect) {
-        charSelect.addEventListener('change', function() {
+        charSelect.addEventListener('change', function () {
             const selectedValue = this.value;
 
             if (selectedValue === '__new__') {
@@ -222,18 +222,18 @@ document.addEventListener('DOMContentLoaded', function() {
 // Clipboard copy for CNY prices
 function copyToClipboard(text, element) {
     if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(function() {
+        navigator.clipboard.writeText(text).then(function () {
             const originalHTML = element.innerHTML;
             element.innerHTML = '✓ Скопировано!';
             element.classList.remove('bg-info');
             element.classList.add('bg-success');
 
-            setTimeout(function() {
+            setTimeout(function () {
                 element.innerHTML = originalHTML;
                 element.classList.remove('bg-success');
                 element.classList.add('bg-info');
             }, 1500);
-        }).catch(function(err) {
+        }).catch(function (err) {
             alert('Не удалось скопировать: ' + text);
         });
     } else {
@@ -248,7 +248,7 @@ function copyToClipboard(text, element) {
         element.innerHTML = '✓ Скопировано!';
         element.classList.add('bg-success');
 
-        setTimeout(function() {
+        setTimeout(function () {
             element.innerHTML = originalHTML;
             element.classList.remove('bg-success');
             element.classList.add('bg-info');
@@ -571,7 +571,7 @@ function showValueInput(type, values) {
         newOption.className = 'text-primary fw-bold';
         select.appendChild(newOption);
 
-        select.onchange = function() {
+        select.onchange = function () {
             document.getElementById('newValueForm').style.display =
                 this.value === '__new__' ? 'block' : 'none';
         };
@@ -781,10 +781,10 @@ function showMessage(message, type) {
 /* === PRODUCT VIEW === */
 
 /* -- product/view.php -- */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // B7.3 Inline size BYN price edit
     document.querySelectorAll('.size-price-byn').forEach(cell => {
-        cell.addEventListener('dblclick', function() {
+        cell.addEventListener('dblclick', function () {
             const sizeId = this.dataset.sizeId;
             const currentVal = this.dataset.price || '0';
             const input = document.createElement('input');
@@ -799,11 +799,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (isNaN(newVal)) { this.innerHTML = original; return; }
                 fetch('/admin/product/update-size-price', {
                     method: 'POST',
-                    headers: {'Content-Type':'application/json','X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content||''},
-                    body: JSON.stringify({size_id: sizeId, price_byn: newVal})
-                }).then(r=>r.json()).then(d=>{ this.innerHTML = d.success ? newVal.toFixed(2) + ' BYN' : original; });
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content || '' },
+                    body: JSON.stringify({ size_id: sizeId, price_byn: newVal })
+                }).then(r => r.json()).then(d => { this.innerHTML = d.success ? newVal.toFixed(2) + ' BYN' : original; });
             };
-            input.addEventListener('keydown', e => { if(e.key==='Enter') save(); if(e.key==='Escape') this.innerHTML=original; });
+            input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') this.innerHTML = original; });
             input.addEventListener('blur', save);
         });
     });
@@ -815,18 +815,18 @@ function editPrice(productId, currentPrice) {
     if (newPrice === null || isNaN(parseFloat(newPrice))) return;
     fetch('/admin/product/update-price', {
         method: 'POST',
-        headers: {'Content-Type':'application/json','X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content||''},
-        body: JSON.stringify({id: productId, price: parseFloat(newPrice)})
-    }).then(r=>r.json()).then(d=>{ if(d.success) location.reload(); else alert(d.message||'Ошибка'); });
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content || '' },
+        body: JSON.stringify({ id: productId, price: parseFloat(newPrice) })
+    }).then(r => r.json()).then(d => { if (d.success) location.reload(); else alert(d.message || 'Ошибка'); });
 }
 
 // B7.2 Toggle active
 function toggleActive(productId) {
     fetch('/admin/product/toggle-active', {
         method: 'POST',
-        headers: {'Content-Type':'application/json','X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content||''},
-        body: JSON.stringify({id: productId})
-    }).then(r=>r.json()).then(d=>{ if(d.success) location.reload(); });
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content || '' },
+        body: JSON.stringify({ id: productId })
+    }).then(r => r.json()).then(d => { if (d.success) location.reload(); });
 }
 
 // B7.5 Sync Poizon
@@ -835,27 +835,27 @@ function syncPoizon(productId) {
     btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Синхронизация...';
     fetch('/admin/product/sync-poizon', {
         method: 'POST',
-        headers: {'Content-Type':'application/json','X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content||''},
-        body: JSON.stringify({id: productId})
-    }).then(r=>r.json()).then(d=>{
-        btn.disabled=false; btn.innerHTML='<i class="bi bi-arrow-repeat"></i> Синхронизировать';
-        if(d.success) location.reload(); else alert(d.message||'Ошибка синхронизации');
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content || '' },
+        body: JSON.stringify({ id: productId })
+    }).then(r => r.json()).then(d => {
+        btn.disabled = false; btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Синхронизировать';
+        if (d.success) location.reload(); else alert(d.message || 'Ошибка синхронизации');
     });
 }
 
 /* === PRODUCT BULK-PRICE === */
 
 /* -- product/bulk-price.php -- */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     var csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').content : '';
     var bulkUpdateUrl = document.getElementById('js-bulk-update-price-url')?.dataset.url || '';
 
-    window.recalcRow = function(input) {
-        var tr        = input.closest('tr');
-        var base      = parseFloat(tr.dataset.basePrice) || 0;
-        var markup    = parseFloat(input.value);
+    window.recalcRow = function (input) {
+        var tr = input.closest('tr');
+        var base = parseFloat(tr.dataset.basePrice) || 0;
+        var markup = parseFloat(input.value);
         var newPriceEl = tr.querySelector('.new-price');
-        var hiddenEl   = tr.querySelector('.new-price-val');
+        var hiddenEl = tr.querySelector('.new-price-val');
 
         if (!isNaN(markup)) {
             var newPrice = base * (1 + markup / 100);
@@ -869,10 +869,10 @@ document.addEventListener('DOMContentLoaded', function() {
         updateApplyBtn();
     };
 
-    window.applyGlobalMarkup = function() {
+    window.applyGlobalMarkup = function () {
         var markup = parseFloat(document.getElementById('global-markup').value);
         if (isNaN(markup)) { alert('Введите значение наценки'); return; }
-        document.querySelectorAll('#bulk-price-table tbody tr').forEach(function(tr) {
+        document.querySelectorAll('#bulk-price-table tbody tr').forEach(function (tr) {
             var markupInput = tr.querySelector('.markup-input');
             if (markupInput) {
                 markupInput.value = markup;
@@ -881,24 +881,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    window.toggleSelectAll = function(cb) {
-        document.querySelectorAll('.row-check').forEach(function(c) { c.checked = cb.checked; });
+    window.toggleSelectAll = function (cb) {
+        document.querySelectorAll('.row-check').forEach(function (c) { c.checked = cb.checked; });
     };
 
     function updateApplyBtn() {
         var hasNew = false;
-        document.querySelectorAll('.new-price-val').forEach(function(el) {
+        document.querySelectorAll('.new-price-val').forEach(function (el) {
             if (el.value !== '') hasNew = true;
         });
         var btn = document.getElementById('apply-btn');
         if (btn) btn.disabled = !hasNew;
     }
 
-    window.applyPrices = function() {
+    window.applyPrices = function () {
         var prices = [];
-        document.querySelectorAll('#bulk-price-table tbody tr').forEach(function(tr) {
+        document.querySelectorAll('#bulk-price-table tbody tr').forEach(function (tr) {
             var hiddenEl = tr.querySelector('.new-price-val');
-            var check    = tr.querySelector('.row-check');
+            var check = tr.querySelector('.row-check');
             var anyChecked = document.querySelectorAll('.row-check:checked').length > 0;
             if (hiddenEl && hiddenEl.value !== '') {
                 if (!anyChecked || (check && check.checked)) {
@@ -923,40 +923,40 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify({ prices: prices })
         })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-check-circle"></i> Применить цены';
-            if (resultEl) {
-                resultEl.style.display = 'block';
-                resultEl.style.background = data.success ? '#d1fae5' : '#fee2e2';
-                resultEl.style.color = data.success ? '#065f46' : '#991b1b';
-                resultEl.textContent = data.success
-                    ? 'Обновлено товаров: ' + data.updated
-                    : (data.error || 'Ошибка обновления');
-            }
-            if (data.success) {
-                document.querySelectorAll('#bulk-price-table tbody tr').forEach(function(tr) {
-                    var hiddenEl = tr.querySelector('.new-price-val');
-                    if (hiddenEl && hiddenEl.value !== '') {
-                        tr.dataset.basePrice = hiddenEl.value;
-                        var currentPriceCell = tr.querySelector('td:nth-child(4)');
-                        if (currentPriceCell) {
-                            currentPriceCell.textContent = parseFloat(hiddenEl.value).toFixed(2).replace('.', ',');
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-circle"></i> Применить цены';
+                if (resultEl) {
+                    resultEl.style.display = 'block';
+                    resultEl.style.background = data.success ? '#d1fae5' : '#fee2e2';
+                    resultEl.style.color = data.success ? '#065f46' : '#991b1b';
+                    resultEl.textContent = data.success
+                        ? 'Обновлено товаров: ' + data.updated
+                        : (data.error || 'Ошибка обновления');
+                }
+                if (data.success) {
+                    document.querySelectorAll('#bulk-price-table tbody tr').forEach(function (tr) {
+                        var hiddenEl = tr.querySelector('.new-price-val');
+                        if (hiddenEl && hiddenEl.value !== '') {
+                            tr.dataset.basePrice = hiddenEl.value;
+                            var currentPriceCell = tr.querySelector('td:nth-child(4)');
+                            if (currentPriceCell) {
+                                currentPriceCell.textContent = parseFloat(hiddenEl.value).toFixed(2).replace('.', ',');
+                            }
                         }
-                    }
-                });
-            }
-        })
-        .catch(function() {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-check-circle"></i> Применить цены';
-            if (resultEl) {
-                resultEl.style.display = 'block';
-                resultEl.style.background = '#fee2e2';
-                resultEl.style.color = '#991b1b';
-                resultEl.textContent = 'Ошибка соединения';
-            }
-        });
+                    });
+                }
+            })
+            .catch(function () {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-circle"></i> Применить цены';
+                if (resultEl) {
+                    resultEl.style.display = 'block';
+                    resultEl.style.background = '#fee2e2';
+                    resultEl.style.color = '#991b1b';
+                    resultEl.textContent = 'Ошибка соединения';
+                }
+            });
     };
 });

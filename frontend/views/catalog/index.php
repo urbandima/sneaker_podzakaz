@@ -26,9 +26,8 @@ $this->registerJs("
 // Инициализация lazy load после загрузки DOM
 setTimeout(function() {
     // Проверяем доступен ли LazyLoad класс
-    if (window.LazyLoad) {
-        const lazyLoader = new window.LazyLoad();
-        lazyLoader.init();
+    if (window.LazyLoad && typeof window.LazyLoad.init === 'function') {
+        window.LazyLoad.init();
     } else {
         // Fallback: простая загрузка изображений
         const images = document.querySelectorAll('img[data-src]');
@@ -111,6 +110,13 @@ function loadMoreProducts() {
         <div class="catalog-layout">
             <!-- Sidebar -->
             <aside class="catalog-sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <h3 class="sidebar-title">Фильтры</h3>
+                    <button type="button" class="sidebar-close" onclick="closeFilters()" aria-label="Закрыть фильтры">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
                 <!-- Price (открыт по умолчанию) -->
                 <div class="filter-group open" id="filter-price">
                     <div class="filter-title" onclick="toggleFilterGroup(this)">
@@ -202,7 +208,42 @@ function loadMoreProducts() {
                 </div>
                 
                 <!-- PRIMARY FILTERS END -->
-                
+
+                <!-- Размеры (первичный фильтр — всегда видимый) -->
+                <div class="filter-group open" id="filter-sizes">
+                    <div class="filter-title" onclick="toggleFilterGroup(this)">
+                        <span>Размер <span id="sidebarSizeSystem" class="size-system-label">EU</span></span>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <div class="filter-content filter-content--open">
+                        <!-- Переключатель систем в сайдбаре -->
+                        <div class="size-system-toggle-sidebar">
+                            <button type="button" class="size-system-btn-small active" data-system="eu" onclick="switchSidebarSizeSystem('eu')">EU</button>
+                            <button type="button" class="size-system-btn-small" data-system="us" onclick="switchSidebarSizeSystem('us')">US</button>
+                            <button type="button" class="size-system-btn-small" data-system="uk" onclick="switchSidebarSizeSystem('uk')">UK</button>
+                            <button type="button" class="size-system-btn-small" data-system="cm" onclick="switchSidebarSizeSystem('cm')">CM</button>
+                        </div>
+
+                        <?php
+                        $staticSizes = [
+                            'eu' => ['36','37','38','39','40','41','42','43','44','45','46'],
+                            'us' => ['4','5','6','7','8','9','10','11','12','13'],
+                            'uk' => ['3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11','11.5','12'],
+                            'cm' => ['22','23','24','25','26','27','28','29','30'],
+                        ];
+                        foreach ($staticSizes as $system => $sizes): ?>
+                            <div class="size-filter-grid sidebar-size-grid" data-system="<?= $system ?>">
+                                <?php foreach ($sizes as $size): ?>
+                                    <label class="size-filter-btn">
+                                        <input type="checkbox" name="sizes[]" value="<?= Html::encode($size) ?>" data-system="<?= $system ?>">
+                                        <span><?= Html::encode($size) ?></span>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
                 <!-- ВАЖНЫЕ ХАРАКТЕРИСТИКИ (Пол, Сезон) в основной секции -->
                 <?php if (!empty($filters['characteristics'])): foreach ($filters['characteristics'] as $characteristic): ?>
                     <?php if (in_array($characteristic['key'], ['gender', 'season'])): ?>
@@ -212,49 +253,9 @@ function loadMoreProducts() {
                         ]) ?>
                     <?php endif; ?>
                 <?php endforeach; endif; ?>
-                
+
                 <!-- ADVANCED FILTERS (скрыты по умолчанию) -->
                 <div class="advanced-filters-wrapper" id="advancedFiltersWrapper" style="display:none">
-                
-                <!-- Размеры (все системы измерения) -->
-                <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
-                        <span><i class="bi bi-rulers"></i> Размер <span id="sidebarSizeSystem">EU</span></span>
-                        <i class="bi bi-chevron-down"></i>
-                    </h4>
-                    <div class="filter-content">
-                        <!-- Переключатель систем в сайдбаре -->
-                        <div class="size-system-toggle-sidebar">
-                            <button type="button" class="size-system-btn-small active" data-system="eu" onclick="switchSidebarSizeSystem('eu')">EU</button>
-                            <button type="button" class="size-system-btn-small" data-system="us" onclick="switchSidebarSizeSystem('us')">US</button>
-                            <button type="button" class="size-system-btn-small" data-system="uk" onclick="switchSidebarSizeSystem('uk')">UK</button>
-                            <button type="button" class="size-system-btn-small" data-system="cm" onclick="switchSidebarSizeSystem('cm')">CM</button>
-                        </div>
-                        
-                        <?php 
-                        // Динамическая загрузка всех доступных размеров для каждой системы
-                        if (!empty($filters['sizes'])):
-                            $sizeSystems = ['eu', 'us', 'uk', 'cm'];
-                            foreach ($sizeSystems as $system): 
-                                if (!empty($filters['sizes'][$system])): ?>
-                                    <div class="size-filter-grid sidebar-size-grid" data-system="<?= $system ?>">
-                                        <?php foreach ($filters['sizes'][$system] as $sizeData): 
-                                            $size = $sizeData['size'];
-                                            $count = $sizeData['count'];
-                                            ?>
-                                            <label class="size-filter-btn" title="<?= $count ?> товаров">
-                                                <input type="checkbox" name="sizes[]" value="<?= Html::encode($size) ?>" data-system="<?= $system ?>">
-                                                <span><?= Html::encode($size) ?></span>
-                                            </label>
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php endif;
-                            endforeach;
-                        else: ?>
-                            <p class="filter-empty-text">Размеры не найдены</p>
-                        <?php endif; ?>
-                    </div>
-                </div>
                 
                 <!-- Цвет -->
                 <?php if (!empty($filters['colors'])): ?>
@@ -370,7 +371,7 @@ function loadMoreProducts() {
                 
                 <!-- Кнопка "Показать расширенные фильтры" -->
                 <?php 
-                $advancedCount = 3; // Размеры, Скидка, Рейтинг
+                $advancedCount = 2; // Скидка, Рейтинг
                 // Характеристики (кроме Пола и Сезона, которые в основной секции)
                 if (!empty($filters['characteristics'])) {
                     foreach ($filters['characteristics'] as $char) {
@@ -452,29 +453,25 @@ function loadMoreProducts() {
                         </button>
                         
                         <div class="sizes-scroll-container" id="sizesScrollContainer">
-                            <?php 
-                            // Все доступные размеры по всем системам измерения
-                            if (!empty($filters['sizes'])): 
-                                $sizeSystems = ['eu', 'us', 'uk', 'cm'];
-                                foreach ($sizeSystems as $system): 
-                                    if (!empty($filters['sizes'][$system])): ?>
-                                        <div class="size-group" data-system="<?= $system ?>">
-                                            <?php foreach ($filters['sizes'][$system] as $sizeData): 
-                                                $size = $sizeData['size'];
-                                                $count = $sizeData['count'];
-                                                ?>
-                                                <button type="button" class="quick-chip size-chip" 
-                                                        data-size="<?= Html::encode($size) ?>" 
-                                                        data-system="<?= $system ?>"
-                                                        onclick="toggleSizeFilter('<?= Html::encode($size) ?>', '<?= $system ?>')"
-                                                        title="<?= $count ?> товаров">
-                                                    <span><?= Html::encode($size) ?></span>
-                                                </button>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    <?php endif;
-                                endforeach;
-                            endif; ?>
+                            <?php
+                            $quickSizes = [
+                                'eu' => ['36','37','38','39','40','41','42','43','44','45','46'],
+                                'us' => ['4','5','6','7','8','9','10','11','12','13'],
+                                'uk' => ['3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11','11.5','12'],
+                                'cm' => ['22','23','24','25','26','27','28','29','30'],
+                            ];
+                            foreach ($quickSizes as $system => $sizes): ?>
+                                <div class="size-group" data-system="<?= $system ?>">
+                                    <?php foreach ($sizes as $size): ?>
+                                        <button type="button" class="quick-chip size-chip"
+                                                data-size="<?= Html::encode($size) ?>"
+                                                data-system="<?= $system ?>"
+                                                onclick="toggleSizeFilter('<?= Html::encode($size) ?>', '<?= $system ?>')">
+                                            <span><?= Html::encode($size) ?></span>
+                                        </button>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                         
                         <!-- Кнопка прокрутки вправо -->
@@ -715,7 +712,7 @@ function switchSizeSystem(system) {
 
     // Переключаем отображение сеток размеров в сайдбаре
     document.querySelectorAll('.sidebar-size-grid').forEach(grid => {
-        grid.style.display = grid.dataset.system === system ? '' : 'none';
+        grid.style.display = grid.dataset.system === system ? 'grid' : 'none';
     });
 
     // Сбрасываем горизонтальную прокрутку и обновляем стрелки
@@ -783,7 +780,7 @@ function switchSidebarSizeSystem(system) {
     
     // Показываем/скрываем grid размеров
     document.querySelectorAll('.sidebar-size-grid').forEach(grid => {
-        grid.style.display = grid.dataset.system === system ? '' : 'none';
+        grid.style.display = grid.dataset.system === system ? 'grid' : 'none';
     });
     
     // Синхронизируем с quick-filters

@@ -164,9 +164,17 @@ class AnalyticsController extends BaseAdminController
     }
 
     /**
-     * RFM-анализ клиентов
+     * RFM-анализ клиентов - HTML страница
      */
     public function actionRfm()
+    {
+        return $this->render('rfm');
+    }
+
+    /**
+     * RFM-анализ клиентов - JSON API
+     */
+    public function actionRfmApi()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $segments = $this->getRfmSegments();
@@ -402,7 +410,7 @@ class AnalyticsController extends BaseAdminController
         $rows = Yii::$app->db->createCommand("
             SELECT
                 c.id,
-                c.name,
+                CONCAT(COALESCE(c.first_name, ''), ' ', COALESCE(c.last_name, '')) as name,
                 c.email,
                 DATEDIFF(NOW(), MAX(o.created_at)) AS recency,
                 COUNT(DISTINCT o.id)               AS frequency,
@@ -461,7 +469,7 @@ class AnalyticsController extends BaseAdminController
         $rows = Yii::$app->db->createCommand("
             SELECT
                 c.id,
-                c.name,
+                CONCAT(COALESCE(c.first_name, ''), ' ', COALESCE(c.last_name, '')) as name,
                 c.email,
                 c.phone,
                 DATEDIFF(NOW(), MAX(o.created_at)) AS recency,

@@ -15,6 +15,9 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\LinkPager;
 use app\backend\modules\catalog\models\ProductTag;
+use app\frontend\assets\CatalogAsset;
+
+CatalogAsset::register($this);
 
 $this->title = $query ? 'Поиск: ' . Html::encode($query) : ($currentTag ? $currentTag->name : 'Поиск товаров');
 $this->params['breadcrumbs'][] = ['label' => 'Каталог', 'url' => ['/catalog']];
@@ -136,9 +139,9 @@ $this->registerMetaTag(['name' => 'description', 'content' => 'Поиск тов
                         </div>
                     </div>
                 <?php else: ?>
-                    <div class="products-grid">
+                    <div class="products-grid search-products-grid">
                         <?php foreach ($products as $product): ?>
-                            <?= $this->render('_product_card', ['product' => $product]) ?>
+                            <?= $this->render('//catalog/_product_card', ['product' => $product]) ?>
                         <?php endforeach; ?>
                     </div>
 

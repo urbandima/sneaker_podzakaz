@@ -68,60 +68,60 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                 </div>
                 <div class="form-grid form-grid--3">
                     <div class="form-field">
-                        <label><?= $model->getAttributeLabel('client_name') ?></label>
-                        <?= Html::activeTextInput($model, 'client_name') ?>
+                        <label for="client-name"><?= $model->getAttributeLabel('client_name') ?> <span class="text-danger">*</span></label>
+                        <?= Html::activeTextInput($model, 'client_name', ['id' => 'client-name', 'required' => true]) ?>
                         <?= Html::error($model, 'client_name', ['class' => 'field-error']) ?>
                     </div>
                     <div class="form-field">
-                        <label><?= $model->getAttributeLabel('client_phone') ?></label>
-                        <?= Html::activeTextInput($model, 'client_phone') ?>
+                        <label for="client-phone"><?= $model->getAttributeLabel('client_phone') ?> <span class="text-danger">*</span></label>
+                        <?= Html::activeTextInput($model, 'client_phone', ['id' => 'client-phone', 'required' => true, 'autocomplete' => 'tel']) ?>
                         <?= Html::error($model, 'client_phone', ['class' => 'field-error']) ?>
                     </div>
                     <div class="form-field">
-                        <label><?= $model->getAttributeLabel('client_email') ?></label>
-                        <?= Html::activeTextInput($model, 'client_email', ['type' => 'email']) ?>
+                        <label for="client-email"><?= $model->getAttributeLabel('client_email') ?></label>
+                        <?= Html::activeTextInput($model, 'client_email', ['type' => 'email', 'id' => 'client-email', 'autocomplete' => 'email']) ?>
                         <?= Html::error($model, 'client_email', ['class' => 'field-error']) ?>
                     </div>
                     <div class="form-field">
-                        <label><?= $model->getAttributeLabel('delivery_method') ?></label>
-                        <?= Html::activeTextInput($model, 'delivery_method') ?>
+                        <label for="delivery-method"><?= $model->getAttributeLabel('delivery_method') ?></label>
+                        <?= Html::activeTextInput($model, 'delivery_method', ['id' => 'delivery-method']) ?>
                         <?= Html::error($model, 'delivery_method', ['class' => 'field-error']) ?>
                     </div>
                     <div class="form-field">
-                        <label><?= $model->getAttributeLabel('delivery_date') ?></label>
-                        <?= Html::activeTextInput($model, 'delivery_date') ?>
+                        <label for="delivery-date"><?= $model->getAttributeLabel('delivery_date') ?></label>
+                        <?= Html::activeTextInput($model, 'delivery_date', ['id' => 'delivery-date']) ?>
                         <?= Html::error($model, 'delivery_date', ['class' => 'field-error']) ?>
                     </div>
                     <div class="form-field">
-                        <label><?= $model->getAttributeLabel('delivery_country') ?></label>
-                        <?= Html::activeTextInput($model, 'delivery_country') ?>
+                        <label for="delivery-country"><?= $model->getAttributeLabel('delivery_country') ?></label>
+                        <?= Html::activeTextInput($model, 'delivery_country', ['id' => 'delivery-country']) ?>
                         <?= Html::error($model, 'delivery_country', ['class' => 'field-error']) ?>
                     </div>
                     <div class="form-field">
-                        <label><?= $model->getAttributeLabel('city') ?></label>
-                        <?= Html::activeTextInput($model, 'city') ?>
+                        <label for="city"><?= $model->getAttributeLabel('city') ?></label>
+                        <?= Html::activeTextInput($model, 'city', ['id' => 'city']) ?>
                         <?= Html::error($model, 'city', ['class' => 'field-error']) ?>
                     </div>
                     <div class="form-field">
-                        <label><?= $model->getAttributeLabel('region') ?></label>
-                        <?= Html::activeTextInput($model, 'region') ?>
+                        <label for="region"><?= $model->getAttributeLabel('region') ?></label>
+                        <?= Html::activeTextInput($model, 'region', ['id' => 'region']) ?>
                         <?= Html::error($model, 'region', ['class' => 'field-error']) ?>
                     </div>
                     <div class="form-field">
-                        <label><?= $model->getAttributeLabel('postal_code') ?></label>
-                        <?= Html::activeTextInput($model, 'postal_code') ?>
+                        <label for="postal-code"><?= $model->getAttributeLabel('postal_code') ?></label>
+                        <?= Html::activeTextInput($model, 'postal_code', ['id' => 'postal-code']) ?>
                         <?= Html::error($model, 'postal_code', ['class' => 'field-error']) ?>
                     </div>
                 </div>
                 <div class="form-grid form-grid--2" style="margin-top:12px;">
                     <div class="form-field">
-                        <label><?= $model->getAttributeLabel('full_address') ?></label>
-                        <?= Html::activeTextarea($model, 'full_address') ?>
+                        <label for="full-address"><?= $model->getAttributeLabel('full_address') ?></label>
+                        <?= Html::activeTextarea($model, 'full_address', ['id' => 'full-address']) ?>
                         <?= Html::error($model, 'full_address', ['class' => 'field-error']) ?>
                     </div>
                     <div class="form-field">
-                        <label><?= $model->getAttributeLabel('comment') ?></label>
-                        <?= Html::activeTextarea($model, 'comment', ['placeholder' => 'Комментарий менеджера']) ?>
+                        <label for="comment"><?= $model->getAttributeLabel('comment') ?></label>
+                        <?= Html::activeTextarea($model, 'comment', ['placeholder' => 'Комментарий менеджера', 'id' => 'comment']) ?>
                         <?= Html::error($model, 'comment', ['class' => 'field-error']) ?>
                     </div>
                 </div>
@@ -136,16 +136,16 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                     <?php foreach ($orderItems as $index => $item): ?>
                         <div class="order-item-row" data-index="<?= $index ?>">
                             <div class="form-field">
-                                <label>Название</label>
-                                <input type="text" name="OrderItem[<?= $index ?>][product_name]" value="<?= Html::encode($item['product_name']) ?>">
+                                <label>Название товара</label>
+                                <input type="text" name="OrderItem[<?= $index ?>][product_name]" value="<?= Html::encode($item['product_name']) ?>" placeholder="Введите название товара">
                             </div>
                             <div class="form-field">
-                                <label>Кол-во</label>
-                                <input type="number" name="OrderItem[<?= $index ?>][quantity]" value="<?= (int)($item['quantity'] ?: 1) ?>" min="1">
+                                <label>Количество</label>
+                                <input type="number" name="OrderItem[<?= $index ?>][quantity]" value="<?= (int)($item['quantity'] ?: 1) ?>" min="1" placeholder="1">
                             </div>
                             <div class="form-field">
-                                <label>Цена, BYN</label>
-                                <input type="number" step="0.01" name="OrderItem[<?= $index ?>][price]" value="<?= Html::encode($item['price']) ?>">
+                                <label>Цена (BYN)</label>
+                                <input type="number" step="0.01" name="OrderItem[<?= $index ?>][price]" value="<?= Html::encode($item['price']) ?>" placeholder="0.00" min="0">
                             </div>
                             <button type="button" class="remove-item" <?= $index === 0 ? 'disabled' : '' ?>>×</button>
                         </div>
@@ -311,3 +311,57 @@ $orderItems = Yii::$app->request->post('OrderItem', [
 
     <?php ActiveForm::end(); ?>
 </div>
+
+<?php
+// JS для динамического добавления товаров в заказ
+$js = <<<JS
+document.addEventListener('DOMContentLoaded', function() {
+    const builder = document.getElementById('orderItemsBuilder');
+    const addBtn = document.getElementById('addItemBtn');
+    if (!builder || !addBtn) return;
+
+    let index = parseInt(builder.dataset.initialIndex) || 0;
+
+    addBtn.addEventListener('click', function() {
+        const row = document.createElement('div');
+        row.className = 'order-item-row';
+        row.dataset.index = index;
+        row.innerHTML = `
+            <div class="form-field">
+                <label>Название товара</label>
+                <input type="text" name="OrderItem[\${index}][product_name]" placeholder="Введите название товара" required>
+            </div>
+            <div class="form-field" style="width:100px">
+                <label>Количество</label>
+                <input type="number" name="OrderItem[\${index}][quantity]" value="1" min="1" placeholder="1" style="width:100%">
+            </div>
+            <div class="form-field" style="width:120px">
+                <label>Цена (BYN)</label>
+                <input type="number" name="OrderItem[\${index}][price]" placeholder="0.00" step="0.01" min="0" style="width:100%">
+            </div>
+            <div class="form-field" style="width:200px">
+                <label>Ссылка на товар</label>
+                <input type="text" name="OrderItem[\${index}][link]" placeholder="https://poizon.ru/...">
+            </div>
+            <button type="button" class="btn btn--danger btn--sm remove-item-btn" style="align-self:flex-end;margin-bottom:8px">🗑️</button>
+        `;
+        builder.appendChild(row);
+        index++;
+
+        // Обработчик удаления
+        row.querySelector('.remove-item-btn').addEventListener('click', function() {
+            row.remove();
+        });
+    });
+
+    // Удаление существующих строк
+    builder.querySelectorAll('.remove-item-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            btn.closest('.order-item-row').remove();
+        });
+    });
+});
+JS;
+
+$this->registerJs($js, \yii\web\View::POS_READY);
+?>

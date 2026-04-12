@@ -1,6 +1,30 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\modules\admin\models\User as AdminUser;
+
+$this->title = 'Заказ №' . ($model->order_number ?: $model->id);
+
+// Подключаем стили для admin-order
+$this->registerCssFile('@web/css/pages/admin-order.css');
+$user = Yii::$app->user->identity;
+$statuses = Yii::$app->settings->getStatuses();
+$canEdit = $canEdit ?? (method_exists($user, 'isLogist') ? !$user->isLogist() : true);
+$isEditing = $canEdit && !empty($editing);
+$inputDisabled = ''; // Разрешаем inline-редактирование
+
+$itemCount = count($model->orderItems ?? []);
+
+$amoDealUrl = null;
+if (!empty($model->amo_deal_id)) {
+    $amoDealUrl = 'https://sneakerhead.amocrm.ru/leads/detail/' . (int)$model->amo_deal_id;
+}
+
+try {
+    $logists = AdminUser::find()->where(['role' => 'logist'])->orderBy(['username' => SORT_ASC])->all();
+} catch (\Exception $e) {
+    $logists = [];
+}
 ?>
 
 <div class="order-view">
@@ -31,7 +55,6 @@ use yii\helpers\Url;
                     </select>
                 <?php else: ?>
                     <div class="status-badge status-badge--<?= $model->status ?>">
-                        <?= getStatusIcon($model->status) ?>
                         <?= Html::encode($statuses[$model->status] ?? $model->status) ?>
                     </div>
                 <?php endif; ?>
@@ -80,9 +103,8 @@ use yii\helpers\Url;
         
         <div class="metric-card">
             <div class="metric-icon">🎯</div>
-            <div class="metric-value"><?= getStatusIcon($model->status) ?></div>
+            <div class="metric-value"><?= Html::encode($statuses[$model->status] ?? $model->status) ?></div>
             <div class="metric-label">Статус</div>
-            <div class="metric-subtitle"><?= Html::encode($statuses[$model->status] ?? $model->status) ?></div>
         </div>
     </div>
 
@@ -238,24 +260,51 @@ use yii\helpers\Url;
                     <div class="accordion-body">
                         <div style="display: grid; gap: 16px;">
                             <div>
-                                <strong>ФИО получателя:</strong> <?= Html::encode($model->recipient_first_name . ' ' . $model->recipient_last_name . ' ' . $model->recipient_middle_name ?: 'не указано') ?>
-                            </div>
-                            <div>
-                                <strong>Паспорт:</strong> 
-                                <?php if ($model->passport_series || $model->passport_number): ?>
-                                    <?= Html::encode($model->passport_series . ' ' . $model->passport_number) ?>
-                                    <?php if ($model->passport_issue_date): ?>
-                                        выдан <?= Yii::$app->formatter->asDate($model->passport_issue_date, 'd MMM yyyy') ?>
-                                    <?php endif; ?>
+                                <strong>ФИО получателя:</strong>
+                                <?php if ($isEditing): ?>
+                                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px;">
+                                        <input type="text" name="recipient_last_name" value="<?= Html::encode($model->recipient_last_name) ?>" placeholder="Фамилия" <?= $inputDisabled ?>>
+                                        <input type="text" name="recipient_first_name" value="<?= Html::encode($model->recipient_first_name) ?>" placeholder="Имя" <?= $inputDisabled ?>>
+                                        <input type="text" name="recipient_middle_name" value="<?= Html::encode($model->recipient_middle_name) ?>" placeholder="Отчество" <?= $inputDisabled ?>>
+                                    </div>
                                 <?php else: ?>
-                                    не указано
+                                    <?= Html::encode($model->recipient_first_name . ' ' . $model->recipient_last_name . ' ' . $model->recipient_middle_name ?: 'не указано') ?>
                                 <?php endif; ?>
                             </div>
                             <div>
-                                <strong>Дата рождения:</strong> <?= $model->birth_date ? Yii::$app->formatter->asDate($model->birth_date, 'd MMM yyyy') : 'не указано' ?>
+                                <strong>Паспорт:</strong>
+                                <?php if ($isEditing): ?>
+                                    <div style="display: grid; grid-template-columns: 80px 100px 1fr; gap: 8px; margin-top: 8px;">
+                                        <input type="text" name="passport_series" value="<?= Html::encode($model->passport_series) ?>" placeholder="Серия" <?= $inputDisabled ?>>
+                                        <input type="text" name="passport_number" value="<?= Html::encode($model->passport_number) ?>" placeholder="Номер" <?= $inputDisabled ?>>
+                                        <input type="date" name="passport_issue_date" value="<?= $model->passport_issue_date ?>" placeholder="Дата выдачи" <?= $inputDisabled ?>>
+                                    </div>
+                                <?php else: ?>
+                                    <?php if ($model->passport_series || $model->passport_number): ?>
+                                        <?= Html::encode($model->passport_series . ' ' . $model->passport_number) ?>
+                                        <?php if ($model->passport_issue_date): ?>
+                                            выдан <?= Yii::$app->formatter->asDate($model->passport_issue_date, 'd MMM yyyy') ?>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        не указано
+                                    <?php endif; ?>
+                                <?php endif; ?>
                             </div>
                             <div>
-                                <strong>ИНН (для РФ):</strong> <?= Html::encode($model->inn ?: 'не указано') ?>
+                                <strong>Дата рождения:</strong>
+                                <?php if ($isEditing): ?>
+                                    <input type="date" name="birth_date" value="<?= $model->birth_date ?>" style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                <?php else: ?>
+                                    <?= $model->birth_date ? Yii::$app->formatter->asDate($model->birth_date, 'd MMM yyyy') : 'не указано' ?>
+                                <?php endif; ?>
+                            </div>
+                            <div>
+                                <strong>ИНН (для РФ):</strong>
+                                <?php if ($isEditing): ?>
+                                    <input type="text" name="inn" value="<?= Html::encode($model->inn) ?>" placeholder="ИНН" style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                <?php else: ?>
+                                    <?= Html::encode($model->inn ?: 'не указано') ?>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -274,41 +323,79 @@ use yii\helpers\Url;
                     <div class="accordion-body">
                         <div style="display: grid; gap: 16px;">
                             <div>
-                                <strong>Трек-номер (Китай):</strong> <?= Html::encode($model->china_track_number ?: 'не указано') ?>
-                            </div>
-                            <div>
-                                <strong>Номер МС:</strong> <?= Html::encode($model->ms_number ?: 'не указано') ?>
-                            </div>
-                            <div>
-                                <strong>Стоимость поставки (CNY):</strong> <?= $model->shipment_value_cny ? number_format($model->shipment_value_cny, 2, ',', ' ') : 'не указано' ?>
-                            </div>
-                            <div>
-                                <strong>Описание для таможни:</strong> <?= Html::encode($model->customs_description ?: 'не указано') ?>
-                            </div>
-                            <div>
-                                <strong>Количество (таможня):</strong> <?= $model->item_quantity ?: 'не указано' ?>
-                            </div>
-                            <div>
-                                <strong>Цена (таможня, CNY):</strong> <?= $model->item_price_cny ? number_format($model->item_price_cny, 2, ',', ' ') : 'не указано' ?>
-                            </div>
-                            <div>
-                                <strong>Ссылка на товар:</strong> 
-                                <?php if ($model->product_link): ?>
-                                    <?= Html::a(Html::encode($model->product_link), $model->product_link, ['target' => '_blank']) ?>
+                                <strong>Трек-номер (Китай):</strong>
+                                <?php if ($isEditing): ?>
+                                    <input type="text" name="china_track_number" value="<?= Html::encode($model->china_track_number) ?>" placeholder="Трек-номер" style="margin-top: 8px;" <?= $inputDisabled ?>>
                                 <?php else: ?>
-                                    не указана
+                                    <?= Html::encode($model->china_track_number ?: 'не указано') ?>
                                 <?php endif; ?>
                             </div>
                             <div>
-                                <strong>Заказ Sneakerhead:</strong> 
-                                <?php if ($model->sneakerhead_order_link): ?>
-                                    <?= Html::a(Html::encode($model->sneakerhead_order_link), $model->sneakerhead_order_link, ['target' => '_blank']) ?>
+                                <strong>Номер МС:</strong>
+                                <?php if ($isEditing): ?>
+                                    <input type="text" name="ms_number" value="<?= Html::encode($model->ms_number) ?>" placeholder="Номер МС" style="margin-top: 8px;" <?= $inputDisabled ?>>
                                 <?php else: ?>
-                                    не указан
+                                    <?= Html::encode($model->ms_number ?: 'не указано') ?>
                                 <?php endif; ?>
                             </div>
                             <div>
-                                <strong>Сделка AmoCRM:</strong> 
+                                <strong>Стоимость поставки (CNY):</strong>
+                                <?php if ($isEditing): ?>
+                                    <input type="number" name="shipment_value_cny" value="<?= $model->shipment_value_cny ?>" placeholder="0.00" step="0.01" style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                <?php else: ?>
+                                    <?= $model->shipment_value_cny ? number_format($model->shipment_value_cny, 2, ',', ' ') : 'не указано' ?>
+                                <?php endif; ?>
+                            </div>
+                            <div>
+                                <strong>Описание для таможни:</strong>
+                                <?php if ($isEditing): ?>
+                                    <textarea name="customs_description" placeholder="Описание товара для таможни" style="margin-top: 8px; min-height: 60px;" <?= $inputDisabled ?>><?= Html::encode($model->customs_description) ?></textarea>
+                                <?php else: ?>
+                                    <?= Html::encode($model->customs_description ?: 'не указано') ?>
+                                <?php endif; ?>
+                            </div>
+                            <div>
+                                <strong>Количество (таможня):</strong>
+                                <?php if ($isEditing): ?>
+                                    <input type="number" name="item_quantity" value="<?= $model->item_quantity ?>" placeholder="0" style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                <?php else: ?>
+                                    <?= $model->item_quantity ?: 'не указано' ?>
+                                <?php endif; ?>
+                            </div>
+                            <div>
+                                <strong>Цена (таможня, CNY):</strong>
+                                <?php if ($isEditing): ?>
+                                    <input type="number" name="item_price_cny" value="<?= $model->item_price_cny ?>" placeholder="0.00" step="0.01" style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                <?php else: ?>
+                                    <?= $model->item_price_cny ? number_format($model->item_price_cny, 2, ',', ' ') : 'не указано' ?>
+                                <?php endif; ?>
+                            </div>
+                            <div>
+                                <strong>Ссылка на товар:</strong>
+                                <?php if ($isEditing): ?>
+                                    <input type="url" name="product_link" value="<?= Html::encode($model->product_link) ?>" placeholder="https://..." style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                <?php else: ?>
+                                    <?php if ($model->product_link): ?>
+                                        <?= Html::a(Html::encode($model->product_link), $model->product_link, ['target' => '_blank']) ?>
+                                    <?php else: ?>
+                                        не указана
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
+                            <div>
+                                <strong>Заказ Sneakerhead:</strong>
+                                <?php if ($isEditing): ?>
+                                    <input type="text" name="sneakerhead_order_link" value="<?= Html::encode($model->sneakerhead_order_link) ?>" placeholder="Ссылка на заказ" style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                <?php else: ?>
+                                    <?php if ($model->sneakerhead_order_link): ?>
+                                        <?= Html::a(Html::encode($model->sneakerhead_order_link), $model->sneakerhead_order_link, ['target' => '_blank']) ?>
+                                    <?php else: ?>
+                                        не указан
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
+                            <div>
+                                <strong>Сделка AmoCRM:</strong>
                                 <?php if ($amoDealUrl): ?>
                                     <?= Html::a('Открыть в AmoCRM', $amoDealUrl, ['target' => '_blank']) ?>
                                 <?php else: ?>
@@ -336,23 +423,11 @@ use yii\helpers\Url;
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <?php if ($canEdit && $editing): ?>
-                        <div class="control-actions">
-                            <button class="btn btn--success btn--sm">🔄 Сохранить</button>
-                            <button class="btn btn--secondary btn--sm">✕ Отмена</button>
-                        </div>
-                        <?php endif; ?>
                     </div>
                     
                     <div class="control-group">
                         <label class="control-label">Комментарий:</label>
                         <textarea class="control-textarea" <?= $inputDisabled ?> placeholder="Добавьте комментарий к заказу..."><?= Html::encode($model->comment) ?></textarea>
-                        <?php if ($canEdit && $editing): ?>
-                        <div class="control-actions">
-                            <button class="btn btn--success btn--sm">🔄 Сохранить</button>
-                            <button class="btn btn--secondary btn--sm">✕ Отмена</button>
-                        </div>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -372,15 +447,69 @@ use yii\helpers\Url;
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <?php if ($canEdit && $editing): ?>
-                        <div class="control-actions">
-                            <button class="btn btn--success btn--sm">💾 Сохранить</button>
-                        </div>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>
             <?php endif; ?>
+
+            <!-- Таможня:ДП -->
+            <div class="control-section">
+                <div class="control-header" style="display:flex;justify-content:space-between;align-items:center">
+                    <span>📦 Таможня:ДП</span>
+                    <?php
+                    $dpShipmentId = $model->dp_shipment_id ?? null;
+                    $dpStatus     = $model->dp_status ?? null;
+                    $dpPassportOk = $model->isPassportComplete();
+                    if ($dpShipmentId) {
+                        $badgeStyle = 'background:#008060;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px';
+                        $badgeText  = 'Отправлен';
+                        if (in_array($dpStatus, ['problem','customs_hold','returned'])) { $badgeStyle = 'background:#dc3545;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px'; $badgeText = 'Ошибка'; }
+                        elseif ($dpStatus === 'delivered') { $badgeText = 'Доставлен'; }
+                    } else { $badgeStyle = 'background:#6b7280;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px'; $badgeText = 'Не отправлен'; }
+                    ?>
+                    <span style="<?= $badgeStyle ?>"><?= $badgeText ?></span>
+                </div>
+                <div class="control-content">
+                    <div style="font-size:0.8125rem;margin-bottom:0.75rem">
+                        <div><strong>Паспорт:</strong>
+                            <?php if ($dpPassportOk): ?>
+                                <span style="color:#008060">✓ Заполнен<?= !empty($model->passport_validated) ? ' <span style="background:#008060;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px">Подтверждён ДП</span>' : '' ?></span>
+                            <?php else: ?>
+                                <span style="color:#dc3545">✗ Не заполнен</span>
+                            <?php endif; ?>
+                        </div>
+                        <?php if ($dpShipmentId): ?>
+                        <div><strong>ID ДП:</strong> <code><?= Html::encode($dpShipmentId) ?></code></div>
+                        <?php endif; ?>
+                        <?php if (!empty($model->dp_track_number)): ?>
+                        <div><strong>Трек:</strong> <code><?= Html::encode($model->dp_track_number) ?></code></div>
+                        <?php endif; ?>
+                        <?php if ($dpStatus): ?>
+                        <?php $dpLabels = ['created'=>'Создан','accepted'=>'Принят','in_transit'=>'В пути','customs_clearance'=>'Таможня','delivered'=>'Доставлен','returned'=>'Возврат','problem'=>'Проблема']; ?>
+                        <div><strong>Статус:</strong> <?= Html::encode($dpLabels[$dpStatus] ?? $dpStatus) ?></div>
+                        <?php endif; ?>
+                        <?php if (!empty($model->estimated_delivery_date)): ?>
+                        <div><strong>Ожид. доставка:</strong> <?= Html::encode(date('d.m.Y', strtotime($model->estimated_delivery_date))) ?></div>
+                        <?php endif; ?>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:0.5rem">
+                        <?php if (!$dpShipmentId): ?>
+                        <button class="btn btn-primary btn-sm" onclick="sendToDP(<?= $model->id ?>)"
+                                <?= !$dpPassportOk ? 'disabled title="Заполните паспортные данные"' : '' ?>>
+                            <i class="bi bi-send"></i> Отправить в Таможня:ДП
+                        </button>
+                        <?php else: ?>
+                        <button class="btn btn-outline-primary btn-sm" onclick="refreshDPStatus(<?= $model->id ?>)">
+                            <i class="bi bi-arrow-clockwise"></i> Обновить статус
+                        </button>
+                        <button class="btn btn-outline-warning btn-sm" onclick="retryDP(<?= $model->id ?>)">
+                            <i class="bi bi-arrow-repeat"></i> Повторить
+                        </button>
+                        <?php endif; ?>
+                    </div>
+                    <span id="dp-action-result" style="font-size:0.8125rem;display:block"></span>
+                </div>
+            </div>
 
             <!-- Финансы -->
             <div class="control-section">
@@ -419,4 +548,32 @@ use yii\helpers\Url;
 <?php if ($editing): ?>
 <?= Html::endForm() ?>
 <?php endif; ?>
+
+<?php
+$_dpSendUrl   = \yii\helpers\Url::to(['/admin/order/send-to-dp', 'id' => $model->id]);
+$_dpStatusUrl = \yii\helpers\Url::to(['/admin/order/dp-status',  'id' => $model->id]);
+$_dpRetryUrl  = \yii\helpers\Url::to(['/admin/order/retry-dp',   'id' => $model->id]);
+$_csrf        = Yii::$app->request->csrfToken;
+$this->registerJs(
+    'function sendToDP(id){'
+    . 'var btn=event.target.closest("button");btn.disabled=true;btn.innerHTML="<i class=\'bi bi-hourglass-split\'></i> Отправка...";'
+    . 'var res=document.getElementById("dp-action-result");'
+    . 'fetch("' . $_dpSendUrl . '",{method:"POST",headers:{"X-CSRF-Token":"' . $_csrf . '","Content-Type":"application/json"}})'
+    . '.then(function(r){return r.json();})'
+    . '.then(function(d){if(d.success){res.style.color="#008060";res.textContent="\u2713 "+d.message;setTimeout(function(){location.reload();},1500);}else{res.style.color="#dc3545";res.textContent="\u2717 "+d.message;btn.disabled=false;btn.innerHTML="<i class=\'bi bi-send\'></i> Отправить в Таможня:ДП";}})'
+    . '.catch(function(){res.style.color="#dc3545";res.textContent="\u2717 Ошибка сети";btn.disabled=false;});}'
+    . 'function refreshDPStatus(id){'
+    . 'var res=document.getElementById("dp-action-result");res.style.color="#6b7280";res.textContent="Обновляем...";'
+    . 'fetch("' . $_dpStatusUrl . '",{method:"POST",headers:{"X-CSRF-Token":"' . $_csrf . '"}})'
+    . '.then(function(r){return r.json();})'
+    . '.then(function(d){if(d.success){res.style.color="#008060";res.textContent="\u2713 "+d.message;setTimeout(function(){location.reload();},1000);}else{res.style.color="#dc3545";res.textContent="\u2717 "+d.message;}})'
+    . '.catch(function(){res.style.color="#dc3545";res.textContent="\u2717 Ошибка сети";});}'
+    . 'function retryDP(id){'
+    . 'var res=document.getElementById("dp-action-result");res.style.color="#6b7280";res.textContent="Повторная отправка...";'
+    . 'fetch("' . $_dpRetryUrl . '",{method:"POST",headers:{"X-CSRF-Token":"' . $_csrf . '"}})'
+    . '.then(function(r){return r.json();})'
+    . '.then(function(d){if(d.success){res.style.color="#008060";res.textContent="\u2713 "+d.message;setTimeout(function(){location.reload();},1500);}else{res.style.color="#dc3545";res.textContent="\u2717 "+d.message;}})'
+    . '.catch(function(){res.style.color="#dc3545";res.textContent="\u2717 Ошибка сети";});}'
+);
+?>
 

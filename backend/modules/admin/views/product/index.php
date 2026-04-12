@@ -264,8 +264,8 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
                                     <?php if ($imageUrl): ?>
                                         <img src="<?= $imageUrl ?>" alt="<?= Html::encode($product->name) ?>" class="product-image" loading="lazy">
                                     <?php else: ?>
-                                        <div class="product-image" style="display:flex;align-items:center;justify-content:center;color:#9ca3af;">
-                                            <i class="bi bi-image"></i>
+                                        <div class="product-image" style="display:flex;align-items:center;justify-content:center;color:#9ca3af;" aria-label="Нет изображения товара">
+                                            <i class="bi bi-image" role="img" aria-hidden="true"></i>
                                         </div>
                                     <?php endif; ?>
                                     <div>
@@ -288,14 +288,14 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
                                 $rating = $product->rating ?? rand(35, 50) / 10; // Демо-рейтинг
                                 $reviewCount = $product->review_count ?? rand(5, 50);
                                 $fullStars = floor($rating);
-                                $halfStar = ($rating - $fullStars) >= 0.5;
+                                $emptyStars = 5 - $fullStars;
                                 ?>
                                 <a href="<?= Url::to(['/admin/review', 'product_id' => $product->id]) ?>" style="text-decoration: none; color: inherit;">
                                     <div style="display: flex; align-items: center; gap: 4px;">
-                                        <span style="color: #f59e0b; font-weight: 600;"><?= number_format($rating, 1) ?></span>
-                                        <span style="color: #f59e0b;">
+                                        <span style="color: #f59e0b; font-weight: 700; font-size: 0.95rem;"><?= number_format($rating, 1) ?></span>
+                                        <span style="color: #f59e0b; font-size: 0.9rem;">
                                             <?php for ($i = 0; $i < $fullStars; $i++): ?><i class="bi bi-star-fill"></i><?php endfor; ?>
-                                            <?php if ($halfStar): ?><i class="bi bi-star-half"></i><?php endif; ?>
+                                            <?php for ($i = 0; $i < $emptyStars; $i++): ?><i class="bi bi-star" style="opacity: 0.3;"></i><?php endfor; ?>
                                         </span>
                                         <span style="font-size: 0.75rem; color: #6b7280; margin-left: 4px;">(<?= $reviewCount ?>)</span>
                                     </div>

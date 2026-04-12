@@ -244,9 +244,9 @@ class DashboardController extends BaseAdminController
             'today' => (int)(clone $baseQuery)->andWhere(['>=', 'created_at', strtotime('today')])->count(),
             'thisMonth' => (int)(clone $baseQuery)->andWhere(['>=', 'created_at', strtotime('first day of this month')])->count(),
             'totalAmount' => (float)((clone $baseQuery)->sum('total_amount') ?: 0),
-            'pending' => (int)(clone $baseQuery)->andWhere(['status' => 'created'])->count(),
-            'processing' => (int)(clone $baseQuery)->andWhere(['status' => ['confirmed', 'paid', 'ordered']])->count(),
-            'completed' => (int)(clone $baseQuery)->andWhere(['status' => ['delivered', 'issued']])->count(),
+            'pending' => (int)(clone $baseQuery)->andWhere(['status' => 'new'])->count(),
+            'processing' => (int)(clone $baseQuery)->andWhere(['status' => ['confirmed_and_paid', 'paid', 'ordered']])->count(),
+            'completed' => (int)(clone $baseQuery)->andWhere(['status' => 'delivered'])->count(),
         ];
     }
     
@@ -433,7 +433,7 @@ class DashboardController extends BaseAdminController
         $threeDaysAgo = time() - 259200;
 
         $unprocessed2h = (int)Order::find()
-            ->where(['status' => 'created'])
+            ->where(['status' => 'new'])
             ->andWhere(['<', 'created_at', $twoHoursAgo])
             ->count();
 
@@ -443,7 +443,7 @@ class DashboardController extends BaseAdminController
             $delayed3d = (int)Yii::$app->db->createCommand("
                 SELECT COUNT(*) FROM `order`
                 WHERE updated_at < :ts
-                  AND status NOT IN ('delivered','issued','cancelled','refunded','completed')
+                  AND status NOT IN ('delivered','canceled')
             ", [':ts' => $threeDaysAgo])->queryScalar();
         } catch (\Exception $e) {
             $delayed3d = 0;

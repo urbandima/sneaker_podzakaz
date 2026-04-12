@@ -39,8 +39,9 @@ class OrderStatus extends ActiveRecord
             [['key', 'label'], 'required'],
             [['key'], 'string', 'max' => 50],
             [['label'], 'string', 'max' => 100],
+            [['color'], 'string', 'max' => 20],
             [['sort'], 'integer'],
-            [['logist_available'], 'boolean'],
+            [['logist_available', 'is_active'], 'boolean'],
             [['key'], 'unique'],
         ];
     }

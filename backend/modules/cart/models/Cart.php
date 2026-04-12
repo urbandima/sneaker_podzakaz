@@ -32,6 +32,7 @@ namespace app\backend\modules\cart\models;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
+use app\backend\modules\catalog\models\Product;
 
 /**
  * Модель корзины
@@ -108,14 +109,20 @@ class Cart extends ActiveRecord
             return false;
         }
         
-        // Валидация размера если указан
+        // Валидация размера — только если для товара есть записи в product_size
         if ($size !== null) {
-            $sizeModel = \app\backend\modules\catalog\models\ProductSize::find()
-                ->where(['product_id' => $productId, 'size_value' => $size])
-                ->one();
-            if (!$sizeModel) {
-                Yii::$app->session->setFlash('error', 'Указанный размер недоступен');
-                return false;
+            $hasSizeRecords = \app\backend\modules\catalog\models\ProductSize::find()
+                ->where(['product_id' => $productId])
+                ->exists();
+            if ($hasSizeRecords) {
+                $sizeModel = \app\backend\modules\catalog\models\ProductSize::find()
+                    ->where(['product_id' => $productId])
+                    ->andWhere(['OR', ['eu_size' => $size], ['size' => $size]])
+                    ->one();
+                if (!$sizeModel) {
+                    Yii::$app->session->setFlash('error', 'Указанный размер недоступен');
+                    return false;
+                }
             }
         }
 
@@ -151,7 +158,11 @@ class Cart extends ActiveRecord
             ]);
         }
 
-        return $cart->save();
+        if (!$cart->save()) {
+            Yii::error('Cart::add() save failed: ' . json_encode($cart->errors), 'cart');
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -250,16 +261,6 @@ class Cart extends ActiveRecord
     /**
      * Получить подытог для этой позиции
      */
-    public function getSubtotal()
-    {
-        return $this->price * $this->quantity;
-    }
-}
-    public function getSubtotal()
-    {
-        return $this->price * $this->quantity;
-    }
-}
     public function getSubtotal()
     {
         return $this->price * $this->quantity;

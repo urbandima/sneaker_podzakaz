@@ -153,19 +153,7 @@
         container.innerHTML = html;
     }
 
-    /**
-     * Escape HTML
-     */
-    function escapeHtml(text) {
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-        return text.replace(/[&<>"']/g, m => map[m]);
-    }
+    var escapeHtml = SH.escapeHtml;
 
     function initHistory() {
         // Проверяем если мы на странице товара

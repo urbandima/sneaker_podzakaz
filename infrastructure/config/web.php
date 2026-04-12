@@ -86,10 +86,13 @@ $config = [
             'class' => 'app\backend\modules\returns\ReturnModule',
         ],
         'compare' => [
-            'class' => 'app\backend\modules\compare\CompareModule',
+            'class' => 'app\backend\modules\compare\Module',
         ],
         'notification' => [
             'class' => 'app\backend\modules\notification\NotificationModule',
+        ],
+        'api' => [
+            'class' => 'app\api\ApiModule',
         ],
     ],
     'components' => [
@@ -105,6 +108,17 @@ $config = [
                 'httpOnly' => true,
                 'secure' => !(defined('YII_ENV_DEV') && YII_ENV_DEV),
                 'sameSite' => \yii\web\Cookie::SAME_SITE_STRICT,
+            ],
+            // Настройка для работы через proxy (browser preview)
+            'trustedHosts' => [
+                '127.0.0.1' => true,
+                'localhost' => true,
+            ],
+            'ipHeaders' => ['X-Forwarded-For'],
+            'secureHeaders' => [
+                'X-Forwarded-For',
+                'X-Forwarded-Host',
+                'X-Forwarded-Proto',
             ],
         ],
         'authClientCollection' => [
@@ -139,7 +153,7 @@ $config = [
                 ],
             ],
             'appendTimestamp' => true,
-            'linkAssets' => true,
+            'linkAssets' => (defined('YII_ENV_DEV') && YII_ENV_DEV) ? false : true,
         ],
         'user' => [
             'identityClass' => (defined('YII_ENV') && YII_ENV === 'dev') 
@@ -188,6 +202,13 @@ $config = [
             'apiUrl' => $params['poizonApiUrl'] ?? 'https://api.poizon-parser.com/v1',
             'apiKey' => $params['poizonApiKey'] ?? null,
         ],
+        'dobropost' => [
+            'class'         => 'app\backend\modules\checkout\services\DobroPostService',
+            'apiUrl'        => env('DP_API_URL', 'https://api.dobropost.com'),
+            'email'         => env('DP_API_EMAIL', ''),
+            'password'      => env('DP_API_PASSWORD', ''),
+            'defaultTariff' => (int) env('DP_DEFAULT_TARIFF', 26),
+        ],
         'currency' => [
             'class' => 'app\backend\shared\components\CurrencyService',
             'cnyToBynRate' => 0.45, // Курс CNY к BYN (обновляется автоматически через API)
@@ -222,16 +243,19 @@ $config = [
                 'privacy' => 'page/privacy',
                 'about' => 'page/about',
                 'contacts' => 'page/contacts',
-                
-                // Публичный просмотр заказа
-                'order/success/<token:[a-zA-Z0-9_-]+>' => 'order/success',
-                'order/<token:[a-zA-Z0-9_-]+>' => 'order/view',
-                'order/<token:[a-zA-Z0-9_-]+>/upload' => 'order/upload-payment',
-                'order/<token:[a-zA-Z0-9_-]+>/download-payment' => 'order/download-payment',
+                'offer-agreement' => 'site/offer-agreement',
+                'payment-instruction' => 'site/payment-instruction',
                 
                 // Checkout — страница оформления (GET) и создание заказа (AJAX POST)
                 'checkout' => 'order/index',
                 'order/create' => 'order/create',
+                'order/save-passport' => 'order/save-passport',
+
+                // Публичный просмотр заказа (wildcard должен быть ПОСЛЕ явных order/* правил)
+                'order/success/<token:[a-zA-Z0-9_-]+>' => 'order/success',
+                'order/<token:[a-zA-Z0-9_-]+>/upload' => 'order/upload-payment',
+                'order/<token:[a-zA-Z0-9_-]+>/download-payment' => 'order/download-payment',
+                'order/<token:[a-zA-Z0-9_-]+>' => 'order/view',
                 
                 // Каталог товаров
                 'catalog' => 'catalog/catalog/index',
@@ -247,6 +271,16 @@ $config = [
                 'admin/seo/update-product-meta' => 'admin/seo/update-product-meta',
                 'admin/seo/update-image-alt' => 'admin/seo/update-image-alt',
                 
+                // АЛИАСЫ: Совместимость со старыми URL (исправление багов #5, #6, #7)
+                'admin/delivery' => 'admin/shipping/index',
+                'admin/delivery/<action:[a-z-]+>' => 'admin/shipping/<action>',
+                'admin/marketing-campaign' => 'admin/marketing/campaigns',
+                'admin/marketing-campaign/<action:[a-z-]+>' => 'admin/marketing/<action>',
+                'admin/settings/integrations/<tab:[a-z-]+>' => 'admin/settings/integrations',
+                
+                // Webhook endpoints
+                'api/webhook/dobropost' => 'api/webhook/dobropost',
+
                 // Catalog API endpoints (вынесено из CatalogController)
                 'api/catalog/filter' => 'catalog/catalog-api/filter',
                 'api/catalog/load-more' => 'catalog/catalog-api/load-more',
@@ -270,11 +304,15 @@ $config = [
                 'catalog/add-favorite' => 'favorite/add',
                 'catalog/remove-favorite' => 'favorite/remove',
                 'catalog/favorites-count' => 'favorite/count',
+                'search' => 'catalog/search/index',
                 'catalog/search' => 'catalog/catalog/search',
                 'catalog/filter' => 'catalog/catalog/filter',
                 'catalog/load-more' => 'catalog/catalog/load-more',
                 'catalog/quick-view/<id:\d+>' => 'catalog/catalog/quick-view',
-                
+                'catalog/quick-order' => 'catalog/catalog/quick-order',
+                'catalog/submit-review' => 'catalog/catalog/submit-review',
+                'catalog/submit-question' => 'catalog/catalog/submit-question',
+
                 // Корзина API
                 'cart' => 'cart/cart/index',
                 'cart/add' => 'cart/cart/add',
@@ -283,6 +321,7 @@ $config = [
                 'cart/clear' => 'cart/cart/clear',
                 'cart/count' => 'cart/cart/count',
                 'cart/has-product' => 'cart/cart/has-product',
+                'cart/drawer-items' => 'cart/cart/drawer-items',
 
                 // Сравнение товаров
                 'compare' => 'compare/compare/index',
@@ -304,14 +343,16 @@ $config = [
                 'account/forgot-password' => 'account/account/forgot-password',
                 'account/find-orders' => 'account/account/find-orders',
                 'account/wishlist' => 'account/account/wishlist',
+                'account/favorites' => 'account/account/wishlist',
 
                 // Программа лояльности и возвраты в личном кабинете
-                'account/loyalty' => 'account/loyalty/index',
+                'account/loyalty' => 'account/account/loyalty',
                 'account/loyalty/balance' => 'account/loyalty/balance',
                 'account/returns' => 'account/return/index',
                 'account/returns/create' => 'account/return/create',
                 'account/returns/<id:\d+>' => 'account/return/view',
                 'account/tracking' => 'account/account/orders',
+                'account/save-passport' => 'account/account/save-passport',
 
                 // Публичный просмотр покупателя (для админки)
                 'customer/view' => 'admin/customer/view',
@@ -338,6 +379,10 @@ $config = [
                 'admin/order/<id:\d+>/change-status' => 'admin/order/change-status',
                 'admin/order/<id:\d+>/assign-logist' => 'admin/order/assign-logist',
                 'admin/order/export' => 'admin/order/export',
+                // DobroPost
+                'admin/order/<id:\d+>/send-to-dp' => 'admin/order/send-to-dp',
+                'admin/order/<id:\d+>/dp-status' => 'admin/order/dp-status',
+                'admin/order/<id:\d+>/retry-dp' => 'admin/order/retry-dp',
                 
                 // Products
                 'admin/catalog' => 'admin/product/index',
@@ -384,7 +429,16 @@ $config = [
                 // Statistics & Settings
                 'admin/statistics' => 'admin/statistics/index',
                 'admin/settings' => 'admin/settings/index',
+                'admin/settings/integrations' => 'admin/settings/integrations', // redirects → /admin/plugin
+                'admin/plugin' => 'admin/plugin/index',
+                'admin/plugin/moysklad' => 'admin/plugin/moysklad',
+                'admin/plugin/amocrm' => 'admin/plugin/amocrm',
+                'admin/plugin/telegram' => 'admin/plugin/telegram',
+                'admin/plugin/currency' => 'admin/plugin/currency',
+                'admin/plugin/dobropost' => 'admin/plugin/dobropost',
                 'admin/settings/save' => 'admin/settings/save',
+                'admin/settings/statuses' => 'admin/settings/statuses',
+                'admin/settings/save-statuses' => 'admin/settings/save-statuses',
                 
                 // Tariffs (комиссии и тарифы)
                 'admin/tariff' => 'admin/tariff/index',

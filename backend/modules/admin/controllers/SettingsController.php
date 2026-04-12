@@ -5,6 +5,7 @@ namespace app\backend\modules\admin\controllers;
 use Yii;
 use yii\web\Response;
 use app\backend\shared\services\TelegramService;
+use app\backend\modules\checkout\models\OrderStatus;
 
 class SettingsController extends BaseAdminController
 {
@@ -14,10 +15,18 @@ class SettingsController extends BaseAdminController
     public function actionIndex()
     {
         $settings = Yii::$app->settings;
-        
+
         return $this->render('index', [
             'settings' => $settings,
         ]);
+    }
+
+    /**
+     * Настройки интеграций — перенесено в /admin/plugin
+     */
+    public function actionIntegrations()
+    {
+        return $this->redirect(['/admin/plugin/index']);
     }
     
     /**
@@ -97,6 +106,97 @@ class SettingsController extends BaseAdminController
             }
             return ['success' => true, 'message' => 'Реквизиты компании сохранены'];
         } catch (\Exception $e) {
+            return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Управление статусами заказов
+     */
+    public function actionStatuses()
+    {
+        $statuses = OrderStatus::find()->orderBy(['sort' => SORT_ASC])->asArray()->all();
+
+        return $this->render('statuses', [
+            'statuses' => $statuses,
+        ]);
+    }
+
+    /**
+     * Сохранение статусов (AJAX POST JSON)
+     */
+    public function beforeAction($action)
+    {
+        if ($action->id === 'save-statuses') {
+            $this->enableCsrfValidation = false;
+        }
+        return parent::beforeAction($action);
+    }
+
+    public function actionSaveStatuses()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $raw = Yii::$app->request->getRawBody();
+        $data = json_decode($raw, true) ?? [];
+
+        if (empty($data) || !isset($data['statuses']) || !is_array($data['statuses'])) {
+            return ['success' => false, 'message' => 'Нет данных для сохранения'];
+        }
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $existingKeys = [];
+            foreach ($data['statuses'] as $i => $item) {
+                $key = $item['key'] ?? '';
+                $label = $item['label'] ?? '';
+                $color = $item['color'] ?? 'secondary';
+                $isActive = !empty($item['is_active']) ? 1 : 0;
+                $logistAvailable = !empty($item['logist_available']) ? 1 : 0;
+                $sort = $i;
+
+                if (empty($key) || empty($label)) {
+                    continue;
+                }
+
+                $status = OrderStatus::findOne(['key' => $key]);
+                if ($status) {
+                    $status->label = $label;
+                    $status->color = $color;
+                    $status->is_active = $isActive;
+                    $status->logist_available = $logistAvailable;
+                    $status->sort = $sort;
+                    $status->save(false);
+                } else {
+                    $status = new OrderStatus();
+                    $status->key = $key;
+                    $status->label = $label;
+                    $status->color = $color;
+                    $status->is_active = $isActive;
+                    $status->logist_available = $logistAvailable;
+                    $status->sort = $sort;
+                    $status->save(false);
+                }
+                $existingKeys[] = $key;
+            }
+
+            // Удаляем статусы, которых нет в пришедших данных (кроме системных)
+            $systemKeys = ['new', 'paid', 'canceled'];
+            $allStatuses = OrderStatus::find()->all();
+            foreach ($allStatuses as $s) {
+                if (!in_array($s->key, $existingKeys) && !in_array($s->key, $systemKeys)) {
+                    $s->delete();
+                }
+            }
+
+            $transaction->commit();
+
+            // Сбрасываем кэш статусов
+            Yii::$app->settings->resetStatusesCache();
+
+            return ['success' => true, 'message' => 'Статусы сохранены'];
+        } catch (\Exception $e) {
+            $transaction->rollBack();
             return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
         }
     }
@@ -275,5 +375,86 @@ class SettingsController extends BaseAdminController
         } catch (\Exception $e) {
             return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
         }
+    }
+
+    /**
+     * Настройки служб доставки
+     */
+    public function actionShipping()
+    {
+        $shippingMethods = $this->getShippingMethods();
+
+        return $this->render('shipping', [
+            'methods' => $shippingMethods,
+        ]);
+    }
+
+    /**
+     * Получить все методы доставки
+     */
+    private function getShippingMethods()
+    {
+        return [
+            [
+                'id' => 'international_express',
+                'name' => 'Международная экспресс',
+                'type' => 'international',
+                'type_label' => 'Международная',
+                'carrier' => 'DHL',
+                'status' => 'active',
+                'delivery_time' => '3-5 дней',
+                'base_cost' => 45.00,
+                'currency' => 'BYN',
+                'description' => 'Быстрая международная доставка',
+            ],
+            [
+                'id' => 'international_standard',
+                'name' => 'Международная стандарт',
+                'type' => 'international',
+                'type_label' => 'Международная',
+                'carrier' => 'EMS',
+                'status' => 'active',
+                'delivery_time' => '7-14 дней',
+                'base_cost' => 25.00,
+                'currency' => 'BYN',
+                'description' => 'Экономичная международная доставка',
+            ],
+            [
+                'id' => 'local_courier',
+                'name' => 'Курьер по городу',
+                'type' => 'local',
+                'type_label' => 'Внутри страны',
+                'carrier' => 'Внутренний',
+                'status' => 'active',
+                'delivery_time' => '1-2 дня',
+                'base_cost' => 8.00,
+                'currency' => 'BYN',
+                'description' => 'Доставка курьером по городу',
+            ],
+            [
+                'id' => 'local_pickup',
+                'name' => 'Самовывоз',
+                'type' => 'local',
+                'type_label' => 'Внутри страны',
+                'carrier' => 'Пункт выдачи',
+                'status' => 'active',
+                'delivery_time' => 'Сегодня',
+                'base_cost' => 0.00,
+                'currency' => 'BYN',
+                'description' => 'Бесплатный самовывоз из пункта',
+            ],
+            [
+                'id' => 'local_post',
+                'name' => 'Почта',
+                'type' => 'local',
+                'type_label' => 'Внутри страны',
+                'carrier' => 'Белпочта',
+                'status' => 'active',
+                'delivery_time' => '3-7 дней',
+                'base_cost' => 5.00,
+                'currency' => 'BYN',
+                'description' => 'Доставка почтой по стране',
+            ],
+        ];
     }
 }

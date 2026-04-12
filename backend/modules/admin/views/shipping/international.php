@@ -19,9 +19,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 Доставка товаров из-за рубежа
             </p>
         </div>
-        <a href="<?= Url::to(['/admin/shipping']) ?>" class="btn-action btn-secondary-action">
-            <i class="bi bi-arrow-left"></i>
-            Назад
+        <a href="<?= Url::to(['/admin/shipping']) ?>" class="admin-btn admin-btn-secondary admin-btn-sm">
+            <i class="bi bi-arrow-left"></i> Назад
         </a>
     </div>
 
@@ -69,13 +68,11 @@ $this->params['breadcrumbs'][] = $this->title;
             
             <div class="method-actions">
                 <button class="btn-action btn-primary-action">
-                    <i class="bi bi-pencil"></i>
-                    Редактировать
-                </button>
+                    <i class="badmin-i b -dmni-"></i> dm-btn-sm
+                    Редактировать tton>
                 <button class="btn-action btn-secondary-action">
-                    <i class="bi bi-pause"></i>
-                    <?= $method['status'] === 'active' ? 'Отключить' : 'Включить' ?>
-                </button>
+                    <i class="badmin-i b -dmue-></i> adminb-sm
+                    <?= $method['status'] === 'utton>
             </div>
         </div>
         <?php endforeach; ?>

@@ -35,29 +35,16 @@ if ($product->meta_keywords) {
 $allKeywords = array_unique(array_filter($allKeywords));
 ?>
 
-<div class="admin-header">
-    <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
-    <div class="admin-header-actions">
-        <a href="<?= Url::to(['/admin/product/index']) ?>" class="admin-btn admin-btn-secondary">
-            <i class="bi bi-arrow-left"></i>
-            Назад
-        </a>
-        <a href="<?= Url::to(['/admin/import/upload']) ?>" class="admin-btn admin-btn-success">
-            <i class="bi bi-download"></i>
-            Импорт
-        </a>
-        <?php if ($product->poizon_id): ?>
-            <a href="<?= Url::to(['/admin/product/sync', 'id' => $product->id]) ?>" class="admin-btn admin-btn-info" data-method="post">
-                <i class="bi bi-arrow-repeat"></i>
-                Синхронизировать
-            </a>
-        <?php endif; ?>
-        <a href="<?= Url::to(['/admin/product/edit', 'id' => $product->id]) ?>" class="admin-btn admin-btn-primary">
-            <i class="bi bi-pencil"></i>
-            Редактировать
-        </a>
-    </div>
-</div>
+<?php
+$actions = [
+    Html::a('<i class="bi bi-arrow-left"></i> Назад', ['/admin/product/index'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm']),
+    Html::a('<i class="bi bi-download"></i> Импорт', ['/admin/import/upload'], ['class' => 'admin-btn admin-btn-success admin-btn-sm'])
+];
+if ($product->poizon_id) {
+    $actions[] = Html::a('<i class="bi bi-arrow-clockwise"></i> Синхронизация', ['/admin/product/sync', 'id' => $product->id], ['class' => 'admin-btn admin-btn-info admin-btn-sm', 'data-method' => 'post']);
+}
+$this->params['headerActions'] = $actions;
+?>
 
 <!-- Краткая сводка -->
 <div class="admin-stats">
@@ -523,7 +510,7 @@ if (!empty($similarProducts)):
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;padding:1rem">
         <?php foreach ($similarProducts as $sp): ?>
         <div style="border:1px solid var(--admin-border);border-radius:var(--admin-radius);overflow:hidden;text-align:center">
-            <?php if ($sp->image_url): ?><img src="<?= Html::encode($sp->image_url) ?>" style="width:100%;height:100px;object-fit:cover" alt="<?= Html::encode($sp->name) ?>"><?php endif ?>
+            <?php $spImg = $sp->getMainImageUrl(); if ($spImg): ?><img src="<?= Html::encode($spImg) ?>" style="width:100%;height:100px;object-fit:cover" alt="<?= Html::encode($sp->name) ?>"><?php endif ?>
             <div style="padding:0.5rem">
                 <div style="font-size:0.8rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><?= Html::encode($sp->name) ?></div>
                 <div style="font-size:0.75rem;color:var(--admin-text-secondary)"><?= number_format($sp->price ?? 0, 0) ?> BYN</div>

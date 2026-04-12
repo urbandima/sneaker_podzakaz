@@ -24,9 +24,9 @@ body.modal-blur-active .cart-blur-surface {
 }
 
 .cart-page h1 {
-    font-size: var(--font-size-3xl);
+    font-size: var(--font-size-2xl);
     font-weight: 800;
-    margin-bottom: var(--spacing-8);
+    margin-bottom: var(--spacing-5);
     display: flex;
     align-items: center;
     gap: var(--spacing-3);

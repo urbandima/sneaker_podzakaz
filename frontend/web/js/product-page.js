@@ -253,10 +253,12 @@ function createOrder() {
     const productIdMeta = document.querySelector('meta[name="product-id"]');
     const productId = productIdMeta ? productIdMeta.getAttribute('content') : null;
     const sizeInput = document.querySelector('input[name="size"]:checked');
-    const size = sizeInput ? sizeInput.value : null;
+    // Also check button-based size selection (window.selectedProductSize)
+    const size = (sizeInput ? sizeInput.value : null) || window.selectedProductSize || null;
 
-    // Проверяем есть ли на странице размеры
-    const hasSizes = document.querySelectorAll('input[name="size"]').length > 0;
+    // Проверяем есть ли на странице размеры (radio inputs or size buttons)
+    const hasSizes = document.querySelectorAll('input[name="size"]').length > 0
+        || document.querySelectorAll('#sizeGrid .size-btn').length > 0;
     if (!size && hasSizes) {
         // Показываем красивое уведомление
         showSizeRequiredNotification();
@@ -441,21 +443,6 @@ document.addEventListener('click', function (e) {
 
 // Review filters - будет активировано при подключении реальных отзывов
 
-// Accordion для описания
-function toggleDescription() {
-    const content = document.getElementById('descContent');
-    const icon = document.getElementById('descToggleIcon');
-    const header = icon.closest('.desc-header');
-
-    if (content.style.display === 'none' || content.style.display === '') {
-        content.style.display = 'block';
-        header.classList.add('open');
-    } else {
-        content.style.display = 'none';
-        header.classList.remove('open');
-    }
-}
-
 // ВАЖНО: Функции toggleMainSpecs, toggleRelatedProducts, scrollRelatedCarousel, toggleReviews, toggleQA
 // теперь определены inline в product.php для немедленного доступа через onclick
 // Оставляем дублирующую версию здесь для совместимости, если product-page.js загрузится раньше
@@ -477,49 +464,6 @@ function toggleMainSpecs() {
     }
 }
 
-// ДОБАВЛЕНО: Accordion для рекомендации размера
-function toggleSizeRec() {
-    const content = document.getElementById('sizeRecContent');
-    const icon = document.getElementById('sizeRecToggleIcon');
-
-    if (content.style.display === 'none' || content.style.display === '') {
-        content.style.display = 'block';
-        icon.style.transform = 'rotate(180deg)';
-    } else {
-        content.style.display = 'none';
-        icon.style.transform = 'rotate(0deg)';
-    }
-}
-
-// Accordion для Complete the Look
-function toggleCompleteLook() {
-    const content = document.getElementById('completeLookContent');
-    const icon = document.getElementById('completeLookToggleIcon');
-    const header = icon.closest('.look-header');
-
-    if (content.style.display === 'none' || content.style.display === '') {
-        content.style.display = 'block';
-        header.classList.add('open');
-    } else {
-        content.style.display = 'none';
-        header.classList.remove('open');
-    }
-}
-
-// Accordion для Model Variants
-function toggleVariants() {
-    const content = document.getElementById('variantsContent');
-    const icon = document.getElementById('variantsToggleIcon');
-    const header = icon.closest('.variants-header');
-
-    if (content.style.display === 'none' || content.style.display === '') {
-        content.style.display = 'block';
-        header.classList.add('open');
-    } else {
-        content.style.display = 'none';
-        header.classList.remove('open');
-    }
-}
 
 // Accordion для отзывов
 function toggleReviews() {
@@ -536,40 +480,6 @@ function toggleReviews() {
     }
 }
 
-// Accordion для карусели похожих товаров (СТАРЫЙ - оставлен для совместимости)
-function toggleRelatedCarousel() {
-    const content = document.getElementById('relatedCarouselContent');
-    const icon = document.getElementById('relatedCarouselToggleIcon');
-    const header = icon.closest('.carousel-header');
-
-    if (content.style.display === 'none' || content.style.display === '') {
-        content.style.display = 'block';
-        header.classList.add('active');
-    } else {
-        content.style.display = 'none';
-        header.classList.remove('active');
-    }
-}
-
-// Карусель - прокрутка (СТАРЫЙ - оставлен для совместимости)
-
-
-// НОВЫЙ Accordion для блока похожих товаров
-function toggleRelatedProducts() {
-    const content = document.getElementById('relatedContent');
-    const icon = document.getElementById('relatedToggleIcon');
-    const header = icon.closest('.related-header');
-
-    if (!content || !icon || !header) return;
-
-    if (content.style.display === 'none' || content.style.display === '') {
-        content.style.display = 'block';
-        header.classList.add('active');
-    } else {
-        content.style.display = 'none';
-        header.classList.remove('active');
-    }
-}
 
 // НОВАЯ функция прокрутки карусели похожих товаров
 function scrollRelatedCarousel(direction) {
@@ -606,35 +516,9 @@ function toggleQA() {
     }
 }
 
-// Accordion для похожих товаров
-function toggleSimilar() {
-    const content = document.getElementById('similarContent');
-    const icon = document.getElementById('similarToggleIcon');
-    const header = icon.closest('.similar-header');
-
-    if (content.style.display === 'none' || content.style.display === '') {
-        content.style.display = 'grid';
-        header.classList.add('open');
-    } else {
-        content.style.display = 'none';
-        header.classList.remove('open');
-    }
-}
-
 // ВАЖНО: Функции openImageModal, closeImageModal, addCompleteLook и связанные с ними
 // теперь определены inline в product.php, так как они требуют PHP данных
 // (массив изображений товара, данные похожих товаров и т.д.)
-
-// Color Selection
-function selectColor(button) {
-    // Remove active class from all color buttons
-    document.querySelectorAll('.color-variation').forEach(btn => btn.classList.remove('active'));
-    // Add active class to selected button
-    button.classList.add('active');
-    // Update selected color name
-    const colorName = button.dataset.colorName;
-    document.getElementById('selectedColorName').textContent = colorName;
-}
 
 // Gallery Thumbnails Navigation
 function switchToSlide(index) {
@@ -884,7 +768,7 @@ function openSizeFinder() {
                 <h3>1. Ваш обычный размер обуви (RU)</h3>
                 <div class="size-finder-options">
                     ${[38, 39, 40, 41, 42, 43, 44, 45].map(s => `
-                        <button class="size-finder-btn" data-value="${s}" onclick="selectSize(${s})">${s}</button>
+                        <button class="size-finder-btn" data-value="${s}" onclick="selectSizeFinderSize(${s})">${s}</button>
                     `).join('')}
                 </div>
             </div>
@@ -961,6 +845,22 @@ function closeSizeFinder() {
 }
 
 function selectSize(size) {
+    // Update active state on main product page size buttons
+    document.querySelectorAll('#sizeGrid .size-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.size === String(size));
+    });
+
+    // Update "Выбрано:" display text
+    const display = document.getElementById('selectedSizeDisplay');
+    if (display) {
+        display.textContent = size;
+    }
+
+    // Store for createOrder()
+    window.selectedProductSize = String(size);
+}
+
+function selectSizeFinderSize(size) {
     window.sizeFinderData.size = size;
     document.querySelectorAll('[data-step="1"] .size-finder-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.value == size);
@@ -1285,4 +1185,184 @@ function addAllToCartFBT() {
 // Delegate to global SH.notify from utils.js
 function showNotification(message, type) {
     SH.notify(message, type || 'info');
+}
+
+// ============================================================
+// GALLERY — changeMainImage / initProductGallery
+// ============================================================
+
+/**
+ * Switch the main product image when a thumbnail is clicked.
+ * Works with the simple gallery layout in product.php that uses
+ * #mainImage + .thumbnail-item elements.
+ */
+function changeMainImage(index) {
+    const images = window.productGalleryImages || [];
+    const idx = parseInt(index, 10);
+    if (!images.length || isNaN(idx) || idx < 0 || idx >= images.length) return;
+
+    const mainImg = document.getElementById('mainImage');
+    if (mainImg) {
+        mainImg.style.opacity = '0';
+        mainImg.style.transition = 'opacity 0.2s ease';
+        setTimeout(function () {
+            mainImg.src = images[idx];
+            mainImg.style.opacity = '1';
+        }, 150);
+    }
+
+    document.querySelectorAll('.gallery-thumbnails .thumbnail-item').forEach(function (thumb, i) {
+        thumb.classList.toggle('active', i === idx);
+    });
+}
+
+/**
+ * Initialise the product gallery — attach lightbox to main image
+ * and make thumbnails interactive.
+ */
+function initProductGallery() {
+    const mainImg = document.getElementById('mainImage');
+    if (!mainImg) return;
+
+    const images = window.productGalleryImages || [];
+
+    // Make main image clickable for lightbox (if lightbox is loaded)
+    if (images.length && typeof lightbox !== 'undefined') {
+        mainImg.style.cursor = 'zoom-in';
+        const galleryContainer = mainImg.closest('.main-image-wrapper') || mainImg.parentElement;
+        if (galleryContainer && !galleryContainer.querySelector('a[data-lightbox]')) {
+            const wrapper = document.createElement('a');
+            wrapper.href = mainImg.src;
+            wrapper.setAttribute('data-lightbox', 'product-gallery');
+            wrapper.setAttribute('data-title', mainImg.alt || '');
+            mainImg.parentNode.insertBefore(wrapper, mainImg);
+            wrapper.appendChild(mainImg);
+
+            // Register all gallery images for lightbox navigation
+            images.forEach(function (url, i) {
+                if (i === 0) return; // first already added
+                const hidden = document.createElement('a');
+                hidden.href = url;
+                hidden.setAttribute('data-lightbox', 'product-gallery');
+                hidden.style.display = 'none';
+                galleryContainer.appendChild(hidden);
+            });
+        }
+    }
+
+    // Thumbnails click
+    document.querySelectorAll('.gallery-thumbnails .thumbnail-item').forEach(function (thumb, i) {
+        thumb.addEventListener('click', function () { changeMainImage(i); });
+    });
+}
+
+/**
+ * Initialise the size selector: clicking a size button sets window.selectedProductSize
+ * and updates the visual active state + "Выбрано:" text.
+ * (selectSize() already handles this; this is the init wrapper called from POS_READY)
+ */
+function initSizeSelector() {
+    document.querySelectorAll('#sizeGrid .size-btn:not([disabled])').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            selectSize(btn.dataset.size || btn.textContent.trim());
+        });
+    });
+}
+
+/**
+ * Sticky bar show/hide on scroll.
+ */
+function initStickyPurchaseBar() {
+    const stickyBar = document.getElementById('stickyBar');
+    if (!stickyBar) return;
+
+    const purchaseActions = document.querySelector('.purchase-actions');
+    if (!purchaseActions) return;
+
+    const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            stickyBar.classList.toggle('visible', !entry.isIntersecting);
+        });
+    }, { threshold: 0 });
+
+    observer.observe(purchaseActions);
+}
+
+// ============================================================
+// SIMILAR PRODUCTS CAROUSEL — slideSimilarProducts
+// ============================================================
+
+/**
+ * Scroll the similar-products carousel left or right.
+ */
+function slideSimilarProducts(direction) {
+    const carousel = document.getElementById('similarProductsCarousel');
+    if (!carousel) return;
+
+    const track = carousel.querySelector('.carousel-track');
+    if (!track) return;
+
+    const card = track.querySelector('.similar-product-card');
+    const cardWidth = card ? (card.offsetWidth + 16) : 280; // 16px gap
+    const scrollAmount = cardWidth * 2;
+
+    if (direction === 'prev') {
+        carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    } else {
+        carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+}
+
+// === SIZE GUIDE MODAL ===
+function openSizeGuide() {
+    var modal = document.getElementById('sizeGuideModal');
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        modal.addEventListener('click', function handleOverlayClick(e) {
+            if (e.target === modal) {
+                closeSizeGuide();
+                modal.removeEventListener('click', handleOverlayClick);
+            }
+        });
+    }
+}
+
+function closeSizeGuide() {
+    var modal = document.getElementById('sizeGuideModal');
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeSizeGuide();
+    }
+});
+
+// Size guide tab switching
+document.addEventListener('DOMContentLoaded', function() {
+    var tabBtns = document.querySelectorAll('.size-tab-btn');
+    tabBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            tabBtns.forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        });
+    });
+});
+
+// Auto-init on DOMContentLoaded (safe to call multiple times)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+        initProductGallery();
+        initSizeSelector();
+        initStickyPurchaseBar();
+    });
+} else {
+    // DOMContentLoaded already fired (POS_READY context)
+    initProductGallery();
+    initSizeSelector();
+    initStickyPurchaseBar();
 }

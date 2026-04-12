@@ -15,15 +15,11 @@ $tabs = [
 ];
 ?>
 
-<div class="admin-header">
-    <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
-    <div class="admin-header-actions">
-        <a href="<?= Url::to(['create']) ?>" class="admin-btn admin-btn-primary">
-            <i class="bi bi-plus-circle"></i>
-            Создать возврат
-        </a>
-    </div>
-</div>
+<?php
+$this->params['headerActions'] = [
+    Html::a('<i class="bi bi-plus-circle"></i> Создать возврат', ['create'], ['class' => 'admin-btn admin-btn-primary admin-btn-sm'])
+];
+?>
 
 <!-- Фильтр-табы -->
 <div class="admin-card" style="margin-bottom: 1.5rem; padding: 0;">

@@ -13,18 +13,19 @@ use app\frontend\assets\VersionedAssetBundle;
  */
 class CheckoutAsset extends VersionedAssetBundle
 {
-    public $sourcePath = '@frontend/web';  // Источник файлов
+    public $basePath = '@webroot';
     public $baseUrl = '@web';
     
     public $css = [
-        'css/pages.css',  // Cart стили (cart-page, cart-item)
         'css/pages/checkout.css',  // Checkout стили (checkout-page, shipping-methods)
     ];
     
     public $js = [
         'js/checkout.js',
     ];
-    
+
+    public $jsOptions = ['defer' => true];
+
     public $depends = [
         'app\frontend\assets\AppAsset',
     ];

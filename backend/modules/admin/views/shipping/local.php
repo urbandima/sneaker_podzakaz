@@ -19,9 +19,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 Локальная доставка: курьер, самовывоз, почта
             </p>
         </div>
-        <a href="<?= Url::to(['/admin/shipping']) ?>" class="btn-action btn-secondary-action">
-            <i class="bi bi-arrow-left"></i>
-            Назад
+        <a href="<?= Url::to(['/admin/shipping']) ?>" class="admin-btn admin-btn-secondary admin-btn-sm">
+            <i class="bi bi-arrow-left"></i> Назад
         </a>
     </div>
 
@@ -74,13 +73,11 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
             
             <div class="method-actions">
-                <button class="btn-action btn-primary-action">
-                    <i class="bi bi-pencil"></i>
-                    Редактировать
+                <button class="admin-btn admin-btn-primary admin-btn-sm">
+                    <i class="bi bi-pencil"></i> Редактировать
                 </button>
-                <button class="btn-action btn-secondary-action">
-                    <i class="bi bi-pause"></i>
-                    <?= $method['status'] === 'active' ? 'Отключить' : 'Включить' ?>
+                <button class="admin-btn admin-btn-secondary admin-btn-sm">
+                    <i class="bi bi-pause"></i> <?= $method['status'] === 'active' ? 'Отключить' : 'Включить' ?>
                 </button>
             </div>
         </div>

@@ -7,46 +7,32 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 $this->title = 'Статусы заказов';
+
+$saveUrl = Url::to(['/admin/settings/save-statuses']);
+
+$this->params['headerActions'] = [
+    '<button class="admin-btn admin-btn-primary" onclick="saveStatuses()">
+        <i class="bi bi-save"></i> Сохранить изменения
+    </button>'
+];
+
 ?>
 
-<div class="admin-header">
-    <div>
-        <h1 class="admin-header-title"><i class="bi bi-diagram-3"></i> <?= Html::encode($this->title) ?></h1>
-        <p class="dash-subtitle">Настройка цепочки статусов и их отображения</p>
-    </div>
-    <div class="admin-header-actions">
-        <button class="admin-btn admin-btn-primary" onclick="saveStatuses()">
-            <i class="bi bi-save"></i> Сохранить изменения
-        </button>
     </div>
 </div>
 
 <!-- Визуализация цепочки -->
-<?php
-// Массив соответствия цветов для статусов по умолчанию
-$statusColors = [
-    'created' => 'info',
-    'paid' => 'success',
-    'accepted' => 'primary',
-    'ordered' => 'warning',
-    'received' => 'primary',
-    'issued' => 'success',
-    'confirmed' => 'primary',
-    'shipped' => 'info',
-    'delivered' => 'success'
-];
-?>
 <div class="admin-card" style="margin-bottom:24px">
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-arrow-right-circle"></i> Цепочка статусов</h2>
     </div>
     <div class="admin-card-body">
-        <div style="display:flex;align-items:center;gap:8px;overflow-x:auto;padding:16px">
+        <div id="status-chain" style="display:flex;align-items:center;gap:8px;overflow-x:auto;padding:16px">
             <?php foreach ($statuses as $i => $status): ?>
-                <?php if ($status['is_active'] && $status['key'] !== 'cancelled'): ?>
+                <?php if ($status['is_active'] && $status['key'] !== 'canceled'): ?>
                     <div class="status-chain-item">
-                        <div class="status-badge-large admin-badge-<?= $status['color'] ?>">
-                            <?= $i + 1 ?>. <?= $status['label'] ?>
+                        <div class="status-badge-large admin-badge-<?= $status['color'] ?? 'secondary' ?>">
+                            <?= $i + 1 ?>. <?= Html::encode($status['label']) ?>
                         </div>
                     </div>
                     <?php if ($i < count($statuses) - 2): ?>
@@ -64,34 +50,55 @@ $statusColors = [
         <h2 class="admin-card-title"><i class="bi bi-gear"></i> Настройка статусов</h2>
     </div>
     <div class="admin-card-body">
-        <div id="statuses-list">
-            <?php foreach ($statuses as $i => $status): ?>
-            <div class="status-config-item" data-status="<?= $status['key'] ?>">
-                <div style="display:flex;align-items:center;gap:16px">
-                    <div class="drag-handle" style="cursor:move;color:var(--admin-text-secondary)">
-                        <i class="bi bi-grip-vertical"></i>
-                    </div>
-                    <div style="flex:1">
-                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
-                            <input type="text" class="admin-form-input status-label" value="<?= Html::encode($status['label']) ?>" style="max-width:200px" placeholder="Название">
-                            <select class="admin-form-select status-color" style="max-width:150px">
-                                <option value="info" <?= $status['color'] === 'info' ? 'selected' : '' ?>>Синий</option>
-                                <option value="success" <?= $status['color'] === 'success' ? 'selected' : '' ?>>Зеленый</option>
-                                <option value="warning" <?= $status['color'] === 'warning' ? 'selected' : '' ?>>Желтый</option>
-                                <option value="danger" <?= $status['color'] === 'danger' ? 'selected' : '' ?>>Красный</option>
-                                <option value="primary" <?= $status['color'] === 'primary' ? 'selected' : '' ?>>Фиолетовый</option>
-                                <option value="secondary" <?= $status['color'] === 'secondary' ? 'selected' : '' ?>>Серый</option>
-                            </select>
-                            <label style="display:flex;align-items:center;gap:8px;margin:0">
-                                <input type="checkbox" class="status-active" <?= $status['is_active'] ? 'checked' : '' ?>>
-                                <span style="font-size:14px">Активен</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        </div>
+        <table class="admin-table" id="statuses-table">
+            <thead>
+                <tr>
+                    <th style="width:40px"></th>
+                    <th style="width:180px">Ключ</th>
+                    <th style="width:220px">Название</th>
+                    <th style="width:140px">Цвет</th>
+                    <th style="width:100px">Активен</th>
+                    <th style="width:120px">Логист</th>
+                    <th style="width:60px"></th>
+                </tr>
+            </thead>
+            <tbody id="statuses-list">
+                <?php foreach ($statuses as $i => $status): ?>
+                <tr class="status-row" data-key="<?= Html::encode($status['key']) ?>">
+                    <td style="cursor:move;color:var(--admin-text-secondary)"><i class="bi bi-grip-vertical"></i></td>
+                    <td>
+                        <input type="text" class="admin-form-input status-key" value="<?= Html::encode($status['key']) ?>" style="width:100%" placeholder="status_key" <?= in_array($status['key'], ['new','paid','canceled']) ? 'readonly style="width:100%;background:#f1f5f9"' : '' ?>>
+                    </td>
+                    <td>
+                        <input type="text" class="admin-form-input status-label" value="<?= Html::encode($status['label']) ?>" style="width:100%" placeholder="Название">
+                    </td>
+                    <td>
+                        <select class="admin-form-select status-color" style="width:100%">
+                            <option value="info" <?= ($status['color'] ?? '') === 'info' ? 'selected' : '' ?>>Синий</option>
+                            <option value="success" <?= ($status['color'] ?? '') === 'success' ? 'selected' : '' ?>>Зеленый</option>
+                            <option value="warning" <?= ($status['color'] ?? '') === 'warning' ? 'selected' : '' ?>>Желтый</option>
+                            <option value="danger" <?= ($status['color'] ?? '') === 'danger' ? 'selected' : '' ?>>Красный</option>
+                            <option value="primary" <?= ($status['color'] ?? '') === 'primary' ? 'selected' : '' ?>>Фиолетовый</option>
+                            <option value="secondary" <?= ($status['color'] ?? 'secondary') === 'secondary' ? 'selected' : '' ?>>Серый</option>
+                        </select>
+                    </td>
+                    <td style="text-align:center">
+                        <input type="checkbox" class="status-active" <?= $status['is_active'] ? 'checked' : '' ?>>
+                    </td>
+                    <td style="text-align:center">
+                        <input type="checkbox" class="status-logist" <?= !empty($status['logist_available']) ? 'checked' : '' ?>>
+                    </td>
+                    <td>
+                        <?php if (!in_array($status['key'], ['new','paid','canceled'])): ?>
+                        <button class="admin-btn admin-btn-danger" style="padding:4px 8px;font-size:12px" onclick="removeStatus(this)" title="Удалить">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
         
         <button class="admin-btn admin-btn-secondary" style="margin-top:16px" onclick="addStatus()">
             <i class="bi bi-plus-circle"></i> Добавить статус
@@ -99,34 +106,116 @@ $statusColors = [
     </div>
 </div>
 
-<!-- Настройка уведомлений -->
-<div class="admin-card" style="margin-top:24px">
-    <div class="admin-card-header">
-        <h2 class="admin-card-title"><i class="bi bi-bell"></i> Уведомления при смене статуса</h2>
-    </div>
-    <div class="admin-card-body">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>Статус</th>
-                    <th>Email клиенту</th>
-                    <th>Telegram команде</th>
-                    <th>SMS клиенту</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($statuses as $status): ?>
-                    <?php if ($status['is_active'] && $status['key'] !== 'cancelled'): ?>
-                    <tr>
-                        <td><span class="admin-badge admin-badge-<?= $status['color'] ?>"><?= $status['label'] ?></span></td>
-                        <td><input type="checkbox" checked></td>
-                        <td><input type="checkbox" checked></td>
-                        <td><input type="checkbox"></td>
-                    </tr>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-</div>
+<div id="save-result" style="display:none;margin-top:16px;padding:12px 16px;border-radius:8px;font-size:14px"></div>
 
+<script>
+function addStatus() {
+    var tbody = document.getElementById('statuses-list');
+    var row = document.createElement('tr');
+    row.className = 'status-row';
+    row.dataset.key = '';
+    row.innerHTML = 
+        '<td style="cursor:move;color:var(--admin-text-secondary)"><i class="bi bi-grip-vertical"></i></td>' +
+        '<td><input type="text" class="admin-form-input status-key" value="" style="width:100%" placeholder="new_status_key"></td>' +
+        '<td><input type="text" class="admin-form-input status-label" value="" style="width:100%" placeholder="Название"></td>' +
+        '<td><select class="admin-form-select status-color" style="width:100%">' +
+            '<option value="info">Синий</option><option value="success">Зеленый</option>' +
+            '<option value="warning">Желтый</option><option value="danger">Красный</option>' +
+            '<option value="primary">Фиолетовый</option><option value="secondary">Серый</option>' +
+        '</select></td>' +
+        '<td style="text-align:center"><input type="checkbox" class="status-active" checked></td>' +
+        '<td style="text-align:center"><input type="checkbox" class="status-logist"></td>' +
+        '<td><button class="admin-btn admin-btn-danger" style="padding:4px 8px;font-size:12px" onclick="removeStatus(this)" title="Удалить"><i class="bi bi-trash"></i></button></td>';
+    tbody.appendChild(row);
+}
+
+function removeStatus(btn) {
+    if (confirm('Удалить этот статус?')) {
+        btn.closest('tr').remove();
+    }
+}
+
+function saveStatuses() {
+    var rows = document.querySelectorAll('#statuses-list .status-row');
+    var statuses = [];
+    
+    rows.forEach(function(row) {
+        var key = row.querySelector('.status-key').value.trim();
+        var label = row.querySelector('.status-label').value.trim();
+        var color = row.querySelector('.status-color').value;
+        var isActive = row.querySelector('.status-active').checked;
+        var logistAvailable = row.querySelector('.status-logist').checked;
+        
+        if (key && label) {
+            statuses.push({
+                key: key,
+                label: label,
+                color: color,
+                is_active: isActive,
+                logist_available: logistAvailable
+            });
+        }
+    });
+    
+    var resultDiv = document.getElementById('save-result');
+    
+    fetch('<?= $saveUrl ?>', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : ''},
+        body: JSON.stringify({_csrf: document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '', statuses: statuses})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        resultDiv.style.display = 'block';
+        if (data.success) {
+            resultDiv.style.background = '#ecfdf5';
+            resultDiv.style.color = '#065f46';
+            resultDiv.innerHTML = '<i class="bi bi-check-circle"></i> ' + data.message;
+            setTimeout(function(){ location.reload(); }, 1000);
+        } else {
+            resultDiv.style.background = '#fef2f2';
+            resultDiv.style.color = '#991b1b';
+            resultDiv.innerHTML = '<i class="bi bi-exclamation-circle"></i> ' + data.message;
+        }
+    })
+    .catch(function(err) {
+        resultDiv.style.display = 'block';
+        resultDiv.style.background = '#fef2f2';
+        resultDiv.style.color = '#991b1b';
+        resultDiv.innerHTML = '<i class="bi bi-exclamation-circle"></i> Ошибка сети';
+    });
+}
+
+// Drag-and-drop для сортировки
+(function() {
+    var tbody = document.getElementById('statuses-list');
+    var dragRow = null;
+    
+    tbody.addEventListener('dragstart', function(e) {
+        dragRow = e.target.closest('tr');
+        if (dragRow) e.dataTransfer.effectAllowed = 'move';
+    });
+    
+    tbody.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        var target = e.target.closest('tr');
+        if (target && target !== dragRow) {
+            var rect = target.getBoundingClientRect();
+            var mid = rect.top + rect.height / 2;
+            if (e.clientY < mid) {
+                tbody.insertBefore(dragRow, target);
+            } else {
+                tbody.insertBefore(dragRow, target.nextSibling);
+            }
+        }
+    });
+    
+    tbody.addEventListener('dragend', function() { dragRow = null; });
+    
+    // Сделать строки перетаскиваемыми
+    document.querySelectorAll('#statuses-list .status-row').forEach(function(row) {
+        row.draggable = true;
+    });
+})();
+</script>

@@ -30,57 +30,11 @@ use app\backend\modules\admin\models\User;
 class StatisticsController extends BaseAdminController
 {
     /**
-     * Главная страница статистики
+     * Главная страница статистики (редирект на analytics)
      */
     public function actionIndex()
     {
-        // Статистика по статусам
-        $statusStats = [];
-        foreach (Yii::$app->settings->getStatuses() as $key => $label) {
-            $count = Order::find()->where(['status' => $key])->count();
-            $statusStats[$key] = ['label' => $label, 'count' => (int)$count];
-        }
-
-        try {
-            $managerStats = User::find()
-                ->where(['role' => User::ROLE_MANAGER])
-                ->with(['createdOrders'])
-                ->all();
-
-            $logistStats = User::find()
-                ->where(['role' => User::ROLE_LOGIST])
-                ->with(['assignedOrders'])
-                ->all();
-        } catch (\Exception $e) {
-            $managerStats = [];
-            $logistStats = [];
-        }
-
-        // KPI
-        $totalOrders = (int)Order::find()->count();
-        $totalAmount = (float)(Order::find()->sum('total_amount') ?: 0);
-        $pendingPayment = (int)Order::find()->where(['status' => 'created'])->count();
-        $completedOrders = (int)Order::find()->where(['status' => 'issued'])->count();
-        $avgOrderAmount = $totalOrders > 0 ? round($totalAmount / $totalOrders, 2) : 0;
-
-        // Данные для графика продаж за 30 дней
-        $salesChart = $this->getSalesChartData(30);
-
-        // Топ-5 товаров
-        $topProducts = $this->getTopProductsData();
-
-        return $this->render('index', [
-            'statusStats' => $statusStats,
-            'managerStats' => $managerStats,
-            'logistStats' => $logistStats,
-            'totalOrders' => $totalOrders,
-            'totalAmount' => $totalAmount,
-            'pendingPayment' => $pendingPayment,
-            'completedOrders' => $completedOrders,
-            'avgOrderAmount' => $avgOrderAmount,
-            'salesChart' => $salesChart,
-            'topProducts' => $topProducts,
-        ]);
+        return $this->redirect(['/admin/analytics']);
     }
 
     /**

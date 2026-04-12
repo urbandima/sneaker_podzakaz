@@ -19,12 +19,11 @@ $currentBrand    = Yii::$app->request->get('brand', '');
 $currentCategory = Yii::$app->request->get('category', '');
 ?>
 
-<div class="admin-header">
-    <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
-    <a href="<?= Url::to(['/admin/product/index']) ?>" class="admin-btn admin-btn-secondary">
-        <i class="bi bi-arrow-left"></i> К списку товаров
-    </a>
-</div>
+<?php
+$this->params['headerActions'] = [
+    Html::a('<i class="bi bi-arrow-left"></i> К списку товаров', ['/admin/product/index'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm'])
+];
+?>
 
 <!-- Фильтры -->
 <div class="admin-card" style="margin-bottom:1.5rem;">

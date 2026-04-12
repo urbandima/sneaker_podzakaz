@@ -100,13 +100,15 @@ class TelegramBotController extends BaseAdminController
         }
 
         $statusEmoji = [
-            'created' => '📝',
-            'confirmed' => '✅',
+            'new' => '📝',
             'paid' => '💰',
+            'confirmed_and_paid' => '✅',
             'ordered' => '📦',
-            'shipped' => '🚚',
-            'delivered' => '🏠',
-            'completed' => '🎉',
+            'awaiting_warehouse' => '🏭',
+            'international_delivery' => '✈️',
+            'at_warehouse' => '🏠',
+            'local_delivery' => '🚚',
+            'delivered' => '🎉',
             'canceled' => '❌',
         ];
 
@@ -165,12 +167,14 @@ class TelegramBotController extends BaseAdminController
         if (!$order || empty($order->client_telegram)) return;
 
         $statusMessages = [
-            'confirmed' => '✅ Ваш заказ подтвержден!',
-            'paid' => '💰 Оплата получена. Заказаем товар у поставщика.',
-            'ordered' => '📦 Товар заказан у поставщика. Ожидаем доставку из Китая.',
-            'shipped' => '🚚 Заказ отправлен в Беларусь!',
-            'delivered' => '🏠 Заказ готов к выдаче.',
-            'completed' => '🎉 Заказ выполнен! Спасибо за покупку!',
+            'paid' => '💰 Оплата получена. Ожидаем паспортные данные.',
+            'confirmed_and_paid' => '✅ Заказ подтвержден! Заказаем товар у поставщика.',
+            'ordered' => '📦 Товар заказан у поставщика. Ожидаем доставку.',
+            'awaiting_warehouse' => '🏭 Товар ожидается на международном складе.',
+            'international_delivery' => '✈️ Заказ в международной доставке!',
+            'at_warehouse' => '🏠 Заказ на складе в Беларуси.',
+            'local_delivery' => '🚚 Заказ передан в доставку!',
+            'delivered' => '🎉 Заказ выдан! Спасибо за покупку!',
         ];
 
         $message = $statusMessages[$newStatus] ?? 'Статус заказа обновлен.';

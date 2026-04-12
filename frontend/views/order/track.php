@@ -5,13 +5,16 @@ $this->title = 'Статус заказа #' . Html::encode($order->order_number
 $this->registerCssFile('@web/css/pages/order-track.css');
 
 $statusChain = [
-    'created' => 'Новый',
+    'new' => 'Новый',
     'paid' => 'Оплачен',
-    'ordered' => 'Выкуплен на Poizon',
-    'shipped' => 'В доставке',
-    'delivered' => 'На складе',
-    'completed' => 'Завершён',
-    'cancelled' => 'Отменён',
+    'confirmed_and_paid' => 'Подтвержден и оплачен',
+    'ordered' => 'Заказано',
+    'awaiting_warehouse' => 'Ожидается на складе',
+    'international_delivery' => 'В международной доставке',
+    'at_warehouse' => 'На складе',
+    'local_delivery' => 'В доставке по РБ',
+    'delivered' => 'Выдан',
+    'canceled' => 'Отменен',
 ];
 $currentIdx = array_search($order->status ?? '', array_keys($statusChain));
 if ($currentIdx === false) $currentIdx = -1;

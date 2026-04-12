@@ -51,11 +51,11 @@ class AccountController extends Controller
             ],
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['profile', 'orders', 'order-view', 'settings', 'logout', 'wishlist'],
+                'only' => ['profile', 'orders', 'order-view', 'settings', 'logout', 'wishlist', 'loyalty', 'save-passport'],
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['profile', 'orders', 'order-view', 'settings', 'logout', 'wishlist'],
+                        'actions' => ['profile', 'orders', 'order-view', 'settings', 'logout', 'wishlist', 'loyalty', 'save-passport'],
                         'matchCallback' => function ($rule, $action) {
                             return $this->isCustomerLoggedIn();
                         },
@@ -419,31 +419,136 @@ class AccountController extends Controller
     }
 
     /**
-     * Избранные товары
+     * AJAX: Сохранение паспортных данных из личного кабинета
+     * POST /account/save-passport?id=XXX
+     */
+    public function actionSavePassport($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'message' => 'Недопустимый метод'];
+        }
+
+        $customer = $this->getCustomer();
+        if (!$customer) {
+            return ['success' => false, 'message' => 'Необходима авторизация'];
+        }
+
+        $order = Order::find()
+            ->where(['id' => $id])
+            ->andWhere(['or',
+                ['customer_id' => $customer->id],
+                ['client_email' => $customer->email]
+            ])
+            ->one();
+
+        if (!$order) {
+            return ['success' => false, 'message' => 'Заказ не найден'];
+        }
+
+        if ($order->status !== 'paid') {
+            return ['success' => false, 'message' => 'Паспортные данные принимаются только для оплаченных заказов'];
+        }
+
+        $post = Yii::$app->request->post();
+        $errors = [];
+
+        $required = [
+            'recipient_last_name'  => 'Фамилия',
+            'recipient_first_name' => 'Имя',
+            'birth_date'           => 'Дата рождения',
+            'passport_series'      => 'Серия паспорта',
+            'passport_number'      => 'Номер паспорта',
+            'passport_issue_date'  => 'Дата выдачи паспорта',
+            'inn'                  => 'ИНН',
+            'full_address'         => 'Адрес',
+            'city'                 => 'Город',
+            'postal_code'          => 'Почтовый индекс',
+        ];
+
+        foreach ($required as $field => $label) {
+            $val = trim(strip_tags($post[$field] ?? ''));
+            if (empty($val)) {
+                $errors[$field] = $label . ' обязателен';
+            }
+        }
+
+        $inn = trim($post['inn'] ?? '');
+        if (!empty($inn) && !preg_match('/^[0-9]{12}$/', $inn)) {
+            $errors['inn'] = 'ИНН должен содержать ровно 12 цифр';
+        }
+
+        $passNum = trim($post['passport_number'] ?? '');
+        if (!empty($passNum) && !preg_match('/^[0-9]{6,7}$/', $passNum)) {
+            $errors['passport_number'] = 'Номер паспорта должен содержать 6–7 цифр';
+        }
+
+        if (!empty($errors)) {
+            return ['success' => false, 'message' => 'Проверьте введённые данные', 'errors' => $errors];
+        }
+
+        $fields = array_merge(array_keys($required), ['recipient_middle_name', 'region']);
+        foreach ($fields as $field) {
+            if ($order->hasAttribute($field)) {
+                $order->$field = trim(strip_tags($post[$field] ?? ''));
+            }
+        }
+        if ($order->hasAttribute('passport_submitted_at')) {
+            $order->passport_submitted_at = time();
+        }
+
+        if (!$order->save(false)) {
+            Yii::error('Ошибка сохранения паспортных данных заказа #' . $order->id, 'passport');
+            return ['success' => false, 'message' => 'Ошибка сохранения данных'];
+        }
+
+        Yii::info('Паспортные данные сохранены для заказа #' . $order->id . ' через ЛК', 'passport');
+        return ['success' => true, 'message' => 'Паспортные данные сохранены!'];
+    }
+
+    /**
+     * Избранные товары — редирект на единую страницу избранного
      */
     public function actionWishlist()
     {
+        return $this->redirect('/catalog/favorites');
+    }
+
+    /**
+     * Программа лояльности
+     */
+    public function actionLoyalty()
+    {
         $customer = $this->getCustomer();
-        
         if (!$customer) {
-            Yii::$app->session->setFlash('error', 'Необходимо войти в систему');
-            return $this->redirect(['account/login']);
+            return $this->redirect(['/account/login']);
         }
 
-        // Получаем избранные товары из сессии
-        $wishlistIds = Yii::$app->session->get('wishlist', []);
-        $products = [];
-        
-        if (!empty($wishlistIds)) {
-            $products = \app\backend\modules\catalog\models\Product::find()
-                ->where(['id' => $wishlistIds, 'status' => 1])
-                ->with(['brand', 'category', 'images'])
-                ->all();
-        }
-        
-        return $this->render('wishlist', [
+        $loyaltyInfo = [
+            'level' => (object)[
+                'level' => 'silver',
+                'name' => 'Серебро',
+                'points_multiplier' => 1.5,
+                'discount_percent' => 5,
+            ],
+            'balance' => 1250,
+            'nextLevel' => (object)[
+                'name' => 'Золото',
+                'min_points' => 2500,
+            ],
+            'pointsToNextLevel' => 1250,
+            'history' => [
+                ['date' => '2026-03-15', 'type' => 'earn', 'points' => 150, 'description' => 'Покупка кроссовок Nike Air Max'],
+                ['date' => '2026-03-10', 'type' => 'earn', 'points' => 200, 'description' => 'Покупка кроссовок Adidas Ultraboost'],
+                ['date' => '2026-03-01', 'type' => 'spend', 'points' => -500, 'description' => 'Скидка на заказ #1234'],
+                ['date' => '2026-02-20', 'type' => 'earn', 'points' => 100, 'description' => 'Бонус за регистрацию'],
+            ],
+        ];
+
+        return $this->render('loyalty', [
             'customer' => $customer,
-            'products' => $products,
+            'loyaltyInfo' => $loyaltyInfo,
         ]);
     }
 }

@@ -120,11 +120,19 @@ $this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
                 </div>
                 <?php endif; ?>
 
+                <!-- Паспортные данные для Таможня:ДП -->
+                <?php if ($model->status === 'paid' && $model->hasMethod('isPassportComplete') && !$model->isPassportComplete()): ?>
+                <?= $this->render('_passport_form', ['model' => $model]) ?>
+                <?php endif; ?>
+
                 <!-- Загрузка подтверждения оплаты -->
-                <?php if (!$model->payment_proof && in_array($model->status, ['created', 'confirmed'])): ?>
+                <?php if (!$model->payment_proof && in_array($model->status, ['new'])): ?>
                 <div class="order-view-section order-view-section--full">
                     <h2>Загрузить подтверждение оплаты</h2>
                     <div class="order-upload-payment">
+                        <a href="<?= Url::to(['/payment-instruction']) ?>" target="_blank" class="payment-instruction-link" style="display:inline-flex;align-items:center;gap:0.5rem;color:#d97706;font-weight:500;margin-bottom:1rem;text-decoration:none;">
+                            <i class="bi bi-question-circle"></i> Как оплатить на юридическое лицо? — Инструкция
+                        </a>
                         <form action="<?= Url::to(['order/upload-payment', 'token' => $model->token]) ?>" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="_csrf" value="<?= Yii::$app->request->csrfToken ?>">
                             <div class="form-group">

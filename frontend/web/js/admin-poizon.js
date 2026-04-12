@@ -10,9 +10,9 @@ function copyLink(inputId, event) {
     if (!link) return;
 
     if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(link.value).then(function() {
+        navigator.clipboard.writeText(link.value).then(function () {
             showCopyNotification(event);
-        }).catch(function(err) {
+        }).catch(function (err) {
             fallbackCopy(link, event);
         });
     } else {
@@ -39,7 +39,7 @@ function showCopyError(event) {
     btn.classList.add('btn-danger');
     btn.classList.remove('btn-outline-secondary');
 
-    setTimeout(function() {
+    setTimeout(function () {
         btn.innerHTML = originalHTML;
         btn.classList.remove('btn-danger');
         btn.classList.remove('btn-outline-secondary');
@@ -55,7 +55,7 @@ function showCopyNotification(event) {
     btn.classList.add('btn-success');
     btn.classList.remove('btn-outline-secondary');
 
-    setTimeout(function() {
+    setTimeout(function () {
         btn.innerHTML = originalHTML;
         btn.classList.remove('btn-success');
         btn.classList.add('btn-outline-secondary');
@@ -72,7 +72,7 @@ function closeHistoryModal() {
     if (modal) modal.classList.remove('active');
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const toggleBtn = document.getElementById('toggleEditMode');
     const cancelBtn = document.getElementById('cancelEdit');
     const viewMode = document.getElementById('viewMode');
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const editModeText = document.getElementById('editModeText');
 
     if (toggleBtn) {
-        toggleBtn.addEventListener('click', function() {
+        toggleBtn.addEventListener('click', function () {
             if (viewMode && viewMode.style.display === 'none') {
                 // Return to view
                 viewMode.style.display = 'block';
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (cancelBtn) {
-        cancelBtn.addEventListener('click', function() {
+        cancelBtn.addEventListener('click', function () {
             if (viewMode) viewMode.style.display = 'block';
             if (editMode) editMode.style.display = 'none';
             if (viewModeItems) viewModeItems.style.display = 'block';
@@ -117,15 +117,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // History modal close on backdrop click
     const historyModal = document.getElementById('historyModal');
     if (historyModal) {
-        historyModal.addEventListener('click', function(e) {
+        historyModal.addEventListener('click', function (e) {
             if (e.target === historyModal) closeHistoryModal();
         });
     }
 });
 
 /* -- poizon/order/index.php -- */
-document.addEventListener('DOMContentLoaded', function() {
-    const csrfToken = SH.getCsrfToken();
+document.addEventListener('DOMContentLoaded', function () {
+    const csrfToken = getCsrfToken();
     const filtersAccordionToggle = document.getElementById('filtersAccordionToggle');
     const filtersAccordionContent = document.getElementById('filtersAccordionContent');
     const filtersAccordionIcon = document.getElementById('filtersAccordionIcon');
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initColumnToggles();
 
     // Select all behaviour
-    document.getElementById('selectAll')?.addEventListener('change', function() {
+    document.getElementById('selectAll')?.addEventListener('change', function () {
         document.querySelectorAll('.order-checkbox').forEach(cb => {
             cb.checked = this.checked;
         });
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Inline editing
     document.querySelectorAll('.editable-cell').forEach(cell => {
-        cell.addEventListener('dblclick', function() {
+        cell.addEventListener('dblclick', function () {
             const field = this.dataset.field;
             const orderId = this.dataset.orderId;
             const valueSpan = this.querySelector('.cell-value');
@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             input.addEventListener('blur', saveValue);
-            input.addEventListener('keydown', function(e) {
+            input.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') saveValue();
                 if (e.key === 'Escape') {
                     input.remove();
@@ -245,14 +245,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.querySelectorAll('.status-select').forEach(select => {
-        select.addEventListener('change', function() {
+        select.addEventListener('change', function () {
             const indicator = this.closest('td')?.querySelector('.inline-cell-indicator');
             updateOrderField(this.dataset.orderId, 'status', this.value, null, null, indicator, this.closest('td'));
         });
     });
 
     document.querySelectorAll('.status-checkbox').forEach(cb => {
-        cb.addEventListener('change', function() {
+        cb.addEventListener('change', function () {
             const value = this.checked ? 1 : 0;
             const indicator = this.closest('td')?.querySelector('.inline-cell-indicator');
             updateOrderField(this.dataset.orderId, this.dataset.field, value, null, null, indicator, this.closest('td'));
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Search debounce
     let searchTimeout;
-    document.getElementById('searchInput')?.addEventListener('input', function() {
+    document.getElementById('searchInput')?.addEventListener('input', function () {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
             applyFilters();
@@ -362,7 +362,7 @@ function initColumnToggles() {
             cb.checked = false;
         }
         toggleColumnVisibility(cb.dataset.column, cb.checked);
-        cb.addEventListener('change', function() {
+        cb.addEventListener('change', function () {
             toggleColumnVisibility(this.dataset.column, this.checked);
             localStorage.setItem('orders-column-' + this.dataset.column, this.checked ? '1' : '0');
             updateColumnIndicator();
@@ -451,7 +451,7 @@ function toggleColumnMenu() {
     document.getElementById('columnMenu')?.classList.toggle('show');
 }
 
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     if (!e.target.closest('.export-menu')) {
         document.getElementById('exportDropdown')?.classList.remove('show');
     }
@@ -545,7 +545,7 @@ function bulkUpdateStatus() {
     `;
 
     document.body.appendChild(modal);
-    document.getElementById('bulkAddComment').addEventListener('change', function() {
+    document.getElementById('bulkAddComment').addEventListener('change', function () {
         document.getElementById('bulkComment').style.display = this.checked ? 'block' : 'none';
     });
 }
@@ -560,7 +560,7 @@ function confirmBulkStatusUpdate() {
     formData.append('ids', JSON.stringify(selected));
     formData.append('status', status);
     if (comment) formData.append('comment', comment);
-    formData.append('_csrf', SH.getCsrfToken());
+    formData.append('_csrf', getCsrfToken());
 
     fetch('/admin/order/bulk-update-status', {
         method: 'POST',
@@ -633,7 +633,7 @@ function confirmBulkLogistAssign() {
     const formData = new FormData();
     formData.append('ids', JSON.stringify(selected));
     formData.append('logist_id', logistId);
-    formData.append('_csrf', SH.getCsrfToken());
+    formData.append('_csrf', getCsrfToken());
 
     fetch('/admin/order/bulk-assign-logist', {
         method: 'POST',
@@ -740,7 +740,7 @@ function bulkUpdateField(field, value, actionText) {
     formData.append('ids', JSON.stringify(selected));
     formData.append('field', field);
     formData.append('value', value);
-    formData.append('_csrf', SH.getCsrfToken());
+    formData.append('_csrf', getCsrfToken());
 
     fetch('/admin/order/bulk-update-field', {
         method: 'POST',
@@ -761,9 +761,10 @@ function bulkUpdateField(field, value, actionText) {
 class ResizableTable {
     constructor(tableId) {
         this.table = document.getElementById(tableId);
+        this.headers = [];
         if (!this.table) return;
 
-        this.headers = this.table.querySelectorAll('th.resizable');
+        this.headers = Array.from(this.table.querySelectorAll('th.resizable'));
         this.currentColumn = null;
         this.startX = 0;
         this.startWidth = 0;
@@ -820,8 +821,8 @@ class ResizableTable {
 }
 
 /* -- poizon/product/index.php -- */
-(function() {
-    document.addEventListener('DOMContentLoaded', function() {
+(function () {
+    document.addEventListener('DOMContentLoaded', function () {
         const filtersPanel = document.getElementById('filtersPanel');
         const exportDropdown = document.getElementById('exportDropdown');
         const selectAllCheckbox = document.getElementById('selectAllProducts');
@@ -831,11 +832,11 @@ class ResizableTable {
 
         if (!filtersPanel && !selectAllCheckbox) return; // not on product page
 
-        window.toggleProductFilters = function() {
+        window.toggleProductFilters = function () {
             if (filtersPanel) filtersPanel.classList.toggle('collapsed');
         };
 
-        window.toggleExportMenuProducts = function() {
+        window.toggleExportMenuProducts = function () {
             if (exportDropdown) exportDropdown.classList.toggle('visible');
         };
 
@@ -845,7 +846,7 @@ class ResizableTable {
             }
         });
 
-        selectAllCheckbox?.addEventListener('change', function() {
+        selectAllCheckbox?.addEventListener('change', function () {
             productCheckboxes.forEach(cb => cb.checked = this.checked);
             updateBulkState();
         });
@@ -884,7 +885,7 @@ function bulkUpdateProducts(field, value) {
         return;
     }
 
-    const csrfToken = SH.getCsrfToken();
+    const csrfToken = getCsrfToken();
     const bulkUpdateUrl = document.getElementById('bulkUpdateUrl')?.value || '/admin/product/bulk-update';
 
     const formData = new FormData();
@@ -920,7 +921,7 @@ function confirmBulkDelete() {
 }
 
 function bulkDeleteProducts(ids) {
-    const csrfToken = SH.getCsrfToken();
+    const csrfToken = getCsrfToken();
     const bulkDeleteUrl = document.getElementById('bulkDeleteUrl')?.value || '/admin/product/bulk-delete';
 
     const formData = new FormData();
@@ -958,13 +959,13 @@ function toggleStatus(id) {
 
     fetch('/admin/customer/' + id + '/toggle-status', {
         method: 'POST',
-        headers: { 'X-CSRF-Token': SH.getCsrfToken() }
+        headers: { 'X-CSRF-Token': getCsrfToken() }
     })
-    .then(r => r.json())
-    .then(data => {
-        alert(data.message);
-        if (data.success) location.reload();
-    });
+        .then(r => r.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) location.reload();
+        });
 }
 
 function resetPassword(id) {
@@ -972,39 +973,41 @@ function resetPassword(id) {
 
     fetch('/admin/customer/' + id + '/reset-password', {
         method: 'POST',
-        headers: { 'X-CSRF-Token': SH.getCsrfToken() }
+        headers: { 'X-CSRF-Token': getCsrfToken() }
     })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            alert('Новый пароль: ' + data.password + '\n\nСкопируйте его и передайте покупателю.');
-        } else {
-            alert(data.message);
-        }
-    });
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                alert('Новый пароль: ' + data.password + '\n\nСкопируйте его и передайте покупателю.');
+            } else {
+                alert(data.message);
+            }
+        });
 }
 
 function linkOrders(id) {
     fetch('/admin/customer/' + id + '/link-orders', {
         method: 'POST',
-        headers: { 'X-CSRF-Token': SH.getCsrfToken() }
+        headers: { 'X-CSRF-Token': getCsrfToken() }
     })
-    .then(r => r.json())
-    .then(data => {
-        alert(data.message);
-        if (data.success) location.reload();
-    });
+        .then(r => r.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) location.reload();
+        });
 }
 
 
 /* -- poizon/run.php -- */
-document.addEventListener('DOMContentLoaded', function() {
-// Drag and Drop
+document.addEventListener('DOMContentLoaded', function () {
+    // Drag and Drop
     const uploadArea = document.getElementById('upload-area');
     const fileInput = document.getElementById('file-input');
     const fileInfo = document.getElementById('file-info');
     const fileName = document.getElementById('file-name');
     const submitBtn = document.getElementById('submit-file-btn');
+
+    if (!uploadArea) return;
 
     uploadArea.addEventListener('click', () => fileInput.click());
 
@@ -1020,7 +1023,7 @@ document.addEventListener('DOMContentLoaded', function() {
     uploadArea.addEventListener('drop', (e) => {
         e.preventDefault();
         uploadArea.classList.remove('dragover');
-        
+
         const files = e.dataTransfer.files;
         if (files.length > 0) {
             fileInput.files = files;
@@ -1060,25 +1063,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* -- poizon/view.php -- */
 function copyFullLog() {
-        const logContainer = document.getElementById('fullLogContainer');
-        const text = logContainer.innerText;
-        navigator.clipboard.writeText(text).then(function() {
-            alert('Лог скопирован в буфер обмена!');
-        });
+    const logContainer = document.getElementById('fullLogContainer');
+    const text = logContainer.innerText;
+    navigator.clipboard.writeText(text).then(function () {
+        alert('Лог скопирован в буфер обмена!');
+    });
+}
+
+function toggleLogExpand() {
+    const logContainer = document.getElementById('fullLogContainer');
+    const expandText = document.getElementById('expandText');
+
+    if (logContainer.style.maxHeight === '500px') {
+        logContainer.style.maxHeight = 'none';
+        expandText.textContent = 'Свернуть';
+    } else {
+        logContainer.style.maxHeight = '500px';
+        expandText.textContent = 'Развернуть';
     }
-    
-    function toggleLogExpand() {
-        const logContainer = document.getElementById('fullLogContainer');
-        const expandText = document.getElementById('expandText');
-        
-        if (logContainer.style.maxHeight === '500px') {
-            logContainer.style.maxHeight = 'none';
-            expandText.textContent = 'Свернуть';
-        } else {
-            logContainer.style.maxHeight = '500px';
-            expandText.textContent = 'Развернуть';
-        }
-    }
+}
 
 
 /* -- poizon/product/view.php -- */
@@ -1086,19 +1089,19 @@ function copyFullLog() {
 function copyToClipboard(text, element) {
     // Используем Clipboard API
     if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(function() {
+        navigator.clipboard.writeText(text).then(function () {
             // Показываем уведомление
             const originalHTML = element.innerHTML;
             element.innerHTML = '✓ Скопировано!';
             element.classList.remove('bg-info');
             element.classList.add('bg-success');
-            
-            setTimeout(function() {
+
+            setTimeout(function () {
                 element.innerHTML = originalHTML;
                 element.classList.remove('bg-success');
                 element.classList.add('bg-info');
             }, 1500);
-        }).catch(function(err) {
+        }).catch(function (err) {
             alert('Не удалось скопировать: ' + text);
         });
     } else {
@@ -1109,12 +1112,12 @@ function copyToClipboard(text, element) {
         tempInput.select();
         document.execCommand('copy');
         document.body.removeChild(tempInput);
-        
+
         const originalHTML = element.innerHTML;
         element.innerHTML = '✓ Скопировано!';
         element.classList.add('bg-success');
-        
-        setTimeout(function() {
+
+        setTimeout(function () {
             element.innerHTML = originalHTML;
             element.classList.remove('bg-success');
             element.classList.add('bg-info');

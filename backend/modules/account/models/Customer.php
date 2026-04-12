@@ -81,6 +81,9 @@ class Customer extends ActiveRecord implements IdentityInterface
 {
     const STATUS_INACTIVE = 0;
     const STATUS_ACTIVE = 1;
+    const STATUS_ACTIVE_DB = 10;
+    const STATUS_INACTIVE_DB = 9;
+    const STATUS_DELETED = 0;
 
     public $password;
     public $password_confirm;
@@ -281,19 +284,23 @@ class Customer extends ActiveRecord implements IdentityInterface
     public function getStatusLabel()
     {
         $statuses = [
+            self::STATUS_ACTIVE_DB => 'Активен',
+            self::STATUS_INACTIVE_DB => 'Неактивен',
             self::STATUS_ACTIVE => 'Активен',
-            self::STATUS_INACTIVE => 'Неактивен',
+            self::STATUS_DELETED => 'Удалён',
         ];
-        return $statuses[$this->status] ?? 'Неизвестен';
+        return $statuses[$this->status] ?? ($this->is_active ? 'Активен' : 'Неактивен');
     }
 
     public function getStatusBadgeClass()
     {
         $classes = [
+            self::STATUS_ACTIVE_DB => 'success',
+            self::STATUS_INACTIVE_DB => 'warning',
             self::STATUS_ACTIVE => 'success',
-            self::STATUS_INACTIVE => 'warning',
+            self::STATUS_DELETED => 'danger',
         ];
-        return $classes[$this->status] ?? 'secondary';
+        return $classes[$this->status] ?? ($this->is_active ? 'success' : 'secondary');
     }
 
     public function updateLoginInfo()

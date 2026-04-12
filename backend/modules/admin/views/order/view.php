@@ -384,6 +384,130 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                     </div>
                 </div>
 
+                <!-- ДОБРОПОСТ -->
+                <div class="order-card">
+                    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+                        <h3><i class="bi bi-box-arrow-right"></i> Таможня:ДП</h3>
+                        <?php
+                        $dpShipmentId = $model->dp_shipment_id ?? null;
+                        $dpStatus     = $model->dp_status ?? null;
+                        $dpResponse   = $model->dp_response ?? null;
+                        $dpPassportOk = $model->isPassportComplete();
+
+                        if ($dpShipmentId && $dpStatus) {
+                            $badgeClass = 'bg-success';
+                            $badgeText  = 'Отправлен';
+                            if (in_array($dpStatus, ['problem', 'customs_hold', 'returned'])) {
+                                $badgeClass = 'bg-danger';
+                                $badgeText  = 'Ошибка';
+                            } elseif (in_array($dpStatus, ['customs_clearance'])) {
+                                $badgeClass = 'bg-warning text-dark';
+                                $badgeText  = 'Таможня';
+                            } elseif ($dpStatus === 'delivered') {
+                                $badgeClass = 'bg-success';
+                                $badgeText  = 'Доставлен';
+                            }
+                        } elseif ($dpShipmentId) {
+                            $badgeClass = 'bg-primary';
+                            $badgeText  = 'Отправлен';
+                        } else {
+                            $badgeClass = 'bg-secondary';
+                            $badgeText  = 'Не отправлен';
+                        }
+                        ?>
+                        <span class="badge <?= $badgeClass ?>"><?= $badgeText ?></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-grid" style="margin-bottom:1rem">
+                            <div class="info-item">
+                                <div class="info-label">Паспорт</div>
+                                <div class="info-value">
+                                    <?php if ($dpPassportOk): ?>
+                                        <span style="color:#008060"><i class="bi bi-check-circle"></i> Заполнен</span>
+                                        <?php if (!empty($model->passport_validated)): ?>
+                                            <span class="badge bg-success ms-1" style="font-size:11px">Подтвержден ДП</span>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <span style="color:#dc3545"><i class="bi bi-exclamation-circle"></i> Не заполнен</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <?php if ($dpShipmentId): ?>
+                            <div class="info-item">
+                                <div class="info-label">ID отправления ДП</div>
+                                <div class="info-value" style="font-family:monospace"><?= Html::encode($dpShipmentId) ?></div>
+                            </div>
+                            <?php endif; ?>
+                            <?php if (!empty($model->dp_track_number)): ?>
+                            <div class="info-item">
+                                <div class="info-label">Трек Таможня:ДП</div>
+                                <div class="info-value" style="font-family:monospace"><?= Html::encode($model->dp_track_number) ?></div>
+                            </div>
+                            <?php endif; ?>
+                            <?php if ($dpStatus): ?>
+                            <div class="info-item">
+                                <div class="info-label">Статус ДП</div>
+                                <div class="info-value">
+                                    <?php
+                                    $dpLabels = [
+                                        'created' => 'Создан', 'accepted' => 'Принят',
+                                        'in_transit' => 'В пути', 'customs_clearance' => 'Таможня',
+                                        'customs_hold' => 'Задержан', 'arrived_in_country' => 'В РБ',
+                                        'out_for_delivery' => 'На доставке', 'delivered' => 'Доставлен',
+                                        'returned' => 'Возврат', 'problem' => 'Проблема',
+                                    ];
+                                    echo Html::encode($dpLabels[$dpStatus] ?? $dpStatus);
+                                    if (!empty($model->dp_status_date)) {
+                                        echo ' <span style="color:#9ca3af;font-size:0.8rem">(' . Html::encode(date('d.m.Y', strtotime($model->dp_status_date))) . ')</span>';
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                            <?php if (!empty($model->estimated_delivery_date)): ?>
+                            <div class="info-item">
+                                <div class="info-label">Ожидаемая доставка</div>
+                                <div class="info-value"><?= Html::encode(date('d.m.Y', strtotime($model->estimated_delivery_date))) ?></div>
+                            </div>
+                            <?php endif; ?>
+                            <?php if (!empty($model->dp_sent_at)): ?>
+                            <div class="info-item">
+                                <div class="info-label">Отправлено в ДП</div>
+                                <div class="info-value"><?= Yii::$app->formatter->asDatetime($model->dp_sent_at) ?></div>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem">
+                            <?php if (!$dpShipmentId): ?>
+                            <button class="btn btn-primary btn-sm" onclick="sendToDP(<?= $model->id ?>)"
+                                    <?= !$dpPassportOk ? 'disabled title="Сначала заполните паспортные данные"' : '' ?>>
+                                <i class="bi bi-send"></i> Отправить в Таможня:ДП
+                            </button>
+                            <?php else: ?>
+                            <button class="btn btn-outline-primary btn-sm" onclick="refreshDPStatus(<?= $model->id ?>)">
+                                <i class="bi bi-arrow-clockwise"></i> Обновить статус
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" onclick="retryDP(<?= $model->id ?>)">
+                                <i class="bi bi-arrow-repeat"></i> Повторить
+                            </button>
+                            <?php endif; ?>
+                        </div>
+                        <span id="dp-action-result" style="font-size:0.8125rem;"></span>
+
+                        <?php if ($dpResponse): ?>
+                        <div style="margin-top:0.75rem">
+                            <a href="#dp-last-response" data-bs-toggle="collapse" style="font-size:0.8125rem;color:#6b7280">
+                                <i class="bi bi-chevron-down"></i> Последний ответ API
+                            </a>
+                            <div id="dp-last-response" class="collapse" style="margin-top:0.5rem">
+                                <pre style="font-size:11px;background:#f8f9fa;padding:0.75rem;border-radius:8px;overflow:auto;max-height:200px"><?= Html::encode(is_array($dpResponse) ? json_encode($dpResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : (string)$dpResponse) ?></pre>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
         </div>
 
         <div class="order-sidebar">
@@ -533,6 +657,42 @@ $_csrfToken = Yii::$app->request->csrfToken;
 $_updateFieldUrl = \yii\helpers\Url::to(['/admin/order/update-field', 'id' => $model->id]);
 $_itemCount = count($model->orderItems);
 $_modelId = $model->id;
+$_dpSendUrl    = \yii\helpers\Url::to(['/admin/order/send-to-dp',  'id' => $model->id]);
+$_dpStatusUrl  = \yii\helpers\Url::to(['/admin/order/dp-status',   'id' => $model->id]);
+$_dpRetryUrl   = \yii\helpers\Url::to(['/admin/order/retry-dp',    'id' => $model->id]);
+$this->registerJs(
+    'function sendToDP(id) {'
+    . '    var btn = event.target; btn.disabled = true; btn.innerHTML = "<i class=\'bi bi-hourglass-split\'></i> Отправка...";'
+    . '    var result = document.getElementById("dp-action-result");'
+    . '    fetch("' . $_dpSendUrl . '", {method:"POST",headers:{"X-CSRF-Token":"' . Yii::$app->request->csrfToken . '","Content-Type":"application/json"}})'
+    . '    .then(function(r){return r.json();})'
+    . '    .then(function(d){'
+    . '        if(d.success){result.style.color="#008060";result.textContent="\u2713 "+d.message;setTimeout(function(){location.reload();},1500);}'
+    . '        else{result.style.color="#dc3545";result.textContent="\u2717 "+d.message;btn.disabled=false;btn.innerHTML="<i class=\'bi bi-send\'></i> Отправить в Таможня:ДП";}'
+    . '    })'
+    . '    .catch(function(){result.style.color="#dc3545";result.textContent="\u2717 Ошибка сети";btn.disabled=false;});'
+    . '}'
+    . 'function refreshDPStatus(id) {'
+    . '    var result = document.getElementById("dp-action-result");'
+    . '    result.style.color="#6b7280"; result.textContent="Обновляем...";'
+    . '    fetch("' . $_dpStatusUrl . '", {method:"POST",headers:{"X-CSRF-Token":"' . Yii::$app->request->csrfToken . '"}})'
+    . '    .then(function(r){return r.json();})'
+    . '    .then(function(d){'
+    . '        if(d.success){result.style.color="#008060";result.textContent="\u2713 "+d.message;setTimeout(function(){location.reload();},1000);}'
+    . '        else{result.style.color="#dc3545";result.textContent="\u2717 "+d.message;}'
+    . '    }).catch(function(){result.style.color="#dc3545";result.textContent="\u2717 Ошибка сети";});'
+    . '}'
+    . 'function retryDP(id) {'
+    . '    var result = document.getElementById("dp-action-result");'
+    . '    result.style.color="#6b7280"; result.textContent="Повторная отправка...";'
+    . '    fetch("' . $_dpRetryUrl . '", {method:"POST",headers:{"X-CSRF-Token":"' . Yii::$app->request->csrfToken . '"}})'
+    . '    .then(function(r){return r.json();})'
+    . '    .then(function(d){'
+    . '        if(d.success){result.style.color="#008060";result.textContent="\u2713 "+d.message;setTimeout(function(){location.reload();},1500);}'
+    . '        else{result.style.color="#dc3545";result.textContent="\u2717 "+d.message;}'
+    . '    }).catch(function(){result.style.color="#dc3545";result.textContent="\u2717 Ошибка сети";});'
+    . '}'
+);
 $this->registerJs(
     'window.saveField = function(field, value) {'
     . '    fetch("/admin/order/save-field", {'

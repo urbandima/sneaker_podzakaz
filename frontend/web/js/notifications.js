@@ -6,16 +6,7 @@
 (function () {
     'use strict';
 
-    /**
-     * Escape HTML для предотвращения XSS
-     * @param {string} str
-     * @returns {string}
-     */
-    function escapeHtml(str) {
-        var div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
+    var escapeHtml = SH.escapeHtml;
 
     window.NotificationManager = {
         /**

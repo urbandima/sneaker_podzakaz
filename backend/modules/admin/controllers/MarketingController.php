@@ -169,4 +169,12 @@ class MarketingController extends BaseAdminController
             'products' => $result,
         ];
     }
+    
+    /**
+     * Маркетинговые кампании
+     */
+    public function actionCampaigns()
+    {
+        return $this->render('campaigns');
+    }
 }

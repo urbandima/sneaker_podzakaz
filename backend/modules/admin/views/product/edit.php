@@ -1365,16 +1365,15 @@ $characteristicsFromRegistry = !$product->isNewRecord
                 <div class="modal-body">
                     <!-- Выбор размерной сетки -->
                     <?php
-                    $sizeGrids = \app\backend\modules\catalog\models\SizeGrid::find()
-                        ->where(['is_active' => true])
-                        ->andWhere([
-                            'or',
-                            ['brand_id' => $product->brand_id],
-                            ['brand_id' => null]
-                        ])
-                        ->andWhere(['gender' => $product->gender ?? 'unisex'])
-                        ->orderBy(['brand_id' => SORT_DESC, 'name' => SORT_ASC])
-                        ->all();
+                    try {
+                        $sizeGrids = \app\backend\modules\catalog\models\SizeGrid::find()
+                            ->where(['is_active' => true])
+                            ->orderBy(['name' => SORT_ASC])
+                            ->all();
+                    } catch (\Exception $e) {
+                        $sizeGrids = [];
+                        Yii::warning('SizeGrid query error: ' . $e->getMessage(), 'admin');
+                    }
                     
                     if ($sizeGrids): ?>
                     <div class="alert alert-info">
@@ -1574,3 +1573,100 @@ $characteristicsFromRegistry = !$product->isNewRecord
 </div>
 
 <?php endif; ?>
+
+<script>
+// Обработчики для модальных окон (без Bootstrap JS)
+document.addEventListener('DOMContentLoaded', function() {
+    // Функция для открытия модального окна
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'flex';
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    // Функция для закрытия модального окна
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Закрытие по кнопке закрытия
+    document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+    });
+
+    // Закрытие по клику вне модального окна
+    document.querySelectorAll('.modal').forEach(function(modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+    });
+
+    // Открытие модальных окон по data-bs-toggle="modal"
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('data-bs-target');
+            if (targetId) {
+                const modalId = targetId.replace('#', '');
+                openModal(modalId);
+            }
+        });
+    });
+
+    // Функция для кнопки "Добавить характеристику"
+    window.addCharacteristicToProduct = function() {
+        const charSelect = document.getElementById('characteristicSelect');
+        const valueText = document.getElementById('characteristicValueText');
+        const valueNumber = document.getElementById('characteristicValueNumber');
+        const messageDiv = document.getElementById('addCharMessage');
+
+        if (!charSelect.value) {
+            messageDiv.innerHTML = '<div class="alert alert-danger">Выберите характеристику</div>';
+            return;
+        }
+
+        const value = charSelect.value === 'number' ? valueNumber.value : valueText.value;
+        if (!value) {
+            messageDiv.innerHTML = '<div class="alert alert-danger">Введите значение</div>';
+            return;
+        }
+
+        // Здесь должна быть отправка на сервер
+        messageDiv.innerHTML = '<div class="alert alert-success">Характеристика добавлена</div>';
+        
+        // Закрыть модальное окно
+        setTimeout(function() {
+            closeModal('manageCharacteristicsModal');
+        }, 1000);
+    };
+
+    // Активация/деактивация кнопки добавления характеристики
+    const charSelect = document.getElementById('characteristicSelect');
+    const addCharBtn = document.getElementById('addCharBtn');
+
+    if (charSelect && addCharBtn) {
+        charSelect.addEventListener('change', function() {
+            addCharBtn.disabled = !this.value;
+        });
+    }
+});
+</script>

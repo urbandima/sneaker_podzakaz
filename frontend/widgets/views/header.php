@@ -39,7 +39,7 @@ $menuItems = SidebarMenuItem::getActiveItems();
                     <i class="bi bi-search"></i>
                 </button>
                 
-                <a href="/account/wishlist" class="btn-wishlist" aria-label="Избранное">
+                <a href="/catalog/favorites" class="btn-wishlist" aria-label="Избранное">
                     <i class="bi bi-heart"></i>
                     <span class="wishlist-counter sr-only">0 товаров в избранном</span>
                 </a>

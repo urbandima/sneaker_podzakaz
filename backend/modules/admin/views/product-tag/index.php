@@ -20,12 +20,23 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="page-header">
         <h1><?= Html::encode($this->title) ?></h1>
         <div class="page-header-actions">
-            <?= Html::a('<i class="icon-plus"></i> Создать тег', ['create'], ['class' => 'btn btn-primary']) ?>
-            <?= Html::a('<i class="icon-tags"></i> Массовое назначение', ['assign'], ['class' => 'btn btn-secondary']) ?>
+            <?= Html::a('<i class="bi bi-plus-lg"></i> Создать тег', ['create'], ['class' => 'btn btn-primary']) ?>
+            <?= Html::a('<i class="bi bi-tags"></i> Массовое назначение', ['assign'], ['class' => 'btn btn-secondary']) ?>
         </div>
     </div>
 
     <?php Pjax::begin(); ?>
+    
+    <?php if ($dataProvider->getCount() == 0): ?>
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <i class="bi bi-tags"></i>
+        </div>
+        <h3 class="empty-state-title">Теги пока не созданы</h3>
+        <p class="empty-state-description">Создайте теги для организации товаров в каталоге</p>
+        <?= Html::a('<i class="bi bi-plus-lg"></i> Создать первый тег', ['create'], ['class' => 'btn btn-primary']) ?>
+    </div>
+    <?php else: ?>
     
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -119,6 +130,8 @@ $this->params['breadcrumbs'][] = $this->title;
             'options' => ['class' => 'pagination'],
         ],
     ]); ?>
+    
+    <?php endif; ?>
 
     <?php Pjax::end(); ?>
 </div>

@@ -51,10 +51,14 @@
                         $statuses = [
                             'new' => 'Новый',
                             'paid' => 'Оплачен',
-                            'processing' => 'В обработке',
-                            'shipped' => 'Отправлен',
-                            'delivered' => 'Доставлен',
-                            'cancelled' => 'Отменен',
+                            'confirmed_and_paid' => 'Подтвержден и оплачен',
+                            'ordered' => 'Заказано',
+                            'awaiting_warehouse' => 'Ожидается на складе',
+                            'international_delivery' => 'В международной доставке',
+                            'at_warehouse' => 'На складе',
+                            'local_delivery' => 'В доставке',
+                            'delivered' => 'Выдан',
+                            'canceled' => 'Отменен',
                         ];
                         $selectedStatuses = $filters['status'] ?? [];
                         foreach ($statuses as $key => $label): 

@@ -55,20 +55,20 @@ class PluginController extends BaseAdminController
     }
     
     /**
-     * Настройки плагина
+     * Настройки плагина (для динамических плагинов из PluginManager)
      */
     public function actionSettings($id)
     {
         $manager = PluginManager::getInstance();
         $plugin = $manager->getPlugin($id);
-        
+
         if (!$plugin) {
             throw new \yii\web\NotFoundHttpException('Плагин не найден');
         }
-        
+
         if (Yii::$app->request->isPost) {
             $settings = Yii::$app->request->post('settings', []);
-            
+
             if ($manager->savePluginSettings($id, $settings)) {
                 Yii::$app->session->setFlash('success', 'Настройки сохранены');
                 return $this->redirect(['index']);
@@ -76,10 +76,39 @@ class PluginController extends BaseAdminController
                 Yii::$app->session->setFlash('error', 'Ошибка сохранения настроек');
             }
         }
-        
+
         return $this->render('settings', [
             'plugin' => $plugin,
             'settings' => $plugin->getSettings(),
         ]);
+    }
+
+    // ----------------------------------------------------------------
+    // Встроенные интеграции — индивидуальные страницы настроек
+    // ----------------------------------------------------------------
+
+    public function actionMoysklad()
+    {
+        return $this->render('moysklad');
+    }
+
+    public function actionAmocrm()
+    {
+        return $this->render('amocrm');
+    }
+
+    public function actionTelegram()
+    {
+        return $this->render('telegram');
+    }
+
+    public function actionCurrency()
+    {
+        return $this->render('currency');
+    }
+
+    public function actionDobropost()
+    {
+        return $this->render('dobropost');
     }
 }

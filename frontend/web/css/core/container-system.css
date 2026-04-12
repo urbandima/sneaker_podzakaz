@@ -12,7 +12,7 @@
 }
 
 .container-narrow { max-width: 760px; }
-.container-wide { max-width: 1440px; }
+.container-wide { max-width: 1600px; }
 .container-full { max-width: 100%; }
 
 /* === LAYOUT === */

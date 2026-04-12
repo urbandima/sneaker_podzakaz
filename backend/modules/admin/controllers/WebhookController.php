@@ -9,6 +9,8 @@ use Yii;
 use yii\web\Controller;
 use yii\web\Response;
 use app\backend\modules\checkout\models\Order;
+use app\backend\modules\checkout\models\DeliveryProvider;
+use app\backend\modules\checkout\models\DeliveryStatusMapping;
 
 class WebhookController extends Controller
 {
@@ -30,6 +32,113 @@ class WebhookController extends Controller
         $expected = 'sha256=' . hash_hmac('sha256', $payload, $secret);
         return hash_equals($expected, $provided);
     }
+
+    // =========================================================================
+    // Таможня:ДП webhook
+    // =========================================================================
+
+    /**
+     * POST /api/webhook/dobropost
+     *
+     * Принимает два типа событий от Таможня:ДП:
+     *  1. Обновление статуса: { shipmentId, DPTrackNumber, statusDate, status }
+     *  2. Результат проверки паспорта: { shipmentId, statusDate, passportValidationStatus }
+     */
+    public function actionDobropost()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        Yii::$app->response->statusCode = 200;
+
+        $rawBody = file_get_contents('php://input');
+
+        Yii::info('Таможня:ДП webhook: ' . $rawBody, 'dp-webhook');
+
+        $data = json_decode($rawBody, true);
+        if (!is_array($data)) {
+            Yii::warning('Таможня:ДП webhook: некорректный JSON', 'dp-webhook');
+            Yii::$app->response->statusCode = 400;
+            return ['success' => false, 'error' => 'Invalid JSON'];
+        }
+
+        $shipmentId = $data['shipmentId'] ?? null;
+        if (!$shipmentId) {
+            Yii::warning('Таможня:ДП webhook: отсутствует shipmentId', 'dp-webhook');
+            Yii::$app->response->statusCode = 400;
+            return ['success' => false, 'error' => 'Missing shipmentId'];
+        }
+
+        /** @var Order|null $order */
+        $order = Order::find()->where(['dp_shipment_id' => (int) $shipmentId])->one();
+        if (!$order) {
+            Yii::warning('Таможня:ДП webhook: заказ с dp_shipment_id=' . $shipmentId . ' не найден', 'dp-webhook');
+            // Отвечаем 200 чтобы ДП не повторял хук
+            return ['success' => true, 'message' => 'Order not found, ignored'];
+        }
+
+        // --- Тип 1: Проверка паспорта ---
+        if (array_key_exists('passportValidationStatus', $data)) {
+            $validated = (bool) $data['passportValidationStatus'];
+            $order->passport_validated     = $validated ? 1 : 0;
+            $order->passport_submitted_at  = $order->passport_submitted_at ?: time();
+
+            if (!$order->save(false)) {
+                Yii::error('Таможня:ДП webhook: ошибка сохранения passport_validated для заказа #' . $order->id, 'dp-webhook');
+                Yii::$app->response->statusCode = 500;
+                return ['success' => false, 'error' => 'Save failed'];
+            }
+
+            Yii::info(
+                sprintf('Таможня:ДП webhook: паспорт заказа #%d %s', $order->id, $validated ? 'подтверждён' : 'отклонён'),
+                'dp-webhook'
+            );
+            return ['success' => true];
+        }
+
+        // --- Тип 2: Обновление статуса ---
+        $providerStatus = (string) ($data['status'] ?? '');
+        $statusDate     = $data['statusDate']     ?? null;
+        $trackNumber    = $data['DPTrackNumber']  ?? null;
+
+        if ($trackNumber && empty($order->dp_track_number)) {
+            $order->dp_track_number = $trackNumber;
+        }
+
+        if ($providerStatus !== '') {
+            $order->dp_status = $providerStatus;
+        }
+
+        if ($statusDate) {
+            try {
+                $order->dp_status_date = date('Y-m-d H:i:s', strtotime($statusDate));
+            } catch (\Throwable $e) {
+                // Некорректная дата — игнорируем
+            }
+        }
+
+        // Пытаемся вычислить estimated_delivery_date через маппинг
+        // Ищем провайдера Таможня:ДП для получения provider_id
+        $dpProvider = DeliveryProvider::findByCode('dobropost');
+        if ($dpProvider) {
+            $mapping = $dpProvider->mapStatus($providerStatus);
+            if ($mapping && $mapping->estimated_days !== null) {
+                $order->estimated_delivery_date = date('Y-m-d', strtotime('+' . $mapping->estimated_days . ' days'));
+            }
+        }
+
+        if (!$order->save(false)) {
+            Yii::error('Таможня:ДП webhook: ошибка сохранения статуса заказа #' . $order->id, 'dp-webhook');
+            Yii::$app->response->statusCode = 500;
+            return ['success' => false, 'error' => 'Save failed'];
+        }
+
+        Yii::info(
+            sprintf('Таможня:ДП webhook: статус заказа #%d обновлён → %s', $order->id, $providerStatus),
+            'dp-webhook'
+        );
+        return ['success' => true];
+    }
+
+    // =========================================================================
 
     /**
      * Webhook от МойСклад
@@ -137,15 +246,19 @@ class WebhookController extends Controller
     private function mapMoyskladStatus($moyskladStatus)
     {
         $map = [
-            'Новый' => 'created',
-            'Подтвержден' => 'confirmed',
-            'Собран' => 'processing',
-            'Отгружен' => 'shipped',
+            'Новый' => 'new',
+            'Подтвержден' => 'confirmed_and_paid',
+            'Оплачен' => 'paid',
+            'Заказан' => 'ordered',
+            'Ожидается на складе' => 'awaiting_warehouse',
+            'В доставке' => 'international_delivery',
+            'На складе' => 'at_warehouse',
+            'Доставка по РБ' => 'local_delivery',
             'Доставлен' => 'delivered',
-            'Отменен' => 'cancelled',
+            'Отменен' => 'canceled',
         ];
         
-        return $map[$moyskladStatus] ?? 'created';
+        return $map[$moyskladStatus] ?? 'new';
     }
     
     /**
@@ -202,7 +315,7 @@ class WebhookController extends Controller
                 $this->sendTelegramMessage($chatId, 'Добро пожаловать! Используйте /help для списка команд.');
                 break;
             case '/orders':
-                $newOrders = Order::find()->where(['status' => 'created'])->count();
+                $newOrders = Order::find()->where(['status' => 'new'])->count();
                 $this->sendTelegramMessage($chatId, "Новых заказов: {$newOrders}");
                 break;
             case '/stats':

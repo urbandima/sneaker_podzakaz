@@ -19,7 +19,7 @@
      * Анимация бургер-меню
      */
     function initBurgerAnimation() {
-        var burger = document.getElementById('menuBurger');
+        var burger = document.querySelector('.mobile-menu-toggle');
         var mobileMenu = document.getElementById('mobileMenu');
 
         if (!burger || !mobileMenu) return;
@@ -28,8 +28,8 @@
             this.classList.toggle('active');
         });
 
-        var closeBtn = document.getElementById('menuClose');
-        var overlay = document.getElementById('menuOverlay');
+        var closeBtn = document.querySelector('.mobile-menu-close');
+        var overlay = document.querySelector('.menu-overlay');
 
         var removeBurgerActive = function () {
             burger.classList.remove('active');

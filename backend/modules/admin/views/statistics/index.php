@@ -21,23 +21,19 @@ use yii\helpers\Url;
 $this->title = 'Аналитика';
 
 $statusColors = [
-    'created' => '#3b82f6', 'pending' => '#f59e0b', 'processing' => '#8b5cf6',
-    'paid' => '#10b981', 'shipped' => '#06b6d4', 'delivered' => '#22c55e',
-    'completed' => '#059669', 'issued' => '#059669', 'cancelled' => '#ef4444', 'refunded' => '#f43f5e',
+    'new' => '#3b82f6', 'paid' => '#10b981', 'confirmed_and_paid' => '#8b5cf6',
+    'ordered' => '#f59e0b', 'awaiting_warehouse' => '#06b6d4', 'international_delivery' => '#0ea5e9',
+    'at_warehouse' => '#22c55e', 'local_delivery' => '#14b8a6', 'delivered' => '#059669',
+    'canceled' => '#ef4444',
 ];
-?>
 
-<!-- Header -->
-<div class="admin-header">
-    <div>
-        <h1 class="admin-header-title"><i class="bi bi-bar-chart-line-fill"></i> <?= Html::encode($this->title) ?></h1>
-    </div>
-    <div class="admin-header-actions">
-        <a href="<?= Url::to(['/admin/statistics/export-csv']) ?>" class="admin-btn admin-btn-secondary">
-            <i class="bi bi-download"></i> Экспорт CSV
-        </a>
-    </div>
-</div>
+$this->params['headerActions'] = [
+    '<a href="' . Url::to(['/admin/statistics/export-csv']) . '" class="admin-btn admin-btn-secondary">
+        <i class="bi bi-download"></i> Экспорт CSV
+    </a>',
+];
+
+?>
 
 <!-- KPI Cards -->
 <div class="admin-stats">
@@ -109,10 +105,9 @@ $statusColors = [
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>#</th>
+                        <th style="width:50px">#</th>
                         <th>Товар</th>
                         <th style="text-align:right">Заказы</th>
-                        <th style="text-align:right">Кол-во</th>
                         <th style="text-align:right">Ср. цена</th>
                         <th style="text-align:right">Выручка</th>
                     </tr>
@@ -122,8 +117,7 @@ $statusColors = [
                     <tr>
                         <td><span class="stat-rank"><?= $i + 1 ?></span></td>
                         <td><?= Html::encode($p['product_name'] ?? '—') ?></td>
-                        <td style="text-align:right"><?= (int)($p['order_count'] ?? 0) ?></td>
-                        <td style="text-align:right"><?= (int)($p['total_quantity'] ?? 0) ?></td>
+                        <td style="text-align:right"><?= $p['orders_count'] ?? 0 ?></td>
                         <td style="text-align:right"><?= number_format($p['avg_price'] ?? 0, 0, '.', ' ') ?></td>
                         <td style="text-align:right;font-weight:700"><?= number_format($p['total_revenue'] ?? 0, 0, '.', ' ') ?> BYN</td>
                     </tr>
@@ -132,7 +126,10 @@ $statusColors = [
             </table>
         </div>
         <?php else: ?>
-        <p style="text-align:center;color:var(--admin-text-secondary);padding:2rem">Нет данных</p>
+        <div style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">
+            <i class="bi bi-bar-chart" style="font-size:2rem;opacity:0.4;display:block;margin-bottom:0.5rem"></i>
+            <p style="margin:0">Нет данных о продажах товаров</p>
+        </div>
         <?php endif ?>
     </div>
 </div>
@@ -161,7 +158,10 @@ $statusColors = [
             </table>
         </div>
         <?php else: ?>
-        <p style="text-align:center;color:var(--admin-text-secondary);padding:2rem">Нет менеджеров</p>
+        <div style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">
+            <i class="bi bi-people" style="font-size:2rem;opacity:0.4;display:block;margin-bottom:0.5rem"></i>
+            <p style="margin:0">Нет данных о менеджерах</p>
+        </div>
         <?php endif ?>
     </div>
 
@@ -179,7 +179,7 @@ $statusColors = [
                     <?php
                     $lActive = 0; $lDone = 0;
                     foreach ($l->assignedOrders as $o) {
-                        if ($o->status === 'issued') $lDone++; else $lActive++;
+                        if ($o->status === 'delivered') $lDone++; else $lActive++;
                     }
                     ?>
                     <tr>
@@ -193,7 +193,10 @@ $statusColors = [
             </table>
         </div>
         <?php else: ?>
-        <p style="text-align:center;color:var(--admin-text-secondary);padding:2rem">Нет логистов</p>
+        <div style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">
+            <i class="bi bi-truck" style="font-size:2rem;opacity:0.4;display:block;margin-bottom:0.5rem"></i>
+            <p style="margin:0">Нет данных о логистах</p>
+        </div>
         <?php endif ?>
     </div>
 </div>

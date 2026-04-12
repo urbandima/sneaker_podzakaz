@@ -2,7 +2,7 @@
 use yii\helpers\Html;
 $this->title = 'Email шаблоны';
 $events = [
-    'confirmed' => 'Заказ подтверждён',
+    'confirmed_and_paid' => 'Подтвержден и оплачен',
     'paid' => 'Оплата получена',
     'ordered_poizon' => 'Заказан на Poizon',
     'at_warehouse' => 'На складе',
@@ -10,11 +10,8 @@ $events = [
     'completed' => 'Заказ завершён',
 ];
 $templates = $templates ?? [];
+$this->params['headerActions'][] = '<a href="/admin/settings" class="admin-btn admin-btn-secondary"><i class="bi bi-arrow-left"></i> Настройки</a>';
 ?>
-<div class="admin-header">
-    <h1 class="admin-header-title">Email шаблоны</h1>
-    <a href="/admin/settings" class="admin-btn admin-btn-secondary"><i class="bi bi-arrow-left"></i> Настройки</a>
-</div>
 <?php foreach ($events as $key => $label):
     $tpl = $templates[$key] ?? [];
 ?>

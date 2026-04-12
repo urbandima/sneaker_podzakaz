@@ -11,15 +11,11 @@ use yii\widgets\ActiveForm;
 $this->title = 'Редактирование покупателя #' . $customer->id;
 ?>
 
-<div class="admin-header">
-    <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
-    <div class="admin-header-actions">
-        <a href="<?= \yii\helpers\Url::to(['view', 'id' => $customer->id]) ?>" class="admin-btn admin-btn-secondary">
-            <i class="bi bi-eye"></i>
-            Просмотр
-        </a>
-    </div>
-</div>
+<?php
+$this->params['headerActions'] = [
+    Html::a('<i class="bi bi-eye"></i> Просмотр', ['view', 'id' => $customer->id], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm'])
+];
+?>
 
 <div class="admin-card">
     <h2 class="admin-card-title">

@@ -24,14 +24,16 @@ use yii\helpers\Url;
 $this->title = 'Панель управления';
 
 $statusMap = [
-    'created' => ['label' => 'Новый', 'class' => 'info'],
-    'pending' => ['label' => 'Ожидает', 'class' => 'warning'],
-    'processing' => ['label' => 'В обработке', 'class' => 'warning'],
+    'new' => ['label' => 'Новый', 'class' => 'info'],
     'paid' => ['label' => 'Оплачен', 'class' => 'success'],
-    'shipped' => ['label' => 'Отправлен', 'class' => 'primary'],
-    'delivered' => ['label' => 'Доставлен', 'class' => 'success'],
-    'completed' => ['label' => 'Завершён', 'class' => 'success'],
-    'cancelled' => ['label' => 'Отменён', 'class' => 'danger'],
+    'confirmed_and_paid' => ['label' => 'Подтвержден и оплачен', 'class' => 'primary'],
+    'ordered' => ['label' => 'Заказано', 'class' => 'warning'],
+    'awaiting_warehouse' => ['label' => 'Ожидается на складе', 'class' => 'info'],
+    'international_delivery' => ['label' => 'В международной доставке', 'class' => 'primary'],
+    'at_warehouse' => ['label' => 'На складе', 'class' => 'success'],
+    'local_delivery' => ['label' => 'В доставке', 'class' => 'primary'],
+    'delivered' => ['label' => 'Выдан', 'class' => 'success'],
+    'canceled' => ['label' => 'Отменен', 'class' => 'danger'],
     'refunded' => ['label' => 'Возврат', 'class' => 'danger'],
 ];
 
@@ -40,26 +42,13 @@ $amountFormatted = $totalAmount >= 1000 ? number_format($totalAmount / 1000, 1, 
 ?>
 
 <!-- Header -->
-<div class="admin-header">
-    <div>
-        <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
-        <p class="dash-subtitle">
-            <?= Html::encode($user->username ?? 'Admin') ?> · <?= date('d.m.Y, H:i') ?>
-            <?php if ($demoMode): ?><span class="admin-badge admin-badge-warning" style="margin-left:0.5rem">Demo</span><?php endif ?>
-        </p>
-    </div>
-    <div class="admin-header-actions">
-        <a href="<?= Url::to(['/admin/order/create']) ?>" class="admin-btn admin-btn-primary">
-            <i class="bi bi-plus-circle"></i> Новый заказ
-        </a>
-        <button class="admin-btn admin-btn-secondary" id="theme-toggle" title="Ctrl+D — тема">
-            <i class="bi bi-moon-fill" id="theme-icon"></i>
-        </button>
-        <button class="admin-btn admin-btn-secondary" onclick="location.reload()" title="Ctrl+R">
-            <i class="bi bi-arrow-clockwise"></i>
-        </button>
-    </div>
-</div>
+<?php
+$this->params['headerActions'] = [
+    Html::a('<i class="bi bi-plus-circle"></i> Новый заказ', ['/admin/order/create'], ['class' => 'admin-btn admin-btn-primary admin-btn-sm']),
+    '<button class="admin-btn admin-btn-secondary admin-btn-sm" id="theme-toggle" title="Ctrl+D — тема"><i class="bi bi-moon-fill" id="theme-icon"></i></button>',
+    '<button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="location.reload()" title="Ctrl+R"><i class="bi bi-arrow-clockwise"></i></button>'
+];
+?>
 
 <!-- KPI Cards -->
 <div class="admin-stats">
@@ -114,7 +103,7 @@ $amountFormatted = $totalAmount >= 1000 ? number_format($totalAmount / 1000, 1, 
 $opStats = $operationalStats ?? ['unprocessed2h' => 0, 'delayed3d' => 0, 'awaitingPoizon' => 0];
 ?>
 <div class="dash-operational-grid">
-    <a href="<?= Url::to(['/admin/order', 'status' => 'created']) ?>" class="dash-op-widget">
+    <a href="<?= Url::to(['/admin/order', 'status' => 'new']) ?>" class="dash-op-widget">
         <div class="dash-op-widget-icon danger"><i class="bi bi-clock-history"></i></div>
         <div class="dash-op-widget-value danger"><?= (int)($opStats['unprocessed2h'] ?? 0) ?></div>
         <div class="dash-op-widget-label">Необработанных<br>&gt;2 часов</div>

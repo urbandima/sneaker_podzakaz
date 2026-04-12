@@ -26,11 +26,11 @@ class EmailController extends BaseAdminController
         }
 
         $templates = [
-            'confirmed' => 'order_confirmed',
+            'confirmed_and_paid' => 'order_confirmed',
             'paid' => 'order_paid',
-            'shipped' => 'order_shipped',
+            'international_delivery' => 'order_shipped',
+            'local_delivery' => 'order_local_delivery',
             'delivered' => 'order_delivered',
-            'completed' => 'order_completed',
         ];
 
         if (!isset($templates[$template])) {

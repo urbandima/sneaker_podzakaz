@@ -8,7 +8,7 @@
  * колокольчика в шапке. Опрашивается каждые 30 секунд через AJAX (admin.js).
  *
  * ФУНКЦИИ:
- * - actionIndex() — кол-во необработанных заказов (статус 'created')
+ * - actionIndex() — кол-во необработанных заказов (статус 'new')
  */
 namespace app\backend\modules\admin\controllers;
 
@@ -29,7 +29,7 @@ class NotificationController extends BaseAdminController
         $count = 0;
         try {
             $count = (int)Order::find()
-                ->where(['status' => 'created'])
+                ->where(['status' => 'new'])
                 ->count();
         } catch (\Exception $e) {
             // При ошибке возвращаем 0, не ломаем фронт

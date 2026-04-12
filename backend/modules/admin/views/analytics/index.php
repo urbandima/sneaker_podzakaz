@@ -13,14 +13,13 @@ $conversionFunnel = $conversionFunnel ?? ['views' => 0, 'add_to_cart' => 0, 'ord
 $activeTab = Yii::$app->request->get('tab', 'analytics');
 ?>
 
-<div class="admin-header">
-    <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
-    <div style="display: flex; gap: 0.5rem;">
-        <a href="<?= Url::to(['index', 'period' => 'today']) ?>" class="admin-btn admin-btn-secondary <?= $period === 'today' ? 'active' : '' ?>">Сегодня</a>
-        <a href="<?= Url::to(['index', 'period' => 'week']) ?>" class="admin-btn admin-btn-secondary <?= $period === 'week' ? 'active' : '' ?>">Неделя</a>
-        <a href="<?= Url::to(['index', 'period' => 'month']) ?>" class="admin-btn admin-btn-secondary <?= $period === 'month' ? 'active' : '' ?>">Месяц</a>
-    </div>
-</div>
+<?php
+$this->params['headerActions'] = [
+    Html::a('Сегодня', ['index', 'period' => 'today'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm' . ($period === 'today' ? ' active' : '')]),
+    Html::a('Неделя', ['index', 'period' => 'week'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm' . ($period === 'week' ? ' active' : '')]),
+    Html::a('Месяц', ['index', 'period' => 'month'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm' . ($period === 'month' ? ' active' : '')])
+];
+?>
 
 <!-- Tab Navigation -->
 <div style="display:flex;gap:0.25rem;margin-bottom:1.5rem;border-bottom:2px solid var(--admin-border,#e2e8f0);padding-bottom:0;">
@@ -113,7 +112,7 @@ $activeTab = Yii::$app->request->get('tab', 'analytics');
             <thead>
                 <tr>
                     <th>Товар</th>
-                    <th style="text-align: right;">Кол-во</th>
+                    <th style="text-align: right;">Просмотры</th>
                     <th style="text-align: right;">Выручка</th>
                     <th style="text-align: right;">Заказов</th>
                 </tr>
@@ -122,9 +121,9 @@ $activeTab = Yii::$app->request->get('tab', 'analytics');
                 <?php foreach ($topProducts as $product): ?>
                 <tr>
                     <td><?= Html::encode($product['product_name']) ?></td>
-                    <td style="text-align: right; font-weight: 600;"><?= $product['total_qty'] ?></td>
-                    <td style="text-align: right; font-weight: 600;"><?= number_format($product['total_revenue'], 0, ',', ' ') ?> BYN</td>
-                    <td style="text-align: right;"><?= $product['orders_count'] ?></td>
+                    <td style="text-align: right; font-weight: 600;"><?= $product['views'] ?? 0 ?></td>
+                    <td style="text-align: right; font-weight: 600;"><?= number_format($product['total_revenue'] ?? 0, 0, ',', ' ') ?> BYN</td>
+                    <td style="text-align: right;"><?= $product['orders'] ?? 0 ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

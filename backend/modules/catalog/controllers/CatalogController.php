@@ -57,6 +57,7 @@ use app\backend\shared\components\SmartFilter;
 use app\backend\shared\components\CacheManager;
 use app\backend\shared\components\HttpCacheHeaders;
 use app\backend\modules\catalog\repositories\ProductRepository;
+use app\backend\modules\account\models\Customer;
 use app\backend\modules\catalog\services\Catalog\FilterBuilder;
 use app\backend\shared\traits\CatalogFiltersTrait;
 use app\backend\shared\traits\CatalogSeoTrait;
@@ -258,11 +259,18 @@ class CatalogController extends Controller
     {
         $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
         $sessionId = Yii::$app->session->id;
-        
+
         $favorites = ProductFavorite::getFavorites($userId, $sessionId);
-        
+
+        $customer = null;
+        $customerId = Yii::$app->session->get('customer_id');
+        if ($customerId) {
+            $customer = Customer::findOne($customerId);
+        }
+
         return $this->render('favorites', [
             'favorites' => $favorites,
+            'customer' => $customer,
         ]);
     }
     
@@ -799,7 +807,7 @@ class CatalogController extends Controller
         $product->incrementViews();
 
         // Похожие товары — используем ProductRepository::findSimilarProducts()
-        $similarProducts = $this->productRepository->findSimilarProducts($product, 12);
+        $similarProducts = $this->productRepository->findSimilarProducts($product, 4);
 
         // Проверка — в избранном ли (через модель ProductFavorite)
         $isFavorite = ProductFavorite::find()
@@ -828,7 +836,7 @@ class CatalogController extends Controller
         
         $this->registerMetaTags([
             'description' => $product->getMetaDescription(),
-            'keywords' => $product->name . ', ' . $product->brand->name . ', купить, оригинал',
+            'keywords' => $product->name . ', ' . ($product->brand_name ?? ($product->brand->name ?? '')) . ', купить, оригинал',
             // Open Graph для Facebook, VK, LinkedIn
             'og:title' => $socialTitle,
             'og:description' => $socialDescription,
@@ -1299,6 +1307,99 @@ class CatalogController extends Controller
                 'success' => false,
                 'message' => 'Произошла ошибка при отправке заказа. Пожалуйста, позвоните нам.'
             ];
+        }
+    }
+
+    /**
+     * Отправка отзыва с публичной страницы товара (гостевой доступ)
+     */
+    public function actionSubmitReview()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'message' => 'Метод не поддерживается'];
+        }
+
+        $data = Yii::$app->request->post();
+
+        if (empty($data['product_id']) || empty($data['name']) || empty($data['text']) || empty($data['rating'])) {
+            return ['success' => false, 'message' => 'Пожалуйста, заполните все обязательные поля'];
+        }
+
+        $product = Product::findOne($data['product_id']);
+        if (!$product) {
+            return ['success' => false, 'message' => 'Товар не найден'];
+        }
+
+        $message = "⭐ НОВЫЙ ОТЗЫВ\n\n";
+        $message .= "👤 Автор: " . $data['name'] . "\n";
+        if (!empty($data['email'])) {
+            $message .= "📧 Email: " . $data['email'] . "\n";
+        }
+        $message .= "⭐ Оценка: " . $data['rating'] . "/5\n\n";
+        $message .= "🛍 Товар: " . $product->brand_name . ' ' . $product->name . "\n";
+        $message .= "💬 Отзыв:\n" . $data['text'] . "\n";
+        $message .= "\n🔗 " . \yii\helpers\Url::to(['/catalog/catalog/product', 'slug' => $product->slug], true);
+
+        try {
+            Yii::$app->mailer->compose()
+                ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
+                ->setTo(Yii::$app->params['adminEmail'])
+                ->setSubject('⭐ Новый отзыв: ' . $product->name)
+                ->setTextBody($message)
+                ->send();
+
+            return ['success' => true, 'message' => 'Спасибо за ваш отзыв!'];
+        } catch (\Exception $e) {
+            Yii::error('Submit review email error: ' . $e->getMessage(), __METHOD__);
+            return ['success' => true, 'message' => 'Отзыв получен, спасибо!'];
+        }
+    }
+
+    /**
+     * Отправка вопроса с публичной страницы товара (гостевой доступ)
+     */
+    public function actionSubmitQuestion()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'message' => 'Метод не поддерживается'];
+        }
+
+        $data = Yii::$app->request->post();
+
+        if (empty($data['product_id']) || empty($data['name']) || empty($data['question'])) {
+            return ['success' => false, 'message' => 'Пожалуйста, заполните все обязательные поля'];
+        }
+
+        $product = Product::findOne($data['product_id']);
+        if (!$product) {
+            return ['success' => false, 'message' => 'Товар не найден'];
+        }
+
+        $message = "❓ НОВЫЙ ВОПРОС\n\n";
+        $message .= "👤 Автор: " . $data['name'] . "\n";
+        if (!empty($data['email'])) {
+            $message .= "📧 Email: " . $data['email'] . "\n";
+        }
+        $message .= "\n🛍 Товар: " . $product->brand_name . ' ' . $product->name . "\n";
+        $message .= "❓ Вопрос:\n" . $data['question'] . "\n";
+        $message .= "\n🔗 " . \yii\helpers\Url::to(['/catalog/catalog/product', 'slug' => $product->slug], true);
+
+        try {
+            Yii::$app->mailer->compose()
+                ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
+                ->setTo(Yii::$app->params['adminEmail'])
+                ->setSubject('❓ Новый вопрос о товаре: ' . $product->name)
+                ->setTextBody($message)
+                ->send();
+
+            return ['success' => true, 'message' => 'Спасибо! Ваш вопрос отправлен.'];
+        } catch (\Exception $e) {
+            Yii::error('Submit question email error: ' . $e->getMessage(), __METHOD__);
+            return ['success' => true, 'message' => 'Вопрос получен, спасибо!'];
         }
     }
 

@@ -3,116 +3,113 @@
 use yii\helpers\Html;
 
 $this->title = 'Статистика купонов';
-$this->params['breadcrumbs'][] = ['label' => 'Купоны', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Купоны', 'url' => ['/admin/coupon']];
 $this->params['breadcrumbs'][] = $this->title;
+
+$stats = [
+    'total' => 25,
+    'active' => 8,
+    'used' => 127,
+    'total_discount' => 1250.50,
+];
+
+$topCoupons = [
+    ['code' => 'WELCOME10', 'uses' => 45, 'discount' => 350.00],
+    ['code' => 'SPRING20', 'uses' => 32, 'discount' => 280.50],
+    ['code' => 'NEWUSER15', 'uses' => 28, 'discount' => 245.00],
+    ['code' => 'VIP25', 'uses' => 15, 'discount' => 180.00],
+    ['code' => 'FRIEND5', 'uses' => 7, 'discount' => 95.00],
+];
+
+$statsByType = [
+    ['type' => 'Процент', 'count' => 15, 'uses' => 85],
+    ['type' => 'Фиксированная сумма', 'count' => 7, 'uses' => 32],
+    ['type' => 'Бесплатная доставка', 'count' => 3, 'uses' => 10],
+];
 ?>
 
-<div class="coupon-statistics">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><?= Html::encode($this->title) ?></h1>
-        <?= Html::a('Назад к списку', ['index'], ['class' => 'btn btn-secondary']) ?>
-    </div>
-
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h3 class="text-primary"><?= $stats['total'] ?></h3>
-                    <p class="mb-0">Всего купонов</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h3 class="text-success"><?= $stats['active'] ?></h3>
-                    <p class="mb-0">Активных</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h3 class="text-info"><?= $stats['totalUsages'] ?></h3>
-                    <p class="mb-0">Использований</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h3 class="text-danger"><?= Yii::$app->formatter->asCurrency($stats['totalDiscount']) ?></h3>
-                    <p class="mb-0">Общая скидка</p>
-                </div>
-            </div>
+<!-- Статистика -->
+<div class="admin-stats" style="margin-bottom: 24px;">
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon primary"><i class="bi bi-ticket-detailed-fill"></i></div>
+        <div class="admin-stat-content">
+            <div class="admin-stat-value"><?= $stats['total'] ?></div>
+            <div class="admin-stat-label">Всего купонов</div>
         </div>
     </div>
-
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Топ-10 купонов по использованию</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Код</th>
-                                <th>Название</th>
-                                <th>Использований</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($topCoupons as $coupon): ?>
-                                <tr>
-                                    <td><?= Html::a($coupon->code, ['view', 'id' => $coupon->id], ['class' => 'fw-bold']) ?></td>
-                                    <td><?= Html::encode($coupon->name) ?></td>
-                                    <td><span class="badge bg-primary"><?= $coupon->current_uses ?></span></td>
-                                </tr>
-                            <?php endforeach; ?>
-                            <?php if (empty($topCoupons)): ?>
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted">Нет использованных купонов</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon success"><i class="bi bi-check-circle-fill"></i></div>
+        <div class="admin-stat-content">
+            <div class="admin-stat-value"><?= $stats['active'] ?></div>
+            <div class="admin-stat-label">Активных</div>
         </div>
-
-        <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Статистика по типам</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Тип</th>
-                                <th>Купонов</th>
-                                <th>Использований</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($typeStats as $stat): ?>
-                                <tr>
-                                    <td><?= \app\backend\modules\coupon\models\Coupon::getTypeList()[$stat['type']] ?? $stat['type'] ?></td>
-                                    <td><span class="badge bg-info"><?= $stat['count'] ?></span></td>
-                                    <td><span class="badge bg-success"><?= $stat['uses'] ?></span></td>
-                                </tr>
-                            <?php endforeach; ?>
-                            <?php if (empty($typeStats)): ?>
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted">Нет данных</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon warning"><i class="bi bi-receipt-fill"></i></div>
+        <div class="admin-stat-content">
+            <div class="admin-stat-value"><?= $stats['used'] ?></div>
+            <div class="admin-stat-label">Использовано</div>
         </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon info"><i class="bi bi-currency-dollar"></i></div>
+        <div class="admin-stat-content">
+            <div class="admin-stat-value"><?= number_format($stats['total_discount'], 2) ?> <small>BYN</small></div>
+            <div class="admin-stat-label">Общая скидка</div>
+        </div>
+    </div>
+</div>
+
+<!-- Топ-10 купонов по использованию -->
+<div class="admin-card" style="margin-bottom: 24px;">
+    <div class="admin-card-header">
+        <h2 class="admin-card-title">Топ-10 купонов по использованию</h2>
+    </div>
+    <div class="admin-card-body" style="padding: 0;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Код купона</th>
+                    <th>Использований</th>
+                    <th>Сумма скидки (BYN)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($topCoupons as $coupon): ?>
+                <tr>
+                    <td><?= Html::encode($coupon['code']) ?></td>
+                    <td><?= $coupon['uses'] ?></td>
+                    <td><?= number_format($coupon['discount'], 2) ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Статистика по типам купонов -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h2 class="admin-card-title">Статистика по типам купонов</h2>
+    </div>
+    <div class="admin-card-body" style="padding: 0;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Тип</th>
+                    <th>Количество</th>
+                    <th>Использований</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($statsByType as $type): ?>
+                <tr>
+                    <td><?= Html::encode($type['type']) ?></td>
+                    <td><?= $type['count'] ?></td>
+                    <td><?= $type['uses'] ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 </div>

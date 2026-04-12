@@ -31,26 +31,22 @@ $brands = $brands ?? [];
 
 <!-- Hero Section -->
 <section class="hero-section">
-    <div class="hero-background">
-        <div class="hero-gradient"></div>
-    </div>
-    
     <div class="container">
         <div class="hero-content">
             <div class="hero-badge">
                 <span>Новая коллекция 2026</span>
             </div>
-            
+
             <h1 class="hero-title">
                 Оригинальные кроссовки<br>
                 <span class="hero-title-accent">из США и Европы</span>
             </h1>
-            
+
             <p class="hero-subtitle">
-                Только оригинальная обувь от официальных поставщиков. 
+                Только оригинальная обувь от официальных поставщиков.
                 Гарантия подлинности на каждый товар.
             </p>
-            
+
             <div class="hero-actions">
                 <a href="/catalog" class="btn btn-primary">
                     <span>Смотреть каталог</span>
@@ -59,7 +55,7 @@ $brands = $brands ?? [];
                     <span>Популярные модели</span>
                 </a>
             </div>
-            
+
             <div class="hero-stats">
                 <div class="stat-item">
                     <div class="stat-value">10,000+</div>
@@ -77,23 +73,12 @@ $brands = $brands ?? [];
                 </div>
             </div>
         </div>
-        
-        <div class="hero-image">
-            <img src="/images/hero-sneakers.svg" alt="Кроссовки" class="hero-sneakers-img">
-            <div class="hero-floating-card card-1">
-                <i class="bi bi-shield-check"></i>
-                <span>100% оригинал</span>
-            </div>
-            <div class="hero-floating-card card-2">
-                <i class="bi bi-truck"></i>
-                <span>Быстрая доставка</span>
-            </div>
-        </div>
     </div>
 </section>
 
 <!-- Popular Products -->
-<section id="popular" class="popular-section reveal">
+<?php if (!empty($popularProducts)): ?>
+<section id="popular" class="popular-section">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Популярные модели</h2>
@@ -101,7 +86,7 @@ $brands = $brands ?? [];
                 Смотреть все
             </a>
         </div>
-        
+
         <div class="products-grid">
             <?php foreach ($popularProducts as $product): ?>
                 <?= $this->render('//catalog/_product_card', ['product' => $product]) ?>
@@ -109,14 +94,16 @@ $brands = $brands ?? [];
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- Categories -->
-<section class="categories-section reveal">
+<?php if (!empty($categories)): ?>
+<section class="categories-section">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Категории</h2>
         </div>
-        
+
         <div class="categories-grid">
             <?php foreach ($categories as $category): ?>
             <a href="<?= $category->getUrl() ?>" class="category-card">
@@ -132,9 +119,11 @@ $brands = $brands ?? [];
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- Brands -->
-<section class="brands-section reveal">
+<?php if (!empty($brands)): ?>
+<section class="brands-section">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Популярные бренды</h2>
@@ -142,7 +131,7 @@ $brands = $brands ?? [];
                 Все бренды
             </a>
         </div>
-        
+
         <div class="brands-grid">
             <?php foreach ($brands as $brand): ?>
             <a href="/catalog?brand=<?= $brand->slug ?>" class="brand-card">
@@ -152,9 +141,10 @@ $brands = $brands ?? [];
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- Benefits -->
-<section class="benefits-section reveal">
+<section class="benefits-section">
     <div class="container">
         <div class="section-header center">
             <h2 class="section-title">Почему выбирают нас</h2>
@@ -231,7 +221,7 @@ $brands = $brands ?? [];
 </section>
 
 <!-- Reviews Section -->
-<section class="reviews-section reveal">
+<section class="reviews-section">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Отзывы покупателей <span>4.9 <i class="bi bi-star-fill"></i></span></h2>
@@ -281,37 +271,64 @@ $brands = $brands ?? [];
 </section>
 
 <!-- Instagram Section -->
-<section class="instagram-section reveal">
+<section class="instagram-section">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">@sneakerhead_by</h2>
-            <a href="https://instagram.com" target="_blank" class="btn btn-secondary btn-sm">Подписаться</a>
-        </div>
-        <div class="instagram-grid">
-            <?php 
-            $instagramImages = [
-                '/images/instagram/adidas-originals-samba-og-69073567c268b.jpg',
-                '/images/instagram/air-jordan-1-low-wolf-grey-6907356878f09.jpg',
-                '/images/instagram/new-balance-530-beige-69073563682f6.jpg',
-                '/images/instagram/adidas-originals-samba-og-6907358118c45.jpg',
-                '/images/instagram/air-jordan-1-low-wolf-grey-69073581c7e1b.jpg',
-                '/images/instagram/jordan-1-retro-high.jpg',
-            ];
-            foreach ($instagramImages as $img): 
-            ?>
-            <a href="#" class="instagram-item">
-                <img src="<?= $img ?>" alt="Sneakerhead Instagram" class="instagram-image">
-                <div class="instagram-overlay">
-                    <i class="bi bi-instagram"></i>
-                </div>
+            <div>
+                <h2 class="section-title">Мы в Instagram</h2>
+                <p class="section-subtitle" style="margin:0.5rem 0 0;color:var(--color-text-secondary,#6b7280)">
+                    Следите за новинками и луками —
+                    <a href="https://www.instagram.com/sneakerhead_belarus/" target="_blank" rel="noopener noreferrer" style="color:inherit;font-weight:600">@sneakerhead_belarus</a>
+                </p>
+            </div>
+            <a href="https://www.instagram.com/sneakerhead_belarus/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
+                <i class="bi bi-instagram" style="margin-right:6px"></i> Подписаться
             </a>
-            <?php endforeach; ?>
+        </div>
+
+        <!-- Live Instagram feed via iframe embed -->
+        <div class="instagram-embed-wrap">
+            <iframe
+                src="https://www.instagram.com/sneakerhead_belarus/embed/"
+                class="instagram-embed-frame"
+                frameborder="0"
+                scrolling="no"
+                allowtransparency="true"
+                loading="lazy"
+                title="Instagram @sneakerhead_belarus"
+            ></iframe>
+            <!-- Fallback: static grid shown if iframe is blocked -->
+            <noscript>
+                <div class="instagram-grid">
+                    <?php
+                    $instagramImages = [
+                        '/images/instagram/adidas-originals-samba-og-69073567c268b.jpg',
+                        '/images/instagram/air-jordan-1-low-wolf-grey-6907356878f09.jpg',
+                        '/images/instagram/new-balance-530-beige-69073563682f6.jpg',
+                        '/images/instagram/adidas-originals-samba-og-6907358118c45.jpg',
+                        '/images/instagram/air-jordan-1-low-wolf-grey-69073581c7e1b.jpg',
+                        '/images/instagram/jordan-1-retro-high.jpg',
+                    ];
+                    foreach ($instagramImages as $i => $img): ?>
+                    <a href="https://www.instagram.com/sneakerhead_belarus/" target="_blank" rel="noopener noreferrer" class="instagram-item">
+                        <img src="<?= $img ?>" alt="Sneakerhead Belarus в Instagram" class="instagram-image" loading="lazy">
+                        <div class="instagram-overlay"><i class="bi bi-instagram"></i></div>
+                    </a>
+                    <?php endforeach; ?>
+                </div>
+            </noscript>
+        </div>
+
+        <div style="text-align:center;margin-top:1.5rem">
+            <a href="https://www.instagram.com/sneakerhead_belarus/" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                <i class="bi bi-instagram" style="margin-right:6px"></i> Открыть Instagram
+            </a>
         </div>
     </div>
 </section>
 
 <!-- Newsletter -->
-<section class="newsletter-section reveal">
+<section class="newsletter-section">
     <div class="container">
         <div class="newsletter-content">
             <h2 class="newsletter-title">Подпишитесь на новости</h2>

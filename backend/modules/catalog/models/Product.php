@@ -562,8 +562,13 @@ class Product extends ActiveRecord
                 return $this->main_image_url;
             }
             
-            // Если это относительный путь
-            return Yii::$app->request->baseUrl . '/' . ltrim($this->main_image_url, '/');
+            // Если это относительный путь — проверяем существование файла
+            $path = ltrim($this->main_image_url, '/');
+            $fullPath = Yii::getAlias('@webroot') . '/' . $path;
+            if (file_exists($fullPath)) {
+                return Yii::$app->request->baseUrl . '/' . $path;
+            }
+            // Файл не существует — продолжаем проверку других источников
         }
         
         // 2. Проверяем старое поле main_image
@@ -573,17 +578,38 @@ class Product extends ActiveRecord
                 return $this->main_image;
             }
             
-            // Если это локальный файл
-            return Yii::$app->request->baseUrl . '/' . ltrim($this->main_image, '/');
+            // Если это локальный файл — проверяем существование
+            $path = ltrim($this->main_image, '/');
+            $fullPath = Yii::getAlias('@webroot') . '/' . $path;
+            if (file_exists($fullPath)) {
+                return Yii::$app->request->baseUrl . '/' . $path;
+            }
         }
         
         // 3. Проверяем связанные изображения
         if (!empty($this->images) && isset($this->images[0])) {
-            return $this->images[0]->getUrl();
+            $imgUrl = $this->images[0]->getUrl();
+            // Проверяем существование файла для локальных путей
+            if (strpos($imgUrl, 'http') !== 0) {
+                $fullPath = Yii::getAlias('@webroot') . '/' . ltrim($imgUrl, '/');
+                if (file_exists($fullPath)) {
+                    return $imgUrl;
+                }
+            } else {
+                return $imgUrl;
+            }
         }
         
         // 4. Placeholder через data URI (SVG) - красивый placeholder с иконкой
         return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"%3E%3Crect width="400" height="400" fill="%23f3f4f6"/%3E%3Cg transform="translate(200,180)"%3E%3Cpath d="M-30,-20 L-20,-30 L20,-30 L30,-20 L30,10 L20,20 L-20,20 L-30,10 Z" fill="%23d1d5db" stroke="%23a0a0a0" stroke-width="2"/%3E%3Cellipse cx="0" cy="0" rx="15" ry="10" fill="%23e5e7eb"/%3E%3C/g%3E%3Ctext x="200" y="260" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="14" fill="%239ca3af"%3EИзображение скоро появится%3C/text%3E%3C/svg%3E';
+    }
+
+    /**
+     * Геттер для image_url (алиас для main_image_url для совместимости)
+     */
+    public function getImageUrl()
+    {
+        return $this->getMainImageUrl();
     }
 
     // Метод isFavoriteForUser удален - заменен на FavoriteService::isFavorite()

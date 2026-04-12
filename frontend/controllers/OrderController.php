@@ -15,7 +15,7 @@ use app\backend\modules\cart\models\Cart;
 
 class OrderController extends Controller
 {
-    public $layout = 'main'; // Единый layout
+    public $layout = 'main';
 
     public function beforeAction($action)
     {
@@ -51,7 +51,7 @@ class OrderController extends Controller
             Yii::warning('Checkout page error: ' . $e->getMessage(), 'checkout');
         }
 
-        return $this->render('checkout/index', [
+        return $this->render('//checkout/index', [
             'items'    => $items,
             'total'    => $total,
             'customer' => $customer,
@@ -562,6 +562,83 @@ class OrderController extends Controller
 
         $session->set($key, $attempts + 1);
         $session->set($key . '_time', time());
+    }
+
+    /**
+     * AJAX: Сохранение паспортных данных (публичная страница заказа)
+     * POST /order/save-passport?token=XXX
+     */
+    public function actionSavePassport($token)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'message' => 'Недопустимый метод'];
+        }
+
+        $model = Order::findOne(['token' => $token]);
+        if ($model === null) {
+            return ['success' => false, 'message' => 'Заказ не найден'];
+        }
+
+        if ($model->status !== 'paid') {
+            return ['success' => false, 'message' => 'Паспортные данные принимаются только для оплаченных заказов'];
+        }
+
+        $post = Yii::$app->request->post();
+        $errors = [];
+
+        $required = [
+            'recipient_last_name'  => 'Фамилия',
+            'recipient_first_name' => 'Имя',
+            'birth_date'           => 'Дата рождения',
+            'passport_series'      => 'Серия паспорта',
+            'passport_number'      => 'Номер паспорта',
+            'passport_issue_date'  => 'Дата выдачи паспорта',
+            'inn'                  => 'ИНН',
+            'full_address'         => 'Адрес',
+            'city'                 => 'Город',
+            'postal_code'          => 'Почтовый индекс',
+        ];
+
+        foreach ($required as $field => $label) {
+            $val = trim(strip_tags($post[$field] ?? ''));
+            if (empty($val)) {
+                $errors[$field] = $label . ' обязателен';
+            }
+        }
+
+        $inn = trim($post['inn'] ?? '');
+        if (!empty($inn) && !preg_match('/^[0-9]{12}$/', $inn)) {
+            $errors['inn'] = 'ИНН должен содержать ровно 12 цифр';
+        }
+
+        $passNum = trim($post['passport_number'] ?? '');
+        if (!empty($passNum) && !preg_match('/^[0-9]{6,7}$/', $passNum)) {
+            $errors['passport_number'] = 'Номер паспорта должен содержать 6–7 цифр';
+        }
+
+        if (!empty($errors)) {
+            return ['success' => false, 'message' => 'Проверьте введённые данные', 'errors' => $errors];
+        }
+
+        $fields = array_merge(array_keys($required), ['recipient_middle_name', 'region']);
+        foreach ($fields as $field) {
+            if ($model->hasAttribute($field)) {
+                $model->$field = trim(strip_tags($post[$field] ?? ''));
+            }
+        }
+        if ($model->hasAttribute('passport_submitted_at')) {
+            $model->passport_submitted_at = time();
+        }
+
+        if (!$model->save(false)) {
+            Yii::error('Ошибка сохранения паспортных данных заказа #' . $model->id . ': ' . json_encode($model->errors), 'passport');
+            return ['success' => false, 'message' => 'Ошибка сохранения данных'];
+        }
+
+        Yii::info('Паспортные данные сохранены для заказа #' . $model->id, 'passport');
+        return ['success' => true, 'message' => 'Паспортные данные сохранены. Ваш заказ будет отправлен в ближайшее время.'];
     }
 
     /**

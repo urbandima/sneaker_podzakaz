@@ -32,22 +32,13 @@ $statusColors = [
 $statusColor = $statusColors[$model->status] ?? 'secondary';
 ?>
 
-<div class="admin-header">
-    <div>
-        <a href="<?= Url::to(['index']) ?>" style="color: var(--admin-text-secondary); text-decoration: none; font-size: 0.875rem;">
-            <i class="bi bi-arrow-left"></i> Все возвраты
-        </a>
-        <h1 class="admin-header-title" style="margin-top: 0.25rem;"><?= Html::encode($this->title) ?></h1>
-    </div>
-    <div class="admin-header-actions">
-        <?php if ($isCommission): ?>
-        <a href="<?= Url::to(['contract', 'id' => $model->id]) ?>" class="admin-btn admin-btn-secondary" target="_blank">
-            <i class="bi bi-file-earmark-pdf"></i>
-            PDF договор
-        </a>
-        <?php endif; ?>
-    </div>
-</div>
+<?php
+$actions = [];
+if ($isCommission) {
+    $actions[] = Html::a('<i class="bi bi-file-earmark-pdf"></i> PDF договор', ['contract', 'id' => $model->id], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm', 'target' => '_blank']);
+}
+$this->params['headerActions'] = $actions;
+?>
 
 <div style="display: grid; grid-template-columns: 1fr 360px; gap: 1.5rem; align-items: start;">
 

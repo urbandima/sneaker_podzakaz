@@ -12,202 +12,212 @@ use yii\widgets\Pjax;
 $this->title = $task ? "Логи задачи #{$task->id}" : 'Логи импорта';
 $this->params['breadcrumbs'][] = ['label' => 'Импорт', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+
+$this->params['headerActions'] = [
+    Html::a('<i class="bi bi-arrow-left"></i> Назад к импорту', ['index'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm'])
+];
 ?>
 
-<div class="import-logs">
-    <?php if ($task && $task->status === 'running'): ?>
-    <div id="logs-config" style="display:none" data-task-id="<?= $task->id ?>"></div>
-    <?php endif; ?>
-    <!-- Информация о задаче -->
-    <?php if ($task): ?>
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-3">
-                    <h6 class="text-muted">Источник</h6>
-                    <p class="mb-0"><strong><?= Html::encode($task->source->name) ?></strong></p>
+<?php if ($task && $task->status === 'running'): ?>
+<div id="logs-config" style="display:none" data-task-id="<?= $task->id ?>"></div>
+<?php endif; ?>
+
+<!-- Информация о задаче -->
+<?php if ($task): ?>
+<div class="admin-card" style="margin-bottom: 24px;">
+    <div class="admin-card-header">
+        <h2 class="admin-card-title">Информация о задаче</h2>
+        <?php if ($task->status === 'running'): ?>
+            <span class="admin-badge admin-badge-warning"><i class="bi bi-arrow-repeat"></i> Выполняется</span>
+        <?php endif; ?>
+    </div>
+    <div class="admin-card-body">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
+            <div>
+                <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Источник</label>
+                <strong><?= Html::encode($task->source->name) ?></strong>
+            </div>
+            <div>
+                <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Статус</label>
+                <?php
+                $statusColors = [
+                    'pending' => 'secondary',
+                    'running' => 'warning',
+                    'completed' => 'success',
+                    'failed' => 'danger',
+                    'cancelled' => 'secondary',
+                ];
+                $color = $statusColors[$task->status] ?? 'secondary';
+                ?>
+                <span class="admin-badge admin-badge-<?= $color ?>"><?= $task->getStatusLabel() ?></span>
+            </div>
+            <div>
+                <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Прогресс</label>
+                <div style="background: var(--admin-surface); height: 20px; border-radius: 4px; overflow: hidden;">
+                    <div style="background: var(--admin-accent); height: 100%; width: <?= $task->getProgress() ?>%;"></div>
                 </div>
-                <div class="col-md-3">
-                    <h6 class="text-muted">Статус</h6>
-                    <?php
-                    $statusColors = [
-                        'pending' => 'secondary',
-                        'running' => 'warning',
-                        'completed' => 'success',
-                        'failed' => 'danger',
-                        'cancelled' => 'secondary',
-                    ];
-                    $color = $statusColors[$task->status] ?? 'secondary';
-                    ?>
-                    <span class="badge bg-<?= $color ?> fs-6"><?= $task->getStatusLabel() ?></span>
-                </div>
-                <div class="col-md-3">
-                    <h6 class="text-muted">Прогресс</h6>
-                    <div class="progress" style="height: 25px;">
-                        <div class="progress-bar bg-<?= $task->status === 'completed' ? 'success' : 'primary' ?>" 
-                             style="width: <?= $task->getProgress() ?>%">
-                            <?= $task->processed_products ?> / <?= $task->total_products ?>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <h6 class="text-muted">Результат</h6>
-                    <p class="mb-0">
-                        <span class="text-success">+<?= $task->imported_count ?></span>
-                        <span class="text-info">~<?= $task->updated_count ?></span>
-                        <span class="text-danger">!<?= $task->failed_count ?></span>
-                        <span class="text-warning">=<?= $task->duplicate_count ?></span>
-                    </p>
-                </div>
+                <small><?= $task->processed_products ?> / <?= $task->total_products ?></small>
+            </div>
+            <div>
+                <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Результат</label>
+                <p style="margin: 0;">
+                    <span style="color: var(--admin-success);">+<?= $task->imported_count ?></span>
+                    <span style="color: var(--admin-info);">~<?= $task->updated_count ?></span>
+                    <span style="color: var(--admin-danger);">!<?= $task->failed_count ?></span>
+                    <span style="color: var(--admin-warning);">=<?= $task->duplicate_count ?></span>
+                </p>
+            </div>
+        </div>
+        
+        <?php if ($task->status === 'running'): ?>
+        <div style="margin-top: 1rem;">
+            <?= Html::button('<i class="bi bi-stop-circle"></i> Остановить задачу', [
+                'class' => 'admin-btn admin-btn-danger admin-btn-sm btn-stop-task',
+                'data-task-id' => $task->id,
+            ]) ?>
+        </div>
+        <?php endif; ?>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- Фильтры -->
+<div class="admin-card" style="margin-bottom: 24px;">
+    <div class="admin-card-header">
+        <h2 class="admin-card-title"><i class="bi bi-funnel"></i> Фильтры</h2>
+    </div>
+    <div class="admin-card-body">
+        <form method="get" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; align-items: end;">
+            <?php if ($task): ?>
+            <input type="hidden" name="taskId" value="<?= $task->id ?>">
+            <?php endif; ?>
+            
+            <div>
+                <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Действие</label>
+                <select name="action" class="admin-form-input">
+                    <option value="">Все</option>
+                    <option value="created" <?= ($filters['action'] ?? '') === 'created' ? 'selected' : '' ?>>Создан</option>
+                    <option value="updated" <?= ($filters['action'] ?? '') === 'updated' ? 'selected' : '' ?>>Обновлен</option>
+                    <option value="duplicate" <?= ($filters['action'] ?? '') === 'duplicate' ? 'selected' : '' ?>>Дубликат</option>
+                    <option value="error" <?= ($filters['action'] ?? '') === 'error' ? 'selected' : '' ?>>Ошибка</option>
+                </select>
             </div>
             
-            <?php if ($task->status === 'running'): ?>
-            <div class="mt-3">
-                <?= Html::button('<i class="fas fa-stop"></i> Остановить задачу', [
-                    'class' => 'btn btn-outline-danger btn-stop-task',
-                    'data-task-id' => $task->id,
-                ]) ?>
+            <div>
+                <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Уровень</label>
+                <select name="level" class="admin-form-input">
+                    <option value="">Все</option>
+                    <option value="info" <?= ($filters['level'] ?? '') === 'info' ? 'selected' : '' ?>>Информация</option>
+                    <option value="warning" <?= ($filters['level'] ?? '') === 'warning' ? 'selected' : '' ?>>Предупреждение</option>
+                    <option value="error" <?= ($filters['level'] ?? '') === 'error' ? 'selected' : '' ?>>Ошибка</option>
+                </select>
             </div>
-            <?php endif; ?>
-        </div>
+            
+            <div>
+                <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Поиск</label>
+                <input type="text" name="search" class="admin-form-input" 
+                       value="<?= Html::encode($filters['search'] ?? '') ?>" 
+                       placeholder="SKU, название, сообщение...">
+            </div>
+            
+            <div>
+                <button type="submit" class="admin-btn admin-btn-primary admin-btn-sm" style="width: 100%;">
+                    <i class="bi bi-funnel"></i> Фильтр
+                </button>
+            </div>
+        </form>
     </div>
-    <?php endif; ?>
-
-    <!-- Фильтры -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <?php if ($task): ?>
-                <input type="hidden" name="taskId" value="<?= $task->id ?>">
-                <?php endif; ?>
-                
-                <div class="col-md-3">
-                    <label class="form-label">Действие</label>
-                    <select name="action" class="form-select">
-                        <option value="">Все</option>
-                        <option value="created" <?= ($filters['action'] ?? '') === 'created' ? 'selected' : '' ?>>Создан</option>
-                        <option value="updated" <?= ($filters['action'] ?? '') === 'updated' ? 'selected' : '' ?>>Обновлен</option>
-                        <option value="duplicate" <?= ($filters['action'] ?? '') === 'duplicate' ? 'selected' : '' ?>>Дубликат</option>
-                        <option value="error" <?= ($filters['action'] ?? '') === 'error' ? 'selected' : '' ?>>Ошибка</option>
-                    </select>
-                </div>
-                
-                <div class="col-md-3">
-                    <label class="form-label">Уровень</label>
-                    <select name="level" class="form-select">
-                        <option value="">Все</option>
-                        <option value="info" <?= ($filters['level'] ?? '') === 'info' ? 'selected' : '' ?>>Информация</option>
-                        <option value="warning" <?= ($filters['level'] ?? '') === 'warning' ? 'selected' : '' ?>>Предупреждение</option>
-                        <option value="error" <?= ($filters['level'] ?? '') === 'error' ? 'selected' : '' ?>>Ошибка</option>
-                    </select>
-                </div>
-                
-                <div class="col-md-4">
-                    <label class="form-label">Поиск</label>
-                    <input type="text" name="search" class="form-control" 
-                           value="<?= Html::encode($filters['search'] ?? '') ?>" 
-                           placeholder="SKU, название, сообщение...">
-                </div>
-                
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-filter"></i> Фильтр
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Логи -->
-    <?php Pjax::begin(['id' => 'logs-pjax']); ?>
-    
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
-                Логи
-                <?php if ($task): ?>
-                <small class="text-muted">(Задача #<?= $task->id ?>)</small>
-                <?php endif; ?>
-            </h5>
-            <?php if ($task && $task->status === 'running'): ?>
-            <span class="badge bg-warning text-dark">
-                <i class="fas fa-spinner fa-spin"></i> Обновление...
-            </span>
-            <?php endif; ?>
-        </div>
-        <div class="card-body p-0">
-            <?= GridView::widget([
-                'dataProvider' => $dataProvider,
-                'tableOptions' => ['class' => 'table table-hover mb-0'],
-                'pager' => [
-                    'class' => 'yii\bootstrap5\LinkPager',
-                ],
-                'columns' => [
-                    [
-                        'attribute' => 'created_at',
-                        'label' => 'Время',
-                        'format' => 'raw',
-                        'value' => function($model) {
-                            return '<small>' . date('H:i:s', strtotime($model->created_at)) . '</small>';
-                        },
-                        'headerOptions' => ['style' => 'width: 80px'],
-                    ],
-                    [
-                        'attribute' => 'action',
-                        'label' => 'Действие',
-                        'format' => 'raw',
-                        'value' => function($model) {
-                            $colors = [
-                                'created' => 'success',
-                                'updated' => 'info',
-                                'duplicate' => 'warning',
-                                'error' => 'danger',
-                                'skipped' => 'secondary',
-                            ];
-                            $color = $colors[$model->action] ?? 'secondary';
-                            return '<span class="badge bg-' . $color . '">' . $model->getActionLabel() . '</span>';
-                        },
-                        'headerOptions' => ['style' => 'width: 100px'],
-                    ],
-                    [
-                        'attribute' => 'sku',
-                        'label' => 'SKU',
-                        'headerOptions' => ['style' => 'width: 120px'],
-                    ],
-                    [
-                        'attribute' => 'product_name',
-                        'label' => 'Товар',
-                        'format' => 'raw',
-                        'value' => function($model) {
-                            $name = Html::encode($model->product_name);
-                            if ($model->product_id) {
-                                return Html::a($name, ['/catalog/product/view', 'id' => $model->product_id], [
-                                    'target' => '_blank',
-                                ]);
-                            }
-                            return $name;
-                        },
-                    ],
-                    [
-                        'attribute' => 'message',
-                        'label' => 'Сообщение',
-                        'format' => 'ntext',
-                    ],
-                    [
-                        'attribute' => 'error_details',
-                        'label' => 'Ошибка',
-                        'format' => 'raw',
-                        'value' => function($model) {
-                            if ($model->error_details) {
-                                return '<code class="text-danger small">' . Html::encode($model->error_details) . '</code>';
-                            }
-                            return '';
-                        },
-                    ],
-                ],
-            ]); ?>
-        </div>
-    </div>
-    
-    <?php Pjax::end(); ?>
 </div>
+
+<!-- Логи -->
+<?php Pjax::begin(['id' => 'logs-pjax']); ?>
+
+<div class="admin-card">
+    <div class="admin-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 class="admin-card-title">
+            <i class="bi bi-list-ul"></i> Логи
+            <?php if ($task): ?>
+            <small style="color: var(--admin-text-secondary); font-weight: normal;">(Задача #<?= $task->id ?>)</small>
+            <?php endif; ?>
+        </h2>
+        <?php if ($task && $task->status === 'running'): ?>
+        <span class="admin-badge admin-badge-warning">
+            <i class="bi bi-arrow-repeat"></i> Обновление...
+        </span>
+        <?php endif; ?>
+    </div>
+    <div class="admin-card-body" style="padding: 0;">
+        <?= GridView::widget([
+            'dataProvider' => $dataProvider,
+            'tableOptions' => ['class' => 'admin-table'],
+            'pager' => [
+                'class' => 'yii\bootstrap5\LinkPager',
+            ],
+            'columns' => [
+                [
+                    'attribute' => 'created_at',
+                    'label' => 'Время',
+                    'format' => 'raw',
+                    'value' => function($model) {
+                        return '<small>' . date('H:i:s', strtotime($model->created_at)) . '</small>';
+                    },
+                    'headerOptions' => ['style' => 'width: 80px'],
+                ],
+                [
+                    'attribute' => 'action',
+                    'label' => 'Действие',
+                    'format' => 'raw',
+                    'value' => function($model) {
+                        $colors = [
+                            'created' => 'success',
+                            'updated' => 'info',
+                            'duplicate' => 'warning',
+                            'error' => 'danger',
+                            'skipped' => 'secondary',
+                        ];
+                        $color = $colors[$model->action] ?? 'secondary';
+                        return '<span class="admin-badge admin-badge-' . $color . '">' . $model->getActionLabel() . '</span>';
+                    },
+                    'headerOptions' => ['style' => 'width: 100px'],
+                ],
+                [
+                    'attribute' => 'sku',
+                    'label' => 'SKU',
+                    'headerOptions' => ['style' => 'width: 120px'],
+                ],
+                [
+                    'attribute' => 'product_name',
+                    'label' => 'Товар',
+                    'format' => 'raw',
+                    'value' => function($model) {
+                        $name = Html::encode($model->product_name);
+                        if ($model->product_id) {
+                            return Html::a($name, ['/catalog/product/view', 'id' => $model->product_id], [
+                                'target' => '_blank',
+                            ]);
+                        }
+                        return $name;
+                    },
+                ],
+                [
+                    'attribute' => 'message',
+                    'label' => 'Сообщение',
+                    'format' => 'ntext',
+                ],
+                [
+                    'attribute' => 'error_details',
+                    'label' => 'Ошибка',
+                    'format' => 'raw',
+                    'value' => function($model) {
+                        if ($model->error_details) {
+                            return '<code style="color: var(--admin-danger); font-size: 0.875rem;">' . Html::encode($model->error_details) . '</code>';
+                        }
+                        return '';
+                    },
+                ],
+            ],
+        ]); ?>
+    </div>
+</div>
+
+<?php Pjax::end(); ?>

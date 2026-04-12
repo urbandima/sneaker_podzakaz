@@ -244,6 +244,14 @@ class SiteController extends Controller
     }
 
     /**
+     * Инструкция по оплате на юридическое лицо
+     */
+    public function actionPaymentInstruction()
+    {
+        return $this->render('//pages/payment-instruction');
+    }
+
+    /**
      * Страница входа в систему
      *
      * @return string|Response

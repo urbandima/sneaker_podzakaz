@@ -25,7 +25,9 @@ class ProductAsset extends VersionedAssetBundle
         'js/favorites.js',
         'js/product-page.js',
     ];
-    
+
+    public $jsOptions = ['defer' => true];
+
     public $depends = [
         'app\frontend\assets\AppAsset',
         'yii\web\JqueryAsset',

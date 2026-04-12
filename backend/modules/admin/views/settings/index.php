@@ -16,9 +16,9 @@ $company = Yii::$app->settings->getCompany() ?? [];
     data-save-url="<?= \yii\helpers\Url::to(['/admin/settings/save']) ?>"
 ></div>
 
-<div class="admin-header">
-    <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
-</div>
+<?php
+$this->params['headerActions'] = [];
+?>
 
 <!-- Быстрые ссылки -->
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:24px">
@@ -34,29 +34,18 @@ $company = Yii::$app->settings->getCompany() ?? [];
         </div>
     </a>
     
-    <a href="<?= \yii\helpers\Url::to(['/admin/settings/integrations']) ?>" class="admin-card" style="text-decoration:none;color:inherit;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:48px;height:48px;background:linear-gradient(135deg,#10b981,#059669);border-radius:12px;display:flex;align-items:center;justify-content:center">
-                <i class="bi bi-plug" style="font-size:24px;color:white"></i>
-            </div>
-            <div>
-                <h3 style="margin:0;font-size:16px;font-weight:600">Интеграции</h3>
-                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">AmoCRM, МойСклад, Telegram</p>
-            </div>
-        </div>
-    </a>
-    
     <a href="<?= \yii\helpers\Url::to(['/admin/plugin']) ?>" class="admin-card" style="text-decoration:none;color:inherit;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
         <div style="display:flex;align-items:center;gap:12px">
             <div style="width:48px;height:48px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border-radius:12px;display:flex;align-items:center;justify-content:center">
-                <i class="bi bi-plugin" style="font-size:24px;color:white"></i>
+                <i class="bi bi-puzzle-fill" style="font-size:24px;color:white"></i>
             </div>
             <div>
-                <h3 style="margin:0;font-size:16px;font-weight:600">Плагины</h3>
-                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">Дополнительные модули</p>
+                <h3 style="margin:0;font-size:16px;font-weight:600">Плагины и интеграции</h3>
+                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">AmoCRM, МойСклад, Telegram, Таможня:ДП</p>
             </div>
         </div>
     </a>
+
     <a href="<?= \yii\helpers\Url::to(['/admin/seo']) ?>" class="admin-card" style="text-decoration:none;color:inherit;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
         <div style="display:flex;align-items:center;gap:12px">
             <div style="width:48px;height:48px;background:linear-gradient(135deg,#ec4899,#db2777);border-radius:12px;display:flex;align-items:center;justify-content:center">
@@ -73,12 +62,13 @@ $company = Yii::$app->settings->getCompany() ?? [];
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
     <!-- Компания -->
     <div class="admin-card" id="companyCard">
-        <h2 class="admin-card-title">
-            <i class="bi bi-building"></i>
-            Информация о компании
-        </h2>
-
-        <div style="margin-top: 1.5rem;">
+        <div class="admin-card-header">
+            <h2 class="admin-card-title">
+                <i class="bi bi-building"></i>
+                Информация о компании
+            </h2>
+        </div>
+        <div class="admin-card-body">
             <div class="form-group">
                 <label>Название</label>
                 <input type="text" class="form-control" id="co_name" value="<?= Html::encode($company['name'] ?? 'СНИКЕРХЭД') ?>">
@@ -123,12 +113,13 @@ $company = Yii::$app->settings->getCompany() ?? [];
     
     <!-- Система -->
     <div class="admin-card">
-        <h2 class="admin-card-title">
-            <i class="bi bi-gear"></i>
-            Системные настройки
-        </h2>
-        
-        <div style="margin-top: 1.5rem;">
+        <div class="admin-card-header">
+            <h2 class="admin-card-title">
+                <i class="bi bi-gear"></i>
+                Системные настройки
+            </h2>
+        </div>
+        <div class="admin-card-body">
             <div class="form-group">
                 <label>Режим обслуживания</label>
                 <select class="form-control" data-setting="system.maintenance_mode">
@@ -159,12 +150,13 @@ $company = Yii::$app->settings->getCompany() ?? [];
     
     <!-- Безопасность -->
     <div class="admin-card">
-        <h2 class="admin-card-title">
-            <i class="bi bi-shield-check"></i>
-            Безопасность
-        </h2>
-        
-        <div style="margin-top: 1.5rem;">
+        <div class="admin-card-header">
+            <h2 class="admin-card-title">
+                <i class="bi bi-shield-check"></i>
+                Безопасность
+            </h2>
+        </div>
+        <div class="admin-card-body">
             <div class="form-group">
                 <label>Максимум попыток входа</label>
                 <input type="number" class="form-control" value="<?= Html::encode(Yii::$app->settings->get('security', 'max_login_attempts', 5)) ?>" data-setting="security.max_login_attempts">
@@ -298,11 +290,13 @@ $company = Yii::$app->settings->getCompany() ?? [];
 
     <!-- Автообновление курса CNY -->
     <div class="admin-card">
-        <h2 class="admin-card-title">
-            <i class="bi bi-currency-exchange"></i>
-            Курс CNY — автообновление
-        </h2>
-        <div style="margin-top: 1.5rem;">
+        <div class="admin-card-header">
+            <h2 class="admin-card-title">
+                <i class="bi bi-currency-exchange"></i>
+                Курс CNY — автообновление
+            </h2>
+        </div>
+        <div class="admin-card-body">
             <div class="form-group">
                 <label>Автообновление курса CNY</label>
                 <select class="form-control" data-setting="system.cny_auto_update">
@@ -354,11 +348,13 @@ $company = Yii::$app->settings->getCompany() ?? [];
 
     <!-- AmoCRM -->
     <div class="admin-card">
-        <h2 class="admin-card-title">
-            <i class="bi bi-people"></i>
-            AmoCRM
-        </h2>
-        <div style="margin-top: 1.5rem;">
+        <div class="admin-card-header">
+            <h2 class="admin-card-title">
+                <i class="bi bi-people"></i>
+                AmoCRM
+            </h2>
+        </div>
+        <div class="admin-card-body">
             <div class="form-group">
                 <label>Домен <small style="font-weight:400;color:#94a3b8;">(yourcompany.amocrm.ru)</small></label>
                 <input type="text" class="form-control" value="<?= Html::encode(Yii::$app->settings->get('amocrm', 'domain', '')) ?>" data-setting="amocrm.domain" placeholder="yourcompany.amocrm.ru">

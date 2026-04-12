@@ -40,22 +40,7 @@ $this->registerMetaTag(['name' => 'description', 'content' => 'Товары бр
         <?php if (!empty($products)): ?>
         <div class="products-grid">
             <?php foreach ($products as $product): ?>
-            <div class="product-card">
-                <a href="<?= Url::to(['/catalog/product', 'slug' => $product['slug'] ?? ($product['id'] ?? '')]) ?>">
-                    <div class="product-image">
-                        <img src="<?= Html::encode($product['image'] ?? '/images/placeholder.png') ?>" 
-                             alt="<?= Html::encode($product['name'] ?? 'Товар') ?>"
-                             loading="lazy">
-                    </div>
-                    <div class="product-info">
-                        <div class="brand-name"><?= Html::encode($product['brand_name'] ?? '') ?></div>
-                        <div class="product-name"><?= Html::encode($product['name'] ?? 'Товар') ?></div>
-                        <div class="product-price">
-                            <?= Yii::$app->formatter->asCurrency($product['price'] ?? 0, 'BYN') ?>
-                        </div>
-                    </div>
-                </a>
-            </div>
+            <?= $this->render('_product_card_simple', ['product' => $product]) ?>
             <?php endforeach; ?>
         </div>
 

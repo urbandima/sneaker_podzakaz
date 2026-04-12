@@ -27,7 +27,9 @@ class CatalogAsset extends VersionedAssetBundle
         'js/favorites.js',
         'js/catalog.js',
     ];
-    
+
+    public $jsOptions = ['defer' => true];
+
     public $depends = [
         'app\frontend\assets\AppAsset',
     ];

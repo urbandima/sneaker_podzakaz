@@ -186,13 +186,27 @@
 }
 
 .payment-icon {
-    height: 28px;
-    opacity: 0.85;
-    transition: opacity var(--duration-fast);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    opacity: 0.75;
+    transition: opacity var(--duration-fast), transform var(--duration-fast);
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: default;
+    flex-shrink: 0;
+}
+
+.payment-icon svg {
+    display: block;
+    width: auto;
+    height: 30px;
 }
 
 .payment-icon:hover {
     opacity: 1;
+    transform: translateY(-1px);
 }
 
 .copyright {

@@ -26,20 +26,20 @@ class CartController extends FrontendCartController
 
         if (in_array($action->id, $ajaxActions) && Yii::$app->request->isAjax) {
             $csrfToken = Yii::$app->request->getHeaders()->get('X-CSRF-Token');
-            $validToken = Yii::$app->request->getCsrfToken();
 
-            if ($csrfToken && hash_equals($validToken, $csrfToken)) {
-                return parent::beforeAction($action);
+            if (!$csrfToken || !Yii::$app->request->validateCsrfToken($csrfToken)) {
+                Yii::$app->response->format = Response::FORMAT_JSON;
+                Yii::$app->response->data = [
+                    'success' => false,
+                    'message' => 'CSRF token validation failed',
+                    'error'   => 'csrf_invalid',
+                ];
+                Yii::$app->response->send();
+                return false;
             }
 
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            Yii::$app->response->data = [
-                'success' => false,
-                'message' => 'CSRF token validation failed',
-                'error'   => 'csrf_invalid',
-            ];
-            Yii::$app->response->send();
-            return false;
+            // CSRF is valid; disable framework-level re-validation to avoid double-check
+            Yii::$app->controller->enableCsrfValidation = false;
         }
 
         return parent::beforeAction($action);

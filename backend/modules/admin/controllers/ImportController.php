@@ -3,7 +3,6 @@
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
-use yii\web\Controller;
 use yii\web\Response;
 use yii\web\UploadedFile;
 use yii\filters\VerbFilter;
@@ -32,7 +31,7 @@ use app\backend\modules\admin\services\import\NbrbRateService;
  * - upload: Загрузка файлов для ручного импорта
  * - process-file: Обработка загруженного файла
  */
-class ImportController extends Controller
+class ImportController extends BaseAdminController
 {
     public function behaviors(): array
     {

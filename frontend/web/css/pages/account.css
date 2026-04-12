@@ -10,7 +10,7 @@
 }
 
 .account-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 var(--space-4);
 }
@@ -572,5 +572,166 @@
 
     .info-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* ======================================================
+   RESPONSIVE — ACCOUNT PAGES (additional)
+   ====================================================== */
+
+/* === TABLET (≤991px): sidebar becomes top nav === */
+@media (max-width: 991px) {
+    .account-sidebar {
+        position: static;
+        order: -1;
+    }
+
+    /* Sidebar: horizontal scrollable tab strip */
+    .sidebar-card {
+        padding: 0;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+    }
+    .user-info {
+        display: none; /* hide avatar block — too much vertical space */
+    }
+    .sidebar-nav {
+        display: flex;
+        overflow-x: auto;
+        scrollbar-width: none;
+        gap: var(--space-2);
+        padding-bottom: var(--space-2);
+        border-bottom: 1px solid var(--color-border);
+        margin-bottom: var(--space-4);
+    }
+    .sidebar-nav::-webkit-scrollbar { display: none; }
+    .sidebar-nav a {
+        flex-shrink: 0;
+        white-space: nowrap;
+        padding: var(--space-2) var(--space-4);
+        border-radius: var(--radius-full);
+        border: 1.5px solid var(--color-border);
+        font-size: var(--text-sm);
+        background: var(--color-bg-primary);
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        transition: all var(--duration-fast);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        min-height: 44px;
+    }
+    .sidebar-nav a i {
+        font-size: var(--text-base);
+    }
+    .sidebar-nav a.active,
+    .sidebar-nav a[aria-current] {
+        background: var(--c-black);
+        color: #fff;
+        border-color: var(--c-black);
+    }
+    .sidebar-nav a:hover:not(.active) {
+        border-color: var(--c-black);
+        color: var(--color-text-primary);
+    }
+    /* Hide "logout" in tab strip on tablet */
+    .sidebar-nav .nav-logout {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+    }
+}
+
+/* === MOBILE (≤768px) === */
+@media (max-width: 768px) {
+    .account-page {
+        padding: var(--space-4) 0 var(--space-10);
+    }
+    .account-container {
+        padding: 0 var(--space-4);
+    }
+    .account-header h1 {
+        font-size: var(--text-xl);
+    }
+
+    /* Forms: full width */
+    .profile-form .form-row {
+        grid-template-columns: 1fr;
+    }
+    .profile-form input,
+    .profile-form select,
+    .profile-form textarea {
+        font-size: 16px; /* prevent iOS zoom */
+    }
+
+    /* Order cards: compact */
+    .order-card {
+        padding: var(--space-4);
+    }
+    .order-card-body {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+    }
+    .order-items-preview {
+        flex-wrap: wrap;
+    }
+    .order-item-thumb {
+        width: 56px;
+        height: 56px;
+    }
+
+    /* Return/loyalty tables: horizontal scroll */
+    .returns-table,
+    .loyalty-table {
+        overflow-x: auto;
+        display: block;
+    }
+
+    /* Content card: reduce padding */
+    .content-card {
+        padding: var(--space-4);
+        border-radius: var(--radius-lg);
+    }
+    .content-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+        margin-bottom: var(--space-4);
+    }
+    .content-header h2 {
+        font-size: var(--text-lg);
+    }
+
+    /* Form buttons: full width on mobile */
+    .profile-form .form-actions,
+    .password-form .form-actions {
+        flex-direction: column;
+    }
+    .profile-form .form-actions .btn,
+    .password-form .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Account breadcrumbs: compact */
+    .account-breadcrumbs {
+        font-size: var(--text-xs);
+        gap: var(--space-1);
+        margin-bottom: var(--space-4);
+        flex-wrap: wrap;
+    }
+
+    /* Favorites grid: 2 columns */
+    .content-card .products-grid,
+    .content-card .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-3);
+    }
+
+    /* Loyalty points block */
+    .loyalty-hero {
+        flex-direction: column;
+        text-align: center;
     }
 }

@@ -4,9 +4,9 @@
  */
 
 .contacts-page {
-    max-width: 800px;
+    max-width: var(--container-max);
     margin: 0 auto;
-    padding: 64px 24px;
+    padding: 64px var(--container-pad);
 }
 
 .contacts-header {

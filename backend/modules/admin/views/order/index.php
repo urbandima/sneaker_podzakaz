@@ -42,14 +42,16 @@ $this->params['breadcrumbs'][] = ['label' => 'Заказы', 'url' => ['/admin/o
 
 // Kanban column definitions
 $kanbanColumns = [
-    'new'        => 'Новый',
-    'paid'       => 'Оплачен',
-    'ordered'    => 'Выкуплен',
-    'shipped'    => 'В доставке',
-    'delivered'  => 'На складе',
-    'transferred'=> 'Передан в РБ',
-    'completed'  => 'Завершён',
-    'canceled'   => 'Отменён',
+    'new'                    => 'Новый',
+    'paid'                   => 'Оплачен',
+    'confirmed_and_paid'     => 'Подтвержден и оплачен',
+    'ordered'                => 'Заказано',
+    'awaiting_warehouse'     => 'Ожидается на складе',
+    'international_delivery' => 'В международной доставке',
+    'at_warehouse'           => 'На складе',
+    'local_delivery'         => 'В доставке',
+    'delivered'              => 'Выдан',
+    'canceled'               => 'Отменен',
 ];
 
 // Merge with all DB statuses (keep Kanban order first, then extras)
@@ -99,18 +101,6 @@ $showingTo   = $totalCount ? $showingFrom + count($orders) - 1 : 0;
 
 
 
-
-<div class="admin-header">
-    <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
-    <div class="admin-header-actions">
-        <a href="<?= Url::to(['/admin/order/export-csv'] + Yii::$app->request->get()) ?>" class="admin-btn admin-btn-secondary">
-            <i class="bi bi-file-earmark-spreadsheet"></i> Экспорт CSV
-        </a>
-        <a href="<?= Url::to(['/admin/order/create']) ?>" class="admin-btn admin-btn-primary">
-            <i class="bi bi-plus-circle"></i> Новый заказ
-        </a>
-    </div>
-</div>
 
 <!-- Статистика -->
 <div class="admin-stats">
@@ -328,8 +318,15 @@ $showingTo   = $totalCount ? $showingFrom + count($orders) - 1 : 0;
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="10" style="text-align:center;padding:2rem;color:var(--admin-text-secondary,#6b7280);">
-                                Нет заказов по текущим фильтрам
+                            <td colspan="10">
+                                <div class="empty-state" style="padding: 2rem;">
+                                    <div class="empty-state-icon">
+                                        <i class="bi bi-inbox"></i>
+                                    </div>
+                                    <h3 class="empty-state-title">Нет заказов по текущим фильтрам</h3>
+                                    <p class="empty-state-description">Измените параметры поиска или создайте новый заказ</p>
+                                    <?= Html::a('<i class="bi bi-plus-circle"></i> Создать заказ', ['create'], ['class' => 'admin-btn admin-btn-primary']) ?>
+                                </div>
                             </td>
                         </tr>
                     <?php endif; ?>

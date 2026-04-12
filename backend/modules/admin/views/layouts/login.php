@@ -16,12 +16,13 @@ use yii\helpers\Url;
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
-    
-    <!-- Admin CSS -->
-    <link href="/css/admin-shopify-2026.css?v=<?= time() ?>" rel="stylesheet">
-    
-    <!-- Bootstrap Icons CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/core/design-tokens.css">
+    <link rel="stylesheet" href="/css/admin-tokens.css">
+    <link rel="stylesheet" href="/css/admin-shopify-2026.css">
+
+    <?php $this->head() ?>
     
     <?php // Отключаем debug toolbar для страницы входа ?>
     <?php if (class_exists('yii\debug\Module')): ?>
@@ -30,7 +31,7 @@ use yii\helpers\Url;
         </style>
     <?php endif; ?>
     
-    </head>
+</head>
 <body>
 <?php $this->beginBody() ?>
 

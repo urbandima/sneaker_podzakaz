@@ -159,7 +159,7 @@ $this->title = 'Статистика';
                                 <?php
                                 $active = 0;
                                 foreach ($logist->assignedOrders as $order) {
-                                    if ($order->status != 'issued') {
+                                    if ($order->status != 'delivered') {
                                         $active++;
                                     }
                                 }
@@ -170,7 +170,7 @@ $this->title = 'Статистика';
                                 <?php
                                 $completed = 0;
                                 foreach ($logist->assignedOrders as $order) {
-                                    if ($order->status == 'issued') {
+                                    if ($order->status == 'delivered') {
                                         $completed++;
                                     }
                                 }

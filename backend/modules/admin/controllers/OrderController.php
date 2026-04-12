@@ -131,12 +131,15 @@ class OrderController extends BaseAdminController
 
         $statuses = Yii::$app->settings->getStatuses();
         $statusDescriptions = [
-            'created' => 'Заказ создан и ожидает подтверждения',
-            'confirmed' => 'Подтвержден менеджером',
-            'paid' => 'Оплата получена и проверена',
+            'new' => 'Заказ поступил и ожидает оплаты',
+            'paid' => 'Клиент предоставил чек оплаты',
+            'confirmed_and_paid' => 'Паспортные данные переданы, заказ готов к отправке',
             'ordered' => 'Товар заказан у поставщика',
-            'shipped' => 'Отправлен в Беларусь',
-            'delivered' => 'Готов к выдаче клиенту',
+            'awaiting_warehouse' => 'Ожидается на международном складе',
+            'international_delivery' => 'В международной доставке',
+            'at_warehouse' => 'Заказ на складе в Беларуси',
+            'local_delivery' => 'Доставка внутри Беларуси',
+            'delivered' => 'Заказ выдан клиенту',
             'canceled' => 'Заказ отменен',
         ];
 
@@ -333,11 +336,15 @@ class OrderController extends BaseAdminController
         // Загружаем динамические статусы
         $statuses = Yii::$app->settings->getStatuses();
 
+        // Определяем, можно ли редактировать заказ
+        $canEdit = $this->canEditOrder($model);
+
         // Используем новый улучшенный интерфейс просмотра заказа
         return $this->render('view-wizard-new', [
             'model' => $model,
             'editing' => Yii::$app->request->get('editing', false),
             'statuses' => $statuses,
+            'canEdit' => $canEdit,
         ]);
     }
 
@@ -392,9 +399,17 @@ class OrderController extends BaseAdminController
             }
         }
 
+        // Загружаем динамические статусы
+        $statuses = Yii::$app->settings->getStatuses();
+        
+        // Определяем, можно ли редактировать заказ
+        $canEdit = $this->canEditOrder($model);
+
         return $this->render('view-wizard-new', [
             'model' => $model,
             'editing' => true,
+            'statuses' => $statuses,
+            'canEdit' => $canEdit,
         ]);
     }
 
@@ -1139,6 +1154,28 @@ class OrderController extends BaseAdminController
     }
 
     /**
+     * Проверяет, может ли текущий пользователь редактировать заказ
+     * 
+     * @param Order $model
+     * @return bool
+     */
+    protected function canEditOrder($model)
+    {
+        // Админ и менеджер могут редактировать все заказы
+        if ($this->isAdmin() || $this->isManager()) {
+            return true;
+        }
+        
+        // Логист может редактировать только свои заказы
+        if ($this->isLogist()) {
+            $user = $this->getCurrentUser();
+            return $model->assigned_logist == $user->id;
+        }
+        
+        return false;
+    }
+
+    /**
      * Массовое назначение логиста
      */
     public function actionBulkAssignLogist()
@@ -1232,5 +1269,129 @@ class OrderController extends BaseAdminController
         $track = Yii::$app->request->get('track', '');
         if (empty($track)) return ['status' => 'Трек не указан'];
         return ['status' => 'Трек ' . $track . ': API не настроен', 'message' => 'Проверьте на сайте перевозчика'];
+    }
+
+    /**
+     * POST /admin/order/{id}/send-to-dp
+     * Вручную отправить заказ в Таможня:ДП
+     */
+    public function actionSendToDp($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $model = $this->findModel($id);
+
+        if (!$model->isPassportComplete()) {
+            return ['success' => false, 'message' => 'Паспортные данные получателя заполнены не полностью'];
+        }
+
+        if ($model->isSubmittedToDP()) {
+            return ['success' => false, 'message' => 'Заказ уже отправлен в Таможня:ДП (шипмент #' . $model->dp_shipment_id . ')'];
+        }
+
+        try {
+            /** @var \app\backend\modules\checkout\services\DobroPostService $dp */
+            $dp = Yii::$app->dobropost;
+            $response = $dp->createShipment($model);
+
+            return [
+                'success'    => true,
+                'message'    => 'Заказ успешно отправлен в Таможня:ДП',
+                'shipment_id'  => $response['id'] ?? null,
+                'track_number' => $response['dptrackNumber'] ?? null,
+            ];
+        } catch (\Exception $e) {
+            Yii::error('Исключение при отправке заказа #' . $id . ' в Таможня:ДП: ' . $e->getMessage(), 'dp-api');
+            return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * GET /admin/order/{id}/dp-status
+     * Актуализировать статус шипмента из Таможня:ДП
+     */
+    public function actionDpStatus($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $model = $this->findModel($id);
+
+        if (!$model->isSubmittedToDP()) {
+            return ['success' => false, 'message' => 'Заказ не отправлен в Таможня:ДП'];
+        }
+
+        try {
+            /** @var \app\backend\modules\checkout\services\DobroPostService $dp */
+            $dp = Yii::$app->dobropost;
+
+            // Запрашиваем список шипментов и ищем наш по ID
+            $result  = $dp->getShipments(['statusId' => null]);
+            $content = $result['content'] ?? ($result[0] ?? null);
+
+            // Поддерживаем оба формата ответа: объект (одна запись) и массив (список)
+            $shipment = null;
+            if (isset($result['id']) && $result['id'] == $model->dp_shipment_id) {
+                $shipment = $result;
+            } elseif (is_array($result)) {
+                foreach ($result as $s) {
+                    if (isset($s['id']) && $s['id'] == $model->dp_shipment_id) {
+                        $shipment = $s;
+                        break;
+                    }
+                }
+            }
+
+            if ($shipment) {
+                $dp->handleCreateResponse($model, $shipment);
+                $statusName = $shipment['status']['name'] ?? $model->dp_status;
+                return ['success' => true, 'message' => 'Статус обновлён: ' . $statusName, 'status' => $statusName];
+            }
+
+            return ['success' => true, 'message' => 'Шипмент не найден в ответе API', 'status' => $model->dp_status];
+        } catch (\Exception $e) {
+            Yii::error('Ошибка обновления статуса ДП заказа #' . $id . ': ' . $e->getMessage(), 'dp-api');
+            return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * POST /admin/order/{id}/retry-dp
+     * Повторить отправку в Таможня:ДП (сброс и пересоздание шипмента)
+     */
+    public function actionRetryDp($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $model = $this->findModel($id);
+
+        if (!$model->isPassportComplete()) {
+            return ['success' => false, 'message' => 'Паспортные данные получателя заполнены не полностью'];
+        }
+
+        try {
+            // Сброс DP-полей перед повторной отправкой
+            $model->dp_shipment_id  = null;
+            $model->dp_track_number = null;
+            $model->dp_status       = null;
+            $model->dp_status_date  = null;
+            $model->dp_sent_at      = null;
+            $model->dp_response     = null;
+            $model->save(false);
+
+            /** @var \app\backend\modules\checkout\services\DobroPostService $dp */
+            $dp       = Yii::$app->dobropost;
+            $response = $dp->createShipment($model);
+
+            Yii::info('Повторная отправка заказа #' . $id . ' в Таможня:ДП успешна, шипмент #' . ($response['id'] ?? '-'), 'dp-api');
+            return [
+                'success'      => true,
+                'message'      => 'Повторная отправка выполнена успешно',
+                'shipment_id'  => $response['id'] ?? null,
+                'track_number' => $response['dptrackNumber'] ?? null,
+            ];
+        } catch (\Exception $e) {
+            Yii::error('Ошибка повторной отправки заказа #' . $id . ' в Таможня:ДП: ' . $e->getMessage(), 'dp-api');
+            return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
+        }
     }
 }

@@ -22,11 +22,19 @@ services:
     environment:
       - YII_ENV=${YII_ENV:-dev}
       - YII_DEBUG=${YII_DEBUG:-true}
-      - DB_DSN=mysql:host=db;dbname=${DB_NAME:-sneaker_db};charset=utf8mb4
-      - DB_USERNAME=${DB_USERNAME:-sneaker}
+      - DB_DSN=mysql:host=db;port=3306;dbname=${DB_NAME:-sneaker_db};charset=utf8mb4
+      - DB_USER=${DB_USER:-sneaker}
+      - DB_USERNAME=${DB_USER:-sneaker}
       - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - DB_NAME=${DB_NAME:-sneaker_db}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - COOKIE_VALIDATION_KEY=${COOKIE_VALIDATION_KEY}
+      - COMPANY_NAME=${COMPANY_NAME:-СникерКультура}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@sneakerculture.by}
+      - MAIL_USE_FILE_TRANSPORT=${MAIL_USE_FILE_TRANSPORT:-true}
+      - MAIL_FROM_EMAIL=${MAIL_FROM_EMAIL:-noreply@sneakerculture.by}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME:-СникерКультура}
 
   # ============================================
   # Nginx Web Server

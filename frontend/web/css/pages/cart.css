@@ -4,31 +4,31 @@
    ============================================== */
 
 .cart-page {
-    padding: var(--space-8) 0 var(--space-16);
+    padding: var(--space-5) 0 var(--space-8);
     background: var(--color-bg-secondary);
     min-height: calc(100vh - var(--header-height));
 }
 
 .cart-layout {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: var(--space-12);
+    grid-template-columns: 1.7fr 1fr;
+    gap: var(--space-6);
     align-items: start;
 }
 
 .cart-items {
     display: flex;
     flex-direction: column;
-    gap: var(--space-6);
+    gap: var(--space-3);
 }
 
 .cart-item {
     display: flex;
-    gap: var(--space-6);
+    gap: var(--space-4);
     background: var(--color-bg-primary);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
     position: relative;
     transition: border-color var(--duration-base), box-shadow var(--duration-base);
 }
@@ -39,10 +39,10 @@
 }
 
 .item-image {
-    width: 160px;
-    height: 160px;
+    width: 88px;
+    height: 88px;
     background: var(--color-bg-secondary);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     flex-shrink: 0;
 }
 
@@ -50,7 +50,7 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    padding: var(--space-3);
+    padding: var(--space-2);
 }
 
 .item-info {
@@ -69,7 +69,7 @@
 }
 
 .item-name {
-    font-size: var(--text-lg);
+    font-size: var(--text-base);
     font-weight: var(--font-weight-semibold);
     margin: 0;
 }
@@ -144,15 +144,16 @@
 
 .item-remove {
     position: absolute;
-    top: var(--space-6);
-    right: var(--space-6);
+    top: var(--space-3);
+    right: var(--space-3);
     background: transparent;
     border: none;
     color: var(--color-text-muted);
-    font-size: var(--text-xl);
+    font-size: var(--text-base);
     cursor: pointer;
     transition: all var(--duration-fast);
     padding: 0;
+    line-height: 1;
 }
 
 .item-remove:hover {
@@ -165,14 +166,14 @@
     background: var(--color-bg-primary);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-xl);
-    padding: var(--space-8);
+    padding: var(--space-5);
     position: sticky;
     top: calc(var(--header-height) + var(--space-4));
 }
 
 .promo-code-section {
-    margin-bottom: var(--space-8);
-    padding-bottom: var(--space-8);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-4);
     border-bottom: 1px solid var(--color-border);
 }
 
@@ -372,5 +373,114 @@
 
     .item-quantity {
         margin-top: var(--space-4);
+    }
+}
+
+/* ======================================================
+   RESPONSIVE — CART PAGE (additional)
+   ====================================================== */
+
+/* === MOBILE (≤768px) === */
+@media (max-width: 768px) {
+    .cart-page {
+        padding: var(--space-4) 0 100px; /* space for sticky bar */
+    }
+
+    /* Image: smaller on mobile, not full-width */
+    .item-image {
+        width: 100px;
+        height: 100px;
+        flex-shrink: 0;
+        align-self: flex-start;
+    }
+
+    /* Cart item: row layout (image left, info right) */
+    .cart-item {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: var(--space-3);
+        padding: var(--space-4);
+    }
+    .item-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .item-name {
+        font-size: var(--text-base);
+        white-space: normal;
+    }
+
+    /* Price: inline with info */
+    .item-price {
+        align-items: flex-start;
+        margin-top: 0;
+        border-top: none;
+        padding-top: 0;
+        flex-direction: row;
+        align-items: center;
+        gap: var(--space-2);
+    }
+    .subtotal {
+        font-size: var(--text-base);
+    }
+
+    /* Quantity: touch-friendly */
+    .item-quantity {
+        height: 44px;
+    }
+    .item-quantity button {
+        width: 44px;
+    }
+    .item-quantity input {
+        width: 44px;
+    }
+
+    /* Empty cart */
+    .cart-empty {
+        padding: var(--space-10) var(--space-4);
+    }
+
+    /* Promo input group: stack */
+    .promo-input-group {
+        flex-direction: column;
+    }
+    .btn-promo-apply {
+        width: 100%;
+    }
+}
+
+/* === STICKY CHECKOUT BAR (mobile) === */
+@media (max-width: 768px) {
+    .cart-summary-actions {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: var(--z-sticky, 100);
+        background: var(--color-bg-primary);
+        border-top: 1px solid var(--color-border);
+        padding: var(--space-3) var(--space-4);
+        padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+        box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+        margin-top: 0;
+        flex-direction: row;
+        gap: var(--space-3);
+        align-items: center;
+    }
+    .btn-checkout {
+        flex: 1;
+        height: 48px;
+        font-size: var(--text-base);
+        border-radius: var(--radius-full);
+    }
+    /* Hide "continue shopping" in sticky bar */
+    .cart-summary-actions .btn-continue {
+        display: none;
+    }
+
+    /* Cart summary box: no sticky, just inline */
+    .cart-summary {
+        position: static;
+        /* Hide detailed summary on mobile — user sees totals in sticky bar */
     }
 }

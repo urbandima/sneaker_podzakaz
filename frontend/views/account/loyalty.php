@@ -1,19 +1,12 @@
 <?php
 
-/**
- * Loyalty Section - Секция программы лояльности в личном кабинете
- * 
- * Отображает:
- * - Карточку уровня клиента
- * - Прогресс до следующего уровня
- * - Преимущества текущего уровня
- * - Историю баллов
- */
-
 use yii\helpers\Html;
 
 /** @var yii\web\View $this */
+/** @var app\backend\modules\account\models\Customer $customer */
 /** @var array $loyaltyInfo */
+
+$this->title = 'Баллы лояльности - СНИКЕРХЭД';
 
 $level = $loyaltyInfo['level'] ?? null;
 $balance = $loyaltyInfo['balance'] ?? 0;
@@ -31,161 +24,177 @@ $levelColors = [
 $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
 ?>
 
-<div class="loyalty-section">
-    <div class="section-header">
-        <h2>Программа лояльности</h2>
-    </div>
-    
-    <!-- Loyalty Card -->
-    <div class="loyalty-card" data-level="<?= Html::encode(strtolower($levelInfo[1] ?? 'bronze')) ?>" style="--level-color: <?= Html::encode($levelInfo[0] ?? '#cd7f32') ?>">
-        <div class="card-header">
-            <div class="level-badge">
-                <div class="badge-icon">
-                    <i class="bi bi-gem"></i>
-                </div>
-                <div class="badge-info">
-                    <span class="level-name"><?= $levelInfo[1] ?></span>
-                    <span class="level-status">Текущий уровень</span>
-                </div>
-            </div>
-            <div class="points-display">
-                <div class="points-value"><?= number_format($balance, 0, '', ' ') ?></div>
-                <div class="points-label">баллов</div>
-            </div>
+<div class="account-page">
+    <div class="account-container">
+        <nav class="account-breadcrumbs">
+            <a href="/">Главная</a>
+            <span>/</span>
+            <a href="/account">Личный кабинет</a>
+            <span>/</span>
+            <span class="current">Баллы лояльности</span>
+        </nav>
+
+        <div class="account-header">
+            <h1><i class="bi bi-person-circle"></i> Личный кабинет</h1>
         </div>
-        
-        <?php if ($nextLevel): ?>
-        <div class="card-progress">
-            <div class="progress-header">
-                <span>До уровня "<?= $nextLevel->name ?>"</span>
-                <span><?= number_format($pointsToNext, 0, '', ' ') ?> баллов</span>
-            </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" style="--progress-width: <?= ($balance / $nextLevel->min_points) * 100 ?>%"></div>
-            </div>
-        </div>
-        <?php endif; ?>
-        
-        <div class="card-benefits">
-            <h4>Ваши преимущества:</h4>
-            <ul class="benefits-list">
-                <?php if ($level): ?>
-                    <?php if ($level->points_multiplier > 1): ?>
-                    <li>
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>+<?= ($level->points_multiplier - 1) * 100 ?>% к начислению баллов</span>
-                    </li>
-                    <?php endif; ?>
-                    
-                    <?php if ($level->discount_percent > 0): ?>
-                    <li>
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>Скидка <?= $level->discount_percent ?>% на все покупки</span>
-                    </li>
-                    <?php endif; ?>
-                    
-                    <?php foreach ($level->getBenefitsList() as $benefit): ?>
-                    <li>
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span><?= Html::encode($benefit) ?></span>
-                    </li>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <li>
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>Базовое начисление баллов за покупки</span>
-                    </li>
-                <?php endif; ?>
-            </ul>
-        </div>
-        
-        <div class="card-info">
-            <div class="info-item">
-                <i class="bi bi-info-circle"></i>
-                <span>1 балл = 0.01 BYN. Минимум для списания: 100 баллов</span>
-            </div>
-        </div>
-    </div>
-    
-    <!-- How to Earn -->
-    <div class="earn-section">
-        <h3>Как заработать баллы</h3>
-        <div class="earn-grid">
-            <div class="earn-item">
-                <div class="earn-icon"><i class="bi bi-cart"></i></div>
-                <div class="earn-info">
-                    <div class="earn-title">Покупки</div>
-                    <div class="earn-value">10 баллов за 1 BYN</div>
+
+        <div class="account-grid">
+            <?= $this->render('_sidebar', [
+                'customer' => $customer,
+                'activePage' => 'loyalty',
+            ]) ?>
+
+            <main class="account-content">
+                <div class="loyalty-section">
+                    <div class="section-header">
+                        <h2><i class="bi bi-gem"></i> Программа лояльности</h2>
+                    </div>
+
+                    <!-- Loyalty Card -->
+                    <div class="loyalty-card" data-level="<?= Html::encode(strtolower($levelInfo[1] ?? 'bronze')) ?>" style="--level-color: <?= Html::encode($levelInfo[0] ?? '#cd7f32') ?>">
+                        <div class="card-header">
+                            <div class="level-badge">
+                                <div class="badge-icon">
+                                    <i class="bi bi-gem"></i>
+                                </div>
+                                <div class="badge-info">
+                                    <span class="level-name"><?= $levelInfo[1] ?></span>
+                                    <span class="level-status">Текущий уровень</span>
+                                </div>
+                            </div>
+                            <div class="points-display">
+                                <div class="points-value"><?= number_format($balance, 0, '', ' ') ?></div>
+                                <div class="points-label">баллов</div>
+                            </div>
+                        </div>
+
+                        <?php if ($nextLevel): ?>
+                        <div class="card-progress">
+                            <div class="progress-header">
+                                <span>До уровня "<?= Html::encode($nextLevel->name) ?>"</span>
+                                <span><?= number_format($pointsToNext, 0, '', ' ') ?> баллов</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="--progress-width: <?= min(100, ($balance / max(1, $nextLevel->min_points)) * 100) ?>%"></div>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+
+                        <div class="card-benefits">
+                            <h4>Ваши преимущества:</h4>
+                            <ul class="benefits-list">
+                                <?php if ($level): ?>
+                                    <?php if ($level->points_multiplier > 1): ?>
+                                    <li>
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        <span>+<?= ($level->points_multiplier - 1) * 100 ?>% к начислению баллов</span>
+                                    </li>
+                                    <?php endif; ?>
+                                    <?php if ($level->discount_percent > 0): ?>
+                                    <li>
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        <span>Скидка <?= $level->discount_percent ?>% на все покупки</span>
+                                    </li>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <li>
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        <span>Базовое начисление баллов за покупки</span>
+                                    </li>
+                                <?php endif; ?>
+                            </ul>
+                        </div>
+
+                        <div class="card-info">
+                            <div class="info-item">
+                                <i class="bi bi-info-circle"></i>
+                                <span>1 балл = 0.01 BYN. Минимум для списания: 100 баллов</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- How to Earn -->
+                    <div class="earn-section">
+                        <h3>Как заработать баллы</h3>
+                        <div class="earn-grid">
+                            <div class="earn-item">
+                                <div class="earn-icon"><i class="bi bi-cart"></i></div>
+                                <div class="earn-info">
+                                    <div class="earn-title">Покупки</div>
+                                    <div class="earn-value">10 баллов за 1 BYN</div>
+                                </div>
+                            </div>
+                            <div class="earn-item">
+                                <div class="earn-icon"><i class="bi bi-pencil-square"></i></div>
+                                <div class="earn-info">
+                                    <div class="earn-title">Отзыв о товаре</div>
+                                    <div class="earn-value">+50 баллов</div>
+                                </div>
+                            </div>
+                            <div class="earn-item">
+                                <div class="earn-icon"><i class="bi bi-people"></i></div>
+                                <div class="earn-info">
+                                    <div class="earn-title">Приглашение друга</div>
+                                    <div class="earn-value">+200 баллов</div>
+                                </div>
+                            </div>
+                            <div class="earn-item">
+                                <div class="earn-icon"><i class="bi bi-gift"></i></div>
+                                <div class="earn-info">
+                                    <div class="earn-title">Регистрация</div>
+                                    <div class="earn-value">+100 баллов</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Points History -->
+                    <div class="history-section">
+                        <h3>История баллов</h3>
+
+                        <?php if (empty($history)): ?>
+                            <div class="empty-history">
+                                <i class="bi bi-clock-history"></i>
+                                <p>История баллов пуста</p>
+                            </div>
+                        <?php else: ?>
+                            <div class="history-table">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Дата</th>
+                                            <th>Описание</th>
+                                            <th>Баллы</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($history as $item): ?>
+                                        <tr>
+                                            <td><?= Html::encode($item['date']) ?></td>
+                                            <td><?= Html::encode($item['description'] ?? '') ?></td>
+                                            <td class="<?= $item['points'] > 0 ? 'points-positive' : 'points-negative' ?>">
+                                                <?= $item['points'] > 0 ? '+' : '' ?><?= $item['points'] ?>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
-            </div>
-            <div class="earn-item">
-                <div class="earn-icon"><i class="bi bi-pencil-square"></i></div>
-                <div class="earn-info">
-                    <div class="earn-title">Отзыв о товаре</div>
-                    <div class="earn-value">+50 баллов</div>
-                </div>
-            </div>
-            <div class="earn-item">
-                <div class="earn-icon"><i class="bi bi-people"></i></div>
-                <div class="earn-info">
-                    <div class="earn-title">Приглашение друга</div>
-                    <div class="earn-value">+200 баллов</div>
-                </div>
-            </div>
-            <div class="earn-item">
-                <div class="earn-icon"><i class="bi bi-gift"></i></div>
-                <div class="earn-info">
-                    <div class="earn-title">Регистрация</div>
-                    <div class="earn-value">+100 баллов</div>
-                </div>
-            </div>
+            </main>
         </div>
-    </div>
-    
-    <!-- Points History -->
-    <div class="history-section">
-        <h3>История баллов</h3>
-        
-        <?php if (empty($history)): ?>
-            <div class="empty-history">
-                <i class="bi bi-clock-history"></i>
-                <p>История баллов пуста</p>
-            </div>
-        <?php else: ?>
-            <div class="history-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Дата</th>
-                            <th>Баллы</th>
-                            <th>Баланс</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($history as $item): ?>
-                        <tr>
-                            <td><?= Yii::$app->formatter->asDate($item->created_at, 'dd.MM.yyyy') ?></td>
-                            <td>
-                                <span class="operation-type type-<?= $item->type ?>">
-                                    <?= $item->description ?: $item->getTypeName() ?>
-                                </span>
-                            </td>
-                            <td class="<?= $item->points > 0 ? 'points-positive' : 'points-negative' ?>">
-                                <?= $item->points > 0 ? '+' : '' ?><?= $item->points ?>
-                            </td>
-                            <td><?= $item->balance ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
     </div>
 </div>
 
 <style>
 .loyalty-section {
-    padding: 2rem 0;
+    padding: 0;
+}
+
+.section-header {
+    margin-bottom: 1.5rem;
 }
 
 .section-header h2 {
@@ -200,7 +209,6 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
     color: #f59e0b;
 }
 
-/* Loyalty Card */
 .loyalty-card {
     background: linear-gradient(135deg, var(--level-color) 0%, #1e293b 100%);
     border-radius: 20px;
@@ -283,6 +291,7 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
 
 .progress-bar {
     height: 100%;
+    width: var(--progress-width, 0%);
     background: white;
     border-radius: 4px;
     transition: width 1s ease;
@@ -325,7 +334,6 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
     opacity: 0.8;
 }
 
-/* Earn Section */
 .earn-section {
     margin-bottom: 2rem;
 }
@@ -367,7 +375,6 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
     font-weight: 600;
 }
 
-/* History Section */
 .history-section h3 {
     font-size: 1.25rem;
     font-weight: 700;
@@ -413,21 +420,6 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
     border-bottom: 1px solid #f1f5f9;
 }
 
-.operation-type {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 100px;
-    font-size: 0.8125rem;
-    font-weight: 500;
-}
-
-.type-purchase { background: #dbeafe; color: #1e40af; }
-.type-redeem { background: #fef3c7; color: #92400e; }
-.type-bonus { background: #d1fae5; color: #065f46; }
-.type-referral { background: #ede9fe; color: #5b21b6; }
-.type-signup { background: #fce7f3; color: #9d174d; }
-.type-review { background: #e0e7ff; color: #3730a3; }
-
 .points-positive {
     color: #10b981;
     font-weight: 600;
@@ -438,18 +430,17 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
     font-weight: 600;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .earn-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .card-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
     }
-    
+
     .points-display {
         text-align: left;
     }

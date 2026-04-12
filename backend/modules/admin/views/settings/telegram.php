@@ -10,11 +10,13 @@ use yii\helpers\Url;
 $this->title = 'Настройки Telegram-бота';
 ?>
 
-<div class="admin-header">
-    <h1 class="admin-header-title">
-        <i class="bi bi-telegram"></i> <?= Html::encode($this->title) ?>
-    </h1>
-</div>
+<?php
+$this->params['headerActions'] = [
+    '<button class="admin-btn admin-btn-primary" onclick="testTelegramConnection()">
+        <i class="bi bi-check-circle"></i> Проверить подключение
+    </button>',
+];
+?>
 
 <!-- Статус подключения -->
 <div class="admin-card" style="margin-bottom:24px">

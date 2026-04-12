@@ -3,7 +3,7 @@
 /** @var yii\web\View $this */
 /** @var string $content */
 
-use app\assets\PublicAsset;
+use app\frontend\assets\PublicAsset;
 use yii\bootstrap5\Html;
 
 PublicAsset::register($this);
@@ -536,7 +536,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
             <div class="footer-legal">
                 <p>Общество с ограниченной ответственностью «СникерКультура». УНП 193618972, зарегистрировано 15 марта 2022 года Минским Горисполкомом.</p>
                 <p>Юридический адрес: Беларусь, 220004, г.Минск, пр-т Победителей 5 (БЦ «Александровский»), офис 9. Время приема заявок - круглосуточно.</p>
-                <p>Магазин зарегистрирован в торговом реестре 11.08.2022 №539453. <a href="/privacy">Политика конфиденциальности</a></p>
+                <p>Магазин зарегистрирован в торговом реестре 11.08.2022 №539453. <a href="/offer-agreement">Договор оферты</a> · <a href="/payment-instruction">Инструкция по оплате</a> · <a href="/privacy">Политика конфиденциальности</a></p>
             </div>
             
             <div class="footer-bottom-content">

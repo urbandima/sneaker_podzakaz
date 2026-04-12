@@ -59,7 +59,7 @@ class CustomerController extends BaseAdminController
         // Фильтр по статусу
         $status = Yii::$app->request->get('status');
         if ($status !== null && $status !== '') {
-            $query->andWhere(['is_active' => $status]);
+            $query->andWhere(['status' => (int)$status]);
         }
 
         // Сортировка
@@ -77,8 +77,8 @@ class CustomerController extends BaseAdminController
         // Статистика
         $stats = [
             'total' => Customer::find()->count(),
-            'active' => Customer::find()->where(['is_active' => Customer::STATUS_ACTIVE])->count(),
-            'inactive' => Customer::find()->where(['is_active' => Customer::STATUS_INACTIVE])->count(),
+            'active' => Customer::find()->where(['status' => Customer::STATUS_ACTIVE])->count(),
+            'inactive' => Customer::find()->where(['status' => Customer::STATUS_INACTIVE])->count(),
             'new_today' => Customer::find()->where(['>=', 'created_at', strtotime('today')])->count(),
             'new_week' => Customer::find()->where(['>=', 'created_at', strtotime('-7 days')])->count(),
         ];
@@ -188,16 +188,16 @@ class CustomerController extends BaseAdminController
             return ['success' => false, 'message' => 'Покупатель не найден'];
         }
 
-        if ($customer->is_active === Customer::STATUS_ACTIVE) {
-            $customer->is_active = Customer::STATUS_INACTIVE;
+        if ($customer->status === Customer::STATUS_ACTIVE) {
+            $customer->status = Customer::STATUS_INACTIVE;
             $message = 'Покупатель заблокирован';
         } else {
-            $customer->is_active = Customer::STATUS_ACTIVE;
+            $customer->status = Customer::STATUS_ACTIVE;
             $message = 'Покупатель разблокирован';
         }
 
         if ($customer->save(false)) {
-            return ['success' => true, 'message' => $message, 'status' => $customer->is_active];
+            return ['success' => true, 'message' => $message, 'status' => $customer->status];
         }
 
         return ['success' => false, 'message' => 'Ошибка при изменении статуса'];
@@ -213,7 +213,7 @@ class CustomerController extends BaseAdminController
             throw new \yii\web\NotFoundHttpException('Покупатель не найден');
         }
 
-        $customer->is_active = Customer::STATUS_INACTIVE;
+        $customer->status = Customer::STATUS_INACTIVE;
         $customer->save(false);
 
         Yii::$app->session->setFlash('success', 'Покупатель удален');
@@ -254,7 +254,7 @@ class CustomerController extends BaseAdminController
     public function actionExport()
     {
         $customers = Customer::find()
-            ->where(['!=', 'is_active', Customer::STATUS_INACTIVE])
+            ->where(['!=', 'status', Customer::STATUS_INACTIVE])
             ->orderBy(['created_at' => SORT_DESC])
             ->all();
 

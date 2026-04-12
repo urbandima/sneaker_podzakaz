@@ -29,7 +29,7 @@ $menuItems = [
             <div class="user-avatar">
                 <?= mb_strtoupper(mb_substr($customer->first_name ?: $customer->email, 0, 1)) ?>
             </div>
-            <div class="user-name"><?= Html::encode($customer->getFullName ? $customer->getFullName() : ($customer->first_name . ' ' . $customer->last_name)) ?></div>
+            <div class="user-name"><?= Html::encode($customer->fullName) ?></div>
             <div class="user-email"><?= Html::encode($customer->email) ?></div>
 
             <?php if (!empty($orders)): ?>

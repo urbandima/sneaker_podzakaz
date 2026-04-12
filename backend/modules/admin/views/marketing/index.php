@@ -6,87 +6,42 @@ use yii\helpers\Url;
 $this->title = 'Маркетинг';
 ?>
 
-<div class="admin-header">
-    <h1 class="admin-header-title">
-        <i class="bi bi-megaphone"></i> Маркетинг
-    </h1>
-    <div class="admin-header-actions">
-        <a href="<?= Url::to(['marketing/abandoned-carts']) ?>" class="admin-btn admin-btn-secondary">
-            <i class="bi bi-cart-x"></i> Брошенные корзины
-        </a>
-        <a href="<?= Url::to(['marketing/recommendations']) ?>" class="admin-btn admin-btn-secondary">
-            <i class="bi bi-stars"></i> Рекомендации
-        </a>
-    </div>
-</div>
+<?php
+$this->params['headerActions'] = [
+    Html::a('<i class="bi bi-cart-x"></i> Брошенные корзины', ['marketing/abandoned-carts'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm']),
+    Html::a('<i class="bi bi-stars"></i> Рекомендации', ['marketing/recommendations'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm'])
+];
+?>
 
-<div class="marketing-grid">
-    <div class="marketing-card">
-        <div class="marketing-card-header">
-            <div class="marketing-icon abandoned">
-                <i class="bi bi-cart-x"></i>
-            </div>
-            <div class="marketing-stat">
-                <div class="marketing-stat-value"><?= $abandonedStats['total_abandoned'] ?></div>
-                <div class="marketing-stat-label">Брошенных корзин</div>
-            </div>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--admin-border);">
-            <div>
-                <div style="font-size: 1.25rem; font-weight: 700;"><?= Yii::$app->formatter->asCurrency($abandonedStats['total_value'], 'BYN') ?></div>
-                <div style="font-size: 0.75rem; color: var(--admin-text-secondary);">Общая сумма</div>
-            </div>
-            <div>
-                <div style="font-size: 1.25rem; font-weight: 700;"><?= Yii::$app->formatter->asCurrency($abandonedStats['avg_value'], 'BYN') ?></div>
-                <div style="font-size: 0.75rem; color: var(--admin-text-secondary);">Средний чек</div>
-            </div>
+<div class="admin-stats" style="margin-bottom: 24px;">
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon abandoned"><i class="bi bi-cart-x"></i></div>
+        <div class="admin-stat-content">
+            <div class="admin-stat-value"><?= $abandonedStats['total_abandoned'] ?></div>
+            <div class="admin-stat-label">Брошенных корзин</div>
         </div>
     </div>
-    
-    <div class="marketing-card">
-        <div class="marketing-card-header">
-            <div class="marketing-icon upsell">
-                <i class="bi bi-arrow-up-circle"></i>
-            </div>
-            <div class="marketing-stat">
-                <div class="marketing-stat-value"><?= number_format($recommendationStats['conversion_rate'], 1) ?>%</div>
-                <div class="marketing-stat-label">Конверсия рекомендаций</div>
-            </div>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--admin-border);">
-            <div>
-                <div style="font-size: 1.25rem; font-weight: 700;"><?= $recommendationStats['total_clicks'] ?></div>
-                <div style="font-size: 0.75rem; color: var(--admin-text-secondary);">Кликов</div>
-            </div>
-            <div>
-                <div style="font-size: 1.25rem; font-weight: 700;"><?= $recommendationStats['total_conversions'] ?></div>
-                <div style="font-size: 0.75rem; color: var(--admin-text-secondary);">Покупок</div>
-            </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon upsell"><i class="bi bi-arrow-up-circle"></i></div>
+        <div class="admin-stat-content">
+            <div class="admin-stat-value"><?= number_format($recommendationStats['conversion_rate'], 1) ?>%</div>
+            <div class="admin-stat-label">Конверсия рекомендаций</div>
         </div>
     </div>
-    
-    <div class="marketing-card">
-        <div class="marketing-card-header">
-            <div class="marketing-icon reviews">
-                <i class="bi bi-star-fill"></i>
-            </div>
-            <div class="marketing-stat">
-                <div class="marketing-stat-value"><?= number_format($abandonedStats['recovery_rate'], 1) ?>%</div>
-                <div class="marketing-stat-label">Восстановление корзин</div>
-            </div>
-        </div>
-        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--admin-border);">
-            <button type="button" class="admin-btn admin-btn-primary" style="width: 100%;"
-                    onclick="sendBulkReminders(this)"
-                    data-bulk-url="<?= Url::to(['marketing/send-bulk-reminders']) ?>">
-                <i class="bi bi-send"></i> Отправить напоминания
-            </button>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon reviews"><i class="bi bi-star-fill"></i></div>
+        <div class="admin-stat-content">
+            <div class="admin-stat-value"><?= number_format($abandonedStats['recovery_rate'], 1) ?>%</div>
+            <div class="admin-stat-label">Восстановление корзин</div>
         </div>
     </div>
 </div>
 
 <div class="admin-card">
-    <h3 style="margin: 0 0 1rem 0;">Последние брошенные корзины</h3>
+    <div class="admin-card-header">
+        <h2 class="admin-card-title">Последние брошенные корзины</h2>
+    </div>
+    <div class="admin-card-body">
     
     <?php if (!empty($abandonedCarts)): ?>
         <div class="abandoned-cart-list">
@@ -126,4 +81,19 @@ $this->title = 'Маркетинг';
             </a>
         </div>
     <?php endif; ?>
+    </div>
+</div>
+
+<!-- Кнопка массовой отправки напоминаний -->
+<div class="admin-card" style="margin-top: 24px;">
+    <div class="admin-card-header">
+        <h2 class="admin-card-title">Массовая отправка напоминаний</h2>
+    </div>
+    <div class="admin-card-body">
+        <button type="button" class="admin-btn admin-btn-primary"
+                onclick="sendBulkReminders(this)"
+                data-bulk-url="<?= Url::to(['marketing/send-bulk-reminders']) ?>">
+            <i class="bi bi-send"></i> Отправить напоминания всем
+        </button>
+    </div>
 </div>

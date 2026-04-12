@@ -82,6 +82,12 @@ class Order extends ActiveRecord
             [['passport_number', 'dobropost_tariff'], 'string', 'max' => 100],
             [['product_link', 'sneakerhead_order_link'], 'string', 'max' => 500],
             [['passport_issue_date', 'birth_date'], 'safe'],
+            // DP fields
+            [['dp_shipment_id', 'dp_sent_at', 'passport_submitted_at'], 'integer'],
+            [['dp_track_number', 'dp_status', 'local_delivery_status'], 'string', 'max' => 100],
+            [['dp_status_date', 'estimated_delivery_date'], 'safe'],
+            [['passport_validated'], 'boolean'],
+            [['dp_response'], 'safe'],
         ];
     }
 
@@ -125,7 +131,7 @@ class Order extends ActiveRecord
             'item_quantity' => 'Кол-во товара',
             'item_price_cny' => 'Стоимость товара (¥)',
             'product_link' => 'Ссылка на товар',
-            'dobropost_tariff' => 'Тариф ДоброПост',
+            'dobropost_tariff' => 'Тариф Таможня:ДП',
             'sneakerhead_order_link' => 'Ссылка на заказ',
             'delivery_date' => 'Срок доставки',
             'comment' => 'Комментарий',
@@ -135,8 +141,19 @@ class Order extends ActiveRecord
             'assigned_logist' => 'Логист',
             'source' => 'Источник',
             'source_id' => 'ID источника',
-            'created_at' => 'Создан',
-            'updated_at' => 'Обновлен',
+            'created_at'              => 'Создан',
+            'updated_at'              => 'Обновлен',
+            // DP fields
+            'dp_shipment_id'          => 'ID шипмента ДП',
+            'dp_track_number'         => 'Трек Таможня:ДП',
+            'dp_status'               => 'Статус Таможня:ДП',
+            'dp_status_date'          => 'Дата статуса ДП',
+            'dp_sent_at'              => 'Отправлен в ДП',
+            'dp_response'             => 'Ответ API ДП',
+            'passport_submitted_at'   => 'Паспорт подан',
+            'passport_validated'      => 'Паспорт проверен',
+            'estimated_delivery_date' => 'Ожидаемая дата доставки',
+            'local_delivery_status'   => 'Статус местной доставки',
         ];
     }
 
@@ -154,7 +171,7 @@ class Order extends ActiveRecord
                 }
                 // Устанавливаем начальный статус
                 if (empty($this->status)) {
-                    $this->status = 'created';
+                    $this->status = 'new';
                 }
             }
             return true;
@@ -347,5 +364,44 @@ class Order extends ActiveRecord
     public function getHistory()
     {
         return $this->hasMany(OrderHistory::class, ['order_id' => 'id'])->orderBy(['created_at' => SORT_DESC]);
+    }
+
+    // -------------------------------------------------------------------------
+    // Таможня:ДП helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Все обязательные паспортные поля заполнены.
+     */
+    public function isPassportComplete(): bool
+    {
+        return !empty($this->recipient_last_name)
+            && !empty($this->recipient_first_name)
+            && !empty($this->passport_series)
+            && !empty($this->passport_number)
+            && !empty($this->passport_issue_date)
+            && !empty($this->inn)
+            && !empty($this->full_address)
+            && !empty($this->city)
+            && !empty($this->region)
+            && !empty($this->postal_code);
+    }
+
+    /**
+     * Заказ готов к отправке в Таможня:ДП.
+     */
+    public function canSubmitToDP(): bool
+    {
+        return $this->isPassportComplete()
+            && !empty($this->china_track_number)
+            && !$this->isSubmittedToDP();
+    }
+
+    /**
+     * Шипмент уже был создан в Таможня:ДП.
+     */
+    public function isSubmittedToDP(): bool
+    {
+        return !empty($this->dp_shipment_id);
     }
 }

@@ -10,52 +10,53 @@
  */
 :root {
     /* === Фоны (mapped to core) === */
-    --admin-bg:               var(--color-bg-secondary, #f7f8fa);
-    --admin-surface:          var(--color-bg-primary, #ffffff);
-    --admin-surface-hover:    var(--color-bg-tertiary, #fafbfc);
+    --admin-bg: var(--color-bg-secondary, #f7f8fa);
+    --admin-surface: var(--color-bg-primary, #ffffff);
+    --admin-surface-hover: var(--color-bg-tertiary, #fafbfc);
 
     /* === Текст (mapped to core) === */
-    --admin-text:             var(--color-text-primary, #202223);
-    --admin-text-secondary:   var(--color-text-secondary, #6d7175);
-    --admin-text-subdued:     var(--color-text-muted, #8c9196);
+    --admin-text: var(--color-text-primary, #202223);
+    --admin-text-secondary: var(--color-text-secondary, #6d7175);
+    --admin-text-subdued: var(--color-text-muted, #8c9196);
 
     /* === Границы (mapped to core) === */
-    --admin-border:           var(--color-border, #e1e3e5);
-    --admin-border-light:     var(--color-bg-tertiary, #f1f2f4);
+    --admin-border: var(--color-border, #e1e3e5);
+    --admin-border-light: var(--color-bg-tertiary, #f1f2f4);
+    --admin-border-subdued: var(--color-bg-tertiary, #f1f2f4);
 
     /* === Статусы (mapped to core) === */
-    --admin-success:          var(--color-success, #16a34a);
-    --admin-success-bg:       var(--color-success-bg, #dcfce7);
-    --admin-danger:           var(--color-danger, #dc2626);
-    --admin-danger-bg:        var(--color-danger-bg, #fee2e2);
-    --admin-warning:          var(--color-warning, #d97706);
-    --admin-warning-bg:       var(--color-warning-bg, #fef9c3);
-    --admin-info:             var(--color-info, #0369a1);
-    --admin-info-bg:          var(--color-info-bg, #e0f2fe);
+    --admin-success: var(--color-success, #16a34a);
+    --admin-success-bg: var(--color-success-bg, #dcfce7);
+    --admin-danger: var(--color-danger, #dc2626);
+    --admin-danger-bg: var(--color-danger-bg, #fee2e2);
+    --admin-warning: var(--color-warning, #d97706);
+    --admin-warning-bg: var(--color-warning-bg, #fef9c3);
+    --admin-info: var(--color-info, #0369a1);
+    --admin-info-bg: var(--color-info-bg, #e0f2fe);
 
     /* === Admin-специфичные (нет аналога в core) === */
-    --admin-primary:          #202223;
-    --admin-primary-hover:    #2c2e2f;
-    --admin-accent:           #008060;
-    --admin-accent-hover:     #006e52;
+    --admin-primary: #202223;
+    --admin-primary-hover: #2c2e2f;
+    --admin-accent: #008060;
+    --admin-accent-hover: #006e52;
 
     /* === Скругления === */
-    --admin-radius-sm:        6px;
-    --admin-radius:           12px;
-    --admin-radius-lg:        16px;
-    --admin-radius-xl:        20px;
+    --admin-radius-sm: 6px;
+    --admin-radius: 12px;
+    --admin-radius-lg: 16px;
+    --admin-radius-xl: 20px;
 
     /* === Тени === */
-    --admin-shadow-sm:        0 1px 3px rgba(0, 0, 0, 0.08);
-    --admin-shadow-md:        0 4px 12px rgba(0, 0, 0, 0.10);
-    --admin-shadow-lg:        0 8px 24px rgba(0, 0, 0, 0.12);
+    --admin-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --admin-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.10);
+    --admin-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
 
     /* === Отступы (алиасы для spacing) === */
-    --spacing-xs:   var(--space-1, 4px);
-    --spacing-sm:   var(--space-2, 8px);
-    --spacing-md:   var(--space-3, 12px);
+    --spacing-xs: var(--space-1, 4px);
+    --spacing-sm: var(--space-2, 8px);
+    --spacing-md: var(--space-3, 12px);
     --spacing-base: var(--space-4, 16px);
-    --spacing-lg:   var(--space-5, 20px);
-    --spacing-xl:   var(--space-6, 24px);
-    --spacing-2xl:  var(--space-8, 32px);
+    --spacing-lg: var(--space-5, 20px);
+    --spacing-xl: var(--space-6, 24px);
+    --spacing-2xl: var(--space-8, 32px);
 }

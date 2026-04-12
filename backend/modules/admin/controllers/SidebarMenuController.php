@@ -2,6 +2,7 @@
 
 namespace app\backend\modules\admin\controllers;
 
+use Yii;
 use app\backend\modules\admin\models\SidebarMenuItem;
 use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;

@@ -13,11 +13,11 @@ use app\frontend\assets\VersionedAssetBundle;
  */
 class CartAsset extends VersionedAssetBundle
 {
-    public $sourcePath = '@frontend/web';  // Источник файлов
+    public $basePath = '@webroot';
     public $baseUrl = '@web';
     
     public $css = [
-        'css/cart.css',
+        // css/pages/cart.css and css/pages/checkout.css are loaded by AppAsset
     ];
     
     public $js = [

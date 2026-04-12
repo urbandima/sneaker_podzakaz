@@ -36,11 +36,26 @@ function loadCartDrawerItems() {
 
 // Переопределяем добавление в корзину для открытия Drawer
 function addToCart(productId, quantity = 1, size = null, color = null) {
+    // When called with no args (e.g. onclick="addToCart()"), read from the page
+    if (productId === undefined || productId === null) {
+        const meta = document.querySelector('meta[name="product-id"]');
+        productId = meta ? meta.getAttribute('content') : null;
+    }
+    if (!size) {
+        size = window.selectedProductSize || null;
+    }
+
+    if (!productId) {
+        SH.notify('Не удалось определить товар', 'error');
+        return;
+    }
+
     const formData = new FormData();
     formData.append('product_id', productId);
     formData.append('quantity', quantity);
     if (size) formData.append('size', size);
     if (color) formData.append('color', color);
+    formData.append('_csrf', SH.getCsrfToken());
 
     SH.fetch('/cart/add', { method: 'POST', body: formData })
         .then(function (data) {

@@ -66,7 +66,7 @@ $formatter = Yii::$app->formatter;
                         </div>
                         <i class="bi bi-arrow-up-right"></i>
                     </a>
-                    <a href="<?= Url::to(['/admin/order/index', 'status' => 'created']) ?>" class="quick-action-tile">
+                    <a href="<?= Url::to(['/admin/order/index', 'status' => 'new']) ?>" class="quick-action-tile">
                         <div class="tile-icon glass-blue">
                             <i class="bi bi-kanban"></i>
                         </div>

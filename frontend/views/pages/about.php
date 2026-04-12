@@ -7,74 +7,94 @@ use yii\helpers\Url;
 
 $this->title = 'О компании СНИКЕРХЭД — магазин оригинальных кроссовок';
 $this->params['breadcrumbs'][] = $this->title;
+
+\app\frontend\assets\AboutAsset::register($this);
 ?>
 
 <div class="about-page">
-    <div class="about-container">
-        
-        <!-- Заголовок страницы -->
-        <div class="about-hero">
-            <h1><?= Html::encode($this->title) ?></h1>
-            <p class="about-subtitle">Ведущий магазин оригинальных кроссовок в Беларуси</p>
-        </div>
 
-        <!-- Основная информация -->
-        <section class="about-section">
-            <h2>О компании</h2>
-            <div class="about-cards">
-                <div class="about-card">
-                    <div class="about-card-icon">
-                        <i class="bi bi-shield-check"></i>
-                    </div>
-                    <h3>100% подлинность</h3>
-                    <p>Гарантируем оригинальность всех товаров. Каждый кроссовок проходит проверку качества.</p>
-                </div>
-                <div class="about-card">
-                    <div class="about-card-icon">
-                        <i class="bi bi-truck"></i>
-                    </div>
-                    <h3>Быстрая доставка</h3>
-                    <p>Доставка по всей Беларуси в кратчайшие сроки. Отслеживание на каждом этапе.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Наша миссия -->
-        <section class="about-section">
-            <h2>Наша миссия</h2>
-            <div class="about-mission">
-                <p>
-                    СНИКЕРХЭД — это не просто магазин, а сообщество ценителей оригинальной уличной культуры. 
-                    Мы стремимся сделать доступными лучшие мировые бренды кроссовок для жителей Беларуси.
-                </p>
-                <p>
-                    Наша цель — предоставить качественный сервис, оригинальную продукцию и создать 
-                    комфортные условия для покупки кроссовок онлайн.
-                </p>
-            </div>
-        </section>
-
-        <!-- Преимущества -->
-        <section class="about-section">
-            <h2>Почему выбирают нас</h2>
-            <div class="about-stats">
-                <div class="stat-item">
-                    <i class="bi bi-award"></i>
-                    <h4>Гарантия качества</h4>
-                    <p>Проверка каждого товара перед отправкой</p>
-                </div>
-                <div class="stat-item">
-                    <i class="bi bi-shield-check"></i>
-                    <h4>Защищенный платеж</h4>
-                    <p>Безопасные способы оплаты</p>
-                </div>
-                <div class="stat-item">
-                    <i class="bi bi-patch-check"></i>
-                    <h4>Оригинальная продукция</h4>
-                    <p>Только оригинальные товары от брендов</p>
-                </div>
-            </div>
-        </section>
-
+    <!-- Заголовок -->
+    <div class="about-header">
+        <h1 class="about-title">О компании</h1>
+        <p class="about-subtitle">Ведущий магазин оригинальных кроссовок в Беларуси с гарантией подлинности</p>
     </div>
+
+    <!-- Преимущества -->
+    <div class="about-benefits">
+        <div class="benefits-grid-2">
+            <div class="benefit-card-large">
+                <div class="benefit-icon-large">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h3>100% подлинность</h3>
+                <p>Гарантируем оригинальность всех товаров. Каждая пара проходит проверку перед отправкой.</p>
+            </div>
+            <div class="benefit-card-large">
+                <div class="benefit-icon-large">
+                    <i class="bi bi-truck"></i>
+                </div>
+                <h3>Быстрая доставка</h3>
+                <p>Доставляем по всей Беларуси. Курьер в Минске — на следующий день, почта — 3–5 дней.</p>
+            </div>
+            <div class="benefit-card-large">
+                <div class="benefit-icon-large">
+                    <i class="bi bi-arrow-repeat"></i>
+                </div>
+                <h3>14 дней на возврат</h3>
+                <p>Не подошёл размер или фасон — вернём деньги без вопросов в течение 14 дней.</p>
+            </div>
+            <div class="benefit-card-large">
+                <div class="benefit-icon-large">
+                    <i class="bi bi-headset"></i>
+                </div>
+                <h3>Поддержка 24/7</h3>
+                <p>Наши менеджеры всегда на связи. Отвечаем в течение 15 минут по любому вопросу.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Миссия -->
+    <div class="about-mission">
+        <h2>Наша миссия</h2>
+        <div class="mission-box">
+            <p>
+                СНИКЕРХЭД — это не просто магазин, а сообщество ценителей оригинальной уличной культуры.
+                Мы стремимся сделать лучшие мировые бренды кроссовок доступными для каждого жителя Беларуси.
+            </p>
+            <p>
+                Мы работаем только с проверенными поставщиками из США и Европы, поэтому каждая пара,
+                которую вы получаете, — стопроцентный оригинал с подтверждёнными документами.
+            </p>
+        </div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="about-stats">
+        <div class="stat-card">
+            <div class="stat-number">10 000+</div>
+            <div class="stat-label">Довольных клиентов</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">5 000+</div>
+            <div class="stat-label">Моделей в каталоге</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Оригинальных товаров</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">4.9 ★</div>
+            <div class="stat-label">Средняя оценка</div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="about-cta">
+        <h2>Готовы найти свою пару?</h2>
+        <div class="cta-buttons">
+            <a href="<?= Url::to(['/catalog/catalog/index']) ?>" class="btn btn-primary">Смотреть каталог</a>
+            <a href="<?= Url::to(['/page/contacts']) ?>" class="btn btn-secondary">Связаться с нами</a>
+        </div>
+    </div>
+
 </div>

@@ -1,6 +1,8 @@
 <?php
 
-namespace app\assets;
+namespace app\frontend\assets;
+
+use app\frontend\assets\VersionedAssetBundle;
 
 class PublicAsset extends VersionedAssetBundle
 {
@@ -19,6 +21,6 @@ class PublicAsset extends VersionedAssetBundle
     ];
 
     public $depends = [
-        'app\assets\AppAsset',
+        'app\frontend\assets\AppAsset',
     ];
 }

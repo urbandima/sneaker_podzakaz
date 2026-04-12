@@ -124,41 +124,42 @@ AppAsset::register($this);
             </div>
 
             <div class="order-sidebar">
+                <?php if ($order->status === 'paid' && $order->hasMethod('isPassportComplete') && !$order->isPassportComplete()): ?>
+                <?= $this->render('_passport_form', ['order' => $order]) ?>
+                <?php endif; ?>
+
                 <div class="content-card">
                     <h2><i class="bi bi-clock-history"></i> Статус заказа</h2>
-                    
-                    <div class="timeline">
-                        <div class="timeline-item completed">
+
+                    <?= $this->render('_tracking_timeline', ['order' => $order]) ?>
+                    <div class="timeline" style="display:none"><!-- legacy timeline hidden -->
+                        <?php
+                        $statusFlow = [
+                            'new' => ['label' => 'Новый', 'desc' => 'Заказ поступил'],
+                            'paid' => ['label' => 'Оплачен', 'desc' => 'Клиент предоставил чек'],
+                            'confirmed_and_paid' => ['label' => 'Подтвержден и оплачен', 'desc' => 'Паспортные данные переданы'],
+                            'ordered' => ['label' => 'Заказано', 'desc' => 'Товар выкуплен'],
+                            'awaiting_warehouse' => ['label' => 'Ожидается на складе', 'desc' => 'Международный склад'],
+                            'international_delivery' => ['label' => 'В международной доставке', 'desc' => 'Транзит в Беларусь'],
+                            'at_warehouse' => ['label' => 'На складе', 'desc' => 'Заказ на складе в Беларуси'],
+                            'local_delivery' => ['label' => 'В доставке', 'desc' => 'Доставка внутри Беларуси'],
+                            'delivered' => ['label' => 'Выдан', 'desc' => 'Заказ получен'],
+                        ];
+                        $statusOrder = array_keys($statusFlow);
+                        $currentIdx = array_search($order->status, $statusOrder);
+                        if ($currentIdx === false) $currentIdx = -1;
+                        foreach ($statusFlow as $key => $step):
+                            $idx = array_search($key, $statusOrder);
+                            $state = ($currentIdx > $idx) ? 'completed' : (($currentIdx === $idx) ? 'active' : '');
+                        ?>
+                        <div class="timeline-item <?= $state ?>">
                             <div class="timeline-dot"></div>
                             <div class="timeline-content">
-                                <h4>Заказ создан</h4>
-                                <p><?= Yii::$app->formatter->asDatetime($order->created_at, 'short') ?></p>
+                                <h4><?= $step['label'] ?></h4>
+                                <p><?= $step['desc'] ?></p>
                             </div>
                         </div>
-                        
-                        <div class="timeline-item <?= in_array($order->status, ['processing', 'shipped', 'delivered', 'completed']) ? 'completed' : '' ?>">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <h4>В обработке</h4>
-                                <p>Заказ принят в работу</p>
-                            </div>
-                        </div>
-                        
-                        <div class="timeline-item <?= in_array($order->status, ['shipped', 'delivered', 'completed']) ? 'completed' : ($order->status === 'processing' ? 'active' : '') ?>">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <h4>Отправлен</h4>
-                                <p>Передан в службу доставки</p>
-                            </div>
-                        </div>
-                        
-                        <div class="timeline-item <?= in_array($order->status, ['delivered', 'completed']) ? 'completed' : ($order->status === 'shipped' ? 'active' : '') ?>">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <h4>Доставлен</h4>
-                                <p>Заказ получен</p>
-                            </div>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
 

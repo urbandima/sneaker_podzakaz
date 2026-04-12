@@ -69,6 +69,13 @@
                     headers['Content-Type'] = 'application/json';
                 }
             } else {
+                // Для FormData дополнительно добавляем _csrf в тело (Yii2 CSRF body-param fallback)
+                if (options.body instanceof FormData && method !== 'GET' && method !== 'HEAD') {
+                    var csrfToken = getCsrfToken();
+                    if (csrfToken) {
+                        options.body.append('_csrf', csrfToken);
+                    }
+                }
                 fetchOpts.body = options.body;
             }
         }
@@ -196,7 +203,22 @@
     }
 
     /* ======================================================
-       6. DEBOUNCE / THROTTLE
+       6. ESCAPE HTML
+       ====================================================== */
+
+    /**
+     * Экранировать HTML-спецсимволы (защита от XSS при вставке в innerHTML)
+     * @param {string} str
+     * @returns {string}
+     */
+    function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = String(str);
+        return div.innerHTML;
+    }
+
+    /* ======================================================
+       7. DEBOUNCE / THROTTLE
        ====================================================== */
 
     /**
@@ -234,7 +256,7 @@
     }
 
     /* ======================================================
-       7. FOCUS TRAP (Accessibility)
+       8. FOCUS TRAP (Accessibility)
        ====================================================== */
 
     var _trapHandlers = new WeakMap();
@@ -307,8 +329,12 @@
     window.SH.closeModal = closeModal;
     window.SH.formatCurrency = formatCurrency;
     window.SH.formatPrice = formatPrice;
+    window.SH.escapeHtml = escapeHtml;
     window.SH.debounce = debounce;
     window.SH.throttle = throttle;
+    // Global aliases for backward compatibility
+    window.debounce = debounce;
+    window.throttle = throttle;
     window.SH.trapFocus = trapFocus;
     window.SH.releaseFocus = releaseFocus;
 

@@ -24,7 +24,7 @@ if (!$dsn) {
 $config = [
     'class' => 'yii\db\Connection',
     'dsn' => $dsn,
-    'username' => env('DB_USER', 'root'),
+    'username' => env('DB_USER', env('DB_USERNAME', 'root')),
     'password' => env('DB_PASSWORD', ''),
     'charset' => env('DB_CHARSET', 'utf8mb4'),
     'enableSchemaCache' => false,

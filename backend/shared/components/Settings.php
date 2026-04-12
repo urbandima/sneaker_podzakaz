@@ -88,6 +88,11 @@ class Settings extends Component
         return $map;
     }
 
+    public function resetStatusesCache()
+    {
+        $this->_statuses = null;
+    }
+
     /**
      * Получение настройки по ключу
      * @param string $section Секция настроек

@@ -16,36 +16,22 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
 
 <!-- Шапка заказа -->
 <span id="order-page-data" data-order-id="<?= $model->id ?>" style="display:none"></span>
-<div class="admin-header">
-    <div>
-        <h1 class="admin-header-title">
-            <i class="bi bi-box-seam"></i> <?= Html::encode($this->title) ?>
-            <span class="admin-badge admin-badge-<?= $model->status ?>"><?= $statuses[$model->status] ?? $model->status ?></span>
-        </h1>
-        <p class="dash-subtitle">
-            <?= Yii::$app->formatter->asDatetime($model->created_at, 'short') ?>
-            <?php if ($model->creator): ?>• <?= Html::encode($model->creator->username) ?><?php endif; ?>
-        </p>
-    </div>
-    <div class="admin-header-actions">
-        <form method="post" action="<?= Url::to(['/admin/order/change-status', 'id' => $model->id]) ?>" style="display:inline">
-            <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
-            <select name="status" class="admin-form-select" style="width:auto;display:inline" onchange="this.form.submit()">
-                <?php foreach ($statuses as $key => $label): ?>
-                    <option value="<?= $key ?>" <?= $model->status == $key ? 'selected' : '' ?>><?= $label ?></option>
-                <?php endforeach; ?>
-            </select>
-        </form>
-        <button type="button" class="admin-btn admin-btn-secondary" onclick="openHistoryModal()">
-            <i class="bi bi-clock-history"></i> История
-        </button>
-        <?php if (!$user->isLogist()): ?>
-            <button type="button" class="admin-btn admin-btn-primary" id="toggleEditMode">
-                <i class="bi bi-pencil"></i> Редактировать
-            </button>
-        <?php endif; ?>
-    </div>
-</div>
+<?php
+$statusSelect = '<form method="post" action="' . Url::to(['/admin/order/change-status', 'id' => $model->id]) . '" style="display:inline">' .
+    Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) .
+    '<select name="status" class="admin-form-select admin-btn-sm" style="width:auto;display:inline" onchange="this.form.submit()">';
+foreach ($statuses as $key => $label) {
+    $statusSelect .= '<option value="' . $key . '"' . ($model->status == $key ? ' selected' : '') . '>' . $label . '</option>';
+}
+$statusSelect .= '</select></form>';
+
+$actions = [$statusSelect];
+$actions[] = '<button type="button" class="admin-btn admin-btn-secondary admin-btn-sm" onclick="openHistoryModal()"><i class="bi bi-clock-history"></i> История</button>';
+if (!$user->isLogist()) {
+    $actions[] = '<button type="button" class="admin-btn admin-btn-primary admin-btn-sm" id="toggleEditMode"><i class="bi bi-pencil"></i> Редактировать</button>';
+}
+$this->params['headerActions'] = $actions;
+?>
 
 <!-- Карточки информации -->
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:24px">
@@ -102,6 +88,12 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
 
 <!-- Состав заказа -->
 <div class="admin-card">
+    <?php
+$this->params['headerActions'] = [
+    Html::a('<i class="bi bi-arrow-left"></i> К списку', ['index'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm']),
+    Html::a('<i class="bi bi-printer"></i> Печать', ['print', 'id' => $model->id], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm'])
+];
+?>
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-cart"></i> Состав заказа</h2>
         <button class="admin-btn admin-btn-sm admin-btn-primary" onclick="addOrderItem()">

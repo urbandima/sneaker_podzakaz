@@ -36,23 +36,23 @@ $this->title = 'Массовое редактирование meta-тегов';
             <div class="card">
                 <div class="card-header">⚙️ Шаблоны для генерации</div>
                 <div class="card-body">
-                    <?php $form = ActiveForm::begin(); ?>
-                    
-                    <?= $form->field($form, 'entity_type')->dropDownList([
+                    <?php $activeForm = ActiveForm::begin(); ?>
+
+                    <?= $activeForm->field($form, 'entity_type')->dropDownList([
                         'product' => 'Товары',
                         'category' => 'Категории',
                     ]) ?>
-                    
-                    <?= $form->field($form, 'meta_title_pattern')->textInput(['id' => 'meta_title_pattern'])->hint('Шаблоны: {name}, {brand}, {site}') ?>
-                    <?= $form->field($form, 'meta_description_pattern')->textarea(['id' => 'meta_description_pattern', 'rows' => 3])->hint('Шаблоны: {name}, {brand}, {site}') ?>
-                    <?= $form->field($form, 'meta_keywords_pattern')->textInput(['id' => 'meta_keywords_pattern'])->hint('Шаблоны: {name}, {brand}, {site}') ?>
-                    
-                    <?= $form->field($form, 'append_to_existing')->checkbox() ?>
-                    
+
+                    <?= $activeForm->field($form, 'meta_title_pattern')->textInput(['id' => 'meta_title_pattern'])->hint('Шаблоны: {name}, {brand}, {site}') ?>
+                    <?= $activeForm->field($form, 'meta_description_pattern')->textarea(['id' => 'meta_description_pattern', 'rows' => 3])->hint('Шаблоны: {name}, {brand}, {site}') ?>
+                    <?= $activeForm->field($form, 'meta_keywords_pattern')->textInput(['id' => 'meta_keywords_pattern'])->hint('Шаблоны: {name}, {brand}, {site}') ?>
+
+                    <?= $activeForm->field($form, 'append_to_existing')->checkbox() ?>
+
                     <div class="form-group">
                         <?= Html::submitButton('Применить шаблон', ['class' => 'btn btn-primary w-100']) ?>
                     </div>
-                    
+
                     <?php ActiveForm::end(); ?>
                 </div>
             </div>

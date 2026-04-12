@@ -36,7 +36,7 @@ CartAsset::register($this);
                             </div>
                             
                             <div class="item-info">
-                                <div class="item-brand"><?= Html::encode($item->product->brand->name) ?></div>
+                                <div class="item-brand"><?= Html::encode($item->product->brand->name ?? '') ?></div>
                                 <h3 class="item-name"><?= Html::encode($item->product->name) ?></h3>
                                 
                                 <?php if ($item->size): ?>
@@ -639,7 +639,7 @@ function submitOrder(e) {
         if (data.success) {
             closeCheckoutModal();
             alert('Заказ успешно оформлен! Наш менеджер свяжется с вами в ближайшее время.');
-            window.location.href = '/order/success?id=' + data.order_id;
+            window.location.href = '/order/success?token=' + encodeURIComponent(data.token);
         } else {
             alert('Ошибка: ' + (data.message || 'Попробуйте позже'));
             btn.innerHTML = originalText;

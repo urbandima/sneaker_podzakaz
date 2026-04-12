@@ -31,7 +31,7 @@ use app\backend\modules\catalog\models\ProductTagAssignment;
 
 class SearchController extends Controller
 {
-    public $layout = 'main';
+    public $layout = 'public';
 
     /**
      * {@inheritdoc}

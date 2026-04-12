@@ -25,11 +25,9 @@ $totalCustomers = array_sum(array_column($rfmSegments, 'count'));
 $totalRevenue = array_sum(array_column($rfmSegments, 'revenue'));
 ?>
 
-<div class="admin-header">
-    <h1 class="admin-header-title">
-        <i class="bi bi-diagram-3-fill"></i> <?= Html::encode($this->title) ?>
-    </h1>
-</div>
+<?php
+$this->params['headerActions'] = [];
+?>
 
 <!-- KPI -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">

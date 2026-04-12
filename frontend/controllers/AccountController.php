@@ -17,7 +17,7 @@ use app\models\CustomerRegisterForm;
  */
 class AccountController extends Controller
 {
-    public $layout = 'public';
+    public $layout = 'main';
 
     public function behaviors()
     {

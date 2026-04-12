@@ -81,7 +81,7 @@ $this->title = 'Покупатель: ' . $customer->getFullName();
             <?php
             $currentUser = Yii::$app->user->identity;
             $isAdmin = method_exists($currentUser, 'isAdmin') ? $currentUser->isAdmin() : ($currentUser->role === 'admin');
-            if ($customer->passport_series || $customer->passport_number || $customer->passport_id):
+            if ($customer->passport_series || $customer->passport_number || $customer->inn):
             ?>
             <div class="content-card">
                 <h2><i class="bi bi-person-vcard"></i> Паспортные данные</h2>
@@ -100,7 +100,7 @@ $this->title = 'Покупатель: ' . $customer->getFullName();
                         <div class="info-label">Идент. номер</div>
                         <div class="info-value">
                             <?php if ($isAdmin): ?>
-                                <?= Html::encode($customer->passport_id ?? '—') ?>
+                                <?= Html::encode($customer->inn ?? '—') ?>
                             <?php else: ?>
                                 * * * * * * * * * * *
                             <?php endif ?>
@@ -129,7 +129,7 @@ $this->title = 'Покупатель: ' . $customer->getFullName();
                 $progress = min(100, $nextLevel[$level] > 0 ? ($totalSpent / $nextLevel[$level] * 100) : 100);
                 ?>
                 <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
-                    <div style="font-size:2rem;font-weight:800;color:var(--admin-accent)"><?= number_format($points) ?> <small style="font-size:0.875rem;font-weight:500;color:var(--admin-text-secondary)">баллов</small></div>
+                    <div style="font-size:2rem;font-weight:800;color:var(--admin-accent)"><?= number_format($points) ?> <small style="font-size:0.875rem;font-weight:500;color:#6b7280">баллов</small></div>
                     <span style="padding:0.25rem 0.75rem;border-radius:20px;background:<?= $levelColor ?>;color:#1a1a1a;font-weight:700;font-size:0.8rem"><?= $level ?></span>
                 </div>
                 <div style="background:#e1e3e5;border-radius:99px;height:8px;margin-bottom:1.5rem">

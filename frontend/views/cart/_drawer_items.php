@@ -18,7 +18,7 @@ use yii\helpers\Url;
         <?php $product = $item->product; ?>
         <?php if ($product): ?>
             <div class="cart-item" data-cart-id="<?= $item->id ?>">
-                <img src="<?= Html::encode($product->getMainImage()) ?>" alt="<?= Html::encode($product->name) ?>" class="cart-item-image">
+                <img src="<?= Html::encode($product->getMainImageUrl()) ?>" alt="<?= Html::encode($product->name) ?>" class="cart-item-image">
                 
                 <div class="cart-item-info">
                     <div class="cart-item-brand"><?= Html::encode($product->brand->name ?? '') ?></div>

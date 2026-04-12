@@ -120,13 +120,58 @@
     --z-header: 100;
     --z-dropdown: 200;
     --z-drawer: 300;
+    --z-modal-backdrop: 350;
     --z-modal: 400;
     --z-toast: 500;
 
     /* === LAYOUT === */
-    --container-max: 1280px;
-    --container-pad: clamp(1rem, 5vw, 2rem);
+    --container-max: 1600px;
+    --container-pad: clamp(1rem, 3vw, 2rem);
     --header-height: 72px;
+
+    /* === ALIASES (backward compat) === */
+    --color-white: var(--c-white);
+    --color-black: var(--c-black);
+    --radius-pill: var(--radius-full);
+
+    /* === LEGACY ALIASES (cart.css, pages.css совместимость) === */
+    --surface-primary: var(--color-bg-primary);
+    --surface-secondary: var(--color-bg-secondary);
+    --surface-tertiary: var(--color-bg-tertiary);
+    --card-bg: var(--c-white);
+    --text-primary: var(--color-text-primary);
+    --text-secondary: var(--color-text-secondary);
+    --text-muted: var(--color-text-muted);
+    --text-disabled: var(--c-gray-400);
+    --border-color: var(--color-border);
+    --input-border: var(--color-border);
+    --input-focus-border: var(--c-black);
+    --btn-primary-bg: var(--c-black);
+    --btn-primary-text: var(--c-white);
+    --btn-primary-hover-bg: var(--c-gray-900);
+    --transition-normal: var(--duration-base) var(--ease-default);
+    --font-size-xs: var(--text-xs);
+    --font-size-sm: var(--text-sm);
+    --font-size-base: var(--text-base);
+    --font-size-lg: var(--text-lg);
+    --font-size-xl: var(--text-xl);
+    --font-size-2xl: var(--text-2xl);
+    --font-size-3xl: var(--text-3xl);
+    --font-weight-normal: var(--font-weight-normal);
+    --font-weight-medium: var(--font-weight-medium);
+    --font-weight-semibold: var(--font-weight-semibold);
+    --font-weight-bold: var(--font-weight-bold);
+    --spacing-1: var(--space-1);
+    --spacing-2: var(--space-2);
+    --spacing-3: var(--space-3);
+    --spacing-4: var(--space-4);
+    --spacing-5: var(--space-5);
+    --spacing-6: var(--space-6);
+    --spacing-8: var(--space-8);
+    --spacing-10: var(--space-10);
+    --spacing-12: var(--space-12);
+    --spacing-16: var(--space-16);
+    --spacing-20: var(--space-20);
 }
 
 /* === DARK MODE === */
@@ -163,4 +208,7 @@
     --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.35);
     --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.4);
     --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+    --color-white: var(--c-white);
+    --color-black: var(--c-black);
 }

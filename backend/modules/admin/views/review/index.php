@@ -16,26 +16,41 @@ $pendingCount = $stats['pending'] ?? 0;
     </div>
 
     <!-- Статистика -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-value"><?= $stats['total'] ?></div>
-            <div class="stat-label">Всего</div>
+    <div class="admin-stats" style="margin-bottom: 24px;">
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon primary"><i class="bi bi-chat-square-text"></i></div>
+            <div class="admin-stat-content">
+                <div class="admin-stat-value"><?= $stats['total'] ?></div>
+                <div class="admin-stat-label">Всего</div>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-value"><?= $stats['published'] ?></div>
-            <div class="stat-label">Опубликовано</div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon success"><i class="bi bi-check-circle"></i></div>
+            <div class="admin-stat-content">
+                <div class="admin-stat-value"><?= $stats['published'] ?></div>
+                <div class="admin-stat-label">Опубликовано</div>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-value"><?= $stats['pending'] ?></div>
-            <div class="stat-label">На модерации</div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon warning"><i class="bi bi-hourglass-split"></i></div>
+            <div class="admin-stat-content">
+                <div class="admin-stat-value"><?= $stats['pending'] ?></div>
+                <div class="admin-stat-label">На модерации</div>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-value"><?= $stats['featured'] ?></div>
-            <div class="stat-label">Избранные</div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon info"><i class="bi bi-star-fill"></i></div>
+            <div class="admin-stat-content">
+                <div class="admin-stat-value"><?= $stats['featured'] ?></div>
+                <div class="admin-stat-label">Избранные</div>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-value"><?= number_format($stats['avg_rating'], 1) ?> ⭐</div>
-            <div class="stat-label">Средний рейтинг</div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon info"><i class="bi bi-star"></i></div>
+            <div class="admin-stat-content">
+                <div class="admin-stat-value"><?= number_format($stats['avg_rating'], 1) ?></div>
+                <div class="admin-stat-label">Средний рейтинг</div>
+            </div>
         </div>
     </div>
 
@@ -61,13 +76,20 @@ $pendingCount = $stats['pending'] ?? 0;
         </a>
         <?php for ($i = 5; $i >= 1; $i--): ?>
             <a href="<?= Url::to(['index', 'rating' => $i]) ?>" class="filter-btn <?= Yii::$app->request->get('rating') == $i ? 'active' : '' ?>">
-                <?= $i ?> ★
+                <i class="bi bi-star-fill"></i> <?= $i ?>
             </a>
         <?php endfor; ?>
     </div>
 
     <!-- Список отзывов -->
     <div class="review-list">
+        <?php if (empty($dataProvider->models)): ?>
+        <div style="text-align:center;padding:4rem 2rem;color:var(--admin-text-secondary)">
+            <i class="bi bi-chat-square-text" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.35"></i>
+            <h3 style="color:var(--admin-text);margin-bottom:0.5rem">Отзывов пока нет</h3>
+            <p>Когда покупатели оставят отзывы на товары, они появятся здесь для модерации.</p>
+        </div>
+        <?php endif; ?>
         <?php foreach ($dataProvider->models as $review): ?>
             <div class="review-card">
                 <div class="review-header">
@@ -142,27 +164,27 @@ $pendingCount = $stats['pending'] ?? 0;
                 <div class="review-actions">
                     <?php if (!$review->is_published): ?>
                         <?= Html::a('<i class="bi bi-check-lg"></i> Опубликовать', ['publish', 'id' => $review->id], [
-                            'class' => 'btn-action success',
+                            'class' => 'admin-btn admin-btn-success admin-btn-sm',
                             'data' => ['method' => 'post'],
                         ]) ?>
                         <?= Html::a('<i class="bi bi-x-lg"></i> Отклонить', ['reject', 'id' => $review->id], [
-                            'class' => 'btn-action danger',
+                            'class' => 'admin-btn admin-btn-danger admin-btn-sm',
                             'data' => ['method' => 'post', 'confirm' => 'Отклонить отзыв?'],
                         ]) ?>
                     <?php else: ?>
-                        <?= Html::a('<i class="bi bi-eye-slash"></i> Снять', ['unpublish', 'id' => $review->id], ['class' => 'btn-action', 'data' => ['method' => 'post']]) ?>
+                        <?= Html::a('<i class="bi bi-eye-slash"></i> Снять', ['unpublish', 'id' => $review->id], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm', 'data' => ['method' => 'post']]) ?>
                     <?php endif; ?>
 
-                    <a href="<?= Url::to(['toggle-featured', 'id' => $review->id]) ?>" class="btn-action">
+                    <a href="<?= Url::to(['toggle-featured', 'id' => $review->id]) ?>" class="admin-btn admin-btn-secondary admin-btn-sm">
                         <?= $review->is_featured ? '<i class="bi bi-star-fill"></i> Из избранных' : '<i class="bi bi-star"></i> В избранное' ?>
                     </a>
 
-                    <button type="button" class="btn-action" onclick="toggleReplyForm(<?= $review->id ?>)">
+                    <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm" onclick="toggleReplyForm(<?= $review->id ?>)">
                         <i class="bi bi-reply"></i> Ответить
                     </button>
 
                     <?= Html::a('<i class="bi bi-trash"></i> Удалить', ['delete', 'id' => $review->id], [
-                        'class' => 'btn-action danger',
+                        'class' => 'admin-btn admin-btn-danger admin-btn-sm',
                         'data' => ['method' => 'post', 'confirm' => 'Удалить отзыв?'],
                     ]) ?>
                 </div>
@@ -178,10 +200,10 @@ $pendingCount = $stats['pending'] ?? 0;
                             placeholder="Введите ответ на отзыв..."
                         ><?= $review->admin_response ? Html::encode($review->admin_response) : '' ?></textarea>
                         <div class="reply-actions">
-                            <button type="button" class="btn-action success" onclick="submitReply(<?= $review->id ?>)">
+                            <button type="button" class="admin-btn admin-btn-primary admin-btn-sm" onclick="submitReply(<?= $review->id ?>)">
                                 <i class="bi bi-send"></i> Отправить ответ
                             </button>
-                            <button type="button" class="btn-action" onclick="toggleReplyForm(<?= $review->id ?>)">
+                            <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm" onclick="toggleReplyForm(<?= $review->id ?>)">
                                 Отмена
                             </button>
                         </div>

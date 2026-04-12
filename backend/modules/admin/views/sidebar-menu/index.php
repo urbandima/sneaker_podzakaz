@@ -14,11 +14,15 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="admin-page-header">
     <h1><?= Html::encode($this->title) ?></h1>
     <div class="header-actions">
-        <?= Html::a('<i class="bi bi-plus-lg"></i> Добавить пункт', ['create'], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('<i class="bi bi-plus-lg"></i> Добавить пункт', ['create'], ['class' => 'admin-btn admin-btn-primary admin-btn-sm']) ?>
     </div>
 </div>
 
 <div class="admin-card">
+    <div class="admin-card-header">
+        <h2 class="admin-card-title">Пункты меню</h2>
+    </div>
+    <div class="admin-card-body" style="padding: 0;">
     <div class="table-responsive">
         <table class="admin-table">
             <thead>
@@ -34,6 +38,16 @@ $this->params['breadcrumbs'][] = $this->title;
                 </tr>
             </thead>
             <tbody id="sortable-list" data-sort-url="<?= Url::to(['sort']) ?>">
+                <?php if ($dataProvider->getCount() === 0): ?>
+                <tr>
+                    <td colspan="8" style="text-align:center;padding:3rem;color:var(--admin-text-secondary)">
+                        <i class="bi bi-layout-sidebar" style="font-size:2.5rem;display:block;margin-bottom:0.75rem;opacity:0.4"></i>
+                        <strong style="display:block;margin-bottom:0.5rem;color:var(--admin-text)">Пункты меню не созданы</strong>
+                        Здесь вы управляете структурой бокового меню админ-панели.<br>
+                        <?= Html::a('<i class="bi bi-plus-lg"></i> Добавить первый пункт', ['create'], ['class' => 'admin-btn admin-btn-primary admin-btn-sm', 'style' => 'margin-top:1rem;display:inline-flex;align-items:center;gap:0.4rem']) ?>
+                    </td>
+                </tr>
+                <?php endif; ?>
                 <?php foreach ($dataProvider->getModels() as $model): ?>
                 <tr data-id="<?= $model->id ?>" class="<?= $model->is_active ? '' : 'table-muted' ?>">
                     <td>
@@ -74,20 +88,21 @@ $this->params['breadcrumbs'][] = $this->title;
                                 'class' => $model->is_active ? 'badge badge-success' : 'badge badge-danger',
                                 'data-method' => 'post'
                             ]
-                        ) ?>
-                    </td>
+                        ) ?> outline
+                    </td>mbtoulie
                     <td>
-                        <div class="btn-group">
-                            <?= Html::a('<i class="bi bi-eye"></i>', ['view', 'id' => $model->id], ['class' => 'btn btn-sm btn-outline', 'title' => 'Просмотр']) ?>
-                            <?= Html::a('<i class="bi bi-pencil"></i>', ['update', 'id' => $model->id], ['class' => 'btn btn-sm btn-outline', 'title' => 'Редактировать']) ?>
-                            <?= Html::a('<i class="bi bi-trash"></i>', ['delete', 'id' => $model->id], [
+                        <div class="btn-groubtn bttysm le=-outlple y:flex;gap
+                            <?= Html::a('<i class="bi bi-eye"></i> <span class="d-none d-md-inline">Просмотр</span>', ['view', 'id' => $model->id], ['class' => 'btn btn-sm btn-outline', 'title' => 'Просмотр']) ?>
+                            <?= Html::a('<i class="bi bi-pencil"></i> <span class="d-none d-md-inline">Изменить</span>', ['update', 'id' => $model->id], ['class' => 'btn btn-sm btn-outline', 'title' => 'Редактировать']) ?>
+                            <?= Html::a('<i class="bi bi-trash"></i> <span class="d-none d-md-inline">Удалить</span>', ['delete', 'id' => $model->id], [
                                 'class' => 'btn btn-sm btn-outline btn-danger',
                                 'title' => 'Удалить',
                                 'data-method' => 'post',
                                 'data-confirm' => 'Удалить пункт меню?'
                             ]) ?>
                         </div>
-                    </td>
+               >
+    </div     </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

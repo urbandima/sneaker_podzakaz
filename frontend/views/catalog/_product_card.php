@@ -60,7 +60,10 @@ $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam
         </div>
         
         <!-- Избранное -->
-        <button class="action-btn favorite" onclick="toggleFav(event,<?= $product->id ?>)" aria-label="Добавить в избранное">
+        <button class="action-btn favorite btn-favorite" 
+                data-product-id="<?= $product->id ?>"
+                onclick="toggleFav(event,<?= $product->id ?>)" 
+                aria-label="Добавить в избранное">
             <i class="bi bi-heart"></i>
         </button>
     </div>

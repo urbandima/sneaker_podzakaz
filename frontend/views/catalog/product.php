@@ -103,6 +103,8 @@ $this->params['og:type'] = 'product';
 
 $availableSizes = ProductCardHelper::getAvailableSizes($product);
 $selectedSize = $defaultSizeField;
+$sizeLabelMap = ['eu_size' => 'EU', 'us_size' => 'US', 'uk_size' => 'UK', 'cm_size' => 'CM'];
+$selectedSizeLabel = $sizeLabelMap[$selectedSize] ?? strtoupper(str_replace('_size', '', $selectedSize));
 
 // Данные для sticky bar
 $priceData = [
@@ -164,15 +166,8 @@ $this->registerJs("
     });
 ", \yii\web\View::POS_READY);
 
-// Инициализация галереи
-$this->registerJs("
-    // Инициализация галереи при загрузке
-    document.addEventListener('DOMContentLoaded', function() {
-        initProductGallery();
-        initSizeSelector();
-        initStickyPurchaseBar();
-    });
-", \yii\web\View::POS_READY);
+// Инициализация галереи — функции определены в product-page.js
+// (initProductGallery/initSizeSelector/initStickyPurchaseBar запускаются автоматически)
 
 // Инициализация избранного
 $isFavorite = !empty($isFavorite) ? $isFavorite : false;
@@ -411,7 +406,7 @@ $this->registerJsVar('productVideo', $productVideo);
 
                 <div class="size-info">
                     <div class="selected-size-display">
-                        Выбрано: <strong id="selectedSizeDisplay"><?= $selectedSize ?></strong>
+                        Выбрано: <strong id="selectedSizeDisplay">Не выбран</strong>
                     </div>
                     <div class="size-legend">
                         <span class="legend-item available">● В наличии</span>
@@ -438,31 +433,6 @@ $this->registerJsVar('productVideo', $productVideo);
                 </button>
             </div>
 
-            <!-- Дополнительные услуги -->
-            <div class="additional-services">
-                <div class="service-item">
-                    <i class="bi bi-truck"></i>
-                    <div class="service-info">
-                        <strong>Быстрая доставка</strong>
-                        <span>Доставка по Минску - 1-2 дня</span>
-                    </div>
-                </div>
-                <div class="service-item">
-                    <i class="bi bi-shield-check"></i>
-                    <div class="service-info">
-                        <strong>Гарантия подлинности</strong>
-                        <span>100% оригинальная продукция</span>
-                    </div>
-                </div>
-                <div class="service-item">
-                    <i class="bi bi-arrow-return-left"></i>
-                    <div class="service-info">
-                        <strong>Возврат товара</strong>
-                        <span>14 дней на возврат</span>
-                    </div>
-                </div>
-            </div>
-
             <!-- Описание товара -->
             <?php if (!empty($product->description)): ?>
                 <div class="product-description-section">
@@ -473,20 +443,6 @@ $this->registerJsVar('productVideo', $productVideo);
                 </div>
             <?php endif; ?>
 
-            <!-- Характеристики -->
-            <?php if (!empty($product->attributes)): ?>
-                <div class="product-features-section">
-                    <h3>Характеристики</h3>
-                    <div class="features-grid">
-                        <?php foreach ($product->attributes as $key => $value): ?>
-                            <div class="feature-item">
-                                <span class="feature-name"><?= Html::encode($key) ?>:</span>
-                                <span class="feature-value"><?= Html::encode($value) ?></span>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            <?php endif; ?>
         </div>
     </div>
 
@@ -506,7 +462,7 @@ $this->registerJsVar('productVideo', $productVideo);
                         class="sticky-size-btn"
                         id="stickySizeBtn"
                         onclick="toggleStickySizeDropdown()">
-                    <span id="stickySizeDisplay"><?= $selectedSize ?></span>
+                    <span id="stickySizeDisplay">Размер</span>
                     <i class="bi bi-chevron-down"></i>
                 </button>
                 
@@ -524,9 +480,9 @@ $this->registerJsVar('productVideo', $productVideo);
             </div>
 
             <div class="sticky-actions">
-                <button type="button" 
+                <button type="button"
                         class="btn btn-primary sticky-add-cart"
-                        onclick="addToCart()">
+                        onclick="addToCartFromSticky()">
                     В корзину
                 </button>
             </div>
@@ -538,35 +494,59 @@ $this->registerJsVar('productVideo', $productVideo);
         <div class="delivery-grid">
             <div class="delivery-item">
                 <i class="bi bi-truck"></i>
-                <h4>Доставка</h4>
-                <ul>
-                    <li>По Минску - 1-2 дня</li>
-                    <li>По Беларуси - 3-5 дней</li>
-                    <li>Самовывоз - сегодня</li>
-                </ul>
+                <div class="delivery-item-content">
+                    <h4>Доставка</h4>
+                    <ul>
+                        <li>По Минску — 1–2 дня</li>
+                        <li>По Беларуси — 3–5 дней</li>
+                        <li>Самовывоз — сегодня</li>
+                    </ul>
+                </div>
             </div>
             <div class="delivery-item">
                 <i class="bi bi-shield-check"></i>
-                <h4>Гарантии</h4>
-                <ul>
-                    <li>100% подлинность</li>
-                    <li>14 дней на возврат</li>
-                    <li>Сертификаты качества</li>
-                </ul>
+                <div class="delivery-item-content">
+                    <h4>Гарантии</h4>
+                    <ul>
+                        <li>100% подлинность</li>
+                        <li>14 дней на возврат</li>
+                        <li>Сертификаты качества</li>
+                    </ul>
+                </div>
             </div>
             <div class="delivery-item">
                 <i class="bi bi-credit-card"></i>
-                <h4>Оплата</h4>
-                <ul>
-                    <li>Картой онлайн</li>
-                    <li>При получении</li>
-                    <li>Рассрочка</li>
-                </ul>
+                <div class="delivery-item-content">
+                    <h4>Оплата</h4>
+                    <ul>
+                        <li>Картой онлайн</li>
+                        <li>При получении</li>
+                        <li>Рассрочка</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Вкладки с информацией -->
+    <?php
+    $productSpecs = array_filter([
+        'Бренд'              => $product->brand?->name ?? ($product->brand_name ?? null),
+        'Категория'          => $product->category?->name ?? ($product->category_name ?? null),
+        'Артикул'            => $product->sku ?? null,
+        'Модель'             => !empty($product->model_name) ? $product->model_name : null,
+        'Материал верха'     => $product->upper_material ?? null,
+        'Материал подошвы'   => $product->sole_material ?? null,
+        'Материал'           => $product->material ?? null,
+        'Цвет'               => $product->color_description ?? null,
+        'Пол'                => $product->gender ?? null,
+        'Сезон'              => $product->season ?? null,
+        'Страна'             => $product->country ?? null,
+        'Серия'              => $product->series_name ?? null,
+        'Дата выпуска'       => !empty($product->release_year) ? $product->release_year : null,
+        'Вес (г)'            => !empty($product->weight) ? $product->weight : null,
+    ]);
+    ?>
     <div class="product-tabs-section">
         <div class="tabs-header">
             <button class="tab-btn active" data-tab="description">Описание</button>
@@ -590,11 +570,11 @@ $this->registerJsVar('productVideo', $productVideo);
             <!-- Характеристики -->
             <div class="tab-pane" id="features-tab">
                 <div class="tab-content-inner">
-                    <?php if (!empty($product->attributes)): ?>
+                    <?php if (!empty($productSpecs)): ?>
                         <div class="features-table">
-                            <?php foreach ($product->attributes as $key => $value): ?>
+                            <?php foreach ($productSpecs as $label => $value): ?>
                                 <div class="feature-row">
-                                    <div class="feature-name"><?= Html::encode($key) ?></div>
+                                    <div class="feature-name"><?= Html::encode($label) ?></div>
                                     <div class="feature-value"><?= Html::encode($value) ?></div>
                                 </div>
                             <?php endforeach; ?>
@@ -712,45 +692,30 @@ $this->registerJsVar('productVideo', $productVideo);
         <div class="similar-products-section">
             <div class="section-header">
                 <h2>Похожие товары</h2>
-                <div class="carousel-controls">
-                    <button class="carousel-btn prev" onclick="slideSimilarProducts('prev')">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <button class="carousel-btn next" onclick="slideSimilarProducts('next')">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
-                </div>
+                <a href="/catalog" class="similar-all-link">Смотреть все <i class="bi bi-arrow-right"></i></a>
             </div>
 
-            <div class="similar-products-carousel" id="similarProductsCarousel">
-                <div class="carousel-track">
-                    <?php foreach ($similarProducts as $similar): ?>
-                        <?php $similarPrice = ProductCardHelper::calculatePriceView($similar, null, [], $defaultSizeField); ?>
-                        <div class="similar-product-card">
-                            <div class="product-image">
-                                <a href="<?= Url::to(['/catalog/product', 'slug' => $similar->slug ?? $similar->id]) ?>">
-                                    <img src="<?= $similar->getMainImageUrl() ?>" 
-                                         alt="<?= Html::encode($similar->name) ?>"
-                                         loading="lazy">
-                                </a>
-                            </div>
-                            <div class="product-info">
-                                <div class="product-brand"><?= Html::encode($similar->brand?->name ?? '') ?></div>
-                                <h3 class="product-name">
-                                    <a href="<?= Url::to(['/catalog/product', 'slug' => $similar->slug ?? $similar->id]) ?>">
-                                        <?= Html::encode($similar->name) ?>
-                                    </a>
-                                </h3>
-                                <div class="product-price">
-                                    <span class="current-price"><?= $similarPrice['currentPrice'] ? number_format($similarPrice['currentPrice'], 0, '.', ' ') . ' BYN' : number_format($similar->price, 0, '.', ' ') . ' BYN' ?></span>
-                                    <?php if (!empty($similarPrice['oldPrice'])): ?>
-                                        <span class="old-price"><?= number_format($similarPrice['oldPrice'], 0, '.', ' ') . ' BYN' ?></span>
-                                    <?php endif; ?>
-                                </div>
+            <div class="similar-products-grid">
+                <?php foreach ($similarProducts as $similar): ?>
+                    <?php $similarPrice = ProductCardHelper::calculatePriceView($similar, null, [], $defaultSizeField); ?>
+                    <a class="similar-product-card" href="<?= Url::to(['/catalog/product', 'slug' => $similar->slug ?? $similar->id]) ?>">
+                        <div class="product-image">
+                            <img src="<?= $similar->getMainImageUrl() ?>"
+                                 alt="<?= Html::encode($similar->name) ?>"
+                                 loading="lazy">
+                        </div>
+                        <div class="product-info">
+                            <div class="product-brand"><?= Html::encode($similar->brand?->name ?? '') ?></div>
+                            <h3 class="product-name"><?= Html::encode($similar->name) ?></h3>
+                            <div class="product-price">
+                                <span class="current-price"><?= $similarPrice['currentPrice'] ? number_format($similarPrice['currentPrice'], 0, '.', ' ') . ' BYN' : number_format($similar->price, 0, '.', ' ') . ' BYN' ?></span>
+                                <?php if (!empty($similarPrice['oldPrice'])): ?>
+                                    <span class="old-price"><?= number_format($similarPrice['oldPrice'], 0, '.', ' ') . ' BYN' ?></span>
+                                <?php endif; ?>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                </div>
+                    </a>
+                <?php endforeach; ?>
             </div>
         </div>
     <?php endif; ?>
@@ -1048,7 +1013,7 @@ $this->registerJsVar('productVideo', $productVideo);
 // Глобальные переменные
 let selectedSize = '<?= $selectedSize ?>';
 let productId = <?= $productId ?>;
-let isFavorite = <?= $isFavorite ? 'true' : 'false' ?>;
+isFavorite = <?= $isFavorite ? 'true' : 'false' ?>;
 
 // Инициализация галереи
 function initProductGallery() {
@@ -1082,18 +1047,26 @@ function changeMainImage(index) {
 function selectSize(size) {
     const sizeBtn = document.querySelector(`.size-btn[data-size="${size}"]`);
     if (!sizeBtn || sizeBtn.disabled) return;
-    
+
     document.querySelectorAll('.size-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    
+
     sizeBtn.classList.add('active');
     selectedSize = size;
-    
-    document.getElementById('selectedSizeDisplay').textContent = size;
-    document.getElementById('stickySizeDisplay').textContent = size;
-    document.getElementById('oneClickSize').value = size;
-    
+
+    const displayEl = document.getElementById('selectedSizeDisplay');
+    if (displayEl) displayEl.textContent = size;
+
+    const stickyEl = document.getElementById('stickySizeDisplay');
+    if (stickyEl) stickyEl.textContent = size;
+
+    const oneClickEl = document.getElementById('oneClickSize');
+    if (oneClickEl) oneClickEl.value = size;
+
+    // Sync with createOrder() in product-page.js
+    window.selectedProductSize = size;
+
     // Обновляем данные товара
     if (window.productData) {
         window.productData.selectedSize = size;
@@ -1113,38 +1086,44 @@ function selectStickySize(size) {
 
 // Добавление в корзину
 function addToCart() {
-    const btn = document.getElementById('addToCartBtn');
-    const originalText = btn.innerHTML;
-    
-    // Проверка выбранного размера
     if (!selectedSize) {
         showNotification('Пожалуйста, выберите размер', 'error');
         return;
     }
-    
-    // Анимация загрузки
+
+    const btn = document.getElementById('addToCartBtn');
+    const originalText = btn.innerHTML;
+
     btn.innerHTML = '<i class="bi bi-hourglass-split"></i> <span>Добавление...</span>';
     btn.disabled = true;
-    
-    // Симуляция запроса к API
-    setTimeout(() => {
-        // Обновление счетчика корзины
-        const cartCounter = document.querySelector('.cart-counter');
-        if (cartCounter) {
-            const currentCount = parseInt(cartCounter.textContent) || 0;
-            cartCounter.textContent = currentCount + 1;
-        }
-        
-        // Восстановление кнопки
-        btn.innerHTML = '<i class="bi bi-check"></i> <span>Добавлено!</span>';
-        
-        setTimeout(() => {
+
+    const formData = new FormData();
+    formData.append('product_id', productId);
+    formData.append('quantity', 1);
+    formData.append('size', selectedSize);
+
+    SH.fetch('/cart/add', { method: 'POST', body: formData })
+        .then(function(data) {
+            if (data.success) {
+                if (typeof updateCartCount === 'function') updateCartCount(data.count);
+                btn.innerHTML = '<i class="bi bi-check"></i> <span>Добавлено!</span>';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 1500);
+                showNotification('Товар добавлен в корзину!', 'success');
+                if (typeof openCartDrawer === 'function') openCartDrawer();
+            } else {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showNotification(data.message || 'Ошибка добавления', 'error');
+            }
+        })
+        .catch(function() {
             btn.innerHTML = originalText;
             btn.disabled = false;
-        }, 1500);
-        
-        showNotification('Товар добавлен в корзину!', 'success');
-    }, 800);
+            showNotification('Ошибка соединения', 'error');
+        });
 }
 
 // Избранное
@@ -1228,11 +1207,122 @@ function showNotification(message, type = 'success') {
 }
 
 // Закрытие модальных окон по клику вне
+var _productModalClasses = ['one-click-modal', 'review-modal', 'question-modal', 'image-gallery-modal', 'video-modal'];
 document.addEventListener('click', function(event) {
-    if (event.target.classList.contains('modal')) {
-        event.target.classList.remove('show');
-    }
+    _productModalClasses.forEach(function(cls) {
+        if (event.target.classList.contains(cls)) {
+            event.target.classList.remove('show');
+        }
+    });
 });
+
+// Рейтинг для отзыва
+var _reviewRating = 0;
+function setReviewRating(value) {
+    _reviewRating = value;
+    document.querySelectorAll('#reviewRating .rating-star').forEach(function(star, idx) {
+        var icon = star.querySelector('i');
+        icon.className = idx < value ? 'bi bi-star-fill' : 'bi bi-star';
+    });
+}
+
+// Отправка заказа в 1 клик
+function submitOneClickOrder(event) {
+    event.preventDefault();
+    var form = event.target;
+    var btn = form.querySelector('[type="submit"]');
+    var originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Отправляем...';
+
+    var formData = new FormData();
+    formData.append('name', document.getElementById('oneClickName').value);
+    formData.append('phone', document.getElementById('oneClickPhone').value);
+    formData.append('size', document.getElementById('oneClickSize').value);
+    formData.append('product_id', '<?= $productId ?>');
+    formData.append('_csrf', SH.getCsrfToken());
+
+    SH.fetch('/catalog/quick-order', { method: 'POST', body: formData })
+        .then(function(data) {
+            showNotification('Спасибо! Мы свяжемся с вами в ближайшее время.', 'success');
+            closeOneClickModal();
+            form.reset();
+        })
+        .catch(function() {
+            showNotification('Ошибка отправки. Попробуйте позже.', 'error');
+        })
+        .finally(function() {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
+}
+
+// Отправка отзыва
+function submitReview(event) {
+    event.preventDefault();
+    if (_reviewRating === 0) {
+        showNotification('Пожалуйста, укажите оценку', 'error');
+        return;
+    }
+    var btn = event.target.querySelector('[type="submit"]');
+    var originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Отправляем...';
+
+    var formData = new FormData();
+    formData.append('name', document.getElementById('reviewName').value);
+    formData.append('email', document.getElementById('reviewEmail').value);
+    formData.append('rating', _reviewRating);
+    formData.append('text', document.getElementById('reviewText').value);
+    formData.append('product_id', '<?= $productId ?>');
+    formData.append('_csrf', SH.getCsrfToken());
+
+    SH.fetch('/catalog/submit-review', { method: 'POST', body: formData })
+        .then(function() {
+            showNotification('Спасибо за ваш отзыв!', 'success');
+            closeReviewModal();
+            event.target.reset();
+            _reviewRating = 0;
+            document.querySelectorAll('#reviewRating .rating-star i').forEach(function(i) { i.className = 'bi bi-star'; });
+        })
+        .catch(function() {
+            showNotification('Ошибка отправки. Попробуйте позже.', 'error');
+        })
+        .finally(function() {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
+}
+
+// Отправка вопроса
+function submitQuestion(event) {
+    event.preventDefault();
+    var btn = event.target.querySelector('[type="submit"]');
+    var originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Отправляем...';
+
+    var formData = new FormData();
+    formData.append('name', document.getElementById('questionName').value);
+    formData.append('email', document.getElementById('questionEmail').value);
+    formData.append('question', document.getElementById('questionText').value);
+    formData.append('product_id', '<?= $productId ?>');
+    formData.append('_csrf', SH.getCsrfToken());
+
+    SH.fetch('/catalog/submit-question', { method: 'POST', body: formData })
+        .then(function() {
+            showNotification('Спасибо! Ваш вопрос отправлен.', 'success');
+            closeQuestionModal();
+            event.target.reset();
+        })
+        .catch(function() {
+            showNotification('Ошибка отправки. Попробуйте позже.', 'error');
+        })
+        .finally(function() {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
+}
 
 // Инициализация вкладок
 document.addEventListener('DOMContentLoaded', function() {

@@ -5,15 +5,11 @@ use yii\helpers\Html;
 $this->title = 'Создать купон';
 ?>
 
-<div class="admin-header">
-    <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
-    <div class="admin-header-actions">
-        <a href="<?= \yii\helpers\Url::to(['index']) ?>" class="admin-btn admin-btn-secondary">
-            <i class="bi bi-arrow-left"></i>
-            Назад к списку
-        </a>
-    </div>
-</div>
+<?php
+$this->params['headerActions'] = [
+    Html::a('<i class="bi bi-arrow-left"></i> Назад к списку', ['index'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm'])
+];
+?>
 
 <div class="admin-card">
     <h2 class="admin-card-title">

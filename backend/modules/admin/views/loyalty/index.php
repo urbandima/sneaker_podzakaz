@@ -18,15 +18,11 @@ $levels = [
 ];
 ?>
 
-<div class="admin-header">
-    <h1 class="admin-header-title"><?= Html::encode($this->title) ?></h1>
-    <div class="admin-header-actions">
-        <a href="<?= Url::to(['/admin/settings/index']) ?>" class="admin-btn admin-btn-secondary">
-            <i class="bi bi-arrow-left"></i>
-            Настройки
-        </a>
-    </div>
-</div>
+<?php
+$this->params['headerActions'] = [
+    Html::a('<i class="bi bi-arrow-left"></i> Настройки', ['/admin/settings/index'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm'])
+];
+?>
 
 <!-- Общие переключатели -->
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">

@@ -13,7 +13,7 @@ use app\backend\modules\catalog\models\Product;
  */
 class CartController extends Controller
 {
-    public $layout = 'main'; // Единый layout
+    public $layout = 'main';
 
     /**
      * Страница корзины

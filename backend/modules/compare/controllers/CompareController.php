@@ -22,7 +22,7 @@ use app\backend\modules\catalog\models\Product;
 
 class CompareController extends Controller
 {
-    public $layout = 'main';
+    public $layout = '@app/frontend/views/layouts/main';
 
     /**
      * Страница сравнения товаров

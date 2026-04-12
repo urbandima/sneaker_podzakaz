@@ -138,12 +138,11 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 
     <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
-        <a href="<?= Url::to(['/admin/shipping']) ?>" class="btn-action btn-secondary-action">
+        <a href="<?= Url::to(['/admin/shipping']) ?>" class="admin-btn admin-btn-secondary admin-btn-sm">
             Отмена
         </a>
-        <button class="btn-action btn-primary-action">
-            <i class="bi bi-check-lg"></i>
-            Сохранить настройки
+        <button class="admin-btn admin-btn-primary admin-btn-sm">
+            <i class="bi bi-check-lg"></i> Сохранить настройки
         </button>
     </div>
 </div>
