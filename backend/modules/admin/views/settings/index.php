@@ -135,12 +135,7 @@ $this->params['headerActions'] = [];
                     <option value="0" <?= !Yii::$app->settings->get('system', 'order_notifications', 1) ? 'selected' : '' ?>>Выключены</option>
                 </select>
             </div>
-            
-            <div class="form-group">
-                <label>Курс BYN к CNY</label>
-                <input type="number" step="0.01" class="form-control" value="<?= Html::encode(Yii::$app->settings->get('system', 'cny_rate', 0.28)) ?>" data-setting="system.cny_rate">
-            </div>
-            
+
             <button class="admin-btn admin-btn-primary" onclick="saveSettings(this)">
                 <i class="bi bi-check-circle"></i>
                 Сохранить
@@ -219,33 +214,6 @@ $this->params['headerActions'] = [];
         </div>
     </div>
 
-    <!-- Telegram -->
-    <div class="admin-card">
-        <h2 class="admin-card-title">
-            <i class="bi bi-telegram"></i>
-            Telegram-бот
-        </h2>
-        <div style="margin-top: 1.5rem;">
-            <div class="form-group">
-                <label>Bot Token</label>
-                <input type="text" class="form-control" value="<?= Html::encode(Yii::$app->settings->get('telegram', 'bot_token', '')) ?>" data-setting="telegram.bot_token" placeholder="123456789:AABBcc...">
-            </div>
-            <div class="form-group">
-                <label>Chat ID(s) <small style="font-weight:400;color:#94a3b8;">(через запятую)</small></label>
-                <input type="text" class="form-control" value="<?= Html::encode(Yii::$app->settings->get('telegram', 'chat_ids', '')) ?>" data-setting="telegram.chat_ids" placeholder="-1001234567890, 987654321">
-            </div>
-            <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-                <button class="admin-btn admin-btn-primary" onclick="saveSettings(this)">
-                    <i class="bi bi-check-circle"></i> Сохранить
-                </button>
-                <button class="admin-btn admin-btn-secondary" onclick="testTelegram(this)">
-                    <i class="bi bi-send"></i> Тест отправки
-                </button>
-            </div>
-            <div id="telegram-test-result" style="display:none;margin-top:0.75rem;padding:0.5rem 0.75rem;border-radius:0.5rem;font-size:0.875rem;"></div>
-        </div>
-    </div>
-
     <!-- PDF Шаблоны -->
     <div class="admin-card">
         <h2 class="admin-card-title">
@@ -288,99 +256,4 @@ $this->params['headerActions'] = [];
         </div>
     </div>
 
-    <!-- Автообновление курса CNY -->
-    <div class="admin-card">
-        <div class="admin-card-header">
-            <h2 class="admin-card-title">
-                <i class="bi bi-currency-exchange"></i>
-                Курс CNY — автообновление
-            </h2>
-        </div>
-        <div class="admin-card-body">
-            <div class="form-group">
-                <label>Автообновление курса CNY</label>
-                <select class="form-control" data-setting="system.cny_auto_update">
-                    <option value="1" <?= Yii::$app->settings->get('system', 'cny_auto_update', 1) ? 'selected' : '' ?>>Включено (обновляется автоматически)</option>
-                    <option value="0" <?= !Yii::$app->settings->get('system', 'cny_auto_update', 1) ? 'selected' : '' ?>>Выключено (ручной ввод)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Текущий курс BYN/CNY (ручной)</label>
-                <input type="number" step="0.001" class="form-control" value="<?= Html::encode(Yii::$app->settings->get('system', 'cny_rate', 0.28)) ?>" data-setting="system.cny_rate" placeholder="0.280">
-                <small style="color:#94a3b8;font-size:0.8rem;">Используется при отключённом автообновлении</small>
-            </div>
-            <button class="admin-btn admin-btn-primary" onclick="saveSettings(this)">
-                <i class="bi bi-check-circle"></i> Сохранить
-            </button>
-        </div>
-    </div>
-
-    <!-- MoySklad -->
-    <div class="admin-card">
-        <h2 class="admin-card-title">
-            <i class="bi bi-boxes"></i>
-            МойСклад
-        </h2>
-        <div style="margin-top: 1.5rem;">
-            <div class="form-group">
-                <label>API-ключ</label>
-                <input type="text" class="form-control" value="<?= Html::encode(Yii::$app->settings->get('moysklad', 'api_key', '')) ?>" data-setting="moysklad.api_key" placeholder="Bearer токен или логин:пароль">
-            </div>
-            <div class="form-group">
-                <label>Склад (UUID или название)</label>
-                <input type="text" class="form-control" value="<?= Html::encode(Yii::$app->settings->get('moysklad', 'warehouse', '')) ?>" data-setting="moysklad.warehouse" placeholder="Основной склад">
-            </div>
-            <div class="form-group">
-                <label>Маппинг статусов заказа → МойСклад <small style="font-weight:400;color:#94a3b8;">(через =, строки через ;)</small></label>
-                <textarea class="form-control" rows="4" data-setting="moysklad.status_map" placeholder="new=Новый;paid=Оплачен;shipped=Отгружен"><?= Html::encode(Yii::$app->settings->get('moysklad', 'status_map', '')) ?></textarea>
-            </div>
-            <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-                <button class="admin-btn admin-btn-primary" onclick="saveSettings(this)">
-                    <i class="bi bi-check-circle"></i> Сохранить
-                </button>
-                <button class="admin-btn admin-btn-secondary" onclick="testIntegration('moysklad', this)">
-                    <i class="bi bi-plug"></i> Проверить подключение
-                </button>
-            </div>
-            <div id="moysklad-test-result" style="display:none;margin-top:0.75rem;padding:0.5rem 0.75rem;border-radius:0.5rem;font-size:0.875rem;"></div>
-        </div>
-    </div>
-
-    <!-- AmoCRM -->
-    <div class="admin-card">
-        <div class="admin-card-header">
-            <h2 class="admin-card-title">
-                <i class="bi bi-people"></i>
-                AmoCRM
-            </h2>
-        </div>
-        <div class="admin-card-body">
-            <div class="form-group">
-                <label>Домен <small style="font-weight:400;color:#94a3b8;">(yourcompany.amocrm.ru)</small></label>
-                <input type="text" class="form-control" value="<?= Html::encode(Yii::$app->settings->get('amocrm', 'domain', '')) ?>" data-setting="amocrm.domain" placeholder="yourcompany.amocrm.ru">
-            </div>
-            <div class="form-group">
-                <label>API Token (Long-lived)</label>
-                <input type="text" class="form-control" value="<?= Html::encode(Yii::$app->settings->get('amocrm', 'api_token', '')) ?>" data-setting="amocrm.api_token" placeholder="eyJ0...">
-            </div>
-            <div class="form-group">
-                <label>ID воронки (Pipeline)</label>
-                <input type="text" class="form-control" value="<?= Html::encode(Yii::$app->settings->get('amocrm', 'pipeline_id', '')) ?>" data-setting="amocrm.pipeline_id" placeholder="123456">
-            </div>
-            <div class="form-group">
-                <label>Маппинг статусов заказа → AmoCRM Stage <small style="font-weight:400;color:#94a3b8;">(строки через ;)</small></label>
-                <textarea class="form-control" rows="4" data-setting="amocrm.stage_map" placeholder="new=142;paid=143;shipped=144"><?= Html::encode(Yii::$app->settings->get('amocrm', 'stage_map', '')) ?></textarea>
-            </div>
-            <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-                <button class="admin-btn admin-btn-primary" onclick="saveSettings(this)">
-                    <i class="bi bi-check-circle"></i> Сохранить
-                </button>
-                <button class="admin-btn admin-btn-secondary" onclick="testIntegration('amocrm', this)">
-                    <i class="bi bi-plug"></i> Проверить подключение
-                </button>
-            </div>
-            <div id="amocrm-test-result" style="display:none;margin-top:0.75rem;padding:0.5rem 0.75rem;border-radius:0.5rem;font-size:0.875rem;"></div>
-        </div>
-    </div>
 </div>
-
