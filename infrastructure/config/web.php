@@ -296,6 +296,7 @@ $config = [
                 
                 // Страница брендов
                 'brands' => 'catalog/catalog/brands',
+                'brands/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
                 
                 // Страница скидок
                 'sale' => 'page/sale',

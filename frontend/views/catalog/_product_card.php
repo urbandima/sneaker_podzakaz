@@ -34,15 +34,17 @@ $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam
     <div class="product-image-wrapper">
         <a href="<?= $product->getUrl() ?>" class="product-link">
             <?php if (!empty($galleryImages[0])): ?>
-            <img src="<?= Html::encode($galleryImages[0]) ?>" 
-                 class="product-image primary" 
+            <img src="<?= Html::encode($galleryImages[0]) ?>"
+                 class="product-image primary"
                  alt="<?= Html::encode($product->name) ?>"
-                 loading="<?= $isCriticalCard ? 'eager' : 'lazy' ?>">
+                 loading="<?= $isCriticalCard ? 'eager' : 'lazy' ?>"
+                 onerror="this.src='/images/placeholder.png';this.onerror=null;">
             <?php if (isset($galleryImages[1])): ?>
-            <img src="<?= Html::encode($galleryImages[1]) ?>" 
-                 class="product-image secondary" 
+            <img src="<?= Html::encode($galleryImages[1]) ?>"
+                 class="product-image secondary"
                  alt="<?= Html::encode($product->name) ?> - вид 2"
-                 loading="lazy">
+                 loading="lazy"
+                 onerror="this.src='/images/placeholder.png';this.onerror=null;">
             <?php endif; ?>
             <?php else: ?>
             <img src="/images/placeholder.png" class="product-image primary" alt="<?= Html::encode($product->name) ?>">

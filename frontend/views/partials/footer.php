@@ -68,7 +68,7 @@ $company = Yii::$app->settings->getCompany();
                     <h4 class="footer-title">Каталог</h4>
                     <ul class="footer-links">
                         <li><a href="<?= Url::to(['/catalog']) ?>">Все товары</a></li>
-                        <li><a href="<?= Url::to(['/catalog/brands/index']) ?>">Бренды</a></li>
+                        <li><a href="<?= Url::to(['/brands']) ?>">Бренды</a></li>
                         <li><a href="<?= Url::to(['/catalog', 'category' => 'sneakers']) ?>">Кроссовки</a></li>
                         <li><a href="<?= Url::to(['/catalog', 'category' => 'boots']) ?>">Ботинки</a></li>
                         <li><a href="<?= Url::to(['/catalog', 'sort' => 'sale']) ?>">Распродажа</a></li>

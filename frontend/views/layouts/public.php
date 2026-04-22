@@ -505,7 +505,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                         <span class="nav-divider">|</span>
                         <a href="/site/offer-agreement">Договор оферты</a>
                         <a href="/privacy" target="_blank">Политика конфиденциальности</a>
-                        <a href="/delivery" target="_blank">Доставка и оплата</a>
+                        <a href="/delivery-terms" target="_blank">Доставка и оплата</a>
                     </div>
                 </div>
                 
