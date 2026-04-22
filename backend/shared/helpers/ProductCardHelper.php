@@ -79,7 +79,7 @@ class ProductCardHelper
         $galleryImages = [];
         $mainImageUrl = $product->getMainImageUrl();
 
-        if ($mainImageUrl) {
+        if ($mainImageUrl && self::imageExists($mainImageUrl)) {
             $galleryImages[] = $mainImageUrl;
         }
 
@@ -90,7 +90,7 @@ class ProductCardHelper
                 }
 
                 $url = $image->getUrl();
-                if ($url && !in_array($url, $galleryImages, true)) {
+                if ($url && !in_array($url, $galleryImages, true) && self::imageExists($url)) {
                     $galleryImages[] = $url;
                 }
             }
@@ -101,6 +101,15 @@ class ProductCardHelper
         }
 
         return $galleryImages;
+    }
+
+    private static function imageExists(string $url): bool
+    {
+        if (str_starts_with($url, 'http') || str_starts_with($url, 'data:')) {
+            return true;
+        }
+        $webroot = \Yii::getAlias('@webroot');
+        return file_exists($webroot . '/' . ltrim($url, '/'));
     }
 
     /**
