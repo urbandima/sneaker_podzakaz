@@ -6,7 +6,8 @@ use yii\helpers\Url;
 /** @var yii\web\View $this */
 /** @var bool $sent */
 
-$this->title = 'Восстановление пароля - СНИКЕРХЭД';
+$this->title = 'Восстановление пароля — СНИКЕРХЭД';
+$this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
 
 // Используем общие стили авторизации (вместо 176 строк inline CSS)
 echo $this->render('_auth-style');
@@ -44,12 +45,13 @@ echo $this->render('_auth-style');
                         Введите email, указанный при регистрации. Мы отправим вам инструкции по восстановлению пароля.
                     </p>
 
-                    <form method="post">
+                    <form method="post" novalidate>
                         <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>" value="<?= Yii::$app->request->csrfToken ?>">
 
                         <div class="form-group">
                             <label for="email">Email</label>
-                            <input type="email" id="email" name="email" class="form-control" placeholder="example@mail.com" required autofocus>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="example@mail.com"
+                                   required aria-required="true" autocomplete="email" inputmode="email" autofocus>
                         </div>
 
                         <button type="submit" class="btn-auth">

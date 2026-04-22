@@ -7,7 +7,9 @@ use yii\widgets\ActiveForm;
 /** @var yii\web\View $this */
 /** @var app\models\CustomerRegisterForm $model */
 
-$this->title = 'Регистрация - СНИКЕРХЭД';
+$this->title = 'Регистрация — СНИКЕРХЭД';
+$this->registerMetaTag(['name' => 'description', 'content' => 'Создайте аккаунт СНИКЕРХЭД для быстрых заказов, отслеживания доставки и накопления бонусов.']);
+$this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
 echo $this->render('_auth-style');
 ?>
 
@@ -93,37 +95,56 @@ echo $this->render('_auth-style');
                 <div class="auth-body">
                     <?php $form = ActiveForm::begin([
                         'id' => 'register-form',
-                        'options' => ['class' => 'auth-form'],
+                        'options' => ['class' => 'auth-form', 'novalidate' => true],
                         'fieldConfig' => [
-                            'template' => "<label>{label}</label>\n{input}\n{error}",
+                            'template' => "{label}\n{input}\n{error}",
                             'labelOptions' => ['class' => ''],
                             'inputOptions' => ['class' => 'form-control'],
-                            'errorOptions' => ['class' => 'invalid-feedback'],
+                            'errorOptions' => ['class' => 'invalid-feedback', 'role' => 'alert'],
                             'options' => ['class' => 'form-group'],
                         ],
                     ]); ?>
 
                     <div class="form-grid two-columns">
-                        <?= $form->field($model, 'first_name')->textInput(['placeholder' => 'Иван']) ?>
-                        <?= $form->field($model, 'last_name')->textInput(['placeholder' => 'Иванов']) ?>
+                        <?= $form->field($model, 'first_name')->textInput([
+                            'placeholder' => 'Иван',
+                            'required' => true,
+                            'autocomplete' => 'given-name',
+                        ]) ?>
+                        <?= $form->field($model, 'last_name')->textInput([
+                            'placeholder' => 'Иванов',
+                            'required' => true,
+                            'autocomplete' => 'family-name',
+                        ]) ?>
                     </div>
 
                     <?= $form->field($model, 'email')->textInput([
                         'type' => 'email',
                         'placeholder' => 'example@mail.com',
                         'autofocus' => true,
+                        'required' => true,
+                        'autocomplete' => 'email',
+                        'inputmode' => 'email',
                     ]) ?>
 
                     <?= $form->field($model, 'phone')->textInput([
                         'placeholder' => '+375 29 123-45-67',
+                        'required' => true,
+                        'autocomplete' => 'tel',
+                        'inputmode' => 'tel',
+                        'type' => 'tel',
                     ]) ?>
 
                     <div class="form-grid two-columns">
                         <?= $form->field($model, 'password')->passwordInput([
                             'placeholder' => 'Минимум 6 символов',
+                            'required' => true,
+                            'autocomplete' => 'new-password',
                         ]) ?>
                         <?= $form->field($model, 'password_confirm')->passwordInput([
                             'placeholder' => 'Повторите пароль',
+                            'required' => true,
+                            'autocomplete' => 'new-password',
                         ]) ?>
                     </div>
 

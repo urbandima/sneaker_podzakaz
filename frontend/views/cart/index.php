@@ -48,14 +48,17 @@ CartAsset::register($this);
                                 <?php endif; ?>
                             </div>
                             
-                            <div class="item-quantity">
-                                <button onclick="updateCartItem(<?= $item->id ?>, <?= $item->quantity - 1 ?>)" <?= $item->quantity <= 1 ? 'disabled' : '' ?>>
-                                    <i class="bi bi-dash"></i>
+                            <div class="item-quantity" role="group" aria-label="Количество товара <?= Html::encode($item->product->name) ?>">
+                                <button onclick="updateCartItem(<?= $item->id ?>, <?= $item->quantity - 1 ?>)"
+                                        aria-label="Уменьшить количество" <?= $item->quantity <= 1 ? 'disabled aria-disabled="true"' : '' ?>>
+                                    <i class="bi bi-dash" aria-hidden="true"></i>
                                 </button>
-                                <input type="number" value="<?= $item->quantity ?>" min="1" max="99" 
+                                <input type="number" value="<?= $item->quantity ?>" min="1" max="99"
+                                       aria-label="Количество"
                                        onchange="updateCartItem(<?= $item->id ?>, this.value)">
-                                <button onclick="updateCartItem(<?= $item->id ?>, <?= $item->quantity + 1 ?>)">
-                                    <i class="bi bi-plus"></i>
+                                <button onclick="updateCartItem(<?= $item->id ?>, <?= $item->quantity + 1 ?>)"
+                                        aria-label="Увеличить количество">
+                                    <i class="bi bi-plus" aria-hidden="true"></i>
                                 </button>
                             </div>
                             

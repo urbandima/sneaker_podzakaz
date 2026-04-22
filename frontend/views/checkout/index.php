@@ -82,24 +82,29 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                     <h2><i class="bi bi-person"></i> Контактные данные</h2>
                     <div class="checkout-contact-grid">
                         <div class="form-group">
-                            <label for="field-name">ФИО <span class="text-danger">*</span></label>
+                            <label for="field-name">ФИО <span class="text-danger" aria-hidden="true">*</span><span class="sr-only">(обязательное)</span></label>
                             <input type="text" id="field-name" name="name" class="form-control"
                                    placeholder="Иванов Иван Иванович"
                                    value="<?= Html::encode($customer ? $customer->getFullName() : '') ?>"
-                                   required maxlength="100">
+                                   required aria-required="true" autocomplete="name"
+                                   aria-describedby="error-name" maxlength="100">
+                            <div id="error-name" class="invalid-feedback" role="alert" aria-live="polite"></div>
                         </div>
                         <div class="form-group">
-                            <label for="field-phone">Телефон <span class="text-danger">*</span></label>
+                            <label for="field-phone">Телефон <span class="text-danger" aria-hidden="true">*</span><span class="sr-only">(обязательное)</span></label>
                             <input type="tel" id="field-phone" name="phone" class="form-control"
                                    placeholder="+375 (__) ___-__-__"
                                    value="<?= Html::encode($customer?->phone ?? '') ?>"
-                                   required maxlength="50">
+                                   required aria-required="true" autocomplete="tel"
+                                   aria-describedby="error-phone" maxlength="50">
+                            <div id="error-phone" class="invalid-feedback" role="alert" aria-live="polite"></div>
                         </div>
                         <div class="form-group">
                             <label for="field-email">Email</label>
                             <input type="email" id="field-email" name="email" class="form-control"
                                    placeholder="email@example.com"
                                    value="<?= Html::encode($customer?->email ?? '') ?>"
+                                   autocomplete="email" inputmode="email"
                                    maxlength="255">
                         </div>
                     </div>
@@ -204,20 +209,21 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                     <div id="addressGroup" style="display:none">
                         <div class="address-row">
                             <div class="form-group">
-                                <label for="field-city">Город <span class="text-danger">*</span></label>
+                                <label for="field-city">Город <span class="text-danger" aria-hidden="true">*</span><span class="sr-only">(обязательное)</span></label>
                                 <input type="text" id="field-city" name="city" class="form-control"
-                                       placeholder="Минск" maxlength="100">
+                                       placeholder="Минск" autocomplete="address-level2" maxlength="100">
                             </div>
                             <div class="form-group">
                                 <label for="field-postal">Индекс</label>
                                 <input type="text" id="field-postal" name="postal_code" class="form-control"
-                                       placeholder="220000" maxlength="20">
+                                       placeholder="220000" autocomplete="postal-code" inputmode="numeric" maxlength="20">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="field-address" id="addressLabel">Улица, дом, квартира <span class="text-danger">*</span></label>
+                            <label for="field-address" id="addressLabel">Улица, дом, квартира <span class="text-danger" aria-hidden="true">*</span><span class="sr-only">(обязательное)</span></label>
                             <textarea id="field-address" name="address" class="form-control"
                                       rows="2" placeholder="Улица, дом, квартира"
+                                      autocomplete="street-address"
                                       maxlength="500"><?= Html::encode($customer?->default_address ?? '') ?></textarea>
                         </div>
                     </div>
@@ -387,6 +393,20 @@ var selectedPayment   = 'bank_transfer';
 var csrfToken         = <?= json_encode($csrfToken) ?>;
 var createUrl         = <?= json_encode($createUrl) ?>;
 
+function showFieldError(fieldId, errorId, message) {
+    var field = document.getElementById(fieldId);
+    if (field) { field.classList.add('is-invalid'); field.focus(); }
+    if (errorId) {
+        var err = document.getElementById(errorId);
+        if (err) err.textContent = message;
+    }
+}
+
+function clearFieldErrors() {
+    document.querySelectorAll('.form-control.is-invalid').forEach(function(f) { f.classList.remove('is-invalid'); });
+    document.querySelectorAll('.invalid-feedback[role="alert"]').forEach(function(e) { e.textContent = ''; });
+}
+
 // Mobile summary toggle
 function toggleMobileSummary() {
     document.getElementById('mobileSummaryToggle').classList.toggle('expanded');
@@ -504,18 +524,18 @@ function submitOrder() {
     // Combine address parts
     var address = [city, postal, street].filter(Boolean).join(', ');
 
-    if (!name)  { alert('Укажите ФИО'); document.getElementById('field-name').focus(); return; }
-    if (!phone) { alert('Укажите телефон'); document.getElementById('field-phone').focus(); return; }
+    clearFieldErrors();
+    if (!name)  { showFieldError('field-name', 'error-name', 'Укажите ФИО'); return; }
+    if (!phone) { showFieldError('field-phone', 'error-phone', 'Укажите телефон'); return; }
     if (!/^[\+]?[\d\s\-\(\)]{7,}$/.test(phone)) {
-        alert('Некорректный формат телефона');
-        document.getElementById('field-phone').focus();
+        showFieldError('field-phone', 'error-phone', 'Некорректный формат телефона');
         return;
     }
     if (!delivery) { alert('Выберите способ доставки'); return; }
     if (delivery.value !== 'pickup_minsk' && !address) {
-        alert('Укажите адрес доставки');
         var cityEl = document.getElementById('field-city');
-        if (cityEl) cityEl.focus(); else document.getElementById('field-address').focus();
+        if (cityEl) { showFieldError('field-city', null, 'Укажите город'); }
+        else { showFieldError('field-address', null, 'Укажите адрес доставки'); }
         return;
     }
 

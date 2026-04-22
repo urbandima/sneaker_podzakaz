@@ -119,23 +119,37 @@ function loadMoreProducts() {
 
                 <!-- Price (открыт по умолчанию) -->
                 <div class="filter-group open" id="filter-price">
-                    <div class="filter-title" onclick="toggleFilterGroup(this)">
+                    <button type="button" class="filter-title" onclick="toggleFilterGroup(this)" aria-expanded="true">
                         <span>Цена</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </div>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
                     <div class="filter-content filter-content--open">
                         <div class="price-slider-container">
                             <div class="price-range-slider">
-                                <input type="range" id="price-slider-min" min="<?= $filters['priceRange']['min'] ?? 0 ?>" max="<?= $filters['priceRange']['max'] ?? 10000 ?>" value="<?= $currentFilters['price_from'] ?? ($filters['priceRange']['min'] ?? 0) ?>" class="slider-thumb slider-thumb-min">
-                                <input type="range" id="price-slider-max" min="<?= $filters['priceRange']['min'] ?? 0 ?>" max="<?= $filters['priceRange']['max'] ?? 10000 ?>" value="<?= $currentFilters['price_to'] ?? ($filters['priceRange']['max'] ?? 10000) ?>" class="slider-thumb slider-thumb-max">
-                                <div class="slider-track"></div>
-                                <div class="slider-range" id="slider-range"></div>
+                                <input type="range" id="price-slider-min"
+                                       min="<?= $filters['priceRange']['min'] ?? 0 ?>" max="<?= $filters['priceRange']['max'] ?? 10000 ?>"
+                                       value="<?= $currentFilters['price_from'] ?? ($filters['priceRange']['min'] ?? 0) ?>"
+                                       class="slider-thumb slider-thumb-min"
+                                       aria-label="Минимальная цена" aria-valuemin="<?= $filters['priceRange']['min'] ?? 0 ?>" aria-valuemax="<?= $filters['priceRange']['max'] ?? 10000 ?>">
+                                <input type="range" id="price-slider-max"
+                                       min="<?= $filters['priceRange']['min'] ?? 0 ?>" max="<?= $filters['priceRange']['max'] ?? 10000 ?>"
+                                       value="<?= $currentFilters['price_to'] ?? ($filters['priceRange']['max'] ?? 10000) ?>"
+                                       class="slider-thumb slider-thumb-max"
+                                       aria-label="Максимальная цена" aria-valuemin="<?= $filters['priceRange']['min'] ?? 0 ?>" aria-valuemax="<?= $filters['priceRange']['max'] ?? 10000 ?>">
+                                <div class="slider-track" aria-hidden="true"></div>
+                                <div class="slider-range" id="slider-range" aria-hidden="true"></div>
                             </div>
                             <div class="price-filter">
-                                <input type="number" class="price-input" id="price-from" name="price_from" value="<?= $currentFilters['price_from'] ?? ($filters['priceRange']['min'] ?? 0) ?>">
-                                <span class="price-separator">—</span>
-                                <input type="number" class="price-input" id="price-to" name="price_to" value="<?= $currentFilters['price_to'] ?? ($filters['priceRange']['max'] ?? 10000) ?>">
-                                <span class="price-currency">BYN</span>
+                                <label for="price-from" class="sr-only">Цена от</label>
+                                <input type="number" class="price-input" id="price-from" name="price_from"
+                                       aria-label="Цена от, BYN"
+                                       value="<?= $currentFilters['price_from'] ?? ($filters['priceRange']['min'] ?? 0) ?>">
+                                <span class="price-separator" aria-hidden="true">—</span>
+                                <label for="price-to" class="sr-only">Цена до</label>
+                                <input type="number" class="price-input" id="price-to" name="price_to"
+                                       aria-label="Цена до, BYN"
+                                       value="<?= $currentFilters['price_to'] ?? ($filters['priceRange']['max'] ?? 10000) ?>">
+                                <span class="price-currency" aria-hidden="true">BYN</span>
                             </div>
                         </div>
                     </div>
@@ -143,10 +157,10 @@ function loadMoreProducts() {
 
                 <!-- В наличии -->
                 <div class="filter-group open" id="filter-stock">
-                    <div class="filter-title" onclick="toggleFilterGroup(this)">
+                    <button type="button" class="filter-title" onclick="toggleFilterGroup(this)" aria-expanded="true">
                         <span>Наличие</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </div>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
                     <div class="filter-content filter-content--open">
                         <label class="filter-checkbox">
                             <input type="checkbox" name="in_stock" value="1" <?= !empty($currentFilters['in_stock']) ? 'checked' : '' ?>>
@@ -158,10 +172,10 @@ function loadMoreProducts() {
 
                 <!-- Brands (открыт по умолчанию) -->
                 <div class="filter-group open" id="filter-brands">
-                    <div class="filter-title" onclick="toggleFilterGroup(this)">
+                    <button type="button" class="filter-title" onclick="toggleFilterGroup(this)" aria-expanded="true">
                         <span>Бренд</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </div>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
                     <div class="filter-content filter-content--open">
                         <div class="filter-scroll">
                             <?php if (!empty($filters['brands'])): foreach ($filters['brands'] as $brand): ?>
@@ -183,10 +197,10 @@ function loadMoreProducts() {
 
                 <!-- Categories (аккордеон) -->
                 <div class="filter-group">
-                    <div class="filter-title" onclick="toggleFilterGroup(this)">
+                    <button type="button" class="filter-title" onclick="toggleFilterGroup(this)" aria-expanded="true">
                         <span>Категория</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </div>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
                     <div class="filter-content">
                         <div class="filter-scroll">
                             <?php if (!empty($filters['categories'])): foreach ($filters['categories'] as $cat): ?>
@@ -211,10 +225,10 @@ function loadMoreProducts() {
 
                 <!-- Размеры (первичный фильтр — всегда видимый) -->
                 <div class="filter-group open" id="filter-sizes">
-                    <div class="filter-title" onclick="toggleFilterGroup(this)">
+                    <button type="button" class="filter-title" onclick="toggleFilterGroup(this)" aria-expanded="true">
                         <span>Размер <span id="sidebarSizeSystem" class="size-system-label">EU</span></span>
-                        <i class="bi bi-chevron-down"></i>
-                    </div>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
                     <div class="filter-content filter-content--open">
                         <!-- Переключатель систем в сайдбаре -->
                         <div class="size-system-toggle-sidebar">
@@ -260,10 +274,10 @@ function loadMoreProducts() {
                 <!-- Цвет -->
                 <?php if (!empty($filters['colors'])): ?>
                 <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
+                    <button type="button" class="filter-title" onclick="toggleFilterGroup(this)" aria-expanded="false">
                         <span><i class="bi bi-palette"></i> Цвет</span>
                         <i class="bi bi-chevron-down"></i>
-                    </h4>
+                    </button>
                     <div class="filter-content">
                         <div class="color-filter-grid">
                             <?php foreach ($filters['colors'] as $color): ?>
@@ -292,10 +306,10 @@ function loadMoreProducts() {
                 
                 <!-- Скидка (как на OZON/Wildberries) -->
                 <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
+                    <button type="button" class="filter-title" onclick="toggleFilterGroup(this)" aria-expanded="false">
                         <span>Скидка</span>
                         <i class="bi bi-chevron-down"></i>
-                    </h4>
+                    </button>
                     <div class="filter-content">
                         <label class="filter-item">
                             <input type="checkbox" name="discount_any" value="1">
@@ -318,10 +332,10 @@ function loadMoreProducts() {
                 
                 <!-- Рейтинг (как на OZON/Yandex Market) -->
                 <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
+                    <button type="button" class="filter-title" onclick="toggleFilterGroup(this)" aria-expanded="false">
                         <span>Рейтинг</span>
                         <i class="bi bi-chevron-down"></i>
-                    </h4>
+                    </button>
                     <div class="filter-content">
                         <label class="filter-item">
                             <input type="radio" name="rating" value="4">
@@ -336,10 +350,10 @@ function loadMoreProducts() {
                 
                 <!-- Условия (как на всех топовых) -->
                 <div class="filter-group">
-                    <h4 class="filter-title" onclick="toggleFilterGroup(this)">
+                    <button type="button" class="filter-title" onclick="toggleFilterGroup(this)" aria-expanded="false">
                         <span>Условия</span>
                         <i class="bi bi-chevron-down"></i>
-                    </h4>
+                    </button>
                     <div class="filter-content">
                         <?php if (!empty($filters['conditions'])): foreach ($filters['conditions'] as $condition): ?>
                             <label class="filter-item">

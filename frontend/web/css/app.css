@@ -1598,6 +1598,10 @@ main {
     font-weight: 600;
     color: var(--text-primary);
     transition: color var(--transition-fast);
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
 }
 
 .filter-title:hover {
