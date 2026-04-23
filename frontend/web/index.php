@@ -1,5 +1,13 @@
 <?php
 
+// PHP built-in server: serve static files directly (css/js/images etc.)
+if (PHP_SAPI === 'cli-server') {
+    $staticFile = __DIR__ . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    if (is_file($staticFile)) {
+        return false;
+    }
+}
+
 // Точка входа для новой архитектуры 2026 (frontend/backend/infrastructure)
 
 require __DIR__ . '/../../vendor/autoload.php';
