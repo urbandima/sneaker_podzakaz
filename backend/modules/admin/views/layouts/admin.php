@@ -6,7 +6,7 @@ use app\backend\modules\admin\assets\AdminAsset;
 
 AdminAsset::register($this);
 
-$company = Yii::$app->settings->getCompany() ?? ['name' => 'СНИКЕРХЭД'];
+$company = Yii::$app->settings->getCompany() ?? ['name' => 'СникерКультура'];
 $controllerId = Yii::$app->controller->id;
 ?>
 
