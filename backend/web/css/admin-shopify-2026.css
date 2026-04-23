@@ -152,8 +152,14 @@ body {
 
 /* ========== LAYOUT ========== */
 .admin-layout {
+    --sidebar-w: 240px;
     display: flex;
     min-height: 100vh;
+}
+
+.admin-layout:has(.admin-sidebar.collapsed),
+.admin-layout.sidebar-collapsed {
+    --sidebar-w: 60px;
 }
 
 /* Sidebar */
@@ -162,11 +168,27 @@ body {
     background: var(--admin-primary);
     position: fixed;
     height: 100vh;
+    overflow-x: hidden;
     overflow-y: auto;
     z-index: 1000;
     padding: var(--space-4);
     display: flex;
     flex-direction: column;
+    transition: width 0.2s ease;
+}
+
+.admin-sidebar.collapsed {
+    width: 60px;
+    overflow: hidden;
+    padding: var(--space-4) var(--space-2);
+}
+
+.admin-sidebar.collapsed .admin-sidebar-header span,
+.admin-sidebar.collapsed .admin-nav-label,
+.admin-sidebar.collapsed .admin-sidebar-toggle-btn,
+.admin-sidebar.collapsed .admin-sidebar-footer,
+.admin-sidebar.collapsed .admin-sidebar-footer > * {
+    display: none;
 }
 
 .admin-sidebar-header {
@@ -332,14 +354,15 @@ body {
 
 /* Main Content */
 .admin-main {
-    margin-left: 240px;
+    margin-left: var(--sidebar-w, 240px);
     flex: 1;
     min-width: 0;
     padding: var(--space-6);
-    max-width: calc(100% - 240px);
+    max-width: calc(100% - var(--sidebar-w, 240px));
     min-height: 100vh;
     overflow-x: hidden;
     overflow-y: visible;
+    transition: margin-left 0.2s ease, max-width 0.2s ease;
 }
 
 /* ========== HEADER ========== */
