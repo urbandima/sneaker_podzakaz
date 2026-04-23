@@ -35,6 +35,7 @@ namespace app\backend\modules\account\models;
 use Yii;
 use yii\base\Model;
 use app\backend\modules\account\models\Customer;
+use app\backend\modules\checkout\models\Order;
 
 /**
  * Форма регистрации покупателя
