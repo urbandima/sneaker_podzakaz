@@ -156,11 +156,30 @@ body {
     background: var(--admin-primary);
     position: fixed;
     height: 100vh;
+    overflow-x: hidden;
     overflow-y: auto;
     z-index: 1000;
     padding: var(--space-4);
     display: flex;
     flex-direction: column;
+}
+
+.admin-sidebar.collapsed {
+    width: 60px;
+    overflow: hidden;
+    padding: var(--space-4) var(--space-2);
+}
+
+.admin-sidebar.collapsed .admin-sidebar-header span,
+.admin-sidebar.collapsed .admin-nav-label,
+.admin-sidebar.collapsed .admin-sidebar-footer,
+.admin-sidebar.collapsed .admin-sidebar-footer > * {
+    display: none;
+}
+
+.admin-sidebar.collapsed + .admin-main,
+.admin-main.sidebar-collapsed {
+    margin-left: 60px;
 }
 
 .admin-sidebar-header {
@@ -277,6 +296,7 @@ body {
     max-width: 100%;
     min-height: 100vh;
     overflow-y: auto;
+    transition: margin-left 0.25s ease;
 }
 
 /* ========== HEADER ========== */
