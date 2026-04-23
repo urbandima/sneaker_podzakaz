@@ -184,11 +184,47 @@ body {
 }
 
 .admin-sidebar.collapsed .admin-sidebar-header span,
+.admin-sidebar.collapsed .admin-sidebar-logo span,
+.admin-sidebar.collapsed .admin-nav-item span,
 .admin-sidebar.collapsed .admin-nav-label,
 .admin-sidebar.collapsed .admin-sidebar-toggle-btn,
 .admin-sidebar.collapsed .admin-sidebar-footer,
-.admin-sidebar.collapsed .admin-sidebar-footer > * {
+.admin-sidebar.collapsed .admin-sidebar-footer > *,
+.admin-sidebar.collapsed .admin-nav-group-label {
     display: none;
+}
+
+.admin-sidebar.collapsed .admin-nav-item {
+    justify-content: center;
+    padding: 10px 0;
+    position: relative;
+}
+
+.admin-sidebar.collapsed .admin-sidebar-logo {
+    justify-content: center;
+    margin-bottom: var(--space-4);
+}
+
+.admin-sidebar.collapsed .admin-nav-item i {
+    margin: 0;
+    font-size: 18px;
+}
+
+.admin-sidebar.collapsed .admin-nav-item:hover::after {
+    content: attr(data-label);
+    position: absolute;
+    left: 68px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--admin-primary);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    font-size: 13px;
+    z-index: 1100;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .admin-sidebar-header {
