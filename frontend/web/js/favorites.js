@@ -1,6 +1,5 @@
 /**
  * Favorites functionality
- * Handles adding/removing items from favorites.
  * Uses SH.* utilities from utils.js — no local getCsrfToken / showNotification.
  */
 
@@ -9,53 +8,61 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function initializeFavorites() {
-    var favoriteButtons = document.querySelectorAll('.btn-favorite, .fav-btn');
+    updateFavoritesCount();
+    initFavoriteButtons();
 
-    favoriteButtons.forEach(function (button) {
-        button.addEventListener('click', function (e) {
+    document.querySelectorAll('.btn-favorite, .fav-btn').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
-
             var productId = this.dataset.productId;
-            if (!productId) return;
-
-            toggleFavorite(this, productId);
+            if (productId) toggleFavorite(this, productId);
         });
     });
+}
 
-    updateFavoritesCount();
+function initFavoriteButtons() {
+    SH.fetch('/favorite/ids')
+        .then(function (data) {
+            if (!data || !Array.isArray(data.ids)) return;
+            data.ids.forEach(function (id) {
+                document.querySelectorAll('.btn-favorite[data-product-id="' + id + '"], .fav-btn[data-product-id="' + id + '"]').forEach(function (btn) {
+                    btn.classList.add('active');
+                    var icon = btn.querySelector('i');
+                    if (icon) icon.className = 'bi bi-heart-fill';
+                });
+            });
+        })
+        .catch(function () {});
 }
 
 function toggleFavorite(button, productId) {
     var isActive = button.classList.contains('active');
-    var url = isActive ? '/catalog/remove-favorite' : '/catalog/add-favorite';
 
     button.disabled = true;
     button.classList.add('loading');
 
-    SH.fetch(url, {
+    SH.fetch('/favorite/toggle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'product_id=' + productId
     })
         .then(function (data) {
-            if (data.success) {
-                button.classList.toggle('active');
-                button.classList.remove('loading');
-                button.disabled = false;
+            button.classList.remove('loading');
+            button.disabled = false;
 
+            if (data && data.success) {
+                var added = data.action === 'added';
+                button.classList.toggle('active', added);
                 var icon = button.querySelector('i');
-                if (icon) {
-                    icon.className = isActive ? 'bi bi-heart' : 'bi bi-heart-fill';
-                }
-
+                if (icon) icon.className = added ? 'bi bi-heart-fill' : 'bi bi-heart';
                 updateFavoritesCount();
                 SH.notify(data.message, 'success');
             } else {
-                throw new Error(data.message || 'Произошла ошибка');
+                SH.notify((data && data.message) || 'Произошла ошибка', 'error');
             }
         })
-        .catch(function (error) {
+        .catch(function () {
             button.classList.remove('loading');
             button.disabled = false;
             SH.notify('Не удалось обновить избранное', 'error');
@@ -63,7 +70,7 @@ function toggleFavorite(button, productId) {
 }
 
 function updateFavoritesCount() {
-    SH.fetch('/catalog/favorites-count')
+    SH.fetch('/favorite/count')
         .then(function (data) {
             var badge = document.getElementById('favCount');
             if (badge && data.count !== undefined) {
@@ -71,16 +78,8 @@ function updateFavoritesCount() {
                 badge.style.display = data.count > 0 ? 'flex' : 'none';
             }
         })
-        .catch(function () {
-            var activeCount = document.querySelectorAll('.btn-favorite.active, .fav-btn.active').length;
-            var badge = document.getElementById('favCount');
-            if (badge) {
-                badge.textContent = activeCount;
-                badge.style.display = activeCount > 0 ? 'flex' : 'none';
-            }
-        });
+        .catch(function () {});
 }
 
-// Export for global access
 window.toggleFavorite = toggleFavorite;
 window.updateFavoritesCount = updateFavoritesCount;

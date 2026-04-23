@@ -135,11 +135,48 @@ class FavoriteController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $userId    = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
         $sessionId = Yii::$app->session->id;
 
-        return [
-            'count' => ProductFavorite::getCount($userId, $sessionId),
-        ];
+        return ['count' => ProductFavorite::getCount($userId, $sessionId)];
+    }
+
+    /**
+     * Получить список product_id в избранном (для клиентской отметки кнопок)
+     */
+    public function actionIds()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $userId    = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $sessionId = Yii::$app->session->id;
+
+        $query = ProductFavorite::find()->select('product_id');
+        if ($userId) {
+            $query->where(['user_id' => $userId]);
+        } else {
+            $query->where(['session_id' => $sessionId]);
+        }
+
+        return ['ids' => $query->column()];
+    }
+
+    /**
+     * Очистить всё избранное (POST AJAX)
+     */
+    public function actionClear()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $userId    = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $sessionId = Yii::$app->session->id;
+
+        if ($userId) {
+            ProductFavorite::deleteAll(['user_id' => $userId]);
+        } else {
+            ProductFavorite::deleteAll(['session_id' => $sessionId]);
+        }
+
+        return ['success' => true, 'count' => 0];
     }
 }

@@ -34,6 +34,7 @@ use app\backend\modules\account\models\Customer;
 use app\backend\modules\account\models\CustomerLoginForm;
 use app\backend\modules\account\models\CustomerRegisterForm;
 use app\backend\shared\components\RateLimiter;
+use app\backend\modules\catalog\models\ProductFavorite;
 
 class AccountController extends Controller
 {
@@ -508,11 +509,23 @@ class AccountController extends Controller
     }
 
     /**
-     * Избранные товары — редирект на единую страницу избранного
+     * Избранные товары
      */
     public function actionWishlist()
     {
-        return $this->redirect('/catalog/favorites');
+        $customer = $this->getCustomer();
+        if (!$customer) {
+            return $this->redirect(['/account/login', 'return' => '/account/wishlist']);
+        }
+
+        $userId    = $customer->id;
+        $sessionId = Yii::$app->session->id;
+        $favorites = ProductFavorite::getFavorites($userId, $sessionId);
+
+        return $this->render('wishlist', [
+            'customer'  => $customer,
+            'favorites' => $favorites,
+        ]);
     }
 
     /**
