@@ -5,6 +5,6 @@
  */
 
 class_alias(
-    \app\models\Tariff::class,
+    \app\backend\modules\catalog\models\Tariff::class,
     'app\backend\modules\admin\models\Tariff'
 );

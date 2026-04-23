@@ -81,9 +81,9 @@ $inTransitCount = $dataProvider->getCount();
                 [
                     'attribute' => 'total_amount',
                     'label' => 'Сумма',
-                    'format' => ['decimal', 2],
+                    'format' => 'raw',
                     'value' => function ($model) {
-                        return number_format($model->total_amount, 2) . ' BYN';
+                        return number_format((float)$model->total_amount, 2) . ' BYN';
                     },
                 ],
                 [
