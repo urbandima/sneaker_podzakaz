@@ -39,7 +39,7 @@ $company = Yii::$app->settings->getCompany();
 
                 <!-- О компании -->
                 <div class="footer-column">
-                    <h4 class="footer-title">О компании</h4>
+                    <h3 class="footer-title">О компании</h3>
                     <ul class="footer-links">
                         <li><?= Html::a('О нас', ['/page/about']) ?></li>
                         <li><?= Html::a('Контакты', ['/page/contacts']) ?></li>
@@ -52,7 +52,7 @@ $company = Yii::$app->settings->getCompany();
 
                 <!-- Помощь -->
                 <div class="footer-column">
-                    <h4 class="footer-title">Помощь</h4>
+                    <h3 class="footer-title">Помощь</h3>
                     <ul class="footer-links">
                         <li><?= Html::a('Инструкция по оплате', ['/site/payment-instruction']) ?></li>
                         <li><?= Html::a('Условия оплаты', ['/page/payment-terms']) ?></li>
@@ -65,7 +65,7 @@ $company = Yii::$app->settings->getCompany();
 
                 <!-- Каталог -->
                 <div class="footer-column">
-                    <h4 class="footer-title">Каталог</h4>
+                    <h3 class="footer-title">Каталог</h3>
                     <ul class="footer-links">
                         <li><a href="<?= Url::to(['/catalog']) ?>">Все товары</a></li>
                         <li><a href="<?= Url::to(['/brands']) ?>">Бренды</a></li>
@@ -78,7 +78,7 @@ $company = Yii::$app->settings->getCompany();
 
                 <!-- Контакты -->
                 <div class="footer-column">
-                    <h4 class="footer-title">Контакты</h4>
+                    <h3 class="footer-title">Контакты</h3>
                     <ul class="footer-contacts">
                         <li>
                             <i class="bi bi-telephone"></i>
@@ -125,7 +125,7 @@ $company = Yii::$app->settings->getCompany();
                     <div class="payment-icons">
 
                         <!-- Visa -->
-                        <span class="payment-icon payment-icon--visa" title="Visa" aria-label="Visa">
+                        <span class="payment-icon payment-icon--visa" role="img" title="Visa" aria-label="Visa">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 30" width="48" height="30" fill="none">
                                 <rect width="48" height="30" rx="4" fill="#1A1F71"/>
                                 <path d="M19.5 21H16.7L18.5 9H21.3L19.5 21Z" fill="white"/>
@@ -137,7 +137,7 @@ $company = Yii::$app->settings->getCompany();
                         </span>
 
                         <!-- Mastercard -->
-                        <span class="payment-icon payment-icon--mc" title="Mastercard" aria-label="Mastercard">
+                        <span class="payment-icon payment-icon--mc" role="img" title="Mastercard" aria-label="Mastercard">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 30" width="48" height="30" fill="none">
                                 <rect width="48" height="30" rx="4" fill="#252525"/>
                                 <circle cx="19" cy="15" r="8" fill="#EB001B"/>
@@ -147,7 +147,7 @@ $company = Yii::$app->settings->getCompany();
                         </span>
 
                         <!-- Белкарт -->
-                        <span class="payment-icon payment-icon--belcard" title="Белкарт" aria-label="Белкарт">
+                        <span class="payment-icon payment-icon--belcard" role="img" title="Белкарт" aria-label="Белкарт">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 30" width="48" height="30" fill="none">
                                 <rect width="48" height="30" rx="4" fill="#005BAA"/>
                                 <rect x="0" y="20" width="48" height="10" rx="0" fill="#C8102E"/>
@@ -157,7 +157,7 @@ $company = Yii::$app->settings->getCompany();
                         </span>
 
                         <!-- Халва -->
-                        <span class="payment-icon payment-icon--halva" title="Халва" aria-label="Халва">
+                        <span class="payment-icon payment-icon--halva" role="img" title="Халва" aria-label="Халва">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 30" width="48" height="30" fill="none">
                                 <rect width="48" height="30" rx="4" fill="#6B3FA0"/>
                                 <circle cx="24" cy="13" r="7" fill="none" stroke="#FFD700" stroke-width="2"/>
@@ -167,7 +167,7 @@ $company = Yii::$app->settings->getCompany();
                         </span>
 
                         <!-- ЕРИП -->
-                        <span class="payment-icon payment-icon--erip" title="ЕРИП" aria-label="ЕРИП">
+                        <span class="payment-icon payment-icon--erip" role="img" title="ЕРИП" aria-label="ЕРИП">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 30" width="48" height="30" fill="none">
                                 <rect width="48" height="30" rx="4" fill="#009A44"/>
                                 <rect x="6" y="8" width="36" height="14" rx="2" fill="none" stroke="white" stroke-width="1.5"/>

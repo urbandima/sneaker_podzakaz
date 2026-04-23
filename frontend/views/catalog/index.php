@@ -111,7 +111,7 @@ function loadMoreProducts() {
             <!-- Sidebar -->
             <aside class="catalog-sidebar" id="sidebar">
                 <div class="sidebar-header">
-                    <h3 class="sidebar-title">Фильтры</h3>
+                    <p class="sidebar-title" role="heading" aria-level="2">Фильтры</p>
                     <button type="button" class="sidebar-close" onclick="closeFilters()" aria-label="Закрыть фильтры">
                         <i class="bi bi-x-lg"></i>
                     </button>
@@ -515,12 +515,12 @@ function loadMoreProducts() {
                             <option value="12" <?= ($pagination->pageSize ?? 4) == 12 ? 'selected' : '' ?>>12 товаров</option>
                         </select>
 
-                        <div class="view-toggle">
-                            <button class="view-btn active" data-view="grid" onclick="switchView('grid')">
-                                <i class="bi bi-grid-fill"></i>
+                        <div class="view-toggle" role="group" aria-label="Вид отображения">
+                            <button class="view-btn active" data-view="grid" onclick="switchView('grid')" aria-label="Плиткой" aria-pressed="true">
+                                <i class="bi bi-grid-fill" aria-hidden="true"></i>
                             </button>
-                            <button class="view-btn" data-view="list" onclick="switchView('list')">
-                                <i class="bi bi-list-ul"></i>
+                            <button class="view-btn" data-view="list" onclick="switchView('list')" aria-label="Списком" aria-pressed="false">
+                                <i class="bi bi-list-ul" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
