@@ -77,12 +77,17 @@ class AnalyticsController extends BaseAdminController
         // Статистика заказов по дням
         $ordersByDay = $this->getOrdersByDay($dateFrom, $dateTo);
         
-        // Статистика выручки
+        // Статистика выручки текущего периода
         $revenueStats = $this->getRevenueStats($dateFrom, $dateTo);
-        
+
+        // Статистика выручки предыдущего периода (для сравнения)
+        $prevDateFrom = date('Y-m-d', strtotime("-" . ($period * 2) . " days"));
+        $prevDateTo   = date('Y-m-d', strtotime("-{$period} days - 1 day"));
+        $prevRevenueStats = $this->getRevenueStats($prevDateFrom, $prevDateTo);
+
         // Статистика по устройствам
         $deviceStats = $this->getDeviceStats($dateFrom, $dateTo);
-        
+
         // RFM data
         $rfmSegments = $this->getRfmSegments();
 
@@ -101,6 +106,7 @@ class AnalyticsController extends BaseAdminController
             'popularProducts' => $popularProducts,
             'ordersByDay' => $ordersByDay,
             'revenueStats' => $revenueStats,
+            'prevRevenueStats' => $prevRevenueStats,
             'deviceStats' => $deviceStats,
             // aliases expected by view
             'salesByDay' => $ordersByDay,
@@ -130,6 +136,34 @@ class AnalyticsController extends BaseAdminController
             'period' => $period,
             'conversion' => $conversion,
             'conversionByDay' => $conversionByDay,
+        ]);
+    }
+
+    /**
+     * Конверсионная аналитика по товарам
+     */
+    public function actionConversions()
+    {
+        $period = Yii::$app->request->get('period', '30');
+        $dateFrom = date('Y-m-d', strtotime("-{$period} days"));
+        $dateTo = date('Y-m-d');
+
+        // Топ товаров: просмотры, корзина, покупки
+        $products = AnalyticsEvent::getPopularProducts(50, $dateFrom, $dateTo);
+
+        // Общая воронка
+        $funnel = $this->getConversionFunnel($dateFrom, $dateTo);
+
+        // Продажи по дням для мини-графика
+        $salesByDay = $this->getSalesByDay($dateFrom, $dateTo);
+
+        return $this->render('conversions', [
+            'period' => $period,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'products' => $products,
+            'funnel' => $funnel,
+            'salesByDay' => $salesByDay,
         ]);
     }
 
@@ -168,7 +202,149 @@ class AnalyticsController extends BaseAdminController
      */
     public function actionRfm()
     {
-        return $this->render('rfm');
+        // Pull every customer + their order totals in one query (LEFT JOIN keeps 0-order customers)
+        $rows = Yii::$app->db->createCommand("
+            SELECT
+                c.id,
+                TRIM(CONCAT(COALESCE(c.first_name,''), ' ', COALESCE(c.last_name,''))) AS name,
+                COALESCE(c.email, '')  AS email,
+                COALESCE(c.phone, '')  AS phone,
+                COUNT(DISTINCT o.id)                                                   AS frequency,
+                COALESCE(SUM(o.total_amount), 0)                                       AS monetary,
+                CASE WHEN MAX(o.created_at) IS NOT NULL
+                     THEN DATEDIFF(NOW(), FROM_UNIXTIME(MAX(o.created_at)))
+                     ELSE NULL END                                                      AS recency,
+                CASE WHEN MAX(o.created_at) IS NOT NULL
+                     THEN DATE(FROM_UNIXTIME(MAX(o.created_at)))
+                     ELSE NULL END                                                      AS last_order_date
+            FROM customer c
+            LEFT JOIN `order` o ON o.customer_id = c.id
+                AND o.status NOT IN ('cancelled', 'refunded')
+            GROUP BY c.id
+            ORDER BY monetary DESC
+        ")->queryAll();
+
+        $segmentDefs = [
+            'champions' => ['label' => 'Чемпионы',            'color' => '#10b981', 'desc' => 'Покупают часто, недавно и много'],
+            'loyal'     => ['label' => 'Лояльные',             'color' => '#3b82f6', 'desc' => 'Регулярные покупатели с высоким чеком'],
+            'potential' => ['label' => 'Потенциальные',        'color' => '#8b5cf6', 'desc' => 'Недавние клиенты с потенциалом роста'],
+            'new'       => ['label' => 'Новички',              'color' => '#06b6d4', 'desc' => 'Новые клиенты, требуют внимания'],
+            'at_risk'   => ['label' => 'Нуждаются во внимании','color' => '#f59e0b', 'desc' => 'Снижение активности, нужно удержать'],
+            'lost'      => ['label' => 'Потерянные',           'color' => '#ef4444', 'desc' => 'Давно не покупали'],
+            'no_orders' => ['label' => 'Без заказов',          'color' => '#9ca3af', 'desc' => 'Зарегистрированы, но ещё не купили'],
+        ];
+
+        $stats = [];
+        foreach ($segmentDefs as $key => $def) {
+            $stats[$key] = ['count' => 0, 'revenue' => 0] + $def;
+        }
+
+        $allCustomers   = [];
+        $atRiskCustomers = [];
+
+        foreach ($rows as $r) {
+            $days  = $r['recency'] !== null ? (int)$r['recency'] : null;
+            $freq  = (int)$r['frequency'];
+            $money = (float)$r['monetary'];
+
+            // R score: fewer days = higher
+            if ($days === null)      $rScore = 0;
+            elseif ($days <= 30)     $rScore = 5;
+            elseif ($days <= 60)     $rScore = 4;
+            elseif ($days <= 90)     $rScore = 3;
+            elseif ($days <= 180)    $rScore = 2;
+            else                     $rScore = 1;
+
+            // F score
+            if ($freq >= 10)    $fScore = 5;
+            elseif ($freq >= 5) $fScore = 4;
+            elseif ($freq >= 3) $fScore = 3;
+            elseif ($freq >= 2) $fScore = 2;
+            elseif ($freq >= 1) $fScore = 1;
+            else                $fScore = 0;
+
+            // M score
+            if ($money >= 5000)      $mScore = 5;
+            elseif ($money >= 2000)  $mScore = 4;
+            elseif ($money >= 1000)  $mScore = 3;
+            elseif ($money >= 500)   $mScore = 2;
+            elseif ($money > 0)      $mScore = 1;
+            else                     $mScore = 0;
+
+            // Segment
+            if ($freq === 0) {
+                $seg = 'no_orders';
+            } else {
+                $avg = ($rScore + $fScore + $mScore) / 3;
+                if ($avg >= 4.5)                        $seg = 'champions';
+                elseif ($rScore >= 4 && $freq === 1)    $seg = 'new';
+                elseif ($avg >= 3.0)                    $seg = 'loyal';
+                elseif ($days !== null && $days > 60 && $freq >= 2) $seg = 'at_risk';
+                elseif ($days !== null && $days > 90)   $seg = 'lost';
+                else                                    $seg = 'potential';
+            }
+
+            $r['r_score'] = $rScore;
+            $r['f_score'] = $fScore;
+            $r['m_score'] = $mScore;
+            $r['segment'] = $seg;
+            $r['days']    = $days;
+
+            $allCustomers[] = $r;
+            $stats[$seg]['count']++;
+            $stats[$seg]['revenue'] += $money;
+
+            // At-risk table: had orders + hasn't bought in 30+ days
+            if ($freq > 0 && $days !== null && $days >= 30) {
+                $atRiskCustomers[] = $r;
+            }
+        }
+
+        usort($atRiskCustomers, fn($a, $b) => ($b['days'] ?? 0) <=> ($a['days'] ?? 0));
+        $atRiskCustomers = array_slice($atRiskCustomers, 0, 100);
+
+        // Build segment rows for the view
+        $rfmSegments = [];
+        foreach ($stats as $key => $s) {
+            if ($s['count'] === 0 && $key === 'no_orders') {
+                continue; // hide empty no_orders row only
+            }
+            $rfmSegments[] = [
+                'key'       => $key,
+                'segment'   => $s['label'],
+                'count'     => $s['count'],
+                'revenue'   => $s['revenue'],
+                'color'     => $s['color'],
+                'desc'      => $s['desc'],
+                'avg_check' => $s['count'] > 0 ? round($s['revenue'] / $s['count'], 0) : 0,
+            ];
+        }
+
+        // LTV tiers (real counts)
+        $ltvSegments = [
+            ['name' => 'VIP',     'min' => 5000, 'max' => null, 'count' => 0, 'color' => '#7c3aed', 'desc' => 'Высокая ценность, особый подход'],
+            ['name' => 'Высокий', 'min' => 2000, 'max' => 4999, 'count' => 0, 'color' => '#10b981', 'desc' => 'Активные покупатели с хорошим LTV'],
+            ['name' => 'Средний', 'min' => 500,  'max' => 1999, 'count' => 0, 'color' => '#3b82f6', 'desc' => 'Стабильные клиенты с потенциалом роста'],
+            ['name' => 'Низкий',  'min' => 0,    'max' => 499,  'count' => 0, 'color' => '#6b7280', 'desc' => 'Требуют развития и удержания'],
+        ];
+        foreach ($allCustomers as $c) {
+            $m = (float)$c['monetary'];
+            if ($m >= 5000)     $ltvSegments[0]['count']++;
+            elseif ($m >= 2000) $ltvSegments[1]['count']++;
+            elseif ($m >= 500)  $ltvSegments[2]['count']++;
+            else                $ltvSegments[3]['count']++;
+        }
+
+        $totalRevenue = array_sum(array_column($allCustomers, 'monetary'));
+
+        return $this->render('rfm', [
+            'rfmSegments'     => $rfmSegments,
+            'ltvSegments'     => $ltvSegments,
+            'atRiskCustomers' => $atRiskCustomers,
+            'allCustomers'    => $allCustomers,
+            'totalCustomers'  => count($allCustomers),
+            'totalRevenue'    => $totalRevenue,
+        ]);
     }
 
     /**
