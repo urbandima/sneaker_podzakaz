@@ -23,7 +23,7 @@ $this->params['headerActions'] = [
                 <p style="font-size:52px;font-weight:800;margin:0;color:#92400e" id="cny-rate">—</p>
                 <p style="font-size:12px;color:#92400e;margin:8px 0 0">Обновлено: <span id="cny-updated">—</span></p>
             </div>
-            <button class="admin-btn admin-btn-primary" style="width:100%" id="update-rate-btn" onclick="updateCNYRateNow()">
+            <button class="admin-btn admin-btn-primary w-100" id="update-rate-btn" onclick="updateCNYRateNow()">
                 <i class="bi bi-arrow-clockwise"></i> Обновить курс сейчас
             </button>
             <div id="rate-result" style="margin-top:10px;font-size:13px;text-align:center"></div>
@@ -46,11 +46,11 @@ $this->params['headerActions'] = [
                 <label>Наценка на курс (%)</label>
                 <input type="number" class="admin-form-input" id="markup-percent"
                        value="<?= Html::encode($markup) ?>" step="0.1" min="0" placeholder="5.0">
-                <small style="color:var(--admin-text-secondary);font-size:12px">
+                <small class="text-muted-sm">
                     Применяется поверх официального курса НБРБ при расчёте цен
                 </small>
             </div>
-            <button class="admin-btn admin-btn-secondary" style="width:100%" onclick="saveCurrencySettings()">
+            <button class="admin-btn admin-btn-secondary w-100" onclick="saveCurrencySettings()">
                 <i class="bi bi-save"></i> Сохранить
             </button>
             <div id="currency-save-result" style="margin-top:10px;font-size:13px;text-align:center"></div>

@@ -67,14 +67,14 @@ $this->params['headerActions'] = [
                     <?= Html::activeTextInput($model, 'price_cny', ['type' => 'number', 'step' => '0.01', 'class' => 'admin-form-input']) ?>
                 </div>
 
-                <div class="form-group" style="grid-column: 1 / -1;">
+                <div class="form-group grid-full">
                     <label class="admin-form-label">Описание</label>
                     <?= Html::activeTextarea($model, 'description', ['class' => 'admin-form-input', 'rows' => 5]) ?>
                 </div>
 
                 <div class="form-group">
                     <label class="admin-form-label">Статус активности</label>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div class="d-flex align-center gap-1">
                         <?= Html::activeCheckbox($model, 'is_active', ['label' => false]) ?>
                         <span style="font-size: 14px; color: var(--color-text-secondary);">Активен</span>
                     </div>
@@ -103,19 +103,19 @@ $this->params['headerActions'] = [
         </div>
         <div class="card-section-body">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-                <div class="form-group" style="grid-column: 1 / -1;">
+                <div class="form-group grid-full">
                     <label class="admin-form-label">Meta Title</label>
                     <?= Html::activeTextInput($model, 'meta_title', ['class' => 'admin-form-input']) ?>
                     <small style="color: var(--color-text-secondary); font-size: 12px;">Рекомендуется: 50-60 символов</small>
                 </div>
 
-                <div class="form-group" style="grid-column: 1 / -1;">
+                <div class="form-group grid-full">
                     <label class="admin-form-label">Meta Description</label>
                     <?= Html::activeTextarea($model, 'meta_description', ['class' => 'admin-form-input', 'rows' => 3]) ?>
                     <small style="color: var(--color-text-secondary); font-size: 12px;">Рекомендуется: 150-160 символов</small>
                 </div>
 
-                <div class="form-group" style="grid-column: 1 / -1;">
+                <div class="form-group grid-full">
                     <label class="admin-form-label">Meta Keywords</label>
                     <?= Html::activeTextInput($model, 'meta_keywords', ['class' => 'admin-form-input']) ?>
                     <small style="color: var(--color-text-secondary); font-size: 12px;">Через запятую</small>

@@ -15,7 +15,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
 ?>
 
 <!-- Шапка заказа -->
-<span id="order-page-data" data-order-id="<?= $model->id ?>" style="display:none"></span>
+<span id="order-page-data" data-order-id="<?= $model->id ?>" class="d-none"></span>
 <?php
 $statusSelect = '<form method="post" action="' . Url::to(['/admin/order/change-status', 'id' => $model->id]) . '" style="display:inline">' .
     Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) .
@@ -131,7 +131,7 @@ $this->params['headerActions'] = [
 </div>
 
 <!-- Заметки -->
-<div class="admin-card" style="margin-top:24px">
+<div class="admin-card mt-5">
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-chat-left-text"></i> Заметки команды</h2>
     </div>
@@ -140,7 +140,7 @@ $this->params['headerActions'] = [
             <?php foreach ($model->notes ?? [] as $note): ?>
                 <div class="note-item" style="padding:12px;border-bottom:1px solid var(--admin-border)">
                     <strong><?= $note['author'] ?></strong> 
-                    <small style="color:var(--admin-text-secondary)"><?= $note['date'] ?></small>
+                    <small class="text-muted"><?= $note['date'] ?></small>
                     <p style="margin:4px 0 0"><?= Html::encode($note['text']) ?></p>
                 </div>
             <?php endforeach; ?>

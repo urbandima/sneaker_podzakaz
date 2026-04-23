@@ -33,7 +33,7 @@ tfoot td{font-weight:700;border-top:2px solid #000;font-size:13px}
         <p><?= Html::encode($company['phone'] ?? '') ?> | <?= Html::encode($company['email'] ?? '') ?></p>
         <?php if (!empty($company['unp'])): ?><p>УНП: <?= Html::encode($company['unp']) ?></p><?php endif ?>
     </div>
-    <div class="meta" style="text-align:right">
+    <div class="meta text-right">
         <h2>Заказ №<?= Html::encode($model->order_number ?: $model->id) ?></h2>
         <p>от <?= date('d.m.Y', is_numeric($model->created_at) ? $model->created_at : strtotime($model->created_at)) ?></p>
         <p>Статус: <?= Html::encode($statuses[$model->status] ?? $model->status) ?></p>
@@ -66,7 +66,7 @@ tfoot td{font-weight:700;border-top:2px solid #000;font-size:13px}
 </tr>
 <?php endforeach ?>
 </tbody>
-<tfoot><tr><td colspan="5" style="text-align:right">ИТОГО:</td><td><?= number_format($model->total_amount ?? 0, 2) ?> BYN</td></tr></tfoot>
+<tfoot><tr><td colspan="5" class="text-right">ИТОГО:</td><td><?= number_format($model->total_amount ?? 0, 2) ?> BYN</td></tr></tfoot>
 </table>
 <?php if (!empty($company['bank_details'])): ?>
 <div style="margin-top:20px;font-size:11px;color:#555">

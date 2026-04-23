@@ -271,7 +271,7 @@ $logists = $user->isAdmin()
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="3" style="text-align: right; font-weight: 600;">Итого:</td>
+                                <td colspan="3" class="text-right fw-600">Итого:</td>
                                 <td id="productsTotal" style="font-weight: 600; font-size: 1.125rem;">0.00 BYN</td>
                                 <td></td>
                             </tr>
@@ -585,7 +585,7 @@ $logists = $user->isAdmin()
                     <button type="button" class="btn btn--primary" id="nextBtn" onclick="changeStep(1)">
                         Далее →
                     </button>
-                    <button type="submit" class="btn btn--success" id="submitBtn" style="display: none;">
+                    <button type="submit" class="btn btn--success d-none" id="submitBtn">
                         ✅ Создать заказ
                     </button>
                 </div>

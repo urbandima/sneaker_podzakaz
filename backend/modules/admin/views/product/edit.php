@@ -50,7 +50,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
 ?>
 
 <?php if (!$product->isNewRecord): ?>
-<span id="js-product-id" data-id="<?= $product->id ?>" style="display:none;"></span>
+<span id="js-product-id" data-id="<?= $product->id ?>" class="d-none"></span>
 <?php endif; ?>
 
 <div class="product-edit">
@@ -352,7 +352,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                             <td><?= Html::encode($param['name']) ?></td>
                                             <td>
                                                 <div class="param-value-display"><?= Html::encode($displayValue) ?></div>
-                                                <div class="param-value-edit" style="display: none;">
+                                                <div class="param-value-edit d-none">
                                                     <?php if ($param['type'] === 'select'): ?>
                                                         <select class="form-select form-select-sm param-edit-input" 
                                                                 name="Product[<?= $param['key'] ?>]" 
@@ -387,7 +387,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
                                                 </div>
-                                                <div class="btn-group btn-group-sm param-actions-edit" style="display: none;">
+                                                <div class="btn-group btn-group-sm param-actions-edit d-none">
                                                     <button type="button" class="btn btn-sm btn-link text-success p-0 px-1" 
                                                             onclick="saveProductParam('<?= $param['key'] ?>')" title="Сохранить">
                                                         <i class="bi bi-check-lg"></i>
@@ -419,7 +419,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                                         <?= Html::encode($pcv->value_number) ?>
                                                     <?php endif; ?>
                                                 </div>
-                                                <div class="char-value-edit" style="display: none;">
+                                                <div class="char-value-edit d-none">
                                                     <?php 
                                                     $charType = $pcv->characteristic->type;
                                                     if ($charType === 'select'): 
@@ -457,7 +457,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </div>
-                                                <div class="btn-group btn-group-sm char-actions-edit" style="display: none;">
+                                                <div class="btn-group btn-group-sm char-actions-edit d-none">
                                                     <button type="button" class="btn btn-sm btn-link text-success p-0 px-1" 
                                                             onclick="saveCharacteristic(<?= $pcv->id ?>)" title="Сохранить">
                                                         <i class="bi bi-check-lg"></i>
@@ -481,7 +481,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                         <tr class="poizon-prop-row" data-prop-index="<?= $propIndex ?>" style="background-color: #f8f9fa;">
                                             <td>
                                                 <div class="poizon-prop-key-display"><?= Html::encode($prop['key'] ?? '') ?></div>
-                                                <div class="poizon-prop-key-edit" style="display: none;">
+                                                <div class="poizon-prop-key-edit d-none">
                                                     <input type="text" class="form-control form-control-sm" 
                                                            name="poizon_props[<?= $propIndex ?>][key]"
                                                            value="<?= Html::encode($prop['key'] ?? '') ?>" 
@@ -490,7 +490,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                             </td>
                                             <td>
                                                 <div class="poizon-prop-value-display"><?= Html::encode($prop['value'] ?? '') ?></div>
-                                                <div class="poizon-prop-value-edit" style="display: none;">
+                                                <div class="poizon-prop-value-edit d-none">
                                                     <input type="text" class="form-control form-control-sm" 
                                                            name="poizon_props[<?= $propIndex ?>][value]"
                                                            value="<?= Html::encode($prop['value'] ?? '') ?>" 
@@ -511,7 +511,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </div>
-                                                <div class="btn-group btn-group-sm poizon-prop-actions-edit" style="display: none;">
+                                                <div class="btn-group btn-group-sm poizon-prop-actions-edit d-none">
                                                     <button type="button" class="btn btn-sm btn-link text-success p-0 px-1" 
                                                             onclick="savePoizonProp(<?= $propIndex ?>)" title="Сохранить">
                                                         <i class="bi bi-check-lg"></i>
@@ -530,7 +530,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                 </tbody>
                             </table>
                         </div>
-                        <div class="text-muted mt-2" style="font-size: 0.875rem;">
+                        <div class="text-muted mt-2 fs-sm">
                             <i class="bi bi-info-circle"></i> 
                             Нажмите <i class="bi bi-pencil"></i> для редактирования значения. 
                             Для добавления новых характеристик используйте кнопку "Добавить характеристику".
@@ -731,7 +731,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                         <td><?= Html::encode($param['name']) ?></td>
                                         <td>
                                             <div class="param-value-display"><?= Html::encode($displayValue) ?></div>
-                                            <div class="param-value-edit" style="display: none;">
+                                            <div class="param-value-edit d-none">
                                                 <?php if ($param['type'] === 'select'): ?>
                                                     <select class="form-select form-select-sm param-edit-input" 
                                                             name="Product[<?= $param['key'] ?>]" 
@@ -766,7 +766,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
                                             </div>
-                                            <div class="btn-group btn-group-sm param-actions-edit" style="display: none;">
+                                            <div class="btn-group btn-group-sm param-actions-edit d-none">
                                                 <button type="button" class="btn btn-sm btn-link text-success p-0 px-1" 
                                                         onclick="saveProductParam('<?= $param['key'] ?>')" title="Сохранить">
                                                     <i class="bi bi-check-lg"></i>
@@ -798,7 +798,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                                     <?= Html::encode($pcv->value_number) ?>
                                                 <?php endif; ?>
                                             </div>
-                                            <div class="char-value-edit" style="display: none;">
+                                            <div class="char-value-edit d-none">
                                                 <?php 
                                                 $charType = $pcv->characteristic->type;
                                                 if ($charType === 'select'): 
@@ -836,7 +836,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </div>
-                                            <div class="btn-group btn-group-sm char-actions-edit" style="display: none;">
+                                            <div class="btn-group btn-group-sm char-actions-edit d-none">
                                                 <button type="button" class="btn btn-sm btn-link text-success p-0 px-1" 
                                                         onclick="saveCharacteristic(<?= $pcv->id ?>)" title="Сохранить">
                                                     <i class="bi bi-check-lg"></i>
@@ -860,7 +860,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                         <tr class="poizon-prop-row" data-prop-index="<?= $propIndex ?>" style="background-color: #f8f9fa;">
                                             <td>
                                                 <div class="poizon-prop-key-display"><?= Html::encode($prop['key'] ?? '') ?></div>
-                                                <div class="poizon-prop-key-edit" style="display: none;">
+                                                <div class="poizon-prop-key-edit d-none">
                                                     <input type="text" class="form-control form-control-sm" 
                                                            name="poizon_props[<?= $propIndex ?>][key]"
                                                            value="<?= Html::encode($prop['key'] ?? '') ?>" 
@@ -869,7 +869,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                             </td>
                                             <td>
                                                 <div class="poizon-prop-value-display"><?= Html::encode($prop['value'] ?? '') ?></div>
-                                                <div class="poizon-prop-value-edit" style="display: none;">
+                                                <div class="poizon-prop-value-edit d-none">
                                                     <input type="text" class="form-control form-control-sm" 
                                                            name="poizon_props[<?= $propIndex ?>][value]"
                                                            value="<?= Html::encode($prop['value'] ?? '') ?>" 
@@ -890,7 +890,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </div>
-                                                <div class="btn-group btn-group-sm poizon-prop-actions-edit" style="display: none;">
+                                                <div class="btn-group btn-group-sm poizon-prop-actions-edit d-none">
                                                     <button type="button" class="btn btn-sm btn-link text-success p-0 px-1" 
                                                             onclick="savePoizonProp(<?= $propIndex ?>)" title="Сохранить">
                                                         <i class="bi bi-check-lg"></i>
@@ -909,7 +909,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                             </tbody>
                         </table>
                     </div>
-                    <div class="text-muted mt-2" style="font-size: 0.875rem;">
+                    <div class="text-muted mt-2 fs-sm">
                         <i class="bi bi-info-circle"></i> 
                         Нажмите <i class="bi bi-pencil"></i> для редактирования значения. 
                         Для добавления новых характеристик используйте кнопку "Добавить характеристику".
@@ -1388,7 +1388,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                 <?php endforeach; ?>
                             </select>
                             <a href="<?= yii\helpers\Url::to(['/admin/product/add-sizes-from-grid', 'productId' => $product->id, 'gridId' => '__GRID_ID__', 'returnUrl' => 'edit']) ?>" 
-                               class="btn btn-sm btn-success mt-2" id="add-from-grid-btn" style="display:none;">
+                               class="btn btn-sm btn-success mt-2 d-none" id="add-from-grid-btn">
                                 <i class="bi bi-plus-circle"></i> Добавить все размеры из сетки
                             </a>
                         </div>
@@ -1500,7 +1500,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                             </div>
 
                             <!-- Форма создания новой характеристики -->
-                            <div id="newCharacteristicForm" style="display: none;" class="mb-3 p-3 bg-light border rounded">
+                            <div id="newCharacteristicForm" class="mb-3 p-3 bg-light border rounded d-none">
                                 <h6 class="text-primary"><i class="bi bi-magic"></i> Новая характеристика</h6>
                                 <div class="mb-2">
                                     <label class="form-label">Название</label>
@@ -1524,9 +1524,9 @@ $characteristicsFromRegistry = !$product->isNewRecord
                             </div>
 
                             <!-- Поле значения (динамическое) -->
-                            <div id="valueContainer" style="display: none;">
+                            <div id="valueContainer" class="d-none">
                                 <!-- Для select: dropdown -->
-                                <div id="valueSelect" style="display: none;" class="mb-3">
+                                <div id="valueSelect" class="mb-3 d-none">
                                     <label class="form-label">Значение</label>
                                     <select class="form-select" id="characteristicValueSelect">
                                         <option value="">Выберите значение...</option>
@@ -1534,7 +1534,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                     </select>
                                     
                                     <!-- Добавление нового значения -->
-                                    <div id="newValueForm" style="display: none;" class="mt-2 p-2 bg-light border rounded">
+                                    <div id="newValueForm" class="mt-2 p-2 bg-light border rounded d-none">
                                         <input type="text" class="form-control form-control-sm mb-2" id="newValueInput" placeholder="Новое значение">
                                         <button type="button" class="btn btn-sm btn-primary" onclick="createNewValue()">
                                             <i class="bi bi-check"></i> Добавить
@@ -1546,13 +1546,13 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                 </div>
 
                                 <!-- Для text: input -->
-                                <div id="valueText" style="display: none;" class="mb-3">
+                                <div id="valueText" class="mb-3 d-none">
                                     <label class="form-label">Значение (текст)</label>
                                     <input type="text" class="form-control" id="characteristicValueText" placeholder="Введите значение">
                                 </div>
 
                                 <!-- Для number: number input -->
-                                <div id="valueNumber" style="display: none;" class="mb-3">
+                                <div id="valueNumber" class="mb-3 d-none">
                                     <label class="form-label">Значение (число)</label>
                                     <input type="number" step="0.01" class="form-control" id="characteristicValueNumber" placeholder="0">
                                 </div>

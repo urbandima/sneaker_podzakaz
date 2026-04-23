@@ -154,9 +154,9 @@ $trackerUrl = $order->track_number
                     <small style="color:#888;"> | Цвет: <?= Html::encode($item->color) ?></small>
                 <?php endif; ?>
             </td>
-            <td style="text-align:center;"><?= (int)$item->quantity ?></td>
-            <td style="text-align:right;"><?= number_format($item->price, 2, '.', ' ') ?></td>
-            <td style="text-align:right;"><?= number_format($item->price * $item->quantity, 2, '.', ' ') ?></td>
+            <td class="text-center"><?= (int)$item->quantity ?></td>
+            <td class="text-right"><?= number_format($item->price, 2, '.', ' ') ?></td>
+            <td class="text-right"><?= number_format($item->price * $item->quantity, 2, '.', ' ') ?></td>
         </tr>
         <?php endforeach; ?>
     </tbody>
@@ -174,8 +174,8 @@ $trackerUrl = $order->track_number
         </tr>
         <?php endif; ?>
         <tr>
-            <td colspan="4" style="text-align:right;">ИТОГО:</td>
-            <td style="text-align:right;"><?= number_format($order->total_amount, 2, '.', ' ') ?> BYN</td>
+            <td colspan="4" class="text-right">ИТОГО:</td>
+            <td class="text-right"><?= number_format($order->total_amount, 2, '.', ' ') ?> BYN</td>
         </tr>
     </tfoot>
 </table>

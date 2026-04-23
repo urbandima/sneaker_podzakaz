@@ -34,13 +34,13 @@ $this->params['headerActions'] = [
         <div class="form-group">
             <label>Access Token</label>
             <textarea class="admin-form-input" rows="3" id="amocrm-token" placeholder="Получите токен после авторизации через OAuth"></textarea>
-            <small style="color:var(--admin-text-secondary);font-size:12px">
+            <small class="text-muted-sm">
                 <a href="https://www.amocrm.ru/developers/content/oauth/oauth" target="_blank" rel="noopener" style="color:var(--admin-accent)">
                     Документация OAuth AmoCRM →
                 </a>
             </small>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div class="d-flex flex-wrap gap-2">
             <button class="admin-btn admin-btn-primary" onclick="testAmoCRMConn()">
                 <i class="bi bi-check-circle"></i> Проверить подключение
             </button>
@@ -48,7 +48,7 @@ $this->params['headerActions'] = [
                 <i class="bi bi-save"></i> Сохранить
             </button>
         </div>
-        <div id="amo-test-result" style="margin-top:10px;font-size:13px"></div>
+        <div id="amo-test-result" class="mt-10px fs-xs"></div>
     </div>
 </div>
 

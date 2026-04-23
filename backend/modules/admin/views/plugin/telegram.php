@@ -32,7 +32,7 @@ $this->params['headerActions'] = [
                 <input type="password" class="admin-form-input" id="telegram-token"
                        placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
                        value="<?= Html::encode($token) ?>">
-                <small style="color:var(--admin-text-secondary);font-size:12px">
+                <small class="text-muted-sm">
                     Создайте бота у
                     <a href="https://t.me/BotFather" target="_blank" rel="noopener" style="color:var(--admin-accent)">@BotFather</a>
                     и скопируйте токен
@@ -42,9 +42,9 @@ $this->params['headerActions'] = [
                 <label>Chat ID для уведомлений</label>
                 <textarea class="admin-form-input" rows="3" id="telegram-chat-ids"
                           placeholder="-1001234567890&#10;-1009876543210"><?= Html::encode($chatIds) ?></textarea>
-                <small style="color:var(--admin-text-secondary);font-size:12px">По одному ID на строку. Узнайте ID через @userinfobot</small>
+                <small class="text-muted-sm">По одному ID на строку. Узнайте ID через @userinfobot</small>
             </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div class="d-flex flex-wrap gap-2">
                 <button class="admin-btn admin-btn-primary" onclick="testTelegramConn()">
                     <i class="bi bi-send"></i> Отправить тест
                 </button>
@@ -52,7 +52,7 @@ $this->params['headerActions'] = [
                     <i class="bi bi-save"></i> Сохранить
                 </button>
             </div>
-            <div id="tg-test-result" style="margin-top:10px;font-size:13px"></div>
+            <div id="tg-test-result" class="mt-10px fs-xs"></div>
         </div>
     </div>
 
@@ -70,7 +70,7 @@ $this->params['headerActions'] = [
                     <input type="checkbox" id="<?= $key ?>"
                            <?= Yii::$app->settings->get('telegram', $key, '1') ? 'checked' : '' ?>
                            style="width:16px;height:16px;accent-color:var(--admin-accent)">
-                    <span style="font-size:14px"><?= $label ?></span>
+                    <span class="fs-sm"><?= $label ?></span>
                 </label>
                 <?php endforeach; ?>
             </div>

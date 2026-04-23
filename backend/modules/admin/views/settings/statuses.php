@@ -22,7 +22,7 @@ $this->params['headerActions'] = [
 </div>
 
 <!-- Визуализация цепочки -->
-<div class="admin-card" style="margin-bottom:24px">
+<div class="admin-card mb-5">
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-arrow-right-circle"></i> Цепочка статусов</h2>
     </div>
@@ -67,13 +67,13 @@ $this->params['headerActions'] = [
                 <tr class="status-row" data-key="<?= Html::encode($status['key']) ?>">
                     <td style="cursor:move;color:var(--admin-text-secondary)"><i class="bi bi-grip-vertical"></i></td>
                     <td>
-                        <input type="text" class="admin-form-input status-key" value="<?= Html::encode($status['key']) ?>" style="width:100%" placeholder="status_key" <?= in_array($status['key'], ['new','paid','canceled']) ? 'readonly style="width:100%;background:#f1f5f9"' : '' ?>>
+                        <input type="text" class="admin-form-input status-key w-100" value="<?= Html::encode($status['key']) ?>" placeholder="status_key" <?= in_array($status['key'], ['new','paid','canceled']) ? 'readonly style="width:100%;background:#f1f5f9"' : '' ?>>
                     </td>
                     <td>
-                        <input type="text" class="admin-form-input status-label" value="<?= Html::encode($status['label']) ?>" style="width:100%" placeholder="Название">
+                        <input type="text" class="admin-form-input status-label w-100" value="<?= Html::encode($status['label']) ?>" placeholder="Название">
                     </td>
                     <td>
-                        <select class="admin-form-select status-color" style="width:100%">
+                        <select class="admin-form-select status-color w-100">
                             <option value="info" <?= ($status['color'] ?? '') === 'info' ? 'selected' : '' ?>>Синий</option>
                             <option value="success" <?= ($status['color'] ?? '') === 'success' ? 'selected' : '' ?>>Зеленый</option>
                             <option value="warning" <?= ($status['color'] ?? '') === 'warning' ? 'selected' : '' ?>>Желтый</option>
@@ -82,10 +82,10 @@ $this->params['headerActions'] = [
                             <option value="secondary" <?= ($status['color'] ?? 'secondary') === 'secondary' ? 'selected' : '' ?>>Серый</option>
                         </select>
                     </td>
-                    <td style="text-align:center">
+                    <td class="text-center">
                         <input type="checkbox" class="status-active" <?= $status['is_active'] ? 'checked' : '' ?>>
                     </td>
-                    <td style="text-align:center">
+                    <td class="text-center">
                         <input type="checkbox" class="status-logist" <?= !empty($status['logist_available']) ? 'checked' : '' ?>>
                     </td>
                     <td>
@@ -116,15 +116,15 @@ function addStatus() {
     row.dataset.key = '';
     row.innerHTML = 
         '<td style="cursor:move;color:var(--admin-text-secondary)"><i class="bi bi-grip-vertical"></i></td>' +
-        '<td><input type="text" class="admin-form-input status-key" value="" style="width:100%" placeholder="new_status_key"></td>' +
-        '<td><input type="text" class="admin-form-input status-label" value="" style="width:100%" placeholder="Название"></td>' +
-        '<td><select class="admin-form-select status-color" style="width:100%">' +
+        '<td><input type="text" class="admin-form-input status-key w-100" value="" placeholder="new_status_key"></td>' +
+        '<td><input type="text" class="admin-form-input status-label w-100" value="" placeholder="Название"></td>' +
+        '<td><select class="admin-form-select status-color w-100">' +
             '<option value="info">Синий</option><option value="success">Зеленый</option>' +
             '<option value="warning">Желтый</option><option value="danger">Красный</option>' +
             '<option value="primary">Фиолетовый</option><option value="secondary">Серый</option>' +
         '</select></td>' +
-        '<td style="text-align:center"><input type="checkbox" class="status-active" checked></td>' +
-        '<td style="text-align:center"><input type="checkbox" class="status-logist"></td>' +
+        '<td><input type="checkbox" class="status-active text-center" checked></td>' +
+        '<td><input type="checkbox" class="status-logist text-center"></td>' +
         '<td><button class="admin-btn admin-btn-danger" style="padding:4px 8px;font-size:12px" onclick="removeStatus(this)" title="Удалить"><i class="bi bi-trash"></i></button></td>';
     tbody.appendChild(row);
 }

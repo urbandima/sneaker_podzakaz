@@ -13,7 +13,7 @@ $this->params['headerActions'] = [
 ];
 ?>
 
-<div class="admin-stats" style="margin-bottom: 24px;">
+<div class="admin-stats mb-5">
     <div class="admin-stat-card">
         <div class="admin-stat-icon abandoned"><i class="bi bi-cart-x"></i></div>
         <div class="admin-stat-content">
@@ -56,7 +56,7 @@ $this->params['headerActions'] = [
                             <?= Yii::$app->formatter->asRelativeTime($cart->updated_at) ?>
                         </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="d-flex align-center gap-4">
                         <div class="cart-value"><?= Yii::$app->formatter->asCurrency($cart->total_amount, 'BYN') ?></div>
                         <button type="button" class="admin-btn admin-btn-primary admin-btn-sm"
                                 onclick="sendReminder(<?= $cart->id ?>, this)"
@@ -85,7 +85,7 @@ $this->params['headerActions'] = [
 </div>
 
 <!-- Кнопка массовой отправки напоминаний -->
-<div class="admin-card" style="margin-top: 24px;">
+<div class="admin-card mt-5">
     <div class="admin-card-header">
         <h2 class="admin-card-title">Массовая отправка напоминаний</h2>
     </div>

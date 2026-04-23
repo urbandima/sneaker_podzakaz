@@ -85,7 +85,7 @@ $this->params['headerActions'] = [
             Инструкция по импорту
         </h3>
         
-        <div style="margin-top: 1rem;">
+        <div class="mt-4">
             <h4 style="font-size: 1rem; margin-bottom: 0.5rem;">Обязательные поля:</h4>
             <ul style="font-size: 0.875rem; color: var(--admin-text-secondary); padding-left: 1.5rem;">
                 <li><code>name</code> - Название товара</li>
@@ -93,7 +93,7 @@ $this->params['headerActions'] = [
             </ul>
         </div>
         
-        <div style="margin-top: 1rem;">
+        <div class="mt-4">
             <h4 style="font-size: 1rem; margin-bottom: 0.5rem;">Опциональные поля:</h4>
             <ul style="font-size: 0.875rem; color: var(--admin-text-secondary); padding-left: 1.5rem;">
                 <li><code>description</code> - Описание</li>
@@ -112,7 +112,7 @@ $this->params['headerActions'] = [
             Примеры форматов
         </h3>
         
-        <div style="margin-top: 1rem;">
+        <div class="mt-4">
             <h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--admin-primary);">JSON:</h4>
             <pre style="background: var(--admin-bg); padding: 1rem; border-radius: 0.5rem; font-size: 0.75rem; overflow-x: auto;"><code>[
   {
@@ -126,7 +126,7 @@ $this->params['headerActions'] = [
 ]</code></pre>
         </div>
         
-        <div style="margin-top: 1rem;">
+        <div class="mt-4">
             <h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--admin-success);">CSV:</h4>
             <pre style="background: var(--admin-bg); padding: 1rem; border-radius: 0.5rem; font-size: 0.75rem; overflow-x: auto;"><code>name;sku;description;price;brand_name;is_active
 "Nike Air Max 90";"NM-90-001";"Классические кроссовки";299.99;"Nike";1</code></pre>

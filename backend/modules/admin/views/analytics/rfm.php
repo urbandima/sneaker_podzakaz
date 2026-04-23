@@ -62,7 +62,7 @@ $this->params['headerActions'] = [];
 </div>
 
 <!-- Что такое RFM -->
-<div class="admin-card" style="margin-bottom:24px">
+<div class="admin-card mb-5">
     <div class="admin-card-header">
         <h2 class="admin-card-title">Что такое RFM-анализ?</h2>
     </div>
@@ -159,8 +159,8 @@ $totalAtRisk = count($atRiskCustomers);
 $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'ltv'));
 ?>
 
-<div class="admin-card" style="margin-top:24px">
-    <div class="admin-card-header" style="display:flex;justify-content:space-between;align-items:center">
+<div class="admin-card mt-5">
+    <div class="admin-card-header flex-between">
         <h2 class="admin-card-title"><i class="bi bi-cash-stack"></i> LTV Сегментация</h2>
         <span class="admin-badge admin-badge-info"><?= number_format($totalRevenue / $totalCustomers, 0) ?> BYN средний LTV</span>
     </div>
@@ -181,8 +181,8 @@ $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'ltv'));
 </div>
 
 <!-- Покупатели в статусе риска -->
-<div class="admin-card" style="margin-top:24px">
-    <div class="admin-card-header" style="display:flex;justify-content:space-between;align-items:center">
+<div class="admin-card mt-5">
+    <div class="admin-card-header flex-between">
         <h2 class="admin-card-title"><i class="bi bi-exclamation-triangle-fill"></i> Покупатели в статусе риска</h2>
         <div style="display:flex;gap:8px;align-items:center">
             <span class="admin-badge admin-badge-danger"><?= $totalAtRisk ?> клиентов</span>
@@ -192,7 +192,7 @@ $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'ltv'));
             </button>
         </div>
     </div>
-    <div class="admin-card-body" style="padding:0">
+    <div class="admin-card-body p-0">
         <table style="width:100%;border-collapse:collapse">
             <thead>
                 <tr style="background:var(--admin-bg)">
@@ -251,7 +251,7 @@ $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'ltv'));
 </div>
 
 <!-- Рекомендации -->
-<div class="admin-card" style="margin-top:24px">
+<div class="admin-card mt-5">
     <div class="admin-card-header">
         <h2 class="admin-card-title">Рекомендации по работе с сегментами</h2>
     </div>

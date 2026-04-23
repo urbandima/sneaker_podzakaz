@@ -51,7 +51,7 @@ $this->params['headerActions'] = $actions;
                 <i class="bi bi-info-circle"></i>
                 Информация о заявке
             </h2>
-            <div class="return-info-grid" style="margin-top: 1.5rem;">
+            <div class="return-info-grid mt-5">
                 <div class="return-info-row">
                     <span class="return-info-label">Тип возврата</span>
                     <span class="return-info-value">
@@ -175,17 +175,17 @@ $this->params['headerActions'] = $actions;
                         <label>Комментарий</label>
                         <textarea name="comment" class="form-control" rows="3" placeholder="Необязательно"></textarea>
                     </div>
-                    <button type="submit" class="admin-btn admin-btn-success" style="width: 100%;">
+                    <button type="submit" class="admin-btn admin-btn-success w-100">
                         <i class="bi bi-check-circle"></i> Одобрить
                     </button>
                 <?= Html::endForm() ?>
 
                 <?= Html::beginForm(['reject', 'id' => $model->id], 'post') ?>
                     <div class="form-group">
-                        <label>Причина отказа <span style="color: var(--admin-danger);">*</span></label>
+                        <label>Причина отказа <span class="text-danger">*</span></label>
                         <textarea name="comment" class="form-control" rows="3" placeholder="Укажите причину отклонения" required></textarea>
                     </div>
-                    <button type="submit" class="admin-btn admin-btn-danger" style="width: 100%;">
+                    <button type="submit" class="admin-btn admin-btn-danger w-100">
                         <i class="bi bi-x-circle"></i> Отклонить
                     </button>
                 <?= Html::endForm() ?>
@@ -197,7 +197,7 @@ $this->params['headerActions'] = $actions;
         <div class="admin-card">
             <h3 class="admin-card-title" style="font-size: 0.95rem;"><i class="bi bi-play-circle"></i> Обработка</h3>
             <?= Html::beginForm(['process', 'id' => $model->id], 'post', ['style' => 'margin-top: 1rem;']) ?>
-                <button type="submit" class="admin-btn admin-btn-primary" style="width: 100%;">
+                <button type="submit" class="admin-btn admin-btn-primary w-100">
                     <i class="bi bi-gear"></i> Начать обработку
                 </button>
             <?= Html::endForm() ?>
@@ -211,7 +211,7 @@ $this->params['headerActions'] = $actions;
                 <p style="font-size: 0.8rem; color: var(--admin-text-secondary); margin-bottom: 1rem;">
                     При завершении средства будут возвращены клиенту.
                 </p>
-                <button type="submit" class="admin-btn admin-btn-success" style="width: 100%;">
+                <button type="submit" class="admin-btn admin-btn-success w-100">
                     <i class="bi bi-check2-all"></i> Завершить возврат
                 </button>
             <?= Html::endForm() ?>
@@ -221,7 +221,7 @@ $this->params['headerActions'] = $actions;
         <!-- Status history -->
         <div class="admin-card">
             <h3 class="admin-card-title" style="font-size: 0.95rem;"><i class="bi bi-clock-history"></i> История</h3>
-            <div style="margin-top: 1rem;">
+            <div class="mt-4">
                 <div class="timeline-item">
                     <div class="timeline-dot" style="background: var(--admin-accent, #2563eb);"></div>
                     <div class="timeline-body">

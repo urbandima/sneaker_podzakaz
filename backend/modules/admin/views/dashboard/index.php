@@ -229,7 +229,7 @@ $orderFromCartPct = $fCarts > 0 ? round($fOrders / $fCarts * 100, 1) : 0;
                 <div class="dash-funnel-pct">Просмотры</div>
             </div>
             <div class="dash-funnel-bar-wrap">
-                <div class="dash-funnel-bar step-1" style="width:100%">
+                <div class="dash-funnel-bar step-1 w-100">
                     <span class="dash-funnel-bar-label">100%</span>
                 </div>
             </div>

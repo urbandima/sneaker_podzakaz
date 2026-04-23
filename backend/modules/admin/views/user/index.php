@@ -171,7 +171,7 @@ $statusMeta = [
                             User::STATUS_INACTIVE => 'Неактивен',
                         ], ['class' => 'admin-form-select']) ?>
                     </div>
-                    <div class="admin-grid admin-grid--2 admin-gap-4" style="grid-column: 1 / -1;">
+                    <div class="admin-grid admin-grid--2 admin-gap-4 grid-full">
                         <button type="submit" class="admin-btn admin-btn--accent">
                             <i class="bi bi-search"></i>
                             Применить фильтры
@@ -252,7 +252,7 @@ $statusMeta = [
                                             <?= Html::encode(Yii::$app->formatter->asRelativeTime($lastLogin)) ?>
                                         </span>
                                     <?php else: ?>
-                                        <span style="color: var(--admin-text-secondary);">Никогда</span>
+                                        <span class="text-muted">Никогда</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -338,7 +338,7 @@ $statusMeta = [
                     <?php if ($startPage > 1): ?>
                         <a class="admin-btn admin-btn--ghost admin-btn--sm" href="<?= Url::current(['page' => 1]) ?>">1</a>
                         <?php if ($startPage > 2): ?>
-                            <span class="admin-btn admin-btn--ghost admin-btn--sm" style="pointer-events: none;">…</span>
+                            <span class="admin-btn admin-btn--ghost admin-btn--sm no-events">…</span>
                         <?php endif; ?>
                     <?php endif; ?>
 
@@ -351,7 +351,7 @@ $statusMeta = [
 
                     <?php if ($endPage < $totalPages): ?>
                         <?php if ($endPage < $totalPages - 1): ?>
-                            <span class="admin-btn admin-btn--ghost admin-btn--sm" style="pointer-events: none;">…</span>
+                            <span class="admin-btn admin-btn--ghost admin-btn--sm no-events">…</span>
                         <?php endif; ?>
                         <a class="admin-btn admin-btn--ghost admin-btn--sm"
                            href="<?= Url::current(['page' => $totalPages]) ?>">

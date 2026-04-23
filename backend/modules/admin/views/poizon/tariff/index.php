@@ -171,14 +171,14 @@ $calculationHistory = $calculationHistory ?? [];
                 <div class="history-empty">
                     <i class="bi bi-clock-history"></i>
                     <p>История расчетов пуста</p>
-                    <p style="font-size: 0.875rem;">Выполните расчет в калькуляторе выше, чтобы он появился здесь</p>
+                    <p class="fs-sm">Выполните расчет в калькуляторе выше, чтобы он появился здесь</p>
                 </div>
             <?php endif; ?>
         </div>
     </div>
 </div>
 
-<div id="tariff-calc-config" style="display:none;"
+<div id="tariff-calc-config" class="d-none"
     data-calc-url="<?= Url::to(['calculate']) ?>"
     data-csrf-token="<?= Yii::$app->request->csrfToken ?>">
 </div>

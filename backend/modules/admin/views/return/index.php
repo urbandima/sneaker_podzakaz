@@ -47,7 +47,7 @@ $this->params['headerActions'] = [
         </a>
     </form>
 
-    <div style="overflow-x: auto;">
+    <div class="overflow-x-auto">
         <table class="admin-table">
             <thead>
                 <tr>

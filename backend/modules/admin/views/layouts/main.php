@@ -193,7 +193,7 @@ $controllerId = Yii::$app->controller->id;
     <!-- Main -->
     <main class="admin-main">
         <!-- Live Search Overlay -->
-        <div class="admin-search-overlay" id="search-overlay" style="display:none">
+        <div class="admin-search-overlay d-none" id="search-overlay">
             <div class="admin-search-modal">
                 <div class="admin-search-input-wrap">
                     <i class="bi bi-search"></i>
@@ -226,7 +226,7 @@ $controllerId = Yii::$app->controller->id;
                     <i class="bi bi-calculator-fill"></i>
                 </button>
                 <!-- Уведомления -->
-                <div style="position:relative">
+                <div class="pos-relative">
                     <button class="admin-topbar-icon-btn admin-notif-btn" id="notif-btn" title="Уведомления" onclick="toggleNotifications()">
                         <i class="bi bi-bell-fill"></i>
                         <?php
@@ -239,7 +239,7 @@ $controllerId = Yii::$app->controller->id;
                             <span class="admin-notif-badge"><?= $newOrdersCount ?></span>
                         <?php endif; ?>
                     </button>
-                    <div id="notif-dropdown" class="admin-notif-dropdown" style="display:none">
+                    <div id="notif-dropdown" class="admin-notif-dropdown d-none">
                         <div class="admin-notif-header">
                             <h4>Уведомления</h4>
                             <span class="admin-badge admin-badge-primary"><?= $newOrdersCount ?></span>
@@ -284,11 +284,11 @@ $controllerId = Yii::$app->controller->id;
                 </button>
 
                 <!-- Профиль пользователя -->
-                <div class="admin-user-profile" style="position:relative">
+                <div class="admin-user-profile pos-relative">
                     <button class="admin-topbar-icon-btn admin-profile-btn" id="profile-btn" title="Профиль пользователя" onclick="toggleProfile()">
                         <i class="bi bi-person-circle"></i>
                     </button>
-                    <div class="admin-profile-dropdown" id="profile-dropdown" style="display:none;">
+                    <div class="admin-profile-dropdown d-none" id="profile-dropdown">
                         <div class="admin-profile-header">
                             <div class="admin-profile-info">
                                 <div class="admin-profile-name"><?= Html::encode($company['name'] ?? 'Admin') ?></div>

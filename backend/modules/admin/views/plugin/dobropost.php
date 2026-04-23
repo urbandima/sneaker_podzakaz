@@ -44,7 +44,7 @@ $this->params['headerActions'] = [
                 <label>Пароль API</label>
                 <input type="password" class="admin-form-input" id="dp-password"
                        placeholder="••••••••••••••••">
-                <small style="color:var(--admin-text-secondary);font-size:12px">
+                <small class="text-muted-sm">
                     Установите в <code>.env</code>: <code>DP_API_PASSWORD=...</code>
                 </small>
             </div>
@@ -53,9 +53,9 @@ $this->params['headerActions'] = [
                 <input type="number" class="admin-form-input" id="dp-tariff"
                        placeholder="26"
                        value="<?= htmlspecialchars($dpTariff) ?>">
-                <small style="color:var(--admin-text-secondary);font-size:12px">Код тарифа Таможня:ДП (26 = стандарт)</small>
+                <small class="text-muted-sm">Код тарифа Таможня:ДП (26 = стандарт)</small>
             </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div class="d-flex flex-wrap gap-2">
                 <button class="admin-btn admin-btn-primary" onclick="testDPConn()">
                     <i class="bi bi-check-circle"></i> Проверить подключение
                 </button>
@@ -63,7 +63,7 @@ $this->params['headerActions'] = [
                     <i class="bi bi-save"></i> Сохранить
                 </button>
             </div>
-            <div id="dp-test-result" style="margin-top:10px;font-size:13px"></div>
+            <div id="dp-test-result" class="mt-10px fs-xs"></div>
         </div>
     </div>
 
@@ -91,14 +91,14 @@ $this->params['headerActions'] = [
                         <i class="bi bi-clipboard"></i>
                     </button>
                 </div>
-                <small style="color:var(--admin-text-secondary);font-size:12px">
+                <small class="text-muted-sm">
                     Укажите этот URL в настройках Таможня:ДП → Webhook
                 </small>
             </div>
-            <button class="admin-btn admin-btn-secondary" style="width:100%" onclick="saveDPSettings()">
+            <button class="admin-btn admin-btn-secondary w-100" onclick="saveDPSettings()">
                 <i class="bi bi-save"></i> Сохранить настройки
             </button>
-            <div id="dp-settings-result" style="margin-top:10px;font-size:13px"></div>
+            <div id="dp-settings-result" class="mt-10px fs-xs"></div>
         </div>
     </div>
 

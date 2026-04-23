@@ -19,12 +19,12 @@ $this->params['headerActions'] = [
 ?>
 
 <?php if ($task && $task->status === 'running'): ?>
-<div id="logs-config" style="display:none" data-task-id="<?= $task->id ?>"></div>
+<div id="logs-config" class="d-none" data-task-id="<?= $task->id ?>"></div>
 <?php endif; ?>
 
 <!-- Информация о задаче -->
 <?php if ($task): ?>
-<div class="admin-card" style="margin-bottom: 24px;">
+<div class="admin-card mb-5">
     <div class="admin-card-header">
         <h2 class="admin-card-title">Информация о задаче</h2>
         <?php if ($task->status === 'running'): ?>
@@ -34,11 +34,11 @@ $this->params['headerActions'] = [
     <div class="admin-card-body">
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
             <div>
-                <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Источник</label>
+                <label class="form-hint">Источник</label>
                 <strong><?= Html::encode($task->source->name) ?></strong>
             </div>
             <div>
-                <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Статус</label>
+                <label class="form-hint">Статус</label>
                 <?php
                 $statusColors = [
                     'pending' => 'secondary',
@@ -52,25 +52,25 @@ $this->params['headerActions'] = [
                 <span class="admin-badge admin-badge-<?= $color ?>"><?= $task->getStatusLabel() ?></span>
             </div>
             <div>
-                <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Прогресс</label>
+                <label class="form-hint">Прогресс</label>
                 <div style="background: var(--admin-surface); height: 20px; border-radius: 4px; overflow: hidden;">
                     <div style="background: var(--admin-accent); height: 100%; width: <?= $task->getProgress() ?>%;"></div>
                 </div>
                 <small><?= $task->processed_products ?> / <?= $task->total_products ?></small>
             </div>
             <div>
-                <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Результат</label>
-                <p style="margin: 0;">
-                    <span style="color: var(--admin-success);">+<?= $task->imported_count ?></span>
+                <label class="form-hint">Результат</label>
+                <p class="m-0">
+                    <span class="text-success">+<?= $task->imported_count ?></span>
                     <span style="color: var(--admin-info);">~<?= $task->updated_count ?></span>
-                    <span style="color: var(--admin-danger);">!<?= $task->failed_count ?></span>
+                    <span class="text-danger">!<?= $task->failed_count ?></span>
                     <span style="color: var(--admin-warning);">=<?= $task->duplicate_count ?></span>
                 </p>
             </div>
         </div>
         
         <?php if ($task->status === 'running'): ?>
-        <div style="margin-top: 1rem;">
+        <div class="mt-4">
             <?= Html::button('<i class="bi bi-stop-circle"></i> Остановить задачу', [
                 'class' => 'admin-btn admin-btn-danger admin-btn-sm btn-stop-task',
                 'data-task-id' => $task->id,
@@ -82,7 +82,7 @@ $this->params['headerActions'] = [
 <?php endif; ?>
 
 <!-- Фильтры -->
-<div class="admin-card" style="margin-bottom: 24px;">
+<div class="admin-card mb-5">
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-funnel"></i> Фильтры</h2>
     </div>
@@ -93,7 +93,7 @@ $this->params['headerActions'] = [
             <?php endif; ?>
             
             <div>
-                <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Действие</label>
+                <label class="form-hint">Действие</label>
                 <select name="action" class="admin-form-input">
                     <option value="">Все</option>
                     <option value="created" <?= ($filters['action'] ?? '') === 'created' ? 'selected' : '' ?>>Создан</option>
@@ -104,7 +104,7 @@ $this->params['headerActions'] = [
             </div>
             
             <div>
-                <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Уровень</label>
+                <label class="form-hint">Уровень</label>
                 <select name="level" class="admin-form-input">
                     <option value="">Все</option>
                     <option value="info" <?= ($filters['level'] ?? '') === 'info' ? 'selected' : '' ?>>Информация</option>
@@ -114,14 +114,14 @@ $this->params['headerActions'] = [
             </div>
             
             <div>
-                <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Поиск</label>
+                <label class="form-hint">Поиск</label>
                 <input type="text" name="search" class="admin-form-input" 
                        value="<?= Html::encode($filters['search'] ?? '') ?>" 
                        placeholder="SKU, название, сообщение...">
             </div>
             
             <div>
-                <button type="submit" class="admin-btn admin-btn-primary admin-btn-sm" style="width: 100%;">
+                <button type="submit" class="admin-btn admin-btn-primary admin-btn-sm w-100">
                     <i class="bi bi-funnel"></i> Фильтр
                 </button>
             </div>
@@ -133,7 +133,7 @@ $this->params['headerActions'] = [
 <?php Pjax::begin(['id' => 'logs-pjax']); ?>
 
 <div class="admin-card">
-    <div class="admin-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="admin-card-header flex-between">
         <h2 class="admin-card-title">
             <i class="bi bi-list-ul"></i> Логи
             <?php if ($task): ?>
@@ -146,7 +146,7 @@ $this->params['headerActions'] = [
         </span>
         <?php endif; ?>
     </div>
-    <div class="admin-card-body" style="padding: 0;">
+    <div class="admin-card-body p-0">
         <?= GridView::widget([
             'dataProvider' => $dataProvider,
             'tableOptions' => ['class' => 'admin-table'],

@@ -60,7 +60,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                         <span class="summary-item-price"><?= number_format($item->price * $item->quantity, 2) ?> BYN</span>
                     </div>
                 <?php endforeach; ?>
-                <div class="summary-totals" style="margin-top:8px">
+                <div class="summary-totals mt-2">
                     <div class="summary-row">
                         <span>Доставка:</span>
                         <span id="mobileDeliveryCost" class="delivery-cost">Бесплатно</span>
@@ -188,7 +188,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                     </div>
 
                     <!-- Россия -->
-                    <div class="shipping-options" id="deliveryRussia" style="display:none">
+                    <div class="shipping-options d-none" id="deliveryRussia">
                         <label class="shipping-option">
                             <input type="radio" name="delivery" value="sdek"
                                    onchange="updateDelivery(0, 'sdek')">
@@ -206,7 +206,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                     </div>
 
                     <!-- Адрес: город + индекс на одной строке, затем улица -->
-                    <div id="addressGroup" style="display:none">
+                    <div id="addressGroup" class="d-none">
                         <div class="address-row">
                             <div class="form-group">
                                 <label for="field-city">Город <span class="text-danger" aria-hidden="true">*</span><span class="sr-only">(обязательное)</span></label>
@@ -337,7 +337,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                             </div>
                             <div class="coupon-message" id="couponMessage"></div>
                         </div>
-                        <div class="summary-row coupon-discount-row" id="couponDiscountRow" style="display:none">
+                        <div class="summary-row coupon-discount-row d-none" id="couponDiscountRow">
                             <span>Скидка:</span>
                             <span id="couponDiscount">0 BYN</span>
                         </div>

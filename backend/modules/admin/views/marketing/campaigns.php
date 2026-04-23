@@ -69,7 +69,7 @@ $this->params['headerActions'] = [
 ?>
 
 <!-- Статистика -->
-<div class="admin-stats" style="margin-bottom: 24px;">
+<div class="admin-stats mb-5">
     <div class="admin-stat-card">
         <div class="admin-stat-icon primary"><i class="bi bi-envelope-fill"></i></div>
         <div class="admin-stat-content">
@@ -113,7 +113,7 @@ $this->params['headerActions'] = [
             </button>
         </div>
     </div>
-    <div class="admin-card-body" style="padding: 0;">
+    <div class="admin-card-body p-0">
         <table class="admin-table">
             <thead>
                 <tr>
@@ -121,12 +121,12 @@ $this->params['headerActions'] = [
                     <th>Название кампании</th>
                     <th>Тип</th>
                     <th>Статус</th>
-                    <th style="text-align: center;">Получатели</th>
-                    <th style="text-align: center;">Открытия</th>
-                    <th style="text-align: center;">Клики</th>
-                    <th style="text-align: center;">CTR</th>
+                    <th class="text-center">Получатели</th>
+                    <th class="text-center">Открытия</th>
+                    <th class="text-center">Клики</th>
+                    <th class="text-center">CTR</th>
                     <th>Дата создания</th>
-                    <th style="text-align: right;">Действия</th>
+                    <th class="text-right">Действия</th>
                 </tr>
             </thead>
             <tbody>
@@ -153,22 +153,22 @@ $this->params['headerActions'] = [
                             <?= $status['label'] ?>
                         </span>
                     </td>
-                    <td style="text-align: center;">
+                    <td class="text-center">
                         <?= number_format($campaign['recipients'], 0, '.', ' ') ?>
                     </td>
-                    <td style="text-align: center;">
+                    <td class="text-center">
                         <?= $campaign['opened'] > 0 ? number_format($campaign['opened'], 0, '.', ' ') : '-' ?>
                     </td>
-                    <td style="text-align: center;">
+                    <td class="text-center">
                         <?= $campaign['clicked'] > 0 ? number_format($campaign['clicked'], 0, '.', ' ') : '-' ?>
                     </td>
-                    <td style="text-align: center;">
+                    <td class="text-center">
                         <?= $ctr > 0 ? $ctr . '%' : '-' ?>
                     </td>
                     <td>
                         <?= date('d.m.Y', strtotime($campaign['created_at'])) ?>
                     </td>
-                    <td style="text-align: right;">
+                    <td class="text-right">
                         <div class="admin-actions">
                             <button class="admin-btn admin-btn-sm admin-btn-secondary" title="Редактировать">
                                 <i class="bi bi-pencil"></i>

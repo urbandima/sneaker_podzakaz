@@ -70,8 +70,8 @@ $this->title = 'Покупатели';
                     <tr>
                         <th>Покупатель</th>
                         <th>Телефон</th>
-                        <th style="text-align:center">Заказов</th>
-                        <th style="text-align:center">Потрачено</th>
+                        <th class="text-center">Заказов</th>
+                        <th class="text-center">Потрачено</th>
                         <th>Статус</th>
                         <th>Регистрация</th>
                         <th></th>

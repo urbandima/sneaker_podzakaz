@@ -16,7 +16,7 @@ $pendingCount = $stats['pending'] ?? 0;
     </div>
 
     <!-- Статистика -->
-    <div class="admin-stats" style="margin-bottom: 24px;">
+    <div class="admin-stats mb-5">
         <div class="admin-stat-card">
             <div class="admin-stat-icon primary"><i class="bi bi-chat-square-text"></i></div>
             <div class="admin-stat-content">
@@ -190,7 +190,7 @@ $pendingCount = $stats['pending'] ?? 0;
                 </div>
 
                 <!-- Inline Reply Form -->
-                <div id="reply-form-<?= $review->id ?>" class="reply-form" style="display:none;">
+                <div id="reply-form-<?= $review->id ?>" class="reply-form d-none">
                     <div class="reply-form-inner">
                         <label class="reply-label"><i class="bi bi-chat-left-text"></i> Ответ администратора</label>
                         <textarea
@@ -207,7 +207,7 @@ $pendingCount = $stats['pending'] ?? 0;
                                 Отмена
                             </button>
                         </div>
-                        <div id="reply-result-<?= $review->id ?>" class="reply-result" style="display:none;"></div>
+                        <div id="reply-result-<?= $review->id ?>" class="reply-result d-none"></div>
                     </div>
                 </div>
             </div>

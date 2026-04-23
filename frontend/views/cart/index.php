@@ -85,7 +85,7 @@ CartAsset::register($this);
                                 Применить
                             </button>
                         </div>
-                        <div id="promoApplied" class="promo-applied" style="display: none;">
+                        <div id="promoApplied" class="promo-applied d-none">
                             <div class="promo-success">
                                 <i class="bi bi-check-circle-fill"></i>
                                 <span id="promoCodeText"></span>
@@ -97,7 +97,7 @@ CartAsset::register($this);
                                 <i class="bi bi-x"></i> Удалить
                             </button>
                         </div>
-                        <div id="promoError" class="promo-error" style="display: none;"></div>
+                        <div id="promoError" class="promo-error d-none"></div>
                     </div>
                     
                     <?php if ($customer): ?>
@@ -133,12 +133,12 @@ CartAsset::register($this);
                             <span class="cart-total" id="productsTotal"><?= Yii::$app->formatter->asCurrency($total, 'BYN') ?></span>
                         </div>
                         
-                        <div class="summary-row discount-row" id="promoDiscountRow" style="display: none;">
+                        <div class="summary-row discount-row d-none" id="promoDiscountRow">
                             <span>Скидка по промокоду:</span>
                             <span class="discount-value" id="promoDiscountValue">-0 BYN</span>
                         </div>
                         
-                        <div class="summary-row discount-row" id="pointsDiscountRow" style="display: none;">
+                        <div class="summary-row discount-row d-none" id="pointsDiscountRow">
                             <span>Оплата баллами:</span>
                             <span class="discount-value" id="pointsDiscountValue">-0 BYN</span>
                         </div>
@@ -321,7 +321,7 @@ CartAsset::register($this);
                         </div>
                         
                         <!-- Способы доставки для России -->
-                        <div class="delivery-options" id="deliveryRussia" style="display: none;">
+                        <div class="delivery-options d-none" id="deliveryRussia">
                             <label class="delivery-option">
                                 <input type="radio" name="delivery" value="sdek">
                                 <div class="option-content">
@@ -342,7 +342,7 @@ CartAsset::register($this);
                     
                     <?php if ($customer): ?>
                         <!-- Опция сохранения данных -->
-                        <div class="form-section" id="saveDataSection" style="display: none;">
+                        <div class="form-section d-none" id="saveDataSection">
                             <label class="checkbox-label">
                                 <input type="checkbox" name="save_to_profile" id="saveToProfile">
                                 <span>Сохранить эти данные в профиль</span>

@@ -245,7 +245,7 @@ $showingTo   = $totalCount ? $showingFrom + count($orders) - 1 : 0;
 <!-- Переключатель вид -->
 <div class="admin-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;">
-        <h2 class="admin-card-title" style="margin:0;"><i class="bi bi-cart3"></i> Список заказов</h2>
+        <h2 class="admin-card-title m-0"><i class="bi bi-cart3"></i> Список заказов</h2>
         <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
             <div class="view-toggle">
                 <button class="view-toggle-btn" id="btnTable" onclick="switchView('table')">
@@ -265,7 +265,7 @@ $showingTo   = $totalCount ? $showingFrom + count($orders) - 1 : 0;
 
     <!-- TABLE VIEW -->
     <div id="tableView">
-        <div style="overflow-x:auto;">
+        <div class="overflow-x-auto">
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -290,13 +290,13 @@ $showingTo   = $totalCount ? $showingFrom + count($orders) - 1 : 0;
                             ?>
                             <tr>
                                 <td><input type="checkbox" class="order-checkbox" value="<?= $order->id ?>"></td>
-                                <td style="font-weight:600;"><?= Html::encode($order->order_number ?: $order->id) ?></td>
+                                <td class="fw-600"><?= Html::encode($order->order_number ?: $order->id) ?></td>
                                 <td><?= Html::encode($order->client_name) ?></td>
                                 <td><?= Html::encode($order->client_phone) ?></td>
                                 <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
                                     <?= $firstItem ? Html::encode($firstItem->product_name) : '—' ?>
                                 </td>
-                                <td style="font-weight:600;"><?= number_format($order->total_amount, 2) ?> BYN</td>
+                                <td class="fw-600"><?= number_format($order->total_amount, 2) ?> BYN</td>
                                 <td>
                                     <span class="admin-badge admin-badge-<?= $order->status === 'completed' ? 'success' : ($order->status === 'paid' ? 'warning' : 'info') ?>">
                                         <?= Html::encode($statuses[$order->status] ?? $order->status) ?>
@@ -346,7 +346,7 @@ $showingTo   = $totalCount ? $showingFrom + count($orders) - 1 : 0;
     </div><!-- /tableView -->
 
     <!-- KANBAN VIEW -->
-    <div id="kanbanView" style="display:none;">
+    <div id="kanbanView" class="d-none">
         <div class="kanban-board" id="kanbanBoard">
             <?php foreach ($kanbanColumns as $colKey => $colLabel): ?>
                 <?php $colOrders = $kanbanGroups[$colKey] ?? []; ?>

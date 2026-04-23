@@ -225,21 +225,21 @@ try {
                             <?php foreach ($model->orderItems as $item): ?>
                             <tr>
                                 <td><?= Html::encode($item->product_name) ?></td>
-                                <td style="text-align: center;"><?= $item->quantity ?></td>
-                                <td style="text-align: right;"><?= number_format($item->price ?? 0, 2, ',', ' ') ?></td>
-                                <td style="text-align: right;"><?= number_format($item->total ?? 0, 2, ',', ' ') ?></td>
+                                <td class="text-center"><?= $item->quantity ?></td>
+                                <td class="text-right"><?= number_format($item->price ?? 0, 2, ',', ' ') ?></td>
+                                <td class="text-right"><?= number_format($item->total ?? 0, 2, ',', ' ') ?></td>
                             </tr>
                             <?php endforeach; ?>
                             
                             <?php if ($model->delivery_cost > 0): ?>
                             <tr class="products-summary">
                                 <td colspan="3">Доставка</td>
-                                <td style="text-align: right;">+<?= number_format($model->delivery_cost ?? 0, 2, ',', ' ') ?></td>
+                                <td class="text-right">+<?= number_format($model->delivery_cost ?? 0, 2, ',', ' ') ?></td>
                             </tr>
                             <?php endif; ?>
                             
                             <tr class="products-summary">
-                                <td colspan="3" style="font-weight: 600;">ВСЕГО К ОПЛАТЕ</td>
+                                <td colspan="3" class="fw-600">ВСЕГО К ОПЛАТЕ</td>
                                 <td class="products-total"><?= number_format(($model->total_amount ?? 0) + ($model->delivery_cost ?? 0), 2, ',', ' ') ?></td>
                             </tr>
                         </tbody>
@@ -293,7 +293,7 @@ try {
                             <div>
                                 <strong>Дата рождения:</strong>
                                 <?php if ($isEditing): ?>
-                                    <input type="date" name="birth_date" value="<?= $model->birth_date ?>" style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                    <input type="date" name="birth_date" value="<?= $model->birth_date ?>" class="mt-2" <?= $inputDisabled ?>>
                                 <?php else: ?>
                                     <?= $model->birth_date ? Yii::$app->formatter->asDate($model->birth_date, 'd MMM yyyy') : 'не указано' ?>
                                 <?php endif; ?>
@@ -301,7 +301,7 @@ try {
                             <div>
                                 <strong>ИНН (для РФ):</strong>
                                 <?php if ($isEditing): ?>
-                                    <input type="text" name="inn" value="<?= Html::encode($model->inn) ?>" placeholder="ИНН" style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                    <input type="text" name="inn" value="<?= Html::encode($model->inn) ?>" placeholder="ИНН" class="mt-2" <?= $inputDisabled ?>>
                                 <?php else: ?>
                                     <?= Html::encode($model->inn ?: 'не указано') ?>
                                 <?php endif; ?>
@@ -325,7 +325,7 @@ try {
                             <div>
                                 <strong>Трек-номер (Китай):</strong>
                                 <?php if ($isEditing): ?>
-                                    <input type="text" name="china_track_number" value="<?= Html::encode($model->china_track_number) ?>" placeholder="Трек-номер" style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                    <input type="text" name="china_track_number" value="<?= Html::encode($model->china_track_number) ?>" placeholder="Трек-номер" class="mt-2" <?= $inputDisabled ?>>
                                 <?php else: ?>
                                     <?= Html::encode($model->china_track_number ?: 'не указано') ?>
                                 <?php endif; ?>
@@ -333,7 +333,7 @@ try {
                             <div>
                                 <strong>Номер МС:</strong>
                                 <?php if ($isEditing): ?>
-                                    <input type="text" name="ms_number" value="<?= Html::encode($model->ms_number) ?>" placeholder="Номер МС" style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                    <input type="text" name="ms_number" value="<?= Html::encode($model->ms_number) ?>" placeholder="Номер МС" class="mt-2" <?= $inputDisabled ?>>
                                 <?php else: ?>
                                     <?= Html::encode($model->ms_number ?: 'не указано') ?>
                                 <?php endif; ?>
@@ -341,7 +341,7 @@ try {
                             <div>
                                 <strong>Стоимость поставки (CNY):</strong>
                                 <?php if ($isEditing): ?>
-                                    <input type="number" name="shipment_value_cny" value="<?= $model->shipment_value_cny ?>" placeholder="0.00" step="0.01" style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                    <input type="number" name="shipment_value_cny" value="<?= $model->shipment_value_cny ?>" placeholder="0.00" step="0.01" class="mt-2" <?= $inputDisabled ?>>
                                 <?php else: ?>
                                     <?= $model->shipment_value_cny ? number_format($model->shipment_value_cny, 2, ',', ' ') : 'не указано' ?>
                                 <?php endif; ?>
@@ -357,7 +357,7 @@ try {
                             <div>
                                 <strong>Количество (таможня):</strong>
                                 <?php if ($isEditing): ?>
-                                    <input type="number" name="item_quantity" value="<?= $model->item_quantity ?>" placeholder="0" style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                    <input type="number" name="item_quantity" value="<?= $model->item_quantity ?>" placeholder="0" class="mt-2" <?= $inputDisabled ?>>
                                 <?php else: ?>
                                     <?= $model->item_quantity ?: 'не указано' ?>
                                 <?php endif; ?>
@@ -365,7 +365,7 @@ try {
                             <div>
                                 <strong>Цена (таможня, CNY):</strong>
                                 <?php if ($isEditing): ?>
-                                    <input type="number" name="item_price_cny" value="<?= $model->item_price_cny ?>" placeholder="0.00" step="0.01" style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                    <input type="number" name="item_price_cny" value="<?= $model->item_price_cny ?>" placeholder="0.00" step="0.01" class="mt-2" <?= $inputDisabled ?>>
                                 <?php else: ?>
                                     <?= $model->item_price_cny ? number_format($model->item_price_cny, 2, ',', ' ') : 'не указано' ?>
                                 <?php endif; ?>
@@ -373,7 +373,7 @@ try {
                             <div>
                                 <strong>Ссылка на товар:</strong>
                                 <?php if ($isEditing): ?>
-                                    <input type="url" name="product_link" value="<?= Html::encode($model->product_link) ?>" placeholder="https://..." style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                    <input type="url" name="product_link" value="<?= Html::encode($model->product_link) ?>" placeholder="https://..." class="mt-2" <?= $inputDisabled ?>>
                                 <?php else: ?>
                                     <?php if ($model->product_link): ?>
                                         <?= Html::a(Html::encode($model->product_link), $model->product_link, ['target' => '_blank']) ?>
@@ -385,7 +385,7 @@ try {
                             <div>
                                 <strong>Заказ Sneakerhead:</strong>
                                 <?php if ($isEditing): ?>
-                                    <input type="text" name="sneakerhead_order_link" value="<?= Html::encode($model->sneakerhead_order_link) ?>" placeholder="Ссылка на заказ" style="margin-top: 8px;" <?= $inputDisabled ?>>
+                                    <input type="text" name="sneakerhead_order_link" value="<?= Html::encode($model->sneakerhead_order_link) ?>" placeholder="Ссылка на заказ" class="mt-2" <?= $inputDisabled ?>>
                                 <?php else: ?>
                                     <?php if ($model->sneakerhead_order_link): ?>
                                         <?= Html::a(Html::encode($model->sneakerhead_order_link), $model->sneakerhead_order_link, ['target' => '_blank']) ?>
@@ -454,7 +454,7 @@ try {
 
             <!-- Таможня:ДП -->
             <div class="control-section">
-                <div class="control-header" style="display:flex;justify-content:space-between;align-items:center">
+                <div class="control-header flex-between">
                     <span>📦 Таможня:ДП</span>
                     <?php
                     $dpShipmentId = $model->dp_shipment_id ?? null;

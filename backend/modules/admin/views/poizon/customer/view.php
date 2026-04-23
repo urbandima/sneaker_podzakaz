@@ -109,15 +109,15 @@ $this->title = 'Покупатель: ' . $customer->getFullName();
             <div class="content-card">
                 <h2><i class="bi bi-info-circle"></i> Информация</h2>
                 
-                <div class="info-item" style="margin-bottom:0.75rem;">
+                <div class="info-item mb-3">
                     <div class="info-label">ID покупателя</div>
                     <div class="info-value">#<?= $customer->id ?></div>
                 </div>
-                <div class="info-item" style="margin-bottom:0.75rem;">
+                <div class="info-item mb-3">
                     <div class="info-label">Дата регистрации</div>
                     <div class="info-value"><?= Yii::$app->formatter->asDatetime($customer->created_at, 'medium') ?></div>
                 </div>
-                <div class="info-item" style="margin-bottom:0.75rem;">
+                <div class="info-item mb-3">
                     <div class="info-label">Последний вход</div>
                     <div class="info-value"><?= $customer->last_login_at ? Yii::$app->formatter->asDatetime($customer->last_login_at, 'medium') : 'Нет данных' ?></div>
                 </div>

@@ -77,18 +77,18 @@ $this->params['headerActions'] = [
             <thead>
                 <tr>
                     <th>Дата</th>
-                    <th style="text-align: right;">Заказы</th>
-                    <th style="text-align: right;">Выручка</th>
-                    <th style="text-align: right;">Средний чек</th>
+                    <th class="text-right">Заказы</th>
+                    <th class="text-right">Выручка</th>
+                    <th class="text-right">Средний чек</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($salesByDay as $day): ?>
                 <tr>
                     <td><?= $day['date'] ?></td>
-                    <td style="text-align: right; font-weight: 600;"><?= $day['orders_count'] ?></td>
-                    <td style="text-align: right; font-weight: 600;"><?= number_format($day['revenue'], 0, ',', ' ') ?> BYN</td>
-                    <td style="text-align: right;"><?= number_format($day['avg_order'], 0, ',', ' ') ?> BYN</td>
+                    <td class="text-right fw-600"><?= $day['orders_count'] ?></td>
+                    <td class="text-right fw-600"><?= number_format($day['revenue'], 0, ',', ' ') ?> BYN</td>
+                    <td class="text-right"><?= number_format($day['avg_order'], 0, ',', ' ') ?> BYN</td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -112,18 +112,18 @@ $this->params['headerActions'] = [
             <thead>
                 <tr>
                     <th>Товар</th>
-                    <th style="text-align: right;">Просмотры</th>
-                    <th style="text-align: right;">Выручка</th>
-                    <th style="text-align: right;">Заказов</th>
+                    <th class="text-right">Просмотры</th>
+                    <th class="text-right">Выручка</th>
+                    <th class="text-right">Заказов</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($topProducts as $product): ?>
                 <tr>
                     <td><?= Html::encode($product['product_name']) ?></td>
-                    <td style="text-align: right; font-weight: 600;"><?= $product['views'] ?? 0 ?></td>
-                    <td style="text-align: right; font-weight: 600;"><?= number_format($product['total_revenue'] ?? 0, 0, ',', ' ') ?> BYN</td>
-                    <td style="text-align: right;"><?= $product['orders'] ?? 0 ?></td>
+                    <td class="text-right fw-600"><?= $product['views'] ?? 0 ?></td>
+                    <td class="text-right fw-600"><?= number_format($product['total_revenue'] ?? 0, 0, ',', ' ') ?> BYN</td>
+                    <td class="text-right"><?= $product['orders'] ?? 0 ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -187,7 +187,7 @@ $this->params['headerActions'] = [
 
 <div class="admin-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-        <h2 class="admin-card-title" style="margin:0;">
+        <h2 class="admin-card-title m-0">
             <i class="bi bi-people"></i>
             RFM-анализ клиентов
         </h2>
@@ -203,14 +203,14 @@ $this->params['headerActions'] = [
         <strong>Lost</strong> (R&gt;90д, F=1), <strong>New</strong> (остальные)
     </p>
 
-    <div id="rfm-table-wrap" style="overflow-x:auto;">
+    <div id="rfm-table-wrap" class="overflow-x-auto">
     <table class="admin-table" id="rfm-table">
         <thead>
             <tr>
                 <th>Сегмент</th>
-                <th style="text-align:right;">Клиентов</th>
-                <th style="text-align:right;">Средний LTV, BYN</th>
-                <th style="text-align:center;">Экспорт</th>
+                <th class="text-right">Клиентов</th>
+                <th class="text-right">Средний LTV, BYN</th>
+                <th class="text-center">Экспорт</th>
             </tr>
         </thead>
         <tbody>
@@ -231,8 +231,8 @@ $this->params['headerActions'] = [
                     <strong><?= Html::encode($seg['segment']) ?></strong>
                 </td>
                 <td style="text-align:right;font-weight:700;"><?= (int)$seg['count'] ?></td>
-                <td style="text-align:right;"><?= number_format((float)$seg['avg_monetary'], 2, ',', ' ') ?></td>
-                <td style="text-align:center;">
+                <td class="text-right"><?= number_format((float)$seg['avg_monetary'], 2, ',', ' ') ?></td>
+                <td class="text-center">
                     <a href="<?= Url::to(['/admin/analytics/export-rfm', 'segment' => $seg['segment']]) ?>"
                        class="admin-btn admin-btn-secondary" style="font-size:0.75rem;padding:0.3rem 0.7rem;">
                         <i class="bi bi-download"></i> CSV
@@ -262,9 +262,9 @@ $this->params['headerActions'] = [
             <thead>
                 <tr>
                     <th>Менеджер / Логист</th>
-                    <th style="text-align:right;">Заказов</th>
-                    <th style="text-align:right;">Выручка, BYN</th>
-                    <th style="text-align:right;">Средний чек, BYN</th>
+                    <th class="text-right">Заказов</th>
+                    <th class="text-right">Выручка, BYN</th>
+                    <th class="text-right">Средний чек, BYN</th>
                 </tr>
             </thead>
             <tbody>
@@ -272,8 +272,8 @@ $this->params['headerActions'] = [
                 <tr>
                     <td><?= Html::encode($row['manager'] ?? 'Не назначен') ?></td>
                     <td style="text-align:right;font-weight:700;"><?= (int)$row['order_count'] ?></td>
-                    <td style="text-align:right;"><?= number_format((float)$row['revenue'], 0, ',', ' ') ?></td>
-                    <td style="text-align:right;"><?= number_format((float)$row['avg_check'], 0, ',', ' ') ?></td>
+                    <td class="text-right"><?= number_format((float)$row['revenue'], 0, ',', ' ') ?></td>
+                    <td class="text-right"><?= number_format((float)$row['avg_check'], 0, ',', ' ') ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

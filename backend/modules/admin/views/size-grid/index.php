@@ -116,7 +116,7 @@ $brandTemplates = [
                 <?php endforeach; ?>
             </div>
             <!-- Template Preview Modal -->
-            <div id="templatePreviewModal" class="template-modal" style="display:none;">
+            <div id="templatePreviewModal" class="template-modal d-none">
                 <div class="template-modal-content">
                     <div class="template-modal-header">
                         <h3 id="templateModalTitle">Шаблон размеров</h3>

@@ -37,12 +37,12 @@ $controllerId = Yii::$app->controller->id;
 
 <div class="admin-layout">
     <!-- Mobile Sidebar Overlay -->
-    <div class="admin-sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()" style="display: none;"></div>
+    <div class="admin-sidebar-overlay d-none" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
     
     <!-- Sidebar -->
     <aside class="admin-sidebar" id="admin-sidebar">
         <!-- Mobile Close Button -->
-        <button class="admin-sidebar-close" id="sidebar-close" onclick="closeMobileSidebar()" style="display: none;" title="Закрыть меню">
+        <button class="admin-sidebar-close d-none" id="sidebar-close" onclick="closeMobileSidebar()" title="Закрыть меню">
             <i class="bi bi-x-lg"></i>
         </button>
         
@@ -193,7 +193,7 @@ $controllerId = Yii::$app->controller->id;
         <div class="admin-topbar" id="admin-topbar">
             <div class="admin-topbar-left">
                 <!-- Mobile Menu Toggle -->
-                <button class="admin-mobile-menu-btn" id="mobile-menu-toggle" onclick="toggleMobileSidebar()" style="display: none;" title="Открыть меню">
+                <button class="admin-mobile-menu-btn d-none" id="mobile-menu-toggle" onclick="toggleMobileSidebar()" title="Открыть меню">
                     <i class="bi bi-list"></i>
                 </button>
                 <button class="admin-topbar-search-btn" onclick="document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',ctrlKey:true,bubbles:true}))" title="Глобальный поиск (Ctrl+K)">
@@ -211,7 +211,7 @@ $controllerId = Yii::$app->controller->id;
                     <i class="bi bi-calculator-fill"></i>
                 </button>
                 <!-- Уведомления -->
-                <div style="position:relative">
+                <div class="pos-relative">
                     <button class="admin-topbar-icon-btn admin-notif-btn" id="notif-btn" title="Уведомления" onclick="toggleNotifications()">
                         <i class="bi bi-bell-fill"></i>
                         <?php
@@ -224,7 +224,7 @@ $controllerId = Yii::$app->controller->id;
                             <span class="admin-notif-badge"><?= $newOrdersCount ?></span>
                         <?php endif; ?>
                     </button>
-                    <div id="notif-dropdown" class="admin-notif-dropdown" style="display:none">
+                    <div id="notif-dropdown" class="admin-notif-dropdown d-none">
                         <div class="admin-notif-header">
                             <h4>Уведомления</h4>
                             <span class="admin-badge admin-badge-primary"><?= $newOrdersCount ?></span>
@@ -264,11 +264,11 @@ $controllerId = Yii::$app->controller->id;
                 </div>
                 
                 <!-- Профиль пользователя -->
-                <div class="admin-user-profile" style="position:relative">
+                <div class="admin-user-profile pos-relative">
                     <button class="admin-topbar-icon-btn admin-profile-btn" id="profile-btn" title="Профиль пользователя" onclick="toggleProfile()">
                         <i class="bi bi-person-circle"></i>
                     </button>
-                    <div class="admin-profile-dropdown" id="profile-dropdown" style="display:none;">
+                    <div class="admin-profile-dropdown d-none" id="profile-dropdown">
                         <div class="admin-profile-header">
                             <div class="admin-profile-info">
                                 <div class="admin-profile-name"><?= Html::encode($company['name'] ?? 'Admin') ?></div>

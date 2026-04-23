@@ -58,7 +58,7 @@ $this->params['headerActions'] = [];
             <div class="form-group">
                 <label>API Token</label>
                 <input type="password" class="admin-form-input" placeholder="••••••••••••••••" id="moysklad-token">
-                <small style="color:var(--admin-text-secondary);font-size:12px">Получите в настройках МойСклад → API</small>
+                <small class="text-muted-sm">Получите в настройках МойСклад → API</small>
             </div>
             <div class="form-group">
                 <label>ID склада</label>
@@ -67,22 +67,22 @@ $this->params['headerActions'] = [];
             <div class="form-group">
                 <label>Маппинг статусов</label>
                 <div style="display:flex;flex-direction:column;gap:8px;padding:12px;background:var(--admin-bg);border-radius:8px">
-                    <div style="display:flex;justify-content:space-between;align-items:center">
-                        <span style="font-size:14px">Новый →</span>
+                    <div class="flex-between">
+                        <span class="fs-sm">Новый →</span>
                         <select class="admin-form-select" style="width:auto">
                             <option>Новый заказ</option>
                             <option>Подтвержден</option>
                         </select>
                     </div>
-                    <div style="display:flex;justify-content:space-between;align-items:center">
-                        <span style="font-size:14px">Оплачен →</span>
+                    <div class="flex-between">
+                        <span class="fs-sm">Оплачен →</span>
                         <select class="admin-form-select" style="width:auto">
                             <option>Оплачен</option>
                             <option>В работе</option>
                         </select>
                     </div>
-                    <div style="display:flex;justify-content:space-between;align-items:center">
-                        <span style="font-size:14px">Завершен →</span>
+                    <div class="flex-between">
+                        <span class="fs-sm">Завершен →</span>
                         <select class="admin-form-select" style="width:auto">
                             <option>Завершен</option>
                             <option>Доставлен</option>
@@ -111,26 +111,26 @@ $this->params['headerActions'] = [];
             <div class="form-group">
                 <label>Bot Token</label>
                 <input type="password" class="admin-form-input" placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz" id="telegram-token">
-                <small style="color:var(--admin-text-secondary);font-size:12px">Получите у @BotFather</small>
+                <small class="text-muted-sm">Получите у @BotFather</small>
             </div>
             <div class="form-group">
                 <label>Chat ID для уведомлений</label>
                 <textarea class="admin-form-input" rows="3" id="telegram-chat-ids" placeholder="-1001234567890&#10;-1009876543210"></textarea>
-                <small style="color:var(--admin-text-secondary);font-size:12px">По одному ID на строку</small>
+                <small class="text-muted-sm">По одному ID на строку</small>
             </div>
             <div class="form-group">
                 <label>Уведомления</label>
                 <div style="display:flex;flex-direction:column;gap:8px">
-                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                    <label class="d-flex align-center gap-2 cursor-pointer">
                         <input type="checkbox" checked> Новый заказ
                     </label>
-                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                    <label class="d-flex align-center gap-2 cursor-pointer">
                         <input type="checkbox" checked> Оплата подтверждена
                     </label>
-                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                    <label class="d-flex align-center gap-2 cursor-pointer">
                         <input type="checkbox" checked> Товар на складе
                     </label>
-                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                    <label class="d-flex align-center gap-2 cursor-pointer">
                         <input type="checkbox" checked> Задержки (>3 дней)
                     </label>
                 </div>
@@ -174,14 +174,14 @@ $this->params['headerActions'] = [];
                 <label>Пароль API</label>
                 <input type="password" class="admin-form-input" id="dp-password"
                        placeholder="••••••••••••••••">
-                <small style="color:var(--admin-text-secondary);font-size:12px">Установите в .env: DP_API_PASSWORD</small>
+                <small class="text-muted-sm">Установите в .env: DP_API_PASSWORD</small>
             </div>
             <div class="form-group">
                 <label>Тариф по умолчанию</label>
                 <input type="number" class="admin-form-input" id="dp-tariff"
                        placeholder="26"
                        value="<?= htmlspecialchars($dpTariff) ?>">
-                <small style="color:var(--admin-text-secondary);font-size:12px">Код тарифа Таможня:ДП (26 = стандарт)</small>
+                <small class="text-muted-sm">Код тарифа Таможня:ДП (26 = стандарт)</small>
             </div>
             <div class="form-group">
                 <label>Авто-отправка в Таможня:ДП</label>
@@ -210,9 +210,9 @@ $this->params['headerActions'] = [];
                         <i class="bi bi-clipboard"></i>
                     </button>
                 </div>
-                <small style="color:var(--admin-text-secondary);font-size:12px">Укажите этот URL в настройках Таможня:ДП → Webhook</small>
+                <small class="text-muted-sm">Укажите этот URL в настройках Таможня:ДП → Webhook</small>
             </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div class="d-flex flex-wrap gap-2">
                 <button class="admin-btn admin-btn-primary" onclick="testDobroPost()">
                     <i class="bi bi-check-circle"></i> Проверить подключение
                 </button>
@@ -220,7 +220,7 @@ $this->params['headerActions'] = [];
                     <i class="bi bi-save"></i> Сохранить
                 </button>
             </div>
-            <div id="dp-test-result" style="margin-top:10px;font-size:13px;"></div>
+            <div id="dp-test-result" class="mt-10px fs-xs"></div>
         </div>
     </div>
 
@@ -246,7 +246,7 @@ $this->params['headerActions'] = [];
                 <label>Наценка (%)</label>
                 <input type="number" class="admin-form-input" id="markup-percent" value="" step="0.1" placeholder="Загрузка...">
             </div>
-            <button class="admin-btn admin-btn-primary" style="width:100%" onclick="updateCNYRate()">
+            <button class="admin-btn admin-btn-primary w-100" onclick="updateCNYRate()">
                 <i class="bi bi-arrow-clockwise"></i> Обновить курс сейчас
             </button>
         </div>

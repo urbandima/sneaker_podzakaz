@@ -113,7 +113,7 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                         <?= Html::error($model, 'postal_code', ['class' => 'field-error']) ?>
                     </div>
                 </div>
-                <div class="form-grid form-grid--2" style="margin-top:12px;">
+                <div class="form-grid form-grid--2 mt-3">
                     <div class="form-field">
                         <label for="full-address"><?= $model->getAttributeLabel('full_address') ?></label>
                         <?= Html::activeTextarea($model, 'full_address', ['id' => 'full-address']) ?>
@@ -203,7 +203,7 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                         </div>
                     <?php endforeach; ?>
                 </div>
-                <div class="form-grid form-grid--2" style="margin-top:10px;">
+                <div class="form-grid form-grid--2 mt-10px">
                     <div class="form-field">
                         <label><?= $model->getAttributeLabel('product_link') ?></label>
                         <?= Html::activeTextInput($model, 'product_link', ['type' => 'url']) ?>
@@ -215,7 +215,7 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                         <?= Html::error($model, 'sneakerhead_order_link', ['class' => 'field-error']) ?>
                     </div>
                 </div>
-                <div class="form-field" style="margin-top:10px;">
+                <div class="form-field mt-10px">
                     <label><?= $model->getAttributeLabel('customs_description') ?></label>
                     <?= Html::activeTextarea($model, 'customs_description') ?>
                     <?= Html::error($model, 'customs_description', ['class' => 'field-error']) ?>
@@ -238,7 +238,7 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                     </select>
                     <?= Html::error($model, 'status', ['class' => 'field-error']) ?>
                 </div>
-                <div class="form-field" style="margin-top:10px;">
+                <div class="form-field mt-10px">
                     <label><?= $model->getAttributeLabel('source') ?></label>
                     <?= Html::activeTextInput($model, 'source') ?>
                     <?= Html::error($model, 'source', ['class' => 'field-error']) ?>
@@ -333,11 +333,11 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="form-field" style="width:100px">
                 <label>Количество</label>
-                <input type="number" name="OrderItem[\${index}][quantity]" value="1" min="1" placeholder="1" style="width:100%">
+                <input type="number" name="OrderItem[\${index}][quantity]" value="1" min="1" placeholder="1" class="w-100">
             </div>
             <div class="form-field" style="width:120px">
                 <label>Цена (BYN)</label>
-                <input type="number" name="OrderItem[\${index}][price]" placeholder="0.00" step="0.01" min="0" style="width:100%">
+                <input type="number" name="OrderItem[\${index}][price]" placeholder="0.00" step="0.01" min="0" class="w-100">
             </div>
             <div class="form-field" style="width:200px">
                 <label>Ссылка на товар</label>

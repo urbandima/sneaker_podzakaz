@@ -49,12 +49,12 @@ $company = Yii::$app->settings->getCompany();
                 
                 <a href="/account/wishlist" class="btn-wishlist" aria-label="Избранное">
                     <i class="bi bi-heart"></i>
-                    <span class="wishlist-counter sr-only" style="display: none;">0 товаров в избранном</span>
+                    <span class="wishlist-counter sr-only d-none">0 товаров в избранном</span>
                 </a>
                 
                 <a href="/cart" class="btn-cart" aria-label="Корзина">
                     <i class="bi bi-cart3"></i>
-                    <span class="cart-counter sr-only" style="display: none;">0 товаров в корзине</span>
+                    <span class="cart-counter sr-only d-none">0 товаров в корзине</span>
                 </a>
                 
                 <a href="/account" class="btn-account" aria-label="Личный кабинет">

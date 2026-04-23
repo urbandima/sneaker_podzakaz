@@ -22,7 +22,7 @@ $this->params['headerActions'][] = '<a href="/admin/settings" class="admin-btn a
             <i class="bi bi-send"></i> Тест
         </button>
     </div>
-    <div class="admin-form-group" style="margin-top:1rem;">
+    <div class="admin-form-group mt-4">
         <label class="admin-form-label">Тема письма</label>
         <input type="text" class="admin-form-input" id="subject_<?= $key ?>" value="<?= Html::encode($tpl['subject'] ?? '') ?>" placeholder="Тема...">
     </div>

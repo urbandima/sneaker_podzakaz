@@ -66,7 +66,7 @@ $this->params['headerActions'] = [
                 <?= $form->field($customer, 'phone')->textInput(['maxlength' => true]) ?>
             </div>
             
-            <div class="form-hint" style="margin-top: 0.5rem;">
+            <div class="form-hint mt-2">
                 Email нельзя изменять из админки
             </div>
         </div>
@@ -106,7 +106,7 @@ $this->params['headerActions'] = [
     </div>
 
     <!-- Коммуникации -->
-    <div class="form-section" style="margin-top: 1.5rem;">
+    <div class="form-section mt-5">
         <h3 class="form-section-title">
             <i class="bi bi-bell"></i>
             Коммуникации
@@ -114,13 +114,13 @@ $this->params['headerActions'] = [
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
             <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                <label class="d-flex align-center gap-1">
                     <?= Html::activeCheckbox($customer, 'subscribe_news', ['label' => false]) ?>
                     <span>Подписка на новости</span>
                 </label>
             </div>
             <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                <label class="d-flex align-center gap-1">
                     <?= Html::activeCheckbox($customer, 'subscribe_promo', ['label' => false]) ?>
                     <span>Подписка на акции и промокоды</span>
                 </label>

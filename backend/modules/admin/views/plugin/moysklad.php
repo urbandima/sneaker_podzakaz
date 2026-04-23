@@ -23,14 +23,14 @@ $this->params['headerActions'] = [
                 <label>API Token</label>
                 <input type="password" class="admin-form-input" id="moysklad-token" placeholder="••••••••••••••••"
                        value="<?= Html::encode(Yii::$app->settings->get('moysklad', 'api_key', '')) ?>">
-                <small style="color:var(--admin-text-secondary);font-size:12px">Получите в настройках МойСклад → Профиль → Безопасность → API</small>
+                <small class="text-muted-sm">Получите в настройках МойСклад → Профиль → Безопасность → API</small>
             </div>
             <div class="form-group">
                 <label>ID склада</label>
                 <input type="text" class="admin-form-input" id="moysklad-warehouse" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
                        value="<?= Html::encode(Yii::$app->settings->get('moysklad', 'warehouse_id', '')) ?>">
             </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div class="d-flex flex-wrap gap-2">
                 <button class="admin-btn admin-btn-primary" onclick="testMoySkladConn()">
                     <i class="bi bi-check-circle"></i> Проверить подключение
                 </button>
@@ -38,7 +38,7 @@ $this->params['headerActions'] = [
                     <i class="bi bi-save"></i> Сохранить
                 </button>
             </div>
-            <div id="ms-test-result" style="margin-top:10px;font-size:13px"></div>
+            <div id="ms-test-result" class="mt-10px fs-xs"></div>
         </div>
     </div>
 
@@ -70,7 +70,7 @@ $this->params['headerActions'] = [
                 </div>
                 <?php endforeach; ?>
             </div>
-            <button class="admin-btn admin-btn-secondary" style="margin-top:12px" onclick="saveMoySkladMapping()">
+            <button class="admin-btn admin-btn-secondary mt-3" onclick="saveMoySkladMapping()">
                 <i class="bi bi-save"></i> Сохранить маппинг
             </button>
         </div>

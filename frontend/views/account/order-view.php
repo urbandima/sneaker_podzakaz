@@ -132,7 +132,7 @@ AppAsset::register($this);
                     <h2><i class="bi bi-clock-history"></i> Статус заказа</h2>
 
                     <?= $this->render('_tracking_timeline', ['order' => $order]) ?>
-                    <div class="timeline" style="display:none"><!-- legacy timeline hidden -->
+                    <div class="timeline d-none"><!-- legacy timeline hidden -->
                         <?php
                         $statusFlow = [
                             'new' => ['label' => 'Новый', 'desc' => 'Заказ поступил'],

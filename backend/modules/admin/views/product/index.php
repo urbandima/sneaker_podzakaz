@@ -32,9 +32,9 @@ $brandOptions = ArrayHelper::map($brands, 'id', 'name');
 $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
 ?>
 
-<span id="js-export-base-url" data-url="<?= Url::to(['/admin/product/export']) ?>" style="display:none;"></span>
-<span id="js-bulk-update-url" data-url="<?= Url::to(['/admin/product/bulk-update']) ?>" style="display:none;"></span>
-<span id="js-bulk-delete-url" data-url="<?= Url::to(['/admin/product/bulk-delete']) ?>" style="display:none;"></span>
+<span id="js-export-base-url" data-url="<?= Url::to(['/admin/product/export']) ?>" class="d-none"></span>
+<span id="js-bulk-update-url" data-url="<?= Url::to(['/admin/product/bulk-update']) ?>" class="d-none"></span>
+<span id="js-bulk-delete-url" data-url="<?= Url::to(['/admin/product/bulk-delete']) ?>" class="d-none"></span>
 
 <div class="products-page">
     <div class="products-header">

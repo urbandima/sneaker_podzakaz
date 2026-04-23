@@ -101,15 +101,15 @@ $this->params['headerActions'] = [
             <h2 class="admin-card-title"><i class="bi bi-trophy-fill"></i> Топ-10 товаров по выручке</h2>
         </div>
         <?php if (!empty($topProducts)): ?>
-        <div style="overflow-x:auto">
+        <div class="overflow-x-auto">
             <table class="admin-table">
                 <thead>
                     <tr>
                         <th style="width:50px">#</th>
                         <th>Товар</th>
-                        <th style="text-align:right">Заказы</th>
-                        <th style="text-align:right">Ср. цена</th>
-                        <th style="text-align:right">Выручка</th>
+                        <th class="text-right">Заказы</th>
+                        <th class="text-right">Ср. цена</th>
+                        <th class="text-right">Выручка</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -117,8 +117,8 @@ $this->params['headerActions'] = [
                     <tr>
                         <td><span class="stat-rank"><?= $i + 1 ?></span></td>
                         <td><?= Html::encode($p['product_name'] ?? '—') ?></td>
-                        <td style="text-align:right"><?= $p['orders_count'] ?? 0 ?></td>
-                        <td style="text-align:right"><?= number_format($p['avg_price'] ?? 0, 0, '.', ' ') ?></td>
+                        <td class="text-right"><?= $p['orders_count'] ?? 0 ?></td>
+                        <td class="text-right"><?= number_format($p['avg_price'] ?? 0, 0, '.', ' ') ?></td>
                         <td style="text-align:right;font-weight:700"><?= number_format($p['total_revenue'] ?? 0, 0, '.', ' ') ?> BYN</td>
                     </tr>
                     <?php endforeach ?>
@@ -128,7 +128,7 @@ $this->params['headerActions'] = [
         <?php else: ?>
         <div style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">
             <i class="bi bi-bar-chart" style="font-size:2rem;opacity:0.4;display:block;margin-bottom:0.5rem"></i>
-            <p style="margin:0">Нет данных о продажах товаров</p>
+            <p class="m-0">Нет данных о продажах товаров</p>
         </div>
         <?php endif ?>
     </div>
@@ -142,15 +142,15 @@ $this->params['headerActions'] = [
             <h2 class="admin-card-title"><i class="bi bi-person-workspace"></i> Менеджеры</h2>
         </div>
         <?php if (!empty($managerStats)): ?>
-        <div style="overflow-x:auto">
+        <div class="overflow-x-auto">
             <table class="admin-table">
-                <thead><tr><th>Имя</th><th style="text-align:right">Заказы</th><th style="text-align:right">Сумма</th></tr></thead>
+                <thead><tr><th>Имя</th><th class="text-right text-right">Заказы</th><th>Сумма</th></tr></thead>
                 <tbody>
                     <?php foreach ($managerStats as $m): ?>
                     <?php $mSum = 0; foreach ($m->createdOrders as $o) $mSum += $o->total_amount; ?>
                     <tr>
                         <td><?= Html::encode($m->username) ?></td>
-                        <td style="text-align:right"><span class="admin-badge admin-badge-info"><?= count($m->createdOrders) ?></span></td>
+                        <td><span class="admin-badge admin-badge-info text-right"><?= count($m->createdOrders) ?></span></td>
                         <td style="text-align:right;font-weight:600"><?= number_format($mSum, 0, '.', ' ') ?> BYN</td>
                     </tr>
                     <?php endforeach ?>
@@ -160,7 +160,7 @@ $this->params['headerActions'] = [
         <?php else: ?>
         <div style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">
             <i class="bi bi-people" style="font-size:2rem;opacity:0.4;display:block;margin-bottom:0.5rem"></i>
-            <p style="margin:0">Нет данных о менеджерах</p>
+            <p class="m-0">Нет данных о менеджерах</p>
         </div>
         <?php endif ?>
     </div>
@@ -171,9 +171,9 @@ $this->params['headerActions'] = [
             <h2 class="admin-card-title"><i class="bi bi-truck"></i> Логисты</h2>
         </div>
         <?php if (!empty($logistStats)): ?>
-        <div style="overflow-x:auto">
+        <div class="overflow-x-auto">
             <table class="admin-table">
-                <thead><tr><th>Имя</th><th style="text-align:right">Всего</th><th style="text-align:right">Активных</th><th style="text-align:right">Завершено</th></tr></thead>
+                <thead><tr><th>Имя</th><th class="text-right text-right text-right">Всего</th><th>Активных</th><th>Завершено</th></tr></thead>
                 <tbody>
                     <?php foreach ($logistStats as $l): ?>
                     <?php
@@ -184,9 +184,9 @@ $this->params['headerActions'] = [
                     ?>
                     <tr>
                         <td><?= Html::encode($l->username) ?></td>
-                        <td style="text-align:right"><?= count($l->assignedOrders) ?></td>
-                        <td style="text-align:right"><span class="admin-badge admin-badge-warning"><?= $lActive ?></span></td>
-                        <td style="text-align:right"><span class="admin-badge admin-badge-success"><?= $lDone ?></span></td>
+                        <td class="text-right"><?= count($l->assignedOrders) ?></td>
+                        <td><span class="admin-badge admin-badge-warning text-right"><?= $lActive ?></span></td>
+                        <td><span class="admin-badge admin-badge-success text-right"><?= $lDone ?></span></td>
                     </tr>
                     <?php endforeach ?>
                 </tbody>
@@ -195,7 +195,7 @@ $this->params['headerActions'] = [
         <?php else: ?>
         <div style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">
             <i class="bi bi-truck" style="font-size:2rem;opacity:0.4;display:block;margin-bottom:0.5rem"></i>
-            <p style="margin:0">Нет данных о логистах</p>
+            <p class="m-0">Нет данных о логистах</p>
         </div>
         <?php endif ?>
     </div>

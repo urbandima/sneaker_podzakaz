@@ -184,30 +184,30 @@ $this->params['headerActions'] = [];
             Информация о системе
         </h2>
 
-        <div style="margin-top: 1.5rem;">
+        <div class="mt-5">
             <table class="admin-table">
                 <tr>
-                    <td style="font-weight: 600;">Версия Yii</td>
+                    <td class="fw-600">Версия Yii</td>
                     <td><?= Yii::getVersion() ?></td>
                 </tr>
                 <tr>
-                    <td style="font-weight: 600;">Версия PHP</td>
+                    <td class="fw-600">Версия PHP</td>
                     <td><?= PHP_VERSION ?></td>
                 </tr>
                 <tr>
-                    <td style="font-weight: 600;">Окружение</td>
+                    <td class="fw-600">Окружение</td>
                     <td><?= YII_ENV ?></td>
                 </tr>
                 <tr>
-                    <td style="font-weight: 600;">Режим отладки</td>
+                    <td class="fw-600">Режим отладки</td>
                     <td><?= YII_DEBUG ? 'Включен' : 'Выключен' ?></td>
                 </tr>
                 <tr>
-                    <td style="font-weight: 600;">База данных</td>
+                    <td class="fw-600">База данных</td>
                     <td><?= Yii::$app->db->driverName ?></td>
                 </tr>
                 <tr>
-                    <td style="font-weight: 600;">Часовой пояс</td>
+                    <td class="fw-600">Часовой пояс</td>
                     <td><?= date_default_timezone_get() ?></td>
                 </tr>
             </table>
@@ -220,7 +220,7 @@ $this->params['headerActions'] = [];
             <i class="bi bi-file-earmark-pdf"></i>
             PDF шаблоны накладных
         </h2>
-        <div style="margin-top: 1.5rem;">
+        <div class="mt-5">
             <p style="font-size:0.875rem;color:var(--admin-text-secondary);margin-bottom:1rem;">
                 Данные для PDF-накладных берутся из реквизитов компании выше. Убедитесь, что заполнены:
             </p>
@@ -237,7 +237,7 @@ $this->params['headerActions'] = [];
             <table class="admin-table">
                 <?php foreach ($pdfFields as $key => $label): ?>
                 <tr>
-                    <td style="font-weight:600;"><?= Html::encode($label) ?></td>
+                    <td class="fw-600"><?= Html::encode($label) ?></td>
                     <td>
                         <?php if (!empty($company[$key])): ?>
                             <span style="color:#10b981;"><i class="bi bi-check-circle-fill"></i> <?= Html::encode($company[$key]) ?></span>
@@ -248,8 +248,8 @@ $this->params['headerActions'] = [];
                 </tr>
                 <?php endforeach; ?>
             </table>
-            <div style="margin-top:1rem;">
-                <a href="<?= \yii\helpers\Url::to(['/admin/order/index']) ?>" class="admin-btn admin-btn-secondary" style="font-size:0.875rem;">
+            <div class="mt-4">
+                <a href="<?= \yii\helpers\Url::to(['/admin/order/index']) ?>" class="admin-btn admin-btn-secondary fs-sm">
                     <i class="bi bi-printer"></i> Пример: печать накладной из заказа
                 </a>
             </div>

@@ -14,13 +14,13 @@ $this->params['breadcrumbs'][] = ['label' => 'Импорт', 'url' => ['index']]
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="admin-stats" style="margin-bottom: 24px;">
+<div class="admin-stats mb-5">
     <div class="admin-stat-card">
         <div class="admin-stat-icon primary"><i class="bi bi-list-task"></i></div>
         <div class="admin-stat-content">
             <div class="admin-stat-value"><?= number_format($overallStats['total_tasks'], 0, '', ' ') ?></div>
             <div class="admin-stat-label">Всего задач</div>
-            <div style="margin-top: 0.5rem;">
+            <div class="mt-2">
                 <span class="admin-badge admin-badge-warning"><?= $overallStats['running_tasks'] ?> выполняется</span>
             </div>
         </div>
@@ -30,7 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="admin-stat-content">
             <div class="admin-stat-value"><?= number_format($overallStats['completed_tasks'], 0, '', ' ') ?></div>
             <div class="admin-stat-label">Завершено успешно</div>
-            <div style="margin-top: 0.5rem;">
+            <div class="mt-2">
                 <span class="admin-badge admin-badge-success"><?= number_format($overallStats['total_products_imported'], 0, '', ' ') ?> товаров</span>
             </div>
         </div>
@@ -40,7 +40,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="admin-stat-content">
             <div class="admin-stat-value"><?= number_format($overallStats['failed_tasks'], 0, '', ' ') ?></div>
             <div class="admin-stat-label">Ошибок</div>
-            <div style="margin-top: 0.5rem;">
+            <div class="mt-2">
                 <span class="admin-badge admin-badge-danger"><?= number_format($overallStats['total_errors'], 0, '', ' ') ?> ошибок импорта</span>
             </div>
         </div>
@@ -50,7 +50,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="admin-stat-content">
             <div class="admin-stat-value"><?= number_format($overallStats['total_products_updated'], 0, '', ' ') ?></div>
             <div class="admin-stat-label">Обновлено товаров</div>
-            <div style="margin-top: 0.5rem;">
+            <div class="mt-2">
                 <span class="admin-badge admin-badge-secondary">из всех источников</span>
             </div>
         </div>
@@ -58,7 +58,7 @@ $this->params['breadcrumbs'][] = $this->title;
 </div>
 
 <!-- График по дням -->
-<div class="admin-card" style="margin-bottom: 24px;">
+<div class="admin-card mb-5">
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-graph-up"></i> Статистика по дням (последние 30 дней)</h2>
     </div>
@@ -83,7 +83,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="admin-card-header">
             <h2 class="admin-card-title"><i class="bi bi-server"></i> Статистика по источникам</h2>
         </div>
-        <div class="admin-card-body" style="padding: 0;">
+        <div class="admin-card-body p-0">
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -102,13 +102,13 @@ $this->params['breadcrumbs'][] = $this->title;
                             <strong><?= Html::encode($stat['source']->name) ?></strong>
                         </td>
                         <td><?= $stat['total_tasks'] ?></td>
-                        <td style="color: var(--admin-success);"><?= $stat['successful_runs'] ?></td>
-                        <td style="color: var(--admin-danger);"><?= $stat['failed_runs'] ?></td>
+                        <td class="text-success"><?= $stat['successful_runs'] ?></td>
+                        <td class="text-danger"><?= $stat['failed_runs'] ?></td>
                         <td><?= number_format($stat['total_products'], 0, '', ' ') ?></td>
                         <td>
                             <?= $stat['last_run'] 
                                 ? Yii::$app->formatter->asRelativeTime($stat['last_run']) 
-                                : '<span style="color: var(--admin-text-secondary);">—</span>' ?>
+                                : '<span class="text-muted">—</span>' ?>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -122,7 +122,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="admin-card-header">
             <h2 class="admin-card-title"><i class="bi bi-tag"></i> Лучшие цены (топ 20)</h2>
         </div>
-        <div class="admin-card-body" style="padding: 0;">
+        <div class="admin-card-body p-0">
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -143,7 +143,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                     ['target' => '_blank']
                                 ) ?>
                             <?php else: ?>
-                                <span style="color: var(--admin-text-secondary);">SKU: <?= Html::encode($price->external_sku) ?></span>
+                                <span class="text-muted">SKU: <?= Html::encode($price->external_sku) ?></span>
                             <?php endif; ?>
                         </td>
                         <td>
@@ -154,7 +154,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td>
                             <strong><?= number_format($price->price_byn, 2) ?> BYN</strong>
                             <?php if ($price->currency_code !== 'BYN'): ?>
-                            <br><small style="color: var(--admin-text-secondary);">
+                            <br><small class="text-muted">
                                 <?= number_format($price->price_original, 2) ?> <?= $price->currency_code ?>
                             </small>
                             <?php endif; ?>
@@ -173,7 +173,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-calendar-week"></i> Детализация по дням</h2>
     </div>
-    <div class="admin-card-body" style="padding: 0;">
+    <div class="admin-card-body p-0">
         <table class="admin-table">
             <thead>
                 <tr>
@@ -190,9 +190,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 <tr>
                     <td><?= Yii::$app->formatter->asDate($day['date'], 'php:d.m.Y') ?></td>
                     <td><?= $day['tasks'] ?></td>
-                    <td style="color: var(--admin-success);"><?= $day['imported'] ?></td>
+                    <td class="text-success"><?= $day['imported'] ?></td>
                     <td style="color: var(--admin-info);"><?= $day['updated'] ?></td>
-                    <td style="color: var(--admin-danger);"><?= $day['errors'] ?></td>
+                    <td class="text-danger"><?= $day['errors'] ?></td>
                     <td style="color: var(--admin-warning);"><?= $day['duplicates'] ?></td>
                 </tr>
                 <?php endforeach; ?>

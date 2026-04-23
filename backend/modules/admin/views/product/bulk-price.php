@@ -26,7 +26,7 @@ $this->params['headerActions'] = [
 ?>
 
 <!-- Фильтры -->
-<div class="admin-card" style="margin-bottom:1.5rem;">
+<div class="admin-card mb-5">
     <h2 class="admin-card-title"><i class="bi bi-funnel"></i> Фильтр товаров</h2>
     <form method="get" style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;align-items:flex-end;">
         <div class="form-group" style="margin:0;min-width:200px;">
@@ -63,7 +63,7 @@ $this->params['headerActions'] = [
 </div>
 
 <!-- Управление наценкой -->
-<div class="admin-card" style="margin-bottom:1.5rem;">
+<div class="admin-card mb-5">
     <h2 class="admin-card-title"><i class="bi bi-percent"></i> Массовая наценка</h2>
     <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;margin-top:1rem;">
         <div class="form-group" style="margin:0;min-width:160px;">
@@ -110,7 +110,7 @@ $this->params['headerActions'] = [
                     <td>
                         <strong><?= Html::encode($product->name) ?></strong>
                         <?php if (!empty($product->sku)): ?>
-                        <br><small style="color:var(--admin-text-secondary);"><?= Html::encode($product->sku) ?></small>
+                        <br><small class="text-muted"><?= Html::encode($product->sku) ?></small>
                         <?php endif; ?>
                     </td>
                     <td><?= Html::encode($product->brand->name ?? '—') ?></td>
@@ -122,7 +122,7 @@ $this->params['headerActions'] = [
                                placeholder="%" style="width:90px;padding:0.4rem 0.6rem;"
                                onchange="recalcRow(this)" oninput="recalcRow(this)">
                     </td>
-                    <td style="text-align:right;">
+                    <td class="text-right">
                         <span class="new-price" style="font-weight:700;color:var(--admin-primary,#2563eb);">—</span>
                         <input type="hidden" class="new-price-val" value="">
                     </td>
@@ -134,4 +134,4 @@ $this->params['headerActions'] = [
     </div>
 </div>
 
-<span id="js-bulk-update-price-url" data-url="<?= Url::to(['/admin/product/bulk-update-price']) ?>" style="display:none;"></span>
+<span id="js-bulk-update-price-url" data-url="<?= Url::to(['/admin/product/bulk-update-price']) ?>" class="d-none"></span>

@@ -23,7 +23,7 @@ $this->title = 'Покупатели';
         </div>
     </div>
 
-    <div class="admin-stats" style="margin-bottom: 24px;">
+    <div class="admin-stats mb-5">
         <div class="admin-stat-card">
             <div class="admin-stat-icon primary"><i class="bi bi-people-fill"></i></div>
             <div class="admin-stat-content">
@@ -61,7 +61,7 @@ $this->title = 'Покупатели';
         </div>
     </div>
 
-    <form method="get" class="filters-bar" style="margin-bottom: 24px;">
+    <form method="get" class="filters-bar mb-5">
         <div class="search-box">
             <i class="bi bi-search"></i>
             <input type="text" name="search" value="<?= Html::encode($search) ?>" placeholder="Поиск по email, телефону, имени...">
@@ -74,15 +74,15 @@ $this->title = 'Покупатели';
     </form>
 
     <div class="admin-card">
-        <div class="admin-card-body" style="padding: 0;">
+        <div class="admin-card-body p-0">
             <?php if ($dataProvider->getCount() > 0): ?>
                 <table class="admin-table">
                     <thead>
                         <tr>
                             <th>Покупатель</th>
                             <th>Телефон</th>
-                            <th style="text-align:center">Заказов</th>
-                            <th style="text-align:center">Потрачено</th>
+                            <th class="text-center">Заказов</th>
+                            <th class="text-center">Потрачено</th>
                             <th>Статус</th>
                             <th>Регистрация</th>
                             <th></th>
@@ -131,7 +131,7 @@ $this->title = 'Покупатели';
                     </tbody>
                 </table>
                 
-                <div class="pagination-wrapper" style="margin-top: 1.5rem;">
+                <div class="pagination-wrapper mt-5">
                     <?= LinkPager::widget([
                         'pagination' => $dataProvider->getPagination(),
                         'options' => ['class' => 'pagination'],
@@ -142,7 +142,7 @@ $this->title = 'Покупатели';
                 <div class="empty-state" style="text-align:center;padding:3rem;color:var(--admin-text-secondary)">
                     <i class="bi bi-people" style="font-size:2.5rem;display:block;margin-bottom:0.75rem;opacity:0.4"></i>
                     <h3 style="margin:0 0 0.5rem 0">Покупатели не найдены</h3>
-                    <p style="margin:0">Попробуйте изменить параметры поиска</p>
+                    <p class="m-0">Попробуйте изменить параметры поиска</p>
                 </div>
             <?php endif; ?>
         </div>

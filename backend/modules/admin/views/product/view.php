@@ -87,7 +87,7 @@ $this->params['headerActions'] = $actions;
                 <?php if ($product->images && count($product->images) > 0): ?>
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
                         <?php foreach ($product->images as $image): ?>
-                            <div style="position: relative;">
+                            <div class="pos-relative">
                                 <img src="<?= $image->getImageUrl() ?>" style="width: 100%; border-radius: 0.5rem;" alt="<?= Html::encode($product->name) ?>">
                                 <?php if ($image->is_main): ?>
                                     <span class="admin-badge admin-badge-success" style="position: absolute; top: 0.5rem; left: 0.5rem;">Главное</span>
@@ -108,14 +108,14 @@ $this->params['headerActions'] = $actions;
                 <?php else: ?>
                     <div style="text-align: center; padding: 2rem; color: var(--admin-text-secondary);">
                         <i class="bi bi-image" style="font-size: 3rem;"></i>
-                        <p style="margin-top: 1rem;">Нет изображений</p>
+                        <p class="mt-4">Нет изображений</p>
                     </div>
                 <?php endif; ?>
             </div>
         </div>
 
         <?php if ($product->poizon_id): ?>
-        <div class="admin-card" style="margin-top: 1.5rem;">
+        <div class="admin-card mt-5">
             <h2 class="admin-card-title">
                 <i class="bi bi-cloud-download"></i>
                 Данные Poizon
@@ -124,30 +124,30 @@ $this->params['headerActions'] = $actions;
             <div class="admin-card-content">
                 <table class="admin-table">
                     <tr>
-                        <td style="font-weight: 600;">Poizon ID:</td>
+                        <td class="fw-600">Poizon ID:</td>
                         <td><?= Html::encode($product->poizon_id) ?></td>
                     </tr>
                     <tr>
-                        <td style="font-weight: 600;">SPU ID:</td>
+                        <td class="fw-600">SPU ID:</td>
                         <td><?= Html::encode($product->poizon_spu_id) ?></td>
                     </tr>
                     <?php if ($product->poizon_url): ?>
                     <tr>
-                        <td style="font-weight: 600;">Ссылка:</td>
+                        <td class="fw-600">Ссылка:</td>
                         <td><?= Html::a('Открыть', $product->poizon_url, ['target' => '_blank']) ?></td>
                     </tr>
                     <?php endif; ?>
                     <tr>
-                        <td style="font-weight: 600;">Цена CNY:</td>
+                        <td class="fw-600">Цена CNY:</td>
                         <td><strong><?= $product->poizon_price_cny ? '¥' . number_format($product->poizon_price_cny, 2) : '-' ?></strong></td>
                     </tr>
                     <tr>
-                        <td style="font-weight: 600;">Последняя синхр.:</td>
+                        <td class="fw-600">Последняя синхр.:</td>
                         <td>
                             <?php if ($product->last_sync_at): ?>
                                 <?= Yii::$app->formatter->asDatetime($product->last_sync_at) ?>
                             <?php else: ?>
-                                <span style="color: var(--admin-danger);">Не синхронизирован</span>
+                                <span class="text-danger">Не синхронизирован</span>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -241,7 +241,7 @@ $this->params['headerActions'] = $actions;
         </div>
 
         <!-- Характеристики товара -->
-        <div class="admin-card" style="margin-top: 1.5rem;">
+        <div class="admin-card mt-5">
             <h2 class="admin-card-title">
                 <i class="bi bi-list-check"></i>
                 Характеристики товара
@@ -261,7 +261,7 @@ $this->params['headerActions'] = $actions;
                 $hasPoizonChars = !empty($properties);
                 
                 if (count($characteristicsFromRegistry) > 0 || $hasPoizonChars): ?>
-                    <div style="overflow-x: auto;">
+                    <div class="overflow-x-auto">
                         <table class="admin-table">
                             <thead>
                                 <tr>
@@ -273,7 +273,7 @@ $this->params['headerActions'] = $actions;
                             <tbody>
                                 <?php foreach ($characteristicsFromRegistry as $pcv): ?>
                                     <tr>
-                                        <td style="font-weight: 600;"><?= Html::encode($pcv->characteristic->name) ?></td>
+                                        <td class="fw-600"><?= Html::encode($pcv->characteristic->name) ?></td>
                                         <td>
                                             <?php if ($pcv->characteristicValue): ?>
                                                 <span class="admin-badge admin-badge-primary"><?= Html::encode($pcv->characteristicValue->value) ?></span>
@@ -283,7 +283,7 @@ $this->params['headerActions'] = $actions;
                                                 <?= Html::encode($pcv->value_number) ?>
                                             <?php endif; ?>
                                         </td>
-                                        <td style="text-align: center;">
+                                        <td class="text-center">
                                             <span class="admin-badge admin-badge-success">
                                                 <i class="bi bi-database"></i> Справочник
                                             </span>
@@ -294,9 +294,9 @@ $this->params['headerActions'] = $actions;
                                 <?php if ($hasPoizonChars): ?>
                                     <?php foreach ($properties as $prop): ?>
                                         <tr>
-                                            <td style="font-weight: 600;"><?= Html::encode($prop['key'] ?? '') ?></td>
+                                            <td class="fw-600"><?= Html::encode($prop['key'] ?? '') ?></td>
                                             <td><?= Html::encode($prop['value'] ?? '') ?></td>
-                                            <td style="text-align: center;">
+                                            <td class="text-center">
                                                 <span class="admin-badge admin-badge-info">
                                                     <i class="bi bi-cloud"></i> Poizon
                                                 </span>
@@ -310,7 +310,7 @@ $this->params['headerActions'] = $actions;
                 <?php else: ?>
                     <div style="padding: 2rem; text-align: center; color: var(--admin-text-secondary);">
                         <i class="bi bi-info-circle" style="font-size: 2rem;"></i>
-                        <p style="margin-top: 1rem;">Характеристики не заполнены. Добавьте их при редактировании товара.</p>
+                        <p class="mt-4">Характеристики не заполнены. Добавьте их при редактировании товара.</p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -318,7 +318,7 @@ $this->params['headerActions'] = $actions;
 
         <!-- Описание -->
         <?php if ($product->description): ?>
-        <div class="admin-card" style="margin-top: 1.5rem;">
+        <div class="admin-card mt-5">
             <h2 class="admin-card-title">
                 <i class="bi bi-text-paragraph"></i>
                 Описание
@@ -333,7 +333,7 @@ $this->params['headerActions'] = $actions;
 </div>
 
 <!-- Размеры -->
-<div class="admin-card" style="margin-top: 1.5rem;">
+<div class="admin-card mt-5">
     <h2 class="admin-card-title">
         <i class="bi bi-rulers"></i>
         Размеры
@@ -359,7 +359,7 @@ $this->params['headerActions'] = $actions;
             ->all();
         if (count($sizes) > 0): 
         ?>
-            <div style="overflow-x: auto;">
+            <div class="overflow-x-auto">
                 <table class="admin-table">
                     <thead>
                         <tr>
@@ -384,7 +384,7 @@ $this->params['headerActions'] = $actions;
                     <tbody>
                         <?php foreach ($sizes as $size): ?>
                         <tr>
-                            <td style="font-weight: 600;"><?= Html::encode($size->us_size ?: $size->size) ?></td>
+                            <td class="fw-600"><?= Html::encode($size->us_size ?: $size->size) ?></td>
                             <td><?= Html::encode($size->eu_size ?: '-') ?></td>
                             <td><?= Html::encode($size->uk_size ?: '-') ?></td>
                             <td><?= Html::encode($size->cm_size ?: '-') ?></td>
@@ -395,21 +395,21 @@ $this->params['headerActions'] = $actions;
                                         <i class="bi bi-clipboard ms-1"></i>
                                     </span>
                                 <?php else: ?>
-                                    <span style="color: var(--admin-text-secondary);">-</span>
+                                    <span class="text-muted">-</span>
                                 <?php endif; ?>
                             </td>
                             <td>
                                 <?php if ($size->price_byn): ?>
                                     <?= number_format($size->price_byn, 2) ?> ₽
                                 <?php else: ?>
-                                    <span style="color: var(--admin-text-secondary);">-</span>
+                                    <span class="text-muted">-</span>
                                 <?php endif; ?>
                             </td>
                             <td>
                                 <?php if ($size->price_client_byn): ?>
-                                    <strong style="color: var(--admin-success);"><?= number_format($size->price_client_byn, 2) ?> ₽</strong>
+                                    <strong class="text-success"><?= number_format($size->price_client_byn, 2) ?> ₽</strong>
                                 <?php else: ?>
-                                    <span style="color: var(--admin-text-secondary);">-</span>
+                                    <span class="text-muted">-</span>
                                 <?php endif; ?>
                             </td>
                             <?php if ($product->poizon_id): ?>
@@ -418,7 +418,7 @@ $this->params['headerActions'] = $actions;
                                     <?php if ($size->variant_vendor_code): ?>
                                         <code style="color: var(--admin-primary);"><?= Html::encode($size->variant_vendor_code) ?></code>
                                     <?php else: ?>
-                                        <span style="color: var(--admin-text-secondary);">-</span>
+                                        <span class="text-muted">-</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -429,7 +429,7 @@ $this->params['headerActions'] = $actions;
                                             <i class="bi bi-images"></i> <?= count($variantImages) ?>
                                         </button>
                                     <?php else: ?>
-                                        <span style="color: var(--admin-text-secondary);">-</span>
+                                        <span class="text-muted">-</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -475,7 +475,7 @@ $this->params['headerActions'] = $actions;
         <?php else: ?>
             <div style="padding: 2rem; text-align: center; color: var(--admin-text-secondary);">
                 <i class="bi bi-rulers" style="font-size: 2rem;"></i>
-                <p style="margin-top: 1rem;">Размеры не добавлены</p>
+                <p class="mt-4">Размеры не добавлены</p>
             </div>
         <?php endif; ?>
     </div>
@@ -505,7 +505,7 @@ try {
 } catch (\Exception $e) { $similarProducts = []; }
 if (!empty($similarProducts)):
 ?>
-<div class="admin-card" style="margin-top:1.5rem">
+<div class="admin-card mt-5">
     <h2 class="admin-card-title"><i class="bi bi-grid-3x3-gap"></i> Похожие товары</h2>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;padding:1rem">
         <?php foreach ($similarProducts as $sp): ?>

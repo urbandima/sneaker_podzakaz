@@ -134,7 +134,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                         </div>
 
                     <!-- Режим редактирования -->
-                    <div id="editMode" style="display: none;">
+                    <div id="editMode" class="d-none">
                         <form method="post" action="<?= Url::to(['/admin/order/update', 'id' => $model->id]) ?>" id="orderEditForm">
                             <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                             
@@ -238,7 +238,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                     </div>
 
                     <!-- Режим редактирования товаров -->
-                    <div id="editModeItems" style="display: none;">
+                    <div id="editModeItems" class="d-none">
                         <div id="order-items-edit">
                             <?php foreach ($model->orderItems as $index => $item): ?>
                             <div class="order-item row mb-3">
@@ -386,7 +386,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
 
                 <!-- ДОБРОПОСТ -->
                 <div class="order-card">
-                    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+                    <div class="card-header flex-between">
                         <h3><i class="bi bi-box-arrow-right"></i> Таможня:ДП</h3>
                         <?php
                         $dpShipmentId = $model->dp_shipment_id ?? null;
@@ -500,7 +500,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                             <a href="#dp-last-response" data-bs-toggle="collapse" style="font-size:0.8125rem;color:#6b7280">
                                 <i class="bi bi-chevron-down"></i> Последний ответ API
                             </a>
-                            <div id="dp-last-response" class="collapse" style="margin-top:0.5rem">
+                            <div id="dp-last-response" class="collapse mt-2">
                                 <pre style="font-size:11px;background:#f8f9fa;padding:0.75rem;border-radius:8px;overflow:auto;max-height:200px"><?= Html::encode(is_array($dpResponse) ? json_encode($dpResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : (string)$dpResponse) ?></pre>
                             </div>
                         </div>

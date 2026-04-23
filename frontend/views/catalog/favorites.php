@@ -55,7 +55,7 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
                             </a>
                         </div>
                     <?php else: ?>
-                        <div class="catalog-toolbar" style="margin-bottom: 1.5rem;">
+                        <div class="catalog-toolbar mb-5">
                             <div class="toolbar-left">
                                 <span class="toolbar-meta">
                                     <i class="bi bi-heart-fill icon-danger"></i>
@@ -94,7 +94,7 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
             <span>Избранное</span>
         </nav>
 
-        <div style="width: 100%;">
+        <div class="w-100">
             <main class="content" style="max-width: 100%;">
                 <div class="content-header">
                     <h1>Избранное <span class="products-count">(<span id="productsCount"><?= count($favorites) ?></span>)</span></h1>

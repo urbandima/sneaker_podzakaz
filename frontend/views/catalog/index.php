@@ -269,7 +269,7 @@ function loadMoreProducts() {
                 <?php endforeach; endif; ?>
 
                 <!-- ADVANCED FILTERS (скрыты по умолчанию) -->
-                <div class="advanced-filters-wrapper" id="advancedFiltersWrapper" style="display:none">
+                <div class="advanced-filters-wrapper d-none" id="advancedFiltersWrapper">
                 
                 <!-- Цвет -->
                 <?php if (!empty($filters['colors'])): ?>
@@ -556,7 +556,7 @@ function loadMoreProducts() {
                 <?php endif; ?>
                 
                 <!-- Статическая пагинация для краулеров -->
-                <div class="static-pagination" style="display: none;">
+                <div class="static-pagination d-none">
                     <?php
                     $baseUrl = Yii::$app->request->baseUrl;
                     $currentPath = Yii::$app->request->getPathInfo();
