@@ -21,7 +21,7 @@ $this->params['headerActions'] = [
         <input type="hidden" name="_csrf" value="<?= Yii::$app->request->csrfToken ?>">
         
         <!-- Основная информация -->
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div class="flex-col gap-4">
             <h3 style="margin: 0; color: var(--admin-text-primary);">Основная информация</h3>
             
             <div class="form-group">
@@ -55,7 +55,7 @@ $this->params['headerActions'] = [
         </div>
         
         <!-- Скидка -->
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div class="flex-col gap-4">
             <h3 style="margin: 0; color: var(--admin-text-primary);">Скидка</h3>
             
             <div class="form-group">
@@ -89,7 +89,7 @@ $this->params['headerActions'] = [
         </div>
         
         <!-- Условия применения -->
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div class="flex-col gap-4">
             <h3 style="margin: 0; color: var(--admin-text-primary);">Условия применения</h3>
             
             <div class="form-group">
@@ -131,7 +131,7 @@ $this->params['headerActions'] = [
         </div>
         
         <!-- Срок действия -->
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div class="flex-col gap-4">
             <h3 style="margin: 0; color: var(--admin-text-primary);">Срок действия</h3>
             
             <div class="form-group">

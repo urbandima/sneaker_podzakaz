@@ -1039,7 +1039,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                     <th class="text-uppercase">EU</th>
                                     <th class="text-uppercase">UK</th>
                                     <th class="text-uppercase">CM</th>
-                                    <th class="text-uppercase" style="cursor: help;" title="Цена в юанях (CNY)">
+                                    <th class="text-uppercase cursor-help" title="Цена в юанях (CNY)">
                                         Цена ¥
                                         <i class="bi bi-info-circle-fill text-info"></i>
                                     </th>

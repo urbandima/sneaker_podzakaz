@@ -479,7 +479,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                         <th>EU</th>
                                         <th>UK</th>
                                         <th>CM</th>
-                                        <th style="cursor: help;" title="Цена в юанях (CNY)">
+                                        <th class="cursor-help" title="Цена в юанях (CNY)">
                                             Цена ¥
                                             <i class="bi bi-info-circle-fill text-info"></i>
                                         </th>

@@ -874,6 +874,12 @@ body {
 .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .no-events { pointer-events: none; }
 .overflow-x-auto { overflow-x: auto; }
+.cursor-help { cursor: help; }
+.mt-20px { margin-top: 20px; }
+.flex-col { flex-direction: column; }
+.sub-text { margin: 4px 0 0; font-size: 0.8125rem; color: var(--admin-text-secondary); }
+.grid-auto-fit-lg { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+.grid-auto-fit-md { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
 
 /* ========== RESPONSIVE — MOBILE SIDEBAR OVERLAY ========== */
 

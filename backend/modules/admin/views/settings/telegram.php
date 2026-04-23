@@ -134,23 +134,23 @@ $this->params['headerActions'] = [
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px">
             <div style="padding:12px;background:var(--admin-bg);border-radius:8px">
                 <code class="text-accent fw-600">/start</code>
-                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">Начать работу с ботом</p>
+                <p class="sub-text">Начать работу с ботом</p>
             </div>
             <div style="padding:12px;background:var(--admin-bg);border-radius:8px">
                 <code class="text-accent fw-600">/orders</code>
-                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">Список новых заказов</p>
+                <p class="sub-text">Список новых заказов</p>
             </div>
             <div style="padding:12px;background:var(--admin-bg);border-radius:8px">
                 <code class="text-accent fw-600">/order [ID]</code>
-                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">Информация о заказе</p>
+                <p class="sub-text">Информация о заказе</p>
             </div>
             <div style="padding:12px;background:var(--admin-bg);border-radius:8px">
                 <code class="text-accent fw-600">/stats</code>
-                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">Статистика за сегодня</p>
+                <p class="sub-text">Статистика за сегодня</p>
             </div>
             <div style="padding:12px;background:var(--admin-bg);border-radius:8px">
                 <code class="text-accent fw-600">/help</code>
-                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">Справка по командам</p>
+                <p class="sub-text">Справка по командам</p>
             </div>
         </div>
     </div>

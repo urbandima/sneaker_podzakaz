@@ -74,11 +74,11 @@ $this->params['breadcrumbs'][] = $this->title;
             
             <div class="form-group">
                 <label class="form-label">Методы с бесплатной доставкой</label>
-                <label class="form-checkbox" style="margin-bottom: 0.5rem;">
+                <label class="form-checkbox mb-2">
                     <input type="checkbox" checked>
                     <span>Самовывоз</span>
                 </label>
-                <label class="form-checkbox" style="margin-bottom: 0.5rem;">
+                <label class="form-checkbox mb-2">
                     <input type="checkbox">
                     <span>Курьер</span>
                 </label>
@@ -121,11 +121,11 @@ $this->params['breadcrumbs'][] = $this->title;
             <h3><i class="bi bi-bell"></i> Уведомления</h3>
             
             <div class="form-group">
-                <label class="form-checkbox" style="margin-bottom: 0.5rem;">
+                <label class="form-checkbox mb-2">
                     <input type="checkbox" checked>
                     <span>Email при отправке заказа</span>
                 </label>
-                <label class="form-checkbox" style="margin-bottom: 0.5rem;">
+                <label class="form-checkbox mb-2">
                     <input type="checkbox" checked>
                     <span>SMS при доставке</span>
                 </label>

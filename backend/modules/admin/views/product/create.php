@@ -32,7 +32,7 @@ $this->params['headerActions'] = [
             <h3 class="card-section-title"><i class="bi bi-info-circle"></i> Основная информация</h3>
         </div>
         <div class="card-section-body">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+            <div class="grid-auto-fit-lg">
                 <div class="form-group">
                     <label class="admin-form-label">Название товара *</label>
                     <?= Html::activeTextInput($model, 'name', ['class' => 'admin-form-input', 'required' => true]) ?>
@@ -102,7 +102,7 @@ $this->params['headerActions'] = [
             <h3 class="card-section-title"><i class="bi bi-search"></i> SEO настройки</h3>
         </div>
         <div class="card-section-body">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+            <div class="grid-auto-fit-lg">
                 <div class="form-group grid-full">
                     <label class="admin-form-label">Meta Title</label>
                     <?= Html::activeTextInput($model, 'meta_title', ['class' => 'admin-form-input']) ?>

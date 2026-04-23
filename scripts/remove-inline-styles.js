@@ -93,6 +93,23 @@ const STYLE_MAP = {
   'display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem':    'grid-2col mb-4',
   'display:flex;align-items:center;gap:0.5rem':                   'd-flex align-center gap-1',
   'display: flex; align-items: center; gap: 1rem':                'd-flex align-center gap-4',
+  'margin-top:20px':                                              'mt-20px',
+  'margin-top: 20px':                                             'mt-20px',
+  'margin-top:20px;':                                             'mt-20px',
+  'margin-top: 20px;':                                            'mt-20px',
+  'margin-bottom:0.5rem':                                         'mb-2',
+  'margin-bottom: 0.5rem':                                        'mb-2',
+  'margin-bottom:0.5rem;':                                        'mb-2',
+  'margin-bottom: 0.5rem;':                                       'mb-2',
+  'cursor:help':                                                  'cursor-help',
+  'cursor: help':                                                  'cursor-help',
+  'cursor:help;':                                                  'cursor-help',
+  'cursor: help;':                                                  'cursor-help',
+  'display: flex; flex-direction: column; gap: 1rem':             'flex-col gap-4',
+  'display:flex;flex-direction:column;gap:1rem':                  'flex-col gap-4',
+  'margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)': 'sub-text',
+  'display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem': 'grid-auto-fit-lg',
+  'display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem':  'grid-auto-fit-md',
 };
 
 function normalize(val) {

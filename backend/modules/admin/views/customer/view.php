@@ -144,8 +144,8 @@ $this->title = 'Покупатель: ' . $customer->getFullName();
                     </button>
                 </div>
                 <div id="points-form" style="display:none;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:1rem">
-                    <input type="number" id="points-amount" class="form-control" placeholder="Кол-во баллов" min="1" style="margin-bottom:0.5rem">
-                    <input type="text" id="points-comment" class="form-control" placeholder="Комментарий (обязательно)" style="margin-bottom:0.5rem">
+                    <input type="number" id="points-amount" class="form-control mb-2" placeholder="Кол-во баллов" min="1">
+                    <input type="text" id="points-comment" class="form-control mb-2" placeholder="Комментарий (обязательно)">
                     <button id="points-submit-btn" class="admin-btn admin-btn-primary admin-btn-sm" onclick="submitPoints(<?= $customer->id ?>)">Применить</button>
                     <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="document.getElementById('points-form').style.display='none'">Отмена</button>
                 </div>

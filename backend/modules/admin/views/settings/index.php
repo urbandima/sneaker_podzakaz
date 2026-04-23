@@ -29,7 +29,7 @@ $this->params['headerActions'] = [];
             </div>
             <div>
                 <h3 style="margin:0;font-size:16px;font-weight:600">Статусы заказов</h3>
-                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">Настройка цепочки статусов</p>
+                <p class="sub-text">Настройка цепочки статусов</p>
             </div>
         </div>
     </a>
@@ -41,7 +41,7 @@ $this->params['headerActions'] = [];
             </div>
             <div>
                 <h3 style="margin:0;font-size:16px;font-weight:600">Плагины и интеграции</h3>
-                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">AmoCRM, МойСклад, Telegram, Таможня:ДП</p>
+                <p class="sub-text">AmoCRM, МойСклад, Telegram, Таможня:ДП</p>
             </div>
         </div>
     </a>
@@ -53,7 +53,7 @@ $this->params['headerActions'] = [];
             </div>
             <div>
                 <h3 style="margin:0;font-size:16px;font-weight:600">SEO</h3>
-                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">Мета-теги, sitemap, robots.txt</p>
+                <p class="sub-text">Мета-теги, sitemap, robots.txt</p>
             </div>
         </div>
     </a>

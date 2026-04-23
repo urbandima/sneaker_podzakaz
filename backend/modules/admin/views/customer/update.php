@@ -41,7 +41,7 @@ $this->params['headerActions'] = [
                 Персональные данные
             </h3>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div class="grid-auto-fit-md">
                 <?= $form->field($customer, 'first_name')->textInput(['maxlength' => true]) ?>
                 <?= $form->field($customer, 'last_name')->textInput(['maxlength' => true]) ?>
                 <?= $form->field($customer, 'middle_name')->textInput(['maxlength' => true]) ?>
@@ -61,7 +61,7 @@ $this->params['headerActions'] = [
                 Контакты
             </h3>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div class="grid-auto-fit-md">
                 <?= $form->field($customer, 'email')->textInput(['maxlength' => true, 'disabled' => true]) ?>
                 <?= $form->field($customer, 'phone')->textInput(['maxlength' => true]) ?>
             </div>
@@ -80,7 +80,7 @@ $this->params['headerActions'] = [
                 Адрес по умолчанию
             </h3>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div class="grid-auto-fit-md">
                 <?= $form->field($customer, 'default_country')->textInput(['maxlength' => true]) ?>
                 <?= $form->field($customer, 'default_city')->textInput(['maxlength' => true]) ?>
                 <?= $form->field($customer, 'default_postal_code')->textInput(['maxlength' => true]) ?>
@@ -96,7 +96,7 @@ $this->params['headerActions'] = [
                 Документы
             </h3>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div class="grid-auto-fit-md">
                 <?= $form->field($customer, 'passport_series')->textInput(['maxlength' => true]) ?>
                 <?= $form->field($customer, 'passport_number')->textInput(['maxlength' => true]) ?>
                 <?= $form->field($customer, 'passport_issue_date')->input('date') ?>

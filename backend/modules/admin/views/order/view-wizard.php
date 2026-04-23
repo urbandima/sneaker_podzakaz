@@ -206,7 +206,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                         <?php endif; ?>
                     </div>
                 </div>
-                <div class="info-grid info-grid--2" style="margin-top: 20px;">
+                <div class="info-grid info-grid--2 mt-20px">
                     <div class="info-item">
                         <div class="info-label">Полный адрес</div>
                         <?php if ($isEditing): ?>
@@ -348,7 +348,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                        <div class="info-grid info-grid--2" style="margin-top: 20px;">
+                        <div class="info-grid info-grid--2 mt-20px">
                             <div class="info-item">
                                 <div class="info-label">Ссылка на товар</div>
                                 <?php if ($isEditing): ?>
@@ -386,7 +386,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <div class="info-item" style="margin-top: 20px;">
+                        <div class="info-item mt-20px">
                             <div class="info-label">Описание для таможни</div>
                             <?php if ($isEditing): ?>
                                 <div class="form-field">

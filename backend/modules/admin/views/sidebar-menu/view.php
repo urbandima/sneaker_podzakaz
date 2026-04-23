@@ -108,7 +108,7 @@ $this->params['breadcrumbs'][] = $this->title;
 </div>
 
 <?php if ($model->children): ?>
-<div class="admin-card" style="margin-top: 20px;">
+<div class="admin-card mt-20px">
     <h3>Подпункты</h3>
     <table class="admin-table">
         <thead>

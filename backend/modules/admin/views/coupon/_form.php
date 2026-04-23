@@ -16,7 +16,7 @@ use app\backend\modules\coupon\models\Coupon;
         ]
     ]); ?>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+    <div class="grid-auto-fit-lg">
         <!-- Основная информация -->
         <div class="form-section">
             <h3 class="form-section-title">Основная информация</h3>

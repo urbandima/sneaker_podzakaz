@@ -367,7 +367,7 @@ $this->params['headerActions'] = $actions;
                             <th>EU</th>
                             <th>UK</th>
                             <th>CM</th>
-                            <th style="cursor: help;" title="Цена в юанях (CNY)">Цена ¥ <i class="bi bi-info-circle-fill text-info"></i></th>
+                            <th title="Цена в юанях (CNY)">Цена ¥ <i class="bi bi-info-circle-fill text-info cursor-help"></i></th>
                             <th>Цена BYN</th>
                             <th>Цена клиента</th>
                             <?php if ($product->poizon_id): ?>

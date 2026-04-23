@@ -33,7 +33,7 @@ $this->params['headerActions'] = [
         ]
     ]); ?>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+    <div class="grid-auto-fit-lg">
         <div class="form-group">
             <label>Источник импорта *</label>
             <select name="Import[source_id]" class="form-control">
