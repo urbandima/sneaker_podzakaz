@@ -41,7 +41,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
                     <div class="d-grid">
                         <?= Html::submitButton('<i class="bi bi-download"></i> Импортировать из URL', [
-                            'class' => 'btn btn-warning btn-lg',
+                            'class' => 'admin-btn admin-btn-warning admin-btn-lg',
                         ]) ?>
                     </div>
 
@@ -89,7 +89,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
                     <div class="d-grid">
                         <?= Html::submitButton('<i class="bi bi-upload"></i> Загрузить и импортировать', [
-                            'class' => 'btn btn-success btn-lg',
+                            'class' => 'admin-btn admin-btn-success admin-btn-lg',
                             'id' => 'submit-file-btn',
                             'disabled' => true
                         ]) ?>
@@ -132,7 +132,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
                     <div class="d-grid gap-2">
                         <?= Html::submitButton('<i class="bi bi-play-circle-fill"></i> Запустить импорт', [
-                            'class' => 'btn btn-primary btn-lg',
+                            'class' => 'admin-btn admin-btn-primary admin-btn-lg',
                             'onclick' => 'return confirm("Вы уверены, что хотите запустить импорт?")',
                         ]) ?>
                     </div>

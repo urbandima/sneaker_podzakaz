@@ -20,8 +20,8 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="page-header">
         <h1><?= Html::encode($this->title) ?></h1>
         <div class="page-header-actions">
-            <?= Html::a('<i class="bi bi-plus-lg"></i> Создать тег', ['create'], ['class' => 'btn btn-primary']) ?>
-            <?= Html::a('<i class="bi bi-tags"></i> Массовое назначение', ['assign'], ['class' => 'btn btn-secondary']) ?>
+            <?= Html::a('<i class="bi bi-plus-lg"></i> Создать тег', ['create'], ['class' => 'admin-btn admin-btn-primary']) ?>
+            <?= Html::a('<i class="bi bi-tags"></i> Массовое назначение', ['assign'], ['class' => 'admin-btn admin-btn-secondary']) ?>
         </div>
     </div>
 
@@ -34,7 +34,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
         <h3 class="empty-state-title">Теги пока не созданы</h3>
         <p class="empty-state-description">Создайте теги для организации товаров в каталоге</p>
-        <?= Html::a('<i class="bi bi-plus-lg"></i> Создать первый тег', ['create'], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('<i class="bi bi-plus-lg"></i> Создать первый тег', ['create'], ['class' => 'admin-btn admin-btn-primary']) ?>
     </div>
     <?php else: ?>
     

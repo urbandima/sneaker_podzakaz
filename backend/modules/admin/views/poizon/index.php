@@ -17,8 +17,8 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><?= Html::encode($this->title) ?></h1>
         <div class="btn-group">
-            <?= Html::a('<i class="bi bi-play-circle"></i> Запустить импорт', ['/admin/poizon/run'], ['class' => 'btn btn-primary btn-lg']) ?>
-            <?= Html::a('<i class="bi bi-file-text"></i> Просмотр логов', ['/admin/poizon/view-log'], ['class' => 'btn btn-secondary btn-lg']) ?>
+            <?= Html::a('<i class="bi bi-play-circle"></i> Запустить импорт', ['/admin/poizon/run'], ['class' => 'admin-btn admin-btn-primary admin-btn-lg']) ?>
+            <?= Html::a('<i class="bi bi-file-text"></i> Просмотр логов', ['/admin/poizon/view-log'], ['class' => 'admin-btn admin-btn-secondary admin-btn-lg']) ?>
         </div>
     </div>
 
@@ -84,7 +84,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <p><strong>Ошибок:</strong> <?= $stats['last_batch']->error_count ?></p>
                 </div>
             </div>
-            <?= Html::a('Подробнее', ['/admin/poizon/view', 'id' => $stats['last_batch']->id], ['class' => 'btn btn-sm btn-primary']) ?>
+            <?= Html::a('Подробнее', ['/admin/poizon/view', 'id' => $stats['last_batch']->id], ['class' => 'admin-btn admin-btn-primary admin-btn-sm']) ?>
         </div>
     </div>
     <?php endif; ?>
@@ -93,7 +93,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="card">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="bi bi-list-ul"></i> История импортов</h5>
-            <?= Html::a('<i class="bi bi-exclamation-triangle"></i> Ошибки', ['/admin/poizon/errors'], ['class' => 'btn btn-sm btn-warning']) ?>
+            <?= Html::a('<i class="bi bi-exclamation-triangle"></i> Ошибки', ['/admin/poizon/errors'], ['class' => 'admin-btn admin-btn-warning admin-btn-sm']) ?>
         </div>
         <div class="card-body p-0">
             <?= GridView::widget([
@@ -151,7 +151,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         'buttons' => [
                             'view' => function ($url, $model) {
                                 return Html::a('<i class="bi bi-eye"></i>', ['/admin/poizon/view', 'id' => $model->id], [
-                                    'class' => 'btn btn-sm btn-outline-primary',
+                                    'class' => 'admin-btn admin-btn-outlined admin-btn-sm',
                                     'title' => 'Подробнее',
                                 ]);
                             },
