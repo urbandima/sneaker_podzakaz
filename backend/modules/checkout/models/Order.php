@@ -71,7 +71,7 @@ class Order extends ActiveRecord
             [['comment', 'delivery_address', 'full_address', 'customs_description'], 'string'],
             [['total_amount', 'delivery_cost', 'shipment_value_cny', 'item_price_cny', 'product_price', 'logistics_price', 'commission_price'], 'number'],
             [['total_amount'], 'default', 'value' => 0],
-            [['status', 'source'], 'string', 'max' => 50],
+            [['status', 'source', 'amocrm_source'], 'string', 'max' => 50],
             [['source_id', 'item_quantity'], 'integer'],
             [['offer_accepted', 'is_processed', 'is_shipped', 'customs_cleared'], 'boolean'],
             [['created_by', 'assigned_logist', 'payment_uploaded_at', 'offer_accepted_at'], 'integer'],
@@ -141,6 +141,7 @@ class Order extends ActiveRecord
             'assigned_logist' => 'Логист',
             'source' => 'Источник',
             'source_id' => 'ID источника',
+            'amocrm_source' => 'Источник AmoCRM',
             'created_at'              => 'Создан',
             'updated_at'              => 'Обновлен',
             // DP fields

@@ -152,7 +152,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                     <span class="badge" id="favCount">0</span>
                     <span class="label">Избранное</span>
                 </a>
-                <a href="/cart" class="header-btn">
+                <a href="/checkout" class="header-btn">
                     <i class="bi bi-bag"></i>
                     <span class="badge" id="cartCount">0</span>
                     <span class="label">Корзина</span>
@@ -344,7 +344,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                 <span class="action-label">Избранное</span>
                 <span class="action-badge" id="mobileFavCount">0</span>
             </a>
-            <a href="/cart" class="mobile-action-btn">
+            <a href="/checkout" class="mobile-action-btn">
                 <i class="bi bi-bag"></i>
                 <span class="action-label">Корзина</span>
                 <span class="action-badge" id="mobileCartCount">0</span>

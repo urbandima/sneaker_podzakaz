@@ -1242,26 +1242,52 @@ btn.style.color = '#fff';
 
 // Quick View
 const qvModal=document.getElementById('quickViewModal');
+let qvProductId=null, qvSelectedSize=null;
 function openQuickView(e,id){
-e.preventDefault();e.stopPropagation();
-fetch(`/catalog/product-quick/${id}`).then(r=>r.json()).then(data=>{
-document.getElementById('qvMainImg').src=data.image;
-document.getElementById('qvBrand').textContent=data.brand;
-document.getElementById('qvName').textContent=data.name;
-document.getElementById('qvPrice').innerHTML=data.price;
-document.getElementById('qvLink').href=data.url;
-let thumbsHtml='';
-if(data.images){data.images.forEach(img=>{thumbsHtml+=`<img src="${img}" onclick="document.getElementById('qvMainImg').src='${img}'">`})}
-document.getElementById('qvThumbs').innerHTML=thumbsHtml;
-let sizesHtml='<h4>Размер</h4><div style="display:flex;gap:0.5rem;flex-wrap:wrap">';
-if(data.sizes){data.sizes.forEach(s=>{sizesHtml+=`<span class="size-chip">${s}</span>`})}
-sizesHtml+='</div>';
-document.getElementById('qvSizes').innerHTML=sizesHtml;
-qvModal.classList.add('active');
-}).catch(err=>console.error(err));
+    e.preventDefault();e.stopPropagation();
+    qvProductId=id; qvSelectedSize=null;
+    fetch(`/catalog/product-quick/${id}`).then(r=>r.json()).then(data=>{
+        document.getElementById('qvMainImg').src=data.image;
+        document.getElementById('qvBrand').textContent=data.brand;
+        document.getElementById('qvName').textContent=data.name;
+        document.getElementById('qvPrice').innerHTML=data.price;
+        document.getElementById('qvLink').href=data.url;
+        let thumbsHtml='';
+        if(data.images){data.images.forEach(img=>{thumbsHtml+=`<img src="${img}" onclick="document.getElementById('qvMainImg').src='${img}'">`;})}
+        document.getElementById('qvThumbs').innerHTML=thumbsHtml;
+        let sizesHtml='<h4>Размер</h4><div style="display:flex;gap:0.5rem;flex-wrap:wrap">';
+        if(data.sizes){data.sizes.forEach(s=>{sizesHtml+=`<button type="button" class="size-chip" onclick="qvSelectSize(this,'${s}')">${s}</button>`;});}
+        sizesHtml+='</div>';
+        document.getElementById('qvSizes').innerHTML=sizesHtml;
+        qvModal.classList.add('active');
+    }).catch(err=>console.error(err));
 }
-function closeQuickView(){qvModal.classList.remove('active')}
-function addToCart(){alert('Функция корзины будет добавлена');closeQuickView()}
+function qvSelectSize(el,size){
+    qvSelectedSize=size;
+    document.querySelectorAll('#quickViewModal .size-chip').forEach(b=>b.classList.remove('active'));
+    el.classList.add('active');
+}
+function closeQuickView(){qvModal.classList.remove('active');qvProductId=null;qvSelectedSize=null;}
+function addToCart(){
+    if(!qvProductId){closeQuickView();return;}
+    var csrfMeta=document.querySelector('meta[name="csrf-token"]');
+    var csrf=csrfMeta?csrfMeta.getAttribute('content'):'';
+    var btn=qvModal.querySelector('.btn-order');
+    if(btn){btn.disabled=true;btn.textContent='Добавляем...';}
+    fetch('/cart/add',{method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRF-Token':csrf,'X-Requested-With':'XMLHttpRequest'},
+        body:'product_id='+qvProductId+'&quantity=1'+(qvSelectedSize?'&size='+encodeURIComponent(qvSelectedSize):'')
+    }).then(r=>r.json()).then(data=>{
+        if(btn){btn.disabled=false;btn.innerHTML='<i class="bi bi-cart-plus"></i> В корзину';}
+        if(data.success){
+            closeQuickView();
+            if(typeof updateCartCount==='function')updateCartCount();
+            if(typeof showNotification==='function')showNotification('Товар добавлен в корзину','success');
+        } else {
+            if(typeof showNotification==='function')showNotification(data.message||'Ошибка','error');
+        }
+    }).catch(()=>{if(btn){btn.disabled=false;btn.innerHTML='<i class="bi bi-cart-plus"></i> В корзину';}});
+}
 
 // Быстрое добавление в корзину с карточки
 function quickAddToCart(e, productId) {

@@ -290,10 +290,10 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                 <div class="order-summary">
                     <h3>Ваш заказ</h3>
 
-                    <div class="summary-items">
+                    <div class="summary-items" id="checkoutSummaryItems">
                         <?php foreach ($items as $item): ?>
                             <?php if (!$item->product) continue; ?>
-                            <div class="summary-item">
+                            <div class="summary-item" id="checkout-item-<?= $item->id ?>">
                                 <img src="<?= Html::encode($item->product->getMainImageUrl()) ?>"
                                      alt="<?= Html::encode($item->product->name) ?>"
                                      class="summary-item-img">
@@ -302,9 +302,20 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                                     <?php if ($item->size): ?>
                                         <span class="summary-item-meta">Размер: <?= Html::encode($item->size) ?></span>
                                     <?php endif; ?>
-                                    <span class="summary-item-meta"><?= (int)$item->quantity ?> × <?= number_format($item->price, 2) ?> BYN</span>
+                                    <div class="summary-item-qty" role="group" aria-label="Количество">
+                                        <button type="button" class="qty-btn" aria-label="Уменьшить"
+                                                onclick="checkoutUpdateQty(<?= $item->id ?>, <?= $item->quantity - 1 ?>)"
+                                                <?= $item->quantity <= 1 ? 'disabled' : '' ?>>−</button>
+                                        <span class="qty-val" id="qty-<?= $item->id ?>"><?= (int)$item->quantity ?></span>
+                                        <button type="button" class="qty-btn" aria-label="Увеличить"
+                                                onclick="checkoutUpdateQty(<?= $item->id ?>, <?= $item->quantity + 1 ?>)">+</button>
+                                    </div>
                                 </div>
-                                <span class="summary-item-price"><?= number_format($item->price * $item->quantity, 2) ?> BYN</span>
+                                <div class="summary-item-right">
+                                    <span class="summary-item-price" id="price-<?= $item->id ?>"><?= number_format($item->price * $item->quantity, 2) ?> BYN</span>
+                                    <button type="button" class="summary-item-remove" aria-label="Удалить товар"
+                                            onclick="checkoutRemoveItem(<?= $item->id ?>, <?= $item->price ?>)">×</button>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -392,6 +403,58 @@ var selectedCountry   = 'belarus';
 var selectedPayment   = 'bank_transfer';
 var csrfToken         = <?= json_encode($csrfToken) ?>;
 var createUrl         = <?= json_encode($createUrl) ?>;
+
+// Cart editing in checkout
+function checkoutUpdateQty(id, newQty) {
+    if (newQty < 1) return;
+    var csrfHeader = { 'X-CSRF-Token': csrfToken, 'X-Requested-With': 'XMLHttpRequest' };
+    fetch('/cart/update', {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/x-www-form-urlencoded' }, csrfHeader),
+        body: 'id=' + id + '&quantity=' + newQty
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            var qtyEl = document.getElementById('qty-' + id);
+            var priceEl = document.getElementById('price-' + id);
+            var itemRow = document.getElementById('checkout-item-' + id);
+            if (qtyEl) qtyEl.textContent = newQty;
+            var unitPrice = data.item_price || (parseFloat(priceEl.textContent) / parseInt(qtyEl.textContent));
+            if (priceEl && data.item_subtotal) priceEl.textContent = parseFloat(data.item_subtotal).toFixed(2) + ' BYN';
+            // Disable minus when qty=1
+            var btns = itemRow ? itemRow.querySelectorAll('.qty-btn') : [];
+            if (btns[0]) btns[0].disabled = (newQty <= 1);
+            // Update totals
+            orderTotal = data.total || orderTotal;
+            var ptEl = document.getElementById('productsTotal');
+            if (ptEl) ptEl.textContent = parseFloat(data.total).toFixed(2) + ' BYN';
+            updateTotal();
+        }
+    });
+}
+
+function checkoutRemoveItem(id, price) {
+    var csrfHeader = { 'X-CSRF-Token': csrfToken, 'X-Requested-With': 'XMLHttpRequest' };
+    fetch('/cart/remove/' + id, {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/x-www-form-urlencoded' }, csrfHeader),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            var row = document.getElementById('checkout-item-' + id);
+            if (row) row.remove();
+            orderTotal = data.total || Math.max(0, orderTotal - price);
+            var ptEl = document.getElementById('productsTotal');
+            if (ptEl) ptEl.textContent = parseFloat(data.total || orderTotal).toFixed(2) + ' BYN';
+            updateTotal();
+            if (data.count === 0 || document.querySelectorAll('#checkoutSummaryItems .summary-item').length === 0) {
+                window.location.href = '/catalog';
+            }
+        }
+    });
+}
 
 function showFieldError(fieldId, errorId, message) {
     var field = document.getElementById(fieldId);

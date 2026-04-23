@@ -162,7 +162,7 @@ class CatalogController extends Controller
     {
         // Полный функционал каталога
         $request = Yii::$app->request;
-        $pageSize = $this->module->pageSize ?? 4;
+        $pageSize = $this->module->pageSize ?? 24;
         
         // Получаем параметры фильтрации
         $filters = $request->get('filters', []);

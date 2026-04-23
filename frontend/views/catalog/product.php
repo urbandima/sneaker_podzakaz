@@ -415,24 +415,6 @@ $this->registerJsVar('productVideo', $productVideo);
                 </div>
             </div>
 
-            <!-- Кнопки покупки -->
-            <div class="purchase-actions">
-                <button type="button" 
-                        class="btn btn-primary btn-large add-to-cart-btn"
-                        onclick="addToCart()"
-                        id="addToCartBtn">
-                    <i class="bi bi-cart-plus"></i>
-                    <span>Добавить в корзину</span>
-                </button>
-
-                <button type="button" 
-                        class="btn btn-secondary btn-large buy-one-click-btn"
-                        onclick="openOneClickModal()">
-                    <i class="bi bi-lightning"></i>
-                    <span>Купить в 1 клик</span>
-                </button>
-            </div>
-
             <!-- Описание товара -->
             <?php if (!empty($product->description)): ?>
                 <div class="product-description-section">
@@ -442,6 +424,24 @@ $this->registerJsVar('productVideo', $productVideo);
                     </div>
                 </div>
             <?php endif; ?>
+
+            <!-- Кнопки покупки -->
+            <div class="purchase-actions">
+                <button type="button"
+                        class="btn btn-primary btn-large add-to-cart-btn"
+                        onclick="addToCart()"
+                        id="addToCartBtn">
+                    <i class="bi bi-cart-plus"></i>
+                    <span>Добавить в корзину</span>
+                </button>
+
+                <button type="button"
+                        class="btn btn-secondary btn-large buy-one-click-btn"
+                        onclick="openOneClickModal()">
+                    <i class="bi bi-lightning"></i>
+                    <span>Купить в 1 клик</span>
+                </button>
+            </div>
 
         </div>
     </div>
@@ -899,19 +899,27 @@ $this->registerJsVar('productVideo', $productVideo);
             
             <h2>Купить в 1 клик</h2>
             <p>Оставьте номер телефона и мы свяжемся с вами в течение 15 минут</p>
-            
+
             <form class="one-click-form" onsubmit="submitOneClickOrder(event)">
                 <div class="form-group">
                     <label for="oneClickName">Ваше имя</label>
-                    <input type="text" id="oneClickName" required>
+                    <input type="text" id="oneClickName" required autocomplete="name">
                 </div>
                 <div class="form-group">
-                    <label for="oneClickPhone">Телефон</label>
-                    <input type="tel" id="oneClickPhone" required>
+                    <label for="oneClickPhone">Телефон <span aria-hidden="true">*</span></label>
+                    <input type="tel" id="oneClickPhone" required autocomplete="tel" inputmode="tel">
                 </div>
                 <div class="form-group">
                     <label for="oneClickSize">Размер</label>
-                    <input type="text" id="oneClickSize" value="<?= $selectedSize ?>" readonly>
+                    <select id="oneClickSize" class="form-control">
+                        <?php foreach ($availableSizes as $size => $available): ?>
+                            <option value="<?= Html::encode($size) ?>"
+                                    <?= !$available ? 'disabled' : '' ?>
+                                    <?= $size === $selectedSize ? 'selected' : '' ?>>
+                                <?= Html::encode($size) ?><?= !$available ? ' (нет в наличии)' : '' ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 
                 <button type="submit" class="btn btn-primary btn-large">

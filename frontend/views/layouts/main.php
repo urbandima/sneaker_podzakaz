@@ -80,7 +80,7 @@ $company = Yii::$app->settings->getCompany();
                 <span class="wishlist-counter header-badge d-none" role="status" aria-live="polite">0</span>
             </a>
 
-            <a href="/cart" class="btn-cart" aria-label="Корзина" onclick="event.preventDefault(); openCartDrawer();">
+            <a href="/checkout" class="btn-cart" aria-label="Корзина" onclick="event.preventDefault(); openCartDrawer();">
                 <i class="bi bi-cart3" aria-hidden="true"></i>
                 <span id="cartCount" class="cart-counter header-badge d-none" role="status" aria-live="polite">0</span>
             </a>
@@ -210,7 +210,7 @@ $company = Yii::$app->settings->getCompany();
         <div class="cart-drawer-total">
             Итого: <strong class="cart-total">0 BYN</strong>
         </div>
-        <a href="/cart" class="btn btn-primary cart-drawer-checkout">
+        <a href="/checkout" class="btn btn-primary cart-drawer-checkout">
             Оформить заказ <i class="bi bi-arrow-right"></i>
         </a>
     </div>
