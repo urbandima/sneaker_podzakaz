@@ -1265,6 +1265,7 @@
 }
 .ie-history-empty { color: #9ca3af; font-style: italic; }
 .ie-history-comment { margin-top: 4px; color: #6b7280; }
+.ie-history-note-badge { display:inline-block; margin-left:6px; padding:1px 6px; border-radius:9px; background:#fef3c7; color:#92400e; font-size:.7rem; font-weight:600; vertical-align:middle; }
 
 .ie-status-badge {
     display: inline-block;

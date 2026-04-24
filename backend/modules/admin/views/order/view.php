@@ -413,7 +413,10 @@ $this->registerJs(
                         <?php else: ?>
                         <p style="color:#9ca3af;font-size:0.875rem"><i class="bi bi-circle"></i> Не передан</p>
                         <?php endif ?>
-                        <button class="btn btn-outline-primary btn-sm mt-2" onclick="syncMoysklad(<?= $model->id ?>)">
+                        <?php $msConfigured = !empty(Yii::$app->settings->get('moysklad', 'api_key', '')); ?>
+                        <button class="btn btn-outline-primary btn-sm mt-2"
+                                onclick="syncMoysklad(<?= $model->id ?>)"
+                                <?= !$msConfigured ? 'disabled title="МойСклад не настроен. Добавьте API-ключ в Настройки → Интеграции."' : '' ?>>
                             <i class="bi bi-arrow-repeat"></i> Синхронизировать
                         </button>
                         <span id="ms-sync-result" style="margin-left:0.5rem;font-size:0.8125rem;"></span>
@@ -512,6 +515,39 @@ $this->registerJs(
                                 <div class="info-value"><?= Yii::$app->formatter->asDatetime($model->dp_sent_at) ?></div>
                             </div>
                             <?php endif; ?>
+                        </div>
+
+                        <!-- Паспортные данные — inline-editable -->
+                        <div class="info-grid" style="margin-bottom:1rem;border-top:1px solid #f3f4f6;padding-top:0.75rem">
+                            <?php
+                            $passportFields = [
+                                'recipient_last_name'   => ['label' => 'Фамилия',          'type' => 'text'],
+                                'recipient_first_name'  => ['label' => 'Имя',               'type' => 'text'],
+                                'recipient_middle_name' => ['label' => 'Отчество',          'type' => 'text'],
+                                'passport_series'       => ['label' => 'Серия паспорта',    'type' => 'text'],
+                                'passport_number'       => ['label' => 'Номер паспорта',    'type' => 'text'],
+                                'passport_issue_date'   => ['label' => 'Дата выдачи',       'type' => 'date'],
+                                'birth_date'            => ['label' => 'Дата рождения',     'type' => 'date'],
+                                'inn'                   => ['label' => 'ИНН',               'type' => 'text'],
+                                'city'                  => ['label' => 'Город',             'type' => 'text'],
+                                'region'                => ['label' => 'Область',           'type' => 'text'],
+                                'postal_code'           => ['label' => 'Индекс',            'type' => 'text'],
+                                'full_address'          => ['label' => 'Полный адрес',      'type' => 'textarea'],
+                            ];
+                            foreach ($passportFields as $field => $cfg):
+                                $val = $model->$field ?? '';
+                            ?>
+                            <div class="info-item">
+                                <div class="info-label"><?= Html::encode($cfg['label']) ?></div>
+                                <div class="info-value editable-field"
+                                     data-editable="<?= $field ?>"
+                                     data-type="<?= $cfg['type'] ?>"
+                                     data-order-id="<?= $model->id ?>"
+                                     data-value="<?= Html::encode($val) ?>"
+                                     data-field="<?= $field ?>"
+                                     data-id="<?= $model->id ?>"><?= Html::encode($val ?: '—') ?></div>
+                            </div>
+                            <?php endforeach; ?>
                         </div>
 
                         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem">

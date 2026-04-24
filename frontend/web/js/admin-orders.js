@@ -444,8 +444,27 @@ document.addEventListener('DOMContentLoaded', function () {
     function closeHistoryModal() {
         document.getElementById('history-modal').style.display = 'none';
     }
-    function checkTracking(track) {
-        alert('Проверка трек-номера: ' + track);
+    function checkTrack(track, btn) {
+        if (!track) return;
+        var resultEl = btn ? btn.parentElement.parentElement.querySelector('[id$="-track-result"]') : null;
+        var origHtml = btn ? btn.innerHTML : '';
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i>'; }
+        if (resultEl) { resultEl.style.color = '#6b7280'; resultEl.textContent = 'Проверяем...'; }
+        fetch('/admin/order/check-track?track=' + encodeURIComponent(track))
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (resultEl) {
+                    var msg = d.message || d.status || 'Нет данных';
+                    resultEl.style.color = d.found ? '#008060' : '#6b7280';
+                    resultEl.textContent = msg;
+                }
+            })
+            .catch(function () {
+                if (resultEl) { resultEl.style.color = '#dc3545'; resultEl.textContent = 'Ошибка сети'; }
+            })
+            .finally(function () {
+                if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
+            });
     }
     function addOrderNote(id) {
         const textarea = document.getElementById('new-note-text');

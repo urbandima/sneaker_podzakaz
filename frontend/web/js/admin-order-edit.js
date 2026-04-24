@@ -384,16 +384,20 @@
 
             var from = this._valueHtml(item.field, item.from);
             var to   = this._valueHtml(item.field, item.to);
+            var isNote = item.comment && item.from === item.to;
+            var changeHtml = isNote ? '' :
+                '<div class="ie-history-change">' +
+                '  <span class="ie-history-field">' + this._esc(item.field_label) + '</span>: ' +
+                '  ' + from + ' → ' + to +
+                '</div>';
 
             row.innerHTML =
                 '<div class="ie-history-meta">' +
                 '  <time class="ie-history-ts">' + item.timestamp_f + '</time>' +
                 '  <span class="ie-history-user">' + this._esc(item.user) + '</span>' +
+                (isNote ? '  <span class="ie-history-note-badge">заметка</span>' : '') +
                 '</div>' +
-                '<div class="ie-history-change">' +
-                '  <span class="ie-history-field">' + this._esc(item.field_label) + '</span>: ' +
-                '  ' + from + ' → ' + to +
-                '</div>' +
+                changeHtml +
                 (item.comment ? '<div class="ie-history-comment">' + this._esc(item.comment) + '</div>' : '');
 
             return row;
