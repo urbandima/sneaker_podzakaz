@@ -13,21 +13,15 @@ if (PHP_SAPI === 'cli-server') {
 require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../infrastructure/config/bootstrap.php';
 
-// Определить окружение на основе переменных среды или домена
+// Determine environment — default to 'prod' for safety; set YII_ENV=dev explicitly for local dev
 if (!defined('YII_ENV')) {
-    $isProduction = (
-        getenv('YII_ENV') === 'prod' || 
-        getenv('RENDER') !== false ||
-        (isset($_SERVER['HTTP_HOST']) && (
-            strpos($_SERVER['HTTP_HOST'], 'onrender.com') !== false ||
-            strpos($_SERVER['HTTP_HOST'], 'sneaker-head.by') !== false
-        ))
-    );
-    define('YII_ENV', $isProduction ? 'prod' : 'dev');
+    $isDev = getenv('YII_ENV') === 'dev';
+    define('YII_ENV', $isDev ? 'dev' : 'prod');
 }
 
 if (!defined('YII_DEBUG')) {
-    define('YII_DEBUG', YII_ENV !== 'prod');
+    // Debug only when env explicitly requests it — never expose stack traces in prod
+    define('YII_DEBUG', YII_ENV === 'dev');
 }
 
 // Определяем константы окружения для совместимости с Yii2

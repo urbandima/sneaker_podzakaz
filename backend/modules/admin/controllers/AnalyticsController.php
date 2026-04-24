@@ -61,22 +61,29 @@ class AnalyticsController extends BaseAdminController
      */
     public function actionIndex()
     {
-        $period = Yii::$app->request->get('period', '30');
-        $dateFrom = date('Y-m-d', strtotime("-{$period} days"));
+        $rawPeriod = Yii::$app->request->get('period', '30');
+        $periodMap = ['week' => 7, 'month' => 30, 'year' => 365, 'quarter' => 90];
         $dateTo = date('Y-m-d');
-        
+        if ($rawPeriod === 'today') {
+            $period = 1;
+            $dateFrom = $dateTo;
+        } else {
+            $period = isset($periodMap[$rawPeriod]) ? $periodMap[$rawPeriod] : max(1, (int) $rawPeriod);
+            $dateFrom = date('Y-m-d', strtotime("-{$period} days"));
+        }
+
         // Конверсия
         $conversion = AnalyticsEvent::getConversionStats($dateFrom, $dateTo);
-        
+
         // Источники трафика
         $trafficSources = AnalyticsEvent::getTrafficSources($dateFrom, $dateTo);
-        
+
         // Популярные товары
         $popularProducts = AnalyticsEvent::getPopularProducts(10, $dateFrom, $dateTo);
-        
+
         // Статистика заказов по дням
         $ordersByDay = $this->getOrdersByDay($dateFrom, $dateTo);
-        
+
         // Статистика выручки текущего периода
         $revenueStats = $this->getRevenueStats($dateFrom, $dateTo);
 
@@ -419,10 +426,10 @@ class AnalyticsController extends BaseAdminController
     protected function getOrdersByDay($dateFrom, $dateTo)
     {
         return Yii::$app->db->createCommand("
-            SELECT DATE(created_at) as date, COUNT(*) as count, SUM(total_amount) as revenue
+            SELECT DATE(FROM_UNIXTIME(created_at)) as date, COUNT(*) as count, SUM(total_amount) as revenue
             FROM `order`
-            WHERE DATE(created_at) BETWEEN :from AND :to
-            GROUP BY DATE(created_at)
+            WHERE DATE(FROM_UNIXTIME(created_at)) BETWEEN :from AND :to
+            GROUP BY DATE(FROM_UNIXTIME(created_at))
             ORDER BY date
         ", [':from' => $dateFrom, ':to' => $dateTo])->queryAll();
     }
@@ -440,7 +447,7 @@ class AnalyticsController extends BaseAdminController
                 MAX(total_amount) as max_order,
                 MIN(total_amount) as min_order
             FROM `order`
-            WHERE DATE(created_at) BETWEEN :from AND :to
+            WHERE DATE(FROM_UNIXTIME(created_at)) BETWEEN :from AND :to
         ", [':from' => $dateFrom, ':to' => $dateTo])->queryOne();
     }
 
@@ -457,7 +464,7 @@ class AnalyticsController extends BaseAdminController
             SELECT device_type, COUNT(*) as count
             FROM analytics_event
             WHERE event_type = 'page_view' 
-            AND DATE(created_at) BETWEEN :from AND :to
+            AND DATE(FROM_UNIXTIME(created_at)) BETWEEN :from AND :to
             GROUP BY device_type
         ", [':from' => $dateFrom, ':to' => $dateTo])->queryAll();
     }
@@ -473,14 +480,14 @@ class AnalyticsController extends BaseAdminController
 
         return Yii::$app->db->createCommand("
             SELECT 
-                DATE(created_at) as date,
+                DATE(FROM_UNIXTIME(created_at)) as date,
                 SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END) as page_views,
                 SUM(CASE WHEN event_type = 'product_view' THEN 1 ELSE 0 END) as product_views,
                 SUM(CASE WHEN event_type = 'add_to_cart' THEN 1 ELSE 0 END) as add_to_cart,
                 SUM(CASE WHEN event_type = 'order_created' THEN 1 ELSE 0 END) as orders
             FROM analytics_event
-            WHERE DATE(created_at) BETWEEN :from AND :to
-            GROUP BY DATE(created_at)
+            WHERE DATE(FROM_UNIXTIME(created_at)) BETWEEN :from AND :to
+            GROUP BY DATE(FROM_UNIXTIME(created_at))
             ORDER BY date
         ", [':from' => $dateFrom, ':to' => $dateTo])->queryAll();
     }
@@ -492,13 +499,13 @@ class AnalyticsController extends BaseAdminController
     {
         return Yii::$app->db->createCommand("
             SELECT 
-                DATE(created_at) as date,
+                DATE(FROM_UNIXTIME(created_at)) as date,
                 COUNT(*) as orders_count,
                 SUM(total_amount) as revenue,
                 AVG(total_amount) as avg_order
             FROM `order`
-            WHERE DATE(created_at) BETWEEN :from AND :to
-            GROUP BY DATE(created_at)
+            WHERE DATE(FROM_UNIXTIME(created_at)) BETWEEN :from AND :to
+            GROUP BY DATE(FROM_UNIXTIME(created_at))
             ORDER BY date
         ", [':from' => $dateFrom, ':to' => $dateTo])->queryAll();
     }
@@ -552,7 +559,7 @@ class AnalyticsController extends BaseAdminController
         return Yii::$app->db->createCommand("
             SELECT AVG(total_amount) as avg_value
             FROM `order`
-            WHERE DATE(created_at) BETWEEN :from AND :to
+            WHERE DATE(FROM_UNIXTIME(created_at)) BETWEEN :from AND :to
         ", [':from' => $dateFrom, ':to' => $dateTo])->queryScalar() ?: 0;
     }
 
@@ -571,7 +578,7 @@ class AnalyticsController extends BaseAdminController
                 SUM(CASE WHEN event_type = 'add_to_cart' THEN 1 ELSE 0 END) AS add_to_cart,
                 SUM(CASE WHEN event_type IN ('order','order_created') THEN 1 ELSE 0 END) AS orders
             FROM analytics_event
-            WHERE DATE(created_at) BETWEEN :from AND :to
+            WHERE DATE(FROM_UNIXTIME(created_at)) BETWEEN :from AND :to
         ", [':from' => $dateFrom, ':to' => $dateTo])->queryOne();
 
         return $row ?: ['views' => 0, 'add_to_cart' => 0, 'orders' => 0];
