@@ -220,7 +220,10 @@ $company = Yii::$app->settings->getCompany();
 <div class="search-modal" id="searchModal">
     <div class="search-modal-content">
         <div class="search-header">
-            <input type="text" placeholder="Поиск товаров..." id="searchInput" class="search-input" onkeyup="handleSearch(event)">
+            <input type="text" placeholder="Поиск товаров..." id="searchInput" class="search-input"
+                   oninput="handleSearchInput(this.value)"
+                   onkeydown="handleSearchKey(event)"
+                   autocomplete="off" aria-label="Поиск товаров">
             <button class="search-close close-search" onclick="closeSearch()">
                 <i class="bi bi-x"></i>
             </button>
