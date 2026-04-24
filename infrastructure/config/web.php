@@ -414,7 +414,12 @@ $config = [
                 'admin/product/<productId:\d+>/add-image' => 'admin/product/add-image',
                 'admin/product/image/<id:\d+>/delete' => 'admin/product/delete-image',
                 'admin/product/image/<id:\d+>/set-main' => 'admin/product/set-main-image',
-                
+                'admin/product/update-price' => 'admin/product/update-price',
+                'admin/product/update-field' => 'admin/product/update-field',
+                'admin/product/toggle-active' => 'admin/product/toggle-active',
+                'admin/product/sync-poizon' => 'admin/product/sync-poizon',
+                'admin/product/clone' => 'admin/product/clone',
+
                 // Users
                 'admin/user' => 'admin/user/index',
                 'admin/user/create' => 'admin/user/create',

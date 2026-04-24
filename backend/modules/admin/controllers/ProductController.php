@@ -896,6 +896,23 @@ class ProductController extends BaseAdminController
         return ['success' => true, 'price' => $price];
     }
 
+    /** P20 — Update a single text field on the product via AJAX */
+    public function actionUpdateField()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $data = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
+        $id    = (int)($data['id'] ?? 0);
+        $field = (string)($data['field'] ?? '');
+        $value = $data['value'] ?? '';
+        $allowed = ['name', 'description', 'meta_title', 'meta_description', 'meta_keywords'];
+        if (!in_array($field, $allowed)) return ['success' => false, 'message' => 'Поле не разрешено'];
+        $product = Product::findOne($id);
+        if (!$product) return ['success' => false, 'message' => 'Не найден'];
+        $product->$field = $value;
+        $product->save(false);
+        return ['success' => true, 'value' => $value];
+    }
+
     /** B7.2 — Toggle product active status */
     public function actionToggleActive()
     {
