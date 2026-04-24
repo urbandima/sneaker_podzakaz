@@ -17,6 +17,38 @@ Disallow: /catalog/filter
 Disallow: /catalog/add-favorite
 Disallow: /catalog/remove-favorite
 Disallow: /catalog/create-inquiry
+Disallow: /catalog/notify-availability
+Disallow: /catalog/quick-order
+Disallow: /catalog/submit-review
+Disallow: /catalog/submit-question
+Disallow: /checkout/
+Disallow: /favorite/
+
+# Block filter/sort query params (Googlebot understands this)
+Disallow: /*?sort=
+Disallow: /*?page=
+Disallow: /*?per-page=
+Disallow: /*?price_from=
+Disallow: /*?price_to=
+Disallow: /*?size=
+Disallow: /*?color=
+Disallow: /*?material=
+Disallow: /*?gender=
+Disallow: /*?season=
+Disallow: /*&sort=
+Disallow: /*&page=
+Disallow: /*&price_from=
+Disallow: /*&price_to=
+Disallow: /*&size=
+Disallow: /*&color=
+
+# Block UTM/tracking params
+Disallow: /*?utm_source=
+Disallow: /*?utm_medium=
+Disallow: /*?utm_campaign=
+Disallow: /*?fbclid=
+Disallow: /*?gclid=
+Disallow: /*?yclid=
 
 # Sitemap
 Sitemap: https://sneakerhead.by/sitemap.xml

@@ -13,10 +13,10 @@
     
     // Инициализация при загрузке DOM
     document.addEventListener('DOMContentLoaded', function() {
-        stickyBar = document.getElementById('stickyPurchaseBar');
-        productDetails = document.querySelector('.product-details');
-        
-        if (!stickyBar || !productDetails) return;
+        stickyBar = document.getElementById('stickyPurchaseBar') || document.getElementById('stickyBar');
+        productDetails = document.querySelector('.product-details, .product-content, [data-product-id]');
+
+        if (!stickyBar) return;
         
         // Слушаем скролл
         window.addEventListener('scroll', handleScroll);

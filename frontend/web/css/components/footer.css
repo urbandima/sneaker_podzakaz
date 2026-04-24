@@ -9,6 +9,15 @@
     background: var(--c-gray-900);
     color: var(--c-gray-400);
     margin-top: auto;
+    /* Ensure footer never hides behind sticky bars */
+    position: relative;
+    z-index: 1;
+}
+
+/* Extra bottom padding on product page — sticky-purchase-bar floats above */
+.product-page ~ .main-footer,
+body.has-sticky-bar .main-footer {
+    padding-bottom: 72px;
 }
 
 .footer-main {

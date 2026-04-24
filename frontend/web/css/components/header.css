@@ -997,13 +997,21 @@
     color: rgba(255, 255, 255, 0.3);
 }
 
-.mobile-nav-link.text-sale {
+.mobile-nav-link.text-sale,
+.mobile-nav-link.mobile-nav-sale {
     color: #f87171;
 }
 
-.mobile-nav-link.text-sale i:first-child {
+.mobile-nav-link.text-sale i:first-child,
+.mobile-nav-link.mobile-nav-sale i:first-child {
     color: #f87171;
     opacity: 0.8;
+}
+
+.mobile-nav-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: var(--space-2) var(--space-6);
 }
 
 .mobile-menu-footer {
@@ -1450,4 +1458,38 @@
         min-width: 0;
         flex: 1;
     }
+}
+/* === BURGER MENU — additional polish === */
+/* Nav info section (О нас, Контакты) */
+.mobile-nav-info .mobile-nav-item a {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: var(--text-sm);
+}
+.mobile-nav-info .mobile-nav-item a:hover {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* Featured item highlights */
+.mobile-nav-item.featured-new a {
+    color: #34d399;
+}
+.mobile-nav-item.featured-new a i {
+    color: #34d399;
+}
+.mobile-nav-item.featured-sale a {
+    color: #fb923c;
+}
+.mobile-nav-item.featured-sale a i {
+    color: #fb923c;
+}
+
+/* Separator between nav groups */
+.mobile-nav + .mobile-nav-section {
+    margin-top: var(--space-2);
+}
+
+/* Contact button accent */
+.mobile-contact-btn i {
+    color: #34d399;
+    font-size: var(--text-lg);
 }

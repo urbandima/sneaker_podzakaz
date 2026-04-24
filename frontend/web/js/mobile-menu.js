@@ -79,7 +79,11 @@ function openMobileMenu() {
         var overlayClass = overlay.classList.contains('mobile-menu-overlay') ? 'open' : 'active';
         SH.openModal(overlay, overlayClass);
     }
-    if (burger) burger.classList.add('active');
+    if (burger) {
+        burger.classList.add('active');
+        burger.setAttribute('aria-expanded', 'true');
+    }
+    if (mobileMenu) mobileMenu.removeAttribute('aria-hidden');
     SH.trapFocus(mobileMenu);
 }
 
@@ -93,7 +97,11 @@ function closeMobileMenu() {
         var overlayClass = overlay.classList.contains('mobile-menu-overlay') ? 'open' : 'active';
         SH.closeModal(overlay, overlayClass);
     }
-    if (burger) burger.classList.remove('active');
+    if (burger) {
+        burger.classList.remove('active');
+        burger.setAttribute('aria-expanded', 'false');
+    }
+    if (mobileMenu) mobileMenu.setAttribute('aria-hidden', 'true');
     SH.releaseFocus(mobileMenu);
 }
 
