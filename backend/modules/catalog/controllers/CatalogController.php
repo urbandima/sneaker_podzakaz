@@ -162,7 +162,7 @@ class CatalogController extends Controller
     {
         // Полный функционал каталога
         $request = Yii::$app->request;
-        $pageSize = $this->module->pageSize ?? 4;
+        $pageSize = $this->module->pageSize ?? 24;
         
         // Получаем параметры фильтрации
         $filters = $request->get('filters', []);
@@ -236,6 +236,9 @@ class CatalogController extends Controller
     {
         $brands = Brand::find()
             ->where(['is_active' => true])
+            ->andWhere(['!=', 'name', '-'])
+            ->andWhere(['!=', 'name', ''])
+            ->andWhere(['not', ['name' => null]])
             ->orderBy(['name' => SORT_ASC])
             ->all();
         
