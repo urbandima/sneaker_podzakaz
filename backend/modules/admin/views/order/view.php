@@ -286,7 +286,10 @@ $this->registerJs(
                             </div>
                             <?php endforeach; ?>
                         </div>
-                        <button type="button" class="btn btn-outline-primary" id="add-item-edit">+ Добавить товар</button>
+                        <div class="d-flex align-items-center gap-3 mt-2">
+                            <button type="button" class="btn btn-outline-primary" id="add-item-edit">+ Добавить товар</button>
+                            <strong>Итого: <span id="edit-items-total"><?= Yii::$app->formatter->asDecimal($model->total_amount, 2) ?> BYN</span></strong>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -747,6 +750,24 @@ $this->registerJs(
     . '                + "</div>";'
     . '            var container = document.getElementById("order-items-edit");'
     . '            if (container) { container.insertAdjacentHTML("beforeend", newItem); itemIndex++; var badge = document.getElementById("items-count-badge"); if (badge) badge.textContent = container.querySelectorAll(".order-item").length + " позиций"; }'
+    . '        });'
+    . '    }'
+    . '    var editForm = document.getElementById("orderEditForm");'
+    . '    if (editForm) {'
+    . '        editForm.addEventListener("submit", function() {'
+    . '            var container = document.getElementById("order-items-edit");'
+    . '            if (!container) return;'
+    . '            document.querySelectorAll("#orderEditForm input[name^=\"OrderItem\"]").forEach(function(el){el.remove();});'
+    . '            container.querySelectorAll(".order-item").forEach(function(row, idx) {'
+    . '                var fields = ["product_name","quantity","price"];'
+    . '                fields.forEach(function(f) {'
+    . '                    var src = row.querySelector("input[name*=\"[" + f + "]\"]");'
+    . '                    if (!src) return;'
+    . '                    var h = document.createElement("input");'
+    . '                    h.type = "hidden"; h.name = "OrderItem[" + idx + "][" + f + "]"; h.value = src.value;'
+    . '                    editForm.appendChild(h);'
+    . '                });'
+    . '            });'
     . '        });'
     . '    }'
     . '})();',

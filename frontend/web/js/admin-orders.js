@@ -378,6 +378,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    document.addEventListener('input', function (e) {
+        if (!e.target.matches('#order-items-edit input[name*="[quantity]"], #order-items-edit input[name*="[price]"]')) return;
+        var container = document.getElementById('order-items-edit');
+        if (!container) return;
+        var grandTotal = 0;
+        container.querySelectorAll('.order-item').forEach(function (row) {
+            var qty = parseFloat(row.querySelector('input[name*="[quantity]"]').value) || 0;
+            var price = parseFloat(row.querySelector('input[name*="[price]"]').value) || 0;
+            grandTotal += qty * price;
+        });
+        var totalEl = document.getElementById('edit-items-total');
+        if (totalEl) totalEl.textContent = grandTotal.toFixed(2) + ' BYN';
+    });
+
     function updateRemoveButtons() {
         var items = document.querySelectorAll('#order-items-edit .order-item');
         if (items.length === 1) {
