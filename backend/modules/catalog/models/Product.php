@@ -166,7 +166,20 @@ class Product extends ActiveRecord
             if ($this->main_image && !$this->main_image_url) {
                 $this->main_image_url = $this->main_image;
             }
-            
+
+            // A13: товар с нулевой/пустой ценой не может быть активным
+            if ($this->is_active && (!$this->price || (float)$this->price <= 0)) {
+                $this->is_active = false;
+            }
+
+            // A14: товар с placeholder-названием не может быть активным
+            if ($this->is_active) {
+                $trimmed = trim((string)$this->name);
+                if ($trimmed === '' || mb_strlen($trimmed) < 3 || mb_strtolower($trimmed) === 'товар') {
+                    $this->is_active = false;
+                }
+            }
+
             return true;
         }
         return false;

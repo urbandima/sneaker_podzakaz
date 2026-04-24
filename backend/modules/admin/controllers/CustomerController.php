@@ -62,6 +62,12 @@ class CustomerController extends BaseAdminController
             $query->andWhere(['status' => (int)$status]);
         }
 
+        // A12: скрываем фантомных клиентов (auto-generated ms_* emails) по умолчанию
+        $showPhantoms = Yii::$app->request->get('show_phantoms');
+        if (!$showPhantoms) {
+            $query->andWhere(['NOT LIKE', 'email', 'ms_%', false]);
+        }
+
         // Сортировка
         $sort = Yii::$app->request->get('sort', 'created_at');
         $order = Yii::$app->request->get('order', 'desc');
@@ -565,5 +571,17 @@ class CustomerController extends BaseAdminController
             Yii::warning('getCustomerTags failed: ' . $e->getMessage(), 'customer');
             return [];
         }
+    }
+
+    // A12: деактивируем фантомных клиентов (auto-generated ms_* без заказов)
+    public function actionMarkPhantoms()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $count = Yii::$app->db->createCommand("
+            UPDATE customer SET is_active = 0
+            WHERE email REGEXP '^ms_[a-f0-9]+@'
+              AND last_order_at IS NULL
+        ")->execute();
+        return ['success' => true, 'deactivated' => $count];
     }
 }
