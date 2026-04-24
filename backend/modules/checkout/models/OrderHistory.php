@@ -49,21 +49,24 @@ class OrderHistory extends ActiveRecord
     public function rules()
     {
         return [
-            [['order_id', 'new_status'], 'required'],
+            [['order_id'], 'required'],
             [['order_id', 'changed_by'], 'integer'],
-            [['old_status', 'new_status'], 'string', 'max' => 50],
-            [['comment'], 'string'],
+            [['old_status', 'new_status', 'field'], 'string', 'max' => 64],
+            [['comment', 'old_value', 'new_value'], 'string'],
         ];
     }
 
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'order_id' => 'Заказ',
+            'id'         => 'ID',
+            'order_id'   => 'Заказ',
             'old_status' => 'Старый статус',
             'new_status' => 'Новый статус',
-            'comment' => 'Комментарий',
+            'field'      => 'Поле',
+            'old_value'  => 'Было',
+            'new_value'  => 'Стало',
+            'comment'    => 'Комментарий',
             'changed_by' => 'Изменил',
             'created_at' => 'Дата изменения',
         ];
@@ -82,6 +85,23 @@ class OrderHistory extends ActiveRecord
     {
         $statuses = Yii::$app->settings->getStatuses();
         return $statuses[$this->new_status] ?? $this->new_status;
+    }
+
+    // Write a generic field-change record
+    public static function logFieldChange(int $orderId, string $field, $oldValue, $newValue, int $userId): void
+    {
+        $h = new self();
+        $h->order_id   = $orderId;
+        $h->field      = $field;
+        $h->old_value  = (string)$oldValue;
+        $h->new_value  = (string)$newValue;
+        $h->changed_by = $userId;
+        // Keep status columns populated when field is 'status'
+        if ($field === 'status') {
+            $h->old_status = (string)$oldValue;
+            $h->new_status = (string)$newValue;
+        }
+        $h->save(false);
     }
 
     // Relations

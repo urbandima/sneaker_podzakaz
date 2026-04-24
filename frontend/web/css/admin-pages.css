@@ -1171,6 +1171,124 @@
     animation: spin 1s linear infinite;
 }
 
+/* ── InlineEdit (admin-order-edit.js) ──────────────────────────────────── */
+[data-editable] {
+    cursor: text;
+    transition: background .15s, outline .15s;
+    border-radius: 4px;
+    padding: 2px 4px;
+    min-height: 1.4em;
+    display: inline-block;
+}
+[data-editable]:hover {
+    background: #f0f9ff;
+    outline: 1px dashed #93c5fd;
+}
+[data-editable].ie-editing {
+    background: #fff;
+    outline: 2px solid #3b82f6;
+    cursor: default;
+}
+[data-editable].ie-saved {
+    background: #ecfdf5;
+    outline: 2px solid #10b981;
+}
+
+.ie-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    width: 100%;
+    min-width: 80px;
+    padding: 0;
+}
+.ie-textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+.ie-select {
+    min-width: 140px;
+}
+
+.ie-indicator {
+    font-size: .75rem;
+    margin-left: 6px;
+    vertical-align: middle;
+    transition: color .15s;
+}
+.ie-indicator--saved  { color: #059669; }
+.ie-indicator--saving { color: #6b7280; }
+.ie-indicator--saving::before { content: '⟳'; display:inline-block; animation: ie-spin .7s linear infinite; }
+.ie-indicator--error  { color: #dc2626; }
+@keyframes ie-spin { to { transform: rotate(360deg); } }
+
+.ie-error {
+    display: block;
+    font-size: .75rem;
+    color: #dc2626;
+    margin-top: 2px;
+}
+
+/* History block */
+.ie-history-block {
+    margin-top: 24px;
+}
+.ie-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.ie-history-row {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: .8125rem;
+}
+.ie-history-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    color: #6b7280;
+    font-size: .75rem;
+}
+.ie-history-user { font-weight: 600; color: #374151; }
+.ie-history-field { font-weight: 600; color: #1f2937; }
+.ie-history-val {
+    background: #e5e7eb;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: .75rem;
+}
+.ie-history-empty { color: #9ca3af; font-style: italic; }
+.ie-history-comment { margin-top: 4px; color: #6b7280; }
+
+.ie-status-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 12px;
+    font-size: .7rem;
+    font-weight: 600;
+    background: #e5e7eb;
+    color: #374151;
+}
+
+#ie-history-load-more {
+    margin-top: 8px;
+    background: none;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 6px 16px;
+    cursor: pointer;
+    font-size: .8125rem;
+    color: #374151;
+    width: 100%;
+}
+#ie-history-load-more:hover { background: #f3f4f6; }
+
 .info-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

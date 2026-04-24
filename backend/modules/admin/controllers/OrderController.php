@@ -1249,6 +1249,175 @@ class OrderController extends BaseAdminController
         return ['success' => true];
     }
 
+    /**
+     * POST /admin/order/update-field
+     * Inline-edit single field with conflict detection and full history logging.
+     * Body: {id, field, value, client_updated_at?}
+     * Returns: {ok, value, history} | {ok:false, error} | 409 {conflict, current_value, updated_by}
+     */
+    public function actionUpdateField()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $data  = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
+        $id    = (int)($data['id']    ?? 0);
+        $field = trim($data['field']  ?? '');
+        $value = $data['value']        ?? '';
+        $clientUpdatedAt = isset($data['client_updated_at']) ? (int)$data['client_updated_at'] : null;
+
+        $order = Order::findOne($id);
+        if (!$order) return ['ok' => false, 'error' => 'Заказ не найден'];
+
+        $user = $this->getCurrentUser();
+        if (!$user) return ['ok' => false, 'error' => 'Не авторизован'];
+
+        // Role check: logists may only touch logistic fields
+        $logistOnly = ['china_track_number', 'is_processed', 'is_shipped', 'customs_cleared',
+                       'ms_number', 'status', 'comment', 'delivery_date'];
+        if ($this->isLogist() && !in_array($field, $logistOnly, true)) {
+            return ['ok' => false, 'error' => 'Недостаточно прав'];
+        }
+
+        $allowedFields = [
+            'status', 'client_name', 'client_phone', 'client_email',
+            'total_amount', 'discount',
+            'delivery_method', 'delivery_address', 'payment_method',
+            'comment', 'delivery_date',
+            'china_track_number', 'local_track_number',
+            'shipment_value_cny', 'item_quantity', 'item_price_cny',
+            'recipient_last_name', 'recipient_first_name', 'recipient_middle_name',
+            'passport_series', 'passport_number', 'passport_issue_date', 'birth_date', 'inn',
+            'full_address', 'city', 'region', 'postal_code',
+            'customs_description', 'product_link', 'dobropost_tariff',
+            'sneakerhead_order_link', 'ms_number',
+            'is_processed', 'is_shipped', 'customs_cleared',
+            'product_price', 'logistics_price', 'commission_price',
+            'warehouse_arrival_date', 'china_delivery_status',
+        ];
+        if (!in_array($field, $allowedFields, true)) {
+            return ['ok' => false, 'error' => 'Недопустимое поле: ' . $field];
+        }
+
+        // Conflict detection: if client sent its last-known updated_at and the DB has a newer value
+        if ($clientUpdatedAt !== null && isset($order->updated_at)
+            && (int)$order->updated_at > $clientUpdatedAt
+        ) {
+            Yii::$app->response->statusCode = 409;
+            $lastChange = \app\backend\modules\checkout\models\OrderHistory::find()
+                ->where(['order_id' => $id, 'field' => $field])
+                ->orderBy(['created_at' => SORT_DESC])
+                ->one();
+            $updatedBy = $lastChange && $lastChange->changer ? $lastChange->changer->username : 'другой пользователь';
+            return [
+                'conflict'      => true,
+                'field'         => $field,
+                'current_value' => $order->$field,
+                'updated_by'    => $updatedBy,
+                'updated_at'    => $order->updated_at,
+            ];
+        }
+
+        // Normalise value by type
+        if (in_array($field, ['is_processed', 'is_shipped', 'customs_cleared'], true)) {
+            $value = (int)(bool)$value;
+        } elseif (in_array($field, ['total_amount', 'discount', 'shipment_value_cny',
+                                     'item_price_cny', 'product_price', 'logistics_price', 'commission_price'], true)) {
+            $value = $value !== '' ? round((float)$value, 2) : null;
+        } elseif ($field === 'item_quantity') {
+            $value = $value !== '' ? (int)$value : null;
+        }
+
+        // Server-side validation
+        if ($field === 'total_amount' && $value !== null && $value < 0) {
+            return ['ok' => false, 'error' => 'Сумма не может быть отрицательной'];
+        }
+        if ($field === 'discount' && $value !== null && ($value < 0 || $value > 100)) {
+            return ['ok' => false, 'error' => 'Скидка: 0–100'];
+        }
+        if ($field === 'client_email' && $value !== '' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            return ['ok' => false, 'error' => 'Некорректный email'];
+        }
+
+        $oldValue = $order->$field;
+        if ((string)$oldValue === (string)$value) {
+            return ['ok' => true, 'value' => $value]; // no-op
+        }
+
+        $order->$field = $value;
+        if (!$order->save(false)) {
+            return ['ok' => false, 'error' => 'Ошибка сохранения: ' . implode('; ', array_merge(...array_values($order->errors)))];
+        }
+
+        // Write field-change history record
+        \app\backend\modules\checkout\models\OrderHistory::logFieldChange(
+            $id, $field, $oldValue, $value, $user->id
+        );
+
+        // Invalidate stats cache
+        try { \yii\caching\TagDependency::invalidate(Yii::$app->cache, ['orders-stats']); } catch (\Exception $e) {}
+
+        $fieldLabel = \app\backend\modules\checkout\helpers\OrderHistoryHelper::fieldLabel($field);
+        $username   = $user->username ?? ('user#' . $user->id);
+        $ts         = $order->updated_at ?? time();
+
+        return [
+            'ok'    => true,
+            'value' => $value,
+            'history' => [
+                'timestamp'  => $ts,
+                'timestamp_f' => \app\backend\modules\checkout\helpers\OrderHistoryHelper::formatTimestamp((int)$ts),
+                'user'       => $username,
+                'field'      => $field,
+                'field_label' => $fieldLabel,
+                'from'       => (string)$oldValue,
+                'to'         => (string)$value,
+            ],
+        ];
+    }
+
+    /** POST /admin/order/history — load field-change history for an order (paginated) */
+    public function actionHistory()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $id    = (int)(json_decode(Yii::$app->request->getRawBody(), true)['id']
+                 ?? Yii::$app->request->post('id', 0));
+        $page  = (int)(json_decode(Yii::$app->request->getRawBody(), true)['page']
+                 ?? Yii::$app->request->post('page', 1));
+        $limit = 20;
+
+        $order = Order::findOne($id);
+        if (!$order) return ['ok' => false, 'error' => 'Не найдено'];
+
+        $rows = \app\backend\modules\checkout\models\OrderHistory::find()
+            ->where(['order_id' => $id])
+            ->with('changer')
+            ->orderBy(['created_at' => SORT_DESC])
+            ->limit($limit)
+            ->offset(($page - 1) * $limit)
+            ->all();
+
+        $total = \app\backend\modules\checkout\models\OrderHistory::find()
+            ->where(['order_id' => $id])
+            ->count();
+
+        $items = [];
+        foreach ($rows as $row) {
+            $field = $row->field ?: 'status';
+            $items[] = [
+                'id'          => $row->id,
+                'timestamp'   => $row->created_at,
+                'timestamp_f' => \app\backend\modules\checkout\helpers\OrderHistoryHelper::formatTimestamp((int)$row->created_at),
+                'user'        => $row->changer->username ?? ('user#' . $row->changed_by),
+                'field'       => $field,
+                'field_label' => \app\backend\modules\checkout\helpers\OrderHistoryHelper::fieldLabel($field),
+                'from'        => $row->old_value ?? $row->old_status ?? '',
+                'to'          => $row->new_value ?? $row->new_status ?? '',
+                'comment'     => $row->comment ?? '',
+            ];
+        }
+
+        return ['ok' => true, 'items' => $items, 'total' => (int)$total, 'page' => $page, 'limit' => $limit];
+    }
+
     /** B5 — MoySklad sync */
     public function actionSyncMoysklad()
     {

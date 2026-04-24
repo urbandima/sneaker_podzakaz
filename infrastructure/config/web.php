@@ -445,6 +445,8 @@ $config = [
                 'admin/plugin/dobropost' => 'admin/plugin/dobropost',
                 'admin/settings/save' => 'admin/settings/save',
                 'admin/settings/save-ga-id' => 'admin/settings/save-ga-id',
+                'admin/order/update-field'  => 'admin/order/update-field',
+                'admin/order/history'       => 'admin/order/history',
                 'admin/settings/statuses' => 'admin/settings/statuses',
                 'admin/settings/save-statuses' => 'admin/settings/save-statuses',
                 

@@ -12,6 +12,16 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
 
 // CSS moved to frontend/web/css/admin-pages.css (/* -- order/view.php -- */)
 
+// Inline-edit globals
+$_updatedAt = isset($model->updated_at) ? (int)$model->updated_at : 0;
+$this->registerJsFile('/js/admin-order-edit.js', ['position' => \yii\web\View::POS_END]);
+$this->registerJs(
+    'window.INLINE_ORDER_ID = ' . (int)$model->id . ';' .
+    'window.INLINE_ORDER_UPDATED_AT = ' . $_updatedAt . ';' .
+    'window.INLINE_UPDATE_URL = ' . json_encode(\yii\helpers\Url::to(['/admin/order/update-field'])) . ';',
+    \yii\web\View::POS_BEGIN
+);
+
 <div class="order-page">
     <div class="order-shell">
         <!-- Верхняя панель со статусом -->
@@ -109,26 +119,42 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                             <div class="info-grid">
                                 <div class="info-item">
                                     <div class="info-label">ФИО</div>
-                                    <div class="info-value editable-field" data-field="client_name" data-id="<?= $model->id ?>"><?= Html::encode($model->client_name ?: '-') ?></div>
+                                    <div class="info-value editable-field"
+                                         data-editable="client_name" data-order-id="<?= $model->id ?>"
+                                         data-value="<?= Html::encode($model->client_name ?? '') ?>"
+                                         data-field="client_name" data-id="<?= $model->id ?>"><?= Html::encode($model->client_name ?: '-') ?></div>
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">Телефон</div>
-                                    <div class="info-value editable-field" data-field="client_phone" data-id="<?= $model->id ?>"><?= Html::encode($model->client_phone ?: '-') ?></div>
+                                    <div class="info-value editable-field"
+                                         data-editable="client_phone" data-order-id="<?= $model->id ?>"
+                                         data-value="<?= Html::encode($model->client_phone ?? '') ?>"
+                                         data-field="client_phone" data-id="<?= $model->id ?>"><?= Html::encode($model->client_phone ?: '-') ?></div>
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">Email</div>
-                                    <div class="info-value editable-field" data-field="client_email" data-id="<?= $model->id ?>"><?= Html::encode($model->client_email ?: '-') ?></div>
+                                    <div class="info-value editable-field"
+                                         data-editable="client_email" data-order-id="<?= $model->id ?>"
+                                         data-value="<?= Html::encode($model->client_email ?? '') ?>"
+                                         data-field="client_email" data-id="<?= $model->id ?>"><?= Html::encode($model->client_email ?: '-') ?></div>
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">Срок доставки</div>
-                                    <div class="info-value editable-field" data-field="delivery_date" data-id="<?= $model->id ?>"><?= Html::encode($model->delivery_date ?: '-') ?></div>
+                                    <div class="info-value editable-field"
+                                         data-editable="delivery_date" data-type="date" data-order-id="<?= $model->id ?>"
+                                         data-value="<?= Html::encode($model->delivery_date ?? '') ?>"
+                                         data-field="delivery_date" data-id="<?= $model->id ?>"><?= Html::encode($model->delivery_date ?: '-') ?></div>
                                 </div>
                             </div>
 
                             <?php if ($model->comment): ?>
                             <div style="margin-top:1rem;padding:0.875rem;background:#fef3c7;border-radius:8px;">
                                 <div style="font-weight:600;font-size:0.75rem;color:#92400e;margin-bottom:0.25rem;">КОММЕНТАРИЙ</div>
-                                <div class="editable-field" data-field="comment" data-id="<?= $model->id ?>" style="color:#78350f;cursor:pointer;" title="Кликните для редактирования"><?= nl2br(Html::encode($model->comment)) ?></div>
+                                <div class="editable-field"
+                                     data-editable="comment" data-type="textarea" data-order-id="<?= $model->id ?>"
+                                     data-value="<?= Html::encode($model->comment ?? '') ?>"
+                                     data-field="comment" data-id="<?= $model->id ?>"
+                                     style="color:#78350f;cursor:pointer;"><?= nl2br(Html::encode($model->comment)) ?></div>
                             </div>
                             <?php endif; ?>
                         </div>
@@ -306,15 +332,22 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                         <div class="info-grid">
                             <div class="info-item">
                                 <div class="info-label">Служба доставки</div>
-                                <select class="form-select" onchange="saveField('delivery_method', this.value)">
-                                    <?php foreach(['europochta'=>'Европочта','belpochta'=>'Белпочта','cdek'=>'СДЭК','courier_minsk'=>'Курьер Минск','pickup'=>'Самовывоз'] as $k=>$v): ?>
-                                    <option value="<?= $k ?>" <?= ($model->delivery_method ?? '') === $k ? 'selected' : '' ?>><?= $v ?></option>
-                                    <?php endforeach ?>
-                                </select>
+                                <?php $dmOptions = json_encode([
+                                    ['value'=>'europochta','label'=>'Европочта'],
+                                    ['value'=>'belpochta','label'=>'Белпочта'],
+                                    ['value'=>'cdek','label'=>'СДЭК'],
+                                    ['value'=>'courier_minsk','label'=>'Курьер Минск'],
+                                    ['value'=>'pickup','label'=>'Самовывоз'],
+                                ]); ?>
+                                <span data-editable="delivery_method" data-type="select"
+                                      data-order-id="<?= $model->id ?>"
+                                      data-value="<?= Html::encode($model->delivery_method ?? '') ?>"
+                                      data-options='<?= $dmOptions ?>'><?= Html::encode($model->delivery_method ?: '—') ?></span>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Адрес доставки</div>
-                                <input type="text" class="form-control" value="<?= Html::encode($model->delivery_address ?? '') ?>" onchange="saveField('delivery_address', this.value)" placeholder="Город, улица, дом">
+                                <span data-editable="delivery_address" data-order-id="<?= $model->id ?>"
+                                      data-value="<?= Html::encode($model->delivery_address ?? '') ?>"><?= Html::encode($model->delivery_address ?: '—') ?></span>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Трек РБ</div>
@@ -623,29 +656,12 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
             </button>
         </div>
         <div class="history-modal-body">
-            <?php if (!empty($model->history)): ?>
-                <div class="timeline">
-                    <?php foreach ($model->history as $history): ?>
-                        <div class="timeline-item mb-4 <?= $history->new_status === $model->status ? 'active' : '' ?>">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <div class="timeline-title"><?= $history->getNewStatusLabel() ?></div>
-                                <div class="timeline-meta">
-                                    <?= Yii::$app->formatter->asDatetime($history->created_at) ?>
-                                    <?php if ($history->changer): ?>
-                                        • <?= Html::encode($history->changer->username) ?>
-                                    <?php endif; ?>
-                                </div>
-                                <?php if ($history->comment): ?>
-                                    <div class="mt-1"><?= Html::encode($history->comment) ?></div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+            <div class="ie-history-block">
+                <div id="ie-history-list" class="ie-history-list">
+                    <!-- Loaded via AJAX (admin-order-edit.js → OrderHistoryUI.init) -->
                 </div>
-            <?php else: ?>
-                <p class="text-muted">История изменений пока пуста.</p>
-            <?php endif; ?>
+                <button id="ie-history-load-more" style="display:none">Показать ещё</button>
+            </div>
         </div>
     </div>
 </div>
