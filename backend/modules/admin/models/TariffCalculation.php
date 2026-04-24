@@ -5,6 +5,6 @@
  */
 
 class_alias(
-    \app\models\TariffCalculation::class,
+    \app\backend\modules\catalog\models\TariffCalculation::class,
     'app\backend\modules\admin\models\TariffCalculation'
 );

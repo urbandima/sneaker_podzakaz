@@ -42,8 +42,10 @@ document.addEventListener('DOMContentLoaded', function () {
             address: document.getElementById('co_address').value,
             phone: document.getElementById('co_phone').value,
             email: document.getElementById('co_email').value,
-            work_time: document.getElementById('co_work_time').value,
-            bank_details: document.getElementById('co_bank_details').value,
+            work_time: document.getElementById('co_work_time') ? document.getElementById('co_work_time').value : '',
+            bank: document.getElementById('co_bank') ? document.getElementById('co_bank').value : '',
+            bic: document.getElementById('co_bic') ? document.getElementById('co_bic').value : '',
+            account: document.getElementById('co_account') ? document.getElementById('co_account').value : '',
         };
         fetch(urls.saveCompany, {
             method: 'POST',
@@ -1746,26 +1748,6 @@ function toggleUserStatus(userId) {
             .then(response => response.json())
             .then(data => data.success ? window.location.reload() : alert(data.message || 'Ошибка при изменении статуса'))
             .catch(() => alert('Ошибка сети'));
-    }
-}
-
-function deleteUser(userId, username) {
-    if (confirm(`Удалить пользователя «${username}»? Это действие нельзя отменить.`)) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/admin/user/delete?id=${userId}`;
-
-        const csrfToken = document.querySelector('meta[name="csrf-token"]');
-        if (csrfToken) {
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = '_csrf';
-            csrfInput.value = csrfToken.content;
-            form.appendChild(csrfInput);
-        }
-
-        document.body.appendChild(form);
-        form.submit();
     }
 }
 

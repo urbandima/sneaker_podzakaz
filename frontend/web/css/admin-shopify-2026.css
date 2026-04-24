@@ -146,15 +146,24 @@ body {
 
 /* ========== LAYOUT ========== */
 .admin-layout {
+    --sidebar-w: 240px;           /* updated to 60px when collapsed (see below) */
     display: flex;
     min-height: 100vh;
 }
 
+/* CSS-only collapse update — :has() Chrome 105+, Safari 15.4+, Firefox 121+ */
+.admin-layout:has(.admin-sidebar.collapsed),
+.admin-layout.sidebar-collapsed {
+    --sidebar-w: 60px;
+}
+
 /* Sidebar */
 .admin-sidebar {
-    width: 240px;
+    width: 240px;                  /* explicit fallback for non-:has() browsers */
     background: var(--admin-primary);
     position: fixed;
+    top: 0;
+    left: 0;
     height: 100vh;
     overflow-x: hidden;
     overflow-y: auto;
@@ -162,6 +171,7 @@ body {
     padding: var(--space-4);
     display: flex;
     flex-direction: column;
+    transition: width 0.2s ease;
 }
 
 .admin-sidebar.collapsed {
@@ -172,20 +182,36 @@ body {
 
 .admin-sidebar.collapsed .admin-sidebar-header span,
 .admin-sidebar.collapsed .admin-nav-label,
+.admin-sidebar.collapsed .admin-sidebar-toggle-btn,
 .admin-sidebar.collapsed .admin-sidebar-footer,
 .admin-sidebar.collapsed .admin-sidebar-footer > * {
     display: none;
 }
 
-.admin-sidebar.collapsed + .admin-main,
-.admin-main.sidebar-collapsed {
-    margin-left: 60px;
-}
-
 .admin-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: var(--space-6);
     padding-bottom: var(--space-4);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-sidebar-toggle-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    font-size: 18px;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.15s, background 0.15s;
+}
+.admin-sidebar-toggle-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
 }
 
 .admin-sidebar-logo {
@@ -290,13 +316,15 @@ body {
 
 /* Main Content */
 .admin-main {
-    margin-left: 240px;
+    margin-left: var(--sidebar-w, 240px);
+    max-width: calc(100% - var(--sidebar-w, 240px));
+    min-width: 0;                   /* prevent flex blowout */
     flex: 1;
     padding: var(--space-6);
-    max-width: 100%;
     min-height: 100vh;
-    overflow-y: auto;
-    transition: margin-left 0.25s ease;
+    overflow-x: hidden;
+    overflow-y: visible;
+    transition: margin-left 0.2s ease, max-width 0.2s ease;
 }
 
 /* ========== HEADER ========== */
@@ -973,9 +1001,10 @@ body {
         color: white;
     }
 
-    /* Main content: no left margin on mobile */
+    /* Main content: full width on mobile — sidebar uses overlay */
     .admin-main {
         margin-left: 0 !important;
+        max-width: 100% !important;
         padding: 12px;
     }
 

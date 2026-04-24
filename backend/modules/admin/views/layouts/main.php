@@ -54,6 +54,9 @@ $controllerId = Yii::$app->controller->id;
                 <i class="bi bi-shop"></i>
                 <span><?= Html::encode($company['name']) ?></span>
             </a>
+            <button class="admin-sidebar-toggle-btn" id="sidebar-toggle-btn" onclick="toggleDesktopSidebar()" title="Свернуть/развернуть меню" aria-label="Свернуть меню">
+                <i class="bi bi-layout-sidebar-reverse" id="sidebar-toggle-icon"></i>
+            </button>
         </div>
         
         <nav class="admin-sidebar-nav">
@@ -342,6 +345,39 @@ function closeMobileSidebar() {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeMobileSidebar();
 });
+
+// Desktop sidebar collapse — persists via localStorage
+(function() {
+    var STORAGE_KEY = 'admin-sidebar-collapsed';
+    var sidebar  = document.getElementById('admin-sidebar');
+    var layout   = document.querySelector('.admin-layout');
+    var icon     = document.getElementById('sidebar-toggle-icon');
+
+    function applyCollapsed(collapsed) {
+        if (!sidebar) return;
+        if (collapsed) {
+            sidebar.classList.add('collapsed');
+            if (layout) layout.classList.add('sidebar-collapsed');
+            if (icon) icon.className = 'bi bi-layout-sidebar';
+        } else {
+            sidebar.classList.remove('collapsed');
+            if (layout) layout.classList.remove('sidebar-collapsed');
+            if (icon) icon.className = 'bi bi-layout-sidebar-reverse';
+        }
+        // Clear any legacy inline style so CSS variable takes effect
+        var main = document.querySelector('.admin-main');
+        if (main) main.style.marginLeft = '';
+    }
+
+    // Restore saved state
+    if (localStorage.getItem(STORAGE_KEY) === '1') applyCollapsed(true);
+
+    window.toggleDesktopSidebar = function() {
+        var next = !sidebar.classList.contains('collapsed');
+        applyCollapsed(next);
+        localStorage.setItem(STORAGE_KEY, next ? '1' : '0');
+    };
+})();
 </script>
 
 <!-- Theme Toggle Script -->

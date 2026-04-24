@@ -34,8 +34,8 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use app\models\Tariff;
-use app\models\TariffCalculation;
+use app\backend\modules\catalog\models\Tariff;
+use app\backend\modules\catalog\models\TariffCalculation;
 use app\backend\shared\components\TariffSetupService;
 
 class TariffController extends BaseAdminController
