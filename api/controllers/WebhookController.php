@@ -103,6 +103,84 @@ class WebhookController extends Controller
     }
 
     /**
+     * POST /api/webhook/amocrm  (alias: /webhook/amocrm/event)
+     *
+     * Принимает события от AmoCRM: leads[status], leads[add], leads[delete].
+     */
+    public function actionAmocrm()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        Yii::$app->response->statusCode = 200;
+
+        $raw  = Yii::$app->request->getRawBody();
+        $data = json_decode($raw, true) ?: [];
+
+        // Test probe
+        if (!empty($data['_test'])) {
+            return ['ok' => true, 'message' => 'webhook endpoint is reachable'];
+        }
+
+        try {
+            $this->logAmoCrmWebhook($raw);
+
+            // leads[status] — update order status
+            if (!empty($data['leads']['status'])) {
+                foreach ($data['leads']['status'] as $lead) {
+                    $this->handleLeadStatus($lead);
+                }
+            }
+            // leads[delete] — clear amocrm_lead_id
+            if (!empty($data['leads']['delete'])) {
+                foreach ($data['leads']['delete'] as $lead) {
+                    $order = Order::findOne(['amocrm_lead_id' => (int)($lead['id'] ?? 0)]);
+                    if ($order) {
+                        $order->amocrm_lead_id = null;
+                        $order->save(false);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Yii::error('[Webhook AMO] ' . $e->getMessage(), 'amocrm');
+        }
+
+        return ['ok' => true];
+    }
+
+    private function handleLeadStatus(array $lead): void
+    {
+        $leadId  = (int)($lead['id'] ?? 0);
+        if (!$leadId) return;
+        $order = Order::findOne(['amocrm_lead_id' => $leadId]);
+        if (!$order) return;
+
+        // Map AmoCRM status → order status using settings
+        $paidStatusId = (int)Yii::$app->settings->get('amocrm', 'paid_status_id', 0);
+        $newStatusId  = (int)$lead['status_id'] ?? 0;
+
+        if ($paidStatusId && $newStatusId === $paidStatusId && $order->status !== 'paid') {
+            $order->status = 'paid';
+            $order->amocrm_last_sync_at = time();
+            $order->save(false);
+            Yii::info('[Webhook AMO] Order #' . $order->id . ' marked paid via lead #' . $leadId, 'amocrm');
+        }
+    }
+
+    private function logAmoCrmWebhook(string $body): void
+    {
+        try {
+            Yii::$app->db->createCommand()->insert('{{%amocrm_log}}', [
+                'direction'   => 'incoming',
+                'event'       => 'webhook',
+                'status'      => 'ok',
+                'payload'     => mb_substr($body, 0, 4096),
+                'response'    => null,
+                'response_ms' => 0,
+                'created_at'  => time(),
+            ])->execute();
+        } catch (\Exception $e) {}
+    }
+
+    /**
      * Обработка результата проверки паспорта по DaData.
      * Payload: { shipmentId, statusDate, passportValidationStatus }
      */

@@ -1,0 +1,46 @@
+{
+  "widget": {
+    "name": {
+      "ru": "SneakerHead — Заказы",
+      "en": "SneakerHead — Orders"
+    },
+    "description": {
+      "ru": "Показывает данные заказа из магазина SneakerHead на карточке сделки AmoCRM. Позволяет синхронизировать статусы.",
+      "en": "Displays SneakerHead store order data on an AmoCRM lead card. Allows status synchronisation."
+    },
+    "short_description": {
+      "ru": "Данные заказа SneakerHead в карточке сделки",
+      "en": "SneakerHead order data in the lead card"
+    },
+    "version": "1.0.0",
+    "category": "integration",
+    "interface": {
+      "lead_card": {
+        "show_button": true
+      },
+      "settings": {
+        "fields": [
+          {
+            "id": "shop_url",
+            "type": "text",
+            "name": "URL магазина",
+            "required": true,
+            "placeholder": "https://your-shop.com"
+          },
+          {
+            "id": "api_token",
+            "type": "text",
+            "name": "API токен (из настроек плагина AmoCRM)",
+            "required": true
+          }
+        ]
+      }
+    },
+    "scopes": [
+      "crm"
+    ],
+    "integrations": [
+      "leads"
+    ]
+  }
+}

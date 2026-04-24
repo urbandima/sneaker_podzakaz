@@ -201,6 +201,9 @@ $config = [
         'settings' => [
             'class' => 'app\backend\shared\components\Settings',
         ],
+        'amocrm' => [
+            'class' => 'app\backend\shared\components\AmocrmClient',
+        ],
         'poizonApi' => [
             'class' => 'app\backend\shared\components\PoizonApiService',
             'apiUrl' => $params['poizonApiUrl'] ?? 'https://api.poizon-parser.com/v1',
@@ -284,6 +287,10 @@ $config = [
                 
                 // Webhook endpoints
                 'api/webhook/dobropost' => 'api/webhook/dobropost',
+                'api/webhook/amocrm' => 'api/webhook/amocrm',
+                'webhook/amocrm/event' => 'api/webhook/amocrm',
+                'api/amocrm/order' => 'api/amocrm/order',
+                'api/amocrm/sync' => 'api/amocrm/sync',
 
                 // Catalog API endpoints (вынесено из CatalogController)
                 'api/catalog/filter' => 'catalog/catalog-api/filter',
@@ -449,6 +456,13 @@ $config = [
                 'admin/plugin' => 'admin/plugin/index',
                 'admin/plugin/moysklad' => 'admin/plugin/moysklad',
                 'admin/plugin/amocrm' => 'admin/plugin/amocrm',
+                'admin/plugin/amocrm/authorize' => 'admin/plugin/amocrm-authorize',
+                'admin/plugin/amocrm/callback' => 'admin/plugin/amocrm-callback',
+                'admin/plugin/amocrm/save' => 'admin/plugin/amocrm-save',
+                'admin/plugin/amocrm/test' => 'admin/plugin/amocrm-test',
+                'admin/plugin/amocrm/sync' => 'admin/plugin/amocrm-sync',
+                'admin/plugin/amocrm/logs' => 'admin/plugin/amocrm-logs',
+                'admin/plugin/amocrm/stats' => 'admin/plugin/amocrm-stats',
                 'admin/plugin/telegram' => 'admin/plugin/telegram',
                 'admin/plugin/currency' => 'admin/plugin/currency',
                 'admin/plugin/dobropost' => 'admin/plugin/dobropost',
