@@ -605,7 +605,8 @@ $config = [
                 'admin/characteristic' => 'admin/characteristic/index',
                 'admin/characteristic/guide' => 'admin/characteristic/guide',
                 
-                // Customers (покупатели)
+                // Customers (покупатели) — /admin/client is an alias
+                'admin/client' => 'admin/customer/index',
                 'admin/customer' => 'admin/customer/index',
                 'admin/customer/<id:\d+>' => 'admin/customer/view',
                 'admin/customer/<id:\d+>/update' => 'admin/customer/update',
