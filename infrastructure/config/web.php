@@ -168,7 +168,9 @@ $config = [
             ],
         ],
         'errorHandler' => [
+            'class' => 'app\components\SentryErrorHandler',
             'errorAction' => 'site/error',
+            'displayVars' => YII_DEBUG ? ['_GET', '_POST', '_FILES', '_COOKIE', '_SESSION', '_SERVER'] : [],
         ],
         'mailer' => [
             'class' => 'yii\symfonymailer\Mailer',
@@ -180,7 +182,9 @@ $config = [
             'targets' => [
                 [
                     'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
+                    'levels' => ['error', 'warning', 'info'],
+                    'logFile' => '@app/runtime/logs/app.log',
+                    'logVars' => [],
                 ],
                 // Sentry для production
                 ...(!((defined('YII_ENV_DEV') && YII_ENV_DEV)) && env('SENTRY_DSN') ? [[

@@ -85,10 +85,10 @@ $this->params['headerActions'] = [
             <tbody>
                 <?php foreach ($salesByDay as $day): ?>
                 <tr>
-                    <td><?= $day['date'] ?></td>
-                    <td class="text-right fw-600"><?= $day['orders_count'] ?></td>
-                    <td class="text-right fw-600"><?= number_format($day['revenue'], 0, ',', ' ') ?> BYN</td>
-                    <td class="text-right"><?= number_format($day['avg_order'], 0, ',', ' ') ?> BYN</td>
+                    <td><?= $day['date'] ?? '—' ?></td>
+                    <td class="text-right fw-600"><?= $day['orders_count'] ?? $day['count'] ?? 0 ?></td>
+                    <td class="text-right fw-600"><?= number_format($day['revenue'] ?? 0, 0, ',', ' ') ?> BYN</td>
+                    <td class="text-right"><?= number_format($day['avg_order'] ?? $day['avg_order_value'] ?? 0, 0, ',', ' ') ?> BYN</td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
