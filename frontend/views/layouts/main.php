@@ -47,6 +47,20 @@ $company = Yii::$app->settings->getCompany();
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
           onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"></noscript>
+
+    <?php
+    // A16: only inject GA snippet for a valid GA4 measurement ID (never placeholder)
+    $gaId = Yii::$app->settings->get('seo', 'ga_id', '');
+    if ($gaId && preg_match('/^G-[A-Z0-9]{8,}$/i', $gaId)):
+    ?>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<?= Html::encode($gaId) ?>"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '<?= Html::encode($gaId) ?>', { anonymize_ip: true });
+    </script>
+    <?php endif; ?>
 </head>
 <body>
 <?php $this->beginBody() ?>

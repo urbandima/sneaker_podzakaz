@@ -85,7 +85,8 @@ class SettingsController extends BaseAdminController
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $fields = ['name', 'unp', 'address', 'phone', 'email', 'work_time', 'bank_details'];
+        // A9: use proper field names matching CompanySettings model (bank/bic/account, not bank_details)
+        $fields = ['name', 'unp', 'address', 'phone', 'email', 'work_time', 'bank', 'bic', 'account'];
         $data = Yii::$app->request->post();
         if (empty($data)) {
             $raw = Yii::$app->request->getRawBody();
@@ -93,20 +94,44 @@ class SettingsController extends BaseAdminController
         }
 
         try {
-            $company = Yii::$app->settings->getCompany() ?? [];
+            // A9: persist to DB via CompanySettings model, not just in-memory storage
+            $model = \app\backend\modules\admin\models\CompanySettings::find()->one()
+                  ?? new \app\backend\modules\admin\models\CompanySettings();
             foreach ($fields as $field) {
                 if (array_key_exists($field, $data)) {
-                    $company[$field] = $data[$field];
+                    $model->$field = $data[$field];
                 }
             }
-            Yii::$app->settings->set('company', 'data', json_encode($company, JSON_UNESCAPED_UNICODE));
-            // Also set individual keys for backward compat
-            foreach ($company as $k => $v) {
-                Yii::$app->settings->set('company', $k, $v);
-            }
+            $model->updated_at = time();
+            $model->save(false);
+            // Invalidate Settings cache so next getCompany() re-reads from DB
+            Yii::$app->settings->invalidateCompanyCache();
             return ['success' => true, 'message' => 'Реквизиты компании сохранены'];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
+        }
+    }
+
+    // A16: save GA4 measurement ID; validates format before persisting
+    public function actionSaveGaId()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $raw  = Yii::$app->request->getRawBody();
+        $data = json_decode($raw, true) ?: Yii::$app->request->post();
+        $gaId = trim($data['ga_id'] ?? '');
+
+        if ($gaId !== '' && !preg_match('/^G-[A-Z0-9]{8,}$/i', $gaId)) {
+            return ['success' => false, 'message' => 'Неверный формат ID. Ожидается G-XXXXXXXXXX'];
+        }
+
+        try {
+            Yii::$app->db->createCommand()->upsert('{{%settings}}', [
+                'section' => 'seo', 'key' => 'ga_id', 'value' => $gaId,
+            ], ['value' => $gaId])->execute();
+            Yii::$app->settings->set('seo', 'ga_id', $gaId);
+            return ['success' => true];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
         }
     }
 

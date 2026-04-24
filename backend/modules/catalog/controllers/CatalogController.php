@@ -805,6 +805,8 @@ class CatalogController extends Controller
 
         // Увеличиваем счетчик просмотров
         $product->incrementViews();
+        // A15: track product_view event for conversion analytics
+        \app\backend\modules\catalog\models\AnalyticsEvent::track('product_view', $product->id);
 
         // Похожие товары — используем ProductRepository::findSimilarProducts()
         $similarProducts = $this->productRepository->findSimilarProducts($product, 4);

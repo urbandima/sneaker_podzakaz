@@ -200,6 +200,9 @@ class DashboardController extends BaseAdminController
             $currencyInfo = ['rate' => 0.45, 'updated_at' => null, 'source' => 'default'];
         }
 
+        // A20: abandoned carts (cart updated > 1h ago, order not placed)
+        $abandonedCarts = $this->getAbandonedCartCount();
+
         return $this->render('index', [
             'user' => $user,
             'orderStats' => $orderStats,
@@ -213,6 +216,7 @@ class DashboardController extends BaseAdminController
             'operationalStats' => $operationalStats,
             'funnelData' => $funnelData,
             'currencyInfo' => $currencyInfo,
+            'abandonedCarts' => $abandonedCarts,
         ]);
     }
     
@@ -443,7 +447,7 @@ class DashboardController extends BaseAdminController
             $delayed3d = (int)Yii::$app->db->createCommand("
                 SELECT COUNT(*) FROM `order`
                 WHERE updated_at < :ts
-                  AND status NOT IN ('delivered','canceled')
+                  AND status NOT IN ('delivered','canceled','imported_invalid')
             ", [':ts' => $threeDaysAgo])->queryScalar();
         } catch (\Exception $e) {
             $delayed3d = 0;
@@ -473,6 +477,24 @@ class DashboardController extends BaseAdminController
             return ['views' => $views, 'carts' => $carts, 'orders' => $orders];
         } catch (\Exception $e) {
             return ['views' => 0, 'carts' => 0, 'orders' => 0];
+        }
+    }
+
+    // A20: count carts that haven't converted to an order (updated > 1h ago)
+    private function getAbandonedCartCount(): int
+    {
+        try {
+            $tableExists = Yii::$app->db->schema->getTableSchema('{{%cart}}') !== null;
+            if (!$tableExists) {
+                return 0;
+            }
+            return (int)Yii::$app->db->createCommand("
+                SELECT COUNT(DISTINCT customer_id) FROM {{%cart}}
+                WHERE updated_at < :ts
+                  AND customer_id IS NOT NULL
+            ", [':ts' => time() - 3600])->queryScalar();
+        } catch (\Exception $e) {
+            return 0;
         }
     }
 

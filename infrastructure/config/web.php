@@ -444,6 +444,7 @@ $config = [
                 'admin/plugin/currency' => 'admin/plugin/currency',
                 'admin/plugin/dobropost' => 'admin/plugin/dobropost',
                 'admin/settings/save' => 'admin/settings/save',
+                'admin/settings/save-ga-id' => 'admin/settings/save-ga-id',
                 'admin/settings/statuses' => 'admin/settings/statuses',
                 'admin/settings/save-statuses' => 'admin/settings/save-statuses',
                 

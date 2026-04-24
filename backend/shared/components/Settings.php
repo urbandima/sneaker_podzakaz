@@ -102,6 +102,11 @@ class Settings extends Component
      */
     public function get($section, $key, $default = null)
     {
+        // Check in-memory first (set() writes here, so it takes precedence)
+        if (isset(self::$storage[$section][$key])) {
+            return self::$storage[$section][$key];
+        }
+
         // Временно возвращаем значения по умолчанию для импорта
         if ($section === 'import') {
             $defaults = [
@@ -114,9 +119,22 @@ class Settings extends Component
             ];
             return $defaults[$key] ?? $default;
         }
-        
-        // Возвращаем из временного хранилища
-        return self::$storage[$section][$key] ?? $default;
+
+        // Read from settings table (generic key-value store)
+        try {
+            $value = \Yii::$app->db->createCommand(
+                'SELECT value FROM {{%settings}} WHERE section = :s AND `key` = :k LIMIT 1',
+                [':s' => $section, ':k' => $key]
+            )->queryScalar();
+            if ($value !== false) {
+                self::$storage[$section][$key] = $value; // cache locally
+                return $value;
+            }
+        } catch (\Exception $e) {
+            // table may not exist yet
+        }
+
+        return $default;
     }
 
     /**
@@ -131,5 +149,10 @@ class Settings extends Component
             self::$storage[$section] = [];
         }
         self::$storage[$section][$key] = $value;
+    }
+
+    public function invalidateCompanyCache()
+    {
+        $this->_company = null;
     }
 }

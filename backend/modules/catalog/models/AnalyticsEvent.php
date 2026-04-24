@@ -65,4 +65,31 @@ class AnalyticsEvent extends ActiveRecord
             ['product_id' => 3, 'product_name' => 'Nike Air Max 90', 'views' => 100, 'orders' => 12],
         ];
     }
+
+    // A15: track an analytics event; silently no-ops if table doesn't exist
+    public static function track(string $event, $productId = null, array $extra = []): void
+    {
+        if (!static::isAvailable()) {
+            return;
+        }
+        try {
+            $customerId = null;
+            $sessionId  = null;
+            if (!Yii::$app->user->isGuest) {
+                $customerId = Yii::$app->user->id;
+            } else {
+                $sessionId = Yii::$app->session->id;
+            }
+            Yii::$app->db->createCommand()->insert('{{%analytics_event}}', [
+                'event'       => $event,
+                'product_id'  => $productId,
+                'customer_id' => $customerId,
+                'session_id'  => $sessionId,
+                'extra'       => $extra ? json_encode($extra, JSON_UNESCAPED_UNICODE) : null,
+                'created_at'  => date('Y-m-d H:i:s'),
+            ])->execute();
+        } catch (\Exception $e) {
+            Yii::warning('AnalyticsEvent::track failed: ' . $e->getMessage(), 'analytics');
+        }
+    }
 }

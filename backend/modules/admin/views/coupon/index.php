@@ -123,7 +123,7 @@ $this->params['headerActions'] = [
                                 <?php
                                 $expiryField = $model->valid_until ?? $model->expires_at ?? $model->expiry ?? null;
                                 if (!$expiryField): ?>
-                                    —
+                                    <span class="text-muted-sm">Бессрочный</span>
                                 <?php else: ?>
                                     <?php
                                     $date = is_numeric($expiryField) ? $expiryField : strtotime($expiryField);

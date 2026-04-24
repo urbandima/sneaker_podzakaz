@@ -100,8 +100,16 @@ $this->params['headerActions'] = [];
             </div>
 
             <div class="form-group">
-                <label>Банковские реквизиты</label>
-                <textarea class="form-control" rows="3" id="co_bank_details" placeholder="БИК, р/с, банк..."><?= Html::encode($company['bank_details'] ?? '') ?></textarea>
+                <label>Банк</label>
+                <input type="text" class="form-control" id="co_bank" value="<?= Html::encode($company['bank'] ?? '') ?>" placeholder="ОАО АСБ Беларусбанк">
+            </div>
+            <div class="form-group">
+                <label>БИК</label>
+                <input type="text" class="form-control" id="co_bic" value="<?= Html::encode($company['bic'] ?? '') ?>" placeholder="AKBBBY2X">
+            </div>
+            <div class="form-group">
+                <label>Расчётный счёт</label>
+                <input type="text" class="form-control" id="co_account" value="<?= Html::encode($company['account'] ?? '') ?>" placeholder="BY00AKBB00000000000000000000">
             </div>
 
             <button class="admin-btn admin-btn-primary" id="saveCompanyBtn" onclick="saveCompany(this)">

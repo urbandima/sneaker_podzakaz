@@ -224,6 +224,26 @@ $this->params['headerActions'] = [];
         </div>
     </div>
 
+    <!-- Google Analytics -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2 class="admin-card-title"><i class="bi bi-bar-chart-line"></i> Google Analytics 4</h2>
+        </div>
+        <div class="admin-card-body">
+            <div class="form-group">
+                <label>Measurement ID</label>
+                <input type="text" class="admin-form-input" id="ga-id-input"
+                       placeholder="G-XXXXXXXXXX"
+                       value="<?= htmlspecialchars(Yii::$app->settings->get('seo', 'ga_id', '')) ?>">
+                <small class="text-muted-sm">Формат: G-XXXXXXXXXX. Оставьте пустым чтобы отключить.</small>
+            </div>
+            <button class="admin-btn admin-btn-secondary" onclick="saveGaId()">
+                <i class="bi bi-save"></i> Сохранить
+            </button>
+            <div id="ga-save-result" class="mt-10px fs-xs"></div>
+        </div>
+    </div>
+
     <!-- Курс валют -->
     <div class="admin-card">
         <div class="admin-card-header">
@@ -290,5 +310,20 @@ function saveDobroPost() {
     var result = document.getElementById('dp-test-result');
     result.textContent = 'Сохранено (настройки применяются через .env и конфиг)';
     result.style.color = '#6b7280';
+}
+
+function saveGaId() {
+    var id = document.getElementById('ga-id-input').value.trim();
+    fetch('/admin/settings/save-ga-id', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content},
+        body: JSON.stringify({ga_id: id})
+    })
+    .then(r => r.json())
+    .then(d => {
+        var msg = document.getElementById('ga-save-result');
+        msg.textContent = d.success ? '✓ Сохранено' : '✗ ' + (d.message || 'Ошибка');
+        msg.style.color = d.success ? '#065f46' : '#991b1b';
+    });
 }
 </script>
