@@ -82,24 +82,30 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                     <h2><i class="bi bi-person"></i> Контактные данные</h2>
                     <div class="checkout-contact-grid">
                         <div class="form-group">
-                            <label for="field-name">ФИО <span class="text-danger">*</span></label>
+                            <label for="field-name">ФИО <span class="text-danger" aria-hidden="true">*</span><span class="sr-only">(обязательное)</span></label>
                             <input type="text" id="field-name" name="name" class="form-control"
                                    placeholder="Иванов Иван Иванович"
                                    value="<?= Html::encode($customer ? $customer->getFullName() : '') ?>"
-                                   required maxlength="100">
+                                   required aria-required="true" autocomplete="name"
+                                   aria-describedby="error-name" maxlength="100">
+                            <div id="error-name" class="invalid-feedback" role="alert" aria-live="polite"></div>
                         </div>
                         <div class="form-group">
-                            <label for="field-phone">Телефон <span class="text-danger">*</span></label>
+                            <label for="field-phone">Телефон <span class="text-danger" aria-hidden="true">*</span><span class="sr-only">(обязательное)</span></label>
                             <input type="tel" id="field-phone" name="phone" class="form-control"
                                    placeholder="+375 (__) ___-__-__"
                                    value="<?= Html::encode($customer?->phone ?? '') ?>"
-                                   required maxlength="50">
+                                   required aria-required="true" autocomplete="tel"
+                                   pattern="[+]?[0-9\s\-\(\)]{7,}"
+                                   aria-describedby="error-phone" maxlength="50">
+                            <div id="error-phone" class="invalid-feedback" role="alert" aria-live="polite"></div>
                         </div>
                         <div class="form-group">
                             <label for="field-email">Email</label>
                             <input type="email" id="field-email" name="email" class="form-control"
                                    placeholder="email@example.com"
                                    value="<?= Html::encode($customer?->email ?? '') ?>"
+                                   autocomplete="email" inputmode="email"
                                    maxlength="255">
                         </div>
                     </div>
@@ -204,20 +210,21 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                     <div id="addressGroup" style="display:none">
                         <div class="address-row">
                             <div class="form-group">
-                                <label for="field-city">Город <span class="text-danger">*</span></label>
+                                <label for="field-city">Город <span class="text-danger" aria-hidden="true">*</span><span class="sr-only">(обязательное)</span></label>
                                 <input type="text" id="field-city" name="city" class="form-control"
-                                       placeholder="Минск" maxlength="100">
+                                       placeholder="Минск" autocomplete="address-level2" maxlength="100">
                             </div>
                             <div class="form-group">
                                 <label for="field-postal">Индекс</label>
                                 <input type="text" id="field-postal" name="postal_code" class="form-control"
-                                       placeholder="220000" maxlength="20">
+                                       placeholder="220000" autocomplete="postal-code" inputmode="numeric" maxlength="20">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="field-address" id="addressLabel">Улица, дом, квартира <span class="text-danger">*</span></label>
+                            <label for="field-address" id="addressLabel">Улица, дом, квартира <span class="text-danger" aria-hidden="true">*</span><span class="sr-only">(обязательное)</span></label>
                             <textarea id="field-address" name="address" class="form-control"
                                       rows="2" placeholder="Улица, дом, квартира"
+                                      autocomplete="street-address"
                                       maxlength="500"><?= Html::encode($customer?->default_address ?? '') ?></textarea>
                         </div>
                     </div>
@@ -284,10 +291,10 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                 <div class="order-summary">
                     <h3>Ваш заказ</h3>
 
-                    <div class="summary-items">
+                    <div class="summary-items" id="checkoutSummaryItems">
                         <?php foreach ($items as $item): ?>
                             <?php if (!$item->product) continue; ?>
-                            <div class="summary-item">
+                            <div class="summary-item" id="checkout-item-<?= $item->id ?>">
                                 <img src="<?= Html::encode($item->product->getMainImageUrl()) ?>"
                                      alt="<?= Html::encode($item->product->name) ?>"
                                      class="summary-item-img">
@@ -296,9 +303,20 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                                     <?php if ($item->size): ?>
                                         <span class="summary-item-meta">Размер: <?= Html::encode($item->size) ?></span>
                                     <?php endif; ?>
-                                    <span class="summary-item-meta"><?= (int)$item->quantity ?> × <?= number_format($item->price, 2) ?> BYN</span>
+                                    <div class="summary-item-qty" role="group" aria-label="Количество">
+                                        <button type="button" class="qty-btn" aria-label="Уменьшить"
+                                                onclick="checkoutUpdateQty(<?= $item->id ?>, <?= $item->quantity - 1 ?>)"
+                                                <?= $item->quantity <= 1 ? 'disabled' : '' ?>>−</button>
+                                        <span class="qty-val" id="qty-<?= $item->id ?>"><?= (int)$item->quantity ?></span>
+                                        <button type="button" class="qty-btn" aria-label="Увеличить"
+                                                onclick="checkoutUpdateQty(<?= $item->id ?>, <?= $item->quantity + 1 ?>)">+</button>
+                                    </div>
                                 </div>
-                                <span class="summary-item-price"><?= number_format($item->price * $item->quantity, 2) ?> BYN</span>
+                                <div class="summary-item-right">
+                                    <span class="summary-item-price" id="price-<?= $item->id ?>"><?= number_format($item->price * $item->quantity, 2) ?> BYN</span>
+                                    <button type="button" class="summary-item-remove" aria-label="Удалить товар"
+                                            onclick="checkoutRemoveItem(<?= $item->id ?>, <?= $item->price ?>)">×</button>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -386,6 +404,72 @@ var selectedCountry   = 'belarus';
 var selectedPayment   = 'bank_transfer';
 var csrfToken         = <?= json_encode($csrfToken) ?>;
 var createUrl         = <?= json_encode($createUrl) ?>;
+
+// Cart editing in checkout
+function checkoutUpdateQty(id, newQty) {
+    if (newQty < 1) return;
+    var csrfHeader = { 'X-CSRF-Token': csrfToken, 'X-Requested-With': 'XMLHttpRequest' };
+    fetch('/cart/update', {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/x-www-form-urlencoded' }, csrfHeader),
+        body: 'id=' + id + '&quantity=' + newQty
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            var qtyEl = document.getElementById('qty-' + id);
+            var priceEl = document.getElementById('price-' + id);
+            var itemRow = document.getElementById('checkout-item-' + id);
+            if (qtyEl) qtyEl.textContent = newQty;
+            var unitPrice = data.item_price || (parseFloat(priceEl.textContent) / parseInt(qtyEl.textContent));
+            if (priceEl && data.item_subtotal) priceEl.textContent = parseFloat(data.item_subtotal).toFixed(2) + ' BYN';
+            // Disable minus when qty=1
+            var btns = itemRow ? itemRow.querySelectorAll('.qty-btn') : [];
+            if (btns[0]) btns[0].disabled = (newQty <= 1);
+            // Update totals
+            orderTotal = data.total || orderTotal;
+            var ptEl = document.getElementById('productsTotal');
+            if (ptEl) ptEl.textContent = parseFloat(data.total).toFixed(2) + ' BYN';
+            updateTotal();
+        }
+    });
+}
+
+function checkoutRemoveItem(id, price) {
+    var csrfHeader = { 'X-CSRF-Token': csrfToken, 'X-Requested-With': 'XMLHttpRequest' };
+    fetch('/cart/remove/' + id, {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/x-www-form-urlencoded' }, csrfHeader),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            var row = document.getElementById('checkout-item-' + id);
+            if (row) row.remove();
+            orderTotal = data.total || Math.max(0, orderTotal - price);
+            var ptEl = document.getElementById('productsTotal');
+            if (ptEl) ptEl.textContent = parseFloat(data.total || orderTotal).toFixed(2) + ' BYN';
+            updateTotal();
+            if (data.count === 0 || document.querySelectorAll('#checkoutSummaryItems .summary-item').length === 0) {
+                window.location.href = '/catalog';
+            }
+        }
+    });
+}
+
+function showFieldError(fieldId, errorId, message) {
+    var field = document.getElementById(fieldId);
+    if (field) { field.classList.add('is-invalid'); field.focus(); }
+    if (errorId) {
+        var err = document.getElementById(errorId);
+        if (err) err.textContent = message;
+    }
+}
+
+function clearFieldErrors() {
+    document.querySelectorAll('.form-control.is-invalid').forEach(function(f) { f.classList.remove('is-invalid'); });
+    document.querySelectorAll('.invalid-feedback[role="alert"]').forEach(function(e) { e.textContent = ''; });
+}
 
 // Mobile summary toggle
 function toggleMobileSummary() {
@@ -504,18 +588,18 @@ function submitOrder() {
     // Combine address parts
     var address = [city, postal, street].filter(Boolean).join(', ');
 
-    if (!name)  { alert('Укажите ФИО'); document.getElementById('field-name').focus(); return; }
-    if (!phone) { alert('Укажите телефон'); document.getElementById('field-phone').focus(); return; }
+    clearFieldErrors();
+    if (!name)  { showFieldError('field-name', 'error-name', 'Укажите ФИО'); return; }
+    if (!phone) { showFieldError('field-phone', 'error-phone', 'Укажите телефон'); return; }
     if (!/^[\+]?[\d\s\-\(\)]{7,}$/.test(phone)) {
-        alert('Некорректный формат телефона');
-        document.getElementById('field-phone').focus();
+        showFieldError('field-phone', 'error-phone', 'Некорректный формат телефона');
         return;
     }
     if (!delivery) { alert('Выберите способ доставки'); return; }
     if (delivery.value !== 'pickup_minsk' && !address) {
-        alert('Укажите адрес доставки');
         var cityEl = document.getElementById('field-city');
-        if (cityEl) cityEl.focus(); else document.getElementById('field-address').focus();
+        if (cityEl) { showFieldError('field-city', null, 'Укажите город'); }
+        else { showFieldError('field-address', null, 'Укажите адрес доставки'); }
         return;
     }
 
