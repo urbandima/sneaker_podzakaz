@@ -3,6 +3,7 @@
 /** @var yii\web\View $this */
 /** @var app\backend\modules\catalog\models\Order $model */
 /** @var app\backend\modules\catalog\models\Product[] $recommendedProducts */
+/** @var array|null $autoAccount */
 
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -18,6 +19,7 @@ CheckoutAsset::register($this);
 ?>
 
 <div class="checkout-success-page">
+    <div class="success-overlay"></div>
     <div class="success-container">
         <div class="success-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3">
@@ -50,6 +52,18 @@ CheckoutAsset::register($this);
             </div>
         <?php endif; ?>
 
+        <?php if (!empty($autoAccount)): ?>
+            <div class="auto-account-card">
+                <h3>Ваш личный кабинет создан</h3>
+                <p>Мы автоматически создали для вас аккаунт. Используйте эти данные для входа:</p>
+                <div class="account-credentials">
+                    <p>Логин: <strong><?= Html::encode($autoAccount['phone']) ?></strong></p>
+                    <p>Пароль: <strong><?= Html::encode($autoAccount['password']) ?></strong></p>
+                </div>
+                <p class="account-hint">Данные для входа отправлены по SMS. Рекомендуем сменить пароль в личном кабинете.</p>
+            </div>
+        <?php endif; ?>
+
         <div class="success-actions">
             <a href="<?= Url::to(['/account/orders']) ?>" class="btn-track-order">
                 Отследить заказ <i class="bi bi-arrow-right"></i>
@@ -69,6 +83,15 @@ CheckoutAsset::register($this);
     align-items: center;
     justify-content: center;
     background: var(--color-surface);
+    position: relative;
+}
+
+.success-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    z-index: 0;
 }
 
 .success-container {
@@ -79,8 +102,10 @@ CheckoutAsset::register($this);
     background: var(--color-white);
     border-radius: 24px;
     text-align: center;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     border: 1px solid var(--color-border);
+    position: relative;
+    z-index: 1;
 }
 
 .success-icon {
@@ -139,6 +164,54 @@ CheckoutAsset::register($this);
 .next-step-card .btn {
     width: 100%;
     justify-content: center;
+}
+
+.auto-account-card {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 32px;
+    text-align: left;
+}
+
+.auto-account-card h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #166534;
+}
+
+.auto-account-card p {
+    color: var(--color-muted);
+    font-size: 0.9375rem;
+    margin-bottom: 12px;
+}
+
+.account-credentials {
+    background: var(--color-white);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border: 1px solid #bbf7d0;
+}
+
+.account-credentials p {
+    margin: 0 0 8px 0;
+    color: var(--color-black);
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9375rem;
+}
+
+.account-credentials p:last-child {
+    margin: 0;
+}
+
+.account-hint {
+    font-size: 0.8125rem !important;
+    color: #166534 !important;
+    margin-bottom: 0 !important;
 }
 
 .success-actions {

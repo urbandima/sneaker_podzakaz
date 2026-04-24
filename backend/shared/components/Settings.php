@@ -102,6 +102,11 @@ class Settings extends Component
      */
     public function get($section, $key, $default = null)
     {
+        // Возвращаем из кеша в памяти если есть
+        if (isset(self::$storage[$section][$key])) {
+            return self::$storage[$section][$key];
+        }
+
         // Временно возвращаем значения по умолчанию для импорта
         if ($section === 'import') {
             $defaults = [
@@ -112,24 +117,71 @@ class Settings extends Component
                 'notify_on_complete' => true,
                 'notify_on_error' => true,
             ];
-            return $defaults[$key] ?? $default;
+            if (isset($defaults[$key])) {
+                return $defaults[$key];
+            }
         }
-        
-        // Возвращаем из временного хранилища
-        return self::$storage[$section][$key] ?? $default;
+
+        // Читаем из БД
+        try {
+            $row = Yii::$app->db->createCommand(
+                'SELECT value FROM {{%app_setting}} WHERE section = :s AND `key` = :k LIMIT 1',
+                [':s' => $section, ':k' => $key]
+            )->queryScalar();
+
+            if ($row !== false && $row !== null) {
+                if (!isset(self::$storage[$section])) {
+                    self::$storage[$section] = [];
+                }
+                self::$storage[$section][$key] = $row;
+                return $row;
+            }
+        } catch (\Exception $e) {
+            // Таблица ещё не создана — возвращаем default
+        }
+
+        return $default;
     }
 
     /**
-     * Установка настройки
+     * Установка настройки (сохраняет в БД)
      * @param string $section Секция настроек
      * @param string $key Ключ настройки
      * @param mixed $value Значение
      */
     public function set($section, $key, $value)
     {
+        // Обновляем кеш в памяти
         if (!isset(self::$storage[$section])) {
             self::$storage[$section] = [];
         }
         self::$storage[$section][$key] = $value;
+
+        // Сохраняем в БД (INSERT OR UPDATE)
+        try {
+            $dbValue = is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : (string)$value;
+
+            $exists = Yii::$app->db->createCommand(
+                'SELECT COUNT(*) FROM {{%app_setting}} WHERE section = :s AND `key` = :k',
+                [':s' => $section, ':k' => $key]
+            )->queryScalar();
+
+            if ($exists) {
+                Yii::$app->db->createCommand()->update('{{%app_setting}}', [
+                    'value' => $dbValue,
+                    'updated_at' => time(),
+                ], ['section' => $section, 'key' => $key])->execute();
+            } else {
+                Yii::$app->db->createCommand()->insert('{{%app_setting}}', [
+                    'section' => $section,
+                    'key' => $key,
+                    'value' => $dbValue,
+                    'updated_at' => time(),
+                ])->execute();
+            }
+        } catch (\Exception $e) {
+            // Таблица ещё не создана — работаем только с кешем в памяти
+            Yii::warning('Settings::set failed to persist: ' . $e->getMessage(), 'settings');
+        }
     }
 }

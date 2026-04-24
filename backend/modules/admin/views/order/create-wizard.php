@@ -1,7 +1,8 @@
 <?php
 
 /** @var yii\web\View $this */
-/** @var app\backend\modules\catalog\models\Order $model */
+/** @var app\backend\modules\checkout\models\Order $model */
+/** @var array $shippingMethods */
 
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -87,6 +88,23 @@ $logists = $user->isAdmin()
                     <p class="step-description-main">Введите основную информацию о клиенте и параметрах доставки</p>
                 </div>
 
+                <!-- Customer quick-search / pre-fill -->
+                <div class="form-section" style="margin-bottom:12px">
+                    <h3 class="form-section-title" style="margin-bottom:8px">🔍 Существующий клиент (необязательно)</h3>
+                    <?= Html::activeHiddenInput($model, 'customer_id', ['id' => 'wizard-customer-id']) ?>
+                    <div style="position:relative;max-width:420px">
+                        <input type="text" id="wizard-customer-search" class="admin-form-input"
+                               placeholder="Поиск по имени, телефону или email..."
+                               autocomplete="off" style="padding-right:36px">
+                        <span id="wizard-customer-clear" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--admin-text-secondary);font-size:18px;line-height:1" onclick="clearWizardCustomer()">×</span>
+                        <div id="wizard-customer-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--admin-surface);border:1px solid var(--admin-border);border-radius:var(--admin-radius);box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:100;max-height:240px;overflow-y:auto"></div>
+                    </div>
+                    <div id="wizard-customer-badge" style="display:none;margin-top:8px;padding:8px 12px;background:var(--admin-success-bg,#f0fdf4);border:1px solid var(--admin-success-border,#bbf7d0);border-radius:var(--admin-radius-sm);font-size:13px;color:var(--admin-success-text,#16a34a);display:flex;align-items:center;gap:8px">
+                        <i class="bi bi-person-check-fill"></i>
+                        <span id="wizard-customer-badge-text"></span>
+                    </div>
+                </div>
+
                 <div class="form-section">
                     <h3 class="form-section-title">
                         📞 Контактные данные клиента
@@ -142,11 +160,26 @@ $logists = $user->isAdmin()
                                 Способ доставки
                                 <span class="required">*</span>
                             </label>
-                            <?= Html::activeTextInput($model, 'delivery_method', [
-                                'data-validation' => 'required',
-                                'data-field' => 'delivery_method'
-                            ]) ?>
-                            <div class="field-hint">Например: Dobropost, EMS, самовывоз</div>
+                            <select name="Order[delivery_method]"
+                                    data-validation="required"
+                                    data-field="delivery_method">
+                                <option value="">— Выберите способ доставки —</option>
+                                <?php foreach ($shippingMethods as $sm): ?>
+                                    <option value="<?= Html::encode($sm['id']) ?>"
+                                            <?= $model->delivery_method === $sm['id'] ? 'selected' : '' ?>
+                                            data-plugin="<?= Html::encode($sm['plugin'] ?? '') ?>"
+                                            data-cost="<?= Html::encode($sm['base_cost'] ?? 0) ?>">
+                                        <?= Html::encode($sm['name']) ?>
+                                        <?php if (!empty($sm['carrier'])): ?>
+                                            (<?= Html::encode($sm['carrier']) ?>)
+                                        <?php endif; ?>
+                                        <?php if (!empty($sm['delivery_time'])): ?>
+                                            — <?= Html::encode($sm['delivery_time']) ?>
+                                        <?php endif; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <div class="field-hint">Способы доставки настраиваются в разделе Настройки → Доставка</div>
                         </div>
                         <div class="form-field">
                             <label>
@@ -243,9 +276,8 @@ $logists = $user->isAdmin()
                         <tbody id="productsTableBody">
                             <tr data-index="0">
                                 <td>
-                                    <input type="text" name="OrderItem[0][product_name]" 
-                                           placeholder="Введите название товара" 
-                                           data-validation="required"
+                                    <input type="text" name="OrderItem[0][product_name]"
+                                           placeholder="Введите название товара"
                                            data-field="product_name_0">
                                 </td>
                                 <td>
@@ -346,7 +378,8 @@ $logists = $user->isAdmin()
                             <div class="form-field">
                                 <label>ИНН (для РФ)</label>
                                 <?= Html::activeTextInput($model, 'inn', [
-                                    'data-field' => 'inn'
+                                    'data-field' => 'inn',
+                                    'placeholder' => 'ИНН (только для РФ)'
                                 ]) ?>
                             </div>
                         </div>
@@ -513,11 +546,8 @@ $logists = $user->isAdmin()
                     </h3>
                     <div class="form-grid form-grid--2">
                         <div class="form-field">
-                            <label>
-                                Статус заказа
-                                <span class="required">*</span>
-                            </label>
-                            <select name="Order[status]" data-validation="required" data-field="status">
+                            <label>Статус заказа</label>
+                            <select name="Order[status]" data-field="status">
                                 <?php foreach ($statuses as $key => $label): ?>
                                     <option value="<?= Html::encode($key) ?>"><?= Html::encode($label) ?></option>
                                 <?php endforeach; ?>
@@ -601,4 +631,90 @@ $logists = $user->isAdmin()
     <span>Черновик сохранён</span>
 </div>
 
+<?php $this->registerJs(<<<'JS'
+// Customer search / pre-fill for order wizard
+(function(){
+    var searchInput  = document.getElementById('wizard-customer-search');
+    var resultsBox   = document.getElementById('wizard-customer-results');
+    var customerIdInput = document.getElementById('wizard-customer-id') ||
+                         document.querySelector('input[name="Order[customer_id]"]');
+    var badge        = document.getElementById('wizard-customer-badge');
+    var badgeText    = document.getElementById('wizard-customer-badge-text');
+    var clearBtn     = document.getElementById('wizard-customer-clear');
+    var searchTimer  = null;
+
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', function(){
+        clearTimeout(searchTimer);
+        var q = this.value.trim();
+        if (q.length < 2) { resultsBox.style.display = 'none'; return; }
+        searchTimer = setTimeout(function(){
+            fetch('/admin/customer/search?q=' + encodeURIComponent(q))
+                .then(function(r){ return r.json(); })
+                .then(function(data){
+                    resultsBox.innerHTML = '';
+                    if (!data.length) {
+                        resultsBox.innerHTML = '<div style="padding:10px 14px;color:var(--admin-text-secondary);font-size:13px">Клиент не найден</div>';
+                    } else {
+                        data.forEach(function(c){
+                            var item = document.createElement('div');
+                            item.style.cssText = 'padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--admin-border)';
+                            item.innerHTML = '<strong>' + c.name + '</strong>' +
+                                (c.phone ? ' <span style="color:var(--admin-text-secondary)">· ' + c.phone + '</span>' : '') +
+                                (c.email ? '<br><span style="color:var(--admin-text-secondary);font-size:12px">' + c.email + '</span>' : '');
+                            item.addEventListener('mouseenter', function(){ this.style.background = 'var(--admin-surface-hover)'; });
+                            item.addEventListener('mouseleave', function(){ this.style.background = ''; });
+                            item.addEventListener('click', function(){
+                                selectWizardCustomer(c);
+                            });
+                            resultsBox.appendChild(item);
+                        });
+                    }
+                    resultsBox.style.display = 'block';
+                })
+                .catch(function(){});
+        }, 300);
+    });
+
+    // Close dropdown on outside click
+    document.addEventListener('click', function(e){
+        if (!searchInput.contains(e.target) && !resultsBox.contains(e.target)) {
+            resultsBox.style.display = 'none';
+        }
+    });
+
+    window.selectWizardCustomer = function(c) {
+        // Set hidden customer_id
+        if (customerIdInput) customerIdInput.value = c.id;
+
+        // Pre-fill contact fields (only if empty)
+        function fill(selector, value) {
+            var el = document.querySelector(selector);
+            if (el && !el.value && value) el.value = value;
+        }
+        var nameParts = c.name.split(' ');
+        fill('[name="Order[client_name]"]',  c.name);
+        fill('[name="Order[client_phone]"]', c.phone);
+        fill('[name="Order[client_email]"]', c.email);
+        fill('[name="Order[city]"]',         c.city);
+        fill('[name="Order[full_address]"]', c.address);
+
+        // Show badge
+        badgeText.textContent = 'Выбран: ' + c.name + (c.phone ? ' · ' + c.phone : '');
+        badge.style.display = 'flex';
+        clearBtn.style.display = 'block';
+        searchInput.value = c.name;
+        resultsBox.style.display = 'none';
+    };
+
+    window.clearWizardCustomer = function() {
+        if (customerIdInput) customerIdInput.value = '';
+        badge.style.display = 'none';
+        clearBtn.style.display = 'none';
+        searchInput.value = '';
+    };
+})();
+JS
+); ?>
 

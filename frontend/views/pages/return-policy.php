@@ -6,12 +6,34 @@ $this->title = 'Условия возврата и обмена';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="container py-5">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="page-header text-center mb-5">
-                <h1 class="h2 mb-3">Условия возврата и обмена</h1>
-                <p class="text-muted">Информация о порядке возврата и обмена товаров в соответствии с законодательством РБ</p>
+<style>
+.info-page-wrap{max-width:760px;margin:0 auto}
+.page-edit-admin-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:#0f0f0f;color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;opacity:.7;transition:opacity .15s}
+.page-edit-admin-btn:hover{opacity:1;color:#fff}
+.alert{padding:14px 18px;border-radius:10px;margin-bottom:16px}
+.alert-primary{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
+.alert-success{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.alert-warning{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+.alert-info{background:#f0f9ff;border:1px solid #bae6fd;color:#0c4a6e}
+.alert-heading{font-size:14px;font-weight:700;margin:0 0 6px}
+.mb-0{margin-bottom:0!important}.mb-3{margin-bottom:1rem}
+.text-success{color:#16a34a}.text-primary{color:#2563eb}.text-info{color:#0284c7}.text-warning{color:#d97706}.text-muted{color:var(--color-text-secondary,#666)}
+.small{font-size:.85em}.list-unstyled{list-style:none;padding-left:0}
+.h4{font-size:1.1rem;font-weight:700}.h6{font-size:.9rem;font-weight:700}
+.content-section h2{font-size:1.1rem!important;font-weight:700!important;margin-bottom:.75rem!important}
+</style>
+<div class="container" style="padding-top:var(--space-12,3rem);padding-bottom:var(--space-16,4rem)">
+    <div class="info-page-wrap">
+        <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()): ?>
+        <div style="margin-bottom:1rem;text-align:right">
+            <a href="/admin/page/edit?slug=return-policy" class="page-edit-admin-btn" target="_blank">
+                <i class="bi bi-pencil-square"></i> Редактировать страницу
+            </a>
+        </div>
+        <?php endif; ?>
+            <div style="margin-bottom:var(--space-10,2.5rem)">
+                <h1 style="font-size:clamp(1.75rem,4vw,2.5rem);font-weight:900;letter-spacing:-0.03em;margin-bottom:var(--space-2,.5rem)">Условия возврата и обмена</h1>
+                <p style="color:var(--color-text-secondary,#666);font-size:var(--text-base,1rem)">Информация о порядке возврата и обмена товаров в соответствии с законодательством РБ</p>
             </div>
 
             <div class="content-section">
@@ -339,200 +361,133 @@ $this->params['breadcrumbs'][] = $this->title;
                     </p>
                 </div>
             </div>
-        </div>
     </div>
 </div>
 
 <style>
 .return-info-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
 }
-
 .info-card {
     text-align: center;
-    padding: 25px;
-    background: #f8f9fa;
-    border-radius: 12px;
-    border: 1px solid #e9ecef;
-    transition: transform 0.2s;
+    padding: 22px;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-lg, 12px);
+    border: 1px solid var(--color-border, #e5e5e5);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
-
-.info-card:hover {
-    transform: translateY(-2px);
-}
-
-.info-icon {
-    font-size: 2rem;
-    color: #6c5ce7;
-    margin-bottom: 15px;
-}
-
-.info-card h5 {
-    color: #2c3e50;
-    margin-bottom: 8px;
-}
-
-.return-steps {
-    display: grid;
-    gap: 20px;
-}
-
+.info-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+.info-icon { font-size: 1.8rem; color: var(--color-text-primary, #111); margin-bottom: 12px; }
+.info-card h5 { color: var(--color-text-primary, #111); margin-bottom: 6px; font-size: var(--text-base, 1rem); }
+.return-steps { display: grid; gap: 16px; }
 .step-item {
     display: flex;
-    gap: 20px;
-    padding: 25px;
-    background: #f8f9fa;
-    border-radius: 12px;
-    border-left: 4px solid #6c5ce7;
+    gap: 18px;
+    padding: 22px;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-lg, 12px);
+    border-left: 3px solid var(--c-black, #111);
 }
-
 .step-number {
-    width: 40px;
-    height: 40px;
-    background: #6c5ce7;
+    width: 36px;
+    height: 36px;
+    background: var(--c-black, #111);
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+    font-weight: 700;
+    font-size: var(--text-sm, 0.875rem);
     flex-shrink: 0;
 }
-
-.step-content h6 {
-    color: #2c3e50;
-    margin-bottom: 8px;
-}
-
+.step-content h6 { color: var(--color-text-primary, #111); margin-bottom: 6px; font-weight: 700; }
+.step-content p { font-size: var(--text-sm, 0.875rem); color: var(--color-text-secondary, #666); margin: 0; }
 .non-returnable-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
 }
-
 .non-returnable-item {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px;
-    background: rgba(220, 53, 69, 0.1);
-    border-radius: 6px;
+    padding: 10px 14px;
+    background: #fef2f2;
+    border-radius: var(--radius-md, 8px);
+    font-size: var(--text-sm, 0.875rem);
 }
-
 .returnable-items {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
 }
-
 .category-card {
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 20px;
-    background: rgba(40, 167, 69, 0.1);
-    border-radius: 8px;
-    border-left: 4px solid #28a745;
+    gap: 14px;
+    padding: 18px;
+    background: #f0fdf4;
+    border-radius: var(--radius-lg, 12px);
+    border-left: 3px solid #16a34a;
 }
-
-.category-icon {
-    font-size: 1.5rem;
-    color: #28a745;
-}
-
-.defect-return-process {
-    display: grid;
-    gap: 20px;
-}
-
+.category-icon { font-size: 1.4rem; color: #16a34a; flex-shrink: 0; }
+.defect-return-process { display: grid; gap: 16px; }
 .process-card {
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 4px solid #ffc107;
+    padding: 18px 20px;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-lg, 12px);
+    border-left: 3px solid #f59e0b;
 }
-
-.refund-methods {
-    display: grid;
-    gap: 15px;
-}
-
+.refund-methods { display: grid; gap: 12px; }
 .method-item {
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    gap: 18px;
+    padding: 18px 20px;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-lg, 12px);
 }
-
-.method-icon {
-    font-size: 1.5rem;
-    color: #6c5ce7;
-    width: 40px;
-    text-align: center;
-}
-
-.faq-section {
-    display: grid;
-    gap: 20px;
-}
-
+.method-icon { font-size: 1.4rem; color: var(--color-text-primary, #111); width: 36px; text-align: center; flex-shrink: 0; }
+.faq-section { display: grid; gap: 12px; }
 .faq-item {
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
+    border: 1px solid var(--color-border, #e5e5e5);
+    border-radius: var(--radius-lg, 12px);
     overflow: hidden;
 }
-
 .faq-question {
-    background: #f8f9fa;
-    padding: 15px 20px;
-    border-bottom: 1px solid #e9ecef;
+    background: var(--color-bg-secondary, #f5f5f5);
+    padding: 14px 18px;
+    font-weight: 600;
+    font-size: var(--text-sm, 0.875rem);
+    border-bottom: 1px solid var(--color-border, #e5e5e5);
 }
-
 .faq-answer {
-    padding: 15px 20px;
+    padding: 14px 18px;
+    font-size: var(--text-sm, 0.875rem);
+    color: var(--color-text-secondary, #666);
+    line-height: 1.6;
 }
-
 .contact-info {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px;
 }
-
 .contact-card {
     padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-lg, 12px);
+    border: 1px solid var(--color-border, #e5e5e5);
     text-align: center;
 }
-
-.contact-card h6 {
-    color: #6c5ce7;
-    margin-bottom: 8px;
-}
-
-.content-section {
-    margin-bottom: 40px;
-}
+.contact-card h6 { color: var(--color-text-primary, #111); margin-bottom: 8px; font-weight: 700; }
+.content-section { margin-bottom: 36px; }
+.content-section h2 { font-size: var(--text-lg, 1.125rem) !important; font-weight: 700 !important; }
 
 @media (max-width: 768px) {
-    .step-item {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .method-item {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .category-card {
-        flex-direction: column;
-        text-align: center;
-    }
+    .step-item, .method-item, .category-card { flex-direction: column; text-align: center; }
 }
 </style>

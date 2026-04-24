@@ -108,10 +108,18 @@ class LoyaltyService extends Component
         if ($points > 0) {
             $level = $this->getCustomerLevel($customerId);
             $multiplier = $level ? $level->points_multiplier : 1.0;
-            
+
             LoyaltyPoints::earnForPurchase($customerId, $orderAmount, $orderId, $multiplier);
+
+            if (Yii::$app->has('automation')) {
+                Yii::$app->automation->fireEvent('customer.bonus_earned', [
+                    'customer_id' => $customerId,
+                    'order_id'    => $orderId,
+                    'points'      => $points,
+                ]);
+            }
         }
-        
+
         return $points;
     }
 

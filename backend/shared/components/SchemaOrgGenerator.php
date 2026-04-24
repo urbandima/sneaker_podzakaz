@@ -593,7 +593,7 @@ class SchemaOrgGenerator
         return [];
     }
 
-    protected static function appendProperty(array &$properties, string $name, $value, string $translationGroup = null): void
+    protected static function appendProperty(array &$properties, string $name, mixed $value, ?string $translationGroup = null): void
     {
         if ($value === null || $value === '') {
             return;

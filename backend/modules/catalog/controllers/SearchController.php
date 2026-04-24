@@ -33,6 +33,11 @@ class SearchController extends Controller
 {
     public $layout = 'public';
 
+    public function getViewPath(): string
+    {
+        return \Yii::getAlias('@frontend/views/catalog');
+    }
+
     /**
      * {@inheritdoc}
      */

@@ -71,9 +71,10 @@ use yii\helpers\Url;
                 <input type="text" id="pf_passport_series" name="passport_series"
                        class="passport-form-input"
                        value="<?= Html::encode($model->passport_series ?? '') ?>"
-                       maxlength="4" minlength="4" required
-                       placeholder="МП" pattern="[А-ЯA-Z0-9]{2,4}">
-                <small class="passport-form-hint-field">2–4 символа</small>
+                       maxlength="4" minlength="2" required
+                       placeholder="AB12 или 1234" pattern="[A-Za-z0-9]{2,4}"
+                       autocomplete="off" spellcheck="false">
+                <small class="passport-form-hint-field">2–4 латинских буквы или цифры</small>
                 <span class="passport-form-error" id="err_passport_series"></span>
             </div>
 
@@ -83,8 +84,9 @@ use yii\helpers\Url;
                        class="passport-form-input"
                        value="<?= Html::encode($model->passport_number ?? '') ?>"
                        maxlength="7" minlength="6" required
-                       placeholder="1234567" pattern="[0-9]{6,7}">
-                <small class="passport-form-hint-field">6–7 цифр</small>
+                       placeholder="123456" pattern="[0-9]{6,7}"
+                       inputmode="numeric" autocomplete="off">
+                <small class="passport-form-hint-field">6–7 цифр, без пробелов</small>
                 <span class="passport-form-error" id="err_passport_number"></span>
             </div>
 
@@ -103,7 +105,7 @@ use yii\helpers\Url;
                        class="passport-form-input"
                        value="<?= Html::encode($model->inn ?? '') ?>"
                        maxlength="12" minlength="12" required
-                       placeholder="123456789012" pattern="[0-9]{12}">
+                       placeholder="ИНН (только для РФ)" pattern="[0-9]{12}">
                 <span class="passport-form-error" id="err_inn"></span>
             </div>
 
@@ -349,8 +351,8 @@ $this->registerJs(<<<JS
         }
 
         var seriesEl = document.getElementById('pf_passport_series');
-        if (seriesEl && seriesEl.value && seriesEl.value.trim().length < 2) {
-            showFieldError('passport_series', 'Серия должна содержать минимум 2 символа');
+        if (seriesEl && seriesEl.value && !/^[A-Za-z0-9]{2,4}$/.test(seriesEl.value.trim())) {
+            showFieldError('passport_series', 'Серия: 2–4 латинских буквы или цифры (напр. AB12)');
             valid = false;
         }
 
@@ -361,6 +363,40 @@ $this->registerJs(<<<JS
         }
 
         return valid;
+    }
+
+    // ── Input masks ──────────────────────────────────────────────────────────
+    // Series: allow only latin letters and digits, auto-uppercase
+    var seriesInput = document.getElementById('pf_passport_series');
+    if (seriesInput) {
+        seriesInput.addEventListener('input', function() {
+            var v = this.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 4);
+            if (v !== this.value) this.value = v;
+        });
+    }
+    // Passport number: digits only
+    var numInput = document.getElementById('pf_passport_number');
+    if (numInput) {
+        numInput.addEventListener('input', function() {
+            var v = this.value.replace(/[^0-9]/g, '').slice(0, 7);
+            if (v !== this.value) this.value = v;
+        });
+    }
+    // INN: digits only
+    var innInput = document.getElementById('pf_inn');
+    if (innInput) {
+        innInput.addEventListener('input', function() {
+            var v = this.value.replace(/[^0-9]/g, '').slice(0, 12);
+            if (v !== this.value) this.value = v;
+        });
+    }
+    // Postal code: digits only
+    var postalInput = document.getElementById('pf_postal_code');
+    if (postalInput) {
+        postalInput.addEventListener('input', function() {
+            var v = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+            if (v !== this.value) this.value = v;
+        });
     }
 
     form.addEventListener('submit', function(e) {

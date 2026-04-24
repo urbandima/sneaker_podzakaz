@@ -153,13 +153,17 @@ class ImageHelper
      */
     public static function getWebpUrl($src)
     {
+        if (empty($src) || strpos($src, 'data:') === 0) {
+            return $src;
+        }
+
         $webpSrc = preg_replace('/\.(jpg|jpeg|png|gif)$/i', '.webp', $src);
-        
+
         // Проверяем существование
         if (strpos($webpSrc, 'http') === 0) {
             return self::urlExists($webpSrc) ? $webpSrc : $src;
         }
-        
+
         $webpPath = Yii::getAlias('@webroot' . $webpSrc);
         return file_exists($webpPath) ? $webpSrc : $src;
     }

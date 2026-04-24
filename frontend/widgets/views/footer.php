@@ -38,23 +38,23 @@ use yii\helpers\Html;
                     <ul class="footer-links">
                         <li><a href="/about">О нас</a></li>
                         <li><a href="/contacts">Контакты</a></li>
-                        <li><a href="/delivery">Доставка</a></li>
-                        <li><a href="/return">Возврат</a></li>
+                        <li><a href="/delivery-terms">Доставка</a></li>
+                        <li><a href="/return-policy">Возврат</a></li>
                         <li><a href="/privacy">Политика конфиденциальности</a></li>
-                        <li><a href="/terms">Условия использования</a></li>
+                        <li><a href="/offer-agreement">Договор оферты</a></li>
                     </ul>
                 </div>
-                
+
                 <!-- Помощь -->
                 <div class="footer-column">
                     <h4 class="footer-title">Помощь</h4>
                     <ul class="footer-links">
-                        <li><a href="/faq">Частые вопросы</a></li>
-                        <li><a href="/size-guide">Размерная сетка</a></li>
-                        <li><a href="/payment">Оплата</a></li>
-                        <li><a href="/guarantee">Гарантия</a></li>
-                        <li><a href="/loyalty">Программа лояльности</a></li>
-                        <li><a href="/tracking">Отследить заказ</a></li>
+                        <li><a href="/contacts">Частые вопросы</a></li>
+                        <li><a href="/catalog">Размерная сетка</a></li>
+                        <li><a href="/payment-terms">Оплата</a></li>
+                        <li><a href="/return-policy">Гарантия</a></li>
+                        <li><a href="/account/loyalty">Программа лояльности</a></li>
+                        <li><a href="/account/find-orders">Отследить заказ</a></li>
                     </ul>
                 </div>
                 

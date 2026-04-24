@@ -7,7 +7,9 @@ use yii\widgets\ActiveForm;
 /** @var yii\web\View $this */
 /** @var app\models\CustomerLoginForm $model */
 
-$this->title = 'Вход в личный кабинет - СНИКЕРХЭД';
+$this->title = 'Вход в личный кабинет — СНИКЕРХЭД';
+$this->registerMetaTag(['name' => 'description', 'content' => 'Войдите в личный кабинет СНИКЕРХЭД для просмотра заказов и управления профилем.']);
+$this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
 echo $this->render('_auth-style');
 ?>
 
@@ -32,12 +34,12 @@ echo $this->render('_auth-style');
                 <div class="auth-body">
                     <?php $form = ActiveForm::begin([
                         'id' => 'login-form',
-                        'options' => ['class' => 'auth-form'],
+                        'options' => ['class' => 'auth-form', 'novalidate' => true],
                         'fieldConfig' => [
                             'template' => "{label}\n{input}\n{error}",
                             'labelOptions' => ['class' => ''],
                             'inputOptions' => ['class' => 'form-control'],
-                            'errorOptions' => ['class' => 'invalid-feedback'],
+                            'errorOptions' => ['class' => 'invalid-feedback', 'role' => 'alert'],
                             'options' => ['class' => 'form-group'],
                         ],
                     ]); ?>
@@ -46,10 +48,15 @@ echo $this->render('_auth-style');
                         'autofocus' => true,
                         'placeholder' => 'example@mail.com',
                         'value' => Yii::$app->request->get('email', ''),
+                        'required' => true,
+                        'autocomplete' => 'email',
+                        'inputmode' => 'email',
                     ]) ?>
 
                     <?= $form->field($model, 'password')->passwordInput([
                         'placeholder' => 'Введите пароль',
+                        'required' => true,
+                        'autocomplete' => 'current-password',
                     ]) ?>
 
                     <div class="form-helpers">

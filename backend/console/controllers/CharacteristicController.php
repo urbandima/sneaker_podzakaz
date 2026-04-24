@@ -105,7 +105,7 @@ class CharacteristicController extends Controller
      * Пример:
      * php yii characteristic/bulk-assign --char=material --value=leather --brand=5
      */
-    public function actionBulkAssign(string $char, string $value, int $brand = null, int $category = null, float $priceFrom = null, float $priceTo = null): int
+    public function actionBulkAssign(string $char, string $value, ?int $brand = null, ?int $category = null, ?float $priceFrom = null, ?float $priceTo = null): int
     {
         $characteristic = Characteristic::findOne(['key' => $char]);
         if (!$characteristic) {

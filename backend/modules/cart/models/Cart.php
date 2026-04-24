@@ -117,7 +117,11 @@ class Cart extends ActiveRecord
             if ($hasSizeRecords) {
                 $sizeModel = \app\backend\modules\catalog\models\ProductSize::find()
                     ->where(['product_id' => $productId])
-                    ->andWhere(['OR', ['eu_size' => $size], ['size' => $size]])
+                    ->andWhere(['OR',
+                        ['eu_size' => $size],
+                        ['size' => $size],
+                        new \yii\db\Expression('`size` LIKE :sizePrefix', [':sizePrefix' => $size . ' %']),
+                    ])
                     ->one();
                 if (!$sizeModel) {
                     Yii::$app->session->setFlash('error', 'Указанный размер недоступен');

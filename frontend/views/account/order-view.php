@@ -111,7 +111,22 @@ AppAsset::register($this);
                         </div>
                     <?php endif; ?>
                     
-                    <?php if ($order->china_track_number): ?>
+                    <?php if ($order->pickup_point): ?>
+                        <div class="info-item info-item-spacing-top">
+                            <div class="info-label">Пункт выдачи</div>
+                            <div class="info-value"><i class="bi bi-geo-alt-fill" style="color:#ef4444"></i> <?= Html::encode($order->pickup_point) ?></div>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($order->local_track_number): ?>
+                        <div class="track-number" style="margin-top:12px">
+                            <i class="bi bi-truck"></i>
+                            <div class="track-info">
+                                <div class="track-label">Трек-номер (доставка по РБ)</div>
+                                <div class="track-value"><?= Html::encode($order->local_track_number) ?></div>
+                            </div>
+                        </div>
+                    <?php elseif ($order->china_track_number): ?>
                         <div class="track-number">
                             <i class="bi bi-truck"></i>
                             <div class="track-info">

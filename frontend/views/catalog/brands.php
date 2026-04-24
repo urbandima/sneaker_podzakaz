@@ -1,5 +1,6 @@
 <?php
 use yii\helpers\Html;
+use app\backend\shared\helpers\TextHelper;
 
 $this->title = 'Все бренды - СНИКЕРХЭД';
 ?>
@@ -12,7 +13,7 @@ $this->title = 'Все бренды - СНИКЕРХЭД';
         <div class="brands-grid">
             <?php if (!empty($brands)): ?>
                 <?php foreach ($brands as $brand): ?>
-                    <a href="/catalog/brand/<?= $brand->slug ?>" class="brand-card-link">
+                    <a href="/brands/<?= $brand->slug ?>" class="brand-card-link">
                         <div class="brand-card">
                             <?php if ($brand->logo): ?>
                                 <img src="<?= $brand->logo ?>" alt="<?= Html::encode($brand->name) ?>" class="brand-card__logo">
@@ -20,7 +21,7 @@ $this->title = 'Все бренды - СНИКЕРХЭД';
                                 <div class="brand-card__icon"><i class="bi bi-circle"></i></div>
                             <?php endif; ?>
                             <h3 class="brand-card__name"><?= Html::encode($brand->name) ?></h3>
-                            <p class="brand-card__count"><?= $brand->products_count ?? 0 ?> товаров</p>
+                            <p class="brand-card__count"><?= TextHelper::formatProductCount((int)($brand->products_count ?? 0)) ?></p>
                             <span class="brand-card__cta">Смотреть →</span>
                         </div>
                     </a>

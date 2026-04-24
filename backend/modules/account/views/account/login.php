@@ -152,14 +152,16 @@ function fillDemo(type) {
         return;
     }
     
+    // SECURITY FIX: Demo credentials removed from client-side code
+    // In demo mode, accounts are pre-filled server-side via PHP config
     const demoAccounts = {
         user: {
             email: 'demo@sneakerhead.by',
-            password: 'demo123'
+            password: '' // password must be entered manually
         },
         vip: {
             email: 'vip@sneakerhead.by',
-            password: 'vip123'
+            password: '' // password must be entered manually
         }
     };
     

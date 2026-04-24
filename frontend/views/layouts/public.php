@@ -108,10 +108,10 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
     <div class="main-header">
         <div class="container">
             <div class="header-left">
-                <button class="menu-burger" id="menuBurger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                <button class="menu-burger" id="menuBurger" aria-label="Открыть меню навигации" aria-expanded="false" aria-controls="mobileMenu">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
                 </button>
                 <?php
                 // На странице каталога логотип ведет на каталог, иначе - на главную
@@ -131,11 +131,15 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                 </a>
             </div>
             
-            <div class="header-search">
-                <div class="earn-icon"><i class="bi bi-gift"></i></div>
-                <i class="bi bi-search"></i>
-                <input type="text" placeholder="Поиск товаров, брендов..." id="headerSearch">
-                <button class="search-voice"><i class="bi bi-mic"></i></button>
+            <div class="header-search" role="search">
+                <div class="earn-icon" aria-hidden="true"><i class="bi bi-gift"></i></div>
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <label for="headerSearch" class="sr-only">Поиск товаров и брендов</label>
+                <input type="search" placeholder="Поиск товаров, брендов..." id="headerSearch"
+                       aria-label="Поиск товаров и брендов" autocomplete="off"
+                       aria-controls="searchDropdown" aria-expanded="false">
+                <div id="searchDropdown" class="search-dropdown" role="listbox" aria-label="Результаты поиска" aria-live="polite" aria-atomic="false"></div>
+                <button class="search-voice" aria-label="Голосовой поиск" type="button"><i class="bi bi-mic" aria-hidden="true"></i></button>
             </div>
             
             <div class="header-actions">
@@ -148,7 +152,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                     <span class="badge" id="favCount">0</span>
                     <span class="label">Избранное</span>
                 </a>
-                <a href="/cart" class="header-btn">
+                <a href="/checkout" class="header-btn">
                     <i class="bi bi-bag"></i>
                     <span class="badge" id="cartCount">0</span>
                     <span class="label">Корзина</span>
@@ -299,10 +303,10 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 </header>
 
 <!-- Mobile Menu Overlay -->
-<div class="mobile-menu" id="mobileMenu">
+<div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Меню навигации" aria-hidden="true">
     <div class="mobile-menu-header">
-        <button class="menu-close" id="menuClose">
-            <i class="bi bi-x"></i>
+        <button class="menu-close" id="menuClose" aria-label="Закрыть меню">
+            <i class="bi bi-x" aria-hidden="true"></i>
         </button>
         <div class="mobile-menu-logo">
             <strong>СНИКЕРХЭД</strong>
@@ -340,7 +344,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                 <span class="action-label">Избранное</span>
                 <span class="action-badge" id="mobileFavCount">0</span>
             </a>
-            <a href="/cart" class="mobile-action-btn">
+            <a href="/checkout" class="mobile-action-btn">
                 <i class="bi bi-bag"></i>
                 <span class="action-label">Корзина</span>
                 <span class="action-badge" id="mobileCartCount">0</span>
@@ -505,7 +509,7 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                         <span class="nav-divider">|</span>
                         <a href="/site/offer-agreement">Договор оферты</a>
                         <a href="/privacy" target="_blank">Политика конфиденциальности</a>
-                        <a href="/delivery" target="_blank">Доставка и оплата</a>
+                        <a href="/delivery-terms" target="_blank">Доставка и оплата</a>
                     </div>
                 </div>
                 

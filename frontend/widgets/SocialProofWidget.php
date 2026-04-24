@@ -49,7 +49,7 @@ HTML;
     
     protected function renderGlobalProof()
     {
-        return <<<HTML
+        return <<<'HTML'
 <div class="social-proof-global" id="socialProofGlobal">
     <!-- Toast уведомления будут появляться здесь -->
 </div>

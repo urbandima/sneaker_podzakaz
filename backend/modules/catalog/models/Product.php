@@ -166,7 +166,21 @@ class Product extends ActiveRecord
             if ($this->main_image && !$this->main_image_url) {
                 $this->main_image_url = $this->main_image;
             }
-            
+
+            // A13: product with zero/null price cannot be active — force draft
+            if ($this->is_active && (!$this->price || $this->price <= 0)) {
+                $this->is_active = false;
+            }
+
+            // A14: placeholder name guard — force draft if name is placeholder or too short
+            if ($this->is_active && (
+                !$this->name ||
+                mb_strlen(trim($this->name)) < 3 ||
+                strtolower(trim($this->name)) === 'товар'
+            )) {
+                $this->is_active = false;
+            }
+
             return true;
         }
         return false;

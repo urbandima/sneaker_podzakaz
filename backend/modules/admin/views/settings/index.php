@@ -20,45 +20,6 @@ $company = Yii::$app->settings->getCompany() ?? [];
 $this->params['headerActions'] = [];
 ?>
 
-<!-- Быстрые ссылки -->
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:24px">
-    <a href="<?= \yii\helpers\Url::to(['/admin/settings/statuses']) ?>" class="admin-card" style="text-decoration:none;color:inherit;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:48px;height:48px;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:12px;display:flex;align-items:center;justify-content:center">
-                <i class="bi bi-diagram-3" style="font-size:24px;color:white"></i>
-            </div>
-            <div>
-                <h3 style="margin:0;font-size:16px;font-weight:600">Статусы заказов</h3>
-                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">Настройка цепочки статусов</p>
-            </div>
-        </div>
-    </a>
-    
-    <a href="<?= \yii\helpers\Url::to(['/admin/plugin']) ?>" class="admin-card" style="text-decoration:none;color:inherit;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:48px;height:48px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border-radius:12px;display:flex;align-items:center;justify-content:center">
-                <i class="bi bi-puzzle-fill" style="font-size:24px;color:white"></i>
-            </div>
-            <div>
-                <h3 style="margin:0;font-size:16px;font-weight:600">Плагины и интеграции</h3>
-                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">AmoCRM, МойСклад, Telegram, Таможня:ДП</p>
-            </div>
-        </div>
-    </a>
-
-    <a href="<?= \yii\helpers\Url::to(['/admin/seo']) ?>" class="admin-card" style="text-decoration:none;color:inherit;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:48px;height:48px;background:linear-gradient(135deg,#ec4899,#db2777);border-radius:12px;display:flex;align-items:center;justify-content:center">
-                <i class="bi bi-search-heart" style="font-size:24px;color:white"></i>
-            </div>
-            <div>
-                <h3 style="margin:0;font-size:16px;font-weight:600">SEO</h3>
-                <p style="margin:4px 0 0;font-size:13px;color:var(--admin-text-secondary)">Мета-теги, sitemap, robots.txt</p>
-            </div>
-        </div>
-    </a>
-</div>
-
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
     <!-- Компания -->
     <div class="admin-card" id="companyCard">
@@ -100,8 +61,18 @@ $this->params['headerActions'] = [];
             </div>
 
             <div class="form-group">
-                <label>Банковские реквизиты</label>
-                <textarea class="form-control" rows="3" id="co_bank_details" placeholder="БИК, р/с, банк..."><?= Html::encode($company['bank_details'] ?? '') ?></textarea>
+                <label>Банк</label>
+                <input type="text" class="form-control" id="co_bank" value="<?= Html::encode($company['bank'] ?? '') ?>" placeholder="ЗАО «Белинвестбанк»">
+            </div>
+
+            <div class="form-group">
+                <label>БИК</label>
+                <input type="text" class="form-control" id="co_bic" value="<?= Html::encode($company['bic'] ?? '') ?>" placeholder="BLBBBY2X">
+            </div>
+
+            <div class="form-group">
+                <label>Расчётный счёт</label>
+                <input type="text" class="form-control" id="co_account" value="<?= Html::encode($company['account'] ?? '') ?>" placeholder="BY80XXXX...">
             </div>
 
             <button class="admin-btn admin-btn-primary" id="saveCompanyBtn" onclick="saveCompany(this)">
@@ -256,4 +227,53 @@ $this->params['headerActions'] = [];
         </div>
     </div>
 
+    <!-- Аналитика -->
+    <div class="admin-card" id="analyticsCard">
+        <div class="admin-card-header">
+            <h2 class="admin-card-title">
+                <i class="bi bi-graph-up-arrow"></i>
+                Веб-аналитика
+            </h2>
+        </div>
+        <div class="admin-card-body">
+            <div class="form-group">
+                <label>Google Analytics 4 — Measurement ID</label>
+                <input type="text" class="form-control" id="analytics_ga4_id"
+                       value="<?= Html::encode(Yii::$app->settings->get('analytics', 'ga4_id', '')) ?>"
+                       placeholder="G-XXXXXXXXXX">
+                <small style="color:var(--admin-text-secondary);font-size:12px">
+                    Получите в Google Analytics → Администрирование → Потоки данных → ID измерения
+                </small>
+            </div>
+            <div class="form-group">
+                <label>Яндекс.Метрика — ID счётчика</label>
+                <input type="text" class="form-control" id="analytics_metrika_id"
+                       value="<?= Html::encode(Yii::$app->settings->get('analytics', 'metrika_id', '')) ?>"
+                       placeholder="12345678">
+                <small style="color:var(--admin-text-secondary);font-size:12px">
+                    Найдите в Яндекс.Метрика → Настройки → Код счётчика
+                </small>
+            </div>
+            <button class="admin-btn admin-btn-primary" onclick="saveAnalytics()">
+                <i class="bi bi-save"></i> Сохранить аналитику
+            </button>
+            <div id="analyticsResult" style="margin-top:8px;font-size:13px"></div>
+        </div>
+    </div>
+
 </div>
+<script>
+function saveAnalytics() {
+    const ga4 = document.getElementById('analytics_ga4_id').value.trim();
+    const metrika = document.getElementById('analytics_metrika_id').value.trim();
+    fetch('<?= \yii\helpers\Url::to(['/admin/settings/save']) ?>', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content},
+        body: JSON.stringify({section: 'analytics', data: {ga4_id: ga4, metrika_id: metrika}})
+    }).then(r => r.json()).then(d => {
+        document.getElementById('analyticsResult').innerHTML = d.success
+            ? '<span style="color:var(--admin-success)"><i class="bi bi-check-circle"></i> Сохранено</span>'
+            : '<span style="color:var(--admin-danger)">Ошибка: ' + (d.message || '') + '</span>';
+    });
+}
+</script>

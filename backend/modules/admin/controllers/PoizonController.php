@@ -89,7 +89,7 @@ class PoizonController extends BaseAdminController
                 }
                 
                 // Запускаем импорт из URL с verbose
-                $command = "php " . Yii::getAlias('@app') . "/yii poizon-import-json/run \"" . addslashes($importUrl) . "\" --verbose=1 > \"{$logFile}\" 2>&1 &";
+                $command = 'php ' . escapeshellarg(Yii::getAlias('@app') . '/yii') . ' poizon-import-json/run ' . escapeshellarg($importUrl) . ' --verbose=1 > ' . escapeshellarg($logFile) . ' 2>&1 &';
                 
                 exec($command);
                 

@@ -122,10 +122,17 @@ class SitemapGenerator
     private function generateStaticPages(): void
     {
         $pages = [
-            ['loc' => '', 'changefreq' => 'daily', 'priority' => '1.0'],
-            ['loc' => 'catalog', 'changefreq' => 'daily', 'priority' => '0.9'],
+            ['loc' => '',                   'changefreq' => 'daily',   'priority' => '1.0'],
+            ['loc' => 'catalog',            'changefreq' => 'daily',   'priority' => '0.9'],
+            ['loc' => 'brands',             'changefreq' => 'weekly',  'priority' => '0.7'],
+            ['loc' => 'sale',               'changefreq' => 'daily',   'priority' => '0.8'],
+            ['loc' => 'about',              'changefreq' => 'monthly', 'priority' => '0.4'],
+            ['loc' => 'contacts',           'changefreq' => 'monthly', 'priority' => '0.4'],
+            ['loc' => 'delivery-terms',     'changefreq' => 'monthly', 'priority' => '0.3'],
+            ['loc' => 'payment-terms',      'changefreq' => 'monthly', 'priority' => '0.3'],
+            ['loc' => 'return-policy',      'changefreq' => 'monthly', 'priority' => '0.3'],
         ];
-        
+
         foreach ($pages as $page) {
             $this->addUrl($page['loc'], $page['changefreq'], $page['priority']);
         }
@@ -140,7 +147,7 @@ class SitemapGenerator
             $categories = (new Query())
                 ->select(['slug', 'updated_at'])
                 ->from('category')
-                ->where(['status' => 1])
+                ->where(['is_active' => 1])
                 ->all();
                 
             foreach ($categories as $category) {
@@ -165,7 +172,7 @@ class SitemapGenerator
             $brands = (new Query())
                 ->select(['slug', 'updated_at'])
                 ->from('brand')
-                ->where(['status' => 1])
+                ->where(['is_active' => 1])
                 ->all();
                 
             foreach ($brands as $brand) {
@@ -190,7 +197,8 @@ class SitemapGenerator
             $products = (new Query())
                 ->select(['slug', 'updated_at'])
                 ->from('product')
-                ->where(['status' => 1])
+                ->where(['is_active' => 1])
+                ->orderBy(['updated_at' => SORT_DESC])
                 ->all();
                 
             foreach ($products as $product) {

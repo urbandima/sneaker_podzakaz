@@ -17,6 +17,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\frontend\assets\AppAsset;
+use app\backend\shared\helpers\TextHelper;
 
 $this->title = 'СНИКЕРХЭД — Оригинальные кроссовки из США и Европы';
 
@@ -112,7 +113,7 @@ $brands = $brands ?? [];
                 </div>
                 <div class="category-overlay">
                     <h3 class="category-name"><?= Html::encode($category->name) ?></h3>
-                    <span class="category-count"><?= $category->getTotalProductsCount() ?> товаров</span>
+                    <span class="category-count"><?= TextHelper::formatProductCount((int)$category->getTotalProductsCount()) ?></span>
                 </div>
             </a>
             <?php endforeach; ?>

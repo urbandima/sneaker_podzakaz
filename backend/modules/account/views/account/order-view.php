@@ -71,14 +71,24 @@ $this->params['breadcrumbs'][] = $this->title;
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <p><strong>Способ доставки:</strong> <?= $order->delivery_method ?></p>
-                                <p><strong>Адрес доставки:</strong> <?= Html::encode($order->delivery_address) ?></p>
+                                <p><strong>Способ доставки:</strong> <?= Html::encode($order->delivery_method) ?></p>
+                                <?php if ($order->pickup_point): ?>
+                                    <p><strong>Пункт выдачи:</strong> <i class="bi bi-geo-alt-fill text-danger"></i> <?= Html::encode($order->pickup_point) ?></p>
+                                <?php else: ?>
+                                    <p><strong>Адрес доставки:</strong> <?= Html::encode($order->delivery_address) ?></p>
+                                <?php endif; ?>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>Имя получателя:</strong> <?= Html::encode($order->customer_name) ?></p>
-                                <p><strong>Телефон:</strong> <?= Html::encode($order->customer_phone) ?></p>
+                                <p><strong>Имя получателя:</strong> <?= Html::encode($order->client_name ?? '') ?></p>
+                                <p><strong>Телефон:</strong> <?= Html::encode($order->client_phone ?? '') ?></p>
                             </div>
                         </div>
+                        <?php if ($order->local_track_number): ?>
+                        <div class="mt-3 p-3" style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px">
+                            <p class="mb-1"><strong><i class="bi bi-truck"></i> Трек-номер (доставка по РБ):</strong></p>
+                            <code style="font-size:1rem"><?= Html::encode($order->local_track_number) ?></code>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 

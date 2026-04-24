@@ -318,12 +318,23 @@ $config = [
                 'admin/seo/update-product-meta' => 'admin/seo/update-product-meta',
                 'admin/seo/update-image-alt' => 'admin/seo/update-image-alt',
                 
-                // АЛИАСЫ: Совместимость со старыми URL (исправление багов #5, #6, #7)
+                // АЛИАСЫ: Совместимость со старыми URL
                 'admin/delivery' => 'admin/shipping/index',
                 'admin/delivery/<action:[a-z-]+>' => 'admin/shipping/<action>',
                 'admin/marketing-campaign' => 'admin/marketing/campaigns',
                 'admin/marketing-campaign/<action:[a-z-]+>' => 'admin/marketing/<action>',
                 'admin/settings/integrations/<tab:[a-z-]+>' => 'admin/settings/integrations',
+                // W3-W9: missing route aliases
+                'admin/order/return' => 'admin/return/index',
+                'admin/order/returns' => 'admin/return/index',
+                'admin/shipment' => 'admin/shipping/dispatch',
+                'admin/shipment/<action:[a-z-]+>' => 'admin/shipping/<action>',
+                'admin/finance/expense' => 'admin/finance/expenses',
+                'admin/finance/pl' => 'admin/finance/pnl',
+                'admin/campaign' => 'admin/marketing/campaigns',
+                'admin/campaign/<action:[a-z-]+>' => 'admin/marketing/<action>',
+                'admin/amocrm' => 'admin/plugin/amocrm',
+                'admin/settings/delivery' => 'admin/settings/shipping',
                 
                 // Webhook endpoints
                 'api/webhook/dobropost' => 'api/webhook/dobropost',
@@ -595,6 +606,7 @@ $config = [
 
                 // Feedback from customers
                 'admin/feedback' => 'admin/feedback/index',
+                'admin/feedback/reply' => 'admin/feedback/reply',
                 'admin/feedback/delete/<id:\d+>' => 'admin/feedback/delete',
                 
                 // Search

@@ -62,19 +62,24 @@ $this->params['breadcrumbs'][] = $this->title;
                                 <h5 class="mb-0">Изменение пароля</h5>
                             </div>
                             <div class="card-body">
-                                <?php $form = ActiveForm::begin(['id' => 'password-form']); ?>
-                                
-                                <?= $form->field($passwordForm, 'current_password')->passwordInput(['maxlength' => true]) ?>
-                                
-                                <?= $form->field($passwordForm, 'new_password')->passwordInput(['maxlength' => true]) ?>
-                                
-                                <?= $form->field($passwordForm, 'confirm_password')->passwordInput(['maxlength' => true]) ?>
-                                
-                                <div class="form-group">
-                                    <?= Html::submitButton('Изменить пароль', ['class' => 'btn btn-warning']) ?>
-                                </div>
-                                
-                                <?php ActiveForm::end(); ?>
+                                <form id="password-form" method="post" action="/account/settings">
+                                    <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
+                                    <div class="form-group mb-3">
+                                        <label for="current_password">Текущий пароль</label>
+                                        <input type="password" id="current_password" name="current_password" class="form-control" maxlength="255" required>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="new_password">Новый пароль</label>
+                                        <input type="password" id="new_password" name="new_password" class="form-control" maxlength="255" required>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="confirm_password">Подтвердите пароль</label>
+                                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" maxlength="255" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-warning">Изменить пароль</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                         

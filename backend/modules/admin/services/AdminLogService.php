@@ -242,8 +242,8 @@ class AdminLogService
      */
     public static function getStats(int $days = 7): array
     {
-        $from = strtotime("-{$days} days");
-        
+        $from = date('Y-m-d H:i:s', strtotime("-{$days} days"));
+
         $logs = AdminLog::find()
             ->where(['>=', 'created_at', $from])
             ->all();

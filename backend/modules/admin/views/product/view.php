@@ -11,16 +11,12 @@ $this->title = $product->name;
 
 // Парсим JSON данные
 $properties = [];
-$sizesData = [];
 $keywords = [];
 if ($product->properties) {
-    $properties = json_decode($product->properties, true) ?: [];
-}
-if ($product->sizes_data) {
-    $sizesData = json_decode($product->sizes_data, true) ?: [];
+    $properties = is_array($product->properties) ? $product->properties : (json_decode($product->properties, true) ?: []);
 }
 if ($product->keywords) {
-    $keywords = json_decode($product->keywords, true) ?: [];
+    $keywords = is_array($product->keywords) ? $product->keywords : (json_decode($product->keywords, true) ?: []);
 }
 
 // Объединяем keywords с meta_keywords
@@ -61,12 +57,12 @@ $this->params['headerActions'] = $actions;
         <div class="admin-stat-label">Цена</div>
     </div>
     <div class="admin-stat">
-        <div class="admin-stat-value"><?= $product->orders_count ?? 0 ?></div>
-        <div class="admin-stat-label">Продано</div>
+        <div class="admin-stat-value"><?= $product->favorite_count ?? 0 ?></div>
+        <div class="admin-stat-label">В избранном</div>
     </div>
     <div class="admin-stat">
-        <div class="admin-stat-value"><?= Yii::$app->formatter->asDatetime($product->updated_at) ?></div>
-        <div class="admin-stat-label">Обновлён</div>
+        <div class="admin-stat-value"><?= $product->views_count ?? 0 ?></div>
+        <div class="admin-stat-label">Просмотров</div>
     </div>
 </div>
 
@@ -113,6 +109,28 @@ $this->params['headerActions'] = $actions;
                 <?php endif; ?>
             </div>
         </div>
+
+        <?php
+        $msImagesJson = $product->ms_images_json ?? null;
+        $msImagesData = $msImagesJson ? (is_array($msImagesJson) ? $msImagesJson : json_decode($msImagesJson, true)) : null;
+        $hasCollectionUrl = !empty($msImagesData['__collection__']);
+        if ($hasCollectionUrl):
+        ?>
+        <div class="admin-card" style="margin-top: 1.5rem;">
+            <h2 class="admin-card-title">
+                <i class="bi bi-cloud-download"></i>
+                Фото МойСклад
+            </h2>
+            <div class="admin-card-content" id="ms-images-container">
+                <div style="text-align:center;padding:1rem;color:var(--admin-text-secondary)">
+                    <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="loadMsImages(<?= $product->id ?>)" id="ms-load-btn">
+                        <i class="bi bi-cloud-download"></i> Загрузить фото из МС
+                    </button>
+                </div>
+                <div id="ms-images-grid" style="display:none;grid-template-columns:repeat(2,1fr);gap:0.5rem"></div>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <?php if ($product->poizon_id): ?>
         <div class="admin-card" style="margin-top: 1.5rem;">
@@ -253,14 +271,38 @@ $this->params['headerActions'] = $actions;
             
             <div class="admin-card-content">
                 <?php
-                $characteristicsFromRegistry = \app\backend\modules\catalog\models\ProductCharacteristicValue::find()
-                    ->where(['product_id' => $product->id])
-                    ->with(['characteristic', 'characteristicValue'])
-                    ->all();
-                
+                try {
+                    $characteristicsFromRegistry = \app\backend\modules\catalog\models\ProductCharacteristicValue::find()
+                        ->where(['product_id' => $product->id])
+                        ->with(['characteristic', 'characteristicValue'])
+                        ->all();
+                } catch (\Exception $e) {
+                    $characteristicsFromRegistry = [];
+                }
+
                 $hasPoizonChars = !empty($properties);
-                
-                if (count($characteristicsFromRegistry) > 0 || $hasPoizonChars): ?>
+
+                // Collect MS characteristics
+                $_msCharRows = [];
+                if ($product->brand_name)        $_msCharRows[] = ['label' => 'Бренд',              'value' => $product->brand_name,        'field' => 'brand_name'];
+                if ($product->model_name)        $_msCharRows[] = ['label' => 'Модель',              'value' => $product->model_name,        'field' => 'model_name'];
+                if ($product->gender)            $_msCharRows[] = ['label' => 'Пол',                 'value' => $product->gender,            'field' => null];
+                if ($product->season)            $_msCharRows[] = ['label' => 'Сезон',               'value' => $product->season,            'field' => null];
+                if ($product->height)            $_msCharRows[] = ['label' => 'Высота',              'value' => $product->height,            'field' => null];
+                if ($product->upper_material)    $_msCharRows[] = ['label' => 'Материал верха',      'value' => $product->upper_material,    'field' => null];
+                if ($product->color_description) $_msCharRows[] = ['label' => 'Цвет',               'value' => $product->color_description, 'field' => null];
+                if ($product->ms_size_grid)      $_msCharRows[] = ['label' => 'Размерная сетка',     'value' => $product->ms_size_grid,      'field' => 'ms_size_grid'];
+                if ($product->ms_purpose)        $_msCharRows[] = ['label' => 'Назначение',          'value' => $product->ms_purpose,        'field' => 'ms_purpose'];
+                if ($product->ms_sole_height)    $_msCharRows[] = ['label' => 'Высота подошвы',      'value' => $product->ms_sole_height,    'field' => 'ms_sole_height'];
+                if ($product->ms_sole_color)     $_msCharRows[] = ['label' => 'Цвет подошвы',        'value' => $product->ms_sole_color,     'field' => 'ms_sole_color'];
+                if ($product->ms_inner_material) $_msCharRows[] = ['label' => 'Внутренний материал', 'value' => $product->ms_inner_material, 'field' => 'ms_inner_material'];
+
+                // Collect MS attributes (from ms_attributes_json)
+                $_msAttrs = $product->ms_attributes_json ? (is_array($product->ms_attributes_json) ? $product->ms_attributes_json : json_decode($product->ms_attributes_json, true)) : [];
+
+                $hasMsChars = !empty($_msCharRows) || !empty($_msAttrs);
+
+                if (count($characteristicsFromRegistry) > 0 || $hasPoizonChars || $hasMsChars): ?>
                     <div style="overflow-x: auto;">
                         <table class="admin-table">
                             <thead>
@@ -273,7 +315,7 @@ $this->params['headerActions'] = $actions;
                             <tbody>
                                 <?php foreach ($characteristicsFromRegistry as $pcv): ?>
                                     <tr>
-                                        <td style="font-weight: 600;"><?= Html::encode($pcv->characteristic->name) ?></td>
+                                        <td style="font-weight: 600;"><?= Html::encode($pcv->characteristic ? $pcv->characteristic->name : '—') ?></td>
                                         <td>
                                             <?php if ($pcv->characteristicValue): ?>
                                                 <span class="admin-badge admin-badge-primary"><?= Html::encode($pcv->characteristicValue->value) ?></span>
@@ -290,7 +332,7 @@ $this->params['headerActions'] = $actions;
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
-                                
+
                                 <?php if ($hasPoizonChars): ?>
                                     <?php foreach ($properties as $prop): ?>
                                         <tr>
@@ -304,6 +346,36 @@ $this->params['headerActions'] = $actions;
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
+
+                                <?php foreach ($_msCharRows as $_mcr): ?>
+                                    <tr>
+                                        <td style="font-weight: 600;"><?= Html::encode($_mcr['label']) ?></td>
+                                        <td>
+                                            <?php if ($_mcr['field']): ?>
+                                                <span class="inline-editable" data-entity="product" data-id="<?= $product->id ?>" data-field="<?= Html::encode($_mcr['field']) ?>"><?= Html::encode($_mcr['value']) ?></span>
+                                            <?php else: ?>
+                                                <?= Html::encode($_mcr['value']) ?>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <span class="admin-badge" style="background:#dbeafe;color:#1e40af">
+                                                <i class="bi bi-cloud-check"></i> MC
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+
+                                <?php foreach ($_msAttrs as $_ma): ?>
+                                    <tr>
+                                        <td style="font-weight: 600;"><?= Html::encode($_ma['name'] ?? '') ?></td>
+                                        <td><?= Html::encode(is_array($_ma['value'] ?? '') ? ($_ma['value']['name'] ?? json_encode($_ma['value'])) : ($_ma['value'] ?? '')) ?></td>
+                                        <td style="text-align: center;">
+                                            <span class="admin-badge" style="background:#dbeafe;color:#1e40af">
+                                                <i class="bi bi-cloud-check"></i> MC
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>
@@ -351,11 +423,8 @@ $this->params['headerActions'] = $actions;
     <div class="admin-card-content">
         <?php 
         $sizes = $product->getSizes()
-            ->orderBy([
-                'sort_order' => SORT_ASC,
-                'CAST(us_size AS DECIMAL)' => SORT_ASC,
-                'us_size' => SORT_ASC
-            ])
+            ->orderBy(['sort_order' => SORT_ASC])
+            ->addOrderBy(new \yii\db\Expression('CAST(`us_size` AS DECIMAL) ASC, `us_size` ASC'))
             ->all();
         if (count($sizes) > 0): 
         ?>
@@ -368,15 +437,17 @@ $this->params['headerActions'] = $actions;
                             <th>UK</th>
                             <th>CM</th>
                             <th style="cursor: help;" title="Цена в юанях (CNY)">Цена ¥ <i class="bi bi-info-circle-fill text-info"></i></th>
-                            <th>Цена BYN</th>
+                            <th title="Редактируемое поле">Цена BYN <i class="bi bi-pencil-fill" style="font-size:0.6rem;color:var(--admin-primary)"></i></th>
                             <th>Цена клиента</th>
+                            <th title="МойСклад Variant ID">МС Вариант</th>
+                            <th title="Штрихкод МС">Штрихкод</th>
                             <?php if ($product->poizon_id): ?>
                                 <th>Poizon SKU</th>
                                 <th>Артикул варианта</th>
                                 <th>Фото варианта</th>
                                 <th>Остаток Poizon</th>
                             <?php endif; ?>
-                            <th>Остаток</th>
+                            <th title="Редактируемое поле">Остаток <i class="bi bi-pencil-fill" style="font-size:0.6rem;color:var(--admin-primary)"></i></th>
                             <th>Статус</th>
                             <th>Действия</th>
                         </tr>
@@ -399,17 +470,33 @@ $this->params['headerActions'] = $actions;
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <?php if ($size->price_byn): ?>
-                                    <?= number_format($size->price_byn, 2) ?> ₽
+                                <span class="inline-editable-size" data-id="<?= $size->id ?>" data-field="price_byn" data-type="number" title="Нажмите для редактирования">
+                                    <?php if ($size->price_byn): ?>
+                                        <?= number_format($size->price_byn, 2) ?> BYN
+                                    <?php else: ?>
+                                        <span style="color: var(--admin-text-secondary);">-</span>
+                                    <?php endif; ?>
+                                </span>
+                            </td>
+                            <td>
+                                <?php if ($size->price_client_byn): ?>
+                                    <strong style="color: var(--admin-success);"><?= number_format($size->price_client_byn, 2) ?> BYN</strong>
                                 <?php else: ?>
                                     <span style="color: var(--admin-text-secondary);">-</span>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <?php if ($size->price_client_byn): ?>
-                                    <strong style="color: var(--admin-success);"><?= number_format($size->price_client_byn, 2) ?> ₽</strong>
+                                <?php if (!empty($size->ms_variant_id)): ?>
+                                    <code style="font-size:0.65rem;color:#6b7280" title="<?= Html::encode($size->ms_variant_id) ?>"><?= Html::encode(substr($size->ms_variant_id, 0, 8)) ?>...</code>
                                 <?php else: ?>
-                                    <span style="color: var(--admin-text-secondary);">-</span>
+                                    <span style="color:var(--admin-text-secondary)">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if (!empty($size->ms_barcode)): ?>
+                                    <code style="font-size:0.7rem"><?= Html::encode($size->ms_barcode) ?></code>
+                                <?php else: ?>
+                                    <span style="color:var(--admin-text-secondary)">-</span>
                                 <?php endif; ?>
                             </td>
                             <?php if ($product->poizon_id): ?>
@@ -422,8 +509,8 @@ $this->params['headerActions'] = $actions;
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php 
-                                    $variantImages = $size->images_json ? json_decode($size->images_json, true) : [];
+                                    <?php
+                                    $variantImages = $size->images_json ? (is_array($size->images_json) ? $size->images_json : json_decode($size->images_json, true)) : [];
                                     if (!empty($variantImages)): ?>
                                         <button type="button" class="admin-btn admin-btn-secondary admin-btn-xs" data-bs-toggle="modal" data-bs-target="#imagesModal<?= $size->id ?>">
                                             <i class="bi bi-images"></i> <?= count($variantImages) ?>
@@ -441,24 +528,23 @@ $this->params['headerActions'] = $actions;
                                 </td>
                             <?php endif; ?>
                             <td>
-                                <?php if ($size->stock > 0): ?>
-                                    <span class="admin-badge admin-badge-primary"><?= $size->stock ?></span>
-                                <?php else: ?>
-                                    <span class="admin-badge admin-badge-secondary">0</span>
-                                <?php endif; ?>
+                                <span class="inline-editable-size" data-id="<?= $size->id ?>" data-field="stock" data-type="number" title="Нажмите для редактирования">
+                                    <?php if ($size->stock > 0): ?>
+                                        <span class="admin-badge admin-badge-primary"><?= $size->stock ?></span>
+                                    <?php else: ?>
+                                        <span class="admin-badge admin-badge-secondary">0</span>
+                                    <?php endif; ?>
+                                </span>
                             </td>
                             <td>
                                 <?php if ($size->is_available): ?>
-                                    <span class="admin-badge admin-badge-success">Доступен</span>
+                                    <span class="admin-badge admin-badge-success" style="cursor:pointer" onclick="toggleSizeAvailable(<?= $size->id ?>, 0, this)">Доступен</span>
                                 <?php else: ?>
-                                    <span class="admin-badge admin-badge-secondary">Недоступен</span>
+                                    <span class="admin-badge admin-badge-secondary" style="cursor:pointer" onclick="toggleSizeAvailable(<?= $size->id ?>, 1, this)">Недоступен</span>
                                 <?php endif; ?>
                             </td>
                             <td>
                                 <div style="display: flex; gap: 0.25rem;">
-                                    <button type="button" class="admin-btn admin-btn-secondary admin-btn-xs" data-bs-toggle="modal" data-bs-target="#editSizeModal<?= $size->id ?>" title="Редактировать">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
                                     <?= Html::a('<i class="bi bi-trash"></i>', ['/admin/product/delete-size', 'id' => $size->id], [
                                         'class' => 'admin-btn admin-btn-danger admin-btn-xs',
                                         'title' => 'Удалить',
@@ -481,6 +567,65 @@ $this->params['headerActions'] = $actions;
     </div>
 </div>
 
+<!-- МойСклад данные -->
+<?php if ($product->moysklad_id || $product->ms_code || $product->ms_external_code): ?>
+<div class="admin-card" style="margin-top: 1.5rem;">
+    <h2 class="admin-card-title">
+        <i class="bi bi-cloud-check"></i>
+        МойСклад
+        <?php if ($product->moysklad_id): ?>
+        <a href="https://online.moysklad.ru/app/#good/edit?id=<?= Html::encode($product->moysklad_id) ?>" target="_blank" class="admin-btn admin-btn-secondary admin-btn-sm" style="float:right">
+            <i class="bi bi-box-arrow-up-right"></i> Открыть в МС
+        </a>
+        <?php endif; ?>
+    </h2>
+    <div class="admin-card-content">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px">
+            <?php if ($product->ms_code): ?>
+            <div><span style="font-size:0.75rem;color:var(--admin-text-secondary)">Код МС:</span> <code><?= Html::encode($product->ms_code) ?></code></div>
+            <?php endif; ?>
+            <?php if ($product->ms_external_code): ?>
+            <div><span style="font-size:0.75rem;color:var(--admin-text-secondary)">Внешний код:</span> <code><?= Html::encode($product->ms_external_code) ?></code></div>
+            <?php endif; ?>
+            <?php if ($product->ms_path_name): ?>
+            <div style="grid-column:span 2"><span style="font-size:0.75rem;color:var(--admin-text-secondary)">Группа (путь):</span> <?= Html::encode($product->ms_path_name) ?></div>
+            <?php endif; ?>
+            <?php if ($product->ms_supplier_name): ?>
+            <div><span style="font-size:0.75rem;color:var(--admin-text-secondary)">Поставщик:</span> <strong><?= Html::encode($product->ms_supplier_name) ?></strong></div>
+            <?php endif; ?>
+            <?php if ($product->ms_volume): ?>
+            <div><span style="font-size:0.75rem;color:var(--admin-text-secondary)">Объём:</span> <?= Html::encode($product->ms_volume) ?></div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Цены МС -->
+        <?php if ($product->ms_price_full || $product->ms_price_rub || $product->ms_price_sale || $product->ms_price_competitor || $product->ms_min_price): ?>
+        <div style="margin-top:12px;border-top:1px solid var(--admin-border);padding-top:10px">
+            <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary);margin-bottom:6px">Цены МС</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:0.875rem">
+                <?php if ($product->ms_price_full): ?><div><span style="color:var(--admin-text-secondary)">Полная:</span> <strong><?= number_format($product->ms_price_full, 2) ?></strong></div><?php endif; ?>
+                <?php if ($product->ms_price_rub): ?><div><span style="color:var(--admin-text-secondary)">В руб.:</span> <strong><?= number_format($product->ms_price_rub, 2) ?> ₽</strong></div><?php endif; ?>
+                <?php if ($product->ms_price_sale): ?><div><span style="color:var(--admin-text-secondary)">Акционная:</span> <strong style="color:#059669"><?= number_format($product->ms_price_sale, 2) ?></strong></div><?php endif; ?>
+                <?php if ($product->ms_price_competitor): ?><div><span style="color:var(--admin-text-secondary)">Конкурент:</span> <?= number_format($product->ms_price_competitor, 2) ?></div><?php endif; ?>
+                <?php if ($product->ms_min_price): ?><div><span style="color:var(--admin-text-secondary)">Мин.:</span> <?= number_format($product->ms_min_price, 2) ?></div><?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Флаги МС -->
+        <?php $msFlags = []; if ($product->ms_archived) $msFlags[] = '<span class="admin-badge" style="background:#fee2e2;color:#991b1b">Архив МС</span>'; if ($product->ms_no_export) $msFlags[] = '<span class="admin-badge" style="background:#fef3c7;color:#92400e">Не экспортировать</span>'; ?>
+        <?php if (!empty($msFlags)): ?><div style="margin-top:8px;display:flex;gap:6px"><?= implode('', $msFlags) ?></div><?php endif; ?>
+
+        <!-- Ссылка на сайте МС -->
+        <?php if ($product->ms_site_link): ?>
+        <div style="margin-top:8px;font-size:0.8rem"><i class="bi bi-link-45deg"></i> <a href="<?= Html::encode($product->ms_site_link) ?>" target="_blank">Ссылка МС на сайте</a></div>
+        <?php endif; ?>
+
+        <!-- MS characteristics and attributes are now merged into the main Характеристики товара section above -->
+    </div>
+</div>
+<?php endif; ?>
+
 <!-- B7.2 Quick Actions Bar -->
 <?php $this->registerCss('.product-quick-bar{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;padding:0.75rem 1rem;background:var(--admin-surface);border:1px solid var(--admin-border);border-radius:var(--admin-radius);margin-bottom:1.5rem}') ?>
 <div class="product-quick-bar" style="margin-top:-0.5rem">
@@ -494,6 +639,49 @@ $this->params['headerActions'] = $actions;
         <i class="bi bi-bag-plus"></i> Создать заказ
     </a>
 </div>
+
+<!-- Заказы с этим товаром -->
+<?php
+try {
+    $productOrders = \app\backend\modules\checkout\models\OrderItem::find()
+        ->where(['product_id' => $product->id])
+        ->with(['order'])
+        ->orderBy(['id' => SORT_DESC])
+        ->limit(20)
+        ->all();
+} catch (\Exception $e) { $productOrders = []; }
+?>
+<?php if (!empty($productOrders)): ?>
+<div class="admin-card" style="margin-top:1.5rem">
+    <h2 class="admin-card-title"><i class="bi bi-bag-check"></i> Заказы с этим товаром <span class="admin-badge admin-badge-secondary"><?= count($productOrders) ?></span></h2>
+    <div style="overflow-x:auto">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>№ Заказа</th>
+                    <th>Размер</th>
+                    <th>Кол-во</th>
+                    <th>Цена</th>
+                    <th>Статус заказа</th>
+                    <th>Дата</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($productOrders as $oi): if (!$oi->order) continue; ?>
+                <tr>
+                    <td><a href="<?= Url::to(['/admin/order/view', 'id' => $oi->order->id]) ?>" style="font-weight:600">#<?= Html::encode($oi->order->order_number ?: $oi->order->id) ?></a></td>
+                    <td><?= Html::encode($oi->size ?: '—') ?></td>
+                    <td><?= (int)$oi->quantity ?></td>
+                    <td><?= number_format($oi->price, 2) ?> Br</td>
+                    <td><span class="admin-badge admin-badge-<?= in_array($oi->order->status, ['delivered','paid','confirmed_and_paid']) ? 'success' : (in_array($oi->order->status, ['cancelled','returned']) ? 'danger' : 'secondary') ?>"><?= Html::encode($oi->order->status) ?></span></td>
+                    <td style="font-size:0.8rem;color:var(--admin-text-secondary)"><?= date('d.m.Y', $oi->order->created_at) ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+<?php endif; ?>
 
 <!-- B7.6 Похожие товары -->
 <?php
@@ -523,3 +711,347 @@ if (!empty($similarProducts)):
     </div>
 </div>
 <?php endif ?>
+
+<!-- Модальное окно добавления изображения -->
+<div class="modal fade" id="addImageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить изображение</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="<?= Url::to(['/admin/product/add-image', 'productId' => $product->id]) ?>">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">URL изображения</label>
+                        <input type="text" name="image_url" class="form-control" placeholder="https://..." required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Добавить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно добавления размера -->
+<div class="modal fade" id="addSizeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить размер</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="<?= Url::to(['/admin/product/add-size', 'productId' => $product->id]) ?>">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">US</label>
+                            <input type="text" name="us_size" class="form-control" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">EU</label>
+                            <input type="text" name="eu_size" class="form-control">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">UK</label>
+                            <input type="text" name="uk_size" class="form-control">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">CM</label>
+                            <input type="text" name="cm_size" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Цена ¥</label>
+                            <input type="number" step="0.01" name="price_cny" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Цена BYN</label>
+                            <input type="number" step="0.01" name="price_byn" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Остаток</label>
+                            <input type="number" name="stock" class="form-control" value="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Добавить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<?php
+// Модальные окна для изображений вариантов размеров
+foreach ($sizes as $size):
+    $variantImages = $size->images_json ? (is_array($size->images_json) ? $size->images_json : json_decode($size->images_json, true)) : [];
+    if (!empty($variantImages)):
+?>
+<div class="modal fade" id="imagesModal<?= $size->id ?>" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Изображения варианта <?= Html::encode($size->us_size ?: $size->size) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
+                    <?php foreach ($variantImages as $img): ?>
+                        <div>
+                            <img src="<?= Html::encode($img) ?>" style="width: 100%; border-radius: var(--admin-radius);" alt="Variant image">
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php
+    endif;
+endforeach;
+?>
+
+<?php $this->registerCss('
+.inline-editable, .inline-editable-size {
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background 0.15s;
+    display: inline-block;
+    min-width: 30px;
+}
+.inline-editable:hover, .inline-editable-size:hover {
+    background: rgba(var(--admin-primary-rgb, 59,130,246), 0.08);
+    outline: 1px dashed var(--admin-primary, #3b82f6);
+}
+.inline-edit-input {
+    border: 1px solid var(--admin-primary, #3b82f6);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: inherit;
+    font-family: inherit;
+    width: 100%;
+    max-width: 140px;
+    outline: none;
+    background: var(--admin-surface, #fff);
+}
+.inline-saved-indicator {
+    display: inline-block;
+    color: #059669;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 4px;
+    animation: fadeInOut 1.5s ease forwards;
+}
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    15% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
+}
+'); ?>
+
+<script>
+var _inlineUpdateUrl = '<?= Url::to(['/admin/product/inline-update']) ?>';
+var _csrfToken = '<?= Yii::$app->request->getCsrfToken() ?>';
+
+// Inline save helper
+function inlineSave(entity, id, field, value, displayEl) {
+    fetch(_inlineUpdateUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': _csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({entity: entity, id: id, field: field, value: value})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        if (res.success) {
+            var ind = document.createElement('span');
+            ind.className = 'inline-saved-indicator';
+            ind.textContent = 'Saved';
+            displayEl.parentNode.insertBefore(ind, displayEl.nextSibling);
+            setTimeout(function() { if (ind.parentNode) ind.parentNode.removeChild(ind); }, 1600);
+        } else {
+            alert('Error: ' + (res.message || 'Unknown'));
+        }
+    })
+    .catch(function() { alert('Network error'); });
+}
+
+// Make product characteristic inline-editable
+document.addEventListener('click', function(e) {
+    var el = e.target.closest('.inline-editable');
+    if (!el || el.querySelector('input')) return;
+    var entity = el.dataset.entity;
+    var id = el.dataset.id;
+    var field = el.dataset.field;
+    var currentVal = el.textContent.trim();
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'inline-edit-input';
+    input.value = currentVal;
+    el.textContent = '';
+    el.appendChild(input);
+    input.focus();
+    input.select();
+    function commit() {
+        var newVal = input.value.trim();
+        el.textContent = newVal || currentVal;
+        if (newVal !== currentVal) {
+            inlineSave(entity, id, field, newVal, el);
+        }
+    }
+    input.addEventListener('blur', commit);
+    input.addEventListener('keydown', function(ev) {
+        if (ev.key === 'Enter') { ev.preventDefault(); input.blur(); }
+        if (ev.key === 'Escape') { el.textContent = currentVal; }
+    });
+});
+
+// Make size fields inline-editable
+document.addEventListener('click', function(e) {
+    var el = e.target.closest('.inline-editable-size');
+    if (!el || el.querySelector('input')) return;
+    var id = el.dataset.id;
+    var field = el.dataset.field;
+    var rawVal = el.textContent.replace(/[^0-9.\-]/g, '').trim();
+    var input = document.createElement('input');
+    input.type = 'number';
+    input.step = (field === 'stock') ? '1' : '0.01';
+    input.className = 'inline-edit-input';
+    input.value = rawVal || '0';
+    var origHtml = el.innerHTML;
+    el.innerHTML = '';
+    el.appendChild(input);
+    input.focus();
+    input.select();
+    function commit() {
+        var newVal = input.value.trim();
+        if (field === 'price_byn') {
+            el.innerHTML = newVal && parseFloat(newVal) ? parseFloat(newVal).toFixed(2) + ' BYN' : '<span style="color:var(--admin-text-secondary)">-</span>';
+        } else if (field === 'stock') {
+            var n = parseInt(newVal) || 0;
+            el.innerHTML = n > 0
+                ? '<span class="admin-badge admin-badge-primary">' + n + '</span>'
+                : '<span class="admin-badge admin-badge-secondary">0</span>';
+        }
+        if (newVal !== rawVal) {
+            inlineSave('size', id, field, newVal, el);
+        }
+    }
+    input.addEventListener('blur', commit);
+    input.addEventListener('keydown', function(ev) {
+        if (ev.key === 'Enter') { ev.preventDefault(); input.blur(); }
+        if (ev.key === 'Escape') { el.innerHTML = origHtml; }
+    });
+});
+
+// Toggle size availability
+function toggleSizeAvailable(sizeId, newVal, el) {
+    inlineSave('size', sizeId, 'is_available', newVal, el);
+    if (newVal) {
+        el.className = 'admin-badge admin-badge-success';
+        el.textContent = 'Доступен';
+        el.setAttribute('onclick', 'toggleSizeAvailable(' + sizeId + ', 0, this)');
+    } else {
+        el.className = 'admin-badge admin-badge-secondary';
+        el.textContent = 'Недоступен';
+        el.setAttribute('onclick', 'toggleSizeAvailable(' + sizeId + ', 1, this)');
+    }
+}
+
+// Функция копирования в буфер обмена
+function copyToClipboard(text, element) {
+    navigator.clipboard.writeText(text).then(function() {
+        var originalText = element.innerHTML;
+        element.innerHTML = '<i class="bi bi-check"></i> Скопировано';
+        setTimeout(function() {
+            element.innerHTML = originalText;
+        }, 1500);
+    });
+}
+
+// Функция редактирования цены
+function editPrice(productId, currentPrice) {
+    var newPrice = prompt('Введите новую цену (BYN):', currentPrice);
+    if (newPrice !== null && newPrice !== '') {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '<?= Url::to(['/admin/product/update-price']) ?>', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                location.reload();
+            } else {
+                alert('Ошибка обновления цены');
+            }
+        };
+        xhr.send('id=' + productId + '&price=' + newPrice);
+    }
+}
+
+// Загрузка фото МойСклад
+function loadMsImages(productId) {
+    var btn = document.getElementById('ms-load-btn');
+    var grid = document.getElementById('ms-images-grid');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Загрузка…';
+    fetch('<?= \yii\helpers\Url::to(['/admin/moysklad/ms-images']) ?>?product_id=' + productId)
+        .then(function(r) { return r.json(); })
+        .then(function(images) {
+            if (!images || images.length === 0) {
+                btn.innerHTML = '<i class="bi bi-image"></i> Нет фото в МС';
+                return;
+            }
+            btn.style.display = 'none';
+            grid.style.display = 'grid';
+            images.forEach(function(img) {
+                var div = document.createElement('div');
+                div.style.position = 'relative';
+                var el = document.createElement('img');
+                el.src = img.miniature;
+                el.alt = img.filename || '';
+                el.style.cssText = 'width:100%;border-radius:0.5rem;cursor:pointer';
+                el.title = img.filename || '';
+                el.onclick = function() { window.open(img.miniature, '_blank'); };
+                div.appendChild(el);
+                grid.appendChild(div);
+            });
+        })
+        .catch(function() {
+            btn.innerHTML = '<i class="bi bi-exclamation-circle"></i> Ошибка загрузки';
+            btn.disabled = false;
+        });
+}
+
+// Функция переключения активности
+function toggleActive(productId) {
+    if (confirm('Вы уверены?')) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '<?= Url::to(['/admin/product/toggle', 'id' => $product->id]) ?>', true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                location.reload();
+            } else {
+                alert('Ошибка изменения статуса');
+            }
+        };
+        xhr.send();
+    }
+}
+</script>

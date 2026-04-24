@@ -50,27 +50,6 @@ class CartController extends FrontendCartController
      */
     public function actionIndex()
     {
-        $demoMode = false;
-        $items    = [];
-        $total    = 0;
-        $customer = null;
-
-        try {
-            $items    = \app\backend\modules\cart\models\Cart::getItems();
-            $total    = \app\backend\modules\cart\models\Cart::getTotal();
-            $customerId = Yii::$app->session->get('customer_id');
-            if ($customerId) {
-                $customer = Customer::findOne($customerId);
-            }
-        } catch (\Exception $e) {
-            $demoMode = true;
-        }
-
-        return $this->render('index', [
-            'items'    => $items,
-            'total'    => $total,
-            'customer' => $customer,
-            'demoMode' => $demoMode,
-        ]);
+        return $this->redirect(['/order/index'], 301);
     }
 }

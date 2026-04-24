@@ -22,18 +22,20 @@ try {
     $activeUsers = User::find()->where(['status' => User::STATUS_ACTIVE])->count();
     $inactiveUsers = User::find()->where(['status' => User::STATUS_INACTIVE])->count();
     $roleCounts = [
-        User::ROLE_ADMIN => User::find()->where(['role' => User::ROLE_ADMIN])->count(),
-        User::ROLE_MANAGER => User::find()->where(['role' => User::ROLE_MANAGER])->count(),
-        User::ROLE_LOGIST => User::find()->where(['role' => User::ROLE_LOGIST])->count(),
+        User::ROLE_ADMIN    => User::find()->where(['role' => User::ROLE_ADMIN])->count(),
+        User::ROLE_DIRECTOR => User::find()->where(['role' => User::ROLE_DIRECTOR])->count(),
+        User::ROLE_MANAGER  => User::find()->where(['role' => User::ROLE_MANAGER])->count(),
+        User::ROLE_LOGIST   => User::find()->where(['role' => User::ROLE_LOGIST])->count(),
     ];
 } catch (\Exception $e) {
     // Демо-данные при отсутствии БД
     $activeUsers = 8;
     $inactiveUsers = 0;
     $roleCounts = [
-        User::ROLE_ADMIN => 2,
-        User::ROLE_MANAGER => 4,
-        User::ROLE_LOGIST => 2,
+        User::ROLE_ADMIN    => 1,
+        User::ROLE_DIRECTOR => 1,
+        User::ROLE_MANAGER  => 4,
+        User::ROLE_LOGIST   => 2,
     ];
 }
 

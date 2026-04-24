@@ -354,13 +354,14 @@ function handleSearch(event) {
     }
     
     // AJAX search
-    fetch(`/api/v1/products/search?q=${encodeURIComponent(query)}`)
+    fetch(`/catalog/search?q=${encodeURIComponent(query)}`)
         .then(r => r.json())
         .then(data => {
-            if (data.length > 0) {
-                resultsContainer.innerHTML = data.map(product => `
-                    <a href="/product/${product.id}" class="search-result-item" onclick="closeSearch()">
-                        <img src="${product.image || '/images/placeholder.png'}" alt="${product.name}">
+            const items = data.results || data;
+            if (items.length > 0) {
+                resultsContainer.innerHTML = items.map(product => `
+                    <a href="${product.url || '/catalog/product/' + product.slug}" class="search-result-item" onclick="closeSearch()">
+                        <img src="${product.mainImage || product.image || '/images/placeholder.png'}" alt="${product.name}">
                         <div class="search-result-info">
                             <div class="search-result-name">${product.name}</div>
                             <div class="search-result-price">${product.price} BYN</div>

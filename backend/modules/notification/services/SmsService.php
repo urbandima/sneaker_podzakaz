@@ -2,8 +2,8 @@
 
 /**
  * SmsService — Сервис SMS-уведомлений
- * 
- * Поддерживает провайдеров: Twilio, SMSC.ru, SMS.ru (настраивается)
+ *
+ * Поддерживает провайдеров: Twilio, SMSC.ru, SMS.ru, RocketSMS.by
  */
 namespace app\backend\modules\notification\services;
 
@@ -12,11 +12,50 @@ use yii\base\Component;
 
 class SmsService extends Component
 {
-    /** @var string Провайдер (twilio, smsc, smsru) */
+    /** @var string Провайдер (twilio, smsc, smsru, rocketsms) */
     public $provider;
 
     /** @var array Ключи API */
     public $apiKeys = [];
+
+    /** @var string|null Sender / alphaname для RocketSMS */
+    public $senderName;
+
+    public function init()
+    {
+        parent::init();
+        // Overlay из БД (plugin/rocketsms_config) — если администратор изменил настройки через UI
+        try {
+            if (Yii::$app->has('settings')) {
+                $raw = Yii::$app->settings->get('plugin', 'rocketsms_config', '');
+                if ($raw) {
+                    $cfg = json_decode($raw, true);
+                    if (is_array($cfg)) {
+                        if (!empty($cfg['username'])) {
+                            $this->apiKeys['rocketsms_username'] = $cfg['username'];
+                        }
+                        if (!empty($cfg['password'])) {
+                            $this->apiKeys['rocketsms_password'] = $cfg['password'];
+                        }
+                        if (!empty($cfg['sender'])) {
+                            $this->apiKeys['rocketsms_sender'] = $cfg['sender'];
+                            if (empty($this->senderName)) {
+                                $this->senderName = $cfg['sender'];
+                            }
+                        }
+                        // Если в БД активен — переключаем провайдера на rocketsms
+                        if (!empty($cfg['active']) && !empty($cfg['username']) && !empty($cfg['password'])) {
+                            $this->provider = 'rocketsms';
+                        } elseif (isset($cfg['active']) && !$cfg['active'] && $this->provider === 'rocketsms') {
+                            $this->provider = 'test';
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Yii::warning('SmsService::init() settings overlay failed: ' . $e->getMessage(), 'sms');
+        }
+    }
 
     /**
      * Отправить SMS
@@ -46,10 +85,102 @@ class SmsService extends Component
                 return $this->sendViaTwilio($phone, $message);
             case 'smsru':
                 return $this->sendViaSmsru($phone, $message);
+            case 'rocketsms':
+                return $this->sendViaRocketSms($phone, $message);
             default:
                 // Тестовый режим - логируем
                 Yii::info("[SMS TEST] To: {$phone}, Message: {$message}", 'sms');
                 return true;
+        }
+    }
+
+    /**
+     * Получить баланс у RocketSMS (возвращает массив ['credits' => .., 'currency' => ..] или null при ошибке)
+     */
+    public function getRocketSmsBalance(): ?array
+    {
+        $username = $this->apiKeys['rocketsms_username'] ?? '';
+        $password = $this->apiKeys['rocketsms_password'] ?? '';
+        if (empty($username) || empty($password)) {
+            return null;
+        }
+        try {
+            $response = $this->httpGet('https://api.rocketsms.by/simple/balance', [
+                'username' => $username,
+                'password' => $password,
+            ]);
+            $data = json_decode($response, true);
+            if (is_array($data) && isset($data['credits'])) {
+                return [
+                    'credits' => (float) $data['credits'],
+                    'currency' => $data['currency'] ?? 'BYN',
+                ];
+            }
+            Yii::error('RocketSMS balance error: ' . $response, 'sms');
+            return null;
+        } catch (\Exception $e) {
+            Yii::error('RocketSMS balance exception: ' . $e->getMessage(), 'sms');
+            return null;
+        }
+    }
+
+    /**
+     * Отправить SMS через RocketSMS.by
+     *
+     * API docs: https://rocketsms.by/storage/rocketsms_api.pdf
+     * Endpoint: POST https://api.rocketsms.by/simple/send
+     */
+    private function sendViaRocketSms(string $phone, string $message): bool
+    {
+        $username = $this->apiKeys['rocketsms_username'] ?? '';
+        $password = $this->apiKeys['rocketsms_password'] ?? '';
+        $sender   = $this->senderName ?: ($this->apiKeys['rocketsms_sender'] ?? null);
+
+        if (empty($username) || empty($password)) {
+            Yii::error('RocketSMS: пустой username/password', 'sms');
+            return false;
+        }
+
+        $url = 'https://api.rocketsms.by/simple/send';
+        $params = [
+            'username' => $username,
+            'password' => $password,
+            'phone'    => $phone,
+            'text'     => $message,
+            'priority' => 'true',
+        ];
+        if (!empty($sender)) {
+            $params['sender'] = $sender;
+        }
+
+        try {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            $data = json_decode($response, true);
+
+            // RocketSMS при успехе возвращает {"status": "SENT", "id": ..., "cost": ...}
+            if ($httpCode >= 200 && $httpCode < 300 && is_array($data)
+                && isset($data['status']) && in_array(strtoupper($data['status']), ['SENT','QUEUED','OK'], true)) {
+                $cost = is_array($data['cost']) ? ($data['cost']['credits'] ?? 0) . ' кред.' : $data['cost'];
+                Yii::info("RocketSMS sent OK: id={$data['id']}, cost={$cost}", 'sms');
+                return true;
+            }
+
+            Yii::error('RocketSMS error (HTTP ' . $httpCode . '): ' . $response, 'sms');
+            return false;
+        } catch (\Exception $e) {
+            Yii::error('RocketSMS exception: ' . $e->getMessage(), 'sms');
+            return false;
         }
     }
 
@@ -162,13 +293,23 @@ class SmsService extends Component
     {
         // Убираем всё кроме цифр
         $phone = preg_replace('/[^0-9]/', '', $phone);
-        
+
+        // BY: 375XXYYYYYYY уже корректен (12 цифр)
+        if (strlen($phone) === 12 && str_starts_with($phone, '375')) {
+            return $phone;
+        }
+
         // Если номер начинается с 8 и длина 11, заменяем на 7
         if (strlen($phone) === 11 && $phone[0] === '8') {
             $phone = '7' . substr($phone, 1);
         }
-        
-        // Если номер 10 цифр, добавляем 7
+
+        // BY без кода страны: 29XXXXXXX (9 цифр) → 37529XXXXXXX
+        if (strlen($phone) === 9 && in_array(substr($phone, 0, 2), ['25','29','33','44'], true)) {
+            $phone = '375' . $phone;
+        }
+
+        // RU без кода страны: XXXYYYYYYY (10 цифр) → 7XXXYYYYYYY
         if (strlen($phone) === 10) {
             $phone = '7' . $phone;
         }
