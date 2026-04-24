@@ -135,11 +135,76 @@ class FavoriteController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $userId    = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
         $sessionId = Yii::$app->session->id;
 
+        return ['count' => ProductFavorite::getCount($userId, $sessionId)];
+    }
+
+    /**
+     * Получить список product_id в избранном (для клиентской отметки кнопок)
+     */
+    public function actionIds()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $userId    = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $sessionId = Yii::$app->session->id;
+
+        $query = ProductFavorite::find()->select('product_id');
+        if ($userId) {
+            $query->where(['user_id' => $userId]);
+        } else {
+            $query->where(['session_id' => $sessionId]);
+        }
+
+        return ['ids' => $query->column()];
+    }
+
+    /**
+     * Merge guest localStorage wishlist after login (POST AJAX, JSON body)
+     */
+    public function actionMergeGuest()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $userId = Yii::$app->session->get('customer_id');
+        if (!$userId) {
+            return ['success' => false, 'message' => 'Not authenticated'];
+        }
+
+        $body = Yii::$app->request->rawBody;
+        $data = json_decode($body, true);
+        $ids = isset($data['ids']) && is_array($data['ids']) ? $data['ids'] : [];
+
+        foreach ($ids as $productId) {
+            $productId = (int) $productId;
+            if ($productId <= 0) continue;
+            ProductFavorite::add($productId, $userId, null);
+        }
+
         return [
-            'count' => ProductFavorite::getCount($userId, $sessionId),
+            'success' => true,
+            'count' => ProductFavorite::getCount($userId, null),
         ];
+    }
+
+    /**
+     * Очистить всё избранное (POST AJAX)
+     */
+    public function actionClear()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $userId    = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $sessionId = Yii::$app->session->id;
+
+        if ($userId) {
+            ProductFavorite::deleteAll(['user_id' => $userId]);
+        } else {
+            ProductFavorite::deleteAll(['session_id' => $sessionId]);
+        }
+
+        return ['success' => true, 'count' => 0];
     }
 }

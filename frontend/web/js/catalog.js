@@ -376,7 +376,7 @@
                     <div class="product-image">
                         ${hasDiscount ? `<span class="badge badge-sale">-${discount}%</span>` : ''}
                         ${product.isFeatured ? `<span class="badge badge-hit">HIT</span>` : ''}
-                        <img src="${product.mainImage}" alt="${escapeHtml(product.name)}" loading="lazy">
+                        <img src="${product.mainImage}" alt="${escapeHtml(product.name)}" loading="lazy" onerror="this.src='/images/placeholder.png';this.onerror=null;">
                         <button class="btn-favorite" onclick="toggleFavorite(event, ${product.id})" data-product-id="${product.id}">
                             <i class="bi bi-heart"></i>
                         </button>
@@ -958,7 +958,7 @@
         e.preventDefault();
         // Вызываем глобальную функцию с правильными параметрами
         if (typeof window.toggleFavorite === 'function') {
-            window.toggleFavorite(e, id);
+            window.toggleFavorite(e.currentTarget, id);
         } else {
         }
     };

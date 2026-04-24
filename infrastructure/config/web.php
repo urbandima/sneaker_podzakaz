@@ -353,6 +353,7 @@ $config = [
                 'catalog/add-favorite' => 'favorite/add',
                 'catalog/remove-favorite' => 'favorite/remove',
                 'catalog/favorites-count' => 'favorite/count',
+                'favorite/merge-guest' => 'favorite/merge-guest',
                 'search' => 'catalog/search/index',
                 'catalog/search' => 'catalog/catalog/search',
                 'catalog/filter' => 'catalog/catalog/filter',
