@@ -59,12 +59,24 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 class OrderController extends BaseAdminController
 {
     /**
+     * Disable CSRF validation for specific actions (e.g. file upload via fetch).
+     */
+    public function beforeAction($action): bool
+    {
+        $csrfFreeActions = ['upload-file', 'auto-fill-dp'];
+        if (in_array($action->id, $csrfFreeActions, true)) {
+            $this->enableCsrfValidation = false;
+        }
+        return parent::beforeAction($action);
+    }
+
+    /**
      * Список заказов с фильтрацией и статистикой
      */
     public function actionIndex()
     {
         $user = $this->getCurrentUser();
-        $query = Order::find()->with(['creator', 'logist', 'orderItems']);
+        $query = Order::find()->with(['creator', 'logist', 'orderItems', 'customer']);
 
         // Логист видит только свои заказы
         if ($this->isLogist()) {
@@ -72,12 +84,25 @@ class OrderController extends BaseAdminController
         }
 
         // Фильтры
-        $filterStatus = Yii::$app->request->get('status');
-        $filterLogist = Yii::$app->request->get('logist');
-        $filterSearch = Yii::$app->request->get('search');
-        $filterProcessed = Yii::$app->request->get('processed');
-        $filterDateFrom = Yii::$app->request->get('date_from');
-        $filterDateTo = Yii::$app->request->get('date_to');
+        $filterStatus     = Yii::$app->request->get('status');
+
+        // By default, exclude trashed/invalid-import orders (keep for audit, hide from main list)
+        if ($filterStatus !== 'imported_invalid') {
+            $query->andWhere(['!=', 'status', 'imported_invalid']);
+        }
+        $filterLogist     = Yii::$app->request->get('logist');
+        $filterSearch     = Yii::$app->request->get('search');
+        $filterProcessed  = Yii::$app->request->get('processed');
+        $filterDateFrom   = Yii::$app->request->get('date_from');
+        $filterDateTo     = Yii::$app->request->get('date_to');
+        $filterDelivery   = Yii::$app->request->get('delivery_method');
+        $filterPayment    = Yii::$app->request->get('payment_method');
+        $filterSource     = Yii::$app->request->get('source');
+        $filterCity       = Yii::$app->request->get('city');
+        $filterChinaTrack = Yii::$app->request->get('china_track');
+        $filterDpTrack    = Yii::$app->request->get('dp_track');
+        $filterAmountFrom = Yii::$app->request->get('amount_from');
+        $filterAmountTo   = Yii::$app->request->get('amount_to');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -85,8 +110,13 @@ class OrderController extends BaseAdminController
                 'pageSize' => 20,
             ],
             'sort' => [
-                'defaultOrder' => [
-                    'created_at' => SORT_DESC,
+                'defaultOrder' => ['created_at' => SORT_DESC],
+                'attributes'   => [
+                    'created_at',
+                    'total_amount',
+                    'client_name',
+                    'status',
+                    'order_number',
                 ],
             ],
         ]);
@@ -127,6 +157,31 @@ class OrderController extends BaseAdminController
             if ($toTs) {
                 $query->andWhere(['<=', 'created_at', $toTs]);
             }
+        }
+
+        if ($filterDelivery) {
+            $query->andWhere(['delivery_method' => $filterDelivery]);
+        }
+        if ($filterPayment) {
+            $query->andWhere(['payment_method' => $filterPayment]);
+        }
+        if ($filterSource) {
+            $query->andWhere(['source' => $filterSource]);
+        }
+        if ($filterCity) {
+            $query->andWhere(['like', 'city', $filterCity]);
+        }
+        if ($filterChinaTrack) {
+            $query->andWhere(['like', 'china_track_number', $filterChinaTrack]);
+        }
+        if ($filterDpTrack) {
+            $query->andWhere(['like', 'dp_track_number', $filterDpTrack]);
+        }
+        if ($filterAmountFrom !== null && $filterAmountFrom !== '') {
+            $query->andWhere(['>=', 'total_amount', (float)$filterAmountFrom]);
+        }
+        if ($filterAmountTo !== null && $filterAmountTo !== '') {
+            $query->andWhere(['<=', 'total_amount', (float)$filterAmountTo]);
         }
 
         $statuses = Yii::$app->settings->getStatuses();
@@ -219,24 +274,41 @@ class OrderController extends BaseAdminController
         }
         $logistMap = ArrayHelper::map($logists, 'id', 'username');
 
+        // Duplicate china track detection (global — across all orders)
+        $dupMap = [];
+        try {
+            $dupTracks = (new Query())
+                ->select(['china_track_number', 'COUNT(*) as cnt'])
+                ->from('{{%order}}')
+                ->where(['not', ['china_track_number' => null]])
+                ->andWhere(['!=', 'china_track_number', ''])
+                ->groupBy('china_track_number')
+                ->having('COUNT(*) > 1')
+                ->all();
+            foreach ($dupTracks as $dt) {
+                $dupMap[$dt['china_track_number']] = (int)$dt['cnt'];
+            }
+        } catch (\Exception $e) {
+            $dupMap = [];
+        }
+
         if (Yii::$app->request->isAjax && Yii::$app->request->get('scroll') === '1') {
             Yii::$app->response->format = Response::FORMAT_JSON;
             $orders = $dataProvider->getModels();
-            $rowsHtml = $this->renderPartial('_table_rows', [
-                'orders' => $orders,
-                'statuses' => $statuses,
-                'formatter' => Yii::$app->formatter,
+            $rowsHtml = $this->renderPartial('_index_rows', [
+                'orders'    => $orders,
+                'statuses'  => $statuses,
                 'logistMap' => $logistMap,
-                'statusDescriptions' => $statusDescriptions,
-                'user' => $user,
+                'dupMap'    => $dupMap,
             ]);
             $pagination = $dataProvider->pagination;
             $hasMore = ($pagination->page + 1) < $pagination->pageCount;
 
             return [
-                'rows' => $rowsHtml,
-                'hasMore' => $hasMore,
-                'nextPage' => $hasMore ? ($pagination->page + 1) : null,
+                'rows'     => $rowsHtml,
+                'hasMore'  => $hasMore,
+                // +2: Yii2 URL page param is 1-based; $pagination->page is 0-based
+                'nextPage' => $hasMore ? ($pagination->page + 2) : null,
             ];
         }
 
@@ -266,6 +338,7 @@ class OrderController extends BaseAdminController
             'logistMap' => $logistMap,
             'statuses' => $statuses,
             'statusDescriptions' => $statusDescriptions,
+            'dupMap' => $dupMap,
             'user' => $user,
         ]);
     }
@@ -311,9 +384,20 @@ class OrderController extends BaseAdminController
             }
         }
 
+        // Загружаем способы доставки из DB для выпадающего списка
+        $shippingMethods = [];
+        $rawShipping = Yii::$app->settings->get('checkout', 'shipping_methods');
+        if ($rawShipping) {
+            $decoded = json_decode($rawShipping, true);
+            if (is_array($decoded)) {
+                $shippingMethods = array_values(array_filter($decoded, fn($m) => ($m['status'] ?? '') === 'active'));
+            }
+        }
+
         // Используем новый wizard интерфейс
         return $this->render('create-wizard', [
             'model' => $model,
+            'shippingMethods' => $shippingMethods,
         ]);
     }
 
@@ -325,7 +409,7 @@ class OrderController extends BaseAdminController
     public function actionView($id)
     {
         $model = $this->findModel($id);
-        
+
         // Проверка прав доступа
         $user = $this->getCurrentUser();
         if ($this->isLogist() && $model->assigned_logist != $user->id) {
@@ -336,15 +420,31 @@ class OrderController extends BaseAdminController
         // Загружаем динамические статусы
         $statuses = Yii::$app->settings->getStatuses();
 
+        // Загружаем методы оплаты и доставки из настроек
+        $paymentMethods = Yii::$app->settings->get('checkout', 'payment_methods');
+        $shippingMethods = Yii::$app->settings->get('checkout', 'shipping_methods');
+        if ($paymentMethods) {
+            $paymentMethods = json_decode($paymentMethods, true);
+        }
+        if ($shippingMethods) {
+            $shippingMethods = json_decode($shippingMethods, true);
+        }
+
         // Определяем, можно ли редактировать заказ
         $canEdit = $this->canEditOrder($model);
 
-        // Используем новый улучшенный интерфейс просмотра заказа
-        return $this->render('view-wizard-new', [
+        // Загружаем справочник источников заказов
+        $sourcesSaved = Yii::$app->settings->get('order', 'sources', '');
+        $orderSources = $sourcesSaved ? (json_decode($sourcesSaved, true) ?: []) : [];
+
+        return $this->render('view', [
             'model' => $model,
             'editing' => Yii::$app->request->get('editing', false),
             'statuses' => $statuses,
+            'paymentMethods' => $paymentMethods ?: [],
+            'shippingMethods' => $shippingMethods ?: [],
             'canEdit' => $canEdit,
+            'orderSources' => $orderSources,
         ]);
     }
 
@@ -405,7 +505,7 @@ class OrderController extends BaseAdminController
         // Определяем, можно ли редактировать заказ
         $canEdit = $this->canEditOrder($model);
 
-        return $this->render('view-wizard-new', [
+        return $this->render('view', [
             'model' => $model,
             'editing' => true,
             'statuses' => $statuses,
@@ -457,7 +557,24 @@ class OrderController extends BaseAdminController
                 }
 
                 Yii::info('Статус заказа #' . $id . ' изменен с "' . $oldStatus . '" на "' . $newStatus . '" пользователем #' . $user->id, 'order');
-                
+
+                if (Yii::$app->has('automation')) {
+                    Yii::$app->automation->fireEvent('order.status_changed', [
+                        'order'      => $model,
+                        'old_status' => $oldStatus,
+                        'new_status' => $newStatus,
+                    ]);
+                }
+
+                // Push status update to МойСклад if Site→MS sync is enabled
+                if (Yii::$app->settings->get('moysklad', 'sync_site_to_ms', '1') === '1') {
+                    try {
+                        Yii::$app->moysklad->pushOrderToMS($model->id);
+                    } catch (\Throwable $msErr) {
+                        Yii::warning('MoySklad push on status change: ' . $msErr->getMessage(), 'moysklad');
+                    }
+                }
+
                 if (Yii::$app->request->isAjax) {
                     Yii::$app->response->format = Response::FORMAT_JSON;
                     return ['success' => true, 'message' => 'Статус изменен'];
@@ -529,7 +646,7 @@ class OrderController extends BaseAdminController
         }
 
         // Формируем запрос для получения заказов за указанный месяц
-        $query = Order::find()->with(['creator', 'logist', 'orderItems']);
+        $query = Order::find()->with(['creator', 'logist', 'orderItems', 'customer']);
 
         // Логист видит только свои заказы
         if ($user->isLogist()) {
@@ -741,12 +858,7 @@ class OrderController extends BaseAdminController
 
         if ($model->save(false)) {
             if ($oldStatus !== $status) {
-                $h = new OrderHistory();
-                $h->order_id   = $model->id;
-                $h->old_status = $oldStatus;
-                $h->new_status = $status;
-                $h->changed_by = $user->id;
-                $h->save(false);
+                OrderHistory::log($model->id, 'status_changed', 'status', $oldStatus, $status);
             }
             TagDependency::invalidate(Yii::$app->cache, ['orders-stats']);
             return ['success' => true];
@@ -826,9 +938,12 @@ class OrderController extends BaseAdminController
         // Сохраняем в OrderHistory с пометкой что это заметка
         $note = new OrderHistory();
         $note->order_id   = $model->id;
+        $note->action     = 'note_added';
         $note->old_status = $model->status;
         $note->new_status = $model->status;
         $note->changed_by = $user->id;
+        $note->user_name  = $user->username ?? null;
+        $note->ip_address = Yii::$app->request->userIP ?? null;
         $note->comment    = $text;
         $note->save(false);
 
@@ -896,7 +1011,7 @@ class OrderController extends BaseAdminController
         $idsRaw = Yii::$app->request->get('ids', '');
         $ids = $idsRaw ? array_map('intval', explode(',', $idsRaw)) : [];
 
-        $query = Order::find()->with(['creator', 'logist', 'orderItems']);
+        $query = Order::find()->with(['creator', 'logist', 'orderItems', 'customer']);
 
         if ($this->isLogist()) {
             $query->andWhere(['assigned_logist' => $user->id]);
@@ -1240,35 +1355,168 @@ class OrderController extends BaseAdminController
         $field = $data['field'] ?? '';
         $value = $data['value'] ?? '';
         $allowed = ['china_track_number','local_track_number','delivery_method','delivery_address',
-            'china_delivery_status','warehouse_arrival_date','delivery_date'];
+            'pickup_point','china_delivery_status','warehouse_arrival_date','delivery_date'];
         if (!in_array($field, $allowed)) return ['success' => false, 'message' => 'Недопустимое поле'];
         $order = Order::findOne($id);
         if (!$order) return ['success' => false, 'message' => 'Не найден'];
+        $oldValue = $order->getAttribute($field);
         $order->$field = $value;
         $order->save(false);
+        if ((string)$oldValue !== (string)$value) {
+            OrderHistory::log($order->id, 'field_changed', $field, $oldValue, $value);
+        }
         return ['success' => true];
     }
 
-    /** B5 — MoySklad sync */
+    /** Feature 6 — MoySklad sync */
     public function actionSyncMoysklad()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $data = json_decode(Yii::$app->request->getRawBody(), true) ?: [];
-        $id = (int)($data['id'] ?? Yii::$app->request->post('id', 0));
+        $data  = json_decode(Yii::$app->request->getRawBody(), true) ?: [];
+        $id    = (int)($data['id'] ?? Yii::$app->request->post('id', 0));
         $order = Order::findOne($id);
         if (!$order) return ['success' => false, 'message' => 'Заказ не найден'];
-        $apiKey = Yii::$app->settings->get('moysklad', 'api_key', '');
-        if (empty($apiKey)) return ['success' => false, 'message' => 'МойСклад не настроен'];
-        return ['success' => true, 'message' => 'Синхронизировано'];
+
+        try {
+            $result = Yii::$app->moysklad->pushOrder($order);
+            $msId   = $result['id'] ?? null;
+            return ['success' => true, 'message' => 'Заказ отправлен в МойСклад', 'ms_id' => $msId];
+        } catch (\Throwable $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
     }
 
-    /** B5/B11 — Track check */
+    /**
+     * Поиск пунктов выдачи Европочты (PVZ) — для автокомплита в админке заказа.
+     * Источник данных: app_setting[section='shipping', key='europochta_points'] — JSON массив.
+     * GET ?q=<строка поиска> — фильтрует по city/name/full
+     */
+    public function actionPvzSearch()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $q     = mb_strtolower(trim((string) Yii::$app->request->get('q', '')));
+        $limit = max(1, min(500, (int) Yii::$app->request->get('limit', 60)));
+
+        $raw  = Yii::$app->settings->get('shipping', 'europochta_points', '');
+        $list = $raw ? (json_decode($raw, true) ?: []) : [];
+        if (!is_array($list) || empty($list)) {
+            return [];
+        }
+
+        $results = [];
+        foreach ($list as $pvz) {
+            if ($q !== '') {
+                $haystack = mb_strtolower(
+                    ($pvz['city'] ?? '') . ' '
+                    . ($pvz['name'] ?? '') . ' '
+                    . ($pvz['full'] ?? '') . ' '
+                    . ($pvz['num']  ?? '')
+                );
+                if (mb_strpos($haystack, $q) === false) {
+                    continue;
+                }
+            }
+            $results[] = [
+                'id'       => $pvz['id'] ?? ($pvz['num'] ?? ''),
+                'num'      => $pvz['num'] ?? '',
+                'city'     => $pvz['city'] ?? '',
+                'address'  => $pvz['name'] ?? '',
+                'full'     => $pvz['full'] ?? '',
+                'schedule' => $pvz['schedule'] ?? ($pvz['work_time'] ?? ''),
+            ];
+            if (count($results) >= $limit) break;
+        }
+
+        // При пустом запросе — группируем по городу для удобства
+        if ($q === '' && !empty($results)) {
+            usort($results, function($a, $b) {
+                $c = strcmp($a['city'] ?? '', $b['city'] ?? '');
+                if ($c !== 0) return $c;
+                return strcmp($a['num'] ?? '', $b['num'] ?? '');
+            });
+        }
+
+        return $results;
+    }
+
+    /** B5/B11 — Track check. Accepts ?track=XXX&orderId=YYY */
     public function actionCheckTrack()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $track = Yii::$app->request->get('track', '');
-        if (empty($track)) return ['status' => 'Трек не указан'];
-        return ['status' => 'Трек ' . $track . ': API не настроен', 'message' => 'Проверьте на сайте перевозчика'];
+        $track   = trim(Yii::$app->request->get('track', ''));
+        $orderId = (int)Yii::$app->request->get('orderId', 0);
+
+        if (empty($track)) {
+            return ['success' => false, 'status' => 'Трек не указан'];
+        }
+
+        // Determine delivery method from order (if provided)
+        $deliveryMethod = '';
+        if ($orderId) {
+            $order = Order::findOne($orderId);
+            if ($order) {
+                $deliveryMethod = strtolower($order->delivery_method ?? '');
+            }
+        }
+
+        try {
+            $result = $this->callTrackingService($track, $deliveryMethod);
+        } catch (\Exception $e) {
+            Yii::warning('Track check error: ' . $e->getMessage(), 'tracking');
+            return ['success' => false, 'status' => 'Ошибка: ' . $e->getMessage()];
+        }
+
+        // Format status text for display
+        $statusName = $result['status_name'] ?? $result['message'] ?? $result['status'] ?? 'Нет данных';
+        $date       = $result['status_date'] ?? null;
+        $location   = $result['location'] ?? null;
+
+        $text = $statusName;
+        if ($date) {
+            $ts = is_numeric($date) ? (int)$date : strtotime($date);
+            if ($ts) $text .= ' (' . date('d.m.Y', $ts) . ')';
+        }
+        if ($location) {
+            $text .= ' — ' . $location;
+        }
+
+        return ['success' => true, 'status' => $text, 'raw' => $result];
+    }
+
+    /** Pick and call the right tracking service */
+    private function callTrackingService(string $track, string $deliveryMethod): array
+    {
+        switch ($deliveryMethod) {
+            case 'europochta':
+                if (Yii::$app->has('europochtaTracking')) {
+                    return Yii::$app->europochtaTracking->getStatus($track);
+                }
+                break;
+            case 'belpochta':
+                if (Yii::$app->has('belpochtaTracking')) {
+                    return Yii::$app->belpochtaTracking->getStatus($track);
+                }
+                break;
+            case 'cdek':
+            case 'sdek':
+                if (Yii::$app->has('cdekTracking')) {
+                    return Yii::$app->cdekTracking->getStatus($track);
+                }
+                break;
+        }
+
+        // No specific provider — try each configured one in order
+        foreach (['europochtaTracking' => 'europochta', 'belpochtaTracking' => 'belpochta', 'cdekTracking' => 'cdek'] as $component => $name) {
+            if (!Yii::$app->has($component)) continue;
+            $svc = Yii::$app->$component;
+            if (!$svc->isConfigured()) continue;
+            $result = $svc->getStatus($track);
+            if (!in_array($result['status'] ?? '', ['not_found', 'not_configured', 'error'])) {
+                return $result;
+            }
+        }
+
+        return ['status' => 'not_found', 'message' => 'Отправление не найдено. Проверьте на сайте перевозчика.'];
     }
 
     /**
@@ -1393,5 +1641,240 @@ class OrderController extends BaseAdminController
             Yii::error('Ошибка повторной отправки заказа #' . $id . ' в Таможня:ДП: ' . $e->getMessage(), 'dp-api');
             return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
         }
+    }
+
+    /**
+     * Сохранение состава заказа (товары) из формы редактирования.
+     * POST /admin/order/update-items?id=...
+     */
+    public function actionUpdateItems($id)
+    {
+        $model = $this->findModel($id);
+
+        if ($this->isLogist()) {
+            throw new \yii\web\ForbiddenHttpException('Доступ запрещён.');
+        }
+
+        if (!Yii::$app->request->isPost) {
+            return $this->redirect(['/admin/order/view', 'id' => $id]);
+        }
+
+        $items = Yii::$app->request->post('OrderItem', []);
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            [$totalAmount, $itemCount] = $this->saveOrderItems($model, $items, true);
+            $transaction->commit();
+            $this->flashSuccess('Состав заказа обновлён. Итого: ' . number_format($totalAmount, 2) . ' Br (' . $itemCount . ' позиций)');
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            $this->flashError('Ошибка: ' . $e->getMessage());
+        }
+
+        return $this->redirect(['/admin/order/view', 'id' => $id]);
+    }
+
+    /**
+     * Upload files for an order (called via fetch from the order view page).
+     * Accepts POST with multipart files[].
+     * Saves to uploads/orders/{order_id}/ and returns JSON with file info.
+     *
+     * @param int $id Order ID
+     * @return array JSON response
+     */
+    public function actionUploadFile($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $order = $this->findModel($id);
+        if (!$order) {
+            return ['success' => false, 'error' => 'Заказ не найден'];
+        }
+
+        $uploadDir = Yii::getAlias('@app') . '/uploads/orders/' . $order->id;
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        $uploadedFiles = \yii\web\UploadedFile::getInstancesByName('files');
+        if (empty($uploadedFiles)) {
+            return ['success' => false, 'error' => 'Файлы не были загружены'];
+        }
+
+        $savedFiles = [];
+        $firstImagePath = null;
+
+        foreach ($uploadedFiles as $file) {
+            $safeName = time() . '_' . preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $file->name);
+            $filePath = $uploadDir . '/' . $safeName;
+
+            if ($file->saveAs($filePath)) {
+                $url = '/uploads/orders/' . $order->id . '/' . $safeName;
+                $savedFiles[] = [
+                    'name' => $file->name,
+                    'url'  => $url,
+                ];
+
+                // Track first image for payment_proof
+                if ($firstImagePath === null && in_array($file->type, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], true)) {
+                    $firstImagePath = $url;
+                }
+            }
+        }
+
+        // Set payment_proof to first uploaded image if not already set
+        if ($firstImagePath !== null && empty($order->payment_proof)) {
+            $order->payment_proof = $firstImagePath;
+            $order->save(false, ['payment_proof']);
+        }
+
+        return [
+            'success' => true,
+            'files'   => $savedFiles,
+        ];
+    }
+
+    /**
+     * Авто-заполнение полей ДП из данных заказа и профиля клиента.
+     * Заполняет только пустые поля, не перезаписывает существующие данные.
+     */
+    public function actionAutoFillDp($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $order = Order::findOne($id);
+        if (!$order) {
+            return ['success' => false, 'message' => 'Заказ не найден'];
+        }
+
+        $filled = [];
+
+        // 1. Парсим client_name → recipient_last_name, recipient_first_name, recipient_middle_name
+        $clientName = trim($order->client_name ?? '');
+        if ($clientName !== '') {
+            $parts = preg_split('/\s+/', $clientName, 3);
+            if (empty($order->recipient_last_name) && !empty($parts[0])) {
+                $order->recipient_last_name = $parts[0];
+                $filled[] = 'recipient_last_name';
+            }
+            if (empty($order->recipient_first_name) && !empty($parts[1])) {
+                $order->recipient_first_name = $parts[1];
+                $filled[] = 'recipient_first_name';
+            }
+            if (empty($order->recipient_middle_name) && !empty($parts[2])) {
+                $order->recipient_middle_name = $parts[2];
+                $filled[] = 'recipient_middle_name';
+            }
+        }
+
+        // 2. delivery_address → full_address
+        if (empty($order->full_address) && !empty($order->delivery_address)) {
+            $order->full_address = $order->delivery_address;
+            $filled[] = 'full_address';
+        }
+
+        // 3. Поля адреса (city, region, postal_code) — уже могут быть в заказе,
+        //    но если пустые, пробуем из профиля клиента
+        // (city, region, postal_code уже хранятся в самом заказе, заполнять нечего)
+
+        // 4. Устанавливаем package_type по умолчанию
+        if (empty($order->package_type)) {
+            $order->package_type = 'parcel';
+            $filled[] = 'package_type';
+        }
+
+        // 5. Копируем паспортные данные из профиля клиента (если есть)
+        if ($order->customer_id) {
+            $customer = \app\backend\modules\account\models\Customer::findOne($order->customer_id);
+            if ($customer) {
+                // Паспортные данные
+                if (empty($order->passport_series) && !empty($customer->passport_series)) {
+                    $order->passport_series = $customer->passport_series;
+                    $filled[] = 'passport_series';
+                }
+                if (empty($order->passport_number) && !empty($customer->passport_number)) {
+                    $order->passport_number = $customer->passport_number;
+                    $filled[] = 'passport_number';
+                }
+                if (empty($order->passport_issue_date) && !empty($customer->passport_issue_date)) {
+                    $order->passport_issue_date = $customer->passport_issue_date;
+                    $filled[] = 'passport_issue_date';
+                }
+                if (empty($order->inn) && !empty($customer->inn)) {
+                    $order->inn = $customer->inn;
+                    $filled[] = 'inn';
+                }
+                if (empty($order->birth_date) && !empty($customer->birth_date)) {
+                    $order->birth_date = $customer->birth_date;
+                    $filled[] = 'birth_date';
+                }
+
+                // ФИО из профиля клиента (если из client_name не заполнилось)
+                if (empty($order->recipient_last_name) && !empty($customer->last_name)) {
+                    $order->recipient_last_name = $customer->last_name;
+                    $filled[] = 'recipient_last_name';
+                }
+                if (empty($order->recipient_first_name) && !empty($customer->first_name)) {
+                    $order->recipient_first_name = $customer->first_name;
+                    $filled[] = 'recipient_first_name';
+                }
+                if (empty($order->recipient_middle_name) && !empty($customer->middle_name)) {
+                    $order->recipient_middle_name = $customer->middle_name;
+                    $filled[] = 'recipient_middle_name';
+                }
+
+                // Адресные данные из профиля клиента
+                if (empty($order->city) && !empty($customer->default_city)) {
+                    $order->city = $customer->default_city;
+                    $filled[] = 'city';
+                }
+                if (empty($order->full_address) && !empty($customer->default_address)) {
+                    $order->full_address = $customer->default_address;
+                    $filled[] = 'full_address';
+                }
+            }
+        }
+
+        if (!empty($filled)) {
+            $order->save(false, $filled);
+        }
+
+        return [
+            'success' => true,
+            'filled'  => $filled,
+            'message' => empty($filled)
+                ? 'Все поля уже заполнены, нечего обновлять'
+                : 'Заполнено полей: ' . count($filled),
+        ];
+    }
+
+    /**
+     * Mark bad import orders as 'imported_invalid' (keep for audit, hide from main list).
+     * Targets: orders with email='1@mail.ru' AND 0 items.
+     * POST /admin/order/clean-bad-import
+     */
+    public function actionCleanBadImport()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        if (!$this->isAdmin()) {
+            return ['success' => false, 'message' => 'Доступ запрещён'];
+        }
+
+        $count = Yii::$app->db->createCommand("
+            UPDATE `order`
+            SET status = 'imported_invalid'
+            WHERE status = 'imported'
+              AND client_email = '1@mail.ru'
+              AND (
+                SELECT COUNT(*) FROM order_item oi WHERE oi.order_id = `order`.id
+              ) = 0
+        ")->execute();
+
+        return [
+            'success' => true,
+            'marked' => $count,
+            'message' => "Помечено как imported_invalid: {$count} заказов",
+        ];
     }
 }
