@@ -11,6 +11,19 @@ $teamStats = $teamStats ?? [];
 $conversionFunnel = $conversionFunnel ?? ['views' => 0, 'add_to_cart' => 0, 'orders' => 0];
 
 $activeTab = Yii::$app->request->get('tab', 'analytics');
+$prevRevenueStats = $prevRevenueStats ?? [];
+
+// Вычислить % изменение выручки
+$curRevenue  = (float)($revenueStats['total_revenue'] ?? 0);
+$prevRevenue = (float)($prevRevenueStats['total_revenue'] ?? 0);
+if ($prevRevenue > 0) {
+    $revChangePct = round(($curRevenue - $prevRevenue) / $prevRevenue * 100, 1);
+    $revChangeBadge = ($revChangePct >= 0 ? '+' : '') . $revChangePct . '%';
+    $revChangeCls   = $revChangePct >= 0 ? 'admin-badge-success' : 'admin-badge-danger';
+} else {
+    $revChangeBadge = 'Нет данных';
+    $revChangeCls   = 'admin-badge-secondary';
+}
 ?>
 
 <?php
@@ -45,7 +58,7 @@ $this->params['headerActions'] = [
     <div class="admin-stat-card">
         <p class="admin-stat-number"><?= number_format($revenueStats['total_revenue'] ?? 0, 0, ',', ' ') ?></p>
         <p class="admin-stat-label">Общая выручка, BYN</p>
-        <span class="admin-badge admin-badge-success">+12%</span>
+        <span class="admin-badge <?= $revChangeCls ?>"><?= Html::encode($revChangeBadge) ?> vs пред. период</span>
     </div>
     <div class="admin-stat-card" style="border-left-color: var(--admin-success);">
         <p class="admin-stat-number"><?= $revenueStats['total_orders'] ?? 0 ?></p>
@@ -85,10 +98,10 @@ $this->params['headerActions'] = [
             <tbody>
                 <?php foreach ($salesByDay as $day): ?>
                 <tr>
-                    <td><?= $day['date'] ?></td>
-                    <td style="text-align: right; font-weight: 600;"><?= $day['orders_count'] ?></td>
-                    <td style="text-align: right; font-weight: 600;"><?= number_format($day['revenue'], 0, ',', ' ') ?> BYN</td>
-                    <td style="text-align: right;"><?= number_format($day['avg_order'], 0, ',', ' ') ?> BYN</td>
+                    <td><?= $day['date'] ?? '—' ?></td>
+                    <td style="text-align: right; font-weight: 600;"><?= $day['orders_count'] ?? $day['count'] ?? 0 ?></td>
+                    <td style="text-align: right; font-weight: 600;"><?= number_format($day['revenue'] ?? 0, 0, ',', ' ') ?> BYN</td>
+                    <td style="text-align: right;"><?= number_format($day['avg_order'] ?? $day['avg_order_value'] ?? 0, 0, ',', ' ') ?> BYN</td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

@@ -115,8 +115,7 @@ class AnalyticsController extends BaseAdminController
             'revenueStats' => $revenueStats,
             'prevRevenueStats' => $prevRevenueStats,
             'deviceStats' => $deviceStats,
-            // aliases expected by view
-            'salesByDay' => $ordersByDay,
+            'salesByDay' => $this->getSalesByDay($dateFrom, $dateTo),
             'topProducts' => $popularProducts,
             // new blocks
             'rfmSegments' => $rfmSegments,
