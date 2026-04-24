@@ -43,11 +43,7 @@ $amountFormatted = $totalAmount >= 1000 ? number_format($totalAmount / 1000, 1, 
 
 <!-- Header -->
 <?php
-$this->params['headerActions'] = [
-    Html::a('<i class="bi bi-plus-circle"></i> Новый заказ', ['/admin/order/create'], ['class' => 'admin-btn admin-btn-primary admin-btn-sm']),
-    '<button class="admin-btn admin-btn-secondary admin-btn-sm" id="theme-toggle" title="Ctrl+D — тема"><i class="bi bi-moon-fill" id="theme-icon"></i></button>',
-    '<button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="location.reload()" title="Ctrl+R"><i class="bi bi-arrow-clockwise"></i></button>'
-];
+$this->params['headerActions'] = [];
 ?>
 
 <!-- KPI Cards -->
@@ -103,7 +99,7 @@ $this->params['headerActions'] = [
 $opStats = $operationalStats ?? ['unprocessed2h' => 0, 'delayed3d' => 0, 'awaitingPoizon' => 0];
 ?>
 <div class="dash-operational-grid">
-    <a href="<?= Url::to(['/admin/order', 'status' => 'new']) ?>" class="dash-op-widget">
+    <a href="<?= Url::to(['/admin/order', 'status' => 'new', 'created_before' => '-2 hours']) ?>" class="dash-op-widget">
         <div class="dash-op-widget-icon danger"><i class="bi bi-clock-history"></i></div>
         <div class="dash-op-widget-value danger"><?= (int)($opStats['unprocessed2h'] ?? 0) ?></div>
         <div class="dash-op-widget-label">Необработанных<br>&gt;2 часов</div>

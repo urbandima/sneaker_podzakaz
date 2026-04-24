@@ -50,6 +50,8 @@ use app\backend\modules\checkout\models\Order;
 use app\backend\modules\checkout\models\OrderItem;
 use app\backend\modules\checkout\models\OrderHistory;
 use app\backend\modules\admin\models\User;
+use app\backend\modules\admin\models\AdminLog;
+use app\backend\modules\admin\services\AdminLogService;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -101,8 +103,9 @@ class OrderController extends BaseAdminController
         $filterCity       = Yii::$app->request->get('city');
         $filterChinaTrack = Yii::$app->request->get('china_track');
         $filterDpTrack    = Yii::$app->request->get('dp_track');
-        $filterAmountFrom = Yii::$app->request->get('amount_from');
-        $filterAmountTo   = Yii::$app->request->get('amount_to');
+        $filterAmountFrom   = Yii::$app->request->get('amount_from');
+        $filterAmountTo     = Yii::$app->request->get('amount_to');
+        $filterCreatedBefore = Yii::$app->request->get('created_before');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -156,6 +159,14 @@ class OrderController extends BaseAdminController
             $toTs = strtotime($filterDateTo . ' 23:59:59');
             if ($toTs) {
                 $query->andWhere(['<=', 'created_at', $toTs]);
+            }
+        }
+
+        // W13: created_before filter — e.g. '-2h' means created more than 2 hours ago
+        if ($filterCreatedBefore) {
+            $beforeTs = strtotime($filterCreatedBefore);
+            if ($beforeTs) {
+                $query->andWhere(['<', 'created_at', $beforeTs]);
             }
         }
 
@@ -859,6 +870,7 @@ class OrderController extends BaseAdminController
         if ($model->save(false)) {
             if ($oldStatus !== $status) {
                 OrderHistory::log($model->id, 'status_changed', 'status', $oldStatus, $status);
+                AdminLogService::logStatusChange(AdminLog::ENTITY_ORDER, $model->id, 'Заказ #' . $model->id, $oldStatus, $status);
             }
             TagDependency::invalidate(Yii::$app->cache, ['orders-stats']);
             return ['success' => true];
@@ -1364,6 +1376,7 @@ class OrderController extends BaseAdminController
         $order->save(false);
         if ((string)$oldValue !== (string)$value) {
             OrderHistory::log($order->id, 'field_changed', $field, $oldValue, $value);
+            AdminLogService::log(AdminLog::ACTION_UPDATE, AdminLog::ENTITY_ORDER, $order->id, 'Заказ #' . $order->id, "Поле {$field}: {$oldValue} → {$value}");
         }
         return ['success' => true];
     }

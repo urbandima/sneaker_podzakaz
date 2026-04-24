@@ -4,8 +4,14 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 /* @var $this yii\web\View */
+/* @var array $company */
 
 $this->title = 'Контакты — СНИКЕРХЭД';
+$company = $company ?? [];
+$phone    = $company['phone'] ?? '+375 (29) 123-45-67';
+$email    = $company['email'] ?? 'info@sneakerhead.by';
+$address  = $company['address'] ?? 'Минск, ул. Купревича 1, корп. 1';
+$workTime = $company['work_time'] ?? 'Пн–Вс: 10:00 — 20:00';
 $this->params['breadcrumbs'][] = $this->title;
 
 $css = <<<CSS
@@ -297,30 +303,36 @@ $this->registerCss($css);
 
         <!-- Contact info cards -->
         <div class="contact-cards">
+            <?php if ($phone): ?>
             <div class="contact-card">
                 <div class="contact-card-icon"><i class="bi bi-telephone-fill"></i></div>
                 <h3>Телефон</h3>
-                <a href="tel:+375291234567">+375 (29) 123-45-67</a>
-                <span class="contact-card-note">Пн–Вс: 10:00 — 20:00</span>
+                <a href="tel:<?= preg_replace('/[^\d+]/', '', $phone) ?>"><?= Html::encode($phone) ?></a>
+                <span class="contact-card-note"><?= Html::encode($workTime) ?></span>
             </div>
+            <?php endif; ?>
+            <?php if ($email): ?>
             <div class="contact-card">
                 <div class="contact-card-icon"><i class="bi bi-envelope-fill"></i></div>
                 <h3>Email</h3>
-                <a href="mailto:info@sneakerhead.by">info@sneakerhead.by</a>
+                <a href="mailto:<?= Html::encode($email) ?>"><?= Html::encode($email) ?></a>
                 <span class="contact-card-note">Ответ в течение 24 часов</span>
             </div>
+            <?php endif; ?>
             <div class="contact-card">
                 <div class="contact-card-icon"><i class="bi bi-telegram"></i></div>
                 <h3>Telegram</h3>
                 <a href="https://t.me/sneakerheadbyweb_bot" target="_blank" rel="noopener">@sneakerheadbyweb_bot</a>
                 <span class="contact-card-note">Быстрые ответы 24/7</span>
             </div>
+            <?php if ($address): ?>
             <div class="contact-card">
                 <div class="contact-card-icon"><i class="bi bi-geo-alt-fill"></i></div>
                 <h3>Адрес</h3>
-                <p>Минск, ул. Купревича 1, корп. 1</p>
+                <p><?= Html::encode($address) ?></p>
                 <span class="contact-card-note">Пункт выдачи заказов</span>
             </div>
+            <?php endif; ?>
         </div>
 
         <!-- Social -->
@@ -424,6 +436,7 @@ $this->registerCss($css);
         </section>
 
         <!-- Address -->
+        <?php if ($address): ?>
         <section class="address-section">
             <h2>Наш адрес</h2>
             <div class="address-card">
@@ -431,12 +444,12 @@ $this->registerCss($css);
                     <i class="bi bi-geo-alt-fill"></i>
                 </div>
                 <div class="address-info">
-                    <h3>Минск, ул. Купревича 1, корп. 1</h3>
-                    <p>Пункт выдачи заказов: Пн–Вс 10:00 — 20:00</p>
-                    <p>Рядом с ТРЦ «Арена Сити»</p>
+                    <h3><?= Html::encode($address) ?></h3>
+                    <p>Пункт выдачи заказов: <?= Html::encode($workTime) ?></p>
                 </div>
             </div>
         </section>
+        <?php endif; ?>
     </div>
 </div>
 

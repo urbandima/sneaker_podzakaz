@@ -38,6 +38,12 @@ class SettingsController extends BaseAdminController
 
         $data = Yii::$app->request->post();
 
+        // Fallback: parse JSON body (when Content-Type: application/json)
+        if (empty($data)) {
+            $raw = Yii::$app->request->getRawBody();
+            $data = json_decode($raw, true) ?? [];
+        }
+
         if (empty($data)) {
             return ['success' => false, 'message' => 'Нет данных для сохранения'];
         }
@@ -85,7 +91,7 @@ class SettingsController extends BaseAdminController
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $fields = ['name', 'unp', 'address', 'phone', 'email', 'work_time', 'bank_details'];
+        $fields = ['name', 'unp', 'address', 'phone', 'email', 'work_time', 'bank', 'bic', 'account'];
         $data = Yii::$app->request->post();
         if (empty($data)) {
             $raw = Yii::$app->request->getRawBody();
@@ -100,10 +106,21 @@ class SettingsController extends BaseAdminController
                 }
             }
             Yii::$app->settings->set('company', 'data', json_encode($company, JSON_UNESCAPED_UNICODE));
-            // Also set individual keys for backward compat
             foreach ($company as $k => $v) {
                 Yii::$app->settings->set('company', $k, $v);
             }
+            // Sync to company_settings table (used by checkout/view.php)
+            $cs = \app\backend\modules\admin\models\CompanySettings::find()->one();
+            if (!$cs) {
+                $cs = new \app\backend\modules\admin\models\CompanySettings();
+            }
+            foreach (['name', 'unp', 'address', 'phone', 'email', 'bank', 'bic', 'account'] as $f) {
+                if (isset($company[$f])) {
+                    $cs->$f = $company[$f];
+                }
+            }
+            $cs->updated_at = time();
+            $cs->save(false);
             return ['success' => true, 'message' => 'Реквизиты компании сохранены'];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
@@ -127,7 +144,12 @@ class SettingsController extends BaseAdminController
      */
     public function beforeAction($action)
     {
-        if ($action->id === 'save-statuses') {
+        // CSRF отключён для JSON AJAX-эндпоинтов настроек, которые принимают тело запроса
+        // в формате application/json (getRawBody). Стандартный CSRF-токен Yii2 не передаётся
+        // при fetch(..., { body: JSON.stringify(...) }) без явной передачи заголовка.
+        // Безопасность обеспечивается авторизацией на уровне BaseAdminController (только admin).
+        // TODO: передавать X-CSRF-Token в заголовках fetch-запросов и убрать это исключение.
+        if (in_array($action->id, ['save-statuses', 'save-payment', 'save-shipping'])) {
             $this->enableCsrfValidation = false;
         }
         return parent::beforeAction($action);
@@ -315,7 +337,7 @@ class SettingsController extends BaseAdminController
         }
 
         try {
-            $url = 'https://online.moysklad.ru/api/remap/1.2/context/employee';
+            $url = 'https://api.moysklad.ru/api/remap/1.2/context/employee';
             $ch  = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 8);
@@ -380,6 +402,145 @@ class SettingsController extends BaseAdminController
     /**
      * Настройки служб доставки
      */
+    /**
+     * Страница управления способами оплаты
+     */
+    public function actionPayment()
+    {
+        $methods = $this->getPaymentMethods();
+
+        return $this->render('payment', [
+            'methods' => $methods,
+        ]);
+    }
+
+    /**
+     * Сохранение способов оплаты (AJAX POST JSON)
+     */
+    public function actionSavePayment()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $raw = json_decode(Yii::$app->request->getRawBody(), true);
+        if (!isset($raw['methods']) || !is_array($raw['methods'])) {
+            return ['success' => false, 'message' => 'Некорректные данные'];
+        }
+
+        $clean = [];
+        foreach ($raw['methods'] as $m) {
+            if (empty($m['id']) || empty($m['name'])) continue;
+            $clean[] = [
+                'id'          => preg_replace('/[^a-z0-9_]/', '', strtolower($m['id'])),
+                'name'        => mb_substr(strip_tags($m['name']), 0, 80),
+                'description' => mb_substr(strip_tags($m['description'] ?? ''), 0, 200),
+                'icon'        => preg_replace('/[^a-z0-9\-]/', '', $m['icon'] ?? 'credit-card'),
+                'status'      => ($m['status'] ?? '') === 'active' ? 'active' : 'inactive',
+                'sort_order'  => (int)($m['sort_order'] ?? 0),
+            ];
+        }
+        // Re-number sort_order sequentially to avoid gaps
+        usort($clean, fn($a, $b) => $a['sort_order'] <=> $b['sort_order']);
+        foreach ($clean as $i => &$item) { $item['sort_order'] = $i + 1; }
+        unset($item);
+
+        Yii::$app->settings->set('checkout', 'payment_methods', json_encode($clean, JSON_UNESCAPED_UNICODE));
+
+        return ['success' => true, 'saved' => count($clean)];
+    }
+
+    /**
+     * Получить методы оплаты из DB. Возвращает fallback значения по умолчанию, если не настроены.
+     */
+    public function getPaymentMethods(): array
+    {
+        $stored = Yii::$app->settings->get('checkout', 'payment_methods');
+        if ($stored) {
+            $decoded = json_decode($stored, true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+        }
+
+        // Fallback значения по умолчанию
+        return [
+            [
+                'id' => 'cash',
+                'name' => 'Наличными при получении',
+                'description' => 'Оплата наличными при получении заказа',
+                'icon' => 'cash',
+                'status' => 'active',
+                'sort_order' => 1,
+            ],
+            [
+                'id' => 'card',
+                'name' => 'Банковской картой',
+                'description' => 'Visa, MasterCard, БелКарт',
+                'icon' => 'credit-card',
+                'status' => 'active',
+                'sort_order' => 2,
+            ],
+        ];
+    }
+
+    /**
+     * SEO настройки
+     */
+    public function actionSeo()
+    {
+        if (Yii::$app->request->isPost) {
+            $fields = ['meta_title_tpl', 'meta_desc_tpl', 'ga_id', 'metrika_id', 'robots_txt', 'sitemap_enabled'];
+            foreach ($fields as $field) {
+                $value = Yii::$app->request->post($field, '');
+                Yii::$app->settings->set('seo', $field, $value);
+            }
+            Yii::$app->session->addFlash('success', 'SEO настройки сохранены');
+            return $this->redirect(['/admin/settings/seo']);
+        }
+
+        // W17: clear flash set by other actions (e.g., product image deletion)
+        // that would otherwise appear on an unrelated page
+        $flash = Yii::$app->session->getFlash('success', null, true);
+        if ($flash && strpos((string)$flash, 'SEO') === false) {
+            $flash = null;
+        }
+
+        $s = Yii::$app->settings;
+        return $this->render('seo', [
+            'seo_flash'       => $flash,
+            'meta_title_tpl'  => $s->get('seo', 'meta_title_tpl', '{page_title} — {site_name}'),
+            'meta_desc_tpl'   => $s->get('seo', 'meta_desc_tpl', ''),
+            'ga_id'           => $s->get('seo', 'ga_id', ''),
+            'metrika_id'      => $s->get('seo', 'metrika_id', ''),
+            'robots_txt'      => $s->get('seo', 'robots_txt', "User-agent: *\nAllow: /"),
+            'sitemap_enabled' => $s->get('seo', 'sitemap_enabled', '1'),
+        ]);
+    }
+
+    public function actionSources()
+    {
+        $defaultSources = ['Сайт', 'Telegram', 'Instagram', 'ВКонтакте', 'Звонок', 'WhatsApp', 'Viber', 'Рекомендация', 'Другое'];
+
+        if (Yii::$app->request->isPost) {
+            $raw  = Yii::$app->request->getRawBody();
+            $body = json_decode($raw, true);
+
+            if (isset($body['sources'])) {
+                $sources = array_values(array_filter(array_map('trim', (array)$body['sources'])));
+                Yii::$app->settings->set('order', 'sources', json_encode($sources, JSON_UNESCAPED_UNICODE));
+                Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+                return ['success' => true];
+            }
+        }
+
+        $saved = Yii::$app->settings->get('order', 'sources', '');
+        $sources = $saved ? json_decode($saved, true) : $defaultSources;
+
+        return $this->render('sources', [
+            'sources'        => $sources ?: $defaultSources,
+            'defaultSources' => $defaultSources,
+        ]);
+    }
+
     public function actionShipping()
     {
         $shippingMethods = $this->getShippingMethods();
@@ -390,10 +551,53 @@ class SettingsController extends BaseAdminController
     }
 
     /**
+     * Сохранение настроек доставки (AJAX POST JSON)
+     */
+    public function actionSaveShipping()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $raw = json_decode(Yii::$app->request->getRawBody(), true);
+        if (!isset($raw['shipping']['methods']) || !is_array($raw['shipping']['methods'])) {
+            return ['success' => false, 'message' => 'Некорректные данные'];
+        }
+
+        $clean = [];
+        foreach ($raw['shipping']['methods'] as $m) {
+            if (empty($m['id']) || empty($m['name'])) continue;
+            $clean[] = [
+                'id' => preg_replace('/[^a-z0-9_]/', '', strtolower($m['id'])),
+                'name' => mb_substr(strip_tags($m['name']), 0, 80),
+                'type' => mb_substr(strip_tags($m['type'] ?? 'international'), 0, 20),
+                'carrier' => mb_substr(strip_tags($m['carrier'] ?? ''), 0, 50),
+                'plugin' => preg_replace('/[^a-z0-9_]/', '', strtolower($m['plugin'] ?? '')),
+                'status' => ($m['status'] ?? '') === 'active' ? 'active' : 'inactive',
+                'delivery_time' => mb_substr(strip_tags($m['delivery_time'] ?? ''), 0, 50),
+                'base_cost' => (float)($m['base_cost'] ?? 0),
+                'currency' => mb_substr(strip_tags($m['currency'] ?? 'BYN'), 0, 10),
+                'description' => mb_substr(strip_tags($m['description'] ?? ''), 0, 200),
+            ];
+        }
+
+        Yii::$app->settings->set('checkout', 'shipping_methods', json_encode($clean, JSON_UNESCAPED_UNICODE));
+
+        return ['success' => true];
+    }
+
+    /**
      * Получить все методы доставки
      */
     private function getShippingMethods()
     {
+        $stored = Yii::$app->settings->get('checkout', 'shipping_methods');
+        if ($stored) {
+            $decoded = json_decode($stored, true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+        }
+
+        // Fallback значения по умолчанию
         return [
             [
                 'id' => 'international_express',

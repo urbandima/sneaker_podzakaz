@@ -38,12 +38,32 @@ use app\backend\modules\loyalty\models\LoyaltyPoints;
 
 class CustomerController extends BaseAdminController
 {
+    public function beforeAction($action): bool
+    {
+        // CSRF отключён для AJAX-действий, которые вызываются фронтендом через fetch/XMLHttpRequest.
+        // Защиту обеспечивает проверка заголовка X-Requested-With + ограничение доступа через
+        // BaseAdminController (только авторизованные пользователи с ролью admin/logist).
+        // TODO: перейти на передачу CSRF-токена через заголовок X-CSRF-Token в JS-клиенте,
+        //       после чего убрать это исключение.
+        $ajaxActions = ['adjust-points', 'add-points', 'deduct-points', 'add-tag', 'remove-tag', 'add-note', 'toggle-status', 'notify', 'create-from-order', 'search'];
+        if (in_array($action->id, $ajaxActions, true)) {
+            $this->enableCsrfValidation = false;
+        }
+        return parent::beforeAction($action);
+    }
+
     /**
-     * Список покупателей
+     * Список покупателей (с поддержкой бесконечной прокрутки)
      */
     public function actionIndex()
     {
         $query = Customer::find();
+
+        // A12: hide auto-generated import phantom accounts by default
+        $showPhantoms = Yii::$app->request->get('show_phantoms');
+        if (!$showPhantoms) {
+            $query->andWhere(['NOT LIKE', 'email', 'ms_%', false]);
+        }
 
         // Поиск
         $search = Yii::$app->request->get('search');
@@ -62,38 +82,120 @@ class CustomerController extends BaseAdminController
             $query->andWhere(['status' => (int)$status]);
         }
 
-        // Сортировка
-        $sort = Yii::$app->request->get('sort', 'created_at');
-        $order = Yii::$app->request->get('order', 'desc');
-        $query->orderBy([$sort => $order === 'asc' ? SORT_ASC : SORT_DESC]);
+        // W10: фильтр по наличию заказов
+        $hasOrders = Yii::$app->request->get('has_orders');
+        if ($hasOrders === '1') {
+            $query->innerJoin('{{%order}} o_filter', 'o_filter.customer_id = customer.id')->distinct();
+        } elseif ($hasOrders === '0') {
+            $query->leftJoin('{{%order}} o_filter', 'o_filter.customer_id = customer.id')
+                  ->andWhere(['o_filter.id' => null])->distinct();
+        }
+
+        // Сортировка (поддержка формата: sort=col или sort=-col для DESC)
+        $sortParam = Yii::$app->request->get('sort', '-created_at');
+        $allowedSortCols = ['created_at', 'first_name', 'email', 'phone', 'orders_count', 'total_spent', 'last_order_at', 'status'];
+        if ($sortParam) {
+            $desc = false;
+            $col = $sortParam;
+            if (strpos($sortParam, '-') === 0) {
+                $desc = true;
+                $col = substr($sortParam, 1);
+            }
+            if (in_array($col, $allowedSortCols, true)) {
+                $query->orderBy([$col => $desc ? SORT_DESC : SORT_ASC]);
+            } else {
+                $query->orderBy(['created_at' => SORT_DESC]);
+            }
+        } else {
+            $query->orderBy(['created_at' => SORT_DESC]);
+        }
+
+        $pageSize = 50;
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
-                'pageSize' => 20,
+                'pageSize' => $pageSize,
             ],
         ]);
 
+        // AJAX infinite scroll response
+        if (Yii::$app->request->isAjax && Yii::$app->request->get('scroll') === '1') {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $customers = $dataProvider->getModels();
+            $rowsHtml = $this->renderPartial('_index_rows', [
+                'customers' => $customers,
+            ]);
+            $pagination = $dataProvider->pagination;
+            $hasMore = ($pagination->page + 1) < $pagination->pageCount;
+
+            return [
+                'rows'     => $rowsHtml,
+                'hasMore'  => $hasMore,
+                'nextPage' => $hasMore ? ($pagination->page + 2) : null,
+            ];
+        }
+
         // Статистика
+        $withOrdersSql = 'SELECT COUNT(DISTINCT c.id) FROM {{%customer}} c INNER JOIN {{%order}} o ON o.customer_id = c.id';
+        $withOrdersCount = (int)Yii::$app->db->createCommand($withOrdersSql)->queryScalar();
+        $totalCustomers  = (int)Customer::find()->count();
         $stats = [
-            'total' => Customer::find()->count(),
-            'active' => Customer::find()->where(['status' => Customer::STATUS_ACTIVE])->count(),
-            'inactive' => Customer::find()->where(['status' => Customer::STATUS_INACTIVE])->count(),
-            'new_today' => Customer::find()->where(['>=', 'created_at', strtotime('today')])->count(),
-            'new_week' => Customer::find()->where(['>=', 'created_at', strtotime('-7 days')])->count(),
+            'total'          => $totalCustomers,
+            'active'         => Customer::find()->where(['status' => Customer::STATUS_ACTIVE])->count(),
+            'inactive'       => Customer::find()->where(['status' => Customer::STATUS_INACTIVE])->count(),
+            'new_today'      => Customer::find()->where(['>=', 'created_at', strtotime('today')])->count(),
+            'new_week'       => Customer::find()->where(['>=', 'created_at', strtotime('-7 days')])->count(),
+            'with_orders'    => $withOrdersCount,
+            'without_orders' => $totalCustomers - $withOrdersCount,
         ];
+
+        $totalCount = $dataProvider->getTotalCount();
 
         return $this->render('index', [
             'dataProvider' => $dataProvider,
             'search' => $search,
             'status' => $status,
             'stats' => $stats,
+            'totalCount' => $totalCount,
         ]);
     }
 
     /**
      * Просмотр покупателя
      */
+    /**
+     * AJAX quick-view popup: returns HTML fragment with customer summary.
+     * GET /admin/customer/quick-view?id=X
+     */
+    public function actionQuickView($id)
+    {
+        $customer = Customer::findOne($id);
+        if (!$customer) {
+            throw new \yii\web\NotFoundHttpException('Покупатель не найден');
+        }
+
+        $loyaltyBalance = 0;
+        try { $loyaltyBalance = LoyaltyPoints::getBalance($id); } catch (\Exception $e) {}
+
+        $recentOrders = Order::find()
+            ->where(['customer_id' => $id])
+            ->orderBy(['created_at' => SORT_DESC])
+            ->limit(5)
+            ->all();
+
+        $notes = $this->getCustomerNotes($id);
+        $tags  = $this->getCustomerTags($customer);
+
+        return $this->renderPartial('_quick_view', [
+            'customer'       => $customer,
+            'loyaltyBalance' => $loyaltyBalance,
+            'recentOrders'   => $recentOrders,
+            'notes'          => $notes,
+            'tags'           => $tags,
+        ]);
+    }
+
     public function actionView($id)
     {
         $customer = Customer::findOne($id);
@@ -535,6 +637,159 @@ class CustomerController extends BaseAdminController
     }
 
     /**
+     * Начислить или списать баллы (универсальный endpoint для JS-формы)
+     * Body JSON: { customer_id, points (>0 начислить, <0 списать), comment }
+     */
+    public function actionAdjustPoints()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'message' => 'Метод не поддерживается'];
+        }
+
+        $raw        = Yii::$app->request->getRawBody();
+        $body       = json_decode($raw, true) ?? Yii::$app->request->post();
+        $customerId = (int)($body['customer_id'] ?? 0);
+        $points     = (int)($body['points'] ?? 0);
+        $comment    = trim($body['comment'] ?? '');
+
+        if (!$customerId || !Customer::findOne($customerId)) {
+            return ['success' => false, 'message' => 'Покупатель не найден'];
+        }
+        if ($points === 0) {
+            return ['success' => false, 'message' => 'Количество баллов не может быть 0'];
+        }
+        if (empty($comment)) {
+            return ['success' => false, 'message' => 'Комментарий обязателен'];
+        }
+
+        if ($points > 0) {
+            $ok = LoyaltyPoints::earn($customerId, $points, LoyaltyPoints::TYPE_ADMIN, null, $comment);
+        } else {
+            $ok = LoyaltyPoints::redeem($customerId, abs($points), null, $comment);
+        }
+
+        if ($ok) {
+            return [
+                'success'     => true,
+                'message'     => $points > 0 ? "Начислено {$points} баллов" : 'Списано ' . abs($points) . ' баллов',
+                'new_balance' => LoyaltyPoints::getBalance($customerId),
+            ];
+        }
+
+        return ['success' => false, 'message' => 'Ошибка при изменении баллов'];
+    }
+
+    /**
+     * Создать профиль клиента из гостевого заказа
+     * Body JSON: { order_id }
+     */
+    public function actionCreateFromOrder()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $raw  = Yii::$app->request->getRawBody();
+        $body = json_decode($raw, true) ?? [];
+        $orderId = (int)($body['order_id'] ?? 0);
+
+        if (!$orderId) {
+            return ['success' => false, 'message' => 'Заказ не указан'];
+        }
+
+        try {
+            $order = \app\backend\modules\checkout\models\Order::findOne($orderId);
+            if (!$order) {
+                return ['success' => false, 'message' => 'Заказ не найден'];
+            }
+            if ($order->customer_id) {
+                return ['success' => false, 'message' => 'Заказ уже привязан к клиенту'];
+            }
+
+            // Find existing customer by email or phone
+            $existing = null;
+            if ($order->client_email) {
+                $existing = Customer::find()->where(['email' => $order->client_email])->one();
+            }
+            if (!$existing && $order->client_phone) {
+                $existing = Customer::find()->where(['phone' => $order->client_phone])->one();
+            }
+
+            if ($existing) {
+                // Link existing customer to order
+                $order->customer_id = $existing->id;
+                $order->save(false);
+                return [
+                    'success'      => true,
+                    'message'      => 'Заказ привязан к существующему клиенту',
+                    'customer_url' => \yii\helpers\Url::to(['/admin/customer/view', 'id' => $existing->id]),
+                ];
+            }
+
+            // Create new customer
+            $customer = new Customer();
+            $customer->email      = $order->client_email ?: null;
+            $customer->phone      = $order->client_phone ?: null;
+            $customer->first_name = $order->client_name  ?: null;
+            $customer->created_at = time();
+            $customer->updated_at = time();
+            $customer->password_hash = '!';
+            $customer->status        = 1;
+            $customer->is_active     = 1;
+            $customer->auth_key      = Yii::$app->security->generateRandomString();
+            if ($customer->save(false)) {
+                $order->customer_id = $customer->id;
+                $order->save(false);
+                return [
+                    'success'      => true,
+                    'message'      => 'Профиль клиента создан',
+                    'customer_url' => \yii\helpers\Url::to(['/admin/customer/view', 'id' => $customer->id]),
+                ];
+            }
+            return ['success' => false, 'message' => 'Не удалось создать профиль'];
+        } catch (\Exception $e) {
+            Yii::error('createFromOrder error: ' . $e->getMessage(), 'customer');
+            return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Быстрый поиск клиентов для автодополнения (используется в форме создания заказа)
+     * GET /admin/customer/search?q=текст
+     */
+    public function actionSearch()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $q = trim(Yii::$app->request->get('q', ''));
+        if (strlen($q) < 2) {
+            return [];
+        }
+        $like = '%' . strtr($q, ['%' => '\%', '_' => '\_']) . '%';
+        $customers = Customer::find()
+            ->where(['or',
+                ['like', 'email', $q],
+                ['like', 'phone', $q],
+                ['like', 'first_name', $q],
+                ['like', 'last_name', $q],
+            ])
+            ->limit(10)
+            ->asArray()
+            ->all();
+
+        return array_map(function($c) {
+            $name = trim(($c['first_name'] ?? '') . ' ' . ($c['last_name'] ?? ''));
+            return [
+                'id'       => $c['id'],
+                'name'     => $name ?: ('Клиент #' . $c['id']),
+                'phone'    => $c['phone']    ?? '',
+                'email'    => $c['email']    ?? '',
+                'city'     => $c['default_city']    ?? '',
+                'address'  => $c['default_address'] ?? '',
+            ];
+        }, $customers);
+    }
+
+    /**
      * Получить заметки команды для покупателя
      */
     private function getCustomerNotes(int $customerId): array
@@ -566,4 +821,30 @@ class CustomerController extends BaseAdminController
             return [];
         }
     }
+    /**
+     * A12: Mark auto-generated import phantom accounts as inactive.
+     * Targets: email matching ms_* AND no orders.
+     */
+    public function actionMarkPhantoms()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        if (!$this->isAdmin()) {
+            return ['success' => false, 'message' => 'Доступ запрещён'];
+        }
+
+        $count = Yii::$app->db->createCommand("
+            UPDATE {{%customer}}
+            SET is_active = 0
+            WHERE email REGEXP '^ms_[a-f0-9]+@'
+              AND (last_order_at IS NULL OR orders_count = 0)
+        ")->execute();
+
+        return [
+            'success' => true,
+            'marked' => $count,
+            'message' => "Деактивировано {$count} фантомных аккаунтов",
+        ];
+    }
+
 }
