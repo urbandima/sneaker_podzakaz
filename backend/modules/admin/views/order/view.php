@@ -79,7 +79,7 @@ $this->registerJs(
                 <div class="order-card">
                     <div class="card-header">
                         <h3><i class="bi bi-bag-check"></i> Состав заказа</h3>
-                        <span style="font-size:0.8125rem;color:#6b7280;"><?= count($model->orderItems) ?> позиций</span>
+                        <span id="items-count-badge" style="font-size:0.8125rem;color:#6b7280;"><?= count($model->orderItems) ?> позиций</span>
                     </div>
                     <table class="items-table">
                         <thead>
@@ -746,7 +746,7 @@ $this->registerJs(
     . '                + '<div class="col-md-2 d-flex align-items-end"><button type="button" class="btn btn-outline-danger remove-item">Удалить</button></div>''
     . '                + "</div>";'
     . '            var container = document.getElementById("order-items-edit");'
-    . '            if (container) { container.insertAdjacentHTML("beforeend", newItem); itemIndex++; }'
+    . '            if (container) { container.insertAdjacentHTML("beforeend", newItem); itemIndex++; var badge = document.getElementById("items-count-badge"); if (badge) badge.textContent = container.querySelectorAll(".order-item").length + " позиций"; }'
     . '        });'
     . '    }'
     . '})();',
