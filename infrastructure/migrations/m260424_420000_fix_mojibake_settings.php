@@ -10,21 +10,36 @@ class m260424_420000_fix_mojibake_settings extends Migration
 {
     public function safeUp()
     {
-        // Fix company_settings text fields
-        $rows = $this->db->createCommand('SELECT id, name, address, phone, email, bank, bic, account, work_time FROM {{%company_settings}}')->queryAll();
-        foreach ($rows as $row) {
-            $fields = ['name', 'address', 'phone', 'email', 'bank', 'bic', 'account', 'work_time'];
-            $update = [];
-            foreach ($fields as $f) {
-                if (!empty($row[$f])) {
-                    $fixed = $this->fixMojibake($row[$f]);
-                    if ($fixed !== $row[$f]) {
-                        $update[$f] = $fixed;
+        // Determine which text columns actually exist in company_settings
+        $textCandidates = ['name', 'address', 'phone', 'email', 'work_time',
+            'bank', 'bic', 'account', 'bank_name', 'bank_account', 'bank_code',
+            'legal_name', 'director', 'accountant', 'unp'];
+
+        $existingCols = [];
+        $schema = $this->db->createCommand('SHOW COLUMNS FROM {{%company_settings}}')->queryAll();
+        $schemaCols = array_column($schema, 'Field');
+        foreach ($textCandidates as $col) {
+            if (in_array($col, $schemaCols, true)) {
+                $existingCols[] = $col;
+            }
+        }
+
+        if ($existingCols) {
+            $selectSql = 'SELECT id, ' . implode(', ', $existingCols) . ' FROM {{%company_settings}}';
+            $rows = $this->db->createCommand($selectSql)->queryAll();
+            foreach ($rows as $row) {
+                $update = [];
+                foreach ($existingCols as $f) {
+                    if (!empty($row[$f])) {
+                        $fixed = $this->fixMojibake($row[$f]);
+                        if ($fixed !== $row[$f]) {
+                            $update[$f] = $fixed;
+                        }
                     }
                 }
-            }
-            if ($update) {
-                $this->db->createCommand()->update('{{%company_settings}}', $update, ['id' => $row['id']])->execute();
+                if ($update) {
+                    $this->db->createCommand()->update('{{%company_settings}}', $update, ['id' => $row['id']])->execute();
+                }
             }
         }
 
