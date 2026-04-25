@@ -18,9 +18,14 @@ use yii\helpers\Url;
     <title><?= Html::encode($this->title) ?></title>
 
     <!-- CSS -->
-    <link rel="stylesheet" href="/css/core/design-tokens.css">
-    <link rel="stylesheet" href="/css/admin-tokens.css">
-    <link rel="stylesheet" href="/css/admin-shopify-2026.css">
+    <?php
+    $webroot = \Yii::getAlias('@webroot');
+    $cssFiles = ['css/core/design-tokens.css', 'css/admin-tokens.css', 'css/admin-shopify-2026.css'];
+    foreach ($cssFiles as $css):
+        $v = @filemtime($webroot . '/' . $css) ?: '';
+    ?>
+    <link rel="stylesheet" href="/<?= $css . ($v ? '?v=' . $v : '') ?>">
+    <?php endforeach; ?>
 
     <?php $this->head() ?>
     

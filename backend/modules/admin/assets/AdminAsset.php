@@ -45,4 +45,31 @@ class AdminAsset extends AssetBundle
         // Bootstrap Icons подключается через CDN в layout
         // Yii2 core JS не нужен для админки
     ];
+
+    public function init()
+    {
+        parent::init();
+
+        foreach ($this->css as $i => $file) {
+            if (strpos($file, 'http') === 0) {
+                continue;
+            }
+            $clean = preg_replace('/\?v=.*$/', '', $file);
+            $path  = \Yii::getAlias('@webroot/' . $clean);
+            if ($path && file_exists($path)) {
+                $this->css[$i] = $clean . '?v=' . filemtime($path);
+            }
+        }
+
+        foreach ($this->js as $i => $file) {
+            if (strpos($file, 'http') === 0) {
+                continue;
+            }
+            $clean = preg_replace('/\?v=.*$/', '', $file);
+            $path  = \Yii::getAlias('@webroot/' . $clean);
+            if ($path && file_exists($path)) {
+                $this->js[$i] = $clean . '?v=' . filemtime($path);
+            }
+        }
+    }
 }

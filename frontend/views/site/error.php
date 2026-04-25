@@ -7,10 +7,27 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 
-$this->title = $name;
 $statusCode = Yii::$app->response->statusCode;
 
+$ruTitles = [
+    400 => 'Некорректный запрос',
+    403 => 'Доступ запрещён',
+    404 => 'Страница не найдена',
+    405 => 'Метод не поддерживается',
+    410 => 'Страница удалена',
+    422 => 'Ошибка данных',
+    429 => 'Слишком много запросов',
+    500 => 'Ошибка сервера',
+    503 => 'Сервис недоступен',
+];
+$ruTitle = $ruTitles[$statusCode] ?? 'Произошла ошибка';
+$this->title = $ruTitle;
+
 $this->registerCssFile('@web/css/page-404.css', ['depends' => [\app\frontend\assets\AppAsset::class]]);
+
+$company = Yii::$app->settings->getCompany() ?? [];
+$phone   = $company['phone'] ?? '+375 (29) 123-45-67';
+$email   = $company['email'] ?? 'info@sneakerhead.by';
 ?>
 
 <div class="error-page">
@@ -28,24 +45,19 @@ $this->registerCssFile('@web/css/page-404.css', ['depends' => [\app\frontend\ass
 
         <div class="error-code"><?= $statusCode ?></div>
 
-        <h1 class="error-title"><?= Html::encode($name) ?></h1>
+        <h1 class="error-title"><?= Html::encode($ruTitle) ?></h1>
 
-        <?php if (YII_ENV_DEV && !empty($message)): ?>
-            <div class="error-dev-message">
-                <strong>Детали (dev):</strong><br>
+        <p class="error-description">
+            <?php if (!empty($message)): ?>
                 <?= nl2br(Html::encode($message)) ?>
-            </div>
-        <?php else: ?>
-            <p class="error-description">
-                <?php if ($statusCode == 404): ?>
-                    Страница не существует или была перемещена.
-                <?php elseif ($statusCode == 403): ?>
-                    У вас нет доступа к этой странице.
-                <?php else: ?>
-                    Внутренняя ошибка сервера. Мы уже работаем над устранением.
-                <?php endif; ?>
-            </p>
-        <?php endif; ?>
+            <?php elseif ($statusCode == 404): ?>
+                Страница не существует или была перемещена.
+            <?php elseif ($statusCode == 403): ?>
+                У вас нет доступа к этой странице.
+            <?php else: ?>
+                Произошла ошибка. Мы уже работаем над устранением.
+            <?php endif; ?>
+        </p>
 
         <div class="error-actions">
             <a href="<?= Url::to(['/']) ?>" class="error-btn error-btn--primary">
@@ -64,8 +76,8 @@ $this->registerCssFile('@web/css/page-404.css', ['depends' => [\app\frontend\ass
 
         <div class="error-contact">
             <span class="error-contact__label">Нужна помощь?</span>
-            <a href="tel:+375291234567"><i class="bi bi-telephone"></i> +375 (29) 123-45-67</a>
-            <a href="mailto:info@sneakerhead.by"><i class="bi bi-envelope"></i> info@sneakerhead.by</a>
+            <a href="tel:<?= preg_replace('/[^+\d]/', '', $phone) ?>"><i class="bi bi-telephone"></i> <?= Html::encode($phone) ?></a>
+            <a href="mailto:<?= Html::encode($email) ?>"><i class="bi bi-envelope"></i> <?= Html::encode($email) ?></a>
         </div>
 
     </div>

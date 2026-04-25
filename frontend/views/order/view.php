@@ -45,7 +45,7 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                         </div>
                         <div class="order-info-item">
                             <span class="order-info-label">Дата создания:</span>
-                            <span class="order-info-value"><?= Yii::$app->formatter->asDatetime($model->created_at) ?></span>
+                            <span class="order-info-value"><?= date('d.m.Y H:i', $model->created_at) ?></span>
                         </div>
                         <div class="order-info-item">
                             <span class="order-info-label">Сумма:</span>
