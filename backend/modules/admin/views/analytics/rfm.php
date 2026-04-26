@@ -117,7 +117,11 @@ foreach ($rfmSegments as $s) {
     <div class="admin-card-body">
         <div style="display:grid;gap:16px">
             <?php foreach ($rfmSegments as $segment): ?>
-                <?php $percent = round(($segment['count'] / $totalCustomers) * 100, 1); ?>
+                <?php
+                // Z81: always use 1 decimal place for consistent percent display
+                $pct = $totalCustomers > 0 ? ($segment['count'] / $totalCustomers) * 100 : 0;
+                $percent = number_format($pct, 1);
+                ?>
                 <div style="display:flex;align-items:center;gap:16px;padding:16px;background:var(--admin-bg);border-radius:12px;border-left:4px solid <?= $segment['color'] ?>">
                     <div style="flex:0 0 200px">
                         <h3 style="margin:0 0 4px;font-size:16px;font-weight:700"><?= $segment['segment'] ?></h3>

@@ -12,6 +12,8 @@ $conversionFunnel = $conversionFunnel ?? ['views' => 0, 'add_to_cart' => 0, 'ord
 
 $activeTab = Yii::$app->request->get('tab', 'analytics');
 $prevRevenueStats = $prevRevenueStats ?? [];
+// Z80: $period is the raw string ('today','week','month','30', etc.) for active button comparison
+$activePeriod = $period ?? Yii::$app->request->get('period', 'month');
 
 // Вычислить % изменение выручки
 $curRevenue  = (float)($revenueStats['total_revenue'] ?? 0);
@@ -27,24 +29,25 @@ if ($prevRevenue > 0) {
 ?>
 
 <?php
+// Z80: active date range button uses admin-btn-primary when selected
 $this->params['headerActions'] = [
-    Html::a('Сегодня', ['index', 'period' => 'today'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm' . ($period === 'today' ? ' active' : '')]),
-    Html::a('Неделя', ['index', 'period' => 'week'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm' . ($period === 'week' ? ' active' : '')]),
-    Html::a('Месяц', ['index', 'period' => 'month'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm' . ($period === 'month' ? ' active' : '')])
+    Html::a('Сегодня', ['index', 'period' => 'today', 'tab' => $activeTab], ['class' => 'admin-btn admin-btn-sm ' . ($activePeriod === 'today' ? 'admin-btn-primary' : 'admin-btn-ghost')]),
+    Html::a('Неделя',  ['index', 'period' => 'week',  'tab' => $activeTab], ['class' => 'admin-btn admin-btn-sm ' . ($activePeriod === 'week'  ? 'admin-btn-primary' : 'admin-btn-ghost')]),
+    Html::a('Месяц',   ['index', 'period' => 'month', 'tab' => $activeTab], ['class' => 'admin-btn admin-btn-sm ' . ($activePeriod === 'month' ? 'admin-btn-primary' : 'admin-btn-ghost')]),
 ];
 ?>
 
 <!-- Tab Navigation -->
 <div style="display:flex;gap:0.25rem;margin-bottom:1.5rem;border-bottom:2px solid var(--admin-border,#e2e8f0);padding-bottom:0;">
-    <a href="?tab=analytics&period=<?= Html::encode($period ?? '30') ?>"
+    <a href="?tab=analytics&period=<?= Html::encode($activePeriod ?? 'month') ?>"
        style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;<?= $activeTab === 'analytics' ? 'background:var(--admin-primary,#2563eb);color:#fff;border-color:var(--admin-primary,#2563eb);' : 'color:var(--admin-text-secondary,#64748b);' ?>">
         <i class="bi bi-graph-up"></i> Аналитика
     </a>
-    <a href="?tab=rfm&period=<?= Html::encode($period ?? '30') ?>"
+    <a href="?tab=rfm&period=<?= Html::encode($activePeriod ?? 'month') ?>"
        style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;<?= $activeTab === 'rfm' ? 'background:var(--admin-primary,#2563eb);color:#fff;border-color:var(--admin-primary,#2563eb);' : 'color:var(--admin-text-secondary,#64748b);' ?>">
         <i class="bi bi-people"></i> RFM
     </a>
-    <a href="?tab=team&period=<?= Html::encode($period ?? '30') ?>"
+    <a href="?tab=team&period=<?= Html::encode($activePeriod ?? 'month') ?>"
        style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;<?= $activeTab === 'team' ? 'background:var(--admin-primary,#2563eb);color:#fff;border-color:var(--admin-primary,#2563eb);' : 'color:var(--admin-text-secondary,#64748b);' ?>">
         <i class="bi bi-person-badge"></i> Команда
     </a>

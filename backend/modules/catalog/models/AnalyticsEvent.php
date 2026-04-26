@@ -111,7 +111,7 @@ class AnalyticsEvent extends ActiveRecord
                     return $rows;
                 }
             }
-            // Fallback: top products by order count
+            // Fallback: top products by order count (Z78: price>0, FROM_UNIXTIME for unix ts)
             return Yii::$app->db->createCommand(
                 "SELECT oi.product_name,
                         0 AS views, 0 AS add_to_cart,
@@ -119,7 +119,8 @@ class AnalyticsEvent extends ActiveRecord
                         SUM(oi.price * oi.quantity) AS total_revenue
                  FROM order_item oi
                  JOIN \`order\` o ON oi.order_id = o.id
-                 WHERE DATE(o.created_at) BETWEEN :f AND :t
+                 WHERE DATE(FROM_UNIXTIME(o.created_at)) BETWEEN :f AND :t
+                   AND oi.price IS NOT NULL AND oi.price > 0
                  GROUP BY oi.product_name
                  ORDER BY orders DESC
                  LIMIT :lim",
