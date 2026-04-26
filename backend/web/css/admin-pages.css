@@ -590,6 +590,12 @@
     border: 2px dashed var(--admin-info);
 }
 
+.kanban-cards.drag-over {
+    background: var(--admin-surface-hover, #f0f9ff);
+    border: 2px dashed var(--admin-primary, #2563eb);
+    border-radius: .5rem;
+}
+
 .kanban-card .kc-num {
     font-weight: 700;
     color: var(--admin-accent);

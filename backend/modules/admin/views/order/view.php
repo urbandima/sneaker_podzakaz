@@ -385,6 +385,26 @@ $customer = $model->customer ?? null;
                 <i class="bi bi-exclamation-triangle-fill"></i> &le;2ч до дедлайна
             </span>
             <?php endif; ?>
+            <?php
+            /* Three-track badges */
+            $ptColors = \app\backend\modules\checkout\models\Order::paymentTrackColors();
+            $ltColors = \app\backend\modules\checkout\models\Order::logisticsTrackColors();
+            $dtColors = \app\backend\modules\checkout\models\Order::deliveryTrackColors();
+            $ptC = $ptColors[$model->payment_status ?? ''] ?? ['bg'=>'#f3f4f6','color'=>'#6b7280'];
+            $ltC = $ltColors[$model->logistics_status ?? ''] ?? ['bg'=>'#f3f4f6','color'=>'#6b7280'];
+            ?>
+            <span style="background:<?= $ptC['bg'] ?>;color:<?= $ptC['color'] ?>;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap">
+                <?= Html::encode($model->getPaymentStatusLabel()) ?>
+            </span>
+            <span style="background:<?= $ltC['bg'] ?>;color:<?= $ltC['color'] ?>;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap">
+                <?= Html::encode($model->getLogisticsStatusLabel()) ?>
+            </span>
+            <?php if (!empty($model->delivery_status)):
+                $dtC = $dtColors[$model->delivery_status] ?? ['bg'=>'#f3f4f6','color'=>'#6b7280']; ?>
+            <span style="background:<?= $dtC['bg'] ?>;color:<?= $dtC['color'] ?>;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap">
+                <?= Html::encode($model->getDeliveryStatusLabel()) ?>
+            </span>
+            <?php endif; ?>
             <span class="crm-order-date">
                 <?= Yii::$app->formatter->asDatetime($model->created_at, 'short') ?>
                 <?php if ($model->creator): ?> · <?= Html::encode($model->creator->username) ?><?php endif; ?>

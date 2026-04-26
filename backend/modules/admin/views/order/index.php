@@ -49,30 +49,18 @@ $sortIcon = function(string $col) use ($currentSort): string {
 
 $this->params['breadcrumbs'][] = ['label' => 'Заказы', 'url' => ['/admin/order/index']];
 
-// Kanban column definitions
+// Kanban grouped by logistics track
 $kanbanColumns = [
-    'new'                    => 'Новый',
-    'paid'                   => 'Оплачен',
-    'confirmed_and_paid'     => 'Подтвержден и оплачен',
-    'ordered'                => 'Заказано',
-    'awaiting_warehouse'     => 'Ожидается на складе',
-    'international_delivery' => 'В международной доставке',
-    'at_warehouse'           => 'На складе',
-    'local_delivery'         => 'В доставке',
-    'delivered'              => 'Выдан',
-    'canceled'               => 'Отменен',
+    \app\backend\modules\checkout\models\Order::LOGISTICS_AWAITING_BUYOUT  => 'Ожидает выкупа',
+    \app\backend\modules\checkout\models\Order::LOGISTICS_BOUGHT_AT_SOURCE => 'Выкуплен у поставщика',
+    \app\backend\modules\checkout\models\Order::LOGISTICS_IN_TRANSIT       => 'В пути',
+    \app\backend\modules\checkout\models\Order::LOGISTICS_AT_WAREHOUSE     => 'На складе',
 ];
-foreach ($statuses as $k => $v) {
-    if (!isset($kanbanColumns[$k])) $kanbanColumns[$k] = $v;
-}
-
-// Group orders by status for Kanban
 $kanbanGroups = [];
 foreach ($kanbanColumns as $k => $v) $kanbanGroups[$k] = [];
 foreach ($orders as $order) {
-    $s = $order->status;
-    if (!isset($kanbanGroups[$s])) $kanbanGroups[$s] = [];
-    $kanbanGroups[$s][] = $order;
+    $ls = $order->logistics_status ?: \app\backend\modules\checkout\models\Order::LOGISTICS_AWAITING_BUYOUT;
+    $kanbanGroups[$ls][] = $order;
 }
 
 // All filter params (read from GET)
@@ -382,6 +370,26 @@ $pillBgFromHex = function(string $hex): string {
                placeholder="Сумма от" value="<?= Html::encode($filterAmountFrom) ?>" step="0.01" min="0">
         <input type="number" name="amount_to"   class="compact-filter-input"
                placeholder="Сумма до" value="<?= Html::encode($filterAmountTo) ?>"   step="0.01" min="0">
+        <?php $fpt = $filterPaymentTrack ?? ''; $flt = $filterLogisticsTrack ?? ''; $fdt = $filterDeliveryTrack ?? ''; ?>
+        <select name="payment_track" class="compact-filter-select">
+            <option value="">Оплата (трек) ▾</option>
+            <option value="not_paid"  <?= $fpt === 'not_paid'  ? 'selected' : '' ?>>Не оплачен</option>
+            <option value="paid"      <?= $fpt === 'paid'      ? 'selected' : '' ?>>Оплачен</option>
+            <option value="refunded"  <?= $fpt === 'refunded'  ? 'selected' : '' ?>>Возврат</option>
+        </select>
+        <select name="logistics_track" class="compact-filter-select">
+            <option value="">Логистика (трек) ▾</option>
+            <option value="awaiting_buyout"  <?= $flt === 'awaiting_buyout'  ? 'selected' : '' ?>>Ожидает выкупа</option>
+            <option value="bought_at_source" <?= $flt === 'bought_at_source' ? 'selected' : '' ?>>Выкуплен</option>
+            <option value="in_transit"       <?= $flt === 'in_transit'       ? 'selected' : '' ?>>В пути</option>
+            <option value="at_warehouse"     <?= $flt === 'at_warehouse'     ? 'selected' : '' ?>>На складе</option>
+        </select>
+        <select name="delivery_track" class="compact-filter-select">
+            <option value="">Доставка (трек) ▾</option>
+            <option value="ready_to_ship" <?= $fdt === 'ready_to_ship' ? 'selected' : '' ?>>Готов к отправке</option>
+            <option value="shipping"      <?= $fdt === 'shipping'      ? 'selected' : '' ?>>Отправлен</option>
+            <option value="delivered"     <?= $fdt === 'delivered'     ? 'selected' : '' ?>>Доставлен</option>
+        </select>
     </div>
 </form>
 
@@ -432,6 +440,9 @@ $pillBgFromHex = function(string $hex): string {
                         'email'       => 'Email',
                         'item'        => 'Товар',
                         'status'      => 'Статус',
+                        'pay_track'   => 'Трек: оплата',
+                        'log_track'   => 'Трек: логистика',
+                        'del_track'   => 'Трек: доставка',
                         'amount'      => 'Сумма',
                         'payment'     => 'Оплата',
                         'delivery'    => 'Доставка',
@@ -485,6 +496,9 @@ $pillBgFromHex = function(string $hex): string {
                         <th data-col="email">Email</th>
                         <th data-col="item">Товар</th>
                         <th data-col="status" data-sort="status" onclick="sortBy('status')" title="Сортировать по статусу">Статус <?= $sortIcon('status') ?></th>
+                        <th data-col="pay_track" style="white-space:nowrap">Оплата</th>
+                        <th data-col="log_track" style="white-space:nowrap">Логистика</th>
+                        <th data-col="del_track" style="white-space:nowrap">Доставка</th>
                         <th data-col="amount" data-sort="total_amount" onclick="sortBy('total_amount')" title="Сортировать по сумме" style="white-space:nowrap">Сумма <?= $sortIcon('total_amount') ?></th>
                         <th data-col="payment">Оплата</th>
                         <th data-col="delivery">Доставка</th>
@@ -552,6 +566,31 @@ $pillBgFromHex = function(string $hex): string {
                                     <?= Html::encode($statusLabel) ?>
                                 </span>
                             </td>
+                            <?php
+                            $ptColors = \app\backend\modules\checkout\models\Order::paymentTrackColors();
+                            $ltColors = \app\backend\modules\checkout\models\Order::logisticsTrackColors();
+                            $dtColors = \app\backend\modules\checkout\models\Order::deliveryTrackColors();
+                            $ptC = $ptColors[$order->payment_status ?? ''] ?? ['bg'=>'#f3f4f6','color'=>'#6b7280'];
+                            $ltC = $ltColors[$order->logistics_status ?? ''] ?? ['bg'=>'#f3f4f6','color'=>'#6b7280'];
+                            ?>
+                            <td data-col="pay_track" style="padding:6px 8px;white-space:nowrap">
+                                <span class="status-pill" style="background:<?= $ptC['bg'] ?>;color:<?= $ptC['color'] ?>">
+                                    <?= Html::encode($order->getPaymentStatusLabel()) ?>
+                                </span>
+                            </td>
+                            <td data-col="log_track" style="padding:6px 8px;white-space:nowrap">
+                                <span class="status-pill" style="background:<?= $ltC['bg'] ?>;color:<?= $ltC['color'] ?>">
+                                    <?= Html::encode($order->getLogisticsStatusLabel()) ?>
+                                </span>
+                            </td>
+                            <td data-col="del_track" style="padding:6px 8px;white-space:nowrap">
+                                <?php if (!empty($order->delivery_status)):
+                                    $dtC = $dtColors[$order->delivery_status] ?? ['bg'=>'#f3f4f6','color'=>'#6b7280']; ?>
+                                <span class="status-pill" style="background:<?= $dtC['bg'] ?>;color:<?= $dtC['color'] ?>">
+                                    <?= Html::encode($order->getDeliveryStatusLabel()) ?>
+                                </span>
+                                <?php else: ?><span style="color:#9ca3af">—</span><?php endif; ?>
+                            </td>
                             <td data-col="amount" style="font-weight:700;white-space:nowrap"
                                 class="tbl-editable" onclick="tblEdit(this,'total_amount',<?= $order->id ?>)"
                                 data-val="<?= $order->total_amount ?>">
@@ -610,7 +649,7 @@ $pillBgFromHex = function(string $hex): string {
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="19" style="padding:0">
+                            <td colspan="22" style="padding:0">
                                 <div class="empty-state" style="padding:2.5rem">
                                     <div class="empty-state-icon"><i class="bi bi-inbox"></i></div>
                                     <h3 class="empty-state-title">Нет заказов по текущим фильтрам</h3>
@@ -646,14 +685,18 @@ $pillBgFromHex = function(string $hex): string {
                          ondragover="onDragOver(event)"
                          ondragleave="onDragLeave(event)"
                          ondrop="onDrop(event, '<?= $colKey ?>')">
-                        <?php foreach ($colOrders as $ord):
+                        <?php
+                        $kcPtColors = \app\backend\modules\checkout\models\Order::paymentTrackColors();
+                        $kcPtColorDef = ['bg'=>'#f3f4f6','color'=>'#6b7280'];
+                        foreach ($colOrders as $ord):
                             $daysSince = (int)floor((time() - $ord->created_at) / 86400);
                             $firstItem = $ord->orderItems[0] ?? null;
+                            $kcPtC = $kcPtColors[$ord->payment_status ?? ''] ?? $kcPtColorDef;
                         ?>
                             <div class="kanban-card"
                                  draggable="true"
                                  data-id="<?= $ord->id ?>"
-                                 data-status="<?= $ord->status ?>"
+                                 data-logistics="<?= Html::encode($ord->logistics_status ?? '') ?>"
                                  ondragstart="onDragStart(event)"
                                  ondragend="onDragEnd(event)">
                                 <?php $kcNum = $ord->order_number ?: (string)$ord->id; ?>
@@ -666,9 +709,12 @@ $pillBgFromHex = function(string $hex): string {
                                     <span class="kc-amount"><?= number_format($ord->total_amount, 2) ?> Br</span>
                                     <span><?= $daysSince > 0 ? $daysSince.' дн.' : 'сегодня' ?></span>
                                 </div>
-                                <div style="margin-top:.35rem;">
-                                    <a href="<?= Url::to(['view', 'id' => $ord->id]) ?>" style="font-size:.75rem;color:var(--admin-primary,#2563eb);">
-                                        <i class="bi bi-box-arrow-up-right"></i> Открыть
+                                <div style="margin-top:.35rem;display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+                                    <span style="background:<?= $kcPtC['bg'] ?>;color:<?= $kcPtC['color'] ?>;font-size:.65rem;font-weight:700;padding:1px 6px;border-radius:4px">
+                                        <?= Html::encode($ord->getPaymentStatusLabel()) ?>
+                                    </span>
+                                    <a href="<?= Url::to(['view', 'id' => $ord->id]) ?>" style="font-size:.75rem;color:var(--admin-primary,#2563eb);margin-left:auto">
+                                        <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                 </div>
                             </div>
@@ -678,7 +724,7 @@ $pillBgFromHex = function(string $hex): string {
             <?php endforeach; ?>
         </div>
         <p style="color:var(--admin-text-secondary,#6b7280);font-size:.8125rem;margin-top:.5rem;">
-            <i class="bi bi-info-circle"></i> Перетащите карточку в другую колонку для смены статуса. Показаны заказы текущей страницы.
+            <i class="bi bi-info-circle"></i> Перетащите карточку в другую колонку для смены статуса логистики. Показаны заказы текущей страницы.
         </p>
     </div><!-- /kanbanView -->
 </div>
@@ -1092,4 +1138,64 @@ document.addEventListener('click', function(e) {
     if (!saved) saveColumnState(state);
     applyColumnState(state);
 })();
+
+// ── Kanban drag-drop (logistics track) ──────────────────────────
+var _dragCard = null;
+
+function onDragStart(e) {
+    _dragCard = e.currentTarget;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', _dragCard.dataset.id);
+    _dragCard.style.opacity = '0.5';
+}
+function onDragEnd(e) {
+    if (_dragCard) _dragCard.style.opacity = '';
+    _dragCard = null;
+    document.querySelectorAll('.kanban-cards').forEach(function(c) {
+        c.classList.remove('drag-over');
+    });
+}
+function onDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    e.currentTarget.classList.add('drag-over');
+}
+function onDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+}
+function onDrop(e, logisticsStatus) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    var orderId = e.dataTransfer.getData('text/plain');
+    if (!orderId) return;
+
+    var csrf = document.querySelector('meta[name=csrf-token]');
+    var csrfParam = document.querySelector('meta[name=csrf-param]');
+    var fd = new FormData();
+    fd.append('logistics_status', logisticsStatus);
+    if (csrf && csrfParam) fd.append(csrfParam.content, csrf.content);
+
+    fetch('<?= \yii\helpers\Url::to(['/admin/order/set-logistics-status']) ?>?id=' + orderId, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: fd
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            // Move card visually
+            var card = document.querySelector('.kanban-card[data-id="' + orderId + '"]');
+            var target = e.currentTarget;
+            if (card && target) {
+                card.dataset.logistics = logisticsStatus;
+                target.appendChild(card);
+                var badge = e.currentTarget.closest('.kanban-col').querySelector('.kanban-col-badge');
+                if (badge) badge.textContent = target.querySelectorAll('.kanban-card').length;
+            }
+        } else {
+            alert(data.message || 'Ошибка при сохранении');
+        }
+    })
+    .catch(function() { alert('Ошибка сети'); });
+}
 </script>

@@ -106,6 +106,9 @@ class OrderController extends BaseAdminController
         $filterAmountFrom   = Yii::$app->request->get('amount_from');
         $filterAmountTo     = Yii::$app->request->get('amount_to');
         $filterCreatedBefore = Yii::$app->request->get('created_before');
+        $filterPaymentTrack  = Yii::$app->request->get('payment_track');
+        $filterLogisticsTrack = Yii::$app->request->get('logistics_track');
+        $filterDeliveryTrack  = Yii::$app->request->get('delivery_track');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -214,6 +217,16 @@ class OrderController extends BaseAdminController
             $query->andWhere(['NOT IN', 'status', $slaTerminal])
                   ->andWhere(['IS NOT', 'expected_delivery_at', null])
                   ->andWhere(['>', 'expected_delivery_at', $warn2hDt]);
+        }
+
+        if ($filterPaymentTrack) {
+            $query->andWhere(['payment_status' => $filterPaymentTrack]);
+        }
+        if ($filterLogisticsTrack) {
+            $query->andWhere(['logistics_status' => $filterLogisticsTrack]);
+        }
+        if ($filterDeliveryTrack) {
+            $query->andWhere(['delivery_status' => $filterDeliveryTrack]);
         }
 
         $statuses = Yii::$app->settings->getStatuses();
@@ -372,8 +385,11 @@ class OrderController extends BaseAdminController
             'statusDescriptions' => $statusDescriptions,
             'dupMap'        => $dupMap,
             'user'          => $user,
-            'filterOverdue' => $filterOverdue,
-            'filterSla'     => $filterSla,
+            'filterOverdue'        => $filterOverdue,
+            'filterSla'            => $filterSla,
+            'filterPaymentTrack'   => $filterPaymentTrack,
+            'filterLogisticsTrack' => $filterLogisticsTrack,
+            'filterDeliveryTrack'  => $filterDeliveryTrack,
         ]);
     }
 
@@ -734,6 +750,35 @@ class OrderController extends BaseAdminController
             'buyout_filled' => $model->isBuyoutFilled(),
             'product_price' => (float)$model->product_price,
         ];
+    }
+
+    /**
+     * #11 Set logistics_status directly (kanban drag-drop endpoint).
+     */
+    public function actionSetLogisticsStatus($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'message' => 'POST required'];
+        }
+
+        $model = $this->findModel($id);
+        $allowed = [
+            Order::LOGISTICS_AWAITING_BUYOUT,
+            Order::LOGISTICS_BOUGHT_AT_SOURCE,
+            Order::LOGISTICS_IN_TRANSIT,
+            Order::LOGISTICS_AT_WAREHOUSE,
+        ];
+        $newStatus = Yii::$app->request->post('logistics_status');
+        if (!in_array($newStatus, $allowed, true)) {
+            return ['success' => false, 'message' => 'Invalid logistics_status'];
+        }
+
+        $model->logistics_status = $newStatus;
+        $model->save(false);
+
+        return ['success' => true, 'logistics_status' => $model->logistics_status];
     }
 
     /**
