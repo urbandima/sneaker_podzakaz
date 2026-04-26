@@ -361,10 +361,24 @@ class DashboardController extends BaseAdminController
             ->where(['status' => 'paid'])
             ->count();
 
+        // #14: Orders with delivery_date <= today (active statuses only)
+        try {
+            $deadlineToday = (int)Yii::$app->db->createCommand("
+                SELECT COUNT(*) FROM `order`
+                WHERE delivery_date IS NOT NULL
+                  AND delivery_date != ''
+                  AND delivery_date <= CURDATE()
+                  AND status NOT IN ('delivered','completed','issued','canceled','cancelled','refunded','return','trash')
+            ")->queryScalar();
+        } catch (\Exception $e) {
+            $deadlineToday = 0;
+        }
+
         return [
-            'unprocessed2h' => $unprocessed2h,
-            'delayed3d'     => $delayed3d,
+            'unprocessed2h'  => $unprocessed2h,
+            'delayed3d'      => $delayed3d,
             'awaitingPoizon' => $awaitingPoizon,
+            'deadlineToday'  => $deadlineToday,
         ];
     }
 

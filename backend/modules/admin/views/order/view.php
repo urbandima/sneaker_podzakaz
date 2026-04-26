@@ -4,6 +4,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\OrderTrackHelper;
 
 $this->title = 'Заказ №' . ($model->order_number ?: $model->id);
 $user = Yii::$app->user->identity;
@@ -380,6 +381,36 @@ $customer = $model->customer ?? null;
 .cqv-tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; background: var(--admin-surface-hover,#f3f4f6); color: var(--admin-text-secondary,#6b7280); margin: 2px 2px 2px 0; }
 .cqv-order-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--admin-border,#f3f4f6); font-size: 0.8125rem; }
 .cqv-order-row:last-child { border-bottom: none; }
+
+/* ── Three-track strip (#11) ── */
+.crm-tracks {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 20px; background: var(--admin-surface-hover, #f9fafb);
+    border-bottom: 1px solid var(--admin-border, #e5e7eb); flex-wrap: wrap;
+}
+.crm-track {
+    flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 4px;
+    padding: 6px 10px; border-radius: 8px; border: 1px solid transparent;
+    background: var(--admin-surface, #fff);
+}
+.crm-track--active  { border-color: #3b82f6; background: #eff6ff; }
+.crm-track--done    { border-color: #d1fae5; background: #f0fdf4; }
+.crm-track--pending { opacity: .5; }
+.crm-track-header { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; color: var(--admin-text-secondary, #6b7280); }
+.crm-track--active  .crm-track-header { color: #2563eb; }
+.crm-track--done    .crm-track-header { color: #059669; }
+.crm-track-check { color: #059669; margin-left: auto; }
+.crm-track-bar { height: 4px; border-radius: 2px; background: var(--admin-border, #e5e7eb); overflow: hidden; }
+.crm-track-fill { height: 100%; border-radius: 2px; background: #3b82f6; transition: width .3s; }
+.crm-track--done  .crm-track-fill { background: #10b981; }
+.crm-track--pending .crm-track-fill { background: #d1d5db; }
+.crm-sla {
+    flex-shrink: 0; display: flex; align-items: center; gap: 4px;
+    font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 8px;
+    background: #f0fdf4; color: #059669; border: 1px solid #d1fae5;
+}
+.crm-sla--warning { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+.crm-sla--overdue { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
 </style>
 
 <div class="crm-wrap">
@@ -443,6 +474,47 @@ $customer = $model->customer ?? null;
     <button class="crm-sidebar-toggle" id="sidebarToggle" title="Свернуть / развернуть боковую панель" onclick="toggleOrderSidebar()">
         <i class="bi bi-layout-sidebar-reverse" id="sidebarToggleIcon"></i>
     </button>
+
+    <?php
+    // ── Three-track status strip (#11) ─────────────────────
+    $trackProgress  = OrderTrackHelper::getTrackProgress($model->status);
+    $slaInfo        = OrderTrackHelper::getSlaInfo($model->status, (int)$model->updated_at);
+    $historyStatuses = array_column($model->orderHistory, 'new_status');
+    $needsBuyout    = OrderTrackHelper::needsBuyout($model->status, $historyStatuses);
+    ?>
+    <div class="crm-tracks">
+        <?php foreach ($trackProgress as $trackKey => $t): ?>
+        <div class="crm-track crm-track--<?= $t['state'] ?>">
+            <div class="crm-track-header">
+                <i class="bi <?= $t['icon'] ?>"></i>
+                <span><?= Html::encode($t['label']) ?></span>
+                <?php if ($t['state'] === 'done'): ?>
+                <i class="bi bi-check-circle-fill crm-track-check"></i>
+                <?php endif; ?>
+            </div>
+            <div class="crm-track-bar">
+                <div class="crm-track-fill" style="width:<?= $t['total'] > 1 ? round($t['step'] / ($t['total'] - 1) * 100) : 100 ?>%"></div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+        <?php if ($slaInfo): ?>
+        <div class="crm-sla <?= $slaInfo['overdue'] ? 'crm-sla--overdue' : ($slaInfo['hours_left'] < 6 ? 'crm-sla--warning' : '') ?>">
+            <i class="bi bi-alarm"></i>
+            <?php if ($slaInfo['overdue']): ?>
+            Просрочен на <?= abs($slaInfo['hours_left']) ?> ч
+            <?php elseif ($slaInfo['hours_left'] < 1): ?>
+            <1 ч
+            <?php else: ?>
+            <?= $slaInfo['hours_left'] ?> ч
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+        <?php if ($needsBuyout): ?>
+        <div class="crm-sla crm-sla--overdue" title="Необходим шаг выкупа перед переходом к следующему этапу логистики">
+            <i class="bi bi-exclamation-triangle"></i> Нет выкупа
+        </div>
+        <?php endif; ?>
+    </div>
 
     <div class="crm-body" id="crmBody">
 
@@ -1014,6 +1086,20 @@ $customer = $model->customer ?? null;
                                 <?php endif; ?>
                             </div>
                         </div>
+                        <?php if ($slaInfo): ?>
+                        <div class="crm-field">
+                            <div class="crm-field-label">SLA статуса</div>
+                            <div>
+                                <?php if ($slaInfo['overdue']): ?>
+                                <span style="background:#fee2e2;color:#b91c1c;font-size:0.7rem;padding:2px 8px;border-radius:6px;font-weight:700"><i class="bi bi-alarm-fill"></i> Просрочен на <?= abs($slaInfo['hours_left']) ?> ч</span>
+                                <?php elseif ($slaInfo['hours_left'] < 6): ?>
+                                <span style="background:#fef3c7;color:#92400e;font-size:0.7rem;padding:2px 8px;border-radius:6px;font-weight:700"><i class="bi bi-alarm"></i> <?= $slaInfo['hours_left'] ?> ч до дедлайна</span>
+                                <?php else: ?>
+                                <span style="background:#d1fae5;color:#065f46;font-size:0.7rem;padding:2px 8px;border-radius:6px;font-weight:700"><i class="bi bi-check-circle"></i> <?= $slaInfo['hours_left'] ?> ч до дедлайна</span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                         <?php if ($model->comment): ?>
                         <div style="margin-top:8px;padding:7px 10px;background:var(--admin-warning-bg,#fef3c7);border-radius:7px;border-left:3px solid var(--admin-warning,#d97706)">
                             <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#92400e);margin-bottom:2px">Комментарий</div>

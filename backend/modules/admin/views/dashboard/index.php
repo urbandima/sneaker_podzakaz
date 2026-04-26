@@ -117,6 +117,14 @@ $opStats = $operationalStats ?? ['unprocessed2h' => 0, 'delayed3d' => 0, 'awaiti
         <div class="dash-op-widget-value info"><?= (int)($opStats['awaitingPoizon'] ?? 0) ?></div>
         <div class="dash-op-widget-label">Ожидают Poizon<br>оплачено, не заказано</div>
     </a>
+    <?php $deadlineToday = (int)($opStats['deadlineToday'] ?? 0); ?>
+    <a href="<?= Url::to(['/admin/order', 'deadline_today' => '1']) ?>"
+       class="dash-op-widget<?= $deadlineToday > 0 ? '' : '' ?>"
+       style="<?= $deadlineToday > 0 ? 'background:#fef2f2;border-color:#fecaca' : '' ?>">
+        <div class="dash-op-widget-icon <?= $deadlineToday > 0 ? 'danger' : 'info' ?>"><i class="bi bi-alarm-fill"></i></div>
+        <div class="dash-op-widget-value <?= $deadlineToday > 0 ? 'danger' : 'info' ?>"><?= $deadlineToday ?></div>
+        <div class="dash-op-widget-label">Сроки сегодня<br>delivery_date ≤ сегодня</div>
+    </a>
 </div>
 
 <!-- X4/X9: Catalog health alerts -->
