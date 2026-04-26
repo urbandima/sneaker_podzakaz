@@ -44,7 +44,7 @@ $columnDefs = [
 // Status funnel
 $statusItems = [
     ''   => ['label' => 'Все',            'count' => $stats['total'],    'dot' => '#6b7280'],
-    '10' => ['label' => 'Активные',       'count' => $stats['active'],   'dot' => '#16a34a'],
+    '10' => ['label' => 'Активные (за 90 дн.)', 'count' => $stats['active'],   'dot' => '#16a34a'],
     '9'  => ['label' => 'Заблокированные','count' => $stats['inactive'], 'dot' => '#dc2626'],
 ];
 ?>
@@ -116,7 +116,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
         <input type="text" name="search" class="compact-filter-input"
                placeholder="&#128269; Имя, телефон, email…"
                value="<?= Html::encode($search) ?>">
-        <select name="status" class="compact-filter-select">
+        <select name="status" class="compact-filter-select compact-filter-btn" style="cursor:pointer;appearance:auto;-webkit-appearance:auto;padding-right:28px">
             <option value="">Все статусы</option>
             <option value="10" <?= $status == 10 ? 'selected' : '' ?>>Активные</option>
             <option value="9" <?= $status == 9 ? 'selected' : '' ?>>Заблокированные</option>
@@ -177,7 +177,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
                     <th data-col="phone">Телефон</th>
                     <th data-col="orders_count" data-sort="orders_count" onclick="sortBy('orders_count')" title="Сортировать по заказам" style="text-align:center">Заказов <?= $sortIcon('orders_count') ?></th>
                     <th data-col="total_spent" data-sort="total_spent" onclick="sortBy('total_spent')" title="Сортировать по сумме" style="white-space:nowrap">Потрачено <?= $sortIcon('total_spent') ?></th>
-                    <th data-col="last_order" data-sort="last_order_at" onclick="sortBy('last_order_at')" title="Сортировать по последнему заказу">Последний заказ <?= $sortIcon('last_order_at') ?></th>
+                    <th data-col="last_order" data-sort="last_order_at" onclick="sortBy('last_order_at')" title="Сортировать по последнему заказу" style="white-space:nowrap;min-width:120px">Последний заказ <?= $sortIcon('last_order_at') ?></th>
                     <th data-col="status" data-sort="status" onclick="sortBy('status')" title="Сортировать по статусу">Статус <?= $sortIcon('status') ?></th>
                     <th style="width:44px">–</th>
                 </tr>
