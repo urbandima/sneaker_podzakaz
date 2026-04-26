@@ -220,13 +220,25 @@ abstract class BaseAdminController extends Controller
     }
 
     /**
-     * RBAC permission check. Falls back to admin-check when authManager unavailable.
+     * RBAC permission check.
+     * Falls back to role check when:
+     *   - authManager throws (tables missing)
+     *   - permission not seeded in auth_item yet (RBAC not initialised)
      */
     protected function canDo(string $permission): bool
     {
         if (Yii::$app->user->isGuest) return false;
         try {
-            return Yii::$app->user->can($permission);
+            if (Yii::$app->user->can($permission)) {
+                return true;
+            }
+            // can() returned false — check whether the permission even exists.
+            // If it doesn't exist in auth_item, RBAC is not seeded: fall back to role.
+            $am = Yii::$app->authManager ?? null;
+            if ($am !== null && $am->getPermission($permission) === null) {
+                return $this->isAdmin() || $this->isManager();
+            }
+            return false;
         } catch (\Throwable $e) {
             return $this->isAdmin();
         }
