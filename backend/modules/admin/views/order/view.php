@@ -479,7 +479,7 @@ $customer = $model->customer ?? null;
     // ── Three-track status strip (#11) ─────────────────────
     $trackProgress  = OrderTrackHelper::getTrackProgress($model->status);
     $slaInfo        = OrderTrackHelper::getSlaInfo($model->status, (int)$model->updated_at);
-    $historyStatuses = array_column($model->orderHistory, 'new_status');
+    $historyStatuses = array_column($model->history, 'new_status');
     $needsBuyout    = OrderTrackHelper::needsBuyout($model->status, $historyStatuses);
     ?>
     <div class="crm-tracks">
@@ -1485,20 +1485,21 @@ $customer = $model->customer ?? null;
                 <div class="crm-card-body">
                     <?php
                     $msLastLog = Yii::$app->db->createCommand(
-                        'SELECT * FROM moysklad_sync_log WHERE order_id=:id ORDER BY created_at DESC LIMIT 1',
+                        "SELECT * FROM moysklad_sync_log WHERE entity_type='order' AND entity_id=:id ORDER BY created_at DESC LIMIT 1",
                         [':id' => $model->id]
                     )->queryOne();
                     ?>
                     <?php if ($msLastLog): ?>
+                    <?php $msOk = ($msLastLog['status'] ?? '') === 'ok'; ?>
                     <div style="margin-bottom:8px;padding:5px 8px;border-radius:5px;font-size:.72rem;
-                        background:<?= $msLastLog['success'] ? '#d1fae5' : '#fee2e2' ?>;
-                        color:<?= $msLastLog['success'] ? '#065f46' : '#991b1b' ?>">
+                        background:<?= $msOk ? '#d1fae5' : '#fee2e2' ?>;
+                        color:<?= $msOk ? '#065f46' : '#991b1b' ?>">
                         <div style="font-weight:600">
-                            <?= $msLastLog['success'] ? '<i class="bi bi-check-circle-fill"></i> Успешно' : '<i class="bi bi-x-circle-fill"></i> Ошибка' ?>
+                            <?= $msOk ? '<i class="bi bi-check-circle-fill"></i> Успешно' : '<i class="bi bi-x-circle-fill"></i> Ошибка' ?>
                             <span style="font-weight:400;opacity:.8;margin-left:4px"><?= Html::encode(Yii::$app->formatter->asDatetime($msLastLog['created_at'], 'php:d.m.Y H:i')) ?></span>
                         </div>
-                        <?php if (!$msLastLog['success'] && $msLastLog['message']): ?>
-                        <div style="margin-top:3px;font-size:.7rem;opacity:.9;word-break:break-word"><?= Html::encode($msLastLog['message']) ?></div>
+                        <?php if (!$msOk && !empty($msLastLog['details'])): ?>
+                        <div style="margin-top:3px;font-size:.7rem;opacity:.9;word-break:break-word"><?= Html::encode($msLastLog['details']) ?></div>
                         <?php endif; ?>
                     </div>
                     <?php endif; ?>
