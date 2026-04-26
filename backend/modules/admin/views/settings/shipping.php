@@ -17,7 +17,7 @@ $regionGroups = [
     'russia'        => ['label' => 'Россия', 'icon' => 'bi-truck', 'methods' => []],
 ];
 foreach ($methods as $i => $method) {
-    $region = $method['region'] ?? ($method['type'] === 'international' ? 'international' : 'belarus');
+    $region = $method['region'] ?? (($method['type'] ?? '') === 'international' ? 'international' : 'belarus');
     if (!isset($regionGroups[$region])) $region = 'belarus';
     $regionGroups[$region]['methods'][] = ['_idx' => $i, 'data' => $method];
 }
@@ -62,12 +62,12 @@ foreach ($methods as $i => $method) {
                                placeholder="Название"
                                data-field="name" data-idx="<?= $i ?>">
                         <input type="text" class="admin-form-input delivery-time"
-                               value="<?= htmlspecialchars($method['delivery_time']) ?>"
+                               value="<?= htmlspecialchars($method['delivery_time'] ?? '') ?>"
                                placeholder="Срок (напр: 1-3 дня)"
                                data-field="delivery_time" data-idx="<?= $i ?>">
                         <div class="delivery-price-wrap">
                             <input type="number" class="admin-form-input delivery-price"
-                                   value="<?= $method['base_cost'] ?>"
+                                   value="<?= $method['base_cost'] ?? 0 ?>"
                                    placeholder="0.00"
                                    step="0.5" min="0"
                                    data-field="base_cost" data-idx="<?= $i ?>">
@@ -76,7 +76,7 @@ foreach ($methods as $i => $method) {
                     </div>
                     <div class="delivery-field-row delivery-field-meta">
                         <input type="text" class="admin-form-input delivery-carrier"
-                               value="<?= htmlspecialchars($method['carrier']) ?>"
+                               value="<?= htmlspecialchars($method['carrier'] ?? '') ?>"
                                placeholder="Перевозчик"
                                data-field="carrier" data-idx="<?= $i ?>">
                         <input type="text" class="admin-form-input delivery-plugin"
@@ -90,12 +90,12 @@ foreach ($methods as $i => $method) {
                         </span>
                         <?php endif; ?>
                         <input type="text" class="admin-form-input delivery-desc"
-                               value="<?= htmlspecialchars($method['description']) ?>"
+                               value="<?= htmlspecialchars($method['description'] ?? '') ?>"
                                placeholder="Описание"
                                data-field="description" data-idx="<?= $i ?>">
                         <select class="admin-form-input delivery-region" data-field="region" data-idx="<?= $i ?>" style="max-width:130px;font-size:12px">
-                            <option value="international" <?= ($method['region'] ?? ($method['type'] === 'international' ? 'international' : 'belarus')) === 'international' ? 'selected' : '' ?>>Международная</option>
-                            <option value="belarus" <?= ($method['region'] ?? ($method['type'] !== 'international' ? 'belarus' : '')) === 'belarus' ? 'selected' : '' ?>>Беларусь</option>
+                            <option value="international" <?= ($method['region'] ?? (($method['type'] ?? '') === 'international' ? 'international' : 'belarus')) === 'international' ? 'selected' : '' ?>>Международная</option>
+                            <option value="belarus" <?= ($method['region'] ?? (($method['type'] ?? '') !== 'international' ? 'belarus' : '')) === 'belarus' ? 'selected' : '' ?>>Беларусь</option>
                             <option value="russia" <?= ($method['region'] ?? '') === 'russia' ? 'selected' : '' ?>>Россия</option>
                         </select>
                     </div>
@@ -104,7 +104,7 @@ foreach ($methods as $i => $method) {
             <div class="delivery-type-actions">
                 <label class="delivery-toggle" title="Активен / Отключён">
                     <input type="checkbox" class="delivery-active-chk"
-                           <?= $method['status'] === 'active' ? 'checked' : '' ?>
+                           <?= ($method['status'] ?? '') === 'active' ? 'checked' : '' ?>
                            data-idx="<?= $i ?>">
                     <span class="delivery-toggle-track"></span>
                 </label>
