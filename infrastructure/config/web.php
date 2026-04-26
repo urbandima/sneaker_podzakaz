@@ -600,6 +600,7 @@ $config = [
                 
                 // Analytics (аналитика)
                 'admin/analytics' => 'admin/analytics/index',
+                'admin/analytics/rfm' => 'admin/analytics/rfm',
                 'admin/analytics/conversion' => 'admin/analytics/conversion',
                 'admin/analytics/sales' => 'admin/analytics/sales',
                 'admin/analytics/export' => 'admin/analytics/export',

@@ -577,7 +577,7 @@ class AnalyticsController extends BaseAdminController
                 SUM(CASE WHEN event_type = 'add_to_cart' THEN 1 ELSE 0 END) AS add_to_cart,
                 SUM(CASE WHEN event_type IN ('order','order_created') THEN 1 ELSE 0 END) AS orders
             FROM analytics_event
-            WHERE DATE(FROM_UNIXTIME(created_at)) BETWEEN :from AND :to
+            WHERE DATE(created_at) BETWEEN :from AND :to
         ", [':from' => $dateFrom, ':to' => $dateTo])->queryOne();
 
         return $row ?: ['views' => 0, 'add_to_cart' => 0, 'orders' => 0];

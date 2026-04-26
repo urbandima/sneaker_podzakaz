@@ -89,6 +89,9 @@ $this->params['headerActions'] = [];
             <div class="dash-stat-sub">
                 <span class="admin-badge admin-badge-info"><?= $userStats['admins'] ?? 0 ?> адм</span>
                 <span class="admin-badge admin-badge-warning"><?= $userStats['managers'] ?? 0 ?> мен</span>
+                <?php if (($userStats['no_role'] ?? 0) > 0): ?>
+                    <span class="admin-badge admin-badge-danger" title="Сотрудники без роли"><?= $userStats['no_role'] ?> без роли</span>
+                <?php endif; ?>
             </div>
         </div>
     </div>

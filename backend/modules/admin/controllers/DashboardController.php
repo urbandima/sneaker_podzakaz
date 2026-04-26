@@ -143,15 +143,17 @@ class DashboardController extends BaseAdminController
     private function getUserStats()
     {
         try {
+            $noRole = (int)User::find()->where(['or', ['role' => null], ['role' => '']])->count();
             return [
-                'total' => (int)User::find()->count(),
-                'active' => (int)User::find()->where(['status' => 'active'])->count(),
-                'admins' => (int)User::find()->where(['role' => 'admin'])->count(),
-                'logists' => (int)User::find()->where(['role' => 'logist'])->count(),
+                'total'    => (int)User::find()->count(),
+                'active'   => (int)User::find()->where(['status' => 'active'])->count(),
+                'admins'   => (int)User::find()->where(['role' => 'admin'])->count(),
+                'logists'  => (int)User::find()->where(['role' => 'logist'])->count(),
                 'managers' => (int)User::find()->where(['role' => 'manager'])->count(),
+                'no_role'  => $noRole,
             ];
         } catch (\Exception $e) {
-            return ['total'=>0,'active'=>0,'admins'=>0,'logists'=>0,'managers'=>0];
+            return ['total'=>0,'active'=>0,'admins'=>0,'logists'=>0,'managers'=>0,'no_role'=>0];
         }
     }
     
