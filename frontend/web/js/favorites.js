@@ -26,8 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function initializeFavorites() {
-    updateFavoritesCount();
-    initFavoriteButtons();
+    var favoriteButtons = document.querySelectorAll('.btn-favorite, .fav-btn');
 
     favoriteButtons.forEach(function (button) {
         if (button.hasAttribute('onclick')) return;
@@ -39,7 +38,6 @@ function initializeFavorites() {
             toggleFavorite(this, productId);
         });
     });
-}
 
     if (isGuest()) {
         markGuestFavoriteButtons();

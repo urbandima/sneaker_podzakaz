@@ -1,0 +1,28 @@
+#!/bin/sh
+# Run ESLint on staged .js files before commit
+
+STAGED_JS=$(git diff --cached --name-only --diff-filter=ACM | grep '\.js$' | grep -v 'node_modules\|vendor\|min\.js')
+
+if [ -z "$STAGED_JS" ]; then
+    exit 0
+fi
+
+echo "Running ESLint on staged JS files..."
+
+if command -v npx >/dev/null 2>&1; then
+    echo "$STAGED_JS" | xargs npx --no-install eslint 2>/dev/null || \
+    echo "$STAGED_JS" | xargs node_modules/.bin/eslint 2>/dev/null || \
+    { echo "ESLint not installed locally, skipping"; exit 0; }
+    EXIT_CODE=$?
+else
+    echo "npx not found, skipping ESLint"
+    exit 0
+fi
+
+if [ $EXIT_CODE -ne 0 ]; then
+    echo ""
+    echo "ESLint found errors. Fix them before committing."
+    exit 1
+fi
+
+exit 0

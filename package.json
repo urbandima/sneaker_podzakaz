@@ -6,6 +6,9 @@
     "build": "gulp --gulpfile build/frontend/gulpfile.js build",
     "watch": "gulp --gulpfile build/frontend/gulpfile.js watch",
     "minify": "gulp --gulpfile build/frontend/gulpfile.js minify",
+    "lint": "eslint 'frontend/web/js/**/*.js' --ignore-pattern '*.min.js'",
+    "lint:fix": "eslint 'frontend/web/js/**/*.js' --ignore-pattern '*.min.js' --fix",
+    "prepare": "husky",
     "lhci": "bash scripts/lhci-run.sh",
     "lhci:collect": "lhci collect",
     "lhci:assert": "lhci assert"
@@ -14,6 +17,8 @@
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.58.2",
     "@types/node": "^25.5.0",
+    "eslint": "^8.57.0",
+    "husky": "^9.1.0",
     "gulp": "^5.0.0",
     "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
