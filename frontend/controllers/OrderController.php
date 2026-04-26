@@ -29,9 +29,11 @@ class OrderController extends Controller
      */
     public function actionIndex()
     {
-        $items   = [];
-        $total   = 0;
-        $customer = null;
+        $items           = [];
+        $total           = 0;
+        $customer        = null;
+        $shippingMethods = [];
+        $europochtaPoints = [];
 
         try {
             $items = Cart::getItems();
@@ -46,14 +48,32 @@ class OrderController extends Controller
             if ($customerId) {
                 $customer = \app\backend\modules\account\models\Customer::findOne($customerId);
             }
+
+            $rawShipping = Yii::$app->settings->get('checkout', 'shipping_methods');
+            if ($rawShipping) {
+                $decoded = json_decode($rawShipping, true);
+                if (is_array($decoded)) {
+                    $shippingMethods = array_values(array_filter($decoded, fn($m) => ($m['status'] ?? '') === 'active'));
+                }
+            }
+
+            $rawPoints = Yii::$app->settings->get('shipping', 'europochta_points', '');
+            if ($rawPoints) {
+                $decoded = json_decode($rawPoints, true);
+                if (is_array($decoded)) {
+                    $europochtaPoints = $decoded;
+                }
+            }
         } catch (\Exception $e) {
             Yii::warning('Checkout page error: ' . $e->getMessage(), 'checkout');
         }
 
         return $this->render('//checkout/index', [
-            'items'    => $items,
-            'total'    => $total,
-            'customer' => $customer,
+            'items'            => $items,
+            'total'            => $total,
+            'customer'         => $customer,
+            'shippingMethods'  => $shippingMethods,
+            'europochtaPoints' => $europochtaPoints,
         ]);
     }
 

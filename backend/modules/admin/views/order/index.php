@@ -441,10 +441,10 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
         </h2>
         <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
             <div class="view-toggle">
-                <button class="view-toggle-btn" id="btnTable" onclick="switchView('table')">
+                <button class="view-toggle-btn view-toggle-btn--active" id="btnTable" data-view="table" onclick="switchView('table')">
                     <i class="bi bi-table"></i> Таблица
                 </button>
-                <button class="view-toggle-btn" id="btnKanban" onclick="switchView('kanban')">
+                <button class="view-toggle-btn" id="btnKanban" data-view="kanban" onclick="switchView('kanban')">
                     <i class="bi bi-kanban"></i> Канбан
                 </button>
             </div>
@@ -942,27 +942,30 @@ function clearSelection() {
 }
 
 function switchView(view) {
-    var tableView = document.getElementById('tableView');
+    var tableView  = document.getElementById('tableView');
     var kanbanView = document.getElementById('kanbanView');
-    var buttons = document.querySelectorAll('.view-toggle-btn');
+    var buttons    = document.querySelectorAll('.view-toggle-btn');
 
     if (view === 'kanban') {
-        if (tableView) tableView.style.display = 'none';
-        if (kanbanView) kanbanView.style.display = '';
+        if (tableView)  { tableView.classList.add('d-none');    tableView.style.display = ''; }
+        if (kanbanView) { kanbanView.classList.remove('d-none'); kanbanView.style.display = ''; }
     } else {
-        if (tableView) tableView.style.display = '';
-        if (kanbanView) kanbanView.style.display = 'none';
+        if (tableView)  { tableView.classList.remove('d-none'); tableView.style.display = ''; }
+        if (kanbanView) { kanbanView.classList.add('d-none');    kanbanView.style.display = ''; }
     }
 
     buttons.forEach(function(btn) {
-        btn.classList.remove('view-toggle-btn--active');
-        if (btn.getAttribute('data-view') === view) {
-            btn.classList.add('view-toggle-btn--active');
-        }
+        btn.classList.toggle('view-toggle-btn--active', btn.getAttribute('data-view') === view);
     });
 
     localStorage.setItem('orderViewPreference', view);
 }
+
+// Restore saved view preference on load
+(function() {
+    var pref = localStorage.getItem('orderViewPreference');
+    if (pref === 'kanban') switchView('kanban');
+})();
 
 function changePageSize(size) {
     var url = new URL(window.location.href);

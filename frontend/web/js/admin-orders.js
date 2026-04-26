@@ -15,15 +15,16 @@ document.addEventListener('DOMContentLoaded', function () {
     /* ── VIEW TOGGLE ── */
     function switchView(v) {
         localStorage.setItem('orderView', v);
-        var tableView = document.getElementById('tableView');
+        var tableView  = document.getElementById('tableView');
         var kanbanView = document.getElementById('kanbanView');
-        var btnTable = document.getElementById('btnTable');
-        var btnKanban = document.getElementById('btnKanban');
+        var btnTable   = document.getElementById('btnTable');
+        var btnKanban  = document.getElementById('btnKanban');
 
-        if (tableView) tableView.style.display = v === 'table' ? '' : 'none';
-        if (kanbanView) kanbanView.style.display = v === 'kanban' ? '' : 'none';
-        if (btnTable) btnTable.classList.toggle('active', v === 'table');
-        if (btnKanban) btnKanban.classList.toggle('active', v === 'kanban');
+        // Use classList to toggle d-none (defined in admin-shopify-2026.css)
+        if (tableView)  { tableView.classList.toggle('d-none',  v !== 'table');  tableView.style.display  = ''; }
+        if (kanbanView) { kanbanView.classList.toggle('d-none', v !== 'kanban'); kanbanView.style.display = ''; }
+        if (btnTable)   btnTable.classList.toggle('active',  v === 'table');
+        if (btnKanban)  btnKanban.classList.toggle('active', v === 'kanban');
     }
     window.switchView = switchView;
     (function () {

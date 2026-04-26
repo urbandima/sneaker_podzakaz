@@ -124,6 +124,8 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                     <input type="hidden" name="country" id="selectedCountry" value="belarus">
 
                     <?php
+                    $shippingMethods  = $shippingMethods  ?? [];
+                    $europochtaPoints = $europochtaPoints ?? [];
                     $belarusMethods = array_values(array_filter($shippingMethods, fn($m) => ($m['country'] ?? '') === 'belarus'));
                     $russiaMethods  = array_values(array_filter($shippingMethods, fn($m) => ($m['country'] ?? '') === 'russia'));
                     $firstBelarusId = !empty($belarusMethods) ? $belarusMethods[0]['id'] : '';
