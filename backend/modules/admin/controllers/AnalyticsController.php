@@ -32,6 +32,7 @@ use app\backend\modules\catalog\models\AnalyticsEvent;
 use app\backend\modules\checkout\models\Order;
 use app\backend\modules\catalog\models\Product;
 use app\backend\modules\admin\models\User;
+use app\backend\shared\services\RevenueService;
 
 class AnalyticsController extends BaseAdminController
 {
@@ -436,20 +437,21 @@ class AnalyticsController extends BaseAdminController
 
     /**
      * Статистика выручки
-     * Z79: exclude cancelled/refunded orders to align with other revenue displays
+     * Uses RevenueService::EXCLUDED_STATUSES for consistency with dashboard/P&L figures.
      */
     protected function getRevenueStats($dateFrom, $dateTo)
     {
+        $excl = implode("','", RevenueService::EXCLUDED_STATUSES);
         return Yii::$app->db->createCommand("
             SELECT
-                SUM(total_amount) as total_revenue,
+                COALESCE(SUM(total_amount), 0) as total_revenue,
                 COUNT(*) as total_orders,
-                AVG(total_amount) as avg_order_value,
-                MAX(total_amount) as max_order,
-                MIN(total_amount) as min_order
+                COALESCE(AVG(total_amount), 0) as avg_order_value,
+                COALESCE(MAX(total_amount), 0) as max_order,
+                COALESCE(MIN(total_amount), 0) as min_order
             FROM `order`
             WHERE DATE(FROM_UNIXTIME(created_at)) BETWEEN :from AND :to
-              AND status NOT IN ('cancelled','canceled','trash','return','refunded')
+              AND status NOT IN ('{$excl}')
         ", [':from' => $dateFrom, ':to' => $dateTo])->queryOne();
     }
 

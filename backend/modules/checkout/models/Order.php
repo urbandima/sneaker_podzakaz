@@ -266,7 +266,8 @@ class Order extends ActiveRecord
 
     public function getPublicUrl()
     {
-        return Yii::$app->urlManager->createAbsoluteUrl(['order/view', 'token' => $this->token]);
+        $base = rtrim(Yii::$app->params['frontendBaseUrl'] ?? Yii::$app->params['frontendUrl'] ?? Yii::$app->request->hostInfo, '/');
+        return $base . '/order/' . $this->token;
     }
 
     public function getStatusLabel()

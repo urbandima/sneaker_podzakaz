@@ -7,6 +7,7 @@ use yii\db\Query;
 use app\backend\modules\finance\models\Payment;
 use app\backend\modules\finance\models\Expense;
 use app\backend\modules\checkout\models\Order;
+use app\backend\shared\services\RevenueService;
 
 class FinanceController extends BaseAdminController
 {
@@ -167,17 +168,12 @@ class FinanceController extends BaseAdminController
         $year  = (int) Yii::$app->request->get('year',  date('Y'));
         $years = $this->getAvailableYears();
 
-        // Z40/Z43: Revenue from orders by month — same filter as dashboard totalAmount
-        // Excludes cancelled, trash, return, and imported statuses for consistency
-        $excludedStatuses = ['cancelled', 'canceled', 'trash', 'return', 'imported', 'imported_invalid'];
-        $revenueRows = (new Query())
-            ->select(['MONTH(FROM_UNIXTIME(created_at)) as month', 'SUM(total_amount) as total'])
-            ->from('`order`')
-            ->where(['NOT IN', 'status', $excludedStatuses])
-            ->andWhere(['YEAR(FROM_UNIXTIME(created_at))' => $year])
-            ->groupBy('month')
-            ->indexBy('month')
-            ->all();
+        // Z40/Z43: Revenue from orders by month via RevenueService (consistent excluded-status filter)
+        $revenueByMonth = RevenueService::getByMonth($year);
+        $revenueRows = [];
+        foreach ($revenueByMonth as $m => $row) {
+            $revenueRows[$m] = ['total' => $row['revenue']];
+        }
 
         // Confirmed payments by month
         $paymentRows = (new Query())
