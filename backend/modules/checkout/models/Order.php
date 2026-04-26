@@ -656,25 +656,32 @@ class Order extends ActiveRecord
      */
     public function missingPassportFields(): array
     {
-        $required = [
-            'recipient_last_name'  => 'Фамилия получателя',
-            'recipient_first_name' => 'Имя получателя',
-            'passport_series'      => 'Серия паспорта',
-            'passport_number'      => 'Номер паспорта',
-            'passport_issue_date'  => 'Дата выдачи паспорта',
-            'inn'                  => 'ИНН (12 цифр)',
-            'full_address'         => 'Полный адрес',
-            'city'                 => 'Город',
-            'region'               => 'Область/регион',
-            'postal_code'          => 'Индекс',
-        ];
-        $missing = [];
-        foreach ($required as $field => $label) {
-            if (empty($this->$field)) {
-                $missing[] = $label;
-            }
+        return $this->_missingDocFields();
+    }
+
+    private function _missingDocFields(): array
+    {
+        $citizenship = strtolower($this->citizenship ?? 'by');
+        $errors = [];
+
+        if (empty($this->recipient_last_name))  $errors[] = 'Фамилия получателя';
+        if (empty($this->recipient_first_name)) $errors[] = 'Имя получателя';
+        if (empty($this->passport_series))      $errors[] = 'Серия паспорта';
+        if (empty($this->passport_number))      $errors[] = 'Номер паспорта';
+        if (empty($this->passport_issue_date))  $errors[] = 'Дата выдачи паспорта';
+        if (empty($this->full_address))         $errors[] = 'Полный адрес';
+        if (empty($this->city))                 $errors[] = 'Город';
+        if (empty($this->region))               $errors[] = 'Область/регион';
+        if (empty($this->postal_code))          $errors[] = 'Индекс';
+
+        if ($citizenship === 'by') {
+            if (empty($this->passport_unp)) $errors[] = 'Личный номер УНП (14 символов)';
+        } else {
+            if (empty($this->inn))                    $errors[] = 'ИНН (12 цифр)';
+            if (empty($this->passport_division_code)) $errors[] = 'Код подразделения';
         }
-        return $missing;
+
+        return $errors;
     }
 
     /**
@@ -683,7 +690,7 @@ class Order extends ActiveRecord
      */
     public function missingDpFields(): array
     {
-        $errors = $this->missingPassportFields();
+        $errors = $this->_missingDocFields();
 
         if (empty($this->china_track_number)) {
             $errors[] = 'Трек-номер из Китая (china_track_number)';

@@ -720,6 +720,7 @@ $customer = $model->customer ?? null;
             </div>
 
             <!-- Passport data -->
+            <?php $_cit = strtolower($model->citizenship ?? 'by'); ?>
             <div class="crm-card">
                 <div class="crm-card-head">
                     <h3><i class="bi bi-person-vcard"></i> Паспортные данные</h3>
@@ -730,15 +731,53 @@ $customer = $model->customer ?? null;
                     <?php endif; ?>
                 </div>
                 <div class="crm-card-body">
-                    <div class="crm-info-grid">
-                        <div class="crm-field">
-                            <div class="crm-field-label">Серия <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
+                    <!-- Citizenship selector -->
+                    <div style="margin-bottom:12px;display:flex;align-items:center;gap:14px">
+                        <span style="font-size:0.75rem;font-weight:600;color:var(--admin-text-secondary,#6b7280)">Гражданство:</span>
+                        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:0.85rem">
+                            <input type="radio" name="citizenship_radio_<?= $model->id ?>" value="by" <?= $_cit === 'by' ? 'checked' : '' ?>> 🇧🇾 РБ
+                        </label>
+                        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:0.85rem">
+                            <input type="radio" name="citizenship_radio_<?= $model->id ?>" value="ru" <?= $_cit === 'ru' ? 'checked' : '' ?>> 🇷🇺 РФ
+                        </label>
+                    </div>
+                    <div class="crm-info-grid" id="passport-grid-<?= $model->id ?>">
+                        <!-- BY: Серия (2 буквы) -->
+                        <div class="crm-field pf-by" data-citizenship="by">
+                            <div class="crm-field-label">Серия <span style="color:#6b7280;font-size:0.7rem">(РБ: 2 буквы)</span> <i class="bi bi-truck" style="font-size:0.7rem;color:#4338ca" title="ДП обязательно"></i></div>
                             <div class="crm-editable" data-field="passport_series" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->passport_series) ? Html::encode($model->passport_series) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
-                        <div class="crm-field">
-                            <div class="crm-field-label">Номер <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
+                        <!-- BY: Номер (7 цифр) -->
+                        <div class="crm-field pf-by" data-citizenship="by">
+                            <div class="crm-field-label">Номер <span style="color:#6b7280;font-size:0.7rem">(РБ: 7 цифр)</span> <i class="bi bi-truck" style="font-size:0.7rem;color:#4338ca" title="ДП обязательно"></i></div>
                             <div class="crm-editable" data-field="passport_number" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->passport_number) ? Html::encode($model->passport_number) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
+                        <!-- BY: Личный номер УНП -->
+                        <div class="crm-field pf-by" data-citizenship="by">
+                            <div class="crm-field-label">Личный номер (УНП) <span style="color:#6b7280;font-size:0.7rem">(14 симв.)</span> <i class="bi bi-truck" style="font-size:0.7rem;color:#4338ca" title="ДП обязательно"></i></div>
+                            <div class="crm-editable" data-field="passport_unp" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->passport_unp) ? Html::encode($model->passport_unp) : '<span class="crm-editable-empty">—</span>' ?></div>
+                        </div>
+                        <!-- RU: Серия (4 цифры) -->
+                        <div class="crm-field pf-ru" data-citizenship="ru">
+                            <div class="crm-field-label">Серия <span style="color:#6b7280;font-size:0.7rem">(РФ: 4 цифры)</span> <i class="bi bi-truck" style="font-size:0.7rem;color:#4338ca" title="ДП обязательно"></i></div>
+                            <div class="crm-editable" data-field="passport_series" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->passport_series) ? Html::encode($model->passport_series) : '<span class="crm-editable-empty">—</span>' ?></div>
+                        </div>
+                        <!-- RU: Номер (6 цифр) -->
+                        <div class="crm-field pf-ru" data-citizenship="ru">
+                            <div class="crm-field-label">Номер <span style="color:#6b7280;font-size:0.7rem">(РФ: 6 цифр)</span> <i class="bi bi-truck" style="font-size:0.7rem;color:#4338ca" title="ДП обязательно"></i></div>
+                            <div class="crm-editable" data-field="passport_number" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->passport_number) ? Html::encode($model->passport_number) : '<span class="crm-editable-empty">—</span>' ?></div>
+                        </div>
+                        <!-- RU: ИНН -->
+                        <div class="crm-field pf-ru" data-citizenship="ru">
+                            <div class="crm-field-label">ИНН <span style="color:#6b7280;font-size:0.7rem">(12 цифр)</span> <i class="bi bi-truck" style="font-size:0.7rem;color:#4338ca" title="ДП обязательно"></i></div>
+                            <div class="crm-editable" data-field="inn" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->inn) ? Html::encode($model->inn) : '<span class="crm-editable-empty">—</span>' ?></div>
+                        </div>
+                        <!-- RU: Код подразделения -->
+                        <div class="crm-field pf-ru" data-citizenship="ru">
+                            <div class="crm-field-label">Код подразделения <i class="bi bi-truck" style="font-size:0.7rem;color:#4338ca" title="ДП обязательно"></i></div>
+                            <div class="crm-editable" data-field="passport_division_code" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->passport_division_code) ? Html::encode($model->passport_division_code) : '<span class="crm-editable-empty">—</span>' ?></div>
+                        </div>
+                        <!-- Common fields (always shown) -->
                         <div class="crm-field">
                             <div class="crm-field-label">Дата выдачи</div>
                             <div class="crm-editable" data-field="passport_issue_date" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->passport_issue_date) ? Html::encode($model->passport_issue_date) : '<span class="crm-editable-empty">—</span>' ?></div>
@@ -747,13 +786,9 @@ $customer = $model->customer ?? null;
                             <div class="crm-field-label">Дата рождения</div>
                             <div class="crm-editable" data-field="birth_date" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->birth_date) ? Html::encode($model->birth_date) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
-                        <div class="crm-field">
-                            <div class="crm-field-label">Личный номер (УНП) <span title="Обязательно для Таможня:ДП — 14 символов из паспорта" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
-                            <div class="crm-editable" data-field="passport_unp" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->passport_unp) ? Html::encode($model->passport_unp) : '<span class="crm-editable-empty">—</span>' ?></div>
-                        </div>
-                        <div class="crm-field">
-                            <div class="crm-field-label">ИНН</div>
-                            <div class="crm-editable" data-field="inn" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->inn) ? Html::encode($model->inn) : '<span class="crm-editable-empty">—</span>' ?></div>
+                        <div class="crm-field" style="grid-column:span 2">
+                            <div class="crm-field-label">Кем выдан</div>
+                            <div class="crm-editable" data-field="passport_issued_by" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->passport_issued_by) ? Html::encode($model->passport_issued_by) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <?php if (!empty($model->passport_submitted_at)): ?>
                         <div class="crm-field">
@@ -762,13 +797,40 @@ $customer = $model->customer ?? null;
                         </div>
                         <?php endif; ?>
                         <?php if (!empty($model->passport_validated)): ?>
-                        <div class="crm-field" style="grid-column: span 2">
+                        <div class="crm-field" style="grid-column:span 2">
                             <div style="padding:5px 10px;background:#d1fae5;border-radius:6px;font-size:0.75rem;color:#065f46;font-weight:600"><i class="bi bi-patch-check"></i> Подтверждён ДоброПостом</div>
                         </div>
                         <?php endif; ?>
                     </div>
                 </div>
             </div>
+            <?php $this->registerJs(<<<JS
+(function() {
+    var orderId = {$model->id};
+    var radios = document.querySelectorAll('[name="citizenship_radio_' + orderId + '"]');
+    function applyFilter(cit) {
+        document.querySelectorAll('#passport-grid-' + orderId + ' [data-citizenship]').forEach(function(el) {
+            el.style.display = (el.dataset.citizenship === cit) ? '' : 'none';
+        });
+    }
+    radios.forEach(function(r) {
+        r.addEventListener('change', function() {
+            applyFilter(this.value);
+            var csrf = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+            var fd = new FormData();
+            fd.append('field', 'citizenship');
+            fd.append('value', this.value);
+            fd.append('_csrf', csrf);
+            fetch('/admin/order/update-field?id=' + orderId, {
+                method: 'POST',
+                headers: {'X-Requested-With': 'XMLHttpRequest'},
+                body: fd
+            });
+        });
+    });
+    applyFilter('{$_cit}');
+})();
+JS, \yii\web\View::POS_END); ?>
 
             <!-- Notes -->
             <div class="crm-card">

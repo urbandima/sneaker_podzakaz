@@ -191,42 +191,63 @@ class DobroPostService extends Component
         // Общая стоимость шипмента в юанях
         $totalAmount = (float) ($order->shipment_value_cny ?: $itemPriceCny * $qty);
 
-        // Комментарий (не более 60 символов)
-        $comment = mb_substr($order->ms_number ? 'МС: ' . $order->ms_number : '', 0, 59);
+        $citizenship = strtolower($order->citizenship ?? 'by');
 
-        // Combine series + number into single passport field (DP API format: "MP1234567")
-        $passportFull = mb_strtoupper(trim(($order->passport_series ?? '') . ($order->passport_number ?? '')));
-        $passportFull = preg_replace('/[^A-Z0-9]/', '', $passportFull);
-
-        // DP API requires exactly 12-digit INN; store in order->inn field
-        $personalNumber = $order->inn ?: null;
+        // Comment includes order number for traceability
+        $commentParts = ["Заказ #{$order->order_number} (id={$order->id})"];
+        if (!empty($order->ms_number)) {
+            $commentParts[] = 'МС:' . $order->ms_number;
+        }
+        $comment = mb_substr(implode(' ', $commentParts), 0, 59);
 
         $payload = [
-            'totalAmount'             => $totalAmount,
-            'consigneeFamilyName'     => $order->recipient_last_name,
-            'consigneeName'           => $order->recipient_first_name,
-            'consigneePassportNumber' => $passportFull,
-            'passportIssueDate'       => $order->passport_issue_date
+            'totalAmount'          => $totalAmount,
+            'consigneeFamilyName'  => $order->recipient_last_name,
+            'consigneeName'        => $order->recipient_first_name,
+            'passportIssueDate'    => $order->passport_issue_date
                 ? date('Y-m-d', is_numeric($order->passport_issue_date)
                     ? $order->passport_issue_date
                     : strtotime($order->passport_issue_date))
                 : null,
-            'vatIdentificationNumber' => $personalNumber,
-            'consigneeFullAddress'    => $order->full_address,
-            'consigneeCity'           => $order->city,
-            'consigneeState'          => $order->region,
-            'consigneeZipCode'        => $order->postal_code,
-            'consigneePhoneNumber'    => $phone,
-            'consigneeEmail'          => $email,
-            'itemDescription'         => $description,
-            'numberOfItemPieces'      => $qty,
-            'itemPrice'               => $itemPriceCny,
-            'itemStoreLink'           => $storeLink,
-            'dpTariffId'              => $tariff,
-            'incomingDeclaration'     => $order->china_track_number,
+            'consigneeFullAddress' => $order->full_address,
+            'consigneeCity'        => $order->city,
+            'consigneeState'       => $order->region,
+            'consigneeZipCode'     => $order->postal_code,
+            'consigneePhoneNumber' => $phone,
+            'consigneeEmail'       => $email,
+            'itemDescription'      => $description,
+            'numberOfItemPieces'   => $qty,
+            'itemPrice'            => $itemPriceCny,
+            'itemStoreLink'        => $storeLink,
+            'dpTariffId'           => $tariff,
+            'incomingDeclaration'  => $order->china_track_number,
+            'comment'              => $comment,
         ];
 
-        // Необязательные поля
+        if ($citizenship === 'by') {
+            // BY: combine series+number into one field (e.g. "MP1234567")
+            $passportFull = mb_strtoupper(preg_replace('/[^A-Z0-9]/', '',
+                ($order->passport_series ?? '') . ($order->passport_number ?? '')));
+            $payload['consigneePassportNumber'] = $passportFull;
+            // Personal ID (УНП, 14 chars) — additional field if DP supports it
+            if (!empty($order->passport_unp)) {
+                $payload['passportPersonalNumber'] = $order->passport_unp;
+            }
+            // DP requires 12-digit vatIdentificationNumber; use inn fallback for BY
+            if (!empty($order->inn)) {
+                $payload['vatIdentificationNumber'] = $order->inn;
+            }
+        } else {
+            // RU: separate serial (4 digits) and number (6 digits)
+            $payload['consigneePassportSerial'] = $order->passport_series;
+            $payload['consigneePassportNumber'] = $order->passport_number;
+            $payload['vatIdentificationNumber'] = $order->inn;
+            if (!empty($order->passport_division_code)) {
+                $payload['passportDepartmentCode'] = $order->passport_division_code;
+            }
+        }
+
+        // Optional common fields
         if (!empty($order->recipient_middle_name)) {
             $payload['consigneeMiddleName'] = $order->recipient_middle_name;
         }
@@ -234,9 +255,6 @@ class DobroPostService extends Component
             $payload['consigneeBirthDate'] = date('Y-m-d', is_numeric($order->birth_date)
                 ? $order->birth_date
                 : strtotime($order->birth_date));
-        }
-        if (!empty($comment)) {
-            $payload['comment'] = $comment;
         }
 
         return $payload;
