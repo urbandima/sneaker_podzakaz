@@ -135,7 +135,23 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                     $reqUnp       = $companySettings['unp']      ?? '';
                     $reqAmount    = number_format((float)$model->total_amount, 2, '.', ' ') . ' BYN';
                     $reqPurpose   = 'Оплата по договору оферты №' . $model->order_number;
+                    $reqAllText   = implode("\n", array_filter([
+                        'Получатель: '           . $reqRecipient,
+                        $reqAccount ? 'Расчётный счёт: ' . $reqAccount : '',
+                        $reqBank    ? 'Банк: '            . $reqBank    : '',
+                        $reqBic     ? 'БИК: '             . $reqBic     : '',
+                        $reqUnp     ? 'УНП: '             . $reqUnp     : '',
+                        'Сумма: '                . $reqAmount,
+                        'Назначение: '           . $reqPurpose,
+                    ]));
                     ?>
+                    <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
+                        <button type="button" class="order-req-copy order-req-copy-all"
+                                onclick="orderCopyReq(this,<?= json_encode($reqAllText) ?>)"
+                                title="Скопировать все реквизиты">
+                            <i class="bi bi-clipboard-plus"></i> Скопировать всё
+                        </button>
+                    </div>
                     <div class="order-requisites">
                         <div class="order-req-row">
                             <span class="order-req-label">Получатель:</span>
@@ -267,9 +283,34 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
 
 <script>
 function orderCopyReq(btn, text){
-    try { navigator.clipboard.writeText(text); } catch(e){}
-    var i = btn.querySelector('i');
-    if (i) { i.className = 'bi bi-check2'; setTimeout(function(){ i.className = 'bi bi-clipboard'; }, 1400); }
+    var origHtml = btn.innerHTML;
+    function onSuccess(){
+        btn.innerHTML = '<i class="bi bi-check2"></i>';
+        btn.classList.add('copied');
+        setTimeout(function(){
+            btn.innerHTML = origHtml;
+            btn.classList.remove('copied');
+        }, 1500);
+    }
+    function onFail(){
+        alert('Не удалось скопировать. Скопируйте вручную:\n\n' + text);
+    }
+    function execFallback(){
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        var ok = false;
+        try { ok = document.execCommand('copy'); } catch(e){}
+        ta.remove();
+        ok ? onSuccess() : onFail();
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(onSuccess, execFallback);
+    } else {
+        execFallback();
+    }
 }
 
 // Payment instruction modal
@@ -1069,8 +1110,23 @@ document.addEventListener('click', function(e) {
 }
 
 .order-req-copy:hover {
-    color: #111;
-    border-color: #111;
+    color: var(--c-primary, #111);
+    border-color: var(--c-primary, #111);
+    background: rgba(0,0,0,.03);
+}
+
+.order-req-copy.copied {
+    color: #16a34a;
+    border-color: #16a34a;
+}
+
+.order-req-copy-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    font-size: .8125rem;
+    font-weight: 600;
 }
 
 .order-payment-confirmed {
