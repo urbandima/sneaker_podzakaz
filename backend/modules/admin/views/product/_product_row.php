@@ -34,14 +34,18 @@ if ($isActive && !$isOutOfStock) {
             <?php endif; ?>
         </div>
     </td>
-    <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-        <div style="font-weight:600;line-height:1.3"><?= Html::encode($product->name) ?></div>
+    <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="<?= Html::encode($product->name) ?>">
+        <div style="font-weight:600;line-height:1.3;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><?= Html::encode($product->name) ?></div>
     </td>
     <td data-col="article" style="font-family:monospace;font-size:.75rem;color:var(--admin-text-secondary,#6b7280)">
         <?= Html::encode($product->vendor_code ?: $product->sku ?: '—') ?>
     </td>
     <td data-col="brand" style="white-space:nowrap">
-        <?= Html::encode($product->brand->name ?? '—') ?>
+        <?php
+            $brandName = $product->brand->name ?? null;
+            if (!$brandName || $brandName === '-') $brandName = null;
+            echo $brandName ? Html::encode($brandName) : '—';
+        ?>
     </td>
     <td data-col="price" style="font-weight:700;white-space:nowrap">
         <?= number_format($product->price ?? 0, 2) ?> <span style="font-size:.7rem;color:var(--admin-text-secondary,#9ca3af);font-weight:400">Br</span>
@@ -50,7 +54,7 @@ if ($isActive && !$isOutOfStock) {
         <?= $sizesCount ?>
     </td>
     <td data-col="stock_total" style="text-align:center;font-weight:600">
-        <?= $stockTotal ?>
+        <?= $stockTotal > 0 ? $stockTotal : '<span style="color:var(--admin-text-secondary,#9ca3af);font-weight:400">—</span>' ?>
     </td>
     <td data-col="status" style="padding:6px 8px">
         <span class="status-pill" style="background:<?= $statusPill['bg'] ?>;color:<?= $statusPill['color'] ?>">
