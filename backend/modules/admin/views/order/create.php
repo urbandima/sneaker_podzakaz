@@ -271,10 +271,10 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
                 </div>
             </div>
 
-            <!-- Данные для ДоброПост -->
+            <!-- Данные для таможни -->
             <div class="crm-card">
                 <div class="crm-card-head">
-                    <h3><i class="bi bi-airplane"></i> Данные для ДоброПост</h3>
+                    <h3><i class="bi bi-airplane"></i> Данные для таможни</h3>
                 </div>
                 <div class="crm-card-body">
                     <div class="crm-info-grid cols3">

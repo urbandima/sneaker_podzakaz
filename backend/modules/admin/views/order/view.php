@@ -574,7 +574,7 @@ $customer = $model->customer ?? null;
                                                    value="<?= $item->price ?>">
                                         </div>
                                     </div>
-                                    <div class="ief-section"><i class="bi bi-truck" style="color:#4338ca"></i> Данные ДоброПост</div>
+                                    <div class="ief-section"><i class="bi bi-truck" style="color:#4338ca"></i> Данные таможни</div>
                                     <div class="ief-grid">
                                         <div class="ief" style="flex:2;min-width:180px">
                                             <label>Ссылка на товар</label>
@@ -687,7 +687,7 @@ $customer = $model->customer ?? null;
             <!-- Данные для ДП: Получатель + Адрес + Товарная информация -->
             <div class="crm-card">
                 <div class="crm-card-head">
-                    <h3><i class="bi bi-box-seam"></i> Данные для ДоброПост</h3>
+                    <h3><i class="bi bi-box-seam"></i> Данные для таможни</h3>
                     <span style="font-size:0.7rem;padding:2px 8px;border-radius:6px;background:#eef2ff;color:#4338ca;font-weight:700"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i> ДП</span>
                     <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm" onclick="autoFillDp(<?= $model->id ?>)" style="margin-left:8px;font-size:0.7rem;padding:2px 10px" title="Заполнить пустые поля ДП из данных заказа и профиля клиента"><i class="bi bi-lightning"></i> Авто-заполнить из заказа</button>
                 </div>
