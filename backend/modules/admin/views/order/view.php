@@ -936,9 +936,39 @@ $customer = $model->customer ?? null;
                         );
                         ?>
                         <?php if ($hasMismatch): ?>
-                        <div style="margin-bottom:8px;padding:5px 8px;background:var(--admin-warning-bg,#fef9c3);border-radius:6px;font-size:.72rem;color:var(--admin-warning,#d97706);display:flex;align-items:center;gap:5px">
-                            <i class="bi bi-exclamation-triangle-fill"></i>
-                            Данные заказа отличаются от профиля клиента
+                        <div id="customer-mismatch-banner" style="margin-bottom:10px;padding:8px 10px;background:var(--admin-warning-bg,#fef9c3);border-radius:6px;font-size:.72rem;color:var(--admin-warning,#d97706)">
+                            <div style="display:flex;align-items:center;gap:5px;font-weight:600;margin-bottom:6px">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                Данные заказа отличаются от профиля клиента
+                            </div>
+                            <?php
+                            $customerName = trim($customer->getFullName() ?? '');
+                            $diffRows = [];
+                            if ($customerName && trim($model->client_name ?? '') !== $customerName)
+                                $diffRows[] = ['ФИО', Html::encode($model->client_name ?: '—'), Html::encode($customerName)];
+                            if ($customerPhone && $orderPhone !== $customerPhone)
+                                $diffRows[] = ['Телефон', Html::encode($model->client_phone ?: '—'), Html::encode($customer->phone)];
+                            if ($customerEmail && $orderEmail !== $customerEmail)
+                                $diffRows[] = ['Email', Html::encode($model->client_email ?: '—'), Html::encode($customer->email)];
+                            ?>
+                            <table style="width:100%;border-collapse:collapse;font-size:.7rem;margin-bottom:6px">
+                                <tr style="color:#92400e;font-weight:700">
+                                    <td style="padding:2px 4px">Поле</td>
+                                    <td style="padding:2px 4px">В заказе</td>
+                                    <td style="padding:2px 4px">У клиента</td>
+                                </tr>
+                                <?php foreach ($diffRows as $row): ?>
+                                <tr>
+                                    <td style="padding:2px 4px;opacity:.8"><?= $row[0] ?></td>
+                                    <td style="padding:2px 4px;text-decoration:line-through;opacity:.7"><?= $row[1] ?></td>
+                                    <td style="padding:2px 4px;font-weight:600;color:#065f46"><?= $row[2] ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </table>
+                            <button type="button" id="btn-sync-customer" onclick="syncCustomerData(<?= $model->id ?>)"
+                                style="padding:3px 10px;font-size:.72rem;background:#d97706;color:#fff;border:none;border-radius:4px;cursor:pointer">
+                                <i class="bi bi-arrow-repeat"></i> Синхронизировать с профилем
+                            </button>
                         </div>
                         <?php endif; ?>
                         <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:8px">Данные покупателя (snapshot заказа)</div>
@@ -1843,6 +1873,32 @@ window.syncMoysklad = function(id) {
     }).catch(function(){
         if (r) { r.textContent = '✗ Ошибка сети'; r.style.color = '#dc2626'; }
         if (r2) { r2.textContent = '✗ Ошибка сети'; r2.style.color = '#dc2626'; }
+        if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+    });
+};
+
+// ── Customer data sync ────────────────────────────────────
+window.syncCustomerData = function(orderId) {
+    if (!confirm('Перезаписать данные заказа данными из профиля клиента?\nЭто действие будет зафиксировано в истории.')) return;
+    var btn = document.getElementById('btn-sync-customer');
+    if (btn) { btn.disabled = true; btn.style.opacity = '.6'; }
+    fetch('/admin/order/apply-customer-data', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-Token':'$_csrfToken'},
+        body: JSON.stringify({order_id: orderId})
+    }).then(function(r){ return r.json(); }).then(function(d) {
+        if (d.success && d.changed && Object.keys(d.changed).length > 0) {
+            var banner = document.getElementById('customer-mismatch-banner');
+            if (banner) banner.remove();
+            alert('Данные обновлены');
+        } else if (d.success) {
+            alert('Данные уже совпадают');
+        } else {
+            alert('Ошибка: ' + (d.message || 'Неизвестная ошибка'));
+            if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+        }
+    }).catch(function() {
+        alert('Ошибка сети');
         if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
     });
 };

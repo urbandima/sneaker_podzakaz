@@ -461,6 +461,9 @@ $config = [
                 'admin/order/<id:\d+>/update-items' => 'admin/order/update-items',
                 'admin/order/export' => 'admin/order/export',
                 'admin/order/clean-bad-import' => 'admin/order/clean-bad-import',
+                // Customer sync
+                'admin/order/apply-customer-data' => 'admin/order/apply-customer-data',
+                'admin/order/customer-diff'       => 'admin/order/customer-diff',
                 // DobroPost
                 'admin/order/<id:\d+>/send-to-dp' => 'admin/order/send-to-dp',
                 'admin/order/<id:\d+>/dp-status' => 'admin/order/dp-status',
