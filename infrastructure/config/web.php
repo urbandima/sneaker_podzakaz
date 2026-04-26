@@ -334,6 +334,9 @@ $config = [
                 // W3-W9: missing route aliases
                 'admin/order/return' => 'admin/return/index',
                 'admin/order/returns' => 'admin/return/index',
+                'admin/order-return' => 'admin/return/index',
+                'admin/order-status' => 'admin/settings/statuses',
+                'admin/order-source' => 'admin/settings/sources',
                 'admin/shipment' => 'admin/shipping/dispatch',
                 'admin/shipment/<action:[a-z-]+>' => 'admin/shipping/<action>',
                 'admin/finance/expense' => 'admin/finance/expenses',
@@ -572,6 +575,18 @@ $config = [
                 'admin/finance/create-expense'   => 'admin/finance/create-expense',
                 'admin/finance/pnl'              => 'admin/finance/pnl',
                 'admin/finance/margin'           => 'admin/finance/margin',
+                // Buyout
+                'admin/buyout'                          => 'admin/buyout/index',
+                'admin/buyout/create'                   => 'admin/buyout/create',
+                'admin/buyout/parse-url'                => 'admin/buyout/parse-url',
+                'admin/buyout/bulk-status'              => 'admin/buyout/bulk-status',
+                'admin/buyout/<id:\d+>'                 => 'admin/buyout/view',
+                'admin/buyout/<id:\d+>/edit'            => 'admin/buyout/edit',
+                'admin/buyout/<id:\d+>/accept'          => 'admin/buyout/accept',
+                'admin/buyout/<id:\d+>/cancel'          => 'admin/buyout/cancel',
+                'admin/buyout/<id:\d+>/link-order'      => 'admin/buyout/link-order',
+                'admin/buyout/<id:\d+>/unlink-order'    => 'admin/buyout/unlink-order',
+                'admin/buyout/<id:\d+>/history'         => 'admin/buyout/history',
                 // Procurement
                 'admin/procurement'                       => 'admin/procurement/index',
                 'admin/procurement/suppliers'             => 'admin/procurement/suppliers',
