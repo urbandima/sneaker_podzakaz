@@ -502,7 +502,7 @@ $this->registerJsVar('productVideo', $productVideo);
             <div class="delivery-item">
                 <i class="bi bi-truck"></i>
                 <div class="delivery-item-content">
-                    <h4>Доставка</h4>
+                    <h3>Доставка</h3>
                     <ul>
                         <li>По Минску — 1–2 дня</li>
                         <li>По Беларуси — 3–5 дней</li>
@@ -513,7 +513,7 @@ $this->registerJsVar('productVideo', $productVideo);
             <div class="delivery-item">
                 <i class="bi bi-shield-check"></i>
                 <div class="delivery-item-content">
-                    <h4>Гарантии</h4>
+                    <h3>Гарантии</h3>
                     <ul>
                         <li>100% подлинность</li>
                         <li>14 дней на возврат</li>
@@ -524,7 +524,7 @@ $this->registerJsVar('productVideo', $productVideo);
             <div class="delivery-item">
                 <i class="bi bi-credit-card"></i>
                 <div class="delivery-item-content">
-                    <h4>Оплата</h4>
+                    <h3>Оплата</h3>
                     <ul>
                         <li>Картой онлайн</li>
                         <li>При получении</li>

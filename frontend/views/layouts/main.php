@@ -5,6 +5,28 @@ use app\frontend\assets\AppAsset;
 
 AppAsset::register($this);
 
+// Load page-specific CSS only for the controller that needs it, so e.g.
+// product.css (650 KB) is not sent on the home page.
+(function ($view) {
+    $c   = Yii::$app->controller;
+    $m   = $c->module;
+    $mId = ($m && $m->id !== Yii::$app->id) ? $m->id : null;
+    $cId = $c->id;
+    $aId = $c->action ? $c->action->id : null;
+
+    if (!$mId && $cId === 'site' && $aId === 'index')                             $css = 'landing';
+    elseif ($mId === 'catalog' && in_array($aId, ['product', 'product-simple']))   $css = 'product';
+    elseif ($mId === 'catalog')                                                    $css = 'catalog';
+    elseif (!$mId && $cId === 'cart')                                              $css = 'cart';
+    elseif (!$mId && $cId === 'order')                                             $css = 'checkout';
+    elseif ($mId === 'account' || (!$mId && $cId === 'account'))                   $css = 'account';
+    else return;
+
+    $file = Yii::getAlias('@webroot') . '/css/pages/' . $css . '.css';
+    $v    = file_exists($file) ? filemtime($file) : '1';
+    $view->registerCssFile(Yii::$app->request->baseUrl . '/css/pages/' . $css . '.css?v=' . $v);
+})($this);
+
 $company = Yii::$app->settings->getCompany();
 ?>
 

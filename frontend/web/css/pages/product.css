@@ -1311,7 +1311,7 @@
 }
 
 .legend-item.available {
-    color: var(--color-success);
+    color: #166534; /* green-800: 6.15:1 contrast on white — was #16a34a (3.29:1, fail) */
 }
 
 .legend-item.unavailable {
@@ -2594,7 +2594,7 @@ html {
     color: var(--color-accent);
 }
 
-.delivery-item h4 {
+.delivery-item h3 {
     font-size: var(--text-sm);
     font-weight: var(--font-weight-semibold);
     color: var(--color-text-primary);
@@ -4786,7 +4786,7 @@ select.form-control {
     gap: var(--space-1);
 }
 
-.delivery-item h4 {
+.delivery-item h3 {
     font-size: var(--text-base);
     font-weight: var(--font-weight-semibold);
     color: var(--color-text-primary);
