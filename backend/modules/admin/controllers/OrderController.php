@@ -367,6 +367,7 @@ class OrderController extends BaseAdminController
      */
     public function actionCreate()
     {
+        $this->requirePermission('createOrder');
         $model = new Order();
         $model->created_by = Yii::$app->user->id;
 
@@ -474,6 +475,7 @@ class OrderController extends BaseAdminController
      */
     public function actionUpdate($id)
     {
+        $this->requirePermission('editOrder');
         $model = $this->findModel($id);
 
         // Логист не может редактировать заказ, только менять статус

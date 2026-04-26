@@ -230,6 +230,7 @@ class ProductController extends BaseAdminController
      */
     public function actionFixBrand()
     {
+        $this->requirePermission('manageProducts');
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $preview = (bool)Yii::$app->request->get('preview', true);
 
@@ -419,6 +420,7 @@ class ProductController extends BaseAdminController
      */
     public function actionDelete($id)
     {
+        $this->requirePermission('manageProducts');
         $product = $this->findModel($id);
         
         if ($product->delete()) {

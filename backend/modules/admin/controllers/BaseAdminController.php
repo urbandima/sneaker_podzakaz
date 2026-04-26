@@ -220,6 +220,35 @@ abstract class BaseAdminController extends Controller
     }
 
     /**
+     * RBAC permission check. Falls back to admin-check when authManager unavailable.
+     */
+    protected function canDo(string $permission): bool
+    {
+        if (Yii::$app->user->isGuest) return false;
+        try {
+            return Yii::$app->user->can($permission);
+        } catch (\Throwable $e) {
+            return $this->isAdmin();
+        }
+    }
+
+    /**
+     * Abort with 403 if permission is denied (JSON-aware).
+     */
+    protected function requirePermission(string $permission): void
+    {
+        if ($this->canDo($permission)) return;
+        if (Yii::$app->request->isAjax || Yii::$app->request->isOptions) {
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            Yii::$app->response->statusCode = 403;
+            Yii::$app->response->data = ['success' => false, 'message' => 'Недостаточно прав'];
+            Yii::$app->response->send();
+            Yii::$app->end();
+        }
+        throw new \yii\web\ForbiddenHttpException('Недостаточно прав для выполнения этого действия.');
+    }
+
+    /**
      * Получить текущего пользователя
      * 
      * @return \app\backend\modules\admin\models\User|null

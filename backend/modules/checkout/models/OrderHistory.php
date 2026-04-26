@@ -31,7 +31,7 @@ class OrderHistory extends ActiveRecord
             [['order_id', 'changed_by'], 'integer'],
             [['old_status', 'new_status'], 'string', 'max' => 50],
             [['action', 'field_name'], 'string', 'max' => 100],
-            [['user_name'], 'string', 'max' => 255],
+            [['user_name', 'user_role'], 'string', 'max' => 255],
             [['ip_address'], 'string', 'max' => 45],
             [['comment', 'old_value', 'new_value'], 'string'],
         ];
@@ -79,6 +79,15 @@ class OrderHistory extends ActiveRecord
         $h->user_name  = $user->isGuest ? null : ($user->identity->username ?? null);
         $h->ip_address = Yii::$app->request->userIP ?? null;
         $h->comment    = $comment;
+
+        if (!$user->isGuest) {
+            try {
+                $roles = Yii::$app->authManager->getRolesByUser($user->id);
+                $h->user_role = $roles ? implode(',', array_keys($roles)) : ($user->identity->role ?? null);
+            } catch (\Throwable $e) {
+                $h->user_role = $user->identity->role ?? null;
+            }
+        }
 
         if ($action === 'status_changed') {
             $h->old_status = (string)$oldValue;
