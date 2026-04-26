@@ -156,15 +156,13 @@ $config = [
             'linkAssets' => (defined('YII_ENV_DEV') && YII_ENV_DEV) ? false : true,
         ],
         'user' => [
-            'identityClass' => (defined('YII_ENV') && YII_ENV === 'dev') 
-                ? 'app\backend\modules\admin\models\TemporaryAdminIdentity' 
-                : 'app\backend\modules\admin\models\User',
+            'identityClass' => 'app\backend\modules\admin\models\User',
             'enableAutoLogin' => true,
             'loginUrl' => ['/admin/login'],
             'identityCookie' => [
                 'name' => '_identity-admin',
                 'httpOnly' => true,
-                'secure' => !(defined('YII_ENV') && YII_ENV === 'dev'),
+                'secure' => false,
             ],
         ],
         'errorHandler' => [
