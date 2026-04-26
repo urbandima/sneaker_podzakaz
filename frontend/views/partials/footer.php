@@ -21,20 +21,6 @@ $company = Yii::$app->settings->getCompany();
                         <p class="footer-tagline">Оригинальные кроссовки из США и Европы</p>
                     </div>
 
-                    <div class="footer-badges">
-                        <div class="badge-item">
-                            <i class="bi bi-shield-check"></i>
-                            <span>100% оригинал</span>
-                        </div>
-                        <div class="badge-item">
-                            <i class="bi bi-truck"></i>
-                            <span>Быстрая доставка</span>
-                        </div>
-                        <div class="badge-item">
-                            <i class="bi bi-arrow-repeat"></i>
-                            <span>14 дней возврат</span>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- О компании -->
@@ -81,38 +67,62 @@ $company = Yii::$app->settings->getCompany();
                 <div class="footer-column">
                     <h3 class="footer-title">Контакты</h3>
                     <ul class="footer-contacts">
+                        <?php if (!empty($company['phone'])): ?>
                         <li>
                             <i class="bi bi-telephone"></i>
-                            <a href="tel:+375291234567">+375 (29) 123-45-67</a>
+                            <a href="tel:<?= preg_replace('/[^0-9+]/', '', $company['phone']) ?>">
+                                <?= Html::encode($company['phone']) ?>
+                            </a>
                         </li>
+                        <?php endif; ?>
+                        <?php if (!empty($company['email'])): ?>
                         <li>
                             <i class="bi bi-envelope"></i>
-                            <a href="mailto:info@sneakerhead.by">info@sneakerhead.by</a>
+                            <a href="mailto:<?= Html::encode($company['email']) ?>">
+                                <?= Html::encode($company['email']) ?>
+                            </a>
                         </li>
+                        <?php endif; ?>
+                        <?php if (!empty($company['address'])): ?>
                         <li>
                             <i class="bi bi-geo-alt"></i>
-                            <span>Минск, ул. Купревича 1, корп. 1</span>
+                            <span><?= Html::encode($company['address']) ?></span>
                         </li>
+                        <?php endif; ?>
+                        <?php if (!empty($company['work_time'])): ?>
                         <li>
                             <i class="bi bi-clock"></i>
-                            <span>Пн-Вс: 10:00 - 20:00</span>
+                            <span><?= Html::encode($company['work_time']) ?></span>
                         </li>
+                        <?php endif; ?>
                     </ul>
 
+                    <?php
+                    $s = Yii::$app->settings;
+                    $socialLinks = [
+                        'instagram' => ['icon' => 'bi-instagram', 'label' => 'Instagram'],
+                        'telegram'  => ['icon' => 'bi-telegram',  'label' => 'Telegram'],
+                        'tiktok'    => ['icon' => 'bi-tiktok',    'label' => 'TikTok'],
+                        'youtube'   => ['icon' => 'bi-youtube',   'label' => 'YouTube'],
+                        'vk'        => ['icon' => 'bi-vk',        'label' => 'VK'],
+                    ];
+                    $hasSocial = false;
+                    foreach ($socialLinks as $key => $meta) {
+                        $url = $s->get('social', $key, '');
+                        if (!empty($url) && $url !== '#' && strlen($url) > 5) { $hasSocial = true; break; }
+                    }
+                    if ($hasSocial): ?>
                     <div class="footer-social">
-                        <a href="https://instagram.com" target="_blank" class="social-link" aria-label="Instagram">
-                            <i class="bi bi-instagram"></i>
-                        </a>
-                        <a href="https://t.me" target="_blank" class="social-link" aria-label="Telegram">
-                            <i class="bi bi-telegram"></i>
-                        </a>
-                        <a href="https://tiktok.com" target="_blank" class="social-link" aria-label="TikTok">
-                            <i class="bi bi-tiktok"></i>
-                        </a>
-                        <a href="https://youtube.com" target="_blank" class="social-link" aria-label="YouTube">
-                            <i class="bi bi-youtube"></i>
-                        </a>
+                        <?php foreach ($socialLinks as $key => $meta):
+                            $url = $s->get('social', $key, '');
+                            if (empty($url) || $url === '#' || strlen($url) <= 5) continue; ?>
+                            <a href="<?= Html::encode($url) ?>" target="_blank" rel="noopener noreferrer"
+                               class="social-link" aria-label="<?= $meta['label'] ?>">
+                                <i class="bi <?= $meta['icon'] ?>"></i>
+                            </a>
+                        <?php endforeach; ?>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

@@ -75,7 +75,9 @@ $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam
                 <i class="bi bi-eye"></i>
                 Быстрый просмотр
             </a>
-            <button class="overlay-cart-btn" onclick="quickAddToCart(event, <?= $product->id ?>)" aria-label="Добавить в корзину">
+            <button class="overlay-cart-btn" onclick="quickAddToCart(event, <?= $product->id ?>)"
+                    aria-label="Добавить в корзину"
+                    <?= !$hasPrice ? 'disabled data-disabled="no-price" title="Цена уточняется"' : '' ?>>
                 <i class="bi bi-bag-plus"></i>
             </button>
         </div>
@@ -141,9 +143,15 @@ $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam
         ]) ?>
 
         <!-- Кнопка В корзину -->
+        <?php if ($hasPrice): ?>
         <button class="product-card-add-to-cart" onclick="quickAddToCart(event, <?= $product->id ?>)" aria-label="Добавить в корзину">
             <i class="bi bi-bag-plus"></i> В корзину
         </button>
+        <?php else: ?>
+        <button class="product-card-add-to-cart" disabled data-disabled="no-price" aria-label="Цена уточняется" title="Цена уточняется — добавление недоступно">
+            <i class="bi bi-question-circle"></i> Цена уточняется
+        </button>
+        <?php endif; ?>
 
     </div>
 </article>

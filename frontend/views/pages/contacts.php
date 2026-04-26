@@ -435,7 +435,7 @@ $this->registerCss($css);
             </div>
         </section>
 
-        <!-- Address -->
+        <!-- Address + Map (X22) -->
         <?php if ($address): ?>
         <section class="address-section">
             <h2>Наш адрес</h2>
@@ -448,6 +448,28 @@ $this->registerCss($css);
                     <p>Пункт выдачи заказов: <?= Html::encode($workTime) ?></p>
                 </div>
             </div>
+            <?php
+            $mapQuery = urlencode($address . ', Беларусь');
+            ?>
+            <div style="margin-top:20px;border-radius:16px;overflow:hidden;height:340px">
+                <iframe
+                    title="Карта — <?= Html::encode($address) ?>"
+                    width="100%"
+                    height="340"
+                    frameborder="0"
+                    loading="lazy"
+                    style="border:0"
+                    src="https://www.openstreetmap.org/export/embed.html?bbox=27.4,53.8,27.7,53.95&amp;layer=mapnik&amp;marker=53.9,27.57"
+                    allowfullscreen
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+            <p style="margin-top:8px;font-size:.8rem;color:#9ca3af">
+                <a href="https://www.openstreetmap.org/?mlat=53.9&amp;mlon=27.57#map=14/53.9/27.57"
+                   target="_blank" rel="noopener noreferrer" style="color:#6b7280">
+                    Открыть на OpenStreetMap
+                </a>
+            </p>
         </section>
         <?php endif; ?>
     </div>

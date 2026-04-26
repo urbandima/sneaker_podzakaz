@@ -198,25 +198,40 @@ class CatalogController extends Controller
             ->offset($pagination->offset)
             ->limit($pagination->limit)
             ->all();
-        
+
+        // Infinite scroll / AJAX page load
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $loaded = $pagination->offset + count($products);
+            return [
+                'success' => true,
+                'html' => $this->renderPartial('_products', ['products' => $products]),
+                'page' => $pagination->page,
+                'pageCount' => $pagination->pageCount,
+                'totalCount' => $pagination->totalCount,
+                'loaded' => $loaded,
+                'hasMore' => $pagination->page < $pagination->pageCount - 1,
+            ];
+        }
+
         // Заголовок страницы
         $h1 = 'Каталог товаров';
         if (!empty($currentFilters['brand'])) {
             $brand = Brand::findOne(['slug' => $currentFilters['brand'][0]]);
             $h1 = $brand ? $brand->name : 'Каталог товаров';
         }
-        
+
         // SEO
         $this->registerMetaTags([
             'title' => $h1 . ' | СНИКЕРХЭД',
             'description' => 'Оригинальные кроссовки из США и Европы',
             'keywords' => 'кроссовки, бренды, оригинал',
         ]);
-        
+
         if (YII_ENV_PROD) {
             $this->registerSchemaWebSite();
         }
-        
+
         // Рендерим view
         return $this->render('index', [
             'products' => $products,
@@ -224,7 +239,7 @@ class CatalogController extends Controller
             'h1' => $h1,
             'filters' => $filters,
             'currentFilters' => $currentFilters,
-            'activeFilters' => $currentFilters, // Используем currentFilters вместо activeFilters
+            'activeFilters' => $currentFilters,
             'currentSizeSystem' => $currentSizeSystem,
         ]);
     }
@@ -599,6 +614,21 @@ class CatalogController extends Controller
             }
         }
         
+        // Infinite scroll / AJAX page load for brand & category pages
+        if (Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $loaded = $pagination->offset + count($products);
+            return [
+                'success' => true,
+                'html' => $this->renderPartial('_products', ['products' => $products]),
+                'page' => $pagination->page,
+                'pageCount' => $pagination->pageCount,
+                'totalCount' => $pagination->totalCount,
+                'loaded' => $loaded,
+                'hasMore' => $pagination->page < $pagination->pageCount - 1,
+            ];
+        }
+
         // Рендерим view
         return $this->render('index', [
             'products' => $products,

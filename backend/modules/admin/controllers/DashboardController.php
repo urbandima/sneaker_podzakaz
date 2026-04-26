@@ -72,6 +72,28 @@ class DashboardController extends BaseAdminController
             $operationalStats = ['unprocessed2h' => 0, 'delayed3d' => 0, 'awaitingPoizon' => 0];
         }
 
+        // X9: Products without category
+        try {
+            $productsNoCategoryCount = \app\backend\modules\catalog\models\Product::find()
+                ->where(['is_active' => true])
+                ->andWhere(['category_id' => null])
+                ->count();
+        } catch (\Exception $e) {
+            $productsNoCategoryCount = 0;
+        }
+
+        // X4: Products where brand_name does not match first word of product name
+        try {
+            $brandMismatchCount = Yii::$app->db->createCommand(
+                "SELECT COUNT(*) FROM `product`
+                 WHERE is_active = 1
+                   AND brand_name IS NOT NULL AND brand_name != ''
+                   AND LOWER(name) NOT LIKE CONCAT(LOWER(brand_name), '%')"
+            )->queryScalar();
+        } catch (\Exception $e) {
+            $brandMismatchCount = 0;
+        }
+
         // Conversion funnel
         try {
             $funnelData = $this->getFunnelData();
@@ -90,22 +112,78 @@ class DashboardController extends BaseAdminController
         $abandonedCarts = $this->getAbandonedCartCount();
 
         return $this->render('index', [
-            'user' => $user,
-            'orderStats' => $orderStats,
-            'productStats' => $productStats,
-            'userStats' => $userStats,
-            'topProducts' => $topProducts,
-            'activeLogists' => $activeLogists,
-            'chartData' => $chartData,
-            'companySettings' => $companySettings,
-            'demoMode' => $demoMode,
-            'operationalStats' => $operationalStats,
-            'funnelData' => $funnelData,
-            'currencyInfo' => $currencyInfo,
-            'abandonedCarts' => $abandonedCarts,
+            'user'                     => $user,
+            'orderStats'               => $orderStats,
+            'productStats'             => $productStats,
+            'userStats'                => $userStats,
+            'topProducts'              => $topProducts,
+            'activeLogists'            => $activeLogists,
+            'chartData'                => $chartData,
+            'companySettings'          => $companySettings,
+            'demoMode'                 => $demoMode,
+            'operationalStats'         => $operationalStats,
+            'funnelData'               => $funnelData,
+            'currencyInfo'             => $currencyInfo,
+            'abandonedCarts'           => $abandonedCarts,
+            'productsNoCategoryCount'  => (int)$productsNoCategoryCount,
+            'brandMismatchCount'       => (int)$brandMismatchCount,
         ]);
     }
     
+    /**
+     * X5: Batch image health check — scans brand logos and category images for missing files.
+     * Returns JSON with lists of broken entries.
+     */
+    public function actionImageHealth()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $webroot = Yii::getAlias('@webroot');
+        $broken = ['brands' => [], 'categories' => []];
+
+        $brands = \app\backend\modules\catalog\models\Brand::find()
+            ->where(['is_active' => 1])
+            ->andWhere(['IS NOT', 'logo', null])
+            ->andWhere(['!=', 'logo', ''])
+            ->all();
+
+        foreach ($brands as $brand) {
+            $path = $brand->logo;
+            // Skip external URLs — can't check them on disk
+            if (strpos($path, 'http') === 0) {
+                continue;
+            }
+            $full = $webroot . '/' . ltrim($path, '/');
+            if (!file_exists($full)) {
+                $broken['brands'][] = ['id' => $brand->id, 'name' => $brand->name, 'logo' => $path];
+            }
+        }
+
+        $categories = \app\backend\modules\catalog\models\Category::find()
+            ->where(['is_active' => 1])
+            ->andWhere(['IS NOT', 'image', null])
+            ->andWhere(['!=', 'image', ''])
+            ->all();
+
+        foreach ($categories as $cat) {
+            $path = $cat->image;
+            if (strpos($path, 'http') === 0) {
+                continue;
+            }
+            $full = $webroot . '/' . ltrim($path, '/');
+            if (!file_exists($full)) {
+                $broken['categories'][] = ['id' => $cat->id, 'name' => $cat->name, 'image' => $path];
+            }
+        }
+
+        return [
+            'success'      => true,
+            'broken_brands'      => count($broken['brands']),
+            'broken_categories'  => count($broken['categories']),
+            'details'            => $broken,
+        ];
+    }
+
     /**
      * Получение статистики заказов
      */

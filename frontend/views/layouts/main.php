@@ -52,6 +52,28 @@ $company = Yii::$app->settings->getCompany();
 <body data-is-guest="<?= Yii::$app->session->get('customer_id') ? '0' : '1' ?>">
 <?php $this->beginBody() ?>
 
+<!-- Admin toolbar (X20: visible only to authenticated admins) -->
+<?php if (!Yii::$app->user->isGuest && (Yii::$app->user->identity->isAdmin ?? false)): ?>
+<div class="admin-toolbar" style="background:#1e293b;color:#fff;padding:6px 16px;font-size:13px;display:flex;align-items:center;gap:12px;z-index:9999;position:relative">
+    <span><i class="bi bi-shield-fill-check"></i> Режим администратора</span>
+    <a href="/admin" style="color:#60a5fa;text-decoration:none">Панель управления</a>
+    <?php
+    $editUrl = null;
+    $pathInfo = Yii::$app->request->pathInfo;
+    if (str_starts_with($pathInfo, 'catalog/')) {
+        preg_match('/catalog\/[^\/]+\/([^\/]+)$/', $pathInfo, $m);
+        $slug = $m[1] ?? null;
+        if ($slug) {
+            $prod = \app\backend\modules\catalog\models\Product::find()->where(['slug' => $slug])->select(['id'])->scalar();
+            if ($prod) $editUrl = '/admin/catalog/product/update?id=' . $prod;
+        }
+    }
+    if ($editUrl): ?>
+        <a href="<?= $editUrl ?>" style="color:#86efac;text-decoration:none"><i class="bi bi-pencil-square"></i> Редактировать товар</a>
+    <?php endif; ?>
+</div>
+<?php endif; ?>
+
 <!-- Skip to main content (a11y) -->
 <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
 

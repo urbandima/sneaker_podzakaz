@@ -49,6 +49,12 @@ function initializeFavorites() {
 
 function markGuestFavoriteButtons() {
     var list = getGuestList();
+    // Reset all first so empty localStorage means all unfavorited (X21)
+    document.querySelectorAll('.btn-favorite, .fav-btn').forEach(function (btn) {
+        btn.classList.remove('active');
+        var icon = btn.querySelector('i');
+        if (icon) icon.className = 'bi bi-heart';
+    });
     document.querySelectorAll('.btn-favorite, .fav-btn').forEach(function (btn) {
         var id = String(btn.dataset.productId || '');
         if (id && list.indexOf(id) !== -1) {

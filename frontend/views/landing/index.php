@@ -222,54 +222,43 @@ $brands = $brands ?? [];
 </section>
 
 <!-- Reviews Section -->
+<?php if (!empty($siteReviews) && count($siteReviews) >= 3): ?>
 <section class="reviews-section">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">Отзывы покупателей <span>4.9 <i class="bi bi-star-fill"></i></span></h2>
+            <h2 class="section-title">Отзывы покупателей</h2>
         </div>
         <div class="reviews-grid">
+            <?php foreach ($siteReviews as $review): ?>
+            <?php
+                $rawName = $review->user->name ?? 'Покупатель';
+                $authorName = \yii\helpers\Html::encode($rawName);
+                $words = array_filter(explode(' ', $rawName));
+                $initials = mb_strtoupper(implode('', array_map(fn($w) => mb_substr($w, 0, 1), array_slice($words, 0, 2))));
+                $ts = is_int($review->created_at) ? $review->created_at : (is_string($review->created_at) ? strtotime($review->created_at) : 0);
+                $date = $ts > 0 ? date('j.m.Y', $ts) : '';
+                $rating = min(5, max(1, (int)($review->rating ?? 5)));
+            ?>
             <div class="review-card">
                 <div class="review-header">
-                    <div class="review-avatar">АВ</div>
+                    <div class="review-avatar"><?= $initials ?: 'П' ?></div>
                     <div class="review-meta">
-                        <div class="review-author">Александр В.</div>
-                        <div class="review-city">Минск • 12 марта 2026</div>
+                        <div class="review-author"><?= $authorName ?></div>
+                        <?php if ($date): ?><div class="review-city"><?= $date ?></div><?php endif; ?>
                     </div>
                 </div>
                 <div class="review-rating">
-                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                    <i class="bi <?= $i <= $rating ? 'bi-star-fill' : 'bi-star' ?>"></i>
+                    <?php endfor; ?>
                 </div>
-                <p class="review-text">Отличные кроссовки, 100% оригинал. Доставили на следующий день после заказа. Буду заказывать еще!</p>
+                <p class="review-text"><?= \yii\helpers\Html::encode($review->content ?? '') ?></p>
             </div>
-            <div class="review-card">
-                <div class="review-header">
-                    <div class="review-avatar">МС</div>
-                    <div class="review-meta">
-                        <div class="review-author">Мария С.</div>
-                        <div class="review-city">Гомель • 5 марта 2026</div>
-                    </div>
-                </div>
-                <div class="review-rating">
-                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                </div>
-                <p class="review-text">Долго искала эту модель Nike. Спасибо магазину за быструю доставку и приятную скидку!</p>
-            </div>
-            <div class="review-card">
-                <div class="review-header">
-                    <div class="review-avatar">ДК</div>
-                    <div class="review-meta">
-                        <div class="review-author">Дмитрий К.</div>
-                        <div class="review-city">Брест • 28 февраля 2026</div>
-                    </div>
-                </div>
-                <div class="review-rating">
-                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                </div>
-                <p class="review-text">Отличный сервис, помогли подобрать правильный размер. Качество на высоте.</p>
-            </div>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- Instagram Section -->
 <section class="instagram-section">

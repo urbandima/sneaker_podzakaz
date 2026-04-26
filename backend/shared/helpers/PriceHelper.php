@@ -2,28 +2,33 @@
 
 namespace app\backend\shared\helpers;
 
+/**
+ * Unified price formatting helper (X12).
+ * Single source of truth for "259.00 BYN" display format across the site.
+ */
 class PriceHelper
 {
+    public const CURRENCY = 'BYN';
+
     /**
-     * Format price as "349.00 BYN".
-     * Hides zero values as "—" by default.
+     * Format a price value as "259.00 BYN".
      */
-    public static function format($amount, string $currency = 'BYN', bool $hideZero = false): string
+    public static function format(?float $price, int $decimals = 2): string
     {
-        $amount = (float)$amount;
-        if ($hideZero && $amount == 0) {
-            return '—';
+        if ($price === null || $price < 0) {
+            return 'Цена уточняется';
         }
-        return number_format($amount, 2, '.', ' ') . ' ' . $currency;
+        return number_format($price, $decimals, '.', ' ') . ' ' . self::CURRENCY;
     }
 
     /**
-     * Format CNY price as "¥349.00".
+     * Format as integer when .00 is not needed, e.g. "259 BYN".
      */
-    public static function cny($amount): string
+    public static function formatInt(?float $price): string
     {
-        $amount = (float)$amount;
-        if ($amount == 0) return '—';
-        return '¥' . number_format($amount, 2);
+        if ($price === null || $price < 0) {
+            return 'Цена уточняется';
+        }
+        return number_format($price, 0, '.', ' ') . ' ' . self::CURRENCY;
     }
 }

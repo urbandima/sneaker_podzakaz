@@ -1,24 +1,5 @@
 <?php
 
-/**
- * SearchController — Контроллер поиска товаров
- * 
- * НАЗНАЧЕНИЕ:
- * Отдельный контроллер для поиска товаров в каталоге.
- * Вынесен из CatalogController для лучшей организации кода.
- * 
- * ФУНКЦИИ:
- * - Страница результатов поиска (index)
- * - AJAX поиск для автодополнения (ajax)
- * - Поиск по тегам (tag)
- * - Живой поиск в шапке (live)
- * 
- * СВЯЗИ:
- * - Product (модель товара)
- * - ProductTag (модель тега)
- * - SearchService (сервис поиска)
- */
-
 namespace app\backend\modules\catalog\controllers;
 
 use Yii;
@@ -35,123 +16,157 @@ class SearchController extends Controller
 
     public function getViewPath(): string
     {
-        return \Yii::getAlias('@frontend/views/catalog');
+        return Yii::getAlias('@frontend/views/catalog');
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function behaviors()
-    {
-        return [
-            [
-                'class' => \yii\filters\PageCache::class,
-                'only' => ['index'],
-                'duration' => 60,
-                'variations' => [
-                    Yii::$app->request->get('q'),
-                    Yii::$app->request->get('page'),
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * Страница результатов поиска
-     * URL: /search?q=query
+     * Страница результатов поиска с FULLTEXT поиском, фасетами, логированием, <mark>-подсветкой.
+     * URL: /search?q=query[&brand[]=&category[]=&price_from=&price_to=&sort=]
      */
     public function actionIndex()
     {
-        $query = Yii::$app->request->get('q', '');
-        $tagSlug = Yii::$app->request->get('tag', '');
-        
+        $q           = trim(Yii::$app->request->get('q', ''));
+        $tagSlug     = Yii::$app->request->get('tag', '');
+        $sort        = Yii::$app->request->get('sort', 'relevance');
+        $brandIds    = array_filter(array_map('intval', (array)Yii::$app->request->get('brand', [])));
+        $categoryIds = array_filter(array_map('intval', (array)Yii::$app->request->get('category', [])));
+        $priceFrom   = Yii::$app->request->get('price_from');
+        $priceTo     = Yii::$app->request->get('price_to');
+
         $productQuery = Product::find()
             ->where(['is_active' => true])
-            ->with(['images', 'sizes', 'brand', 'category']);
+            ->with(['images', 'brand', 'category']);
 
-        // Поиск по тексту
-        if (!empty($query)) {
-            $productQuery->andWhere([
-                'or',
-                ['like', 'name', $query],
-                ['like', 'description', $query],
-                ['like', 'brand_name', $query],
-                ['like', 'sku', $query],
-                ['like', 'model_name', $query],
-            ]);
+        // FULLTEXT search with LIKE fallback
+        $useFulltext = false;
+        if (!empty($q) && strlen($q) >= 2) {
+            $useFulltext = $this->tryFulltext($productQuery, $q, $sort);
+            if (!$useFulltext) {
+                $this->applyLikeSearch($productQuery, $q);
+            }
         }
 
-        // Фильтрация по тегу
+        // Tag filter
         $currentTag = null;
         if (!empty($tagSlug)) {
             $currentTag = ProductTag::findBySlug($tagSlug);
             if ($currentTag) {
-                $productIds = ProductTagAssignment::getProductIdsByTag($currentTag->id);
-                $productQuery->andWhere(['id' => $productIds]);
+                $ids = ProductTagAssignment::getProductIdsByTag($currentTag->id);
+                $productQuery->andWhere(['product.id' => $ids]);
             }
         }
 
-        // Сортировка
-        $sort = Yii::$app->request->get('sort', 'relevance');
-        switch ($sort) {
-            case 'price_asc':
-                $productQuery->orderBy(['price' => SORT_ASC]);
-                break;
-            case 'price_desc':
-                $productQuery->orderBy(['price' => SORT_DESC]);
-                break;
-            case 'new':
-                $productQuery->orderBy(['created_at' => SORT_DESC]);
-                break;
-            case 'popular':
-                $productQuery->orderBy(['views_count' => SORT_DESC]);
-                break;
-            default:
-                // relevance - сортировка по релевантности (умолчанию по ID)
-                $productQuery->orderBy(['id' => SORT_DESC]);
+        // Facet filters
+        if (!empty($brandIds)) {
+            $productQuery->andWhere(['brand_id' => $brandIds]);
+        }
+        if (!empty($categoryIds)) {
+            $productQuery->andWhere(['category_id' => $categoryIds]);
+        }
+        if ($priceFrom !== null && $priceFrom !== '') {
+            $productQuery->andWhere(['>=', 'price', (float)$priceFrom]);
+        }
+        if ($priceTo !== null && $priceTo !== '') {
+            $productQuery->andWhere(['<=', 'price', (float)$priceTo]);
         }
 
-        // Пагинация
+        // Sort (when not using FULLTEXT relevance ordering)
+        if (!$useFulltext || $sort !== 'relevance') {
+            switch ($sort) {
+                case 'price_asc':
+                    $productQuery->orderBy(['price' => SORT_ASC]);
+                    break;
+                case 'price_desc':
+                    $productQuery->orderBy(['price' => SORT_DESC]);
+                    break;
+                case 'new':
+                    $productQuery->orderBy(['created_at' => SORT_DESC]);
+                    break;
+                case 'popular':
+                    $productQuery->orderBy(['views_count' => SORT_DESC]);
+                    break;
+                default:
+                    if (!$useFulltext) {
+                        $productQuery->orderBy(['views_count' => SORT_DESC, 'id' => SORT_DESC]);
+                    }
+            }
+        }
+
+        $totalCount = $productQuery->count();
+
+        // Log the search query
+        if (!empty($q)) {
+            $this->logSearch($q, (int)$totalCount);
+        }
+
         $pagination = new Pagination([
             'defaultPageSize' => 24,
-            'pageSizeLimit' => [1, 48],
-            'totalCount' => $productQuery->count(),
+            'pageSizeLimit'   => [1, 48],
+            'totalCount'      => $totalCount,
         ]);
 
-        $products = $productQuery->offset($pagination->offset)
+        $products = $productQuery
+            ->offset($pagination->offset)
             ->limit($pagination->limit)
             ->all();
 
-        // Популярные теги для боковой панели
+        // <mark>-highlight for display
+        $highlightedNames = [];
+        if (!empty($q)) {
+            foreach ($products as $product) {
+                $highlightedNames[$product->id] = $this->highlight($product->name, $q);
+            }
+        }
+
+        // Levenshtein suggestion when no results
+        $suggestion = null;
+        if ($totalCount === 0 && !empty($q)) {
+            $suggestion = $this->getLevenshteinSuggestion($q);
+        }
+
+        // Facet data for sidebar
+        $facets = $this->buildFacets($q, $tagSlug);
+
+        // Popular tags for sidebar
         $popularTags = ProductTag::find()
             ->where(['is_active' => true])
             ->orderBy(['sort_order' => SORT_ASC])
             ->limit(20)
             ->all();
 
-        return $this->render('index', [
-            'products' => $products,
-            'pagination' => $pagination,
-            'query' => $query,
-            'currentTag' => $currentTag,
-            'popularTags' => $popularTags,
-            'sort' => $sort,
-            'totalCount' => $pagination->totalCount,
+        // Popular searches from search_log
+        $popularSearches = $this->getPopularSearches();
+
+        return $this->render('search/index', [
+            'products'         => $products,
+            'pagination'       => $pagination,
+            'query'            => $q,
+            'currentTag'       => $currentTag,
+            'popularTags'      => $popularTags,
+            'sort'             => $sort,
+            'totalCount'       => $totalCount,
+            'highlightedNames' => $highlightedNames,
+            'suggestion'       => $suggestion,
+            'facets'           => $facets,
+            'currentBrandIds'  => $brandIds,
+            'currentCatIds'    => $categoryIds,
+            'priceFrom'        => $priceFrom,
+            'priceTo'          => $priceTo,
+            'popularSearches'  => $popularSearches,
         ]);
     }
 
     /**
-     * AJAX поиск для автодополнения
-     * URL: /search/ajax?q=query
+     * AJAX autocomplete
      */
     public function actionAjax()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
-        $query = Yii::$app->request->get('q', '');
+
+        $q     = Yii::$app->request->get('q', '');
         $limit = min((int)Yii::$app->request->get('limit', 5), 10);
 
-        if (empty($query) || strlen($query) < 2) {
+        if (empty($q) || strlen($q) < 2) {
             return ['results' => [], 'total' => 0];
         }
 
@@ -160,67 +175,58 @@ class SearchController extends Controller
             ->where(['is_active' => true])
             ->andWhere([
                 'or',
-                ['like', 'name', $query],
-                ['like', 'sku', $query],
-                ['like', 'brand_name', $query],
-                ['like', 'model_name', $query],
+                ['like', 'name', $q],
+                ['like', 'sku', $q],
+                ['like', 'brand_name', $q],
+                ['like', 'model_name', $q],
             ])
             ->orderBy(['views_count' => SORT_DESC])
             ->limit($limit)
             ->asArray()
             ->all();
 
-        // Форматируем результаты
-        $results = array_map(function($product) {
+        $results = array_map(function ($p) {
             return [
-                'id' => $product['id'],
-                'name' => $product['name'],
-                'slug' => $product['slug'],
-                'price' => $product['price'],
-                'image' => $product['main_image_url'],
-                'brand' => $product['brand_name'],
-                'url' => Yii::$app->urlManager->createUrl(['/catalog/catalog/product', 'slug' => $product['slug']]),
+                'id'    => $p['id'],
+                'name'  => $p['name'],
+                'slug'  => $p['slug'],
+                'price' => $p['price'],
+                'image' => $p['main_image_url'],
+                'brand' => $p['brand_name'],
+                'url'   => Yii::$app->urlManager->createUrl(['/catalog/catalog/product', 'slug' => $p['slug']]),
             ];
         }, $products);
 
-        return [
-            'results' => $results,
-            'total' => count($results),
-            'query' => $query,
-        ];
+        return ['results' => $results, 'total' => count($results), 'query' => $q];
     }
 
     /**
-     * Поиск по тегу
-     * URL: /search/tag/{slug}
+     * Browse by tag
      */
     public function actionTag($slug)
     {
         $tag = ProductTag::findBySlug($slug);
-        
         if (!$tag) {
             throw new \yii\web\NotFoundHttpException('Тег не найден');
         }
 
-        $productIds = ProductTagAssignment::getProductIdsByTag($tag->id);
-        
+        $ids   = ProductTagAssignment::getProductIdsByTag($tag->id);
         $query = Product::find()
-            ->where(['id' => $productIds, 'is_active' => true])
-            ->with(['images', 'sizes', 'brand']);
+            ->where(['id' => $ids, 'is_active' => true])
+            ->with(['images', 'brand']);
 
-        // Пагинация
         $pagination = new Pagination([
             'defaultPageSize' => 24,
-            'pageSizeLimit' => [1, 48],
-            'totalCount' => $query->count(),
+            'pageSizeLimit'   => [1, 48],
+            'totalCount'      => $query->count(),
         ]);
 
-        $products = $query->offset($pagination->offset)
+        $products = $query
+            ->offset($pagination->offset)
             ->limit($pagination->limit)
             ->orderBy(['created_at' => SORT_DESC])
             ->all();
 
-        // Другие теги
         $relatedTags = ProductTag::find()
             ->where(['is_active' => true])
             ->andWhere(['!=', 'id', $tag->id])
@@ -228,26 +234,24 @@ class SearchController extends Controller
             ->limit(15)
             ->all();
 
-        return $this->render('tag', [
-            'tag' => $tag,
-            'products' => $products,
-            'pagination' => $pagination,
+        return $this->render('search/tag', [
+            'tag'         => $tag,
+            'products'    => $products,
+            'pagination'  => $pagination,
             'relatedTags' => $relatedTags,
-            'totalCount' => $pagination->totalCount,
+            'totalCount'  => $pagination->totalCount,
         ]);
     }
 
     /**
-     * Живой поиск для шапки сайта
-     * URL: /search/live?q=query
+     * Live search header dropdown
      */
     public function actionLive()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
-        $query = Yii::$app->request->get('q', '');
-        
-        if (empty($query) || strlen($query) < 2) {
+
+        $q = Yii::$app->request->get('q', '');
+        if (empty($q) || strlen($q) < 2) {
             return ['html' => '', 'count' => 0];
         }
 
@@ -255,60 +259,207 @@ class SearchController extends Controller
             ->where(['is_active' => true])
             ->andWhere([
                 'or',
-                ['like', 'name', $query],
-                ['like', 'sku', $query],
-                ['like', 'brand_name', $query],
+                ['like', 'name', $q],
+                ['like', 'sku', $q],
+                ['like', 'brand_name', $q],
             ])
             ->orderBy(['views_count' => SORT_DESC])
             ->limit(8)
             ->all();
 
-        $html = $this->renderPartial('_search-results', [
+        $html = $this->renderPartial('search/_search-results', [
             'products' => $products,
-            'query' => $query,
+            'query'    => $q,
         ]);
 
-        return [
-            'html' => $html,
-            'count' => count($products),
-            'query' => $query,
-        ];
+        return ['html' => $html, 'count' => count($products), 'query' => $q];
     }
 
     /**
-     * Подсказки для поиска (suggestions)
-     * URL: /search/suggestions?q=query
+     * Suggestions endpoint
      */
     public function actionSuggestions()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
-        $query = Yii::$app->request->get('q', '');
-        
-        if (empty($query) || strlen($query) < 2) {
-            return ['suggestions' => []];
+
+        $q = Yii::$app->request->get('q', '');
+        if (empty($q) || strlen($q) < 2) {
+            return ['suggestions' => [], 'popular' => $this->getPopularSearches(5)];
         }
 
-        // Поиск товаров для подсказок
         $products = Product::find()
             ->select(['name'])
             ->where(['is_active' => true])
-            ->andWhere(['like', 'name', $query])
+            ->andWhere(['like', 'name', $q])
             ->orderBy(['views_count' => SORT_DESC])
             ->limit(5)
             ->column();
 
-        // Поиск тегов для подсказок
         $tags = ProductTag::find()
             ->select(['name'])
             ->where(['is_active' => true])
-            ->andWhere(['like', 'name', $query])
+            ->andWhere(['like', 'name', $q])
             ->limit(3)
             ->column();
 
-        // Объединяем и убираем дубликаты
-        $suggestions = array_unique(array_merge($products, $tags));
+        $suggestions = array_values(array_unique(array_merge($products, $tags)));
 
-        return ['suggestions' => array_values($suggestions)];
+        return ['suggestions' => $suggestions, 'popular' => $this->getPopularSearches(5)];
+    }
+
+    // -------------------------------------------------------------------------
+    // Private helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Try FULLTEXT MATCH AGAINST. Returns true if query was applied, false if index unavailable.
+     */
+    private function tryFulltext(\yii\db\ActiveQuery $query, string $q, string $sort): bool
+    {
+        try {
+            $escaped = Yii::$app->db->quoteValue('+' . implode('* +', preg_split('/\s+/', trim($q))) . '*');
+            $relevanceExpr = "MATCH(`name`, `description`, `brand_name`, `model_name`) AGAINST({$escaped} IN BOOLEAN MODE)";
+            $query->addSelect(['product.*', new \yii\db\Expression("{$relevanceExpr} AS relevance_score")]);
+            $query->andWhere(new \yii\db\Expression("{$relevanceExpr} > 0"));
+            if ($sort === 'relevance') {
+                $query->orderBy(['relevance_score' => SORT_DESC, 'views_count' => SORT_DESC]);
+            }
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    private function applyLikeSearch(\yii\db\ActiveQuery $query, string $q): void
+    {
+        $query->andWhere([
+            'or',
+            ['like', 'name', $q],
+            ['like', 'description', $q],
+            ['like', 'brand_name', $q],
+            ['like', 'model_name', $q],
+        ]);
+    }
+
+    /**
+     * Wrap query terms in <mark> tags for display.
+     */
+    private function highlight(string $text, string $q): string
+    {
+        $words   = preg_split('/\s+/', trim($q));
+        $pattern = implode('|', array_map(fn($w) => preg_quote($w, '/'), $words));
+        return preg_replace("/({$pattern})/ui", '<mark>$1</mark>', htmlspecialchars($text, ENT_QUOTES, 'UTF-8'));
+    }
+
+    /**
+     * Find closest product name via Levenshtein distance.
+     */
+    private function getLevenshteinSuggestion(string $q): ?string
+    {
+        $names = Product::find()
+            ->select(['name'])
+            ->where(['is_active' => true])
+            ->limit(500)
+            ->column();
+
+        $best      = null;
+        $bestScore = PHP_INT_MAX;
+        $qLower    = mb_strtolower($q);
+
+        foreach ($names as $name) {
+            $nameLower = mb_strtolower($name);
+            // Compare first word to query for speed
+            $firstWord = explode(' ', $nameLower)[0];
+            $dist      = levenshtein($qLower, $firstWord);
+            if ($dist < $bestScore && $dist <= max(2, intval(strlen($q) / 4))) {
+                $bestScore = $dist;
+                $best      = $name;
+            }
+        }
+
+        return $best;
+    }
+
+    /**
+     * Build facet counts for brand and category filters.
+     */
+    private function buildFacets(string $q, string $tagSlug): array
+    {
+        $base = Product::find()->select(['brand_id', 'category_id'])->where(['is_active' => true]);
+        if (!empty($q)) {
+            try {
+                $escaped = Yii::$app->db->quoteValue('+' . implode('* +', preg_split('/\s+/', trim($q))) . '*');
+                $expr    = "MATCH(`name`, `description`, `brand_name`, `model_name`) AGAINST({$escaped} IN BOOLEAN MODE)";
+                $base->andWhere(new \yii\db\Expression("{$expr} > 0"));
+            } catch (\Exception $e) {
+                $base->andWhere(['or', ['like', 'name', $q], ['like', 'brand_name', $q]]);
+            }
+        }
+
+        // Brand facets
+        $brandRows = (clone $base)
+            ->select(['brand_id', 'brand_name', 'COUNT(*) AS cnt'])
+            ->groupBy(['brand_id'])
+            ->asArray()
+            ->all();
+
+        // Category facets
+        $catRows = (clone $base)
+            ->select(['category_id', 'category_name', 'COUNT(*) AS cnt'])
+            ->groupBy(['category_id'])
+            ->asArray()
+            ->all();
+
+        // Price range
+        $priceRow = (clone $base)
+            ->select(['MIN(price) AS min_price', 'MAX(price) AS max_price'])
+            ->asArray()
+            ->one();
+
+        return [
+            'brands'     => $brandRows,
+            'categories' => $catRows,
+            'priceMin'   => (float)($priceRow['min_price'] ?? 0),
+            'priceMax'   => (float)($priceRow['max_price'] ?? 100000),
+        ];
+    }
+
+    /**
+     * Log a search query to search_log table.
+     */
+    private function logSearch(string $q, int $resultsCount): void
+    {
+        try {
+            Yii::$app->db->createCommand()->insert('search_log', [
+                'query'         => mb_substr($q, 0, 255),
+                'results_count' => $resultsCount,
+                'user_id'       => Yii::$app->user->isGuest ? null : Yii::$app->user->id,
+                'session_id'    => substr(Yii::$app->session->getId(), 0, 64),
+                'ip'            => Yii::$app->request->userIP,
+                'created_at'    => time(),
+            ])->execute();
+        } catch (\Exception $e) {
+            // Table may not exist yet — fail silently
+        }
+    }
+
+    /**
+     * Popular search queries from search_log (last 7 days).
+     */
+    private function getPopularSearches(int $limit = 8): array
+    {
+        try {
+            return Yii::$app->db->createCommand(
+                'SELECT query, COUNT(*) AS cnt
+                 FROM search_log
+                 WHERE created_at >= :since AND results_count > 0
+                 GROUP BY query
+                 ORDER BY cnt DESC
+                 LIMIT :lim',
+                [':since' => time() - 7 * 86400, ':lim' => $limit]
+            )->queryAll();
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 }

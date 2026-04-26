@@ -49,7 +49,7 @@ $galleryPlaceholderSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" he
 $galleryPlaceholderDataUri = 'data:image/svg+xml;base64,' . base64_encode($galleryPlaceholderSvg);
 
 $galleryImages = [];
-$_seenImageUrls = [];
+$seenGalleryUrls = [];
 if (!empty($product->images)) {
     foreach ($product->images as $img) {
         $url = $img->getUrl();
@@ -57,10 +57,10 @@ if (!empty($product->images)) {
             continue;
         }
         $webpUrl = ImageHelper::getWebpUrl($url);
-        if (isset($_seenImageUrls[$webpUrl])) {
+        if (isset($seenGalleryUrls[$webpUrl])) {
             continue;
         }
-        $_seenImageUrls[$webpUrl] = true;
+        $seenGalleryUrls[$webpUrl] = true;
         $galleryImages[] = [
             'url' => $webpUrl,
             'alt' => $product->name . ' — фото ' . (count($galleryImages) + 1),
@@ -392,7 +392,7 @@ $this->registerJsVar('productVideo', $productVideo);
             <!-- Выбор размера -->
             <div class="size-selector-section">
                 <div class="size-header">
-                    <h3>Выберите размер</h3>
+                    <h3>Выберите размер <span class="size-system-label-badge" title="Система размеров">EU</span></h3>
                     <button type="button" class="size-guide-btn" onclick="openSizeGuide()">
                         <i class="bi bi-rulers"></i>
                         Таблица размеров
@@ -425,20 +425,30 @@ $this->registerJsVar('productVideo', $productVideo);
 
             <!-- Кнопки покупки -->
             <div class="purchase-actions">
+<<<<<<< HEAD
                 <button type="button" 
+=======
+                <?php if ($product->price > 0): ?>
+                <button type="button"
+>>>>>>> origin/claude/compassionate-ptolemy-7e1174
                         class="btn btn-primary btn-large add-to-cart-btn"
                         onclick="addToCart()"
                         id="addToCartBtn">
                     <i class="bi bi-cart-plus"></i>
                     <span>Добавить в корзину</span>
                 </button>
+<<<<<<< HEAD
 
                 <button type="button" 
+=======
+                <button type="button"
+>>>>>>> origin/claude/compassionate-ptolemy-7e1174
                         class="btn btn-secondary btn-large buy-one-click-btn"
                         onclick="openOneClickModal()">
                     <i class="bi bi-lightning"></i>
                     <span>Купить в 1 клик</span>
                 </button>
+<<<<<<< HEAD
             </div>
 
             <!-- Описание товара -->
@@ -451,6 +461,18 @@ $this->registerJsVar('productVideo', $productVideo);
                 </div>
             <?php endif; ?>
 
+=======
+                <?php else: ?>
+                <button type="button"
+                        class="btn btn-outline btn-large"
+                        onclick="openOneClickModal()">
+                    <i class="bi bi-envelope"></i>
+                    <span>Цена по запросу — оставить заявку</span>
+                </button>
+                <?php endif; ?>
+            </div>
+
+>>>>>>> origin/claude/compassionate-ptolemy-7e1174
         </div>
     </div>
 

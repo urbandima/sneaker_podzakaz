@@ -54,45 +54,71 @@ setTimeout(function() {
     }
 }, 200);
 
-// Load More Logic
-function loadMoreProducts() {
-    const btn = document.getElementById('btnLoadMore');
-    if (!btn) return;
-    
-    let currentPage = parseInt(btn.dataset.page);
-    let totalPages = parseInt(btn.dataset.total);
-    
-    if (currentPage >= totalPages) return;
-    
-    const nextPage = currentPage + 1;
-    btn.innerHTML = '<i class=\"bi bi-arrow-repeat spinner\"></i> Загрузка...';
-    btn.disabled = true;
-    
-    // Получаем текущий URL и добавляем/меняем параметр page
-    const url = new URL(window.location.href);
-    url.searchParams.set('page', nextPage);
-    
-    fetch(url.toString(), {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success && data.html) {
-            const container = document.getElementById('products');
-            container.insertAdjacentHTML('beforeend', data.html);
-            
-            btn.dataset.page = nextPage;
-            btn.innerHTML = 'Показать ещё';
-            btn.disabled = false;
-            
-            if (nextPage >= totalPages) {
-                btn.style.display = 'none';
+// Infinite Scroll
+(function () {
+    var sentinel = document.getElementById('infiniteScrollSentinel');
+    var loader = document.getElementById('infiniteScrollLoader');
+    var counter = document.getElementById('infiniteScrollCounter');
+    var loadedSpan = document.getElementById('loadedCount');
+    var container = document.getElementById('products');
+
+    if (!sentinel || !container) return;
+
+    var loading = false;
+    var currentPage = parseInt(sentinel.dataset.page) || 0;
+    var totalPages = parseInt(sentinel.dataset.total) || 1;
+    var loadedCount = parseInt(sentinel.dataset.loaded) || 0;
+
+    function fetchNextPage() {
+        if (loading || currentPage >= totalPages - 1) return;
+        loading = true;
+        if (loader) loader.style.display = 'flex';
+
+        var nextPage = currentPage + 1;
+        var url = new URL(window.location.href);
+        url.searchParams.set('page', nextPage);
+
+        fetch(url.toString(), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+            if (data.success && data.html) {
+                container.insertAdjacentHTML('beforeend', data.html);
+                currentPage = data.page;
+                loadedCount += (data.html.match(/class="product-card"/g) || []).length;
+
+                if (loadedSpan) loadedSpan.textContent = loadedCount;
+                if (loader) loader.style.display = 'none';
+
+                // Update URL without reload
+                history.replaceState(null, '', url.toString());
+
+                // Stop sentinel if no more pages
+                if (!data.hasMore) {
+                    observer.disconnect();
+                    if (counter) counter.textContent = 'Загружено все ' + data.totalCount + ' товаров';
+                }
             }
-        }
-    });
-}
+            loading = false;
+        })
+        .catch(function () {
+            loading = false;
+            if (loader) loader.style.display = 'none';
+        });
+    }
+
+    // Trigger at 70% visibility of sentinel (i.e., when 70% of page has scrolled past)
+    var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                fetchNextPage();
+            }
+        });
+    }, { rootMargin: '30% 0px' });
+
+    observer.observe(sentinel);
+})();
 ", \yii\web\View::POS_READY);
 ?>
 
@@ -542,16 +568,20 @@ function loadMoreProducts() {
                     <?= $this->render('_products', ['products' => $products]) ?>
                 </div>
 
-                <!-- Load More Button -->
-                <?php if ($pagination->pageCount > 1 && $pagination->page < $pagination->pageCount - 1): ?>
-                <div class="load-more-container">
-                    <button type="button" class="btn btn-secondary btn-load-more" 
-                            id="btnLoadMore"
-                            data-page="<?= $pagination->page ?>" 
-                            data-total="<?= $pagination->pageCount ?>"
-                            onclick="loadMoreProducts()">
-                        Показать ещё
-                    </button>
+                <!-- Infinite Scroll: sentinel + loader + counter -->
+                <div id="infiniteScrollSentinel" class="infinite-scroll-sentinel"
+                     data-page="<?= $pagination->page ?>"
+                     data-total="<?= $pagination->pageCount ?>"
+                     data-loaded="<?= count($products) ?>"
+                     data-grand-total="<?= $pagination->totalCount ?>">
+                </div>
+                <div id="infiniteScrollLoader" class="infinite-scroll-loader" style="display:none">
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                    Загружаем товары…
+                </div>
+                <?php if ($pagination->totalCount > count($products)): ?>
+                <div id="infiniteScrollCounter" class="infinite-scroll-counter">
+                    Загружено <span id="loadedCount"><?= count($products) ?></span> из <?= $pagination->totalCount ?>
                 </div>
                 <?php endif; ?>
                 
@@ -626,7 +656,7 @@ if (isCrawler()) {
                 <div class="qv-sizes" id="qvSizes"></div>
                 <div class="qv-colors" id="qvColors"></div>
                 <button type="button" class="btn-order" onclick="addToCart()"><i class="bi bi-cart-plus"></i> В корзину</button>
-                <a href="#" id="qvLink" class="qv-full">Подробнее →</a>
+                <a href="#" id="qvLink" class="qv-full btn btn-outline-secondary btn-sm mt-2">Открыть страницу товара</a>
             </div>
         </div>
     </div>

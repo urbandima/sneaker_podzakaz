@@ -1,6 +1,7 @@
 <?php
 /* @var $this yii\web\View */
 /* @var $popularProducts array */
+/* @var int $productCount */
 
 use yii\helpers\Html;
 
@@ -11,15 +12,15 @@ $this->title = 'Купить оригинальные кроссовки в Бе
 <section class="hero-section">
     <div class="hero-content">
         <div class="hero-text">
-            <h1>Оригинальные кроссовки в Беларуси</h1>
-            <p>100% подлинность Nike, Adidas, Jordan. Доставка по всей Беларуси.</p>
+            <h1>Оригинальные товары: обувь и одежда</h1>
+            <p>100% подлинность Nike, Adidas, Jordan и других брендов. Доставка по всей Беларуси.</p>
             <div class="hero-actions">
                 <a href="/catalog" class="btn btn-primary btn-hero-primary">Перейти в каталог</a>
                 <a href="/brands" class="btn btn-secondary btn-hero-secondary">Все бренды</a>
             </div>
             <div class="hero-stats">
                 <div class="stat-item">
-                    <span class="stat-number">1000+</span>
+                    <span class="stat-number"><?= $productCount > 0 ? $productCount . '+' : '1000+' ?></span>
                     <span class="stat-label">Товаров</span>
                 </div>
                 <div class="stat-item">

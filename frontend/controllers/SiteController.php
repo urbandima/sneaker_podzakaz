@@ -157,23 +157,38 @@ class SiteController extends Controller
         $popularProducts = $this->getPopularProducts();
         $categories = $this->getCategories();
         $brands = $this->getBrands();
-        
+
+        // Live product count rounded down to hundreds (X8)
+        $rawCount = \app\backend\modules\catalog\models\Product::find()->where(['is_active' => 1])->count();
+        $productCount = (int)(floor($rawCount / 100) * 100);
+
+        // Real reviews (X11): only show if ≥3 published reviews exist
+        try {
+            $siteReviews = \app\backend\modules\catalog\models\ProductReview::find()
+                ->where(['is_published' => 1])
+                ->orderBy(['created_at' => SORT_DESC])
+                ->limit(6)
+                ->all();
+        } catch (\Throwable $e) {
+            $siteReviews = [];
+        }
+
+        $viewData = [
+            'popularProducts' => $popularProducts,
+            'categories'      => $categories,
+            'brands'          => $brands,
+            'productCount'    => $productCount,
+            'siteReviews'     => $siteReviews,
+        ];
+
         // Проверяем, есть ли главная страница в landing
         $landingView = '@frontend/views/landing/index';
         if (file_exists(Yii::getAlias($landingView . '.php'))) {
-            return $this->render($landingView, [
-                'popularProducts' => $popularProducts,
-                'categories' => $categories,
-                'brands' => $brands,
-            ]);
+            return $this->render($landingView, $viewData);
         }
-        
+
         // Если нет landing страницы, показываем базовую главную
-        return $this->render('index', [
-            'popularProducts' => $popularProducts,
-            'categories' => $categories,
-            'brands' => $brands,
-        ]);
+        return $this->render('index', $viewData);
     }
     
     /**
@@ -203,12 +218,17 @@ class SiteController extends Controller
     private function getCategories()
     {
         try {
+            // X10: only show categories with ≥5 active products on homepage
             $categories = \app\backend\modules\catalog\models\Category::find()
-                ->where(['is_active' => true])
-                ->orderBy(['sort_order' => SORT_ASC])
+                ->alias('c')
+                ->innerJoin('product p', 'p.category_id = c.id AND p.is_active = 1')
+                ->where(['c.is_active' => true])
+                ->groupBy(['c.id'])
+                ->having(['>=', 'COUNT(p.id)', 5])
+                ->orderBy(['c.sort_order' => SORT_ASC])
                 ->limit(6)
                 ->all();
-                
+
             return $categories;
         } catch (\Throwable $e) {
             Yii::error('Failed to load categories: ' . $e->getMessage(), __METHOD__);

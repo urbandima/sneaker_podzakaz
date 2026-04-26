@@ -119,6 +119,69 @@ $opStats = $operationalStats ?? ['unprocessed2h' => 0, 'delayed3d' => 0, 'awaiti
     </a>
 </div>
 
+<!-- X4/X9: Catalog health alerts -->
+<?php
+$noCat = $productsNoCategoryCount ?? 0;
+$badBrand = $brandMismatchCount ?? 0;
+if ($noCat > 0 || $badBrand > 0): ?>
+<div class="dash-catalog-alerts" style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+    <?php if ($noCat > 0): ?>
+    <a href="<?= Url::to(['/admin/catalog/product', 'category_id' => '']) ?>"
+       class="dash-op-widget" style="flex:1;min-width:220px;background:#fffbeb;border-color:#fde68a">
+        <div class="dash-op-widget-icon warning"><i class="bi bi-tag-fill"></i></div>
+        <div class="dash-op-widget-value warning"><?= $noCat ?></div>
+        <div class="dash-op-widget-label">Товаров без<br>категории</div>
+    </a>
+    <?php endif; ?>
+    <?php if ($badBrand > 0): ?>
+    <a href="<?= Url::to(['/admin/catalog/product']) ?>"
+       class="dash-op-widget" style="flex:1;min-width:220px;background:#fef2f2;border-color:#fecaca">
+        <div class="dash-op-widget-icon danger"><i class="bi bi-exclamation-circle-fill"></i></div>
+        <div class="dash-op-widget-value danger"><?= $badBrand ?></div>
+        <div class="dash-op-widget-label">Бренд не совпадает<br>с началом названия</div>
+    </a>
+    <?php endif; ?>
+</div>
+<?php endif; ?>
+
+<!-- X5: Image health check widget -->
+<div class="dash-image-health" style="margin-bottom:16px;padding:12px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <i class="bi bi-image" style="font-size:1.25rem;color:#64748b"></i>
+    <span style="flex:1;color:#475569;font-size:0.9rem">Проверка изображений брендов и категорий</span>
+    <div id="imageHealthResult" style="font-size:0.85rem;color:#64748b"></div>
+    <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="runImageHealthCheck(this)" id="imageHealthBtn">
+        <i class="bi bi-search"></i> Проверить
+    </button>
+</div>
+<script>
+function runImageHealthCheck(btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Проверяем…';
+    var result = document.getElementById('imageHealthResult');
+    result.textContent = '';
+    fetch('<?= \yii\helpers\Url::to(['/admin/dashboard/image-health']) ?>', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-search"></i> Проверить';
+        if (!data.success) { result.textContent = 'Ошибка'; return; }
+        var b = data.broken_brands, c = data.broken_categories;
+        if (b === 0 && c === 0) {
+            result.innerHTML = '<span style="color:#16a34a"><i class="bi bi-check-circle-fill"></i> Все изображения на месте</span>';
+        } else {
+            var parts = [];
+            if (b > 0) parts.push('<span style="color:#dc2626">Бренды: ' + b + ' битых</span>');
+            if (c > 0) parts.push('<span style="color:#d97706">Категории: ' + c + ' битых</span>');
+            result.innerHTML = parts.join(' &nbsp;|&nbsp; ');
+            if (data.details) console.table && console.table(data.details.brands.concat(data.details.categories));
+        }
+    })
+    .catch(function(){ btn.disabled = false; btn.innerHTML = '<i class="bi bi-search"></i> Проверить'; result.textContent = 'Ошибка соединения'; });
+}
+</script>
+
 <!-- B3.4 CNY Rate Widget -->
 <?php
 $cnyInfo = $currencyInfo ?? ['rate' => 0.45, 'updated_at' => null, 'source' => 'default'];

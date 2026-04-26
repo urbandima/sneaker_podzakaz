@@ -156,17 +156,15 @@ $config = [
             'linkAssets' => (defined('YII_ENV_DEV') && YII_ENV_DEV) ? false : true,
         ],
         'user' => [
-            'identityClass' => 'app\backend\modules\admin\models\User',
+            'identityClass' => (defined('YII_ENV') && YII_ENV === 'dev') 
+                ? 'app\backend\modules\admin\models\TemporaryAdminIdentity' 
+                : 'app\backend\modules\admin\models\User',
             'enableAutoLogin' => true,
             'loginUrl' => ['/admin/login'],
-            // SECURITY FIX: Add session timeout — auto-logout after 24h inactivity
-            'authTimeout' => (int) env('SESSION_LIFETIME', 1440) * 60, // minutes -> seconds
-            'absoluteAuthTimeout' => 86400 * 7, // 7 days max session
             'identityCookie' => [
                 'name' => '_identity-admin',
                 'httpOnly' => true,
                 'secure' => !(defined('YII_ENV') && YII_ENV === 'dev'),
-                'sameSite' => \yii\web\Cookie::SAME_SITE_LAX,
             ],
         ],
         'errorHandler' => [
@@ -211,43 +209,12 @@ $config = [
             'apiUrl' => $params['poizonApiUrl'] ?? 'https://api.poizon-parser.com/v1',
             'apiKey' => $params['poizonApiKey'] ?? null,
         ],
-        'europochtaTracking' => [
-            'class' => 'app\backend\modules\checkout\services\EuropochtaTrackingService',
-        ],
-        'belpochtaTracking' => [
-            'class' => 'app\backend\modules\checkout\services\BelpochtaTrackingService',
-        ],
-        'cdekTracking' => [
-            'class' => 'app\backend\modules\checkout\services\CdekTrackingService',
-        ],
         'dobropost' => [
             'class'         => 'app\backend\modules\checkout\services\DobroPostService',
             'apiUrl'        => env('DP_API_URL', 'https://api.dobropost.com'),
             'email'         => env('DP_API_EMAIL', ''),
             'password'      => env('DP_API_PASSWORD', ''),
             'defaultTariff' => (int) env('DP_DEFAULT_TARIFF', 26),
-        ],
-        'automation' => [
-            'class' => 'app\backend\modules\automation\services\AutomationEngine',
-        ],
-        'moysklad' => [
-            'class' => 'app\backend\shared\services\MoySkladService',
-        ],
-        'sms' => [
-            'class'      => 'app\backend\modules\notification\services\SmsService',
-            'provider'   => env('SMS_PROVIDER', 'rocketsms'),
-            'senderName' => env('SMS_SENDER', null),
-            'apiKeys'    => [
-                'rocketsms_username' => env('ROCKETSMS_USERNAME', ''),
-                'rocketsms_password' => env('ROCKETSMS_PASSWORD', ''),
-                'rocketsms_sender'   => env('ROCKETSMS_SENDER', ''),
-                'smsc_login'         => env('SMSC_LOGIN', ''),
-                'smsc_password'      => env('SMSC_PASSWORD', ''),
-                'smsru_api_id'       => env('SMSRU_API_ID', ''),
-                'twilio_sid'         => env('TWILIO_SID', ''),
-                'twilio_token'       => env('TWILIO_TOKEN', ''),
-                'twilio_from'        => env('TWILIO_FROM', ''),
-            ],
         ],
         'currency' => [
             'class' => 'app\backend\shared\components\CurrencyService',
@@ -299,7 +266,7 @@ $config = [
 
                 // Алиасы для брендов (короткий URL → каталог бренда)
                 'brands/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
-                
+
                 // Checkout — страница оформления (GET) и создание заказа (AJAX POST)
                 'checkout' => 'order/index',
                 'order/create' => 'order/create',
@@ -325,7 +292,7 @@ $config = [
                 'admin/seo/update-product-meta' => 'admin/seo/update-product-meta',
                 'admin/seo/update-image-alt' => 'admin/seo/update-image-alt',
                 
-                // АЛИАСЫ: Совместимость со старыми URL
+                // АЛИАСЫ: Совместимость со старыми URL (исправление багов #5, #6, #7)
                 'admin/delivery' => 'admin/shipping/index',
                 'admin/delivery/<action:[a-z-]+>' => 'admin/shipping/<action>',
                 'admin/marketing-campaign' => 'admin/marketing/campaigns',
@@ -361,7 +328,6 @@ $config = [
                 'api/catalog/products-by-ids' => 'catalog/catalog-api/products-by-ids',
                 'catalog/brand/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
                 'catalog/category/<slug:[a-z0-9-]+>' => 'catalog/catalog/category',
-                'catalog/category' => 'catalog/catalog/category', // Поддержка query параметра ?slug=
                 'catalog/product/<slug:[a-z0-9-]+>' => 'catalog/catalog/product',
                 'catalog/product' => 'catalog/catalog/product', // Поддержка query параметра ?slug=
                 'catalog/favorites' => 'catalog/catalog/favorites',
@@ -370,16 +336,14 @@ $config = [
                 // Страница брендов
                 'brands' => 'catalog/catalog/brands',
                 'brands/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
-                
+
                 // Страница скидок (+ алиас /sales для 301)
                 'sale' => 'page/sale',
-                'sales' => 'page/sale',
                 
                 // ИСПРАВЛЕНО: Явные API роуты для AJAX (Проблема #7)
                 'catalog/add-favorite' => 'favorite/add',
                 'catalog/remove-favorite' => 'favorite/remove',
                 'catalog/favorites-count' => 'favorite/count',
-                'favorite/merge-guest' => 'favorite/merge-guest',
                 'search' => 'catalog/search/index',
                 'catalog/search' => 'catalog/catalog/search',
                 'catalog/filter' => 'catalog/catalog/filter',
@@ -434,10 +398,6 @@ $config = [
                 'customer/view' => 'admin/customer/view',
                 'customer/update' => 'admin/customer/update',
                 
-                // Feedback to director
-                'feedback' => 'feedback/index',
-                'feedback/submit' => 'feedback/submit',
-
                 // Sitemap
                 'sitemap.xml' => 'sitemap/index',
                 
@@ -458,9 +418,7 @@ $config = [
                 'admin/order/<id:\d+>/update' => 'admin/order/update',
                 'admin/order/<id:\d+>/change-status' => 'admin/order/change-status',
                 'admin/order/<id:\d+>/assign-logist' => 'admin/order/assign-logist',
-                'admin/order/<id:\d+>/update-items' => 'admin/order/update-items',
                 'admin/order/export' => 'admin/order/export',
-                'admin/order/clean-bad-import' => 'admin/order/clean-bad-import',
                 // DobroPost
                 'admin/order/<id:\d+>/send-to-dp' => 'admin/order/send-to-dp',
                 'admin/order/<id:\d+>/dp-status' => 'admin/order/dp-status',
@@ -518,41 +476,12 @@ $config = [
                 'admin/settings' => 'admin/settings/index',
                 'admin/settings/integrations' => 'admin/settings/integrations', // redirects → /admin/plugin
                 'admin/plugin' => 'admin/plugin/index',
-                // MoySklad sync
-                'admin/plugin/moysklad' => 'admin/moysklad/index',
-                'admin/plugin/moysklad/test-connection'  => 'admin/moysklad/test-connection',
-                'admin/plugin/moysklad/save-credentials' => 'admin/moysklad/save-credentials',
-                'admin/plugin/moysklad/save-mapping'     => 'admin/moysklad/save-mapping',
-                'admin/plugin/moysklad/push-all'         => 'admin/moysklad/push-all',
-                'admin/plugin/moysklad/pull'             => 'admin/moysklad/pull',
-                'admin/plugin/moysklad/push-order'       => 'admin/moysklad/push-order',
-                'admin/plugin/moysklad/sync-info'        => 'admin/moysklad/sync-info',
-                'admin/plugin/moysklad/webhooks'         => 'admin/moysklad/webhooks',
-                'admin/plugin/moysklad/register-webhook' => 'admin/moysklad/register-webhook',
-                'admin/plugin/moysklad/delete-webhook'   => 'admin/moysklad/delete-webhook',
-                'admin/plugin/moysklad/periodic-sync'    => 'admin/moysklad/periodic-sync',
-                'admin/plugin/moysklad/webhook-status'   => 'admin/moysklad/webhook-status',
-                'admin/plugin/moysklad/save-status-mapping' => 'admin/moysklad/save-status-mapping',
-                'admin/plugin/moysklad/save-settings'    => 'admin/moysklad/save-settings',
-                'admin/plugin/moysklad/sync-log'         => 'admin/moysklad/sync-log',
-                'admin/moysklad/webhook'                 => 'admin/moysklad/webhook',
-                'admin/moysklad/ms-images'               => 'admin/moysklad/ms-images',
-                'admin/moysklad/ms-image'                => 'admin/moysklad/ms-image',
-                // AmoCRM Widget API (CSRF disabled in controller)
-                'api/amocrm/create-order' => 'api/amocrm-order/create-order',
-                'api/amocrm/products'     => 'api/amocrm-order/products',
-                // AmoCRM plugin pages
-                'admin/plugin/amocrm'            => 'admin/plugin/amocrm',
-                'admin/plugin/amocrm-widget'     => 'admin/plugin/amocrm-widget',
-                'admin/plugin/amocrm-widget/key' => 'admin/plugin/amocrm-widget-key',
-                // Lamoda Parser plugin pages
-                'admin/plugin/lamoda-parser'          => 'admin/plugin/lamoda-parser',
-                'admin/plugin/lamoda-parser/run'      => 'admin/plugin/lamoda-run',
-                'admin/plugin/lamoda-parser/status'   => 'admin/plugin/lamoda-status',
-                'admin/plugin/lamoda-parser/schedule' => 'admin/plugin/lamoda-save-schedule',
+                'admin/plugin/moysklad' => 'admin/plugin/moysklad',
+                'admin/plugin/amocrm' => 'admin/plugin/amocrm',
                 'admin/plugin/telegram' => 'admin/plugin/telegram',
                 'admin/plugin/currency' => 'admin/plugin/currency',
                 'admin/plugin/dobropost' => 'admin/plugin/dobropost',
+<<<<<<< HEAD
                 'admin/plugin/import-dobropost' => 'admin/plugin/import-dobropost',
                 'admin/plugin/test-tracking' => 'admin/plugin/test-tracking',
                 'admin/plugin/europochta' => 'admin/plugin/europochta',
@@ -624,7 +553,6 @@ $config = [
                 'admin/settings/triggers/<id:\d+>/delete' => 'admin/automation/delete',
                 'admin/settings/triggers/<id:\d+>/toggle' => 'admin/automation/toggle',
                 'admin/settings/save' => 'admin/settings/save',
-                'admin/settings/save-shipping' => 'admin/settings/save-shipping',
                 'admin/settings/statuses' => 'admin/settings/statuses',
                 'admin/settings/save-statuses' => 'admin/settings/save-statuses',
                 
@@ -651,11 +579,6 @@ $config = [
                 'admin/analytics/conversion' => 'admin/analytics/conversion',
                 'admin/analytics/sales' => 'admin/analytics/sales',
                 'admin/analytics/export' => 'admin/analytics/export',
-
-                // Feedback from customers
-                'admin/feedback' => 'admin/feedback/index',
-                'admin/feedback/reply' => 'admin/feedback/reply',
-                'admin/feedback/delete/<id:\d+>' => 'admin/feedback/delete',
                 
                 // Search
                 'admin/search' => 'admin/search/global',
@@ -666,8 +589,7 @@ $config = [
                 'admin/characteristic' => 'admin/characteristic/index',
                 'admin/characteristic/guide' => 'admin/characteristic/guide',
                 
-                // Customers (покупатели) — /admin/client is an alias
-                'admin/client' => 'admin/customer/index',
+                // Customers (покупатели)
                 'admin/customer' => 'admin/customer/index',
                 'admin/customer/<id:\d+>' => 'admin/customer/view',
                 'admin/customer/<id:\d+>/update' => 'admin/customer/update',
@@ -676,11 +598,6 @@ $config = [
                 'admin/customer/<id:\d+>/reset-password' => 'admin/customer/reset-password',
                 'admin/customer/<id:\d+>/link-orders' => 'admin/customer/link-orders',
                 'admin/customer/export' => 'admin/customer/export',
-                'admin/customer/quick-view' => 'admin/customer/quick-view',
-                'admin/customer/adjust-points' => 'admin/customer/adjust-points',
-                'admin/customer/add-tag' => 'admin/customer/add-tag',
-                'admin/customer/remove-tag' => 'admin/customer/remove-tag',
-                'admin/customer/add-note' => 'admin/customer/add-note',
                 
                 // Import
                 'admin/import' => 'admin/import/index',
