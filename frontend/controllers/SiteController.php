@@ -213,7 +213,8 @@ class SiteController extends Controller
     }
     
     /**
-     * Получение категорий для главной страницы
+     * Получение категорий для главной страницы.
+     * Graceful fallback: если image пустой, подставляет фото первого товара категории.
      */
     private function getCategories()
     {
@@ -229,6 +230,24 @@ class SiteController extends Controller
                 ->limit(6)
                 ->all();
 
+            // Graceful fallback: if category image is empty, try first product image
+            foreach ($categories as $cat) {
+                if (empty($cat->image)) {
+                    try {
+                        $product = \app\backend\modules\catalog\models\Product::find()
+                            ->where(['category_id' => $cat->id, 'is_active' => 1])
+                            ->orderBy(['sort_order' => SORT_ASC])
+                            ->limit(1)
+                            ->one();
+                        if ($product && !empty($product->main_image_url)) {
+                            $cat->image = $product->main_image_url;
+                        }
+                    } catch (\Throwable $e) {
+                        // ignore, category will show placeholder in the view
+                    }
+                }
+            }
+
             return $categories;
         } catch (\Throwable $e) {
             Yii::error('Failed to load categories: ' . $e->getMessage(), __METHOD__);
@@ -237,7 +256,9 @@ class SiteController extends Controller
     }
     
     /**
-     * Получение брендов для главной страницы
+     * Получение брендов для главной страницы.
+     * Скрывает пустые/служебные записи (name = '-' или пустое).
+     * Graceful fallback: если logo отсутствует, подставляет фото первого товара бренда.
      */
     private function getBrands()
     {
@@ -250,6 +271,24 @@ class SiteController extends Controller
                 ->orderBy(['name' => SORT_ASC])
                 ->limit(12)
                 ->all();
+
+            // Graceful fallback: if logo is empty, try first product image for that brand
+            foreach ($brands as $brand) {
+                if (empty($brand->logo) && empty($brand->logo_url)) {
+                    try {
+                        $product = \app\backend\modules\catalog\models\Product::find()
+                            ->where(['brand_id' => $brand->id, 'is_active' => 1])
+                            ->orderBy(['sort_order' => SORT_ASC])
+                            ->limit(1)
+                            ->one();
+                        if ($product && !empty($product->main_image_url)) {
+                            $brand->logo_url = $product->main_image_url;
+                        }
+                    } catch (\Throwable $e) {
+                        // ignore, brand will show name fallback in the view
+                    }
+                }
+            }
 
             return $brands;
         } catch (\Throwable $e) {
