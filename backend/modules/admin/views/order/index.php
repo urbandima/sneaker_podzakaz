@@ -173,14 +173,17 @@ $colorToHex = function(string $c): string {
 ?>
 
 <style>
-/* === Funnel === */
-.order-funnel{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:12px 16px;background:var(--admin-surface,#fff);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:12px}
-.funnel-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:var(--admin-surface-hover,#f3f4f6);color:var(--admin-text-secondary,#6b7280);font-size:.8125rem;font-weight:500;text-decoration:none;transition:all .18s ease;white-space:nowrap;border:1.5px solid transparent}
-.funnel-pill:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1);color:var(--admin-text-primary,#111);text-decoration:none}
-.funnel-pill--active{background:var(--admin-primary,#2563eb)!important;color:#fff!important;border-color:var(--admin-primary,#2563eb);font-weight:700}
-.funnel-pill--active .funnel-pill-count{background:rgba(255,255,255,.25);color:#fff}
-.funnel-pill-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.funnel-pill-count{font-size:.75rem;font-weight:700;background:rgba(0,0,0,.07);color:inherit;padding:1px 6px;border-radius:10px;min-width:20px;text-align:center}
+/* === Status filter tabs (sticky, overflow-scroll, per-status color) === */
+.order-funnel{display:flex;flex-wrap:nowrap;gap:4px;align-items:center;padding:8px 16px;background:var(--admin-surface,#fff);border-bottom:2px solid var(--admin-border,#e5e7eb);box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:12px;overflow-x:auto;overflow-y:visible;position:sticky;top:0;z-index:120;scrollbar-width:thin;scrollbar-color:var(--admin-border,#d1d5db) transparent}
+.order-funnel::-webkit-scrollbar{height:3px}
+.order-funnel::-webkit-scrollbar-track{background:transparent}
+.order-funnel::-webkit-scrollbar-thumb{background:var(--admin-border,#d1d5db);border-radius:2px}
+.funnel-pill{--pill-color:#6b7280;--pill-bg:#f3f4f6;display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;background:transparent;color:var(--admin-text-secondary,#6b7280);font-size:.8125rem;font-weight:500;text-decoration:none;transition:background .15s,color .15s,border-color .15s;white-space:nowrap;border:1.5px solid transparent;flex-shrink:0}
+.funnel-pill:hover{background:var(--pill-bg);color:var(--pill-color);border-color:var(--pill-color);text-decoration:none;opacity:.85}
+.funnel-pill--active{background:var(--pill-bg)!important;color:var(--pill-color)!important;border-color:var(--pill-color)!important;font-weight:700}
+.funnel-pill--active .funnel-pill-count{background:var(--pill-color);color:#fff}
+.funnel-pill-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--pill-color)}
+.funnel-pill-count{font-size:.75rem;font-weight:700;background:rgba(0,0,0,.08);color:inherit;padding:1px 6px;border-radius:10px;min-width:20px;text-align:center;transition:background .15s,color .15s}
 /* === Filter bar === */
 .filter-wrap{margin-bottom:14px}
 .compact-filter-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 16px;background:var(--admin-surface,#fff)}
@@ -223,7 +226,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
 @keyframes spin{to{transform:rotate(360deg)}}
 .scroll-spinner{width:18px;height:18px;border:2px solid #e5e7eb;border-top-color:var(--admin-primary,#2563eb);border-radius:50%;animation:spin .7s linear infinite}
 /* === Sticky table header (Task 6) === */
-#ordersTable thead th{position:sticky;top:0;z-index:10;background:var(--admin-surface,#fff);box-shadow:0 1px 0 var(--admin-border,#e5e7eb)}
+#ordersTable thead th{position:sticky;top:var(--funnel-h,52px);z-index:10;background:var(--admin-surface,#fff);box-shadow:0 1px 0 var(--admin-border,#e5e7eb)}
 /* === Quick date preset buttons === */
 .preset-bar{display:flex;gap:6px;align-items:center;padding:8px 16px 0;flex-wrap:wrap}
 .preset-btn{height:28px;padding:0 11px;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;border:1.5px solid var(--admin-border,#e5e7eb);background:var(--admin-surface,#fff);color:var(--admin-text-secondary,#6b7280);transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
@@ -236,34 +239,50 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
 .tbl-editable input,.tbl-editable select{width:100%;font-size:.8125rem;padding:2px 5px;border:1.5px solid var(--admin-primary,#2563eb);border-radius:4px;background:#fff;outline:none;min-width:80px}
 </style>
 
-<!-- Order Funnel -->
+<!-- Status filter tabs (sticky, per-status color) -->
+<?php
+// Helper: derive a light bg tint from a hex color for inactive hover / active bg
+$pillBgFromHex = function(string $hex): string {
+    $hex = ltrim($hex, '#');
+    if (strlen($hex) === 3) $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+    $r = hexdec(substr($hex,0,2)); $g = hexdec(substr($hex,2,2)); $b = hexdec(substr($hex,4,2));
+    return 'rgba('.$r.','.$g.','.$b.',.12)';
+};
+?>
 <div class="order-funnel">
-    <a href="<?= Url::to(['/admin/order']) ?>" class="funnel-pill <?= empty($filterStatus) ? 'funnel-pill--active' : '' ?>">
+    <a href="<?= Url::to(['/admin/order']) ?>"
+       class="funnel-pill <?= empty($filterStatus) ? 'funnel-pill--active' : '' ?>"
+       style="--pill-color:var(--admin-primary,#2563eb);--pill-bg:#eff6ff">
         <span class="funnel-pill-label">Все</span>
         <span class="funnel-pill-count"><?= $totalCount ?></span>
     </a>
     <?php foreach ($statuses as $sKey => $sLabel):
-        $cnt   = $statusCounts[$sKey] ?? 0;
-        $isAct = $filterStatus === $sKey;
-        // Z12: prefer DB color, fall back to hardcoded map
-        $dbDot = !empty($statusColorMap[$sKey]) ? $colorToHex($statusColorMap[$sKey]) : null;
-        $dot   = $dbDot ?? ($funnelDots[$sKey] ?? '#6b7280');
+        $cnt        = $statusCounts[$sKey] ?? 0;
+        $isAct      = $filterStatus === $sKey;
+        $hexColor   = !empty($statusColorMap[$sKey]) ? $colorToHex($statusColorMap[$sKey])
+                        : ($statusPills[$sKey]['color'] ?? ($funnelDots[$sKey] ?? '#6b7280'));
+        $hexBg      = $statusPills[$sKey]['bg'] ?? $pillBgFromHex($hexColor);
     ?>
-    <a href="<?= Url::to(['/admin/order', 'status' => $sKey]) ?>" class="funnel-pill <?= $isAct ? 'funnel-pill--active' : '' ?>">
-        <span class="funnel-pill-dot" style="background:<?= $dot ?>"></span>
+    <a href="<?= Url::to(['/admin/order', 'status' => $sKey]) ?>"
+       class="funnel-pill <?= $isAct ? 'funnel-pill--active' : '' ?>"
+       style="--pill-color:<?= $hexColor ?>;--pill-bg:<?= $hexBg ?>">
+        <span class="funnel-pill-dot"></span>
         <span class="funnel-pill-label"><?= Html::encode($sLabel) ?></span>
         <span class="funnel-pill-count"><?= $cnt ?></span>
     </a>
     <?php endforeach; ?>
     <?php foreach ($extraStatuses as $sKey => $sLabel):
-        $cnt   = $statusCounts[$sKey] ?? 0;
+        $cnt      = $statusCounts[$sKey] ?? 0;
         if ($cnt === 0) continue;
-        $isAct = $filterStatus === $sKey;
-        $dbDot = !empty($statusColorMap[$sKey]) ? $colorToHex($statusColorMap[$sKey]) : null;
-        $dot   = $dbDot ?? ($funnelDots[$sKey] ?? '#6b7280');
+        $isAct    = $filterStatus === $sKey;
+        $hexColor = !empty($statusColorMap[$sKey]) ? $colorToHex($statusColorMap[$sKey])
+                      : ($funnelDots[$sKey] ?? '#6b7280');
+        $hexBg    = $pillBgFromHex($hexColor);
     ?>
-    <a href="<?= Url::to(['/admin/order', 'status' => $sKey]) ?>" class="funnel-pill <?= $isAct ? 'funnel-pill--active' : '' ?>">
-        <span class="funnel-pill-dot" style="background:<?= $dot ?>"></span>
+    <a href="<?= Url::to(['/admin/order', 'status' => $sKey]) ?>"
+       class="funnel-pill <?= $isAct ? 'funnel-pill--active' : '' ?>"
+       style="--pill-color:<?= $hexColor ?>;--pill-bg:<?= $hexBg ?>">
+        <span class="funnel-pill-dot"></span>
         <span class="funnel-pill-label"><?= Html::encode($sLabel) ?></span>
         <span class="funnel-pill-count"><?= $cnt ?></span>
     </a>
@@ -700,6 +719,16 @@ function toggleFilterRow2() {
         const row1 = document.querySelector('.filter-row1');
         if (row1) row1.classList.add('has-row2');
     }
+})();
+
+/* Measure funnel height and set --funnel-h so sticky table header offset stays correct */
+(function() {
+    function updateFunnelH() {
+        var f = document.querySelector('.order-funnel');
+        if (f) document.documentElement.style.setProperty('--funnel-h', f.offsetHeight + 'px');
+    }
+    updateFunnelH();
+    window.addEventListener('resize', updateFunnelH);
 })();
 
 /* ──────────────────────────────────────────
