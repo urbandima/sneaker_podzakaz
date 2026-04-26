@@ -247,6 +247,33 @@ $customer = $model->customer ?? null;
     font-family: monospace; width: 100%;
 }
 
+/* Medium screens 1024-1440px: narrower sidebar */
+@media (max-width: 1440px) and (min-width: 1024px) {
+    .crm-body { grid-template-columns: 1fr 300px; }
+}
+@media (max-width: 1280px) and (min-width: 1024px) {
+    .crm-body { grid-template-columns: 1fr 260px; }
+    .crm-sidebar { font-size: 0.8125rem; }
+}
+
+/* Collapsed sidebar state */
+.crm-body.sidebar-collapsed { grid-template-columns: 1fr 0; gap: 0; }
+.crm-body.sidebar-collapsed .crm-sidebar { width: 0; overflow: hidden; padding: 0; opacity: 0; pointer-events: none; }
+.crm-sidebar-toggle {
+    display: none;
+    position: fixed; bottom: 20px; right: 20px; z-index: 50;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--admin-primary, #2563eb); color: #fff; border: none; cursor: pointer;
+    align-items: center; justify-content: center; font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2); transition: background .15s;
+}
+.crm-sidebar-toggle:hover { background: #1d4ed8; }
+
+/* Show toggle on medium + mobile screens */
+@media (max-width: 1440px) {
+    .crm-sidebar-toggle { display: flex; }
+}
+
 /* Mobile: reset to single column */
 @media (max-width: 1023px) {
     .crm-body { grid-template-columns: 1fr; }
@@ -254,6 +281,12 @@ $customer = $model->customer ?? null;
 }
 @media (max-width: 600px) {
     .crm-info-grid { grid-template-columns: 1fr; }
+}
+
+/* Prevent tables from causing horizontal scroll on narrow screens */
+@media (max-width: 1380px) {
+    .crm-main { overflow-x: hidden; }
+    .crm-items-table { table-layout: fixed; }
 }
 
 /* History slide-in panel */
@@ -406,7 +439,11 @@ $customer = $model->customer ?? null;
         </div>
     </div>
 
-    <div class="crm-body">
+    <button class="crm-sidebar-toggle" id="sidebarToggle" title="Свернуть / развернуть боковую панель" onclick="toggleOrderSidebar()">
+        <i class="bi bi-layout-sidebar-reverse" id="sidebarToggleIcon"></i>
+    </button>
+
+    <div class="crm-body" id="crmBody">
 
         <!-- ═══ MAIN COLUMN ═══ -->
         <div class="crm-main">
@@ -2045,6 +2082,27 @@ window.uploadOrderFiles = function(input, orderId) {
         if (result) { result.textContent = '✗ Ошибка загрузки'; result.style.color = '#dc2626'; }
     });
 };
+
+// ── Sidebar collapse (medium screens) ────────────────────
+var SIDEBAR_KEY = 'admin_order_sidebar_collapsed';
+window.toggleOrderSidebar = function() {
+    var body = document.getElementById('crmBody');
+    var icon = document.getElementById('sidebarToggleIcon');
+    if (!body) return;
+    var collapsed = body.classList.toggle('sidebar-collapsed');
+    if (icon) icon.className = collapsed ? 'bi bi-layout-sidebar' : 'bi bi-layout-sidebar-reverse';
+    try { localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0'); } catch(e) {}
+};
+(function() {
+    try {
+        if (localStorage.getItem(SIDEBAR_KEY) === '1') {
+            var body = document.getElementById('crmBody');
+            var icon = document.getElementById('sidebarToggleIcon');
+            if (body) { body.classList.add('sidebar-collapsed'); }
+            if (icon) icon.className = 'bi bi-layout-sidebar';
+        }
+    } catch(e) {}
+})();
 JS
 , \yii\web\View::POS_END);
 ?>
