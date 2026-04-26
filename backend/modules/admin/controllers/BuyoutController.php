@@ -54,7 +54,7 @@ class BuyoutController extends BaseAdminController
             $kpi['total_cost'] += (float)$b->total_cost_byn;
         }
 
-        return $this->render('buyout/index', [
+        return $this->render('index', [
             'buyouts'      => $buyouts,
             'kpi'          => $kpi,
             'statuses'     => Buyout::getStatuses(),
@@ -74,7 +74,7 @@ class BuyoutController extends BaseAdminController
         $buyout = $this->findBuyout($id);
         $orders = $buyout->getOrderLinks()->with('order')->all();
 
-        return $this->render('buyout/view', [
+        return $this->render('view', [
             'buyout'    => $buyout,
             'links'     => $orders,
             'histories' => $buyout->histories,
@@ -126,7 +126,7 @@ class BuyoutController extends BaseAdminController
             $this->flashError('Ошибка: ' . implode(', ', $buyout->getFirstErrors()));
         }
 
-        return $this->render('buyout/create', [
+        return $this->render('create', [
             'buyout'   => $buyout,
             'statuses' => Buyout::getStatuses(),
             'sources'  => Buyout::getSources(),
@@ -151,7 +151,7 @@ class BuyoutController extends BaseAdminController
             $this->flashError('Ошибка: ' . implode(', ', $buyout->getFirstErrors()));
         }
 
-        return $this->render('buyout/create', [
+        return $this->render('create', [
             'buyout'   => $buyout,
             'statuses' => Buyout::getStatuses(),
             'sources'  => Buyout::getSources(),

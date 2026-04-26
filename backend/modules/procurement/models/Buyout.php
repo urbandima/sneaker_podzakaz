@@ -107,7 +107,7 @@ class Buyout extends ActiveRecord
 
     // ── Events ────────────────────────────────────────────────────────────────
 
-    public function afterSave(bool $insert, array $changedAttributes): void
+    public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
 
