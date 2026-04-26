@@ -179,7 +179,8 @@ class DobroPostService extends Component
         $description = mb_substr($order->customs_description ?: 'Одежда и обувь', 0, 59);
 
         // Ссылка на товар
-        $storeLink = $order->product_link ?: $order->sneakerhead_order_link ?: 'https://sneaker-head.by';
+        $frontendBase = rtrim(\Yii::$app->params['frontendBaseUrl'] ?? \Yii::$app->params['frontendUrl'] ?? 'https://sneakerhead.by', '/');
+        $storeLink = $order->product_link ?: $order->sneakerhead_order_link ?: $frontendBase;
 
         // Количество единиц товара
         $qty = max(1, (int) ($order->item_quantity ?: 1));

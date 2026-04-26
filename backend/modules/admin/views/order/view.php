@@ -4,7 +4,6 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
-use app\backend\shared\helpers\OrderTrackHelper;
 
 $this->title = 'Заказ №' . ($model->order_number ?: $model->id);
 $user = Yii::$app->user->identity;
@@ -132,9 +131,7 @@ $customer = $model->customer ?? null;
     border-bottom: 1px solid var(--admin-border, #e5e7eb);
 }
 .crm-items-table td { padding: 8px 10px; border-bottom: 1px solid var(--admin-border, #f3f4f6); vertical-align: middle; }
-.crm-items-table .crm-item-main-row:last-of-type td { border-bottom: none; }
-.crm-items-table .crm-item-detail-row td { border-bottom: 1px solid var(--admin-border, #e5e7eb); padding-top:0; }
-.crm-item-expand:hover { color: var(--admin-text-primary,#111) !important; background: var(--admin-surface-hover,#f3f4f6); }
+.crm-items-table tr:last-child td { border-bottom: none; }
 .crm-items-table .item-img {
     width: 36px; height: 36px; border-radius: 6px; object-fit: cover;
     background: var(--admin-surface-hover, #f3f4f6);
@@ -250,33 +247,6 @@ $customer = $model->customer ?? null;
     font-family: monospace; width: 100%;
 }
 
-/* Medium screens 1024-1440px: narrower sidebar */
-@media (max-width: 1440px) and (min-width: 1024px) {
-    .crm-body { grid-template-columns: 1fr 300px; }
-}
-@media (max-width: 1280px) and (min-width: 1024px) {
-    .crm-body { grid-template-columns: 1fr 260px; }
-    .crm-sidebar { font-size: 0.8125rem; }
-}
-
-/* Collapsed sidebar state */
-.crm-body.sidebar-collapsed { grid-template-columns: 1fr 0; gap: 0; }
-.crm-body.sidebar-collapsed .crm-sidebar { width: 0; overflow: hidden; padding: 0; opacity: 0; pointer-events: none; }
-.crm-sidebar-toggle {
-    display: none;
-    position: fixed; bottom: 20px; right: 20px; z-index: 50;
-    width: 40px; height: 40px; border-radius: 50%;
-    background: var(--admin-primary, #2563eb); color: #fff; border: none; cursor: pointer;
-    align-items: center; justify-content: center; font-size: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,.2); transition: background .15s;
-}
-.crm-sidebar-toggle:hover { background: #1d4ed8; }
-
-/* Show toggle on medium + mobile screens */
-@media (max-width: 1440px) {
-    .crm-sidebar-toggle { display: flex; }
-}
-
 /* Mobile: reset to single column */
 @media (max-width: 1023px) {
     .crm-body { grid-template-columns: 1fr; }
@@ -284,12 +254,6 @@ $customer = $model->customer ?? null;
 }
 @media (max-width: 600px) {
     .crm-info-grid { grid-template-columns: 1fr; }
-}
-
-/* Prevent tables from causing horizontal scroll on narrow screens */
-@media (max-width: 1380px) {
-    .crm-main { overflow-x: hidden; }
-    .crm-items-table { table-layout: fixed; }
 }
 
 /* History slide-in panel */
@@ -361,7 +325,6 @@ $customer = $model->customer ?? null;
 }
 @keyframes cqvIn { from { opacity:0; transform: scale(.96) translateY(8px); } to { opacity:1; transform: none; } }
 @keyframes spin { to { transform: rotate(360deg); } }
-.spin { display:inline-block; animation: spin .8s linear infinite; }
 .cqv-header {
     display: flex; align-items: center; gap: 10px; padding: 14px 18px;
     border-bottom: 1px solid var(--admin-border, #e5e7eb);
@@ -383,36 +346,6 @@ $customer = $model->customer ?? null;
 .cqv-tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; background: var(--admin-surface-hover,#f3f4f6); color: var(--admin-text-secondary,#6b7280); margin: 2px 2px 2px 0; }
 .cqv-order-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--admin-border,#f3f4f6); font-size: 0.8125rem; }
 .cqv-order-row:last-child { border-bottom: none; }
-
-/* ── Three-track strip (#11) ── */
-.crm-tracks {
-    display: flex; align-items: center; gap: 6px;
-    padding: 8px 20px; background: var(--admin-surface-hover, #f9fafb);
-    border-bottom: 1px solid var(--admin-border, #e5e7eb); flex-wrap: wrap;
-}
-.crm-track {
-    flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 4px;
-    padding: 6px 10px; border-radius: 8px; border: 1px solid transparent;
-    background: var(--admin-surface, #fff);
-}
-.crm-track--active  { border-color: #3b82f6; background: #eff6ff; }
-.crm-track--done    { border-color: #d1fae5; background: #f0fdf4; }
-.crm-track--pending { opacity: .5; }
-.crm-track-header { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; color: var(--admin-text-secondary, #6b7280); }
-.crm-track--active  .crm-track-header { color: #2563eb; }
-.crm-track--done    .crm-track-header { color: #059669; }
-.crm-track-check { color: #059669; margin-left: auto; }
-.crm-track-bar { height: 4px; border-radius: 2px; background: var(--admin-border, #e5e7eb); overflow: hidden; }
-.crm-track-fill { height: 100%; border-radius: 2px; background: #3b82f6; transition: width .3s; }
-.crm-track--done  .crm-track-fill { background: #10b981; }
-.crm-track--pending .crm-track-fill { background: #d1d5db; }
-.crm-sla {
-    flex-shrink: 0; display: flex; align-items: center; gap: 4px;
-    font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 8px;
-    background: #f0fdf4; color: #059669; border: 1px solid #d1fae5;
-}
-.crm-sla--warning { background: #fef3c7; color: #92400e; border-color: #fde68a; }
-.crm-sla--overdue { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
 </style>
 
 <div class="crm-wrap">
@@ -426,7 +359,7 @@ $customer = $model->customer ?? null;
             <span class="crm-order-num"><?= Html::encode($this->title) ?></span>
             <span class="crm-status-pill" id="crm-status-pill">
                 <i class="bi bi-circle-fill" style="font-size:6px"></i>
-                <span id="crm-status-label"><?= Html::encode($statusLabel) ?></span>
+                <?= Html::encode($statusLabel) ?>
             </span>
             <span class="crm-order-date">
                 <?= Yii::$app->formatter->asDatetime($model->created_at, 'short') ?>
@@ -436,7 +369,7 @@ $customer = $model->customer ?? null;
         <div class="crm-topbar-actions">
             <form method="post" action="<?= Url::to(['/admin/order/change-status', 'id' => $model->id]) ?>" style="display:flex;align-items:center;gap:6px">
                 <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
-                <select name="status" class="crm-status-select" onchange="adminChangeStatus(this)" title="Изменить статус">
+                <select name="status" class="crm-status-select" onchange="this.form.submit()" title="Изменить статус">
                     <?php foreach ($statuses as $key => $label): ?>
                         <option value="<?= $key ?>" <?= $model->status == $key ? 'selected' : '' ?>><?= $label ?></option>
                     <?php endforeach; ?>
@@ -473,52 +406,7 @@ $customer = $model->customer ?? null;
         </div>
     </div>
 
-    <button class="crm-sidebar-toggle" id="sidebarToggle" title="Свернуть / развернуть боковую панель" onclick="toggleOrderSidebar()">
-        <i class="bi bi-layout-sidebar-reverse" id="sidebarToggleIcon"></i>
-    </button>
-
-    <?php
-    // ── Three-track status strip (#11) ─────────────────────
-    $trackProgress  = OrderTrackHelper::getTrackProgress($model->status);
-    $slaInfo        = OrderTrackHelper::getSlaInfo($model->status, (int)$model->updated_at);
-    $historyStatuses = array_column($model->history, 'new_status');
-    $needsBuyout    = OrderTrackHelper::needsBuyout($model->status, $historyStatuses);
-    ?>
-    <div class="crm-tracks">
-        <?php foreach ($trackProgress as $trackKey => $t): ?>
-        <div class="crm-track crm-track--<?= $t['state'] ?>">
-            <div class="crm-track-header">
-                <i class="bi <?= $t['icon'] ?>"></i>
-                <span><?= Html::encode($t['label']) ?></span>
-                <?php if ($t['state'] === 'done'): ?>
-                <i class="bi bi-check-circle-fill crm-track-check"></i>
-                <?php endif; ?>
-            </div>
-            <div class="crm-track-bar">
-                <div class="crm-track-fill" style="width:<?= $t['total'] > 1 ? round($t['step'] / ($t['total'] - 1) * 100) : 100 ?>%"></div>
-            </div>
-        </div>
-        <?php endforeach; ?>
-        <?php if ($slaInfo): ?>
-        <div class="crm-sla <?= $slaInfo['overdue'] ? 'crm-sla--overdue' : ($slaInfo['hours_left'] < 6 ? 'crm-sla--warning' : '') ?>">
-            <i class="bi bi-alarm"></i>
-            <?php if ($slaInfo['overdue']): ?>
-            Просрочен на <?= abs($slaInfo['hours_left']) ?> ч
-            <?php elseif ($slaInfo['hours_left'] < 1): ?>
-            <1 ч
-            <?php else: ?>
-            <?= $slaInfo['hours_left'] ?> ч
-            <?php endif; ?>
-        </div>
-        <?php endif; ?>
-        <?php if ($needsBuyout): ?>
-        <div class="crm-sla crm-sla--overdue" title="Необходим шаг выкупа перед переходом к следующему этапу логистики">
-            <i class="bi bi-exclamation-triangle"></i> Нет выкупа
-        </div>
-        <?php endif; ?>
-    </div>
-
-    <div class="crm-body" id="crmBody">
+    <div class="crm-body">
 
         <!-- ═══ MAIN COLUMN ═══ -->
         <div class="crm-main">
@@ -538,16 +426,11 @@ $customer = $model->customer ?? null;
                                 <th style="width:70px">Кол-во</th>
                                 <th style="width:90px;text-align:right">Цена</th>
                                 <th style="width:100px;text-align:right">Сумма</th>
-                                <th style="width:24px"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($model->orderItems as $idx => $item):
-                                $hasDetails = !empty($item->product_id) || !empty($item->product_article) || !empty($item->color);
-                                $expandId = 'item-details-' . $item->id;
-                                $frontendBase = rtrim(Yii::$app->params['frontendBaseUrl'] ?? Yii::$app->params['frontendUrl'] ?? Yii::$app->request->hostInfo, '/');
-                            ?>
-                            <tr class="crm-item-main-row">
+                            <?php foreach ($model->orderItems as $idx => $item): ?>
+                            <tr>
                                 <td>
                                     <?php if (!empty($item->product) && !empty($item->product->getMainImageUrl())): ?>
                                         <img src="<?= Html::encode($item->product->getMainImageUrl()) ?>" class="item-img" alt="">
@@ -563,19 +446,8 @@ $customer = $model->customer ?? null;
                                     <?php else: ?>
                                         <div class="item-name"><?= Html::encode($item->product_name) ?></div>
                                     <?php endif; ?>
-                                    <?php if (!empty($item->size) || !empty($item->color)): ?>
-                                        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:3px">
-                                            <?php if (!empty($item->size)): ?>
-                                                <span style="display:inline-flex;align-items:center;padding:1px 7px;border-radius:999px;font-size:0.68rem;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe">
-                                                    <?= Html::encode($item->size) ?>
-                                                </span>
-                                            <?php endif; ?>
-                                            <?php if (!empty($item->color)): ?>
-                                                <span style="display:inline-flex;align-items:center;padding:1px 7px;border-radius:999px;font-size:0.68rem;font-weight:700;background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe">
-                                                    <?= Html::encode($item->color) ?>
-                                                </span>
-                                            <?php endif; ?>
-                                        </div>
+                                    <?php if (!empty($item->size)): ?>
+                                        <div class="item-sku">Размер: <?= Html::encode($item->size) ?></div>
                                     <?php endif; ?>
                                     <?php if (!empty($item->product_article)): ?>
                                         <div class="item-sku">Арт.: <?= Html::encode($item->product_article) ?></div>
@@ -587,64 +459,6 @@ $customer = $model->customer ?? null;
                                 <td style="color:var(--admin-text-secondary,#6b7280)"><?= $item->quantity ?> шт.</td>
                                 <td style="text-align:right"><?= Yii::$app->formatter->asDecimal($item->price, 2) ?> Br</td>
                                 <td style="text-align:right;font-weight:700"><?= Yii::$app->formatter->asDecimal($item->total, 2) ?> Br</td>
-                                <td style="text-align:center">
-                                    <button type="button" class="crm-item-expand" onclick="toggleItemDetails('<?= $expandId ?>', this)" title="Подробности" style="background:none;border:none;cursor:pointer;padding:2px 4px;color:var(--admin-text-secondary,#9ca3af);font-size:0.75rem;border-radius:4px;transition:color .15s">
-                                        <i class="bi bi-chevron-down"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr id="<?= $expandId ?>" class="crm-item-detail-row" style="display:none">
-                                <td colspan="6" style="padding:0 12px 10px 56px">
-                                    <div style="background:var(--admin-surface-hover,#f9fafb);border:1px solid var(--admin-border,#e5e7eb);border-radius:8px;padding:10px 14px;font-size:0.78rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px 16px">
-                                        <?php if (!empty($item->product_id)): ?>
-                                        <div>
-                                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:2px">Ссылки</div>
-                                            <a href="<?= Url::to(['/admin/product/view', 'id' => $item->product_id]) ?>" target="_blank" style="display:block;color:#2563eb;text-decoration:none;font-size:0.75rem"><i class="bi bi-box-arrow-up-right" style="font-size:0.65rem"></i> Админ</a>
-                                            <?php if (!empty($item->product->slug)): ?>
-                                            <a href="<?= Html::encode($frontendBase . '/catalog/product/' . $item->product->slug) ?>" target="_blank" style="display:block;color:#059669;text-decoration:none;font-size:0.75rem"><i class="bi bi-box-arrow-up-right" style="font-size:0.65rem"></i> Сайт</a>
-                                            <?php endif; ?>
-                                        </div>
-                                        <?php endif; ?>
-                                        <div>
-                                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:2px">Кол-во / таможня</div>
-                                            <span><?= $item->quantity ?> шт. / <?= $item->customs_qty ?? $item->quantity ?> шт.</span>
-                                        </div>
-                                        <?php if (!empty($item->product_article)): ?>
-                                        <div>
-                                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:2px">Артикул / SKU</div>
-                                            <span style="font-family:monospace"><?= Html::encode($item->product_article) ?></span>
-                                        </div>
-                                        <?php endif; ?>
-                                        <?php if (!empty($item->purchase_price) || !empty($item->product->purchase_price ?? '')): ?>
-                                        <div>
-                                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:2px">Цена закупки</div>
-                                            <span><?= Yii::$app->formatter->asDecimal($item->purchase_price ?? 0, 2) ?> Br</span>
-                                        </div>
-                                        <?php endif; ?>
-                                        <?php
-                                        $itemPurchase = (float)($item->purchase_price ?? 0);
-                                        $itemMarginPct = ($item->price > 0 && $itemPurchase > 0) ? round(($item->price - $itemPurchase) / $item->price * 100, 1) : null;
-                                        ?>
-                                        <?php if ($itemMarginPct !== null): ?>
-                                        <div>
-                                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:2px">Маржа</div>
-                                            <span style="color:<?= $itemMarginPct >= 0 ? '#059669' : '#dc2626' ?>;font-weight:700"><?= $itemMarginPct ?>%</span>
-                                        </div>
-                                        <?php endif; ?>
-                                        <?php if (!empty($item->poizon_track)): ?>
-                                        <div>
-                                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:2px">Трек Poizon</div>
-                                            <span style="font-family:monospace"><?= Html::encode($item->poizon_track) ?></span>
-                                        </div>
-                                        <?php endif; ?>
-                                        <?php if (!empty($item->buyout_status)): ?>
-                                        <div>
-                                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:2px">Статус выкупа</div>
-                                            <span><?= Html::encode($item->buyout_status) ?></span>
-                                        </div>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -661,23 +475,17 @@ $customer = $model->customer ?? null;
                             <span>Подытог:</span>
                             <span style="min-width:90px;text-align:right"><?= Yii::$app->formatter->asDecimal($subtotal, 2) ?> Br</span>
                         </div>
-                        <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:3px 0;color:<?= $discountAmt > 0 ? '#059669' : 'var(--admin-text-secondary,#9ca3af)' ?>">
+                        <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:<?= $discountAmt > 0 ? '#059669' : 'var(--admin-text-secondary,#9ca3af)' ?>">
                             <span>Скидка:</span>
-                            <div class="crm-editable" data-field="discount" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="min-width:90px;text-align:right;padding:2px 6px">
-                                <?= $discountAmt > 0 ? '−' . Yii::$app->formatter->asDecimal($discountAmt, 2) . ' Br' : '<span class="crm-editable-empty" style="font-style:italic;font-size:0.75rem">не задана</span>' ?>
-                            </div>
+                            <span style="min-width:90px;text-align:right"><?= $discountAmt > 0 ? '−' . Yii::$app->formatter->asDecimal($discountAmt, 2) . ' Br' : '<span style="font-style:italic;font-size:0.75rem">не задана</span>' ?></span>
                         </div>
-                        <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:3px 0;color:<?= $deliveryCost > 0 ? 'var(--admin-text-primary,#111)' : 'var(--admin-text-secondary,#9ca3af)' ?>">
+                        <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:<?= $deliveryCost > 0 ? 'var(--admin-text-primary,#111)' : 'var(--admin-text-secondary,#9ca3af)' ?>">
                             <span>Доставка:</span>
-                            <div class="crm-editable" data-field="delivery_cost" data-id="<?= $model->id ?>" data-type="number" data-value="<?= (float)($model->delivery_cost ?? 0) ?>" onclick="startEdit(this)" style="min-width:90px;text-align:right;padding:2px 6px">
-                                <?= $deliveryCost > 0 ? Yii::$app->formatter->asDecimal($deliveryCost, 2) . ' Br' : '<span class="crm-editable-empty" style="font-style:italic;font-size:0.75rem">не задана</span>' ?>
-                            </div>
+                            <span style="min-width:90px;text-align:right"><?= $deliveryCost > 0 ? Yii::$app->formatter->asDecimal($deliveryCost, 2) . ' Br' : '<span style="font-style:italic;font-size:0.75rem">не задана</span>' ?></span>
                         </div>
-                        <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:3px 0;color:<?= $commissionRow > 0 ? 'var(--admin-text-primary,#111)' : 'var(--admin-text-secondary,#9ca3af)' ?>">
+                        <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:<?= $commissionRow > 0 ? 'var(--admin-text-primary,#111)' : 'var(--admin-text-secondary,#9ca3af)' ?>">
                             <span>Комиссия:</span>
-                            <div class="crm-editable" data-field="commission_price" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="min-width:90px;text-align:right;padding:2px 6px">
-                                <?= $commissionRow > 0 ? Yii::$app->formatter->asDecimal($commissionRow, 2) . ' Br' : '<span class="crm-editable-empty" style="font-style:italic;font-size:0.75rem">не задана</span>' ?>
-                            </div>
+                            <span style="min-width:90px;text-align:right"><?= $commissionRow > 0 ? Yii::$app->formatter->asDecimal($commissionRow, 2) . ' Br' : '<span style="font-style:italic;font-size:0.75rem">не задана</span>' ?></span>
                         </div>
                     </div>
                     <div class="crm-total-row">
@@ -831,11 +639,11 @@ $customer = $model->customer ?? null;
                         </div>
                         <div class="crm-field">
                             <div class="crm-field-label">Дата выдачи</div>
-                            <div class="crm-editable" data-field="passport_issue_date" data-id="<?= $model->id ?>" data-type="date" data-value="<?= Html::encode($model->passport_issue_date ?? '') ?>" onclick="startEdit(this)"><?= !empty($model->passport_issue_date) ? Html::encode($model->passport_issue_date) : '<span class="crm-editable-empty">—</span>' ?></div>
+                            <div class="crm-editable" data-field="passport_issue_date" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->passport_issue_date) ? Html::encode($model->passport_issue_date) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
                             <div class="crm-field-label">Дата рождения</div>
-                            <div class="crm-editable" data-field="birth_date" data-id="<?= $model->id ?>" data-type="date" data-value="<?= Html::encode($model->birth_date ?? '') ?>" onclick="startEdit(this)"><?= !empty($model->birth_date) ? Html::encode($model->birth_date) : '<span class="crm-editable-empty">—</span>' ?></div>
+                            <div class="crm-editable" data-field="birth_date" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->birth_date) ? Html::encode($model->birth_date) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
                             <div class="crm-field-label">ИНН <span title="Обязательно для Таможня:ДП (РФ)" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
@@ -883,19 +691,6 @@ $customer = $model->customer ?? null;
                 </div>
             </div>
 
-            <!-- Comment -->
-            <div class="crm-card">
-                <div class="crm-card-head">
-                    <h3><i class="bi bi-chat-left-text"></i> Комментарий к заказу</h3>
-                </div>
-                <div class="crm-card-body" style="padding:12px 16px">
-                    <div class="crm-editable" data-field="comment" data-id="<?= $model->id ?>" onclick="startEdit(this)"
-                         style="min-height:52px;font-size:0.875rem;line-height:1.5;white-space:pre-wrap;border-radius:8px;background:var(--admin-surface-hover,#f9fafb);border:1px dashed var(--admin-border,#e5e7eb);padding:8px 12px">
-                        <?= $model->comment ? nl2br(Html::encode($model->comment)) : '<span class="crm-editable-empty" style="font-style:italic">Нажмите чтобы добавить комментарий…</span>' ?>
-                    </div>
-                </div>
-            </div>
-
             <!-- Маржинальность -->
             <?php
             $salePrice       = (float)($model->total_amount ?? 0);
@@ -924,7 +719,7 @@ $customer = $model->customer ?? null;
                     <div class="crm-info-grid" style="grid-template-columns:repeat(3,1fr);gap:8px">
                         <div class="crm-field">
                             <div class="crm-field-label">Продажа</div>
-                            <div class="crm-editable" data-field="total_amount" data-id="<?= $model->id ?>" data-type="number" data-value="<?= (float)($model->total_amount ?? 0) ?>" onclick="startEdit(this)" style="color:#059669;font-weight:700"><?= Yii::$app->formatter->asDecimal($salePrice, 2) ?> Br</div>
+                            <div class="crm-editable" data-field="total_amount" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="color:#059669;font-weight:700"><?= Yii::$app->formatter->asDecimal($salePrice, 2) ?> Br</div>
                         </div>
                         <div class="crm-field">
                             <div class="crm-field-label">Закупка</div>
@@ -971,6 +766,21 @@ $customer = $model->customer ?? null;
                     </div>
                     <input type="file" id="file-upload-input" style="display:none" multiple onchange="uploadOrderFiles(this, <?= $model->id ?>)">
                     <div id="file-upload-result" style="font-size:0.75rem;margin-top:6px"></div>
+                </div>
+            </div>
+
+            <!-- Комментарий -->
+            <div class="crm-card">
+                <div class="crm-card-head">
+                    <h3><i class="bi bi-chat-left-text"></i> Комментарий</h3>
+                </div>
+                <div class="crm-card-body">
+                    <textarea id="order-comment-ta" class="admin-form-input" rows="3"
+                              style="width:100%;font-size:.8125rem;resize:vertical"
+                              placeholder="Добавить комментарий к заказу..."
+                              onblur="if(this.value !== this.dataset.orig){saveField('comment',this.value);this.dataset.orig=this.value;}"
+                              onfocus="this.dataset.orig=this.value"
+                    ><?= Html::encode($model->comment ?? '') ?></textarea>
                 </div>
             </div>
 
@@ -1104,39 +914,9 @@ $customer = $model->customer ?? null;
                         );
                         ?>
                         <?php if ($hasMismatch): ?>
-                        <div id="customer-mismatch-banner" style="margin-bottom:10px;padding:8px 10px;background:var(--admin-warning-bg,#fef9c3);border-radius:6px;font-size:.72rem;color:var(--admin-warning,#d97706)">
-                            <div style="display:flex;align-items:center;gap:5px;font-weight:600;margin-bottom:6px">
-                                <i class="bi bi-exclamation-triangle-fill"></i>
-                                Данные заказа отличаются от профиля клиента
-                            </div>
-                            <?php
-                            $customerName = trim($customer->getFullName() ?? '');
-                            $diffRows = [];
-                            if ($customerName && trim($model->client_name ?? '') !== $customerName)
-                                $diffRows[] = ['ФИО', Html::encode($model->client_name ?: '—'), Html::encode($customerName)];
-                            if ($customerPhone && $orderPhone !== $customerPhone)
-                                $diffRows[] = ['Телефон', Html::encode($model->client_phone ?: '—'), Html::encode($customer->phone)];
-                            if ($customerEmail && $orderEmail !== $customerEmail)
-                                $diffRows[] = ['Email', Html::encode($model->client_email ?: '—'), Html::encode($customer->email)];
-                            ?>
-                            <table style="width:100%;border-collapse:collapse;font-size:.7rem;margin-bottom:6px">
-                                <tr style="color:#92400e;font-weight:700">
-                                    <td style="padding:2px 4px">Поле</td>
-                                    <td style="padding:2px 4px">В заказе</td>
-                                    <td style="padding:2px 4px">У клиента</td>
-                                </tr>
-                                <?php foreach ($diffRows as $row): ?>
-                                <tr>
-                                    <td style="padding:2px 4px;opacity:.8"><?= $row[0] ?></td>
-                                    <td style="padding:2px 4px;text-decoration:line-through;opacity:.7"><?= $row[1] ?></td>
-                                    <td style="padding:2px 4px;font-weight:600;color:#065f46"><?= $row[2] ?></td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </table>
-                            <button type="button" id="btn-sync-customer" onclick="syncCustomerData(<?= $model->id ?>)"
-                                style="padding:3px 10px;font-size:.72rem;background:#d97706;color:#fff;border:none;border-radius:4px;cursor:pointer">
-                                <i class="bi bi-arrow-repeat"></i> Синхронизировать с профилем
-                            </button>
+                        <div style="margin-bottom:8px;padding:5px 8px;background:var(--admin-warning-bg,#fef9c3);border-radius:6px;font-size:.72rem;color:var(--admin-warning,#d97706);display:flex;align-items:center;gap:5px">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            Данные заказа отличаются от профиля клиента
                         </div>
                         <?php endif; ?>
                         <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:8px">Данные покупателя (snapshot заказа)</div>
@@ -1151,7 +931,7 @@ $customer = $model->customer ?? null;
                                 <div class="crm-field-label">Телефон</div>
                                 <div class="crm-editable" data-field="client_phone" data-id="<?= $model->id ?>" onclick="startEdit(this)">
                                     <?php if ($model->client_phone): ?>
-                                        <?= Html::encode($model->client_phone) ?>
+                                        <a href="tel:<?= Html::encode($model->client_phone) ?>" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none"><?= Html::encode($model->client_phone) ?></a>
                                     <?php else: ?><span class="crm-editable-empty">—</span><?php endif; ?>
                                 </div>
                             </div>
@@ -1159,7 +939,7 @@ $customer = $model->customer ?? null;
                                 <div class="crm-field-label">Email</div>
                                 <div class="crm-editable" data-field="client_email" data-id="<?= $model->id ?>" onclick="startEdit(this)">
                                     <?php if ($model->client_email): ?>
-                                        <?= Html::encode($model->client_email) ?>
+                                        <a href="mailto:<?= Html::encode($model->client_email) ?>" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;font-size:.8rem;word-break:break-all"><?= Html::encode($model->client_email) ?></a>
                                     <?php else: ?><span class="crm-editable-empty">—</span><?php endif; ?>
                                 </div>
                             </div>
@@ -1181,20 +961,6 @@ $customer = $model->customer ?? null;
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <?php if ($slaInfo): ?>
-                        <div class="crm-field">
-                            <div class="crm-field-label">SLA статуса</div>
-                            <div>
-                                <?php if ($slaInfo['overdue']): ?>
-                                <span style="background:#fee2e2;color:#b91c1c;font-size:0.7rem;padding:2px 8px;border-radius:6px;font-weight:700"><i class="bi bi-alarm-fill"></i> Просрочен на <?= abs($slaInfo['hours_left']) ?> ч</span>
-                                <?php elseif ($slaInfo['hours_left'] < 6): ?>
-                                <span style="background:#fef3c7;color:#92400e;font-size:0.7rem;padding:2px 8px;border-radius:6px;font-weight:700"><i class="bi bi-alarm"></i> <?= $slaInfo['hours_left'] ?> ч до дедлайна</span>
-                                <?php else: ?>
-                                <span style="background:#d1fae5;color:#065f46;font-size:0.7rem;padding:2px 8px;border-radius:6px;font-weight:700"><i class="bi bi-check-circle"></i> <?= $slaInfo['hours_left'] ?> ч до дедлайна</span>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -1204,16 +970,10 @@ $customer = $model->customer ?? null;
                 <div class="crm-card-head">
                     <h3><i class="bi bi-credit-card"></i> Оплата</h3>
                     <?php
-                    $terminalStatuses = ['delivered','completed','canceled','cancelled','return','issued'];
-                    if (!empty($model->payment_uploaded_at)) {
-                        $payBg = '#d1fae5'; $payColor = '#065f46'; $payLabel = 'Оплачен';
-                    } elseif ($model->status === 'refunded') {
-                        $payBg = '#fce7f3'; $payColor = '#9d174d'; $payLabel = 'Возврат';
-                    } elseif (in_array($model->status, $terminalStatuses)) {
-                        $payBg = '#f3f4f6'; $payColor = '#6b7280'; $payLabel = 'Не оплачен';
-                    } else {
-                        $payBg = '#fef3c7'; $payColor = '#92400e'; $payLabel = 'Ожидает оплаты';
-                    }
+                    $paymentStatus = !empty($model->payment_uploaded_at) ? 'paid' : 'pending';
+                    $payBg = $paymentStatus === 'paid' ? '#d1fae5' : '#fef3c7';
+                    $payColor = $paymentStatus === 'paid' ? '#065f46' : '#92400e';
+                    $payLabel = $paymentStatus === 'paid' ? 'Оплачен' : 'Ожидает оплаты';
                     ?>
                     <span style="background:<?= $payBg ?>;color:<?= $payColor ?>;font-size:0.7rem;padding:2px 8px;border-radius:6px;font-weight:700"><?= $payLabel ?></span>
                 </div>
@@ -1385,9 +1145,19 @@ $customer = $model->customer ?? null;
                             <?php endif ?>
                         </select>
                     </div>
-                    <!-- ПВЗ dropdown (Европочта) -->
+                    <!-- Самовывоз — адрес из настроек (read-only) -->
+                    <?php
+                    $pickupAddr = Yii::$app->settings->get('checkout', 'pickup_address', 'пр.Победителей 5, офис 9');
+                    ?>
+                    <div class="crm-field" style="margin-bottom:8px" data-delivery-group="pickup-info">
+                        <div class="crm-field-label">Адрес самовывоза</div>
+                        <div style="font-size:0.75rem;padding:5px 8px;background:var(--admin-surface-2,#f8f9fa);border:1px solid var(--admin-border,#e5e7eb);border-radius:6px;color:var(--admin-text-primary,#111)">
+                            <i class="bi bi-geo-alt-fill" style="color:#059669"></i> <?= Html::encode($pickupAddr) ?>
+                        </div>
+                    </div>
+                    <!-- ПВЗ dropdown (Европочта / СДЭК) -->
                     <div class="crm-field" style="margin-bottom:8px" data-delivery-group="pvz">
-                        <div class="crm-field-label">ПВЗ Европочты</div>
+                        <div class="crm-field-label" id="pvz-group-label">Пункт выдачи</div>
                         <?php if ($model->pickup_point): ?>
                         <div style="font-size:0.7rem;color:#059669;margin-bottom:4px"><i class="bi bi-geo-alt-fill"></i> ПВЗ: <?= Html::encode($model->pickup_point) ?></div>
                         <?php endif; ?>
@@ -1399,12 +1169,9 @@ $customer = $model->customer ?? null;
                             <div class="crm-pvz-dropdown" id="pvz-dropdown" style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:6px;max-height:240px;overflow-y:auto;box-shadow:0 10px 25px rgba(0,0,0,.1);z-index:50;display:none"></div>
                         </div>
                     </div>
-                    <!-- Адрес доставки (Белпочта, Курьер, СДЭК) -->
+                    <!-- Адрес доставки (Белпочта, Курьер Минск) -->
                     <div class="crm-field" style="margin-bottom:8px" data-delivery-group="address">
                         <div class="crm-field-label">Адрес доставки</div>
-                        <?php if ($model->pickup_point): ?>
-                        <div style="font-size:0.7rem;color:#059669;margin-bottom:3px"><i class="bi bi-geo-alt-fill"></i> ПВЗ: <?= Html::encode($model->pickup_point) ?></div>
-                        <?php endif; ?>
                         <input type="text" class="admin-form-input" style="font-size:0.75rem;padding:4px 8px;width:100%"
                                value="<?= Html::encode($model->delivery_address ?? '') ?>"
                                onchange="saveField('delivery_address', this.value)"
@@ -1570,28 +1337,6 @@ $customer = $model->customer ?? null;
                     </span>
                 </div>
                 <div class="crm-card-body">
-                    <?php
-                    try {
-                        $msLastLog = Yii::$app->db->createCommand(
-                            'SELECT * FROM moysklad_sync_log WHERE order_id=:id ORDER BY created_at DESC LIMIT 1',
-                            [':id' => $model->id]
-                        )->queryOne();
-                    } catch (\Exception $e) { $msLastLog = null; }
-                    ?>
-                    <?php if ($msLastLog): ?>
-                    <?php $msOk = (int)($msLastLog['success'] ?? 0) === 1; ?>
-                    <div style="margin-bottom:8px;padding:5px 8px;border-radius:5px;font-size:.72rem;
-                        background:<?= $msOk ? '#d1fae5' : '#fee2e2' ?>;
-                        color:<?= $msOk ? '#065f46' : '#991b1b' ?>">
-                        <div style="font-weight:600">
-                            <?= $msOk ? '<i class="bi bi-check-circle-fill"></i> Успешно' : '<i class="bi bi-x-circle-fill"></i> Ошибка' ?>
-                            <span style="font-weight:400;opacity:.8;margin-left:4px"><?= Html::encode(Yii::$app->formatter->asDatetime($msLastLog['created_at'], 'php:d.m.Y H:i')) ?></span>
-                        </div>
-                        <?php if (!$msOk && !empty($msLastLog['message'])): ?>
-                        <div style="margin-top:3px;font-size:.7rem;opacity:.9;word-break:break-word"><?= Html::encode($msLastLog['message']) ?></div>
-                        <?php endif; ?>
-                    </div>
-                    <?php endif; ?>
                     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">
                         <?php if ($msStatus): ?>
                         <a href="https://online.moysklad.ru/app/#customerorder/edit?id=<?= Html::encode($msStatus) ?>"
@@ -1599,8 +1344,8 @@ $customer = $model->customer ?? null;
                             <i class="bi bi-box-arrow-up-right"></i> Открыть в МС
                         </a>
                         <?php endif; ?>
-                        <button id="btn-sync-ms-retry" class="admin-btn admin-btn-secondary admin-btn-sm" onclick="syncMoyskladRetry(<?= $model->id ?>)">
-                            <i class="bi bi-arrow-repeat" id="ms-retry-icon"></i> <?= $msLastLog && !$msLastLog['success'] ? 'Повторить' : 'Синхронизировать' ?>
+                        <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="syncMoysklad(<?= $model->id ?>)">
+                            <i class="bi bi-arrow-repeat"></i> Синхронизировать
                         </button>
                         <span id="ms-sync-result" style="font-size:0.75rem"></span>
                     </div>
@@ -1764,7 +1509,6 @@ $customer = $model->customer ?? null;
             $expectedTs = !empty($model->estimated_delivery_date) ? strtotime($model->estimated_delivery_date) : null;
             $daysLeft   = $expectedTs ? (int)ceil(($expectedTs - time()) / 86400) : null;
             $isOverdue  = $expectedTs && time() > $expectedTs && !in_array($model->status, ['delivered','cancelled','returned']);
-            $overdueBy  = $isOverdue ? (int)floor((time() - $expectedTs) / 86400) : 0;
             ?>
             <div class="crm-card" style="margin-top:4px">
                 <div class="crm-card-head">
@@ -1774,25 +1518,14 @@ $customer = $model->customer ?? null;
                     <?php endif; ?>
                 </div>
                 <div style="padding:8px 14px;display:flex;flex-direction:column;gap:5px;font-size:0.775rem">
-                    <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline">
                         <span style="color:var(--admin-text-secondary,#6b7280)">Создан</span>
-                        <span style="font-weight:600;display:flex;align-items:center;gap:5px">
-                            <?= $createdTs ? date('d.m.Y', $createdTs) : '—' ?>
-                            <?php if ($daysAgo !== null): ?>
-                                <?php if ($isOverdue): ?>
-                                <span title="Просрочено на <?= $overdueBy ?> дн."
-                                      style="display:inline-flex;align-items:center;gap:3px;background:#fee2e2;color:#991b1b;border-radius:5px;padding:1px 6px;font-size:0.7rem;font-weight:700;cursor:default">
-                                    <i class="bi bi-exclamation-triangle-fill" style="font-size:0.65rem"></i> <?= $daysAgo ?> дн.
-                                </span>
-                                <?php else: ?>
-                                <span style="color:var(--admin-text-secondary,#9ca3af);font-weight:400">(<?= $daysAgo ?> дн.)</span>
-                                <?php endif; ?>
-                            <?php endif; ?>
-                        </span>
+                        <span style="font-weight:600"><?= $createdTs ? date('d.m.Y', $createdTs) : '—' ?>
+                        <?php if ($daysAgo !== null): ?><span style="color:var(--admin-text-secondary,#9ca3af);font-weight:400"> (<?= $daysAgo ?> дн.)</span><?php endif; ?></span>
                     </div>
                     <div style="display:flex;justify-content:space-between;align-items:baseline">
                         <span style="color:var(--admin-text-secondary,#6b7280)">Ожид. доставка</span>
-                        <div class="crm-editable" data-field="estimated_delivery_date" data-id="<?= $model->id ?>" data-type="date" data-value="<?= Html::encode($model->estimated_delivery_date ?? '') ?>" onclick="startEdit(this)" style="font-weight:600;<?= $isOverdue ? 'color:#dc2626' : '' ?>">
+                        <div class="crm-editable" data-field="estimated_delivery_date" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-weight:600;<?= $isOverdue ? 'color:#dc2626' : '' ?>">
                             <?= $expectedTs ? Html::encode(date('d.m.Y', $expectedTs)) : '<span class="crm-editable-empty">—</span>' ?>
                         </div>
                     </div>
@@ -1834,24 +1567,21 @@ $customer = $model->customer ?? null;
             <button type="button" onclick="document.getElementById('crm-history-popup').classList.remove('open')"
                     style="background:none;border:none;cursor:pointer;padding:4px 8px;font-size:1.25rem;color:var(--admin-text-secondary,#6b7280);line-height:1">&times;</button>
         </div>
-        <div style="padding:10px 16px;border-bottom:1px solid var(--admin-border,#e5e7eb);background:var(--admin-surface-hover,#f9fafb);display:flex;align-items:center;justify-content:space-between;gap:10px">
-            <div style="font-size:0.75rem;color:var(--admin-text-secondary,#6b7280);font-weight:600;text-transform:uppercase;letter-spacing:.04em">Текущий статус</div>
-            <span style="background:<?= Html::encode($model->getStatusColor()) ?>;color:#fff;border-radius:20px;padding:3px 10px;font-size:0.75rem;font-weight:700">
-                <?= Html::encode($statuses[$model->status] ?? $model->status) ?>
-            </span>
-            <div style="font-size:0.7rem;color:var(--admin-text-secondary,#9ca3af)">Смена — в шапке страницы</div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--admin-border,#e5e7eb);background:var(--admin-surface-hover,#f9fafb)">
+            <form method="post" action="<?= Url::to(['/admin/order/change-status', 'id' => $model->id]) ?>">
+                <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
+                <select name="status" class="admin-form-input" style="font-size:0.8125rem;padding:6px 10px;margin-bottom:6px;width:100%">
+                    <?php foreach ($statuses as $key => $label): ?>
+                    <option value="<?= $key ?>" <?= $model->status == $key ? 'selected' : '' ?>><?= $label ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <textarea name="comment" class="crm-note-textarea" rows="2" placeholder="Комментарий к смене статуса..." style="min-height:40px;margin-bottom:6px"></textarea>
+                <button type="submit" class="admin-btn admin-btn-primary admin-btn-sm" style="width:100%;justify-content:center">
+                    <i class="bi bi-check2-circle"></i> Сменить статус
+                </button>
+            </form>
         </div>
-        <div style="padding:10px 16px;border-bottom:1px solid var(--admin-border,#f3f4f6)">
-            <button type="button" id="historyToggle" onclick="toggleHistoryTimeline()"
-                style="background:none;border:none;cursor:pointer;font-size:0.8125rem;color:var(--admin-primary,#2563eb);font-weight:600;padding:0;display:flex;align-items:center;gap:4px">
-                <i class="bi bi-chevron-right" id="historyToggleIcon"></i>
-                <span id="historyToggleLabel">Развернуть историю</span>
-                <?php if (!empty($model->history)): ?>
-                    <span style="font-size:0.7rem;background:#dbeafe;color:#1e40af;border-radius:10px;padding:0 6px;margin-left:2px"><?= count($model->history) ?></span>
-                <?php endif; ?>
-            </button>
-        </div>
-        <div class="crm-timeline" id="historyTimeline" style="display:none">
+        <div class="crm-timeline">
             <?php if (!empty($model->history)): ?>
                 <?php foreach ($model->history as $h): ?>
                 <div class="crm-tl-item">
@@ -1869,7 +1599,7 @@ $customer = $model->customer ?? null;
                 </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <p style="color:var(--admin-text-secondary,#9ca3af);font-size:0.8rem;margin:0;padding:12px 16px">История пуста.</p>
+                <p style="color:var(--admin-text-secondary,#9ca3af);font-size:0.8rem;margin:0">История пуста.</p>
             <?php endif; ?>
         </div>
     </div>
@@ -1880,11 +1610,6 @@ $customer = $model->customer ?? null;
 <?php
 $_csrfToken   = Yii::$app->request->csrfToken;
 $_modelId     = $model->id;
-$_changeStatusUrl    = Url::to(['/admin/order/change-status', 'id' => $model->id]);
-$_csrfParam          = Yii::$app->request->csrfParam;
-$_statusColorsJson   = json_encode($statusColors);
-$_statusBgColorsJson = json_encode($statusBgColors);
-$_statusLabelsJson   = json_encode($statuses);
 $_checkUrl    = Url::to(['/admin/order/check-track', 'orderId' => $model->id]);
 $_updateUrl   = Url::to(['/admin/order/update-field', 'id' => $model->id]);
 $_saveUrl     = '/admin/order/save-field';
@@ -1897,17 +1622,6 @@ $_dpAutoFillUrl = Url::to(['/admin/order/auto-fill-dp', 'id' => $model->id]);
 $_itemCount   = count($model->orderItems);
 
 $this->registerJs(<<<JS
-// ── Expand product row details ────────────────────────────
-window.toggleItemDetails = function(id, btn) {
-    var row = document.getElementById(id);
-    if (!row) return;
-    var open = row.style.display === 'table-row';
-    row.style.display = open ? 'none' : 'table-row';
-    var icon = btn.querySelector('i');
-    if (icon) icon.className = open ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
-    btn.style.color = open ? '' : 'var(--admin-accent,#111)';
-};
-
 // ── Edit mode toggle ──────────────────────────────────────
 var editModeActive = false;
 var toggleBtn = document.getElementById('toggleEditMode');
@@ -1924,65 +1638,34 @@ if (toggleBtn) {
 
 // ── Inline click-to-edit ──────────────────────────────────
 window.startEdit = function(el) {
-    if (el.querySelector('input,textarea,select')) return;
-    var field   = el.dataset.field;
-    var dtype   = el.dataset.type || '';
-    var opts    = el.dataset.options ? JSON.parse(el.dataset.options) : null;
-    var curVal  = el.dataset.value !== undefined ? el.dataset.value : el.innerText.trim();
-    if (curVal === 'Не указано' || curVal === '—' || curVal === '-') curVal = '';
+    if (el.querySelector('input,textarea')) return;
+    var field  = el.dataset.field;
+    var curVal = el.innerText.trim();
+    if (curVal === 'Не указано' || curVal === '—' || curVal === '-' || curVal.trim() === '') curVal = '';
     el.classList.remove('crm-editable-empty');
-    var origHtml = el.innerHTML;
-    var input;
-    if (opts) {
-        input = document.createElement('select');
-        input.className = 'crm-editable-input';
-        Object.keys(opts).forEach(function(k) {
-            var o = document.createElement('option');
-            o.value = k; o.textContent = opts[k];
-            if (k === curVal) o.selected = true;
-            input.appendChild(o);
-        });
-    } else if (dtype === 'textarea' || field === 'comment' || field === 'full_address' || field === 'customs_description') {
-        input = document.createElement('textarea');
-        input.className = 'crm-editable-input';
-        input.value = curVal; input.rows = 3; input.style.resize = 'vertical';
-    } else if (dtype === 'date') {
-        input = document.createElement('input');
-        input.type = 'date'; input.className = 'crm-editable-input'; input.value = curVal;
-    } else if (dtype === 'number') {
-        input = document.createElement('input');
-        input.type = 'number'; input.step = '0.01'; input.className = 'crm-editable-input'; input.value = curVal;
-    } else {
-        input = document.createElement('input');
-        input.type = 'text'; input.className = 'crm-editable-input'; input.value = curVal;
-    }
+    var isArea = field === 'comment';
+    var input  = document.createElement(isArea ? 'textarea' : 'input');
+    input.className = 'crm-editable-input';
+    input.value     = curVal;
+    if (isArea) { input.rows = 3; input.style.resize = 'vertical'; }
     el.innerHTML = '';
     el.appendChild(input);
     input.focus();
-    if (input.tagName === 'INPUT' && input.type !== 'date') { input.select(); }
-    var isArea = input.tagName === 'TEXTAREA';
-    var saved = false;
     var save = function() {
-        if (saved) return; saved = true;
-        var v = input.value;
-        saveField(field, v);
-        if (el.dataset.value !== undefined) el.dataset.value = v;
-        if (v) {
-            el.innerHTML = isArea ? v.replace(/\\n/g,'<br>') : v;
+        saveField(field, input.value);
+        if (input.value) {
+            el.innerHTML = field === 'comment' ? input.value.replace(/\\n/g,'<br>') : input.value;
             el.classList.remove('crm-editable-empty');
         } else {
             el.innerHTML = '<span class="crm-editable-empty">—</span>';
         }
     };
-    var cancel = function() {
-        saved = true;
-        el.innerHTML = origHtml;
-    };
     input.addEventListener('blur', save);
     input.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !isArea) { e.preventDefault(); save(); }
-        if (e.key === 'Enter' && isArea && e.ctrlKey) { e.preventDefault(); save(); }
-        if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+        if (e.key === 'Escape') {
+            el.innerHTML = curVal ? curVal : '<span class="crm-editable-empty">—</span>';
+        }
     });
 };
 
@@ -2008,23 +1691,10 @@ window.saveField = function(field, value) {
 window.copyToClipboard = function(inputId) {
     var el = document.getElementById(inputId);
     if (!el) return;
-    var text = el.value;
-    var icon = document.getElementById('copy-icon');
-    var success = function() {
+    navigator.clipboard.writeText(el.value).then(function() {
+        var icon = document.getElementById('copy-icon');
         if (icon) { icon.className = 'bi bi-check2'; setTimeout(function(){ icon.className = 'bi bi-clipboard'; }, 2000); }
-    };
-    function fallback(t, cb) {
-        var ta = document.createElement('textarea');
-        ta.value = t; ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none;top:0;left:0';
-        document.body.appendChild(ta); ta.focus(); ta.select();
-        try { if (document.execCommand('copy')) cb(); } catch(e) {}
-        ta.remove();
-    }
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(success).catch(function() { fallback(text, success); });
-    } else {
-        fallback(text, success);
-    }
+    });
 };
 
 // ── Track check ───────────────────────────────────────────
@@ -2042,61 +1712,16 @@ window.checkTrack = function(track, resultDivId) {
 // ── DobroPost actions ─────────────────────────────────────
 function dpResult(msg, ok) {
     var r = document.getElementById('dp-action-result');
-    if (!r) return;
-    r.innerHTML = (ok ? '<i class="bi bi-check-circle-fill" style="color:#059669"></i> ' : '<i class="bi bi-exclamation-triangle-fill" style="color:#dc2626"></i> ') + msg;
-    r.style.color = ok ? '#059669' : '#dc2626';
+    if (r) { r.textContent = (ok ? '✓ ' : '✗ ') + msg; r.style.color = ok ? '#059669' : '#dc2626'; }
 }
-
-var DP_REQUIRED_FIELDS = {
-    'recipient_last_name':  'Фамилия получателя',
-    'recipient_first_name': 'Имя получателя',
-    'passport_series':      'Серия паспорта',
-    'passport_number':      'Номер паспорта',
-    'passport_issue_date':  'Дата выдачи паспорта',
-    'inn':                  'УНП/ИНН',
-    'full_address':         'Полный адрес',
-    'city':                 'Город',
-    'region':               'Область/регион',
-    'postal_code':          'Индекс',
-};
-
-function validateDpFields() {
-    var missing = [];
-    Object.keys(DP_REQUIRED_FIELDS).forEach(function(field) {
-        var el = document.querySelector('.crm-editable[data-field="' + field + '"]');
-        var val = el ? el.innerText.trim() : '';
-        if (!val || val === '—' || val === 'Не указано') {
-            missing.push(DP_REQUIRED_FIELDS[field]);
-        }
-    });
-    return missing;
-}
-
 window.sendToDP = function(id) {
-    var missing = validateDpFields();
-    if (missing.length > 0) {
-        dpResult('Заполните поля: ' + missing.join(', '), false);
-        return;
-    }
-    var btn = event.target.closest('button') || event.target;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Отправка...';
-    fetch('$_dpSendUrl', {method:'POST', headers:{'X-CSRF-Token':'$_csrfToken','Content-Type':'application/json'}})
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
+    var btn = event.target; btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Отправка...';
+    fetch('$_dpSendUrl', {method:'POST',headers:{'X-CSRF-Token':'$_csrfToken','Content-Type':'application/json'}})
+    .then(function(r){return r.json();}).then(function(d){
         dpResult(d.message, d.success);
-        if (d.success) {
-            setTimeout(function() { location.reload(); }, 1500);
-        } else {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-send"></i> Отправить в ДП';
-        }
-    })
-    .catch(function() {
-        dpResult('Ошибка сети. Проверьте соединение и попробуйте снова.', false);
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-send"></i> Отправить в ДП';
-    });
+        if (d.success) setTimeout(function(){location.reload();}, 1500);
+        else { btn.disabled = false; btn.innerHTML = '<i class="bi bi-send"></i> Отправить в ДП'; }
+    }).catch(function(){ dpResult('Ошибка сети', false); btn.disabled = false; });
 };
 window.refreshDPStatus = function(id) {
     dpResult('Обновляем...', true);
@@ -2132,91 +1757,68 @@ window.autoFillDp = function(id) {
 };
 
 // ── MoySklad ──────────────────────────────────────────────
-function _doMsSyncRequest(id, btn, icon) {
+window.syncMoysklad = function(id) {
     var r = document.getElementById('ms-sync-result');
     var r2 = document.getElementById('ms-topbar-sync-result');
+    var btn = document.getElementById('btn-sync-ms');
     if (r) { r.textContent = 'Синхронизируем...'; r.style.color = '#6b7280'; }
     if (r2) { r2.textContent = 'Синхронизируем...'; r2.style.color = '#6b7280'; }
     if (btn) { btn.disabled = true; btn.style.opacity = '.6'; }
-    if (icon) { icon.classList.add('spin'); }
-    fetch('$_msSyncUrl', {method:'POST',headers:{'X-CSRF-Token':'$_csrfToken','Content-Type':'application/json'},body:JSON.stringify({id:id})})
-    .then(function(res){return res.json();}).then(function(d){
+    fetch('$_msSyncUrl', {method:'POST',headers:{'X-CSRF-Token':'$_csrfToken'}})
+    .then(function(r){return r.json();}).then(function(d){
         var msg = (d.success ? '✓ ' : '✗ ') + (d.message||'');
         var clr = d.success ? '#059669' : '#dc2626';
         if (r) { r.textContent = msg; r.style.color = clr; }
         if (r2) { r2.textContent = msg; r2.style.color = clr; }
         if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
-        if (icon) { icon.classList.remove('spin'); }
         if (d.success) setTimeout(function(){ location.reload(); }, 1200);
     }).catch(function(){
         if (r) { r.textContent = '✗ Ошибка сети'; r.style.color = '#dc2626'; }
         if (r2) { r2.textContent = '✗ Ошибка сети'; r2.style.color = '#dc2626'; }
-        if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
-        if (icon) { icon.classList.remove('spin'); }
-    });
-}
-window.syncMoysklad = function(id) {
-    _doMsSyncRequest(id, document.getElementById('btn-sync-ms'), null);
-};
-window.syncMoyskladRetry = function(id) {
-    _doMsSyncRequest(id, document.getElementById('btn-sync-ms-retry'), document.getElementById('ms-retry-icon'));
-};
-
-// ── Customer data sync ────────────────────────────────────
-window.syncCustomerData = function(orderId) {
-    if (!confirm('Перезаписать данные заказа данными из профиля клиента?\\nЭто действие будет зафиксировано в истории.')) return;
-    var btn = document.getElementById('btn-sync-customer');
-    if (btn) { btn.disabled = true; btn.style.opacity = '.6'; }
-    fetch('/admin/order/apply-customer-data', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json','X-CSRF-Token':'$_csrfToken'},
-        body: JSON.stringify({order_id: orderId})
-    }).then(function(r){ return r.json(); }).then(function(d) {
-        if (d.success && d.changed && Object.keys(d.changed).length > 0) {
-            var banner = document.getElementById('customer-mismatch-banner');
-            if (banner) banner.remove();
-            alert('Данные обновлены');
-        } else if (d.success) {
-            alert('Данные уже совпадают');
-        } else {
-            alert('Ошибка: ' + (d.message || 'Неизвестная ошибка'));
-            if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
-        }
-    }).catch(function() {
-        alert('Ошибка сети');
         if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
     });
 };
 
 // ── Delivery fields toggle ────────────────────────────────
 window.toggleDeliveryFields = function(method) {
-    var pvzEls = document.querySelectorAll('[data-delivery-group="pvz"]');
-    var addrEls = document.querySelectorAll('[data-delivery-group="address"]');
-    var trackEls = document.querySelectorAll('[data-delivery-group="track"]');
+    var pvzEls      = document.querySelectorAll('[data-delivery-group="pvz"]');
+    var addrEls     = document.querySelectorAll('[data-delivery-group="address"]');
+    var trackEls    = document.querySelectorAll('[data-delivery-group="track"]');
+    var pickupEls   = document.querySelectorAll('[data-delivery-group="pickup-info"]');
+    var pvzLabel    = document.getElementById('pvz-group-label');
 
-    var showPvz = false, showAddr = false, showTrack = false;
+    var showPvz = false, showAddr = false, showTrack = false, showPickup = false;
 
     switch (method) {
         case 'europochta':
             showPvz = true; showTrack = true;
+            if (pvzLabel) pvzLabel.textContent = 'ПВЗ Европочты';
+            break;
+        case 'cdek':
+            showPvz = true; showTrack = true;
+            if (pvzLabel) pvzLabel.textContent = 'ПВЗ СДЭК';
             break;
         case 'belpochta':
+            showAddr = true; showTrack = true;
+            break;
         case 'courier_minsk':
-        case 'cdek':
             showAddr = true; showTrack = true;
             break;
         case 'pickup':
-            // hide everything
+        case 'pickup_minsk':
+        case 'self':
+            showPickup = true;
             break;
         default:
-            // empty / unknown — show all
-            showPvz = true; showAddr = true; showTrack = true;
+            // unknown method — show addr+track, hide pvz/pickup
+            showAddr = true; showTrack = true;
             break;
     }
 
-    pvzEls.forEach(function(el) { el.style.display = showPvz ? '' : 'none'; });
-    addrEls.forEach(function(el) { el.style.display = showAddr ? '' : 'none'; });
-    trackEls.forEach(function(el) { el.style.display = showTrack ? '' : 'none'; });
+    pvzEls.forEach(function(el)    { el.style.display = showPvz    ? '' : 'none'; });
+    addrEls.forEach(function(el)   { el.style.display = showAddr   ? '' : 'none'; });
+    trackEls.forEach(function(el)  { el.style.display = showTrack  ? '' : 'none'; });
+    pickupEls.forEach(function(el) { el.style.display = showPickup ? '' : 'none'; });
 };
 
 // Init delivery fields visibility on page load
@@ -2423,76 +2025,6 @@ window.uploadOrderFiles = function(input, orderId) {
         if (result) { result.textContent = '✗ Ошибка загрузки'; result.style.color = '#dc2626'; }
     });
 };
-
-// ── History timeline toggle ──────────────────────────────
-window.toggleHistoryTimeline = function() {
-    var tl   = document.getElementById('historyTimeline');
-    var icon = document.getElementById('historyToggleIcon');
-    var lbl  = document.getElementById('historyToggleLabel');
-    if (!tl) return;
-    var open = tl.style.display !== 'none';
-    tl.style.display = open ? 'none' : 'block';
-    if (icon) icon.className = open ? 'bi bi-chevron-right' : 'bi bi-chevron-down';
-    if (lbl)  lbl.textContent = open ? 'Развернуть историю' : 'Свернуть историю';
-};
-
-// ── AJAX status change — updates pill without reload ──────
-var _statusColors   = $_statusColorsJson;
-var _statusBgColors = $_statusBgColorsJson;
-var _statusLabels   = $_statusLabelsJson;
-window.adminChangeStatus = function(select) {
-    var newStatus = select.value;
-    var oldStatus = select.dataset.prev || select.querySelector('[selected]')?.value;
-    select.dataset.prev = newStatus;
-    select.disabled = true;
-    var fd = new FormData();
-    fd.append('status', newStatus);
-    fd.append('$_csrfParam', '$_csrfToken');
-    fetch('$_changeStatusUrl', {
-        method: 'POST',
-        headers: {'X-Requested-With': 'XMLHttpRequest'},
-        body: fd
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-        select.disabled = false;
-        if (d.success) {
-            var pill = document.getElementById('crm-status-pill');
-            var lbl  = document.getElementById('crm-status-label');
-            if (pill) {
-                pill.style.background  = _statusBgColors[newStatus] || '#f3f4f6';
-                pill.style.color       = _statusColors[newStatus]   || '#6b7280';
-                pill.style.borderColor = _statusColors[newStatus]   || '#6b7280';
-            }
-            if (lbl) lbl.textContent = _statusLabels[newStatus] || newStatus;
-        } else {
-            alert(d.message || 'Ошибка изменения статуса');
-            location.reload();
-        }
-    })
-    .catch(function() { select.disabled = false; location.reload(); });
-};
-
-// ── Sidebar collapse (medium screens) ────────────────────
-var SIDEBAR_KEY = 'admin_order_sidebar_collapsed';
-window.toggleOrderSidebar = function() {
-    var body = document.getElementById('crmBody');
-    var icon = document.getElementById('sidebarToggleIcon');
-    if (!body) return;
-    var collapsed = body.classList.toggle('sidebar-collapsed');
-    if (icon) icon.className = collapsed ? 'bi bi-layout-sidebar' : 'bi bi-layout-sidebar-reverse';
-    try { localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0'); } catch(e) {}
-};
-(function() {
-    try {
-        if (localStorage.getItem(SIDEBAR_KEY) === '1') {
-            var body = document.getElementById('crmBody');
-            var icon = document.getElementById('sidebarToggleIcon');
-            if (body) { body.classList.add('sidebar-collapsed'); }
-            if (icon) icon.className = 'bi bi-layout-sidebar';
-        }
-    } catch(e) {}
-})();
 JS
 , \yii\web\View::POS_END);
 ?>

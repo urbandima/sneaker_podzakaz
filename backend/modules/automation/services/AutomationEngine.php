@@ -460,7 +460,8 @@ class AutomationEngine extends Component
             $vars['old_status']     = $context['old_status'] ?? '';
             $vars['dp_track']       = $order->dp_track_number ?? '';
             $vars['dp_status']      = $order->dp_status       ?? '';
-            $vars['passport_link']  = 'https://sneaker-head.by/account/orders/' . ($order->token ?? $order->id ?? '');
+            $frontendBase = rtrim(\Yii::$app->params['frontendBaseUrl'] ?? \Yii::$app->params['frontendUrl'] ?? 'https://sneakerhead.by', '/');
+            $vars['passport_link']  = $frontendBase . '/order/' . ($order->token ?? $order->id ?? '');
             $vars['order_id']       = $order->id ?? '';
         }
 

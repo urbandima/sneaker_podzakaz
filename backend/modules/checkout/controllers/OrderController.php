@@ -356,7 +356,8 @@ class OrderController extends Controller
 
                             // Send SMS with credentials
                             try {
-                                $smsCredentials = "Ваш заказ #{$order->order_number} оформлен! Логин: {$phone}, Пароль: {$autoAccountPassword}. Личный кабинет: https://sneaker-head.by/account/login";
+                                $frontendBase = rtrim(Yii::$app->params['frontendBaseUrl'] ?? Yii::$app->params['frontendUrl'] ?? 'https://sneakerhead.by', '/');
+                                $smsCredentials = "Ваш заказ #{$order->order_number} оформлен! Логин: {$phone}, Пароль: {$autoAccountPassword}. Личный кабинет: {$frontendBase}/account/login";
                                 $this->smsService->send($phone, $smsCredentials);
                             } catch (\Exception $smsEx) {
                                 Yii::warning('Не удалось отправить SMS с данными аккаунта: ' . $smsEx->getMessage(), 'order');
