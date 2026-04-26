@@ -177,6 +177,9 @@ $customer = $model->customer ?? null;
     color: var(--admin-text-primary, #111); outline: none;
 }
 .crm-editable-empty { color: var(--admin-text-secondary, #9ca3af); font-weight: 400; font-style: italic; }
+.crm-editable:focus { outline: none; border-color: var(--admin-primary, #2563eb); background: var(--admin-surface-hover, #f9fafb); }
+.crm-editable:focus-within { border-color: var(--admin-primary, #2563eb) !important; background: #eff6ff !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+.crm-editable.crm-editing { border-color: var(--admin-primary, #2563eb) !important; background: #eff6ff !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
 
 /* Inline save indicator */
 .crm-save-flash {
@@ -1783,6 +1786,26 @@ $_saveItemFieldUrl = Url::to(['/admin/order/save-item-field']);
 $_addItemUrl       = Url::to(['/admin/order/add-item']);
 
 $this->registerJs(<<<JS
+// ── Tab/Enter editable navigation helpers ─────────────────
+function _getAllEditables() {
+    return Array.from(document.querySelectorAll('.crm-editable[data-field]'));
+}
+function _openEditable(el) {
+    if (!el) return;
+    el.scrollIntoView({block: 'center', behavior: 'smooth'});
+    setTimeout(function(){ el.click(); el.focus(); }, 60);
+}
+function openNextEditable(currentEl) {
+    var all = _getAllEditables();
+    var idx = all.indexOf(currentEl);
+    if (idx !== -1 && idx + 1 < all.length) _openEditable(all[idx + 1]);
+}
+function openPrevEditable(currentEl) {
+    var all = _getAllEditables();
+    var idx = all.indexOf(currentEl);
+    if (idx > 0) _openEditable(all[idx - 1]);
+}
+
 // ── Inline click-to-edit ──────────────────────────────────
 window.startEdit = function(el) {
     if (el.querySelector('input,textarea')) return;
@@ -1790,6 +1813,7 @@ window.startEdit = function(el) {
     var curVal = el.innerText.trim();
     if (curVal === 'Не указано' || curVal === '—' || curVal === '-' || curVal.trim() === '') curVal = '';
     el.classList.remove('crm-editable-empty');
+    el.classList.add('crm-editing');
     var isArea = field === 'comment';
     var input  = document.createElement(isArea ? 'textarea' : 'input');
     input.className = 'crm-editable-input';
@@ -1798,23 +1822,68 @@ window.startEdit = function(el) {
     el.innerHTML = '';
     el.appendChild(input);
     input.focus();
-    var save = function() {
-        saveField(field, input.value);
-        if (input.value) {
-            el.innerHTML = field === 'comment' ? input.value.replace(/\\n/g,'<br>') : input.value;
+
+    var _navigating = false;
+
+    var commitAndClose = function(displayVal) {
+        el.classList.remove('crm-editing');
+        if (displayVal) {
+            el.innerHTML = isArea ? displayVal.replace(/\\n/g,'<br>') : displayVal;
             el.classList.remove('crm-editable-empty');
         } else {
             el.innerHTML = '<span class="crm-editable-empty">—</span>';
         }
     };
-    input.addEventListener('blur', save);
+    var save = function() {
+        saveField(field, input.value);
+        commitAndClose(input.value);
+    };
+    var cancel = function() {
+        el.classList.remove('crm-editing');
+        el.innerHTML = curVal ? (isArea ? curVal.replace(/\\n/g,'<br>') : curVal) : '<span class="crm-editable-empty">—</span>';
+    };
+
+    input.addEventListener('blur', function() {
+        if (!_navigating) save();
+    });
+
     input.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !isArea) { e.preventDefault(); save(); }
         if (e.key === 'Escape') {
-            el.innerHTML = curVal ? curVal : '<span class="crm-editable-empty">—</span>';
+            _navigating = true;
+            input.removeEventListener('blur', save);
+            cancel();
+            el.focus();
+            return;
+        }
+        var isCtrlEnter = (e.key === 'Enter') && (e.ctrlKey || e.metaKey);
+        var isEnter     = (e.key === 'Enter') && !isArea;
+        var isTab       = (e.key === 'Tab');
+
+        if (isCtrlEnter || isEnter || isTab) {
+            e.preventDefault();
+            _navigating = true;
+            save();
+            if (isTab && e.shiftKey) {
+                openPrevEditable(el);
+            } else {
+                openNextEditable(el);
+            }
         }
     });
 };
+
+// ── Add tabindex to all crm-editable on load ───────────────
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.crm-editable[data-field]').forEach(function(el) {
+        if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+        el.addEventListener('keydown', function(kev) {
+            if (kev.key === 'Enter' || kev.key === ' ') {
+                kev.preventDefault();
+                if (!el.querySelector('input,textarea')) el.click();
+            }
+        });
+    });
+});
 
 // ── saveField ─────────────────────────────────────────────
 window.saveField = function(field, value) {
