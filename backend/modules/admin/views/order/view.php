@@ -358,6 +358,7 @@ $customer = $model->customer ?? null;
 }
 @keyframes cqvIn { from { opacity:0; transform: scale(.96) translateY(8px); } to { opacity:1; transform: none; } }
 @keyframes spin { to { transform: rotate(360deg); } }
+.spin { display:inline-block; animation: spin .8s linear infinite; }
 .cqv-header {
     display: flex; align-items: center; gap: 10px; padding: 14px 18px;
     border-bottom: 1px solid var(--admin-border, #e5e7eb);
@@ -1390,6 +1391,25 @@ $customer = $model->customer ?? null;
                     </span>
                 </div>
                 <div class="crm-card-body">
+                    <?php
+                    $msLastLog = Yii::$app->db->createCommand(
+                        'SELECT * FROM moysklad_sync_log WHERE order_id=:id ORDER BY created_at DESC LIMIT 1',
+                        [':id' => $model->id]
+                    )->queryOne();
+                    ?>
+                    <?php if ($msLastLog): ?>
+                    <div style="margin-bottom:8px;padding:5px 8px;border-radius:5px;font-size:.72rem;
+                        background:<?= $msLastLog['success'] ? '#d1fae5' : '#fee2e2' ?>;
+                        color:<?= $msLastLog['success'] ? '#065f46' : '#991b1b' ?>">
+                        <div style="font-weight:600">
+                            <?= $msLastLog['success'] ? '<i class="bi bi-check-circle-fill"></i> Успешно' : '<i class="bi bi-x-circle-fill"></i> Ошибка' ?>
+                            <span style="font-weight:400;opacity:.8;margin-left:4px"><?= Html::encode(Yii::$app->formatter->asDatetime($msLastLog['created_at'], 'php:d.m.Y H:i')) ?></span>
+                        </div>
+                        <?php if (!$msLastLog['success'] && $msLastLog['message']): ?>
+                        <div style="margin-top:3px;font-size:.7rem;opacity:.9;word-break:break-word"><?= Html::encode($msLastLog['message']) ?></div>
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
                     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">
                         <?php if ($msStatus): ?>
                         <a href="https://online.moysklad.ru/app/#customerorder/edit?id=<?= Html::encode($msStatus) ?>"
@@ -1397,8 +1417,8 @@ $customer = $model->customer ?? null;
                             <i class="bi bi-box-arrow-up-right"></i> Открыть в МС
                         </a>
                         <?php endif; ?>
-                        <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="syncMoysklad(<?= $model->id ?>)">
-                            <i class="bi bi-arrow-repeat"></i> Синхронизировать
+                        <button id="btn-sync-ms-retry" class="admin-btn admin-btn-secondary admin-btn-sm" onclick="syncMoyskladRetry(<?= $model->id ?>)">
+                            <i class="bi bi-arrow-repeat" id="ms-retry-icon"></i> <?= $msLastLog && !$msLastLog['success'] ? 'Повторить' : 'Синхронизировать' ?>
                         </button>
                         <span id="ms-sync-result" style="font-size:0.75rem"></span>
                     </div>
@@ -1855,26 +1875,34 @@ window.autoFillDp = function(id) {
 };
 
 // ── MoySklad ──────────────────────────────────────────────
-window.syncMoysklad = function(id) {
+function _doMsSyncRequest(id, btn, icon) {
     var r = document.getElementById('ms-sync-result');
     var r2 = document.getElementById('ms-topbar-sync-result');
-    var btn = document.getElementById('btn-sync-ms');
     if (r) { r.textContent = 'Синхронизируем...'; r.style.color = '#6b7280'; }
     if (r2) { r2.textContent = 'Синхронизируем...'; r2.style.color = '#6b7280'; }
     if (btn) { btn.disabled = true; btn.style.opacity = '.6'; }
-    fetch('$_msSyncUrl', {method:'POST',headers:{'X-CSRF-Token':'$_csrfToken'}})
-    .then(function(r){return r.json();}).then(function(d){
+    if (icon) { icon.classList.add('spin'); }
+    fetch('$_msSyncUrl', {method:'POST',headers:{'X-CSRF-Token':'$_csrfToken','Content-Type':'application/json'},body:JSON.stringify({id:id})})
+    .then(function(res){return res.json();}).then(function(d){
         var msg = (d.success ? '✓ ' : '✗ ') + (d.message||'');
         var clr = d.success ? '#059669' : '#dc2626';
         if (r) { r.textContent = msg; r.style.color = clr; }
         if (r2) { r2.textContent = msg; r2.style.color = clr; }
         if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+        if (icon) { icon.classList.remove('spin'); }
         if (d.success) setTimeout(function(){ location.reload(); }, 1200);
     }).catch(function(){
         if (r) { r.textContent = '✗ Ошибка сети'; r.style.color = '#dc2626'; }
         if (r2) { r2.textContent = '✗ Ошибка сети'; r2.style.color = '#dc2626'; }
         if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+        if (icon) { icon.classList.remove('spin'); }
     });
+}
+window.syncMoysklad = function(id) {
+    _doMsSyncRequest(id, document.getElementById('btn-sync-ms'), null);
+};
+window.syncMoyskladRetry = function(id) {
+    _doMsSyncRequest(id, document.getElementById('btn-sync-ms-retry'), document.getElementById('ms-retry-icon'));
 };
 
 // ── Customer data sync ────────────────────────────────────

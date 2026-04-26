@@ -1466,12 +1466,30 @@ class OrderController extends BaseAdminController
         $order = Order::findOne($id);
         if (!$order) return ['success' => false, 'message' => 'Заказ не найден'];
 
+        $userId = Yii::$app->user->id ?? null;
         try {
             $result = Yii::$app->moysklad->pushOrder($order);
             $msId   = $result['id'] ?? null;
+            Yii::$app->db->createCommand()->insert('moysklad_sync_log', [
+                'order_id'   => $id,
+                'success'    => 1,
+                'message'    => 'Заказ отправлен в МойСклад',
+                'ms_id'      => $msId,
+                'user_id'    => $userId,
+                'created_at' => date('Y-m-d H:i:s'),
+            ])->execute();
             return ['success' => true, 'message' => 'Заказ отправлен в МойСклад', 'ms_id' => $msId];
         } catch (\Throwable $e) {
-            return ['success' => false, 'message' => $e->getMessage()];
+            $msg = $e->getMessage();
+            Yii::$app->db->createCommand()->insert('moysklad_sync_log', [
+                'order_id'   => $id,
+                'success'    => 0,
+                'message'    => $msg,
+                'ms_id'      => null,
+                'user_id'    => $userId,
+                'created_at' => date('Y-m-d H:i:s'),
+            ])->execute();
+            return ['success' => false, 'message' => $msg];
         }
     }
 
