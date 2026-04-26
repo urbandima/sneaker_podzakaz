@@ -194,18 +194,24 @@ class DobroPostService extends Component
         // Комментарий (не более 60 символов)
         $comment = mb_substr($order->ms_number ? 'МС: ' . $order->ms_number : '', 0, 59);
 
+        // Combine series + number into single passport field (DP API format: "MP1234567")
+        $passportFull = mb_strtoupper(trim(($order->passport_series ?? '') . ($order->passport_number ?? '')));
+        $passportFull = preg_replace('/[^A-Z0-9]/', '', $passportFull);
+
+        // DP API requires exactly 12-digit INN; store in order->inn field
+        $personalNumber = $order->inn ?: null;
+
         $payload = [
             'totalAmount'             => $totalAmount,
             'consigneeFamilyName'     => $order->recipient_last_name,
             'consigneeName'           => $order->recipient_first_name,
-            'consigneePassportSerial' => $order->passport_series,
-            'consigneePassportNumber' => $order->passport_number,
+            'consigneePassportNumber' => $passportFull,
             'passportIssueDate'       => $order->passport_issue_date
                 ? date('Y-m-d', is_numeric($order->passport_issue_date)
                     ? $order->passport_issue_date
                     : strtotime($order->passport_issue_date))
                 : null,
-            'vatIdentificationNumber' => $order->inn,
+            'vatIdentificationNumber' => $personalNumber,
             'consigneeFullAddress'    => $order->full_address,
             'consigneeCity'           => $order->city,
             'consigneeState'          => $order->region,

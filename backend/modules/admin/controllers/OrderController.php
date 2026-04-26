@@ -1367,6 +1367,7 @@ class OrderController extends BaseAdminController
             'china_track_number', 'shipment_value_cny', 'status', 'total_amount', 'assigned_logist',
             'recipient_last_name', 'recipient_first_name', 'recipient_middle_name',
             'passport_series', 'passport_number', 'passport_issue_date', 'birth_date', 'inn',
+            'passport_unp',
             'full_address', 'city', 'region', 'postal_code',
             'customs_description', 'item_quantity', 'item_price_cny', 'product_link',
             'dobropost_tariff', 'sneakerhead_order_link', 'ms_number',

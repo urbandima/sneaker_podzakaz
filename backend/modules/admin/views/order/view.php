@@ -43,7 +43,8 @@ $statusLabel = $statuses[$model->status] ?? $model->status;
 $dpShipmentId = $model->dp_shipment_id ?? null;
 $dpStatus     = $model->dp_status ?? null;
 $dpResponse   = $model->dp_response ?? null;
-$dpPassportOk = $model->isPassportComplete();
+$dpMissingFields = $model->missingDpFields();
+$dpPassportOk = empty($dpMissingFields);
 
 // Customer
 $customer = $model->customer ?? null;
@@ -747,7 +748,11 @@ $customer = $model->customer ?? null;
                             <div class="crm-editable" data-field="birth_date" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->birth_date) ? Html::encode($model->birth_date) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
-                            <div class="crm-field-label">ИНН <span title="Обязательно для Таможня:ДП (РФ)" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
+                            <div class="crm-field-label">Личный номер (УНП) <span title="Обязательно для Таможня:ДП — 14 символов из паспорта" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
+                            <div class="crm-editable" data-field="passport_unp" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->passport_unp) ? Html::encode($model->passport_unp) : '<span class="crm-editable-empty">—</span>' ?></div>
+                        </div>
+                        <div class="crm-field">
+                            <div class="crm-field-label">ИНН</div>
                             <div class="crm-editable" data-field="inn" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->inn) ? Html::encode($model->inn) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <?php if (!empty($model->passport_submitted_at)): ?>
@@ -1446,11 +1451,21 @@ $customer = $model->customer ?? null;
                         </div>
                         <?php endif; ?>
                     </div>
+                    <?php if (!$dpShipmentId && !empty($dpMissingFields)): ?>
+                    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:0.75rem">
+                        <div style="font-weight:700;color:#991b1b;margin-bottom:4px"><i class="bi bi-exclamation-triangle"></i> Не хватает для отправки в ДП:</div>
+                        <ul style="margin:0;padding-left:16px;color:#b91c1c">
+                            <?php foreach ($dpMissingFields as $f): ?>
+                            <li><?= Html::encode($f) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                    <?php endif; ?>
                     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
                         <?php if (!$dpShipmentId): ?>
                         <button class="admin-btn admin-btn-primary admin-btn-sm" style="width:100%;justify-content:center"
                                 onclick="sendToDP(<?= $model->id ?>)"
-                                <?= !$dpPassportOk ? 'disabled title="Сначала заполните паспортные данные"' : '' ?>>
+                                <?= !$dpPassportOk ? 'disabled title="Заполните все обязательные поля"' : '' ?>>
                             <i class="bi bi-send"></i> Отправить в ДП
                         </button>
                         <?php else: ?>
