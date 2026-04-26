@@ -42,6 +42,7 @@ use Yii;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 use app\backend\modules\admin\models\User;
+use app\backend\modules\admin\services\AdminLogService;
 
 class Order extends ActiveRecord
 {
@@ -202,6 +203,20 @@ class Order extends ActiveRecord
                     'Не удалось сохранить историю статусов заказа #' . $this->id . ': ' . json_encode($history->errors)
                 );
             }
+        }
+
+        // Admin activity log
+        if (!Yii::$app instanceof \yii\console\Application) {
+            $action = $insert ? 'create' : 'update';
+            AdminLogService::log(
+                $action,
+                'order',
+                $this->id,
+                'Заказ №' . $this->order_number,
+                $insert ? 'Создан заказ' : 'Обновлён заказ',
+                $insert ? null : $changedAttributes,
+                $insert ? null : array_intersect_key($this->attributes, $changedAttributes)
+            );
         }
 
         // Уведомление при создании заказа отправляется в OrderController::actionCreate()

@@ -198,7 +198,7 @@
             if (xhr.status !== 200) return;
             try {
                 var data = JSON.parse(xhr.responseText);
-                var count = data.count || 0;
+                var count = data.unread_count || data.count || 0;
                 if (notifBadge) {
                     notifBadge.textContent = count > 0 ? (count > 99 ? '99+' : count) : '';
                     notifBadge.style.display = count > 0 ? 'inline-flex' : 'none';

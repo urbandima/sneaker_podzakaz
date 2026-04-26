@@ -165,11 +165,14 @@ class DashboardController extends BaseAdminController
         // Топ товаров по количеству заказов
         // Используем product_name так как в order_item нет product_id
         $sql = "
-            SELECT oi.product_name, SUM(oi.quantity) as total_quantity, 
-                   COUNT(DISTINCT oi.order_id) as order_count, AVG(oi.price) as avg_price
+            SELECT oi.product_name, SUM(oi.quantity) as total_quantity,
+                   COUNT(DISTINCT oi.order_id) as order_count, AVG(oi.price) as avg_price,
+                   SUM(oi.price * oi.quantity) as total_revenue,
+                   (CASE WHEN AVG(oi.price) = 0 THEN 1 ELSE 0 END) as has_zero_price
             FROM order_item oi
             INNER JOIN `order` o ON oi.order_id = o.id
             WHERE o.created_at >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))
+              AND oi.price > 0
             GROUP BY oi.product_name
             ORDER BY order_count DESC, total_quantity DESC
             LIMIT 5
