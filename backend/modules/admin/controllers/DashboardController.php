@@ -337,25 +337,22 @@ class DashboardController extends BaseAdminController
     private function getOperationalStats()
     {
         $twoHoursAgo = time() - 7200;
-        $threeDaysAgo = time() - 259200;
 
         $unprocessed2h = (int)Order::find()
             ->where(['status' => 'new'])
             ->andWhere(['<', 'created_at', $twoHoursAgo])
             ->count();
 
-        // Z5: Заказы без изменения статуса более 3 дней
-        // Исключаем все терминальные статусы и мусор; used COALESCE на случай NULL в updated_at
+        // Z5: Заказы без изменения статуса более 3 дней — логика идентична фильтру /admin/order?delayed=1
         try {
             $delayed3d = (int)Yii::$app->db->createCommand("
                 SELECT COUNT(*) FROM `order`
-                WHERE COALESCE(updated_at, created_at) < :ts
-                  AND (is_trash IS NULL OR is_trash = 0)
+                WHERE updated_at < UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 3 DAY))
                   AND status NOT IN (
                       'delivered','canceled','cancelled','completed',
                       'refunded','return','trash','imported','imported_invalid'
                   )
-            ", [':ts' => $threeDaysAgo])->queryScalar();
+            ")->queryScalar();
         } catch (\Exception $e) {
             $delayed3d = 0;
         }

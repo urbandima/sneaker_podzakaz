@@ -94,6 +94,8 @@ var currentStep = 1;
 var productIndex = 1;
 var autosaveTimer = null;
 var stepErrors = {};
+var visitedSteps = new Set();
+var submitAttempted = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     loadFromLocalStorage();
@@ -118,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function changeStep(direction) {
     var newStep = currentStep + direction;
     if (newStep < 1 || newStep > 4) return;
+    visitedSteps.add(currentStep);
     saveToLocalStorage();
     document.querySelectorAll('.wizard-step-content').forEach(function(el) { el.classList.remove('wizard-step-content--active'); });
     var newStepContent = document.querySelector('[data-step="' + newStep + '"].wizard-step-content');
@@ -183,9 +186,10 @@ function updateStepValidation() {
         }
     }
     stepErrors[currentStep] = errors;
+    var showBadge = submitAttempted || visitedSteps.has(currentStep);
     var stepItem = document.querySelector('.step-item[data-step="' + currentStep + '"]');
     var errorSummary = document.getElementById('step' + currentStep + '-errors');
-    if (errors.length > 0) {
+    if (errors.length > 0 && showBadge) {
         if (stepItem) stepItem.classList.add('step-item--has-errors');
         if (errorSummary) { errorSummary.textContent = errors.length + ' ошибок'; errorSummary.classList.remove('step-validation-summary--hidden'); }
     } else {
@@ -196,7 +200,7 @@ function updateStepValidation() {
 
 function initValidation() {
     document.querySelectorAll('[data-validation]').forEach(function(field) {
-        field.addEventListener('blur', function() { validateField(this); updateStepValidation(); });
+        field.addEventListener('blur', function() { visitedSteps.add(currentStep); validateField(this); updateStepValidation(); });
         field.addEventListener('input', function() { if (this.classList.contains('error')) { validateField(this); updateStepValidation(); } });
     });
 }
@@ -449,6 +453,9 @@ function hasUnsavedChanges() {
 }
 
 window.submitForm = function() {
+    submitAttempted = true;
+    for (var s = 1; s <= 4; s++) visitedSteps.add(s);
+    updateStepValidation();
     var allValid = true;
     var allErrors = [];
     for (var step = 1; step <= 4; step++) {

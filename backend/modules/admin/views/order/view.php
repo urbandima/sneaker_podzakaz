@@ -393,7 +393,7 @@ $customer = $model->customer ?? null;
             <span class="crm-order-num"><?= Html::encode($this->title) ?></span>
             <span class="crm-status-pill" id="crm-status-pill">
                 <i class="bi bi-circle-fill" style="font-size:6px"></i>
-                <?= Html::encode($statusLabel) ?>
+                <span id="crm-status-label"><?= Html::encode($statusLabel) ?></span>
             </span>
             <span class="crm-order-date">
                 <?= Yii::$app->formatter->asDatetime($model->created_at, 'short') ?>
@@ -403,7 +403,7 @@ $customer = $model->customer ?? null;
         <div class="crm-topbar-actions">
             <form method="post" action="<?= Url::to(['/admin/order/change-status', 'id' => $model->id]) ?>" style="display:flex;align-items:center;gap:6px">
                 <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
-                <select name="status" class="crm-status-select" onchange="this.form.submit()" title="Изменить статус">
+                <select name="status" class="crm-status-select" onchange="adminChangeStatus(this)" title="Изменить статус">
                     <?php foreach ($statuses as $key => $label): ?>
                         <option value="<?= $key ?>" <?= $model->status == $key ? 'selected' : '' ?>><?= $label ?></option>
                     <?php endforeach; ?>
@@ -1031,10 +1031,16 @@ $customer = $model->customer ?? null;
                 <div class="crm-card-head">
                     <h3><i class="bi bi-credit-card"></i> Оплата</h3>
                     <?php
-                    $paymentStatus = !empty($model->payment_uploaded_at) ? 'paid' : 'pending';
-                    $payBg = $paymentStatus === 'paid' ? '#d1fae5' : '#fef3c7';
-                    $payColor = $paymentStatus === 'paid' ? '#065f46' : '#92400e';
-                    $payLabel = $paymentStatus === 'paid' ? 'Оплачен' : 'Ожидает оплаты';
+                    $terminalStatuses = ['delivered','completed','canceled','cancelled','return','issued'];
+                    if (!empty($model->payment_uploaded_at)) {
+                        $payBg = '#d1fae5'; $payColor = '#065f46'; $payLabel = 'Оплачен';
+                    } elseif ($model->status === 'refunded') {
+                        $payBg = '#fce7f3'; $payColor = '#9d174d'; $payLabel = 'Возврат';
+                    } elseif (in_array($model->status, $terminalStatuses)) {
+                        $payBg = '#f3f4f6'; $payColor = '#6b7280'; $payLabel = 'Не оплачен';
+                    } else {
+                        $payBg = '#fef3c7'; $payColor = '#92400e'; $payLabel = 'Ожидает оплаты';
+                    }
                     ?>
                     <span style="background:<?= $payBg ?>;color:<?= $payColor ?>;font-size:0.7rem;padding:2px 8px;border-radius:6px;font-weight:700"><?= $payLabel ?></span>
                 </div>
@@ -1582,6 +1588,7 @@ $customer = $model->customer ?? null;
             $expectedTs = !empty($model->estimated_delivery_date) ? strtotime($model->estimated_delivery_date) : null;
             $daysLeft   = $expectedTs ? (int)ceil(($expectedTs - time()) / 86400) : null;
             $isOverdue  = $expectedTs && time() > $expectedTs && !in_array($model->status, ['delivered','cancelled','returned']);
+            $overdueBy  = $isOverdue ? (int)floor((time() - $expectedTs) / 86400) : 0;
             ?>
             <div class="crm-card" style="margin-top:4px">
                 <div class="crm-card-head">
@@ -1686,6 +1693,11 @@ $customer = $model->customer ?? null;
 <?php
 $_csrfToken   = Yii::$app->request->csrfToken;
 $_modelId     = $model->id;
+$_changeStatusUrl    = Url::to(['/admin/order/change-status', 'id' => $model->id]);
+$_csrfParam          = Yii::$app->request->csrfParam;
+$_statusColorsJson   = json_encode($statusColors);
+$_statusBgColorsJson = json_encode($statusBgColors);
+$_statusLabelsJson   = json_encode($statuses);
 $_checkUrl    = Url::to(['/admin/order/check-track', 'orderId' => $model->id]);
 $_updateUrl   = Url::to(['/admin/order/update-field', 'id' => $model->id]);
 $_saveUrl     = '/admin/order/save-field';
@@ -2180,6 +2192,43 @@ window.toggleHistoryTimeline = function() {
     tl.style.display = open ? 'none' : 'block';
     if (icon) icon.className = open ? 'bi bi-chevron-right' : 'bi bi-chevron-down';
     if (lbl)  lbl.textContent = open ? 'Развернуть историю' : 'Свернуть историю';
+};
+
+// ── AJAX status change — updates pill without reload ──────
+var _statusColors   = $_statusColorsJson;
+var _statusBgColors = $_statusBgColorsJson;
+var _statusLabels   = $_statusLabelsJson;
+window.adminChangeStatus = function(select) {
+    var newStatus = select.value;
+    var oldStatus = select.dataset.prev || select.querySelector('[selected]')?.value;
+    select.dataset.prev = newStatus;
+    select.disabled = true;
+    var fd = new FormData();
+    fd.append('status', newStatus);
+    fd.append('$_csrfParam', '$_csrfToken');
+    fetch('$_changeStatusUrl', {
+        method: 'POST',
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+        body: fd
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        select.disabled = false;
+        if (d.success) {
+            var pill = document.getElementById('crm-status-pill');
+            var lbl  = document.getElementById('crm-status-label');
+            if (pill) {
+                pill.style.background  = _statusBgColors[newStatus] || '#f3f4f6';
+                pill.style.color       = _statusColors[newStatus]   || '#6b7280';
+                pill.style.borderColor = _statusColors[newStatus]   || '#6b7280';
+            }
+            if (lbl) lbl.textContent = _statusLabels[newStatus] || newStatus;
+        } else {
+            alert(d.message || 'Ошибка изменения статуса');
+            location.reload();
+        }
+    })
+    .catch(function() { select.disabled = false; location.reload(); });
 };
 
 // ── Sidebar collapse (medium screens) ────────────────────

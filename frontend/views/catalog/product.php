@@ -918,7 +918,7 @@ $this->registerJsVar('productVideo', $productVideo);
                 </div>
                 <div class="form-group">
                     <label for="oneClickSize">Размер</label>
-                    <input type="text" id="oneClickSize" value="<?= $selectedSize ?>" readonly>
+                    <input type="text" id="oneClickSize" value="" readonly placeholder="Выберите размер на странице">
                 </div>
                 
                 <button type="submit" class="btn btn-primary btn-large">
@@ -1062,14 +1062,16 @@ function selectSize(size) {
     sizeBtn.classList.add('active');
     selectedSize = size;
 
+    const sizeDisplay = size + ' EU';
+
     const displayEl = document.getElementById('selectedSizeDisplay');
-    if (displayEl) displayEl.textContent = size;
+    if (displayEl) displayEl.textContent = sizeDisplay;
 
     const stickyEl = document.getElementById('stickySizeDisplay');
-    if (stickyEl) stickyEl.textContent = size;
+    if (stickyEl) stickyEl.textContent = sizeDisplay;
 
     const oneClickEl = document.getElementById('oneClickSize');
-    if (oneClickEl) oneClickEl.value = size;
+    if (oneClickEl) oneClickEl.value = sizeDisplay;
 
     // Sync with createOrder() in product-page.js
     window.selectedProductSize = size;
@@ -1245,7 +1247,7 @@ function submitOneClickOrder(event) {
     var formData = new FormData();
     formData.append('name', document.getElementById('oneClickName').value);
     formData.append('phone', document.getElementById('oneClickPhone').value);
-    formData.append('size', document.getElementById('oneClickSize').value);
+    formData.append('size', selectedSize);
     formData.append('product_id', '<?= $productId ?>');
     formData.append('_csrf', SH.getCsrfToken());
 
