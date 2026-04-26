@@ -11,6 +11,7 @@ use app\backend\modules\procurement\models\PurchaseOrderItem;
 use app\backend\modules\procurement\models\SupplierReturn;
 use app\backend\modules\procurement\models\SupplierReturnItem;
 use app\backend\modules\finance\models\Expense;
+use app\backend\modules\catalog\models\Brand;
 
 class ProcurementController extends BaseAdminController
 {
@@ -20,14 +21,29 @@ class ProcurementController extends BaseAdminController
 
     public function actionSuppliers()
     {
-        $sort = Yii::$app->request->get('sort', '');
-        $orderBy = match($sort) {
-            'name'  => ['name'  => SORT_ASC],
-            '-name' => ['name'  => SORT_DESC],
-            default => ['id'    => SORT_ASC],
-        };
-        $suppliers = Supplier::find()->orderBy($orderBy)->all();
-        return $this->render('suppliers', ['suppliers' => $suppliers]);
+        // Load all suppliers (filtering done client-side in PHP render)
+        $suppliers = Supplier::find()->orderBy(['name' => SORT_ASC])->all();
+
+        // All brands for filter chips and brand display
+        $allBrands = Brand::find()->where(['is_active' => 1])->orderBy(['name' => SORT_ASC])->all();
+
+        return $this->render('suppliers', [
+            'suppliers' => $suppliers,
+            'allBrands' => $allBrands,
+        ]);
+    }
+
+    public function actionSupplier(int $id)
+    {
+        $supplier = Supplier::findOne($id);
+        if (!$supplier) throw new NotFoundHttpException('Поставщик не найден.');
+
+        $allBrands = Brand::find()->where(['is_active' => 1])->orderBy(['name' => SORT_ASC])->all();
+
+        return $this->render('supplier-view', [
+            'supplier'  => $supplier,
+            'allBrands' => $allBrands,
+        ]);
     }
 
     public function actionSupplierSave()
@@ -39,15 +55,26 @@ class ProcurementController extends BaseAdminController
         $supplier = $id ? Supplier::findOne($id) : new Supplier();
         if (!$supplier) return ['success' => false, 'message' => 'Не найдено'];
 
-        $supplier->name           = $data['name']           ?? '';
-        $supplier->contact_person = $data['contact_person'] ?? null;
-        $supplier->phone          = $data['phone']          ?? null;
-        $supplier->email          = $data['email']          ?? null;
-        $supplier->address        = $data['address']        ?? null;
-        $supplier->country        = $data['country']        ?? 'CN';
-        $supplier->payment_terms  = $data['payment_terms']  ?? null;
-        $supplier->notes          = $data['notes']          ?? null;
-        $supplier->is_active      = isset($data['is_active']) ? (int)$data['is_active'] : 1;
+        // Only update fields that were explicitly sent
+        if (array_key_exists('name', $data))           $supplier->name           = $data['name'];
+        if (array_key_exists('contact_person', $data)) $supplier->contact_person = $data['contact_person'] ?: null;
+        if (array_key_exists('phone', $data))          $supplier->phone          = $data['phone'] ?: null;
+        if (array_key_exists('email', $data))          $supplier->email          = $data['email'] ?: null;
+        if (array_key_exists('address', $data))        $supplier->address        = $data['address'] ?: null;
+        if (array_key_exists('country', $data))        $supplier->country        = $data['country'] ?: null;
+        if (array_key_exists('region', $data))         $supplier->region         = $data['region'] ?: null;
+        if (array_key_exists('payment_terms', $data))  $supplier->payment_terms  = $data['payment_terms'] ?: null;
+        if (array_key_exists('notes', $data))          $supplier->notes          = $data['notes'] ?: null;
+        if (array_key_exists('brands', $data))         $supplier->brands         = $data['brands'] ?: null;
+        if (array_key_exists('contract_type', $data))  $supplier->contract_type  = $data['contract_type'] ?: null;
+        if (array_key_exists('contract_terms', $data)) $supplier->contract_terms = $data['contract_terms'] ?: null;
+        if (array_key_exists('is_active', $data))      $supplier->is_active      = (int)$data['is_active'];
+
+        // New supplier defaults
+        if (!$id) {
+            if (empty($supplier->name)) return ['success' => false, 'errors' => ['name' => ['Обязательное поле']]];
+            $supplier->is_active = $supplier->is_active ?? 1;
+        }
 
         if ($supplier->save()) {
             return ['success' => true, 'id' => $supplier->id];
