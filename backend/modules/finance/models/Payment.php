@@ -29,6 +29,7 @@ class Payment extends ActiveRecord
             [['currency'], 'string', 'max' => 3],
             [['payment_method', 'status'], 'string', 'max' => 50],
             [['bank_reference'], 'string', 'max' => 100],
+            [['bank_details'], 'string', 'max' => 255],  // Z42
         ];
     }
 
@@ -45,6 +46,7 @@ class Payment extends ActiveRecord
             'confirmed_by'   => 'Подтвердил',
             'confirmed_at'   => 'Дата подтверждения',
             'bank_reference' => 'Референс банка',
+            'bank_details'   => 'Реквизит банка',  // Z42
             'description'    => 'Описание',
             'created_at'     => 'Дата создания',
         ];

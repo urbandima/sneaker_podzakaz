@@ -131,7 +131,7 @@ $storageKey = 'paymentsColumns';
                         </span>
                     </td>
                     <td data-col="bank_ref" style="font-size:.75rem;color:var(--admin-text-secondary,#6d7175)">
-                        <?= htmlspecialchars($p->bank_reference ?? '—') ?>
+                        <?= htmlspecialchars($p->bank_details ?? $p->bank_reference ?? '—') ?>
                     </td>
                     <td style="white-space:nowrap;color:var(--admin-text-secondary,#6d7175)">
                         <?= $p->created_at ? date('d.m.Y H:i', strtotime($p->created_at)) : '—' ?>
