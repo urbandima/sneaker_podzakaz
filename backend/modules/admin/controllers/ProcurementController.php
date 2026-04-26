@@ -19,7 +19,13 @@ class ProcurementController extends BaseAdminController
 
     public function actionSuppliers()
     {
-        $suppliers = Supplier::find()->orderBy(['name' => SORT_ASC])->all();
+        $sort = Yii::$app->request->get('sort', '');
+        $orderBy = match($sort) {
+            'name'  => ['name'  => SORT_ASC],
+            '-name' => ['name'  => SORT_DESC],
+            default => ['id'    => SORT_ASC],
+        };
+        $suppliers = Supplier::find()->orderBy($orderBy)->all();
         return $this->render('suppliers', ['suppliers' => $suppliers]);
     }
 

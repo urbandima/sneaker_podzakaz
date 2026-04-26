@@ -29,13 +29,7 @@ $company = Yii::$app->settings->getCompany();
     <link rel="alternate" hreflang="ru-BY" href="<?= Yii::$app->request->absoluteUrl ?>">
     <link rel="alternate" hreflang="x-default" href="<?= Yii::$app->request->absoluteUrl ?>">
     
-    <?php // Bootstrap Icons CSS ?>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
-    <?php // DNS prefetch / Preconnect ?>
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
-    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <?php // Preconnect CDN origins — must precede any resource from those domains ?>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
     <?php

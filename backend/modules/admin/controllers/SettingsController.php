@@ -99,10 +99,12 @@ class SettingsController extends BaseAdminController
         }
 
         try {
-            $company = Yii::$app->settings->getCompany() ?? [];
+            // A9: persist to DB via CompanySettings model, not just in-memory storage
+            $model = \app\backend\modules\admin\models\CompanySettings::find()->one()
+                  ?? new \app\backend\modules\admin\models\CompanySettings();
             foreach ($fields as $field) {
                 if (array_key_exists($field, $data)) {
-                    $company[$field] = $data[$field];
+                    $model->$field = $data[$field];
                 }
             }
             Yii::$app->settings->set('company', 'data', json_encode($company, JSON_UNESCAPED_UNICODE));
@@ -124,6 +126,29 @@ class SettingsController extends BaseAdminController
             return ['success' => true, 'message' => 'Реквизиты компании сохранены'];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
+        }
+    }
+
+    // A16: save GA4 measurement ID; validates format before persisting
+    public function actionSaveGaId()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $raw  = Yii::$app->request->getRawBody();
+        $data = json_decode($raw, true) ?: Yii::$app->request->post();
+        $gaId = trim($data['ga_id'] ?? '');
+
+        if ($gaId !== '' && !preg_match('/^G-[A-Z0-9]{8,}$/i', $gaId)) {
+            return ['success' => false, 'message' => 'Неверный формат ID. Ожидается G-XXXXXXXXXX'];
+        }
+
+        try {
+            Yii::$app->db->createCommand()->upsert('{{%settings}}', [
+                'section' => 'seo', 'key' => 'ga_id', 'value' => $gaId,
+            ], ['value' => $gaId])->execute();
+            Yii::$app->settings->set('seo', 'ga_id', $gaId);
+            return ['success' => true];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
         }
     }
 
@@ -565,13 +590,19 @@ class SettingsController extends BaseAdminController
         $clean = [];
         foreach ($raw['shipping']['methods'] as $m) {
             if (empty($m['id']) || empty($m['name'])) continue;
+            $plugin = preg_replace('/[^a-z0-9_]/', '', strtolower($m['plugin'] ?? ''));
+            // Z74: if plugin is empty, force status to inactive
+            $status = ($m['status'] ?? '') === 'active' ? 'active' : 'inactive';
+            if (empty($plugin) && $status === 'active') {
+                $status = 'inactive';
+            }
             $clean[] = [
                 'id' => preg_replace('/[^a-z0-9_]/', '', strtolower($m['id'])),
                 'name' => mb_substr(strip_tags($m['name']), 0, 80),
                 'type' => mb_substr(strip_tags($m['type'] ?? 'international'), 0, 20),
                 'carrier' => mb_substr(strip_tags($m['carrier'] ?? ''), 0, 50),
-                'plugin' => preg_replace('/[^a-z0-9_]/', '', strtolower($m['plugin'] ?? '')),
-                'status' => ($m['status'] ?? '') === 'active' ? 'active' : 'inactive',
+                'plugin' => $plugin,
+                'status' => $status,
                 'delivery_time' => mb_substr(strip_tags($m['delivery_time'] ?? ''), 0, 50),
                 'base_cost' => (float)($m['base_cost'] ?? 0),
                 'currency' => mb_substr(strip_tags($m['currency'] ?? 'BYN'), 0, 10),

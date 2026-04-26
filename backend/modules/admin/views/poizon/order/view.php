@@ -134,7 +134,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                         </div>
 
                     <!-- Режим редактирования -->
-                    <div id="editMode" style="display: none;">
+                    <div id="editMode" class="d-none">
                         <form method="post" action="<?= Url::to(['/admin/order/update', 'id' => $model->id]) ?>" id="orderEditForm">
                             <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                             
@@ -238,7 +238,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                     </div>
 
                     <!-- Режим редактирования товаров -->
-                    <div id="editModeItems" style="display: none;">
+                    <div id="editModeItems" class="d-none">
                         <div id="order-items-edit">
                             <?php foreach ($model->orderItems as $index => $item): ?>
                             <div class="order-item row mb-3">

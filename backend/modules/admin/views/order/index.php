@@ -92,6 +92,15 @@ $row2ActiveCount  = count(array_filter([$filterDelivery,$filterPayment,$filterSo
 $showingFrom = $totalCount ? ($pagination->page * $pagination->pageSize) + 1 : 0;
 $showingTo   = $totalCount ? $showingFrom + count($orders) - 1 : 0;
 
+// Z11: build an augmented statuses map that includes DB statuses not in getStatuses()
+// so that sum of tab counts always equals the "Все" total
+$extraStatuses = [];
+foreach (($statusCounts ?? []) as $sk => $sc) {
+    if ($sc > 0 && !isset($statuses[$sk])) {
+        $extraStatuses[$sk] = $sk; // use key as label fallback
+    }
+}
+
 // Funnel dot colors
 $funnelDots = [
     'new'                    => '#6b7280',
@@ -153,6 +162,32 @@ $columnDefs = [
 
 $pmLabels = ['cash' => 'Наличные', 'card' => 'Карта', 'transfer' => 'Перевод', 'erip' => 'ЕРИП'];
 $dmLabels = ['europochta' => 'Европочта', 'belpochta' => 'Белпочта', 'cdek' => 'СДЭК', 'courier' => 'Курьер'];
+
+// Z12: load status colors from DB so table badges and tab dots use the same source
+$statusColorMap = [];
+try {
+    $statusRows = \app\backend\modules\checkout\models\OrderStatus::find()
+        ->select(['key', 'color'])
+        ->asArray()->all();
+    foreach ($statusRows as $sr) {
+        if (!empty($sr['color'])) {
+            $statusColorMap[$sr['key']] = $sr['color'];
+        }
+    }
+} catch (\Exception $e) { $statusColorMap = []; }
+
+// Helper: convert Bootstrap color name to hex for inline styles
+$colorToHex = function(string $c): string {
+    $map = [
+        'primary' => '#2563eb', 'secondary' => '#6b7280', 'success' => '#16a34a',
+        'danger'  => '#dc2626', 'warning'   => '#d97706', 'info'    => '#0891b2',
+        'dark'    => '#374151', 'light'     => '#6b7280',
+        'purple'  => '#7c3aed', 'violet'    => '#7c3aed',
+    ];
+    // If already a hex or rgb value, return as-is
+    if (str_starts_with($c, '#') || str_starts_with($c, 'rgb')) return $c;
+    return $map[strtolower(trim($c))] ?? ('#' . ltrim($c, '#'));
+};
 ?>
 
 <style>
@@ -224,7 +259,22 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
     <?php foreach ($statuses as $sKey => $sLabel):
         $cnt   = $statusCounts[$sKey] ?? 0;
         $isAct = $filterStatus === $sKey;
-        $dot   = $funnelDots[$sKey] ?? '#6b7280';
+        // Z12: prefer DB color, fall back to hardcoded map
+        $dbDot = !empty($statusColorMap[$sKey]) ? $colorToHex($statusColorMap[$sKey]) : null;
+        $dot   = $dbDot ?? ($funnelDots[$sKey] ?? '#6b7280');
+    ?>
+    <a href="<?= Url::to(['/admin/order', 'status' => $sKey]) ?>" class="funnel-pill <?= $isAct ? 'funnel-pill--active' : '' ?>">
+        <span class="funnel-pill-dot" style="background:<?= $dot ?>"></span>
+        <span class="funnel-pill-label"><?= Html::encode($sLabel) ?></span>
+        <span class="funnel-pill-count"><?= $cnt ?></span>
+    </a>
+    <?php endforeach; ?>
+    <?php foreach ($extraStatuses as $sKey => $sLabel):
+        $cnt   = $statusCounts[$sKey] ?? 0;
+        if ($cnt === 0) continue;
+        $isAct = $filterStatus === $sKey;
+        $dbDot = !empty($statusColorMap[$sKey]) ? $colorToHex($statusColorMap[$sKey]) : null;
+        $dot   = $dbDot ?? ($funnelDots[$sKey] ?? '#6b7280');
     ?>
     <a href="<?= Url::to(['/admin/order', 'status' => $sKey]) ?>" class="funnel-pill <?= $isAct ? 'funnel-pill--active' : '' ?>">
         <span class="funnel-pill-dot" style="background:<?= $dot ?>"></span>
@@ -270,7 +320,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
     <div class="compact-filter-bar filter-row1 <?= $row2Active ? 'has-row2' : '' ?>">
         <input type="hidden" name="status" value="<?= Html::encode($filterStatus) ?>">
         <input type="text" name="search" class="compact-filter-input"
-               placeholder="🔍 Номер, клиент, телефон…"
+               placeholder="Номер, клиент, телефон…"
                value="<?= Html::encode($filterSearch) ?>">
         <input type="date" name="date_from" class="compact-filter-input"
                value="<?= Html::encode($filterDateFrom) ?>" title="Дата от">
@@ -434,7 +484,14 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
                         <?php foreach ($orders as $order):
                             $daysSince = (int)floor((time() - $order->created_at) / 86400);
                             $firstItem = $order->orderItems[0] ?? null;
-                            $sp = $statusPills[$order->status] ?? ['bg' => '#f3f4f6', 'color' => '#6b7280'];
+                            // Z12: build pill colors from DB first, then fall back to hardcoded map
+                            if (!empty($statusColorMap[$order->status])) {
+                                $_hex = $colorToHex($statusColorMap[$order->status]);
+                                $sp = ['bg' => $_hex . '22', 'color' => $_hex];
+                            } else {
+                                $sp = $statusPills[$order->status] ?? ['bg' => '#f3f4f6', 'color' => '#6b7280'];
+                            }
+                            // Z10: always use translated label, never raw status key
                             $statusLabel = $statuses[$order->status] ?? $order->status;
                         ?>
                         <tr>
@@ -442,7 +499,11 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
                             <td style="white-space:nowrap;padding:6px 8px">
                                 <a href="<?= Url::to(['view', 'id' => $order->id]) ?>"
                                    style="font-weight:700;color:var(--admin-text-primary,#111);text-decoration:none">
-                                    <?= Html::encode($order->order_number ?: '#'.$order->id) ?>
+                                    <?php
+                                        $oNum = $order->order_number ?: (string)$order->id;
+                                        // Z13: purely numeric order numbers get a # prefix for clarity
+                                        echo Html::encode(ctype_digit(ltrim($oNum, '#')) ? '#' . ltrim($oNum, '#') : $oNum);
+                                    ?>
                                 </a>
                                 <div style="font-size:.7rem;color:var(--admin-text-secondary,#9ca3af);margin-top:1px">
                                     <?= date('d.m.Y', $order->created_at) ?>
@@ -546,7 +607,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
     </div><!-- /tableView -->
 
     <!-- KANBAN VIEW -->
-    <div id="kanbanView" style="display:none;">
+    <div id="kanbanView" class="d-none">
         <div class="kanban-board" id="kanbanBoard">
             <?php foreach ($kanbanColumns as $colKey => $colLabel): ?>
                 <?php $colOrders = $kanbanGroups[$colKey] ?? []; ?>
@@ -569,7 +630,8 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
                                  data-status="<?= $ord->status ?>"
                                  ondragstart="onDragStart(event)"
                                  ondragend="onDragEnd(event)">
-                                <div class="kc-num"><?= Html::encode($ord->order_number ?: '#'.$ord->id) ?></div>
+                                <?php $kcNum = $ord->order_number ?: (string)$ord->id; ?>
+                                <div class="kc-num"><?= Html::encode(ctype_digit(ltrim($kcNum, '#')) ? '#' . ltrim($kcNum, '#') : $kcNum) ?></div>
                                 <div class="kc-client"><?= Html::encode($ord->client_name) ?></div>
                                 <?php if ($firstItem): ?>
                                     <div class="kc-product" title="<?= Html::encode($firstItem->product_name) ?>"><?= Html::encode($firstItem->product_name) ?></div>

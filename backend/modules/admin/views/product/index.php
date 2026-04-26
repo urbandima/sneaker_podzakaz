@@ -42,9 +42,9 @@ $row2Count  = count(array_filter([$filterGender ?? '', $filterSeason ?? '', $fil
 $funnelItems = [
     ''             => ['label' => 'Все',            'count' => $stats['total'],      'dot' => '#6b7280'],
     'active'       => ['label' => 'Активные',       'count' => $stats['active'],     'dot' => '#16a34a'],
-    'archived'     => ['label' => 'Архив',          'count' => $stats['inactive'],   'dot' => '#6b7280'],
+    'archived'     => ['label' => 'Архив',          'count' => $stats['inactive'],   'dot' => '#6b7280',  'title' => 'Неактивные товары (is_active = false)'],
     'out_of_stock' => ['label' => 'Нет в наличии',  'count' => $stats['outOfStock'], 'dot' => '#dc2626'],
-    'zero_price'   => ['label' => 'Без цены',       'count' => $stats['zeroPrice'],  'dot' => '#f59e0b'],
+    'zero_price'   => ['label' => 'Без цены',       'count' => $stats['zeroPrice'],  'dot' => '#f59e0b',  'title' => 'Товары без цены — большинство также находятся в архиве'],
 ];
 
 // Column definitions for selector
@@ -149,7 +149,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
         $isAct = (string)($filterStatus ?? '') === (string)$sKey;
         $url = $sKey === '' ? Url::to(['/admin/catalog']) : Url::to(['/admin/catalog', 'status' => $sKey]);
     ?>
-    <a href="<?= $url ?>" class="funnel-pill <?= $isAct ? 'funnel-pill--active' : '' ?>">
+    <a href="<?= $url ?>" class="funnel-pill <?= $isAct ? 'funnel-pill--active' : '' ?>"<?= isset($sItem['title']) ? ' title="' . Html::encode($sItem['title']) . '"' : '' ?>>
         <span class="funnel-pill-dot" style="background:<?= $sItem['dot'] ?>"></span>
         <span class="funnel-pill-label"><?= Html::encode($sItem['label']) ?></span>
         <span class="funnel-pill-count"><?= $sItem['count'] ?></span>
@@ -298,7 +298,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
                         <th data-col="sizes" style="text-align:center">Размеры</th>
                         <th data-col="stock_total" style="text-align:center">Склад</th>
                         <th data-col="status" data-sort="is_active" onclick="sortBy('is_active')" title="Сортировать по статусу">Статус <?= $sortIcon('is_active') ?></th>
-                        <th style="width:44px">–</th>
+                        <th style="width:44px">Действия</th>
                     </tr>
                 </thead>
                 <tbody>

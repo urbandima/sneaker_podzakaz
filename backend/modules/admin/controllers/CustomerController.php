@@ -140,9 +140,13 @@ class CustomerController extends BaseAdminController
         $withOrdersSql = 'SELECT COUNT(DISTINCT c.id) FROM {{%customer}} c INNER JOIN {{%order}} o ON o.customer_id = c.id';
         $withOrdersCount = (int)Yii::$app->db->createCommand($withOrdersSql)->queryScalar();
         $totalCustomers  = (int)Customer::find()->count();
+        $cutoff90 = strtotime('-90 days');
         $stats = [
             'total'          => $totalCustomers,
-            'active'         => Customer::find()->where(['status' => Customer::STATUS_ACTIVE])->count(),
+            'active'         => Customer::find()->where(['or',
+                ['>=', 'last_order_at', $cutoff90],
+                ['status' => Customer::STATUS_ACTIVE],
+            ])->count(),
             'inactive'       => Customer::find()->where(['status' => Customer::STATUS_INACTIVE])->count(),
             'new_today'      => Customer::find()->where(['>=', 'created_at', strtotime('today')])->count(),
             'new_week'       => Customer::find()->where(['>=', 'created_at', strtotime('-7 days')])->count(),

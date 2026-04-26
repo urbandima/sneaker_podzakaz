@@ -28,7 +28,7 @@ $this->params['headerActions'] = [];
             <div class="plugin-icon" style="background:#10b981">
                 <i class="bi bi-box-seam"></i>
             </div>
-            <span class="plugin-status inactive">Неактивен</span>
+            <span class="plugin-status inactive">Не подключён</span>
         </div>
         <span class="plugin-type-badge badge-integration">Интеграция</span>
         <h3 class="plugin-title">МойСклад</h3>
@@ -40,7 +40,7 @@ $this->params['headerActions'] = [];
             Автоматическая синхронизация товаров, заказов и остатков с системой МойСклад.
         </p>
         <div class="plugin-actions">
-            <a href="<?= Url::to(['/admin/plugin/moysklad']) ?>" class="admin-btn admin-btn-secondary">
+            <a href="<?= Url::to(['/admin/plugin/moysklad']) ?>" class="admin-btn admin-btn-primary">
                 <i class="bi bi-gear"></i> Настроить
             </a>
         </div>
@@ -52,7 +52,10 @@ $this->params['headerActions'] = [];
             <div class="plugin-icon" style="background:#3b82f6">
                 <i class="bi bi-people"></i>
             </div>
-            <span class="plugin-status inactive">Неактивен</span>
+            <?php $amoCrmKey = Yii::$app->settings->get('amocrm', 'api_key', ''); ?>
+            <span class="plugin-status <?= $amoCrmKey ? 'active' : 'inactive' ?>">
+                <?= $amoCrmKey ? 'Подключён' : 'Не подключён' ?>
+            </span>
         </div>
         <span class="plugin-type-badge badge-integration">Интеграция</span>
         <h3 class="plugin-title">AmoCRM</h3>
@@ -64,8 +67,8 @@ $this->params['headerActions'] = [];
             Интеграция с CRM-системой. Автоматическое создание сделок и контактов при оформлении заказа.
         </p>
         <div class="plugin-actions">
-            <a href="<?= Url::to(['/admin/plugin/amocrm']) ?>" class="admin-btn admin-btn-secondary">
-                <i class="bi bi-gear"></i> Настроить
+            <a href="<?= Url::to(['/admin/plugin/amocrm']) ?>" class="admin-btn <?= $amoCrmKey ? 'admin-btn-secondary' : 'admin-btn-primary' ?>">
+                <i class="bi bi-gear"></i> <?= $amoCrmKey ? 'Изменить настройки' : 'Настроить' ?>
             </a>
         </div>
     </div>
@@ -78,7 +81,7 @@ $this->params['headerActions'] = [];
             </div>
             <?php $tgToken = Yii::$app->settings->get('telegram', 'bot_token', ''); ?>
             <span class="plugin-status <?= $tgToken ? 'active' : 'inactive' ?>">
-                <?= $tgToken ? 'Настроен' : 'Неактивен' ?>
+                <?= $tgToken ? 'Подключён' : 'Не подключён' ?>
             </span>
         </div>
         <span class="plugin-type-badge badge-integration">Интеграция</span>
@@ -92,7 +95,7 @@ $this->params['headerActions'] = [];
         </p>
         <div class="plugin-actions">
             <a href="<?= Url::to(['/admin/plugin/telegram']) ?>" class="admin-btn <?= $tgToken ? 'admin-btn-secondary' : 'admin-btn-primary' ?>">
-                <i class="bi bi-gear"></i> <?= $tgToken ? 'Изменить' : 'Настроить' ?>
+                <i class="bi bi-gear"></i> <?= $tgToken ? 'Изменить настройки' : 'Настроить' ?>
             </a>
         </div>
     </div>
@@ -109,7 +112,7 @@ $this->params['headerActions'] = [];
                 <i class="bi bi-chat-dots-fill"></i>
             </div>
             <span class="plugin-status <?= $rsActive ? 'active' : 'inactive' ?>">
-                <?= $rsActive ? 'Активен' : 'Неактивен' ?>
+                <?= $rsActive ? 'Подключён' : 'Не подключён' ?>
             </span>
         </div>
         <span class="plugin-type-badge badge-integration">SMS</span>
@@ -123,7 +126,7 @@ $this->params['headerActions'] = [];
         </p>
         <div class="plugin-actions">
             <a href="<?= Url::to(['/admin/plugin/rocketsms']) ?>" class="admin-btn <?= $rsActive ? 'admin-btn-secondary' : 'admin-btn-primary' ?>">
-                <i class="bi bi-gear"></i> <?= $rsActive ? 'Изменить' : 'Настроить' ?>
+                <i class="bi bi-gear"></i> <?= $rsActive ? 'Изменить настройки' : 'Настроить' ?>
             </a>
         </div>
     </div>
@@ -140,13 +143,13 @@ $this->params['headerActions'] = [];
     <div class="plugin-card <?= $dpConnected ? 'active' : '' ?>">
         <div class="plugin-header">
             <div class="plugin-icon" style="background:#8b5cf6"><i class="bi bi-truck"></i></div>
-            <span class="plugin-status <?= $dpConnected ? 'active' : 'inactive' ?>"><?= $dpConnected ? 'Подключено' : 'Неактивен' ?></span>
+            <span class="plugin-status <?= $dpConnected ? 'active' : 'inactive' ?>"><?= $dpConnected ? 'Подключён' : 'Не подключён' ?></span>
         </div>
         <span class="plugin-type-badge badge-delivery">Доставка</span>
         <h3 class="plugin-title">Таможня:ДП</h3>
         <div class="plugin-meta"><span><i class="bi bi-tag"></i> v1.0.0</span><span><i class="bi bi-person"></i> СНИКЕРХЭД</span></div>
         <p class="plugin-description">Автоматическое создание отправлений, трекинг посылок, вебхуки о статусах доставки.</p>
-        <div class="plugin-actions"><a href="<?= Url::to(['/admin/plugin/dobropost']) ?>" class="admin-btn <?= $dpConnected ? 'admin-btn-secondary' : 'admin-btn-primary' ?>"><i class="bi bi-gear"></i> <?= $dpConnected ? 'Изменить' : 'Настроить' ?></a></div>
+        <div class="plugin-actions"><a href="<?= Url::to(['/admin/plugin/dobropost']) ?>" class="admin-btn <?= $dpConnected ? 'admin-btn-secondary' : 'admin-btn-primary' ?>"><i class="bi bi-gear"></i> <?= $dpConnected ? 'Изменить настройки' : 'Настроить' ?></a></div>
     </div>
 
     <!-- Европочта -->
@@ -156,13 +159,13 @@ $this->params['headerActions'] = [];
     <div class="plugin-card <?= $epConfigured ? 'active' : '' ?>">
         <div class="plugin-header">
             <div class="plugin-icon" style="background:#e11d48"><i class="bi bi-envelope"></i></div>
-            <span class="plugin-status <?= $epConfigured ? 'active' : 'inactive' ?>"><?= $epConfigured ? 'Активен' : 'Неактивен' ?></span>
+            <span class="plugin-status <?= $epConfigured ? 'active' : 'inactive' ?>"><?= $epConfigured ? 'Подключён' : 'Не подключён' ?></span>
         </div>
         <span class="plugin-type-badge badge-delivery">Доставка</span>
         <h3 class="plugin-title">Европочта</h3>
         <div class="plugin-meta"><span><i class="bi bi-tag"></i> v1.0.0</span><span><i class="bi bi-person"></i> СНИКЕРХЭД</span></div>
         <p class="plugin-description">Трекинг посылок через Европочту Беларуси. Автоматическое обновление статуса доставки для заказов.</p>
-        <div class="plugin-actions"><a href="<?= Url::to(['/admin/plugin/europochta']) ?>" class="admin-btn <?= $epConfigured ? 'admin-btn-secondary' : 'admin-btn-primary' ?>"><i class="bi bi-gear"></i> <?= $epConfigured ? 'Изменить' : 'Настроить' ?></a></div>
+        <div class="plugin-actions"><a href="<?= Url::to(['/admin/plugin/europochta']) ?>" class="admin-btn <?= $epConfigured ? 'admin-btn-secondary' : 'admin-btn-primary' ?>"><i class="bi bi-gear"></i> <?= $epConfigured ? 'Изменить настройки' : 'Настроить' ?></a></div>
     </div>
 
     <!-- Белпочта -->
@@ -172,13 +175,13 @@ $this->params['headerActions'] = [];
     <div class="plugin-card <?= $bpConfigured ? 'active' : '' ?>">
         <div class="plugin-header">
             <div class="plugin-icon" style="background:#15803d"><i class="bi bi-mailbox"></i></div>
-            <span class="plugin-status <?= $bpConfigured ? 'active' : 'inactive' ?>"><?= $bpConfigured ? 'Активен' : 'Неактивен' ?></span>
+            <span class="plugin-status <?= $bpConfigured ? 'active' : 'inactive' ?>"><?= $bpConfigured ? 'Подключён' : 'Не подключён' ?></span>
         </div>
         <span class="plugin-type-badge badge-delivery">Доставка</span>
         <h3 class="plugin-title">Белпочта</h3>
         <div class="plugin-meta"><span><i class="bi bi-tag"></i> v1.0.0</span><span><i class="bi bi-person"></i> СНИКЕРХЭД</span></div>
         <p class="plugin-description">Трекинг отправлений через Белпочту. Поддержка внутренних и международных отправлений.</p>
-        <div class="plugin-actions"><a href="<?= Url::to(['/admin/plugin/belpochta']) ?>" class="admin-btn <?= $bpConfigured ? 'admin-btn-secondary' : 'admin-btn-primary' ?>"><i class="bi bi-gear"></i> <?= $bpConfigured ? 'Изменить' : 'Настроить' ?></a></div>
+        <div class="plugin-actions"><a href="<?= Url::to(['/admin/plugin/belpochta']) ?>" class="admin-btn <?= $bpConfigured ? 'admin-btn-secondary' : 'admin-btn-primary' ?>"><i class="bi bi-gear"></i> <?= $bpConfigured ? 'Изменить настройки' : 'Настроить' ?></a></div>
     </div>
 
     <!-- СДЭК -->
@@ -188,13 +191,13 @@ $this->params['headerActions'] = [];
     <div class="plugin-card <?= $cdekConfigured ? 'active' : '' ?>">
         <div class="plugin-header">
             <div class="plugin-icon" style="background:#1d4ed8"><i class="bi bi-truck-front"></i></div>
-            <span class="plugin-status <?= $cdekConfigured ? 'active' : 'inactive' ?>"><?= $cdekConfigured ? 'Активен' : 'Неактивен' ?></span>
+            <span class="plugin-status <?= $cdekConfigured ? 'active' : 'inactive' ?>"><?= $cdekConfigured ? 'Подключён' : 'Не подключён' ?></span>
         </div>
         <span class="plugin-type-badge badge-delivery">Доставка</span>
         <h3 class="plugin-title">СДЭК</h3>
         <div class="plugin-meta"><span><i class="bi bi-tag"></i> v1.0.0</span><span><i class="bi bi-person"></i> СНИКЕРХЭД</span></div>
         <p class="plugin-description">Интеграция с СДЭК API v2. Расчёт стоимости, создание заявок и трекинг посылок по всей России и СНГ.</p>
-        <div class="plugin-actions"><a href="<?= Url::to(['/admin/plugin/cdek']) ?>" class="admin-btn <?= $cdekConfigured ? 'admin-btn-secondary' : 'admin-btn-primary' ?>"><i class="bi bi-gear"></i> <?= $cdekConfigured ? 'Изменить' : 'Настроить' ?></a></div>
+        <div class="plugin-actions"><a href="<?= Url::to(['/admin/plugin/cdek']) ?>" class="admin-btn <?= $cdekConfigured ? 'admin-btn-secondary' : 'admin-btn-primary' ?>"><i class="bi bi-gear"></i> <?= $cdekConfigured ? 'Изменить настройки' : 'Настроить' ?></a></div>
     </div>
 
 </div>
@@ -206,7 +209,7 @@ $this->params['headerActions'] = [];
             <div class="plugin-card <?= $plugin->isActive() ? 'active' : '' ?>">
                 <div class="plugin-header">
                     <div class="plugin-icon" style="background:#0ea5e9"><i class="bi bi-credit-card"></i></div>
-                    <span class="plugin-status <?= $plugin->isActive() ? 'active' : 'inactive' ?>"><?= $plugin->isActive() ? 'Активен' : 'Неактивен' ?></span>
+                    <span class="plugin-status <?= $plugin->isActive() ? 'active' : 'inactive' ?>"><?= $plugin->isActive() ? 'Подключён' : 'Не подключён' ?></span>
                 </div>
                 <span class="plugin-type-badge badge-payment">Оплата</span>
                 <h3 class="plugin-title"><?= Html::encode($plugin->getName()) ?></h3>
@@ -237,7 +240,7 @@ $this->params['headerActions'] = [];
     <div class="plugin-card active">
         <div class="plugin-header">
             <div class="plugin-icon" style="background:#f59e0b"><i class="bi bi-currency-exchange"></i></div>
-            <span class="plugin-status active">Активен</span>
+            <span class="plugin-status active">Подключён</span>
         </div>
         <span class="plugin-type-badge badge-other">Прочие</span>
         <h3 class="plugin-title">Курс валют НБРБ</h3>

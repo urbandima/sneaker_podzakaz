@@ -224,7 +224,7 @@ CheckoutAsset::register($this);
                                         </div>
                                     </label>
                                     <input type="file" class="file-input" name="payment_proof" accept="image/*,application/pdf" required id="file-input">
-                                    <div class="file-preview-bottom" id="file-preview" style="display: none;">
+                                    <div class="file-preview-bottom d-none" id="file-preview">
                                         <div class="preview-content">
                                             <img id="preview-image" class="preview-img-bottom">
                                             <div class="file-info" id="file-info">
@@ -313,7 +313,7 @@ CheckoutAsset::register($this);
 </div>
 
 <!-- Cookie баннер -->
-<div id="cookie-banner" class="cookie-banner" style="display: none;">
+<div id="cookie-banner" class="cookie-banner d-none">
     <div class="cookie-content">
         <div class="cookie-icon">
             <i class="bi bi-shield-check"></i>
@@ -2155,7 +2155,7 @@ document.addEventListener('click', function(e) {
         </div>
         
         <!-- Инструкция для выбранного банка -->
-        <div id="bankInstruction" style="display: none;">
+        <div id="bankInstruction" class="d-none">
             <button class="back-btn" onclick="backToBankSelection()">
                 <i class="bi bi-arrow-left"></i> Выбрать другой банк
             </button>

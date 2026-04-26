@@ -62,13 +62,13 @@ $this->params['headerActions'] = [
         </h2>
         <div style="margin-top: 1rem; font-size: 0.875rem; color: var(--admin-text-secondary); line-height: 1.7;">
             <p>Покупатели накапливают баллы за каждую покупку. Уровень определяется суммарными расходами в BYN за всё время. Множитель влияет на количество начисляемых баллов.</p>
-            <p style="margin-top: 0.5rem;"><strong>1 балл = 1 BYN</strong> при базовом множителе ×1.0</p>
+            <p class="mt-2"><strong>1 балл = 1 BYN</strong> при базовом множителе ×1.0</p>
         </div>
     </div>
 </div>
 
 <!-- Уровни и пороги -->
-<div class="admin-card" style="margin-bottom: 1.5rem;">
+<div class="admin-card mb-5">
     <h2 class="admin-card-title">
         <i class="bi bi-bar-chart-steps"></i>
         Уровни и пороги
@@ -92,12 +92,12 @@ $this->params['headerActions'] = [
                            min="0" step="100"
                            <?= $key === 'bronze' ? 'readonly' : '' ?>>
                     <?php if ($key === 'bronze'): ?>
-                        <small style="color: var(--admin-text-secondary);">Стартовый уровень — всегда 0</small>
+                        <small class="text-muted">Стартовый уровень — всегда 0</small>
                     <?php endif; ?>
                 </div>
                 <div class="form-group">
                     <label>Множитель начисления баллов</label>
-                    <div style="position: relative;">
+                    <div class="pos-relative">
                         <input type="number"
                                class="form-control"
                                id="level_<?= $key ?>_mult"

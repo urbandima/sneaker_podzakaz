@@ -35,6 +35,7 @@ use app\backend\modules\account\models\CustomerLoginForm;
 use app\backend\modules\account\models\CustomerRegisterForm;
 use app\backend\modules\catalog\models\ProductFavorite;
 use app\backend\shared\components\RateLimiter;
+use app\backend\modules\catalog\models\ProductFavorite;
 
 class AccountController extends Controller
 {

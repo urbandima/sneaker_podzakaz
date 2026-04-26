@@ -788,7 +788,7 @@ function msSaveCreds() {
 // ─── Sync operations ─────────────────────────────────────────────
 function msPushAll() {
     const el = document.getElementById('ms-sync-result') || document.getElementById('ms-import-result');
-    el.textContent = '⏳ Отправляем заказы в МойСклад...';
+    el.innerHTML = '<i class="bi bi-hourglass-split"></i> Отправляем заказы в МойСклад...';
     el.style.color = '#6b7280';
     apiPost('<?= Url::to(['/admin/moysklad/push-all']) ?>', {}).then(d => {
         if (d.success) {
@@ -806,7 +806,7 @@ function msPushAll() {
 
 function msPull() {
     const el = document.getElementById('ms-sync-result') || document.getElementById('ms-import-result');
-    el.textContent = '⏳ Загружаем из МойСклад...';
+    el.innerHTML = '<i class="bi bi-hourglass-split"></i> Загружаем из МойСклад...';
     el.style.color = '#6b7280';
     apiPost('<?= Url::to(['/admin/moysklad/pull']) ?>', {limit: 100, offset: 0}).then(d => {
         if (d.success) {
@@ -822,7 +822,7 @@ function msPull() {
 
 function msPeriodicSync() {
     const el = document.getElementById('ms-sync-result') || document.getElementById('ms-import-result');
-    el.textContent = '⏳ Синхронизируем (60 мин)...';
+    el.innerHTML = '<i class="bi bi-hourglass-split"></i> Синхронизируем (60 мин)...';
     el.style.color = '#6b7280';
     apiPost('<?= Url::to(['/admin/moysklad/periodic-sync']) ?>', {since: 60}).then(d => {
         if (d.success) {
@@ -862,7 +862,7 @@ function msSaveStatusMapping() {
 
 function msLoadMsStatuses() {
     const el = document.getElementById('ms-states-list');
-    el.innerHTML = '<span style="color:#6b7280;font-size:13px">⏳ Загружаем статусы из МС...</span>';
+    el.innerHTML = '<span style="color:#6b7280;font-size:13px"><i class="bi bi-hourglass-split"></i> Загружаем статусы из МС...</span>';
     apiGet('<?= Url::to(['/admin/moysklad/sync-info']) ?>').then(d => {
         if (d.success && d.states && d.states.length) {
             el.innerHTML = '<div style="font-size:12px;margin-top:8px"><b>Статусы в МойСклад:</b> ' +
@@ -1046,7 +1046,7 @@ function msPopulateSelects(entity, columns) {
  */
 function msSaveFieldMapping(entity) {
     const resultEl = document.getElementById('ms-mapping-' + entity + '-result');
-    if (resultEl) { resultEl.textContent = '⏳ Сохраняем...'; resultEl.style.color = '#6b7280'; }
+    if (resultEl) { resultEl.innerHTML = '<i class="bi bi-hourglass-split"></i> Сохраняем...'; resultEl.style.color = '#6b7280'; }
 
     const mapping = {};
     document.querySelectorAll(`.ms-map-select[data-entity="${entity}"]`).forEach(sel => {

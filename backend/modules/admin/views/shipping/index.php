@@ -17,7 +17,7 @@ $inTransitCount = $dataProvider->getCount();
 ?>
 
 <!-- Статистика -->
-<div class="admin-stats" style="margin-bottom: 24px;">
+<div class="admin-stats mb-5">
     <div class="admin-stat-card">
         <div class="admin-stat-icon primary"><i class="bi bi-truck-fill"></i></div>
         <div class="admin-stat-content">
@@ -33,7 +33,7 @@ $inTransitCount = $dataProvider->getCount();
         <h2 class="admin-card-title">Заказы в пути</h2>
         <p class="admin-card-subtitle">Заказы со статусами "В обработке" и "Отправлен"</p>
     </div>
-    <div class="admin-card-body" style="padding: 0;">
+    <div class="admin-card-body p-0">
         <?= \yii\grid\GridView::widget([
             'dataProvider' => $dataProvider,
             'tableOptions' => ['class' => 'admin-table'],

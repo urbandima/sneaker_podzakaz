@@ -12,6 +12,8 @@ $conversionFunnel = $conversionFunnel ?? ['views' => 0, 'add_to_cart' => 0, 'ord
 
 $activeTab = Yii::$app->request->get('tab', 'analytics');
 $prevRevenueStats = $prevRevenueStats ?? [];
+// Z80: $period is the raw string ('today','week','month','30', etc.) for active button comparison
+$activePeriod = $period ?? Yii::$app->request->get('period', 'month');
 
 // Вычислить % изменение выручки
 $curRevenue  = (float)($revenueStats['total_revenue'] ?? 0);
@@ -27,24 +29,25 @@ if ($prevRevenue > 0) {
 ?>
 
 <?php
+// Z80: active date range button uses admin-btn-primary when selected
 $this->params['headerActions'] = [
-    Html::a('Сегодня', ['index', 'period' => 'today'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm' . ($period === 'today' ? ' active' : '')]),
-    Html::a('Неделя', ['index', 'period' => 'week'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm' . ($period === 'week' ? ' active' : '')]),
-    Html::a('Месяц', ['index', 'period' => 'month'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm' . ($period === 'month' ? ' active' : '')])
+    Html::a('Сегодня', ['index', 'period' => 'today', 'tab' => $activeTab], ['class' => 'admin-btn admin-btn-sm ' . ($activePeriod === 'today' ? 'admin-btn-primary' : 'admin-btn-ghost')]),
+    Html::a('Неделя',  ['index', 'period' => 'week',  'tab' => $activeTab], ['class' => 'admin-btn admin-btn-sm ' . ($activePeriod === 'week'  ? 'admin-btn-primary' : 'admin-btn-ghost')]),
+    Html::a('Месяц',   ['index', 'period' => 'month', 'tab' => $activeTab], ['class' => 'admin-btn admin-btn-sm ' . ($activePeriod === 'month' ? 'admin-btn-primary' : 'admin-btn-ghost')]),
 ];
 ?>
 
 <!-- Tab Navigation -->
 <div style="display:flex;gap:0.25rem;margin-bottom:1.5rem;border-bottom:2px solid var(--admin-border,#e2e8f0);padding-bottom:0;">
-    <a href="?tab=analytics&period=<?= Html::encode($period ?? '30') ?>"
+    <a href="?tab=analytics&period=<?= Html::encode($activePeriod ?? 'month') ?>"
        style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;<?= $activeTab === 'analytics' ? 'background:var(--admin-primary,#2563eb);color:#fff;border-color:var(--admin-primary,#2563eb);' : 'color:var(--admin-text-secondary,#64748b);' ?>">
         <i class="bi bi-graph-up"></i> Аналитика
     </a>
-    <a href="?tab=rfm&period=<?= Html::encode($period ?? '30') ?>"
+    <a href="?tab=rfm&period=<?= Html::encode($activePeriod ?? 'month') ?>"
        style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;<?= $activeTab === 'rfm' ? 'background:var(--admin-primary,#2563eb);color:#fff;border-color:var(--admin-primary,#2563eb);' : 'color:var(--admin-text-secondary,#64748b);' ?>">
         <i class="bi bi-people"></i> RFM
     </a>
-    <a href="?tab=team&period=<?= Html::encode($period ?? '30') ?>"
+    <a href="?tab=team&period=<?= Html::encode($activePeriod ?? 'month') ?>"
        style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;<?= $activeTab === 'team' ? 'background:var(--admin-primary,#2563eb);color:#fff;border-color:var(--admin-primary,#2563eb);' : 'color:var(--admin-text-secondary,#64748b);' ?>">
         <i class="bi bi-person-badge"></i> Команда
     </a>
@@ -90,9 +93,9 @@ $this->params['headerActions'] = [
             <thead>
                 <tr>
                     <th>Дата</th>
-                    <th style="text-align: right;">Заказы</th>
-                    <th style="text-align: right;">Выручка</th>
-                    <th style="text-align: right;">Средний чек</th>
+                    <th class="text-right">Заказы</th>
+                    <th class="text-right">Выручка</th>
+                    <th class="text-right">Средний чек</th>
                 </tr>
             </thead>
             <tbody>
@@ -125,18 +128,18 @@ $this->params['headerActions'] = [
             <thead>
                 <tr>
                     <th>Товар</th>
-                    <th style="text-align: right;">Просмотры</th>
-                    <th style="text-align: right;">Выручка</th>
-                    <th style="text-align: right;">Заказов</th>
+                    <th class="text-right">Просмотры</th>
+                    <th class="text-right">Выручка</th>
+                    <th class="text-right">Заказов</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($topProducts as $product): ?>
                 <tr>
                     <td><?= Html::encode($product['product_name']) ?></td>
-                    <td style="text-align: right; font-weight: 600;"><?= $product['views'] ?? 0 ?></td>
-                    <td style="text-align: right; font-weight: 600;"><?= number_format($product['total_revenue'] ?? 0, 0, ',', ' ') ?> BYN</td>
-                    <td style="text-align: right;"><?= $product['orders'] ?? 0 ?></td>
+                    <td class="text-right fw-600"><?= $product['views'] ?? 0 ?></td>
+                    <td class="text-right fw-600"><?= number_format($product['total_revenue'] ?? 0, 0, ',', ' ') ?> BYN</td>
+                    <td class="text-right"><?= $product['orders'] ?? 0 ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -200,7 +203,7 @@ $this->params['headerActions'] = [
 
 <div class="admin-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-        <h2 class="admin-card-title" style="margin:0;">
+        <h2 class="admin-card-title m-0">
             <i class="bi bi-people"></i>
             RFM-анализ клиентов
         </h2>
@@ -216,14 +219,14 @@ $this->params['headerActions'] = [
         <strong>Lost</strong> (R&gt;90д, F=1), <strong>New</strong> (остальные)
     </p>
 
-    <div id="rfm-table-wrap" style="overflow-x:auto;">
+    <div id="rfm-table-wrap" class="overflow-x-auto">
     <table class="admin-table" id="rfm-table">
         <thead>
             <tr>
                 <th>Сегмент</th>
-                <th style="text-align:right;">Клиентов</th>
-                <th style="text-align:right;">Средний LTV, BYN</th>
-                <th style="text-align:center;">Экспорт</th>
+                <th class="text-right">Клиентов</th>
+                <th class="text-right">Средний LTV, BYN</th>
+                <th class="text-center">Экспорт</th>
             </tr>
         </thead>
         <tbody>
@@ -244,8 +247,8 @@ $this->params['headerActions'] = [
                     <strong><?= Html::encode($seg['segment']) ?></strong>
                 </td>
                 <td style="text-align:right;font-weight:700;"><?= (int)$seg['count'] ?></td>
-                <td style="text-align:right;"><?= number_format((float)$seg['avg_monetary'], 2, ',', ' ') ?></td>
-                <td style="text-align:center;">
+                <td class="text-right"><?= number_format((float)$seg['avg_monetary'], 2, ',', ' ') ?></td>
+                <td class="text-center">
                     <a href="<?= Url::to(['/admin/analytics/export-rfm', 'segment' => $seg['segment']]) ?>"
                        class="admin-btn admin-btn-secondary" style="font-size:0.75rem;padding:0.3rem 0.7rem;">
                         <i class="bi bi-download"></i> CSV
@@ -275,9 +278,9 @@ $this->params['headerActions'] = [
             <thead>
                 <tr>
                     <th>Менеджер / Логист</th>
-                    <th style="text-align:right;">Заказов</th>
-                    <th style="text-align:right;">Выручка, BYN</th>
-                    <th style="text-align:right;">Средний чек, BYN</th>
+                    <th class="text-right">Заказов</th>
+                    <th class="text-right">Выручка, BYN</th>
+                    <th class="text-right">Средний чек, BYN</th>
                 </tr>
             </thead>
             <tbody>
@@ -285,8 +288,8 @@ $this->params['headerActions'] = [
                 <tr>
                     <td><?= Html::encode($row['manager'] ?? 'Не назначен') ?></td>
                     <td style="text-align:right;font-weight:700;"><?= (int)$row['order_count'] ?></td>
-                    <td style="text-align:right;"><?= number_format((float)$row['revenue'], 0, ',', ' ') ?></td>
-                    <td style="text-align:right;"><?= number_format((float)$row['avg_check'], 0, ',', ' ') ?></td>
+                    <td class="text-right"><?= number_format((float)$row['revenue'], 0, ',', ' ') ?></td>
+                    <td class="text-right"><?= number_format((float)$row['avg_check'], 0, ',', ' ') ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

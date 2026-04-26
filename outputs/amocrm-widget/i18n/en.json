@@ -1,0 +1,18 @@
+{
+  "widget": {
+    "name": "SneakerHead — Orders",
+    "description": "Order data from SneakerHead store",
+    "order_not_found": "No order linked to this lead",
+    "loading": "Loading data...",
+    "error_load": "Failed to load data",
+    "order_id": "Order #",
+    "status": "Status",
+    "total": "Total",
+    "client": "Customer",
+    "phone": "Phone",
+    "sync": "Synchronise",
+    "sync_ok": "Synchronised",
+    "sync_error": "Sync error",
+    "open_order": "Open in store"
+  }
+}

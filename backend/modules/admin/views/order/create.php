@@ -139,8 +139,8 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
     'action'               => Url::to(['/admin/order/create']),
     'options'              => ['style' => 'display:contents'],
     'validateOnLoad'       => false,
-    'validateOnChange'     => true,
-    'validateOnBlur'       => true,
+    'validateOnChange'     => false,
+    'validateOnBlur'       => false,
     'validateOnSubmit'     => true,
 ]); ?>
 
@@ -390,11 +390,15 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
                 </div>
                 <div class="crm-card-body" style="display:flex;flex-direction:column;gap:8px">
                     <div class="crm-field" style="position:relative">
-                        <label class="crm-field-label">Поиск клиента</label>
+                        <label class="crm-field-label"><i class="bi bi-search"></i> Поиск клиента</label>
                         <input type="text" id="customerSearch" class="crm-input"
-                               placeholder="Имя, телефон или email…" autocomplete="off">
+                               placeholder="И��я, телефон или email…" autocomplete="off">
                         <div id="customerDropdown" class="crm-customer-drop"></div>
                         <input type="hidden" id="customerIdInput" name="Order[customer_id]" value="<?= Html::encode($model->customer_id ?? '') ?>">
+                        <div id="customerSearchHint" style="margin-top:6px;padding:8px 10px;background:var(--admin-surface-hover,#f9fafb);border-radius:7px;border:1px dashed var(--admin-border,#e5e7eb);font-size:0.75rem;color:var(--admin-text-secondary,#9ca3af);text-align:center">
+                            <i class="bi bi-person-circle" style="font-size:1.25rem;display:block;margin-bottom:4px;opacity:.4"></i>
+                            Введите телефон, email или ФИО для поиска клиента
+                        </div>
                         <div id="customerSelectedInfo" style="display:none;margin-top:6px;font-size:0.75rem;color:var(--admin-text-secondary)"></div>
                     </div>
                     <div class="crm-field">
@@ -527,10 +531,12 @@ $js = <<<JS
     var csrInfo  = document.getElementById('customerSelectedInfo');
     var timer    = null;
 
+    var csrHint = document.getElementById('customerSearchHint');
     if (csrInput) {
         csrInput.addEventListener('input', function() {
             clearTimeout(timer);
             var q = this.value.trim();
+            if (csrHint) csrHint.style.display = q.length > 0 ? 'none' : 'block';
             if (q.length < 2) { csrDrop.style.display = 'none'; return; }
             timer = setTimeout(function() {
                 fetch('{$customerSearchUrl}?q=' + encodeURIComponent(q), {
@@ -557,6 +563,7 @@ $js = <<<JS
                                 fill('postalCodeInput', c.postal_code);
                                 fill('fullAddressInput', c.address);
                                 fill('clientNameInput', c.name);
+                                if (csrHint) csrHint.style.display = 'none';
                                 csrInfo.style.display = 'block';
                                 csrInfo.innerHTML = '<i class="bi bi-check-circle-fill" style="color:var(--admin-success)"></i> Клиент привязан: <strong>' + (c.name || '#' + c.id) + '</strong>';
                             });

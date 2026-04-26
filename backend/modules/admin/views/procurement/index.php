@@ -31,6 +31,12 @@ $columnDefs = [
     'ordered_at' => 'Дата заказа',
 ];
 $storageKey = 'purchaseOrdersColumns';
+
+// Z52: show CNY column only if at least one order has a CNY amount
+$hasCnyColumn = false;
+foreach ($orders as $_o) {
+    if (!empty($_o->total_amount_cny)) { $hasCnyColumn = true; break; }
+}
 ?>
 
 <!-- Filter bar -->
@@ -89,12 +95,12 @@ $storageKey = 'purchaseOrdersColumns';
                     <th data-col="type">Тип</th>
                     <th data-col="supplier">Поставщик</th>
                     <th>Статус</th>
-                    <th data-col="amount_cny" data-sort="total_amount_cny" onclick="AdminTable.sortBy('total_amount_cny')" style="text-align:right">Сумма CNY <?= $sortIcon('total_amount_cny') ?></th>
+                    <?php if ($hasCnyColumn): ?><th data-col="amount_cny" data-sort="total_amount_cny" onclick="AdminTable.sortBy('total_amount_cny')" style="text-align:right">Сумма CNY <?= $sortIcon('total_amount_cny') ?></th><?php endif; ?>
                     <th data-col="amount_byn" data-sort="total_amount_byn" onclick="AdminTable.sortBy('total_amount_byn')" style="text-align:right">Сумма BYN <?= $sortIcon('total_amount_byn') ?></th>
                     <th data-col="items" style="text-align:center">Позиций</th>
                     <th data-col="ordered_at" data-sort="ordered_at" onclick="AdminTable.sortBy('ordered_at')">Дата заказа <?= $sortIcon('ordered_at') ?></th>
                     <th data-sort="created_at" onclick="AdminTable.sortBy('created_at')">Создан <?= $sortIcon('created_at') ?></th>
-                    <th style="width:80px">—</th>
+                    <th style="width:80px">Действия</th>
                 </tr>
             </thead>
             <tbody>
@@ -107,7 +113,7 @@ $storageKey = 'purchaseOrdersColumns';
                 <tr>
                     <td style="white-space:nowrap">
                         <a href="/admin/procurement/view/<?= $po->id ?>" style="font-weight:700;color:var(--admin-text-primary,#202223);text-decoration:none">
-                            <?= htmlspecialchars($po->purchase_number) ?>
+                            <?= htmlspecialchars($po->purchase_number ?: sprintf('%05d', $po->id)) ?>
                         </a>
                     </td>
                     <td data-col="type" style="color:var(--admin-text-secondary,#6d7175)"><?= $po->getTypeLabel() ?></td>
@@ -120,9 +126,11 @@ $storageKey = 'purchaseOrdersColumns';
                             <?= $po->getStatusLabel() ?>
                         </span>
                     </td>
+                    <?php if ($hasCnyColumn): ?>
                     <td data-col="amount_cny" style="text-align:right;white-space:nowrap">
-                        <?= $po->total_amount_cny ? number_format($po->total_amount_cny, 2) . ' <span style="font-size:.7rem;color:var(--admin-text-secondary,#6d7175)">CNY</span>' : '—' ?>
+                        <?= $po->total_amount_cny ? number_format($po->total_amount_cny, 2) . ' <span style="font-size:.7rem;color:var(--admin-text-secondary,#6d7175)">CNY</span>' : '<span style="color:var(--admin-text-secondary,#6d7175);font-size:.75rem">Будет указано в выкупе</span>' ?>
                     </td>
+                    <?php endif; ?>
                     <td data-col="amount_byn" style="text-align:right;font-weight:700;white-space:nowrap">
                         <?= $po->total_amount_byn ? number_format($po->total_amount_byn, 2) . ' <span style="font-size:.7rem;color:var(--admin-text-secondary,#6d7175);font-weight:400">BYN</span>' : '—' ?>
                     </td>

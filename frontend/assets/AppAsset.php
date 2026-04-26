@@ -10,8 +10,8 @@ class AppAsset extends AssetBundle
     public $baseUrl = '@web';
     
     // Модульная CSS архитектура - версии добавятся автоматически в init()
+    // Google Fonts загружается async в layouts/main.php чтобы не блокировать рендер
     public $css = [
-        'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
         'css/core/design-tokens.css',
         'css/core/design-system.css',
         'css/core/container-system.css',

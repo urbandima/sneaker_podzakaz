@@ -126,7 +126,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                             <input type="text" name="Order[postal_code]" value="<?= Html::encode($model->postal_code) ?>" <?= $inputDisabled ?>>
                         </div>
                     </div>
-                    <div class="form-grid form-grid--2" style="margin-top:12px;">
+                    <div class="form-grid form-grid--2 mt-3">
                         <div class="form-field">
                             <label>Полный адрес</label>
                             <textarea name="Order[full_address]" <?= $inputDisabled ?>><?= Html::encode($model->full_address) ?></textarea>
@@ -210,7 +210,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                             <input type="number" step="0.01" name="Order[item_price_cny]" value="<?= Html::encode($model->item_price_cny) ?>" <?= $inputDisabled ?>>
                         </div>
                     </div>
-                    <div class="form-grid form-grid--2" style="margin-top:10px;">
+                    <div class="form-grid form-grid--2 mt-10px">
                         <div class="form-field">
                             <label>Ссылка на товар</label>
                             <input type="url" name="Order[product_link]" value="<?= Html::encode($model->product_link) ?>" <?= $inputDisabled ?>>
@@ -220,7 +220,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                             <input type="url" name="Order[sneakerhead_order_link]" value="<?= Html::encode($model->sneakerhead_order_link) ?>" <?= $inputDisabled ?>>
                         </div>
                     </div>
-                    <div class="form-field" style="margin-top:10px;">
+                    <div class="form-field mt-10px">
                         <label>Описание для таможни</label>
                         <textarea name="Order[customs_description]" <?= $inputDisabled ?>><?= Html::encode($model->customs_description) ?></textarea>
                     </div>
@@ -302,7 +302,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="form-field" style="margin-top:10px;">
+                    <div class="form-field mt-10px">
                         <label>Комментарий</label>
                         <textarea rows="3" name="comment" placeholder="Опционально..."></textarea>
                     </div>
@@ -411,7 +411,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
     <i class="bi bi-check-circle"></i> Сохранено
 </div>
 
-<div id="order-view-config" style="display:none;"
+<div id="order-view-config" class="d-none"
     data-update-field-url="<?= Url::to(['/admin/order/update-field', 'id' => $model->id]) ?>"
     data-csrf-param="<?= Yii::$app->request->csrfParam ?>"
     data-csrf-token="<?= Yii::$app->request->csrfToken ?>">

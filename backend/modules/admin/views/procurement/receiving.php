@@ -115,7 +115,7 @@ textarea.rcv-form-control{height:60px;padding:8px 10px;resize:vertical}
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <i class="bi bi-chevron-down rcv-chevron"></i>
             <a href="/admin/procurement/view/<?= $po->id ?>" style="font-weight:700;color:var(--admin-text-primary,#111);text-decoration:none;font-size:.875rem" onclick="event.stopPropagation()">
-                <?= Html::encode($po->purchase_number) ?>
+                <?= Html::encode($po->purchase_number ?: sprintf('%05d', $po->id)) ?>
             </a>
             <span class="status-pill" style="background:<?= $po->getStatusColor() ?>;color:#fff"><?= Html::encode($po->getStatusLabel()) ?></span>
             <span style="font-size:.8125rem;color:var(--admin-text-secondary,#6b7280)"><?= Html::encode($po->supplier->name ?? '') ?></span>
@@ -201,7 +201,7 @@ textarea.rcv-form-control{height:60px;padding:8px 10px;resize:vertical}
                 <select class="rcv-form-control" id="modal-po-select" onchange="onModalPoChange()">
                     <option value="">-- Выберите закупку --</option>
                     <?php foreach ($orders as $po): ?>
-                    <option value="<?= $po->id ?>"><?= Html::encode($po->purchase_number . ' — ' . ($po->supplier->name ?? '')) ?></option>
+                    <option value="<?= $po->id ?>"><?= Html::encode(($po->purchase_number ?: sprintf('%05d', $po->id)) . ' — ' . ($po->supplier->name ?? '')) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>

@@ -13,11 +13,22 @@ $tabs = [
     'approved' => 'Одобрен',
     'rejected' => 'Отклонён',
 ];
+
+// Count badges per tab
+$tabCounts = [];
+try {
+    $tabCounts[''] = (int)ReturnRequest::find()->count();
+    foreach (['pending', 'approved', 'rejected'] as $_st) {
+        $tabCounts[$_st] = (int)ReturnRequest::find()->where(['status' => $_st])->count();
+    }
+} catch (\Exception $_e) {
+    $tabCounts = [];
+}
 ?>
 
 <?php
 $this->params['headerActions'] = [
-    Html::a('<i class="bi bi-plus-circle"></i> Создать возврат', ['create'], ['class' => 'admin-btn admin-btn-primary admin-btn-sm'])
+    Html::a('<i class="bi bi-plus-circle"></i> Создать возврат', ['create'], ['class' => 'admin-btn admin-btn-primary admin-btn-sm', 'style' => 'flex-shrink:0;white-space:nowrap'])
 ];
 ?>
 
@@ -26,8 +37,11 @@ $this->params['headerActions'] = [
     <div style="display: flex; gap: 0; border-bottom: 1px solid var(--admin-border);">
         <?php foreach ($tabs as $key => $label): ?>
             <a href="<?= Url::to(['index', 'status' => $key, 'search' => Yii::$app->request->get('search')]) ?>"
-               style="padding: 0.875rem 1.5rem; font-weight: 600; font-size: 0.9rem; text-decoration: none; border-bottom: 3px solid <?= $currentStatus === $key ? 'var(--admin-accent, #2563eb)' : 'transparent' ?>; color: <?= $currentStatus === $key ? 'var(--admin-accent, #2563eb)' : 'var(--admin-text-secondary)' ?>; transition: color 0.2s;">
+               style="display:inline-flex;align-items:center;gap:6px;padding: 0.875rem 1.5rem; font-weight: 600; font-size: 0.9rem; text-decoration: none; border-bottom: 3px solid <?= $currentStatus === $key ? 'var(--admin-accent, #2563eb)' : 'transparent' ?>; color: <?= $currentStatus === $key ? 'var(--admin-accent, #2563eb)' : 'var(--admin-text-secondary)' ?>; transition: color 0.2s; white-space:nowrap;">
                 <?= Html::encode($label) ?>
+                <?php if (isset($tabCounts[$key]) && $tabCounts[$key] > 0): ?>
+                <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;background:<?= $currentStatus === $key ? 'var(--admin-accent,#2563eb)' : 'var(--admin-border,#e5e7eb)' ?>;color:<?= $currentStatus === $key ? '#fff' : 'var(--admin-text-secondary,#6b7280)' ?>;border-radius:9px;font-size:0.7rem;font-weight:700"><?= $tabCounts[$key] ?></span>
+                <?php endif; ?>
             </a>
         <?php endforeach; ?>
     </div>
@@ -47,7 +61,7 @@ $this->params['headerActions'] = [
         </a>
     </form>
 
-    <div style="overflow-x: auto;">
+    <div class="overflow-x-auto">
         <table class="admin-table">
             <thead>
                 <tr>
@@ -77,7 +91,7 @@ $this->params['headerActions'] = [
                                     <div style="font-size: 0.75rem; color: var(--admin-text-secondary);"><?= Html::encode($model->order->client_email ?? $model->client_email) ?></div>
                                 <?php endif; ?>
                             </td>
-                            <td><?= number_format($model->refund_amount ?? 0, 2) ?> BYN</td>
+                            <td style="white-space:nowrap"><?= number_format($model->refund_amount ?? 0, 2) ?> BYN</td>
                             <td>
                                 <?php $rtype = $model->return_type ?? 'refund'; ?>
                                 <span class="admin-badge admin-badge-<?= $rtype === 'commission' ? 'info' : 'warning' ?>">

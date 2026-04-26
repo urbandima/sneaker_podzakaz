@@ -61,8 +61,10 @@ $sortIcon = function(string $col) use ($currentSort): string {
                     <tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--admin-text-secondary,#6d7175)">Нет данных за период</td></tr>
                 <?php endif; ?>
                 <?php foreach ($data as $row):
-                    $pct = (float)$row['margin_pct'];
-                    if ($pct >= 20)        { $pctBg = '#d1f7e5'; $pctColor = '#008060'; }
+                    $pct  = (float)$row['margin_pct'];
+                    $cogs = (float)$row['cogs'];
+                    if ($cogs == 0)        { $pctBg = '#f3f4f6'; $pctColor = '#6d7175'; }
+                    elseif ($pct >= 20)    { $pctBg = '#d1f7e5'; $pctColor = '#008060'; }
                     elseif ($pct >= 0)     { $pctBg = '#fff4e5'; $pctColor = '#ffa500'; }
                     else                   { $pctBg = '#fbeae5'; $pctColor = '#d72c0d'; }
                 ?>
@@ -73,12 +75,16 @@ $sortIcon = function(string $col) use ($currentSort): string {
                     <td style="text-align:right"><?= (int)$row['order_count'] ?></td>
                     <td style="text-align:right"><?= (int)$row['qty'] ?></td>
                     <td style="text-align:right;font-weight:700"><?= number_format($row['revenue'], 2) ?></td>
-                    <td style="text-align:right;color:var(--admin-text-secondary,#6d7175)"><?= $row['cogs'] > 0 ? number_format($row['cogs'], 2) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-text-secondary,#6d7175)"><?= $cogs > 0 ? number_format($cogs, 2) : '—' ?></td>
                     <td style="text-align:right;color:<?= $row['margin'] >= 0 ? 'var(--admin-success,#008060)' : 'var(--admin-danger,#d72c0d)' ?>;font-weight:700">
-                        <?= number_format($row['margin'], 2) ?>
+                        <?= $cogs > 0 ? number_format($row['margin'], 2) : '—' ?>
                     </td>
                     <td style="text-align:right">
-                        <span class="status-pill" style="background:<?= $pctBg ?>;color:<?= $pctColor ?>"><?= $pct ?>%</span>
+                        <?php if ($cogs == 0): ?>
+                            <span class="status-pill" style="background:#f3f4f6;color:#6d7175" title="Себестоимость не указана">Нет себестоимости</span>
+                        <?php else: ?>
+                            <span class="status-pill" style="background:<?= $pctBg ?>;color:<?= $pctColor ?>"><?= $pct ?>%</span>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>

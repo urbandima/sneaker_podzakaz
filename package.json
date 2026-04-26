@@ -5,9 +5,13 @@
   "scripts": {
     "build": "gulp --gulpfile build/frontend/gulpfile.js build",
     "watch": "gulp --gulpfile build/frontend/gulpfile.js watch",
-    "minify": "gulp --gulpfile build/frontend/gulpfile.js minify"
+    "minify": "gulp --gulpfile build/frontend/gulpfile.js minify",
+    "lhci": "bash scripts/lhci-run.sh",
+    "lhci:collect": "lhci collect",
+    "lhci:assert": "lhci assert"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.58.2",
     "@types/node": "^25.5.0",
     "gulp": "^5.0.0",

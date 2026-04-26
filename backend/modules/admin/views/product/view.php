@@ -2,6 +2,9 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
+use app\backend\shared\helpers\AttributeMapper;
+use app\backend\shared\helpers\OrderStatusHelper;
 
 /** @var yii\web\View $this */
 /** @var app\backend\modules\catalog\models\Product $product */

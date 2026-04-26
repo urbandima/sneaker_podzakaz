@@ -84,6 +84,11 @@ foreach ($methods as $i => $method) {
                                placeholder="Плагин (europochta, belpochta...)"
                                data-field="plugin" data-idx="<?= $i ?>"
                                style="max-width:180px;font-size:12px">
+                        <?php if (empty($method['plugin']) && ($method['status'] ?? '') === 'active'): ?>
+                        <span class="admin-badge admin-badge-warning" style="font-size:11px;white-space:nowrap" title="Провайдер не выбран — метод деактивирован при сохранении">
+                            <i class="bi bi-exclamation-triangle"></i> Провайдер не выбран — метод деактивирован
+                        </span>
+                        <?php endif; ?>
                         <input type="text" class="admin-form-input delivery-desc"
                                value="<?= htmlspecialchars($method['description']) ?>"
                                placeholder="Описание"

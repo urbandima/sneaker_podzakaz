@@ -26,7 +26,8 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function initializeFavorites() {
-    var favoriteButtons = document.querySelectorAll('.btn-favorite, .fav-btn');
+    updateFavoritesCount();
+    initFavoriteButtons();
 
     favoriteButtons.forEach(function (button) {
         if (button.hasAttribute('onclick')) return;
@@ -38,6 +39,7 @@ function initializeFavorites() {
             toggleFavorite(this, productId);
         });
     });
+}
 
     if (isGuest()) {
         markGuestFavoriteButtons();
@@ -69,7 +71,7 @@ function toggleFavorite(button, productId) {
     button.disabled = true;
     button.classList.add('loading');
 
-    SH.fetch(url, {
+    SH.fetch('/favorite/toggle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'product_id=' + productId
@@ -86,7 +88,7 @@ function toggleFavorite(button, productId) {
                 updateFavoritesCount();
                 SH.notify(data.message, 'success');
             } else {
-                throw new Error(data.message || 'Произошла ошибка');
+                SH.notify((data && data.message) || 'Произошла ошибка', 'error');
             }
         })
         .catch(function () {
@@ -151,14 +153,7 @@ function updateFavoritesCount() {
                 badge.style.display = data.count > 0 ? 'flex' : 'none';
             }
         })
-        .catch(function () {
-            var activeCount = document.querySelectorAll('.btn-favorite.active, .fav-btn.active').length;
-            var badge = document.getElementById('favCount');
-            if (badge) {
-                badge.textContent = activeCount;
-                badge.style.display = activeCount > 0 ? 'flex' : 'none';
-            }
-        });
+        .catch(function () {});
 }
 
 window.toggleFavorite = toggleFavorite;

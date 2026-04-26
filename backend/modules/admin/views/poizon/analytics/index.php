@@ -35,7 +35,7 @@ $this->title = '📊 Аналитика и отчеты';
             <div class="stat-label">Добавлений в корзину</div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">📦</div>
+            <div class="stat-icon"><i class="bi bi-box-seam"></i></div>
             <div class="stat-value"><?= number_format($conversion['orders']) ?></div>
             <div class="stat-label">Заказов</div>
         </div>
@@ -65,7 +65,7 @@ $this->title = '📊 Аналитика и отчеты';
                     ['label' => 'Просмотры', 'value' => $conversion['page_views'], 'icon' => '👁️', 'url' => '/admin/analytics'],
                     ['label' => 'Товары', 'value' => $conversion['product_views'], 'icon' => '👟', 'url' => '/admin/product'],
                     ['label' => 'Корзина', 'value' => $conversion['add_to_cart'], 'icon' => '🛒', 'url' => '/admin/cart'],
-                    ['label' => 'Заказы', 'value' => $conversion['orders'], 'icon' => '📦', 'url' => '/admin/order'],
+                    ['label' => 'Заказы', 'value' => $conversion['orders'], 'icon' => '<i class="bi bi-box-seam"></i>', 'url' => '/admin/order'],
                 ];
                 foreach ($steps as $index => $step):
                     $height = max(40, ($step['value'] / $maxValue) * 200);

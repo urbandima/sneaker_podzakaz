@@ -16,7 +16,7 @@ use app\backend\modules\coupon\models\Coupon;
         ]
     ]); ?>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+    <div class="grid-auto-fit-lg">
         <!-- Основная информация -->
         <div class="form-section">
             <h3 class="form-section-title">Основная информация</h3>
@@ -27,7 +27,7 @@ use app\backend\modules\coupon\models\Coupon;
                     'placeholder' => 'SUMMER2024',
                     'style' => 'text-transform: uppercase;'
                 ])->hint('Уникальный код купона (будет преобразован в верхний регистр)') ?>
-                <button type="button" class="admin-btn admin-btn-secondary" style="margin-top: 0.5rem;" onclick="generateCouponCode()"
+                <button type="button" class="admin-btn admin-btn-secondary mt-2" onclick="generateCouponCode()"
                     data-generate-url="<?= \yii\helpers\Url::to(['generate-code']) ?>">
                     <i class="bi bi-arrow-repeat"></i> Сгенерировать код
                 </button>
@@ -107,7 +107,7 @@ use app\backend\modules\coupon\models\Coupon;
     </div>
 
     <!-- Применимость к товарам -->
-    <div class="form-section" style="margin-top: 1.5rem;">
+    <div class="form-section mt-5">
         <h3 class="form-section-title">
             <i class="bi bi-tags"></i>
             Применимость к товарам (опционально)

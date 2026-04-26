@@ -6,7 +6,7 @@ use app\backend\modules\admin\assets\AdminAsset;
 
 AdminAsset::register($this);
 
-$company = Yii::$app->settings->getCompany() ?? ['name' => 'СНИКЕРХЭД'];
+$company = Yii::$app->settings->getCompany() ?? ['name' => 'СникерКультура'];
 $controllerId = Yii::$app->controller->id;
 ?>
 
@@ -80,6 +80,9 @@ $controllerId = Yii::$app->controller->id;
                 <i class="bi bi-shop"></i>
                 <span><?= Html::encode($company['name']) ?></span>
             </a>
+            <button class="admin-sidebar-toggle-btn" id="sidebar-toggle-btn" onclick="toggleDesktopSidebar()" title="Свернуть/развернуть меню" aria-label="Свернуть меню">
+                <i class="bi bi-layout-sidebar-reverse" id="sidebar-toggle-icon"></i>
+            </button>
         </div>
         
         <nav class="admin-sidebar-nav">
@@ -319,7 +322,7 @@ $controllerId = Yii::$app->controller->id;
     <!-- Main -->
     <main class="admin-main">
         <!-- Live Search Overlay -->
-        <div class="admin-search-overlay" id="search-overlay" style="display:none">
+        <div class="admin-search-overlay d-none" id="search-overlay">
             <div class="admin-search-modal">
                 <div class="admin-search-input-wrap">
                     <i class="bi bi-search"></i>
@@ -356,8 +359,14 @@ $controllerId = Yii::$app->controller->id;
                 </button>
             </div>
             <div class="admin-topbar-right">
-                <!-- "+ Новый заказ" (скрыть на странице создания заказа) -->
-                <?php if (!(Yii::$app->controller->id === 'order' && Yii::$app->controller->action->id === 'create')): ?>
+                <!-- Z84: "+ Новый заказ" only on order/dashboard/customer pages -->
+                <?php
+                $_cid = Yii::$app->controller->id ?? '';
+                $_aid = Yii::$app->controller->action->id ?? '';
+                $_showNewOrder = in_array($_cid, ['order', 'dashboard', 'customer'])
+                              && !($_cid === 'order' && $_aid === 'create');
+                if ($_showNewOrder):
+                ?>
                 <a href="<?= \yii\helpers\Url::to(['/admin/order/create']) ?>" class="admin-btn admin-btn-primary admin-btn-sm">
                     <i class="bi bi-plus-circle"></i> Новый заказ
                 </a>
@@ -367,7 +376,7 @@ $controllerId = Yii::$app->controller->id;
                     <i class="bi bi-calculator-fill"></i>
                 </button>
                 <!-- Уведомления -->
-                <div style="position:relative">
+                <div class="pos-relative">
                     <button class="admin-topbar-icon-btn admin-notif-btn" id="notif-btn" title="Уведомления" onclick="toggleNotifications()">
                         <i class="bi bi-bell-fill"></i>
                         <?php
@@ -380,7 +389,7 @@ $controllerId = Yii::$app->controller->id;
                             <span class="admin-notif-badge"><?= $newOrdersCount ?></span>
                         <?php endif; ?>
                     </button>
-                    <div id="notif-dropdown" class="admin-notif-dropdown" style="display:none">
+                    <div id="notif-dropdown" class="admin-notif-dropdown d-none">
                         <div class="admin-notif-header">
                             <h4>Уведомления</h4>
                             <span class="admin-badge admin-badge-primary"><?= $newOrdersCount ?></span>
@@ -425,11 +434,11 @@ $controllerId = Yii::$app->controller->id;
                 </button>
 
                 <!-- Профиль пользователя -->
-                <div class="admin-user-profile" style="position:relative">
+                <div class="admin-user-profile pos-relative">
                     <button class="admin-topbar-icon-btn admin-profile-btn" id="profile-btn" title="Профиль пользователя" onclick="toggleProfile()">
                         <i class="bi bi-person-circle"></i>
                     </button>
-                    <div class="admin-profile-dropdown" id="profile-dropdown" style="display:none;">
+                    <div class="admin-profile-dropdown d-none" id="profile-dropdown">
                         <div class="admin-profile-header">
                             <div class="admin-profile-info">
                                 <div class="admin-profile-name"><?= Html::encode($company['name'] ?? 'Admin') ?></div>

@@ -170,7 +170,9 @@ $config = [
             ],
         ],
         'errorHandler' => [
+            'class' => 'app\components\SentryErrorHandler',
             'errorAction' => 'site/error',
+            'displayVars' => YII_DEBUG ? ['_GET', '_POST', '_FILES', '_COOKIE', '_SESSION', '_SERVER'] : [],
         ],
         'mailer' => [
             'class' => 'yii\symfonymailer\Mailer',
@@ -182,7 +184,9 @@ $config = [
             'targets' => [
                 [
                     'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
+                    'levels' => ['error', 'warning', 'info'],
+                    'logFile' => '@app/runtime/logs/app.log',
+                    'logVars' => [],
                 ],
                 // Sentry для production
                 ...(!((defined('YII_ENV_DEV') && YII_ENV_DEV)) && env('SENTRY_DSN') ? [[
@@ -198,6 +202,9 @@ $config = [
         ],
         'settings' => [
             'class' => 'app\backend\shared\components\Settings',
+        ],
+        'amocrm' => [
+            'class' => 'app\backend\shared\components\AmocrmClient',
         ],
         'poizonApi' => [
             'class' => 'app\backend\shared\components\PoizonApiService',
@@ -327,6 +334,9 @@ $config = [
                 // W3-W9: missing route aliases
                 'admin/order/return' => 'admin/return/index',
                 'admin/order/returns' => 'admin/return/index',
+                'admin/order-return' => 'admin/return/index',
+                'admin/order-status' => 'admin/settings/statuses',
+                'admin/order-source' => 'admin/settings/sources',
                 'admin/shipment' => 'admin/shipping/dispatch',
                 'admin/shipment/<action:[a-z-]+>' => 'admin/shipping/<action>',
                 'admin/finance/expense' => 'admin/finance/expenses',
@@ -338,6 +348,10 @@ $config = [
                 
                 // Webhook endpoints
                 'api/webhook/dobropost' => 'api/webhook/dobropost',
+                'api/webhook/amocrm' => 'api/webhook/amocrm',
+                'webhook/amocrm/event' => 'api/webhook/amocrm',
+                'api/amocrm/order' => 'api/amocrm/order',
+                'api/amocrm/sync' => 'api/amocrm/sync',
 
                 // Catalog API endpoints (вынесено из CatalogController)
                 'api/catalog/filter' => 'catalog/catalog-api/filter',
@@ -355,6 +369,7 @@ $config = [
                 
                 // Страница брендов
                 'brands' => 'catalog/catalog/brands',
+                'brands/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
                 
                 // Страница скидок (+ алиас /sales для 301)
                 'sale' => 'page/sale',
@@ -470,7 +485,12 @@ $config = [
                 'admin/product/<productId:\d+>/add-image' => 'admin/product/add-image',
                 'admin/product/image/<id:\d+>/delete' => 'admin/product/delete-image',
                 'admin/product/image/<id:\d+>/set-main' => 'admin/product/set-main-image',
-                
+                'admin/product/update-price' => 'admin/product/update-price',
+                'admin/product/update-field' => 'admin/product/update-field',
+                'admin/product/toggle-active' => 'admin/product/toggle-active',
+                'admin/product/sync-poizon' => 'admin/product/sync-poizon',
+                'admin/product/clone' => 'admin/product/clone',
+
                 // Users
                 'admin/user' => 'admin/user/index',
                 'admin/user/create' => 'admin/user/create',
@@ -555,6 +575,18 @@ $config = [
                 'admin/finance/create-expense'   => 'admin/finance/create-expense',
                 'admin/finance/pnl'              => 'admin/finance/pnl',
                 'admin/finance/margin'           => 'admin/finance/margin',
+                // Buyout
+                'admin/buyout'                          => 'admin/buyout/index',
+                'admin/buyout/create'                   => 'admin/buyout/create',
+                'admin/buyout/parse-url'                => 'admin/buyout/parse-url',
+                'admin/buyout/bulk-status'              => 'admin/buyout/bulk-status',
+                'admin/buyout/<id:\d+>'                 => 'admin/buyout/view',
+                'admin/buyout/<id:\d+>/edit'            => 'admin/buyout/edit',
+                'admin/buyout/<id:\d+>/accept'          => 'admin/buyout/accept',
+                'admin/buyout/<id:\d+>/cancel'          => 'admin/buyout/cancel',
+                'admin/buyout/<id:\d+>/link-order'      => 'admin/buyout/link-order',
+                'admin/buyout/<id:\d+>/unlink-order'    => 'admin/buyout/unlink-order',
+                'admin/buyout/<id:\d+>/history'         => 'admin/buyout/history',
                 // Procurement
                 'admin/procurement'                       => 'admin/procurement/index',
                 'admin/procurement/suppliers'             => 'admin/procurement/suppliers',

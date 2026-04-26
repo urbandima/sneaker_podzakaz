@@ -39,7 +39,7 @@ $storageKey = 'expensesColumns';
     ?>
     <div class="atu-kpi-card" style="border-color:<?= $color['color'] ?>22">
         <div class="atu-kpi-label"><?= htmlspecialchars($label) ?></div>
-        <div class="atu-kpi-value" style="font-size:1.125rem;color:<?= $color['color'] ?>"><?= number_format($byCategory[$k] ?? 0, 0) ?> <span style="font-size:.75rem;font-weight:400">BYN</span></div>
+        <div class="atu-kpi-value" style="font-size:1.125rem;color:<?= $color['color'] ?>"><?= number_format((float)($byCategory[$k] ?? 0), 0) ?> <span style="font-size:.75rem;font-weight:400">BYN</span></div>
     </div>
     <?php endforeach; ?>
 </div>

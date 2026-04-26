@@ -21,12 +21,12 @@ $this->params['headerActions'] = [
 ?>
 
 <!-- Статистика -->
-<div class="admin-stats" style="margin-bottom: 24px;">
+<div class="admin-stats mb-5">
     <div class="admin-stat-card">
         <div class="admin-stat-icon primary"><i class="bi bi-database"></i></div>
         <div class="admin-stat-content">
             <div class="admin-stat-value"><?= count($sources) ?></div>
-            <div class="admin-stat-label">Всё источники</div>
+            <div class="admin-stat-label">Все источники</div>
         </div>
     </div>
     <div class="admin-stat-card">
@@ -54,13 +54,13 @@ $this->params['headerActions'] = [
 
 <!-- Запущенные задачи -->
 <?php if (!empty($runningTasks)): ?>
-<div class="admin-card" style="margin-bottom: 24px;">
+<div class="admin-card mb-5">
     <div class="admin-card-header">
         <h2 class="admin-card-title">
             <i class="bi bi-spinner"></i> Запущенные задачи (<?= count($runningTasks) ?>)
         </h2>
     </div>
-    <div class="admin-card-body" style="padding: 0;">
+    <div class="admin-card-body p-0">
         <table class="admin-table">
             <thead>
                 <tr>
@@ -85,7 +85,13 @@ $this->params['headerActions'] = [
                         </div>
                     </td>
                     <td><?= $task->processed_products ?> / <?= $task->total_products ?></td>
-                    <td><?= Yii::$app->formatter->asRelativeTime($task->started_at) ?></td>
+                    <td>
+                        <?php if ($task->started_at && (int)$task->started_at > 0): ?>
+                            <?= Yii::$app->formatter->asDatetime((int)$task->started_at, 'dd.MM.yyyy HH:mm:ss') ?>
+                        <?php else: ?>
+                            Запущен только что
+                        <?php endif; ?>
+                    </td>
                     <td>
                         <?= Html::button('<i class="bi bi-stop"></i> Стоп', [
                             'class' => 'admin-btn admin-btn-danger admin-btn-sm btn-stop-task',
@@ -105,7 +111,7 @@ $this->params['headerActions'] = [
 <?php endif; ?>
 
 <!-- Источники -->
-<div class="admin-card" style="margin-bottom: 24px;">
+<div class="admin-card mb-5">
     <div class="admin-card-header">
         <h2 class="admin-card-title">Источники данных</h2>
         <div class="admin-card-actions">
@@ -119,11 +125,11 @@ $this->params['headerActions'] = [
             ]) ?>
         </div>
     </div>
-    <div class="admin-card-body" style="padding: 0;">
+    <div class="admin-card-body p-0">
         <?php if (empty($sources)): ?>
         <div style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">
             <i class="bi bi-cloud-download" style="font-size:2rem;opacity:0.4;display:block;margin-bottom:0.5rem"></i>
-            <p style="margin:0">Нет настроенных источников импорта</p>
+            <p class="m-0">Нет настроенных источников импорта</p>
             <?= Html::a('<i class="bi bi-plus"></i> Добавить первый источник', ['settings'], ['class' => 'admin-btn admin-btn-primary admin-btn-sm', 'style' => 'margin-top:1rem']) ?>
         </div>
         <?php else: ?>
@@ -144,7 +150,7 @@ $this->params['headerActions'] = [
                 <tr>
                     <td>
                         <strong><?= Html::encode($source->name) ?></strong>
-                        <br><small style="color:var(--admin-text-secondary)"><?= Html::encode($source->base_url) ?></small>
+                        <br><small class="text-muted"><?= Html::encode($source->base_url) ?></small>
                     </td>
                     <td>
                         <span class="admin-badge admin-badge-secondary"><?= Html::encode($source->currency_code) ?></span>
@@ -166,11 +172,11 @@ $this->params['headerActions'] = [
                     <td>
                         <?= $source->last_run_at 
                             ? Yii::$app->formatter->asRelativeTime($source->last_run_at) 
-                            : '<span style="color:var(--admin-text-secondary)">Никогда</span>' ?>
+                            : '<span class="text-muted">Никогда</span>' ?>
                     </td>
                     <td>
                         <span style="color:var(--admin-success)"><?= $source->successful_runs ?></span> /
-                        <span style="color:var(--admin-danger)"><?= $source->failed_runs ?></span>
+                        <span class="text-danger"><?= $source->failed_runs ?></span>
                     </td>
                     <td><?= number_format($source->total_products_parsed, 0, '', ' ') ?></td>
                     <td>
@@ -204,7 +210,7 @@ $this->params['headerActions'] = [
         <h2 class="admin-card-title">Последние задачи</h2>
         <?= Html::a('Все задачи', ['logs'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm']) ?>
     </div>
-    <div class="admin-card-body" style="padding: 0;">
+    <div class="admin-card-body p-0">
         <?php Pjax::begin(['id' => 'recent-tasks-pjax']); ?>
         <?= GridView::widget([
             'dataProvider' => new \yii\data\ArrayDataProvider([
@@ -248,7 +254,7 @@ $this->params['headerActions'] = [
                     'value' => function($model) {
                         return '<span style="color:var(--admin-success)">+' . $model->imported_count . '</span> ' .
                                '<span style="color:var(--admin-info)">~' . $model->updated_count . '</span> ' .
-                               '<span style="color:var(--admin-danger)">!' . $model->failed_count . '</span>';
+                               '<span class="text-danger">!' . $model->failed_count . '</span>';
                     },
                 ],
                 [

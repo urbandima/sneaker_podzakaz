@@ -40,7 +40,7 @@ $this->registerJsFile('@web/js/cart.js', ['position' => \yii\web\View::POS_END, 
         </div>
         
         <!-- Cart with items -->
-        <div class="cart-content" id="cartContent" style="display: none;">
+        <div class="cart-content d-none" id="cartContent">
             <div class="cart-items" id="cartItems">
                 <!-- Example cart item (будет заменён на dynamic) -->
                 <!-- 
@@ -100,7 +100,7 @@ $this->registerJsFile('@web/js/cart.js', ['position' => \yii\web\View::POS_END, 
         </div>
         
         <!-- Mobile Sticky Footer Buttons -->
-        <div class="cart-sticky-footer" id="cartStickyFooter" style="display: none;">
+        <div class="cart-sticky-footer d-none" id="cartStickyFooter">
             <div class="sticky-summary">
                 <div class="sticky-total">
                     <span class="sticky-label">Всего:</span>
@@ -120,7 +120,7 @@ $this->registerJsFile('@web/js/cart.js', ['position' => \yii\web\View::POS_END, 
 </div>
 
 <!-- Модальное окно оформления заказа -->
-<div id="checkoutModal" class="checkout-modal" style="display: none;">
+<div id="checkoutModal" class="checkout-modal d-none">
     <div class="modal-overlay" onclick="closeCheckoutModal()"></div>
     <div class="modal-content">
         <div class="modal-header">
@@ -167,7 +167,7 @@ $this->registerJsFile('@web/js/cart.js', ['position' => \yii\web\View::POS_END, 
                         <option value="sdek">СДЭК (Россия)</option>
                     </select>
                 </div>
-                <div class="form-group" id="addressField" style="display: none;">
+                <div class="form-group d-none" id="addressField">
                     <label>Адрес доставки <span class="required">*</span></label>
                     <textarea name="address" rows="2" placeholder="Город, улица, дом, квартира"></textarea>
                 </div>

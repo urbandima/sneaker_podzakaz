@@ -111,7 +111,7 @@ class AnalyticsEvent extends ActiveRecord
                     return $rows;
                 }
             }
-            // Fallback: top products by order count
+            // Fallback: top products by order count (Z78: price>0, FROM_UNIXTIME for unix ts)
             return Yii::$app->db->createCommand(
                 "SELECT oi.product_name,
                         0 AS views, 0 AS add_to_cart,
@@ -119,7 +119,8 @@ class AnalyticsEvent extends ActiveRecord
                         SUM(oi.price * oi.quantity) AS total_revenue
                  FROM order_item oi
                  JOIN \`order\` o ON oi.order_id = o.id
-                 WHERE DATE(o.created_at) BETWEEN :f AND :t
+                 WHERE DATE(FROM_UNIXTIME(o.created_at)) BETWEEN :f AND :t
+                   AND oi.price IS NOT NULL AND oi.price > 0
                  GROUP BY oi.product_name
                  ORDER BY orders DESC
                  LIMIT :lim",
@@ -127,6 +128,33 @@ class AnalyticsEvent extends ActiveRecord
             )->queryAll();
         } catch (\Exception $e) {
             return [];
+        }
+    }
+
+    // A15: track an analytics event; silently no-ops if table doesn't exist
+    public static function track(string $event, $productId = null, array $extra = []): void
+    {
+        if (!static::isAvailable()) {
+            return;
+        }
+        try {
+            $customerId = null;
+            $sessionId  = null;
+            if (!Yii::$app->user->isGuest) {
+                $customerId = Yii::$app->user->id;
+            } else {
+                $sessionId = Yii::$app->session->id;
+            }
+            Yii::$app->db->createCommand()->insert('{{%analytics_event}}', [
+                'event'       => $event,
+                'product_id'  => $productId,
+                'customer_id' => $customerId,
+                'session_id'  => $sessionId,
+                'extra'       => $extra ? json_encode($extra, JSON_UNESCAPED_UNICODE) : null,
+                'created_at'  => date('Y-m-d H:i:s'),
+            ])->execute();
+        } catch (\Exception $e) {
+            Yii::warning('AnalyticsEvent::track failed: ' . $e->getMessage(), 'analytics');
         }
     }
 }

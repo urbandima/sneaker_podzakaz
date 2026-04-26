@@ -21,15 +21,15 @@ $this->params['headerActions'] = [
         <input type="hidden" name="_csrf" value="<?= Yii::$app->request->csrfToken ?>">
         
         <!-- Основная информация -->
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div class="flex-col gap-4">
             <h3 style="margin: 0; color: var(--admin-text-primary);">Основная информация</h3>
             
             <div class="form-group">
                 <label>Код купона *</label>
                 <input type="text" name="Coupon[code]" id="coupon-code" class="form-control" 
                        placeholder="SUMMER2024" style="text-transform: uppercase;" required>
-                <small style="color: var(--admin-text-secondary);">Уникальный код купона (будет преобразован в верхний регистр)</small>
-                <button type="button" class="admin-btn admin-btn-secondary" style="margin-top: 0.5rem;" onclick="generateCouponCode()"
+                <small class="text-muted">Уникальный код купона (будет преобразован в верхний регистр)</small>
+                <button type="button" class="admin-btn admin-btn-secondary mt-2" onclick="generateCouponCode()"
                     data-generate-url="<?= \yii\helpers\Url::to(['generate-code']) ?>">
                     <i class="bi bi-arrow-repeat"></i> Сгенерировать код
                 </button>
@@ -47,7 +47,7 @@ $this->params['headerActions'] = [
             </div>
             
             <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                <label class="d-flex align-center gap-1">
                     <input type="checkbox" name="Coupon[is_active]" value="1" checked>
                     <span>Активен</span>
                 </label>
@@ -55,7 +55,7 @@ $this->params['headerActions'] = [
         </div>
         
         <!-- Скидка -->
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div class="flex-col gap-4">
             <h3 style="margin: 0; color: var(--admin-text-primary);">Скидка</h3>
             
             <div class="form-group">
@@ -73,7 +73,7 @@ $this->params['headerActions'] = [
                 <label>Значение скидки *</label>
                 <input type="number" name="Coupon[value]" id="coupon-value" class="form-control" 
                        step="0.01" min="0" placeholder="10" required>
-                <small style="color: var(--admin-text-secondary);">
+                <small class="text-muted">
                     Для процентной скидки: 10 = 10%, для фиксированной: сумма в BYN
                 </small>
             </div>
@@ -82,21 +82,21 @@ $this->params['headerActions'] = [
                 <label>Максимальная сумма скидки</label>
                 <input type="number" name="Coupon[max_discount]" class="form-control" 
                        step="0.01" min="0" placeholder="100">
-                <small style="color: var(--admin-text-secondary);">
+                <small class="text-muted">
                     Максимальная сумма скидки (для процентных купонов)
                 </small>
             </div>
         </div>
         
         <!-- Условия применения -->
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div class="flex-col gap-4">
             <h3 style="margin: 0; color: var(--admin-text-primary);">Условия применения</h3>
             
             <div class="form-group">
                 <label>Минимальная сумма заказа</label>
                 <input type="number" name="Coupon[min_order_amount]" class="form-control" 
                        step="0.01" min="0" placeholder="50">
-                <small style="color: var(--admin-text-secondary);">
+                <small class="text-muted">
                     Минимальная сумма заказа для применения купона
                 </small>
             </div>
@@ -105,7 +105,7 @@ $this->params['headerActions'] = [
                 <label>Максимальное количество использований</label>
                 <input type="number" name="Coupon[max_uses]" class="form-control" 
                        min="0" placeholder="100">
-                <small style="color: var(--admin-text-secondary);">
+                <small class="text-muted">
                     Максимальное количество использований (0 = без ограничений)
                 </small>
             </div>
@@ -114,36 +114,36 @@ $this->params['headerActions'] = [
                 <label>Использований на одного пользователя</label>
                 <input type="number" name="Coupon[max_uses_per_user]" class="form-control" 
                        min="0" placeholder="1">
-                <small style="color: var(--admin-text-secondary);">
+                <small class="text-muted">
                     Максимальное количество использований на одного пользователя
                 </small>
             </div>
             
             <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                <label class="d-flex align-center gap-1">
                     <input type="checkbox" name="Coupon[is_first_order]" value="1">
                     <span>Только для первого заказа</span>
                 </label>
-                <small style="color: var(--admin-text-secondary);">
+                <small class="text-muted">
                     Купон действует только для первого заказа пользователя
                 </small>
             </div>
         </div>
         
         <!-- Срок действия -->
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div class="flex-col gap-4">
             <h3 style="margin: 0; color: var(--admin-text-primary);">Срок действия</h3>
             
             <div class="form-group">
                 <label>Дата начала действия</label>
                 <input type="datetime-local" name="Coupon[valid_from]" class="form-control">
-                <small style="color: var(--admin-text-secondary);">Дата начала действия купона</small>
+                <small class="text-muted">Дата начала действия купона</small>
             </div>
             
             <div class="form-group">
                 <label>Дата окончания действия</label>
                 <input type="datetime-local" name="Coupon[valid_until]" class="form-control">
-                <small style="color: var(--admin-text-secondary);">Дата окончания действия купона</small>
+                <small class="text-muted">Дата окончания действия купона</small>
             </div>
         </div>
     </div>
@@ -163,7 +163,7 @@ $this->params['headerActions'] = [
             <div class="form-group">
                 <label>ID применимых товаров (через запятую)</label>
                 <input type="text" name="applicable_products" class="form-control" placeholder="1,2,3,4,5">
-                <small style="color: var(--admin-text-secondary);">
+                <small class="text-muted">
                     Купон будет применяться только к указанным товарам
                 </small>
             </div>
@@ -171,7 +171,7 @@ $this->params['headerActions'] = [
             <div class="form-group">
                 <label>ID применимых категорий (через запятую)</label>
                 <input type="text" name="applicable_categories" class="form-control" placeholder="1,2,3">
-                <small style="color: var(--admin-text-secondary);">
+                <small class="text-muted">
                     Купон будет применяться к товарам из указанных категорий
                 </small>
             </div>

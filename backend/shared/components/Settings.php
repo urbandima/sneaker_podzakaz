@@ -184,4 +184,9 @@ class Settings extends Component
             Yii::warning('Settings::set failed to persist: ' . $e->getMessage(), 'settings');
         }
     }
+
+    public function invalidateCompanyCache()
+    {
+        $this->_company = null;
+    }
 }

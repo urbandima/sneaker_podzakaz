@@ -77,6 +77,12 @@ class ReviewController extends BaseAdminController
             $query->andWhere(['is_published' => true]);
         } elseif ($status === 'pending') {
             $query->andWhere(['is_published' => false]);
+        } elseif ($status === 'rejected') {
+            try {
+                $query->andWhere(['status' => 'rejected']);
+            } catch (\Exception $e) {
+                $query->andWhere(['is_published' => false]);
+            }
         } elseif ($status === 'featured') {
             $query->andWhere(['is_featured' => true]);
         }
@@ -99,10 +105,23 @@ class ReviewController extends BaseAdminController
             'featured' => ProductReview::find()->where(['is_featured' => true])->count(),
             'avg_rating' => ProductReview::find()->where(['is_published' => true])->average('rating') ?: 0,
         ];
-        
+
+        // Count rejected (unpublished and not pending — i.e. explicitly rejected)
+        // We treat rejected = is_published false AND status = 'rejected' if column exists,
+        // otherwise fall back to all non-published as a safe approximation.
+        try {
+            $rejectedCount = (int)ProductReview::find()
+                ->where(['status' => 'rejected'])
+                ->count();
+        } catch (\Exception $e) {
+            // If 'status' column doesn't exist, count all unpublished
+            $rejectedCount = $stats['pending'];
+        }
+
         return $this->render('index', [
-            'dataProvider' => $dataProvider,
-            'stats' => $stats,
+            'dataProvider'  => $dataProvider,
+            'stats'         => $stats,
+            'rejectedCount' => $rejectedCount,
         ]);
     }
 

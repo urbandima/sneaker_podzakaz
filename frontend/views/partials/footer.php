@@ -39,7 +39,7 @@ $company = Yii::$app->settings->getCompany();
 
                 <!-- О компании -->
                 <div class="footer-column">
-                    <h4 class="footer-title">О компании</h4>
+                    <h3 class="footer-title">О компании</h3>
                     <ul class="footer-links">
                         <li><?= Html::a('О нас', ['/page/about']) ?></li>
                         <li><?= Html::a('Контакты', ['/page/contacts']) ?></li>
@@ -53,7 +53,7 @@ $company = Yii::$app->settings->getCompany();
 
                 <!-- Помощь -->
                 <div class="footer-column">
-                    <h4 class="footer-title">Помощь</h4>
+                    <h3 class="footer-title">Помощь</h3>
                     <ul class="footer-links">
                         <li><?= Html::a('Инструкция по оплате', ['/site/payment-instruction']) ?></li>
                         <li><?= Html::a('Условия оплаты', ['/page/payment-terms']) ?></li>
@@ -66,7 +66,7 @@ $company = Yii::$app->settings->getCompany();
 
                 <!-- Каталог -->
                 <div class="footer-column">
-                    <h4 class="footer-title">Каталог</h4>
+                    <h3 class="footer-title">Каталог</h3>
                     <ul class="footer-links">
                         <li><a href="<?= Url::to(['/catalog']) ?>">Все товары</a></li>
                         <li><a href="<?= Url::to(['/brands']) ?>">Бренды</a></li>
@@ -79,7 +79,7 @@ $company = Yii::$app->settings->getCompany();
 
                 <!-- Контакты -->
                 <div class="footer-column">
-                    <h4 class="footer-title">Контакты</h4>
+                    <h3 class="footer-title">Контакты</h3>
                     <ul class="footer-contacts">
                         <li>
                             <i class="bi bi-telephone"></i>

@@ -76,11 +76,27 @@ class SentryErrorHandler extends ErrorHandler
      */
     public function handleException($exception): void
     {
+        // Mask sensitive superglobals before any debug output
+        $this->maskSensitiveGlobals();
+
         if ($this->sentryEnabled) {
             \Sentry\captureException($exception);
         }
-        
+
         parent::handleException($exception);
+    }
+
+    /**
+     * Replace $_COOKIE / $_SESSION values with [masked] so they never appear in stack traces.
+     */
+    private function maskSensitiveGlobals(): void
+    {
+        foreach ($_COOKIE as $k => $v) {
+            $_COOKIE[$k] = '[masked]';
+        }
+        if (isset($_SESSION) && is_array($_SESSION)) {
+            array_walk_recursive($_SESSION, function (&$val) { $val = '[masked]'; });
+        }
     }
 
     /**

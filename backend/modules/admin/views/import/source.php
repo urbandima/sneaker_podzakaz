@@ -19,12 +19,12 @@ $this->params['breadcrumbs'][] = $this->title;
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
     <div>
         <!-- Основные настройки -->
-        <div class="admin-card" style="margin-bottom: 1.5rem;">
+        <div class="admin-card mb-5">
             <div class="admin-card-header">
                 <h2 class="admin-card-title">Основные настройки</h2>
             </div>
             <div class="admin-card-body">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="grid-2col mb-4">
                     <?= $form->field($model, 'name')->textInput(['maxlength' => true, 'class' => 'admin-form-input']) ?>
                     <?= $form->field($model, 'code')->textInput(['maxlength' => true, 'readonly' => !$model->isNewRecord, 'class' => 'admin-form-input']) ?>
                 </div>
@@ -50,12 +50,12 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
 
         <!-- Настройки парсинга -->
-        <div class="admin-card" style="margin-bottom: 1.5rem;">
+        <div class="admin-card mb-5">
             <div class="admin-card-header">
                 <h2 class="admin-card-title">Настройки парсинга</h2>
             </div>
             <div class="admin-card-body">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="grid-2col mb-4">
                     <?= $form->field($model, 'parse_delay_min')->textInput(['type' => 'number', 'min' => 1, 'max' => 60, 'class' => 'admin-form-input']) ?>
                     <?= $form->field($model, 'parse_delay_max')->textInput(['type' => 'number', 'min' => 1, 'max' => 60, 'class' => 'admin-form-input']) ?>
                 </div>
@@ -68,7 +68,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
 
         <!-- Прокси -->
-        <div class="admin-card" style="margin-bottom: 1.5rem;">
+        <div class="admin-card mb-5">
             <div class="admin-card-header">
                 <h2 class="admin-card-title">Прокси</h2>
                 <?php if ($model->proxy_enabled): ?>
@@ -85,7 +85,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     ], ['class' => 'admin-form-input']) ?>
                     
                     <div class="form-group">
-                        <label style="color: var(--admin-text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Список прокси (один на строку)</label>
+                        <label class="form-hint">Список прокси (один на строку)</label>
                         <textarea name="proxy_list_text" class="admin-form-input" rows="6" 
                                   placeholder="http://user:pass@proxy:port&#10;socks5://user:pass@proxy:port"><?= 
                             implode("\n", $model->getProxyListArray())
@@ -105,12 +105,12 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
 
         <!-- CAPTCHA -->
-        <div class="admin-card" style="margin-bottom: 1.5rem;">
+        <div class="admin-card mb-5">
             <div class="admin-card-header">
                 <h2 class="admin-card-title">CAPTCHA сервисы</h2>
             </div>
             <div class="admin-card-body">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="grid-2col mb-4">
                     <?= $form->field($model, 'captcha_service')->dropDownList([
                         ImportSource::CAPTCHA_2CAPTCHA => '2Captcha',
                         ImportSource::CAPTCHA_ANTICAPTCHA => 'Anti-Captcha',
@@ -122,7 +122,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <hr style="border-color: var(--admin-border); margin: 1.5rem 0;">
                 
                 <h3 style="font-size: 1rem; margin-bottom: 1rem;">Резервный сервис</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="grid-2col mb-4">
                     <?= $form->field($model, 'captcha_fallback_service')->dropDownList([
                         '' => '-- Не использовать --',
                         ImportSource::CAPTCHA_2CAPTCHA => '2Captcha',
@@ -144,29 +144,29 @@ $this->params['breadcrumbs'][] = $this->title;
     <div>
         <!-- Статистика -->
         <?php if (!$model->isNewRecord): ?>
-        <div class="admin-card" style="margin-bottom: 1.5rem;">
+        <div class="admin-card mb-5">
             <div class="admin-card-header">
                 <h2 class="admin-card-title">Статистика</h2>
             </div>
             <div class="admin-card-body">
                 <table class="admin-table">
                     <tr>
-                        <td style="color: var(--admin-text-secondary);">Последний запуск:</td>
+                        <td class="text-muted">Последний запуск:</td>
                         <td><?= $model->last_run_at 
                             ? Yii::$app->formatter->asDatetime($model->last_run_at) 
-                            : '<span style="color: var(--admin-text-secondary);">Никогда</span>' ?>
+                            : '<span class="text-muted">Никогда</span>' ?>
                         </td>
                     </tr>
                     <tr>
-                        <td style="color: var(--admin-text-secondary);">Успешных запусков:</td>
-                        <td style="color: var(--admin-success);"><?= $model->successful_runs ?></td>
+                        <td class="text-muted">Успешных запусков:</td>
+                        <td class="text-success"><?= $model->successful_runs ?></td>
                     </tr>
                     <tr>
-                        <td style="color: var(--admin-text-secondary);">Ошибок:</td>
-                        <td style="color: var(--admin-danger);"><?= $model->failed_runs ?></td>
+                        <td class="text-muted">Ошибок:</td>
+                        <td class="text-danger"><?= $model->failed_runs ?></td>
                     </tr>
                     <tr>
-                        <td style="color: var(--admin-text-secondary);">Товаров спарсено:</td>
+                        <td class="text-muted">Товаров спарсено:</td>
                         <td><?= number_format($model->total_products_parsed, 0, '', ' ') ?></td>
                     </tr>
                 </table>
@@ -184,11 +184,11 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <!-- Маппинг категорий -->
         <?php if (!empty($categoryMaps)): ?>
-        <div class="admin-card" style="margin-bottom: 1.5rem;">
+        <div class="admin-card mb-5">
             <div class="admin-card-header">
                 <h2 class="admin-card-title">Маппинг категорий</h2>
             </div>
-            <div class="admin-card-body" style="padding: 0;">
+            <div class="admin-card-body p-0">
                 <table class="admin-table">
                     <thead>
                         <tr>
@@ -209,7 +209,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 <?php if ($map->category): ?>
                                 <?= Html::encode($map->category->name) ?>
                                 <?php else: ?>
-                                <span style="color: var(--admin-text-secondary);">Не сопоставлена</span>
+                                <span class="text-muted">Не сопоставлена</span>
                                 <?php endif; ?>
                             </td>
                         </tr>

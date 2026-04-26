@@ -86,6 +86,9 @@ class DashboardController extends BaseAdminController
             $currencyInfo = ['rate' => 0.45, 'updated_at' => null, 'source' => 'default'];
         }
 
+        // A20: abandoned carts (cart updated > 1h ago, order not placed)
+        $abandonedCarts = $this->getAbandonedCartCount();
+
         return $this->render('index', [
             'user' => $user,
             'orderStats' => $orderStats,
@@ -99,6 +102,7 @@ class DashboardController extends BaseAdminController
             'operationalStats' => $operationalStats,
             'funnelData' => $funnelData,
             'currencyInfo' => $currencyInfo,
+            'abandonedCarts' => $abandonedCarts,
         ]);
     }
     
@@ -113,11 +117,13 @@ class DashboardController extends BaseAdminController
             $baseQuery->andWhere(['assigned_logist' => $user->id]);
         }
         
+        // Z40: Excluded statuses — must match FinanceController::REVENUE_EXCLUDED_STATUSES
+        $revenueExcluded = ['cancelled', 'canceled', 'trash', 'return', 'imported', 'imported_invalid'];
         return [
             'total' => (int)(clone $baseQuery)->count(),
             'today' => (int)(clone $baseQuery)->andWhere(['>=', 'created_at', strtotime('today')])->count(),
             'thisMonth' => (int)(clone $baseQuery)->andWhere(['>=', 'created_at', strtotime('first day of this month')])->count(),
-            'totalAmount' => (float)((clone $baseQuery)->sum('total_amount') ?: 0),
+            'totalAmount' => (float)((clone $baseQuery)->andWhere(['NOT IN', 'status', $revenueExcluded])->sum('total_amount') ?: 0),
             'pending' => (int)(clone $baseQuery)->andWhere(['status' => 'new'])->count(),
             'processing' => (int)(clone $baseQuery)->andWhere(['status' => ['confirmed_and_paid', 'paid', 'ordered']])->count(),
             'completed' => (int)(clone $baseQuery)->andWhere(['status' => 'delivered'])->count(),
@@ -164,20 +170,22 @@ class DashboardController extends BaseAdminController
     {
         // Топ товаров по количеству заказов
         // Используем product_name так как в order_item нет product_id
+        // Z7: фильтруем строки без цены чтобы avg_price не был нулевым
         $sql = "
             SELECT oi.product_name, SUM(oi.quantity) as total_quantity,
-                   COUNT(DISTINCT oi.order_id) as order_count, AVG(oi.price) as avg_price,
+                   COUNT(DISTINCT oi.order_id) as order_count,
+                   AVG(NULLIF(oi.price, 0)) as avg_price,
                    SUM(oi.price * oi.quantity) as total_revenue,
-                   (CASE WHEN AVG(oi.price) = 0 THEN 1 ELSE 0 END) as has_zero_price
+                   (CASE WHEN AVG(NULLIF(oi.price, 0)) IS NULL THEN 1 ELSE 0 END) as has_zero_price
             FROM order_item oi
             INNER JOIN `order` o ON oi.order_id = o.id
             WHERE o.created_at >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))
-              AND oi.price > 0
+              AND oi.price IS NOT NULL AND oi.price > 0
             GROUP BY oi.product_name
             ORDER BY order_count DESC, total_quantity DESC
             LIMIT 5
         ";
-        
+
         return Yii::$app->db->createCommand($sql)->queryAll();
     }
     
@@ -208,10 +216,12 @@ class DashboardController extends BaseAdminController
             $date    = date('Y-m-d', strtotime("-$i days"));
             $dayName = date('d.m', strtotime("-$i days"));
 
-            // Текущий период
+            // Текущий период (Z8: исключаем импортированные заказы из графика)
             $qCur = Order::find()
                 ->where(['>=', 'created_at', strtotime($date)])
-                ->andWhere(['<', 'created_at', strtotime($date . ' +1 day')]);
+                ->andWhere(['<', 'created_at', strtotime($date . ' +1 day')])
+                ->andWhere(['not in', 'status', ['imported', 'imported_invalid']])
+                ->andWhere(['or', ['source' => null], ['not in', 'source', ['import', 'imported']]]);
             if ($user->isLogist()) {
                 $qCur->andWhere(['assigned_logist' => $user->id]);
             }
@@ -222,7 +232,9 @@ class DashboardController extends BaseAdminController
             $prevDate = date('Y-m-d', strtotime("-" . ($i + 30) . " days"));
             $qPrev = Order::find()
                 ->where(['>=', 'created_at', strtotime($prevDate)])
-                ->andWhere(['<', 'created_at', strtotime($prevDate . ' +1 day')]);
+                ->andWhere(['<', 'created_at', strtotime($prevDate . ' +1 day')])
+                ->andWhere(['not in', 'status', ['imported', 'imported_invalid']])
+                ->andWhere(['or', ['source' => null], ['not in', 'source', ['import', 'imported']]]);
             if ($user->isLogist()) {
                 $qPrev->andWhere(['assigned_logist' => $user->id]);
             }
@@ -255,14 +267,17 @@ class DashboardController extends BaseAdminController
             ->andWhere(['<', 'created_at', $twoHoursAgo])
             ->count();
 
-        // Заказы без изменения статуса более 3 дней
-        // Используем updated_at; если нет такого поля — считаем по created_at
+        // Z5: Заказы без изменения статуса более 3 дней
+        // Исключаем все терминальные статусы и мусор; used COALESCE на случай NULL в updated_at
         try {
             $delayed3d = (int)Yii::$app->db->createCommand("
                 SELECT COUNT(*) FROM `order`
-                WHERE updated_at < :ts
+                WHERE COALESCE(updated_at, created_at) < :ts
                   AND (is_trash IS NULL OR is_trash = 0)
-                  AND status NOT IN ('delivered','canceled','cancelled','completed','refunded','return','trash','imported')
+                  AND status NOT IN (
+                      'delivered','canceled','cancelled','completed',
+                      'refunded','return','trash','imported','imported_invalid'
+                  )
             ", [':ts' => $threeDaysAgo])->queryScalar();
         } catch (\Exception $e) {
             $delayed3d = 0;
@@ -292,6 +307,24 @@ class DashboardController extends BaseAdminController
             return ['views' => $views, 'carts' => $carts, 'orders' => $orders];
         } catch (\Exception $e) {
             return ['views' => 0, 'carts' => 0, 'orders' => 0];
+        }
+    }
+
+    // A20: count carts that haven't converted to an order (updated > 1h ago)
+    private function getAbandonedCartCount(): int
+    {
+        try {
+            $tableExists = Yii::$app->db->schema->getTableSchema('{{%cart}}') !== null;
+            if (!$tableExists) {
+                return 0;
+            }
+            return (int)Yii::$app->db->createCommand("
+                SELECT COUNT(DISTINCT customer_id) FROM {{%cart}}
+                WHERE updated_at < :ts
+                  AND customer_id IS NOT NULL
+            ", [':ts' => time() - 3600])->queryScalar();
+        } catch (\Exception $e) {
+            return 0;
         }
     }
 

@@ -63,14 +63,20 @@ $totalMargin  = $totalRevenue > 0 ? round($totalNet / $totalRevenue * 100, 1) : 
                     <th style="text-align:right">Таможня</th>
                     <th style="text-align:right">Дост. местн.</th>
                     <th style="text-align:right">Аренда</th>
-                    <th style="text-align:right">Зарплата</th>
+                    <th style="text-align:right" title="Зарплаты">ЗП</th>
                     <th style="text-align:right">Прочее</th>
                     <th style="text-align:right">Чист. прибыль</th>
                     <th style="text-align:right">Маржа</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($months as $m => $row): ?>
+                <?php
+                $currentMonth = (int)date('n');
+                $currentYear  = (int)date('Y');
+                foreach ($months as $m => $row):
+                    // Z46: skip future months for the selected year
+                    if ($year == $currentYear && $m > $currentMonth) continue;
+                ?>
                 <tr style="<?= $row['revenue'] == 0 ? 'opacity:.45' : '' ?>">
                     <td><strong><?= $monthNames[$m] ?></strong></td>
                     <td style="text-align:right"><?= number_format($row['revenue'], 0) ?></td>
@@ -90,10 +96,12 @@ $totalMargin  = $totalRevenue > 0 ? round($totalNet / $totalRevenue * 100, 1) : 
                     <td style="text-align:right">
                         <?php if ($row['revenue'] > 0 && $row['cogs'] == 0): ?>
                             <span class="status-pill" style="background:#f3f4f6;color:#6d7175" title="Себестоимость не указана — добавьте расходы на закупку">Нет данных</span>
-                        <?php else: ?>
-                            <span class="status-pill" style="background:<?= $row['revenue'] > 0 && $row['margin'] >= 15 ? '#d1f7e5;color:#008060' : ($row['revenue'] > 0 && $row['margin'] >= 0 ? '#fff4e5;color:#ffa500' : '#f3f4f6;color:#6d7175') ?>">
-                                <?= $row['revenue'] > 0 ? $row['margin'].'%' : '—' ?>
+                        <?php elseif ($row['revenue'] > 0): ?>
+                            <span class="status-pill" style="background:<?= $row['margin'] >= 15 ? '#d1f7e5;color:#008060' : ($row['margin'] >= 0 ? '#fff4e5;color:#ffa500' : '#fbeae5;color:#d72c0d') ?>">
+                                <?= $row['margin'] ?>%
                             </span>
+                        <?php else: ?>
+                            <span style="color:#6d7175">—</span>
                         <?php endif; ?>
                     </td>
                 </tr>

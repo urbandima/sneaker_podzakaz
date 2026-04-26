@@ -107,7 +107,7 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                         <?= Html::error($model, 'postal_code', ['class' => 'field-error']) ?>
                     </div>
                 </div>
-                <div class="form-grid form-grid--2" style="margin-top:12px;">
+                <div class="form-grid form-grid--2 mt-3">
                     <div class="form-field">
                         <label><?= $model->getAttributeLabel('full_address') ?></label>
                         <?= Html::activeTextarea($model, 'full_address') ?>
@@ -170,7 +170,7 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                         </div>
                     <?php endforeach; ?>
                 </div>
-                <div class="form-grid form-grid--2" style="margin-top:10px;">
+                <div class="form-grid form-grid--2 mt-10px">
                     <div class="form-field">
                         <label><?= $model->getAttributeLabel('product_link') ?></label>
                         <?= Html::activeTextInput($model, 'product_link', ['type' => 'url']) ?>
@@ -182,7 +182,7 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                         <?= Html::error($model, 'sneakerhead_order_link', ['class' => 'field-error']) ?>
                     </div>
                 </div>
-                <div class="form-field" style="margin-top:10px;">
+                <div class="form-field mt-10px">
                     <label><?= $model->getAttributeLabel('customs_description') ?></label>
                     <?= Html::activeTextarea($model, 'customs_description') ?>
                     <?= Html::error($model, 'customs_description', ['class' => 'field-error']) ?>
@@ -232,7 +232,7 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                     </select>
                     <?= Html::error($model, 'status', ['class' => 'field-error']) ?>
                 </div>
-                <div class="form-field" style="margin-top:10px;">
+                <div class="form-field mt-10px">
                     <label><?= $model->getAttributeLabel('source') ?></label>
                     <?= Html::activeTextInput($model, 'source') ?>
                     <?= Html::error($model, 'source', ['class' => 'field-error']) ?>

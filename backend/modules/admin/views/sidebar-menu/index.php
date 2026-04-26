@@ -19,7 +19,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="admin-card-header">
         <h2 class="admin-card-title">Пункты меню</h2>
     </div>
-    <div class="admin-card-body" style="padding: 0;">
+    <div class="admin-card-body p-0">
     <div class="table-responsive">
         <table class="admin-table">
             <thead>

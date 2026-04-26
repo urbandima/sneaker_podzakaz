@@ -28,7 +28,7 @@ $storageKey = 'suppliersColumns';
 <form method="get" class="filter-wrap">
     <div class="compact-filter-bar filter-row1">
         <input type="text" name="search" class="compact-filter-input"
-               placeholder="🔍 Название, контакт…" value="<?= htmlspecialchars($filterSearch) ?>">
+               placeholder="Название, контакт…" value="<?= htmlspecialchars($filterSearch) ?>">
         <select name="active" class="compact-filter-select" style="min-width:130px">
             <option value="">Все статусы</option>
             <option value="1" <?= $filterActive === '1' ? 'selected' : '' ?>>Активные</option>
@@ -81,7 +81,7 @@ $storageKey = 'suppliersColumns';
                     <th data-col="country">Страна</th>
                     <th data-col="terms">Условия оплаты</th>
                     <th style="text-align:center">Статус</th>
-                    <th style="text-align:right;width:80px">—</th>
+                    <th style="text-align:right;width:80px">Действия</th>
                 </tr>
             </thead>
             <tbody>
@@ -92,12 +92,16 @@ $storageKey = 'suppliersColumns';
                 <tr>
                     <td style="color:var(--admin-text-secondary,#6d7175);font-size:11px"><?= $s->id ?></td>
                     <td><strong><?= htmlspecialchars($s->name) ?></strong></td>
-                    <td data-col="contact" style="color:var(--admin-text-secondary,#6d7175)"><?= htmlspecialchars($s->contact_person ?? '—') ?></td>
+                    <td data-col="contact" style="color:var(--admin-text-secondary,#6d7175)">
+                        <?= $s->contact_person ? htmlspecialchars($s->contact_person) : '<span style="color:#6d7175;font-style:italic">Не указан</span>' ?>
+                    </td>
                     <td data-col="phone" style="white-space:nowrap">
-                        <?= $s->phone ? '<a href="tel:' . htmlspecialchars($s->phone) . '" style="color:inherit;text-decoration:none">' . htmlspecialchars($s->phone) . '</a>' : '—' ?>
+                        <?= $s->phone
+                            ? '<a href="tel:' . htmlspecialchars($s->phone) . '" style="color:inherit;text-decoration:none">' . htmlspecialchars($s->phone) . '</a>'
+                            : '<span style="color:#6d7175;font-style:italic">Не указан</span>' ?>
                     </td>
                     <td data-col="email" style="color:var(--admin-text-secondary,#6d7175);font-size:.75rem">
-                        <?= htmlspecialchars($s->email ?? '—') ?>
+                        <?= $s->email ? htmlspecialchars($s->email) : '<span style="font-style:italic">Не указан</span>' ?>
                     </td>
                     <td data-col="country" style="white-space:nowrap">
                         <?= htmlspecialchars($s->country ?? '—') ?>

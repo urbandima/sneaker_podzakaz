@@ -17,7 +17,7 @@ $currentValues = $currentFilters[$charKey] ?? [];
         <span><?= Html::encode($characteristic['name']) ?></span>
         <i class="bi bi-chevron-down"></i>
     </h4>
-    <div class="filter-content" style="display:none">
+    <div class="filter-content d-none">
         <?php if ($characteristic['type'] === 'select' || $characteristic['type'] === 'multiselect'): ?>
             <!-- Select/Multiselect: чекбоксы с количеством -->
             <?php if (count($characteristic['values']) > 8): ?>

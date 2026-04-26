@@ -338,18 +338,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (toggleBtn) {
         toggleBtn.addEventListener('click', function () {
-            if (viewMode && viewMode.style.display === 'none') {
-                if (viewMode) viewMode.style.display = 'block';
-                if (editMode) editMode.style.display = 'none';
-                if (viewModeItems) viewModeItems.style.display = 'block';
-                if (editModeItems) editModeItems.style.display = 'none';
+            var isEditing = editMode && !editMode.classList.contains('d-none') && editMode.style.display !== 'none';
+            if (isEditing) {
+                if (viewMode) { viewMode.classList.remove('d-none'); viewMode.style.display = ''; }
+                if (editMode) { editMode.classList.add('d-none'); editMode.style.display = 'none'; }
+                if (viewModeItems) { viewModeItems.classList.remove('d-none'); viewModeItems.style.display = ''; }
+                if (editModeItems) { editModeItems.classList.add('d-none'); editModeItems.style.display = 'none'; }
                 if (editModeText) editModeText.textContent = 'Редактировать';
                 toggleBtn.className = 'btn btn-primary';
             } else {
-                if (viewMode) viewMode.style.display = 'none';
-                if (editMode) editMode.style.display = 'block';
-                if (viewModeItems) viewModeItems.style.display = 'none';
-                if (editModeItems) editModeItems.style.display = 'block';
+                if (viewMode) { viewMode.classList.add('d-none'); viewMode.style.display = 'none'; }
+                if (editMode) { editMode.classList.remove('d-none'); editMode.style.display = ''; }
+                if (viewModeItems) { viewModeItems.classList.add('d-none'); viewModeItems.style.display = 'none'; }
+                if (editModeItems) { editModeItems.classList.remove('d-none'); editModeItems.style.display = ''; }
                 if (editModeText) editModeText.textContent = 'Отменить редактирование';
                 toggleBtn.className = 'btn btn-warning';
             }
@@ -357,10 +358,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (cancelBtn) {
         cancelBtn.addEventListener('click', function () {
-            if (viewMode) viewMode.style.display = 'block';
-            if (editMode) editMode.style.display = 'none';
-            if (viewModeItems) viewModeItems.style.display = 'block';
-            if (editModeItems) editModeItems.style.display = 'none';
+            if (viewMode) { viewMode.classList.remove('d-none'); viewMode.style.display = ''; }
+            if (editMode) { editMode.classList.add('d-none'); editMode.style.display = 'none'; }
+            if (viewModeItems) { viewModeItems.classList.remove('d-none'); viewModeItems.style.display = ''; }
+            if (editModeItems) { editModeItems.classList.add('d-none'); editModeItems.style.display = 'none'; }
             if (editModeText) editModeText.textContent = 'Редактировать';
             if (toggleBtn) toggleBtn.className = 'btn btn-primary';
         });
@@ -377,6 +378,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    document.addEventListener('input', function (e) {
+        if (!e.target.matches('#order-items-edit input[name*="[quantity]"], #order-items-edit input[name*="[price]"]')) return;
+        var container = document.getElementById('order-items-edit');
+        if (!container) return;
+        var grandTotal = 0;
+        container.querySelectorAll('.order-item').forEach(function (row) {
+            var qty = parseFloat(row.querySelector('input[name*="[quantity]"]').value) || 0;
+            var price = parseFloat(row.querySelector('input[name*="[price]"]').value) || 0;
+            grandTotal += qty * price;
+        });
+        var totalEl = document.getElementById('edit-items-total');
+        if (totalEl) totalEl.textContent = grandTotal.toFixed(2) + ' BYN';
+    });
+
     function updateRemoveButtons() {
         var items = document.querySelectorAll('#order-items-edit .order-item');
         if (items.length === 1) {
@@ -384,6 +399,8 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             items.forEach(function (item) { item.querySelector('.remove-item').disabled = false; });
         }
+        var badge = document.getElementById('items-count-badge');
+        if (badge) badge.textContent = items.length + ' позиций';
     }
     updateRemoveButtons();
 
@@ -427,20 +444,45 @@ document.addEventListener('DOMContentLoaded', function () {
     function closeHistoryModal() {
         document.getElementById('history-modal').style.display = 'none';
     }
-    function checkTracking(track) {
-        alert('Проверка трек-номера: ' + track);
+    function checkTrack(track, btn) {
+        if (!track) return;
+        var resultEl = btn ? btn.parentElement.parentElement.querySelector('[id$="-track-result"]') : null;
+        var origHtml = btn ? btn.innerHTML : '';
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i>'; }
+        if (resultEl) { resultEl.style.color = '#6b7280'; resultEl.textContent = 'Проверяем...'; }
+        fetch('/admin/order/check-track?track=' + encodeURIComponent(track))
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (resultEl) {
+                    var msg = d.message || d.status || 'Нет данных';
+                    resultEl.style.color = d.found ? '#008060' : '#6b7280';
+                    resultEl.textContent = msg;
+                }
+            })
+            .catch(function () {
+                if (resultEl) { resultEl.style.color = '#dc3545'; resultEl.textContent = 'Ошибка сети'; }
+            })
+            .finally(function () {
+                if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
+            });
     }
-    function addNote() {
-        const text = document.getElementById('new-note').value;
+    function addOrderNote(id) {
+        const textarea = document.getElementById('new-note-text');
+        if (!textarea) return;
+        const text = textarea.value.trim();
         if (!text) return;
-        fetch('/admin/order-api/add-note?id=<?= $model->id ?>', {
+        const csrf = document.querySelector('meta[name="csrf-token"]');
+        fetch('/admin/order/add-note?id=' + id, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'note=' + encodeURIComponent(text) + '&_csrf=<?= Yii::$app->request->csrfToken ?>'
+            body: 'text=' + encodeURIComponent(text) + (csrf ? '&_csrf=' + encodeURIComponent(csrf.getAttribute('content')) : '')
         })
             .then(r => r.json())
             .then(data => {
-                if (data.success) location.reload();
+                if (data.success) {
+                    textarea.value = '';
+                    location.reload();
+                }
             });
     }
 });

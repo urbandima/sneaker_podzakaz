@@ -105,7 +105,8 @@ class AnalyticsController extends BaseAdminController
         $conversionFunnel = $this->getConversionFunnel($dateFrom, $dateTo);
 
         return $this->render('index', [
-            'period' => $period,
+            'period' => $rawPeriod, // Z80: pass raw period string for active button comparison
+            'periodDays' => $period,
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
             'conversion' => $conversion,
@@ -435,11 +436,12 @@ class AnalyticsController extends BaseAdminController
 
     /**
      * Статистика выручки
+     * Z79: exclude cancelled/refunded orders to align with other revenue displays
      */
     protected function getRevenueStats($dateFrom, $dateTo)
     {
         return Yii::$app->db->createCommand("
-            SELECT 
+            SELECT
                 SUM(total_amount) as total_revenue,
                 COUNT(*) as total_orders,
                 AVG(total_amount) as avg_order_value,
@@ -447,6 +449,7 @@ class AnalyticsController extends BaseAdminController
                 MIN(total_amount) as min_order
             FROM `order`
             WHERE DATE(FROM_UNIXTIME(created_at)) BETWEEN :from AND :to
+              AND status NOT IN ('cancelled','canceled','trash','return','refunded')
         ", [':from' => $dateFrom, ':to' => $dateTo])->queryOne();
     }
 
@@ -511,20 +514,22 @@ class AnalyticsController extends BaseAdminController
 
     /**
      * Топ продаваемых товаров
+     * Z78: unified query — only rows with price > 0, same as DashboardController::getTopProducts()
      */
     protected function getTopSellingProducts($dateFrom, $dateTo, $limit = 10)
     {
         return Yii::$app->db->createCommand("
-            SELECT 
+            SELECT
                 oi.product_name,
                 SUM(oi.quantity) as total_qty,
                 SUM(oi.price * oi.quantity) as total_revenue,
                 COUNT(DISTINCT oi.order_id) as orders_count
             FROM order_item oi
             JOIN `order` o ON oi.order_id = o.id
-            WHERE DATE(o.created_at) BETWEEN :from AND :to
+            WHERE DATE(FROM_UNIXTIME(o.created_at)) BETWEEN :from AND :to
+              AND oi.price IS NOT NULL AND oi.price > 0
             GROUP BY oi.product_name
-            ORDER BY total_qty DESC
+            ORDER BY orders_count DESC, total_qty DESC
             LIMIT :limit
         ", [':from' => $dateFrom, ':to' => $dateTo, ':limit' => $limit])->queryAll();
     }

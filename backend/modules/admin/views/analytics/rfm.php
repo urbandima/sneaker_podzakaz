@@ -72,7 +72,7 @@ foreach ($rfmSegments as $s) {
 </div>
 
 <!-- Что такое RFM -->
-<div class="admin-card" style="margin-bottom:24px">
+<div class="admin-card mb-5">
     <div class="admin-card-header">
         <h2 class="admin-card-title">Что такое RFM-анализ?</h2>
     </div>
@@ -117,7 +117,11 @@ foreach ($rfmSegments as $s) {
     <div class="admin-card-body">
         <div style="display:grid;gap:16px">
             <?php foreach ($rfmSegments as $segment): ?>
-                <?php $percent = round(($segment['count'] / $totalCustomers) * 100, 1); ?>
+                <?php
+                // Z81: always use 1 decimal place for consistent percent display
+                $pct = $totalCustomers > 0 ? ($segment['count'] / $totalCustomers) * 100 : 0;
+                $percent = number_format($pct, 1);
+                ?>
                 <div style="display:flex;align-items:center;gap:16px;padding:16px;background:var(--admin-bg);border-radius:12px;border-left:4px solid <?= $segment['color'] ?>">
                     <div style="flex:0 0 200px">
                         <h3 style="margin:0 0 4px;font-size:16px;font-weight:700"><?= $segment['segment'] ?></h3>
@@ -152,8 +156,8 @@ $totalAtRisk    = count($atRiskCustomers);
 $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'monetary'));
 ?>
 
-<div class="admin-card" style="margin-top:24px">
-    <div class="admin-card-header" style="display:flex;justify-content:space-between;align-items:center">
+<div class="admin-card mt-5">
+    <div class="admin-card-header flex-between">
         <h2 class="admin-card-title"><i class="bi bi-cash-stack"></i> LTV Сегментация</h2>
         <span class="admin-badge admin-badge-info"><?= number_format($totalRevenue / $totalCustomers, 0) ?> BYN средний LTV</span>
     </div>
@@ -174,8 +178,8 @@ $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'monetary'));
 </div>
 
 <!-- Покупатели в статусе риска -->
-<div class="admin-card" style="margin-top:24px">
-    <div class="admin-card-header" style="display:flex;justify-content:space-between;align-items:center">
+<div class="admin-card mt-5">
+    <div class="admin-card-header flex-between">
         <h2 class="admin-card-title"><i class="bi bi-exclamation-triangle-fill"></i> Покупатели в статусе риска</h2>
         <div style="display:flex;gap:8px;align-items:center">
             <span class="admin-badge admin-badge-danger"><?= $totalAtRisk ?> клиентов</span>
@@ -185,7 +189,7 @@ $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'monetary'));
             </button>
         </div>
     </div>
-    <div class="admin-card-body" style="padding:0">
+    <div class="admin-card-body p-0">
         <table style="width:100%;border-collapse:collapse">
             <thead>
                 <tr style="background:var(--admin-bg)">
@@ -248,7 +252,7 @@ $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'monetary'));
 </div>
 
 <!-- Рекомендации -->
-<div class="admin-card" style="margin-top:24px">
+<div class="admin-card mt-5">
     <div class="admin-card-header">
         <h2 class="admin-card-title">Рекомендации по работе с сегментами</h2>
     </div>

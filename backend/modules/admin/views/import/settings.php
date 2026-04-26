@@ -27,12 +27,12 @@ $this->params['headerActions'] = [
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
         <div>
             <!-- Автоматический импорт -->
-            <div class="admin-card" style="margin-bottom: 1.5rem;">
+            <div class="admin-card mb-5">
                 <div class="admin-card-header">
                     <h3 class="admin-card-title">Автоматический импорт</h3>
                 </div>
                 <div class="admin-card-body">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="grid-2col mb-4">
                         <div>
                             <label class="admin-form-label">
                                 <input type="checkbox" id="auto_import_enabled" 
@@ -68,7 +68,7 @@ $this->params['headerActions'] = [
             </div>
 
             <!-- Уведомления -->
-            <div class="admin-card" style="margin-bottom: 1.5rem;">
+            <div class="admin-card mb-5">
                 <div class="admin-card-header">
                     <h3 class="admin-card-title">Уведомления</h3>
                 </div>
@@ -92,7 +92,7 @@ $this->params['headerActions'] = [
 
         <div>
             <!-- Курсы валют -->
-            <div class="admin-card" style="margin-bottom: 1.5rem;">
+            <div class="admin-card mb-5">
                 <div class="admin-card-header">
                     <h3 class="admin-card-title">Курсы валют (НБ РБ)</h3>
                     <?= Html::a('<i class="bi bi-arrow-clockwise"></i>', ['update-rates'], [
@@ -102,18 +102,18 @@ $this->params['headerActions'] = [
                 </div>
                 <div class="admin-card-body">
                     <?php if (!empty($rates)): ?>
-                    <table class="admin-table" style="font-size: 0.875rem;">
+                    <table class="admin-table fs-sm">
                         <?php foreach ($rates as $code => $rate): ?>
                         <?php if ($code !== 'BYN'): ?>
                         <tr>
                             <td><strong><?= Html::encode($code) ?></strong></td>
-                            <td style="text-align: right;"><?= number_format($rate, 4) ?> BYN</td>
+                            <td class="text-right"><?= number_format($rate, 4) ?> BYN</td>
                         </tr>
                         <?php endif; ?>
                         <?php endforeach; ?>
                     </table>
                     <?php else: ?>
-                    <p style="color: var(--admin-text-secondary);">Курсы не загружены</p>
+                    <p class="text-muted">Курсы не загружены</p>
                     <?php endif; ?>
                     
                     <?php if ($lastUpdate): ?>
@@ -125,22 +125,22 @@ $this->params['headerActions'] = [
             </div>
 
             <!-- Баланс CAPTCHA сервисов -->
-            <div class="admin-card" style="margin-bottom: 1.5rem;">
+            <div class="admin-card mb-5">
                 <div class="admin-card-header">
                     <h3 class="admin-card-title">CAPTCHA сервисы</h3>
                 </div>
                 <div class="admin-card-body">
                     <?php if (!empty($captchaBalances)): ?>
-                    <table class="admin-table" style="font-size: 0.875rem;">
+                    <table class="admin-table fs-sm">
                         <?php foreach ($captchaBalances as $service => $balance): ?>
                         <tr>
                             <td><strong><?= Html::encode($service) ?></strong></td>
-                            <td style="text-align: right;">$<?= number_format($balance, 2) ?></td>
+                            <td class="text-right">$<?= number_format($balance, 2) ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </table>
                     <?php else: ?>
-                    <p style="color: var(--admin-text-secondary);">
+                    <p class="text-muted">
                         API ключи не настроены.<br>
                         Настройте в карточке источника.
                     </p>
@@ -149,7 +149,7 @@ $this->params['headerActions'] = [
             </div>
 
             <!-- Cron команда -->
-            <div class="admin-card" style="margin-bottom: 1.5rem;">
+            <div class="admin-card mb-5">
                 <div class="admin-card-header">
                     <h3 class="admin-card-title">Cron задача</h3>
                 </div>

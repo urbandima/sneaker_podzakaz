@@ -102,6 +102,13 @@ main {
 }
 
 /* === SPACING HELPERS === */
+.w-100 { width: 100%; }
+.mt-2 { margin-top: var(--space-2); }
+.mt-4 { margin-top: var(--space-4); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-5 { margin-bottom: var(--space-6); }
 .mt-auto {
   margin-top: auto;
 }

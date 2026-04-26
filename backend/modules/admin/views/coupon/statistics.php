@@ -29,7 +29,7 @@ $statsByType = [
 ?>
 
 <!-- Статистика -->
-<div class="admin-stats" style="margin-bottom: 24px;">
+<div class="admin-stats mb-5">
     <div class="admin-stat-card">
         <div class="admin-stat-icon primary"><i class="bi bi-ticket-detailed-fill"></i></div>
         <div class="admin-stat-content">
@@ -61,11 +61,11 @@ $statsByType = [
 </div>
 
 <!-- Топ-10 купонов по использованию -->
-<div class="admin-card" style="margin-bottom: 24px;">
+<div class="admin-card mb-5">
     <div class="admin-card-header">
         <h2 class="admin-card-title">Топ-10 купонов по использованию</h2>
     </div>
-    <div class="admin-card-body" style="padding: 0;">
+    <div class="admin-card-body p-0">
         <table class="admin-table">
             <thead>
                 <tr>
@@ -92,7 +92,7 @@ $statsByType = [
     <div class="admin-card-header">
         <h2 class="admin-card-title">Статистика по типам купонов</h2>
     </div>
-    <div class="admin-card-body" style="padding: 0;">
+    <div class="admin-card-body p-0">
         <table class="admin-table">
             <thead>
                 <tr>

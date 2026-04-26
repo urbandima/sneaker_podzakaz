@@ -31,14 +31,14 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
         </nav>
 
         <!-- Content (без sidebar - на всю ширину) -->
-        <div style="width: 100%;">
+        <div class="w-100">
             <main class="content" style="max-width: 100%;">
                 <div class="content-header">
-                    <h1><i class="bi bi-clock-history"></i> История просмотров <span class="products-count" id="historyCountHeader" style="display:none;">(<span id="productsCount">0</span>)</span></h1>
+                    <h1><i class="bi bi-clock-history"></i> История просмотров <span class="products-count d-none" id="historyCountHeader">(<span id="productsCount">0</span>)</span></h1>
                 </div>
                 
                 <!-- Пустое состояние (показывается если истории нет) -->
-                <div id="emptyState" style="display:none;">
+                <div id="emptyState" class="d-none">
                     <div class="empty-state">
                         <div class="empty-state__icon"><i class="bi bi-clock-history"></i></div>
                         <h3 class="empty-state__title">История просмотров пуста</h3>
@@ -50,7 +50,7 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
                 </div>
 
                 <!-- История (показывается если есть товары) -->
-                <div id="historySection" style="display:none;">
+                <div id="historySection" class="d-none">
                     <!-- Toolbar (с кнопкой очистки) -->
                     <div class="catalog-toolbar">
                         <div class="toolbar-left">

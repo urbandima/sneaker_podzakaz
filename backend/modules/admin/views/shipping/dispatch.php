@@ -16,14 +16,16 @@ $this->params['breadcrumbs'][] = 'Отправка';
 
 $this->params['headerActions'] = [
     Html::a('<i class="bi bi-printer"></i> Печать накладных', '#', [
-        'class' => 'admin-btn admin-btn-secondary admin-btn-sm',
+        'class' => 'admin-btn admin-btn-secondary admin-btn-sm btn-dispatch-action',
         'id'    => 'btn-print-labels',
         'onclick' => 'printSelectedLabels(); return false;',
+        'disabled' => true,
     ]),
     Html::a('<i class="bi bi-check2-all"></i> Отметить отправленными', '#', [
-        'class'   => 'admin-btn admin-btn-primary admin-btn-sm',
+        'class'   => 'admin-btn admin-btn-primary admin-btn-sm btn-dispatch-action',
         'id'      => 'btn-mark-shipped',
         'onclick' => 'markSelectedShipped(); return false;',
+        'disabled' => true,
     ]),
 ];
 
@@ -45,6 +47,10 @@ $carrierColors = [
 ?>
 
 <style>
+/* Z61 — header layout fix */
+.admin-page-header { flex-wrap: nowrap !important; align-items: center !important; }
+.admin-page-header .btn-dispatch-action { flex-shrink: 0; }
+
 /* === Dispatch — theme-aware styles === */
 .dispatch-carrier-label { font-weight: 700; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; }
 .dispatch-carrier-label.europochta { color: #e63946; }
@@ -234,6 +240,18 @@ $carrierColors = [
 <?php endif; ?>
 
 <script>
+/* Z60 — disable Print/Mark buttons when nothing selected */
+document.addEventListener('change', function(e) {
+    if (e.target.matches('.order-check') || e.target.matches('#check-all') || e.target.matches('#check-all-head')) {
+        var checked = document.querySelectorAll('.order-check:checked').length;
+        document.querySelectorAll('.btn-dispatch-action').forEach(function(btn) {
+            btn.disabled = checked === 0;
+        });
+    }
+});
+// Initial state — buttons disabled until at least one row selected
+document.querySelectorAll('.btn-dispatch-action').forEach(function(btn) { btn.disabled = true; });
+
 function toggleAllOrders(checked) {
     document.querySelectorAll('.order-check').forEach(cb => cb.checked = checked);
     document.getElementById('check-all').checked = checked;
@@ -244,6 +262,9 @@ function toggleAllOrders(checked) {
 function updateSelectedCount() {
     const n = document.querySelectorAll('.order-check:checked').length;
     document.getElementById('selected-count').textContent = n + ' выбрано';
+    document.querySelectorAll('.btn-dispatch-action').forEach(function(btn) {
+        btn.disabled = n === 0;
+    });
 }
 
 function getSelectedIds() {

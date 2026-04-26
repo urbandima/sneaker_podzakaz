@@ -51,7 +51,7 @@ if (!$product->isNewRecord) {
 ?>
 
 <?php if (!$product->isNewRecord): ?>
-<span id="js-product-id" data-id="<?= $product->id ?>" style="display:none;"></span>
+<span id="js-product-id" data-id="<?= $product->id ?>" class="d-none"></span>
 <?php endif; ?>
 
 <div class="product-edit">
@@ -770,7 +770,7 @@ if (!$product->isNewRecord) {
                                     <th class="text-uppercase">EU</th>
                                     <th class="text-uppercase">UK</th>
                                     <th class="text-uppercase">CM</th>
-                                    <th class="text-uppercase" style="cursor: help;" title="Цена в юанях (CNY)">
+                                    <th class="text-uppercase cursor-help" title="Цена в юанях (CNY)">
                                         Цена ¥
                                         <i class="bi bi-info-circle-fill text-info"></i>
                                     </th>
@@ -1195,7 +1195,7 @@ if (!$product->isNewRecord) {
                                 <?php endforeach; ?>
                             </select>
                             <a href="<?= yii\helpers\Url::to(['/admin/product/add-sizes-from-grid', 'productId' => $product->id, 'gridId' => '__GRID_ID__', 'returnUrl' => 'edit']) ?>" 
-                               class="btn btn-sm btn-success mt-2" id="add-from-grid-btn" style="display:none;">
+                               class="btn btn-sm btn-success mt-2 d-none" id="add-from-grid-btn">
                                 <i class="bi bi-plus-circle"></i> Добавить все размеры из сетки
                             </a>
                         </div>
@@ -1307,7 +1307,7 @@ if (!$product->isNewRecord) {
                             </div>
 
                             <!-- Форма создания новой характеристики -->
-                            <div id="newCharacteristicForm" style="display: none;" class="mb-3 p-3 bg-light border rounded">
+                            <div id="newCharacteristicForm" class="mb-3 p-3 bg-light border rounded d-none">
                                 <h6 class="text-primary"><i class="bi bi-magic"></i> Новая характеристика</h6>
                                 <div class="mb-2">
                                     <label class="form-label">Название</label>
@@ -1331,9 +1331,9 @@ if (!$product->isNewRecord) {
                             </div>
 
                             <!-- Поле значения (динамическое) -->
-                            <div id="valueContainer" style="display: none;">
+                            <div id="valueContainer" class="d-none">
                                 <!-- Для select: dropdown -->
-                                <div id="valueSelect" style="display: none;" class="mb-3">
+                                <div id="valueSelect" class="mb-3 d-none">
                                     <label class="form-label">Значение</label>
                                     <select class="form-select" id="characteristicValueSelect">
                                         <option value="">Выберите значение...</option>
@@ -1341,7 +1341,7 @@ if (!$product->isNewRecord) {
                                     </select>
                                     
                                     <!-- Добавление нового значения -->
-                                    <div id="newValueForm" style="display: none;" class="mt-2 p-2 bg-light border rounded">
+                                    <div id="newValueForm" class="mt-2 p-2 bg-light border rounded d-none">
                                         <input type="text" class="form-control form-control-sm mb-2" id="newValueInput" placeholder="Новое значение">
                                         <button type="button" class="btn btn-sm btn-primary" onclick="createNewValue()">
                                             <i class="bi bi-check"></i> Добавить
@@ -1353,13 +1353,13 @@ if (!$product->isNewRecord) {
                                 </div>
 
                                 <!-- Для text: input -->
-                                <div id="valueText" style="display: none;" class="mb-3">
+                                <div id="valueText" class="mb-3 d-none">
                                     <label class="form-label">Значение (текст)</label>
                                     <input type="text" class="form-control" id="characteristicValueText" placeholder="Введите значение">
                                 </div>
 
                                 <!-- Для number: number input -->
-                                <div id="valueNumber" style="display: none;" class="mb-3">
+                                <div id="valueNumber" class="mb-3 d-none">
                                     <label class="form-label">Значение (число)</label>
                                     <input type="number" step="0.01" class="form-control" id="characteristicValueNumber" placeholder="0">
                                 </div>

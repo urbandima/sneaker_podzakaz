@@ -67,8 +67,8 @@ $this->params['headerActions'] = [
             Список купонов
         </h2>
     </div>
-    <div class="admin-card-body" style="padding: 0;">
-        <div style="overflow-x: auto;">
+    <div class="admin-card-body p-0">
+        <div class="overflow-x-auto">
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -79,13 +79,13 @@ $this->params['headerActions'] = [
                         <th>Исп. / Макс.</th>
                         <th>Действителен до</th>
                         <th>Статус</th>
-                        <th>Действия</th>
+                        <th style="min-width:100px">Действия</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($dataProvider->getModels() as $model): ?>
                         <tr>
-                            <td style="font-weight: 600;">
+                            <td class="fw-600">
                                 <a href="<?= \yii\helpers\Url::to(['view', 'id' => $model->id]) ?>" style="color: var(--admin-primary);">
                                     <?= Html::encode($model->code) ?>
                                 </a>
@@ -115,7 +115,7 @@ $this->params['headerActions'] = [
                                     echo Html::encode($usedCount) . ' / ' . Html::encode($maxUses);
                                     echo ' <span class="admin-badge admin-badge-' . $color . '">' . round($percent) . '%</span>';
                                 } else {
-                                    echo Html::encode($usedCount) . ' / ∞';
+                                    echo Html::encode($usedCount) . ' / <span style="color:var(--admin-text-secondary,#6d7175);font-size:.8em">Без ограничений</span>';
                                 }
                                 ?>
                             </td>
@@ -123,13 +123,13 @@ $this->params['headerActions'] = [
                                 <?php
                                 $expiryField = $model->valid_until ?? $model->expires_at ?? $model->expiry ?? null;
                                 if (!$expiryField): ?>
-                                    —
+                                    <span style="color:var(--admin-text-secondary,#6d7175)">Бессрочный</span>
                                 <?php else: ?>
                                     <?php
                                     $date = is_numeric($expiryField) ? $expiryField : strtotime($expiryField);
                                     $now = time();
                                     if ($date < $now): ?>
-                                        <span style="color: var(--admin-danger);"><?= date('d.m.Y', $date) ?> (истёк)</span>
+                                        <span class="text-danger"><?= date('d.m.Y', $date) ?> (истёк)</span>
                                     <?php else: ?>
                                         <?= date('d.m.Y', $date) ?>
                                     <?php endif; ?>

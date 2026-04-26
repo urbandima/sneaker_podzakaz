@@ -90,7 +90,7 @@ $logists = $user->isAdmin()
 
                 <!-- Customer quick-search / pre-fill -->
                 <div class="form-section" style="margin-bottom:12px">
-                    <h3 class="form-section-title" style="margin-bottom:8px">🔍 Существующий клиент (необязательно)</h3>
+                    <h3 class="form-section-title" style="margin-bottom:8px"><i class="bi bi-search"></i> Существующий клиент (необязательно)</h3>
                     <?= Html::activeHiddenInput($model, 'customer_id', ['id' => 'wizard-customer-id']) ?>
                     <div style="position:relative;max-width:420px">
                         <input type="text" id="wizard-customer-search" class="admin-form-input"
@@ -107,7 +107,7 @@ $logists = $user->isAdmin()
 
                 <div class="form-section">
                     <h3 class="form-section-title">
-                        📞 Контактные данные клиента
+                        <i class="bi bi-telephone"></i> Контактные данные клиента
                     </h3>
                     <div class="form-grid form-grid--3">
                         <div class="form-field">
@@ -303,7 +303,7 @@ $logists = $user->isAdmin()
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="3" style="text-align: right; font-weight: 600;">Итого:</td>
+                                <td colspan="3" class="text-right fw-600">Итого:</td>
                                 <td id="productsTotal" style="font-weight: 600; font-size: 1.125rem;">0.00 BYN</td>
                                 <td></td>
                             </tr>
@@ -388,7 +388,7 @@ $logists = $user->isAdmin()
 
                 <div class="collapsible-section">
                     <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                        <div class="collapsible-title">🚚 Логистика и ссылки</div>
+                        <div class="collapsible-title"><i class="bi bi-truck"></i> Логистика и ссылки</div>
                         <div class="collapsible-icon">▼</div>
                     </div>
                     <div class="collapsible-content">
@@ -615,7 +615,7 @@ $logists = $user->isAdmin()
                     <button type="button" class="btn btn--primary" id="nextBtn" onclick="changeStep(1)">
                         Далее →
                     </button>
-                    <button type="submit" class="btn btn--success" id="submitBtn" style="display: none;">
+                    <button type="submit" class="btn btn--success d-none" id="submitBtn">
                         ✅ Создать заказ
                     </button>
                 </div>

@@ -69,7 +69,7 @@ $this->params['headerActions'] = [
         </div>
     </div>
 
-    <div class="form-row" id="image-field" style="display: none;">
+    <div class="form-row d-none" id="image-field">
         <div class="form-col-12">
             <?= $form->field($model, 'image')->textInput(['maxlength' => true, 'placeholder' => '/images/banner.jpg']) ?>
         </div>
