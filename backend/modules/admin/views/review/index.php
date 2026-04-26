@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\LinkPager;
 
+/** @var int $rejectedCount */
 $this->title = 'Управление отзывами';
 $pendingCount = $stats['pending'] ?? 0;
 ?>
@@ -11,10 +12,6 @@ $pendingCount = $stats['pending'] ?? 0;
 <div id="review-page-container" data-reply-url="<?= Url::to(['/admin/review/respond']) ?>"></div>
 
 <div class="review-page">
-    <div class="page-header">
-        <h1 class="page-title"><?= Html::encode($this->title) ?></h1>
-    </div>
-
     <!-- Статистика -->
     <div class="admin-stats mb-5">
         <div class="admin-stat-card">
@@ -45,6 +42,7 @@ $pendingCount = $stats['pending'] ?? 0;
                 <div class="admin-stat-label">Избранные</div>
             </div>
         </div>
+        <?php if ($stats['total'] > 0): ?>
         <div class="admin-stat-card">
             <div class="admin-stat-icon info"><i class="bi bi-star"></i></div>
             <div class="admin-stat-content">
@@ -52,6 +50,7 @@ $pendingCount = $stats['pending'] ?? 0;
                 <div class="admin-stat-label">Средний рейтинг</div>
             </div>
         </div>
+        <?php endif; ?>
     </div>
 
     <!-- Фильтры -->
@@ -69,11 +68,15 @@ $pendingCount = $stats['pending'] ?? 0;
             <i class="bi bi-check-circle"></i> Опубликованные
         </a>
         <a href="<?= Url::to(['index', 'status' => 'rejected']) ?>" class="filter-btn <?= Yii::$app->request->get('status') === 'rejected' ? 'active' : '' ?>">
-            <i class="bi bi-x-circle"></i> Отклоненные
+            <i class="bi bi-x-circle"></i> Отклонённые
+            <?php if (!empty($rejectedCount) && $rejectedCount > 0): ?>
+                <span class="filter-badge"><?= $rejectedCount ?></span>
+            <?php endif; ?>
         </a>
         <a href="<?= Url::to(['index', 'status' => 'featured']) ?>" class="filter-btn <?= Yii::$app->request->get('status') === 'featured' ? 'active' : '' ?>">
             <i class="bi bi-star-fill"></i> Избранные
         </a>
+        <label class="filter-label">Оценка:</label>
         <?php for ($i = 5; $i >= 1; $i--): ?>
             <a href="<?= Url::to(['index', 'rating' => $i]) ?>" class="filter-btn <?= Yii::$app->request->get('rating') == $i ? 'active' : '' ?>">
                 <i class="bi bi-star-fill"></i> <?= $i ?>
