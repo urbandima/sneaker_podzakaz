@@ -471,6 +471,22 @@ $config = [
                 'admin/order/<id:\d+>/dp-status' => 'admin/order/dp-status',
                 'admin/order/<id:\d+>/retry-dp' => 'admin/order/retry-dp',
                 
+                // Categories
+                'admin/category'                         => 'admin/category/index',
+                'admin/category/create'                  => 'admin/category/create',
+                'admin/category/<id:\d+>'                => 'admin/category/view',
+                'admin/category/<id:\d+>/edit'           => 'admin/category/update',
+                'admin/category/<id:\d+>/delete'         => 'admin/category/delete',
+                'admin/category/<id:\d+>/upload-image'   => 'admin/category/upload-image',
+
+                // Brands
+                'admin/brand'                            => 'admin/brand/index',
+                'admin/brand/create'                     => 'admin/brand/create',
+                'admin/brand/<id:\d+>'                   => 'admin/brand/view',
+                'admin/brand/<id:\d+>/edit'              => 'admin/brand/update',
+                'admin/brand/<id:\d+>/delete'            => 'admin/brand/delete',
+                'admin/brand/<id:\d+>/upload-logo'       => 'admin/brand/upload-logo',
+
                 // Products
                 'admin/catalog/fix-brand' => 'admin/product/fix-brand',
                 'admin/catalog' => 'admin/product/index',

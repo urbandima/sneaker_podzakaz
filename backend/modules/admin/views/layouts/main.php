@@ -160,6 +160,8 @@ $controllerId = Yii::$app->controller->id;
                     'icon' => 'bi-collection-fill',
                     'items' => [
                         ['label' => 'Товары', 'url' => '/admin/catalog', 'ids' => ['catalog', 'product']],
+                        ['label' => 'Категории', 'url' => '/admin/category', 'ids' => ['category']],
+                        ['label' => 'Бренды', 'url' => '/admin/brand', 'ids' => ['brand']],
                         ['label' => 'Характеристики', 'url' => '/admin/characteristic', 'ids' => ['characteristic']],
                         ['label' => 'Теги', 'url' => '/admin/product-tag', 'ids' => ['product-tag']],
                         ['label' => 'Отзывы', 'url' => '/admin/review', 'ids' => ['review']]
