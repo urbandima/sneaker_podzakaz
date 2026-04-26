@@ -166,17 +166,20 @@ class DashboardController extends BaseAdminController
     {
         // Топ товаров по количеству заказов
         // Используем product_name так как в order_item нет product_id
+        // Z7: фильтруем строки без цены чтобы avg_price не был нулевым
         $sql = "
-            SELECT oi.product_name, SUM(oi.quantity) as total_quantity, 
-                   COUNT(DISTINCT oi.order_id) as order_count, AVG(oi.price) as avg_price
+            SELECT oi.product_name, SUM(oi.quantity) as total_quantity,
+                   COUNT(DISTINCT oi.order_id) as order_count,
+                   AVG(NULLIF(oi.price, 0)) as avg_price
             FROM order_item oi
             INNER JOIN `order` o ON oi.order_id = o.id
             WHERE o.created_at >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))
+              AND oi.price IS NOT NULL AND oi.price > 0
             GROUP BY oi.product_name
             ORDER BY order_count DESC, total_quantity DESC
             LIMIT 5
         ";
-        
+
         return Yii::$app->db->createCommand($sql)->queryAll();
     }
     
@@ -207,10 +210,12 @@ class DashboardController extends BaseAdminController
             $date    = date('Y-m-d', strtotime("-$i days"));
             $dayName = date('d.m', strtotime("-$i days"));
 
-            // Текущий период
+            // Текущий период (Z8: исключаем импортированные заказы из графика)
             $qCur = Order::find()
                 ->where(['>=', 'created_at', strtotime($date)])
-                ->andWhere(['<', 'created_at', strtotime($date . ' +1 day')]);
+                ->andWhere(['<', 'created_at', strtotime($date . ' +1 day')])
+                ->andWhere(['not in', 'status', ['imported', 'imported_invalid']])
+                ->andWhere(['or', ['source' => null], ['not in', 'source', ['import', 'imported']]]);
             if ($user->isLogist()) {
                 $qCur->andWhere(['assigned_logist' => $user->id]);
             }
@@ -221,7 +226,9 @@ class DashboardController extends BaseAdminController
             $prevDate = date('Y-m-d', strtotime("-" . ($i + 30) . " days"));
             $qPrev = Order::find()
                 ->where(['>=', 'created_at', strtotime($prevDate)])
-                ->andWhere(['<', 'created_at', strtotime($prevDate . ' +1 day')]);
+                ->andWhere(['<', 'created_at', strtotime($prevDate . ' +1 day')])
+                ->andWhere(['not in', 'status', ['imported', 'imported_invalid']])
+                ->andWhere(['or', ['source' => null], ['not in', 'source', ['import', 'imported']]]);
             if ($user->isLogist()) {
                 $qPrev->andWhere(['assigned_logist' => $user->id]);
             }
@@ -254,13 +261,17 @@ class DashboardController extends BaseAdminController
             ->andWhere(['<', 'created_at', $twoHoursAgo])
             ->count();
 
-        // Заказы без изменения статуса более 3 дней
-        // Используем updated_at; если нет такого поля — считаем по created_at
+        // Z5: Заказы без изменения статуса более 3 дней
+        // Исключаем все терминальные статусы и мусор; used COALESCE на случай NULL в updated_at
         try {
             $delayed3d = (int)Yii::$app->db->createCommand("
                 SELECT COUNT(*) FROM `order`
-                WHERE updated_at < :ts
-                  AND status NOT IN ('delivered','canceled','imported_invalid')
+                WHERE COALESCE(updated_at, created_at) < :ts
+                  AND is_trash != 1
+                  AND status NOT IN (
+                      'delivered','canceled','cancelled','completed',
+                      'refunded','return','trash','imported','imported_invalid'
+                  )
             ", [':ts' => $threeDaysAgo])->queryScalar();
         } catch (\Exception $e) {
             $delayed3d = 0;

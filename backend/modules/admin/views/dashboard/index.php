@@ -192,7 +192,11 @@ $cnyUpdated = $cnyInfo['updated_at'] ?? null;
                     <span class="dash-top-name"><?= Html::encode($p['product_name'] ?? '—') ?></span>
                     <span class="dash-top-meta"><?= (int)($p['order_count'] ?? 0) ?> заказов · <?= (int)($p['total_quantity'] ?? 0) ?> шт</span>
                 </div>
-                <span class="dash-top-price"><?= number_format($p['avg_price'] ?? 0, 0, '.', ' ') ?> BYN</span>
+                <?php if (isset($p['avg_price']) && $p['avg_price'] > 0): ?>
+                <span class="dash-top-price"><?= number_format($p['avg_price'], 0, '.', ' ') ?> BYN</span>
+                <?php else: ?>
+                <span class="dash-top-price" style="background:#fef3c7;color:#b45309;font-size:.7rem;padding:2px 7px;border-radius:10px">Цена не указана</span>
+                <?php endif; ?>
             </div>
             <?php endforeach ?>
         </div>
