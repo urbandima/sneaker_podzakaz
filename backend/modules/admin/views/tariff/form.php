@@ -53,7 +53,7 @@ $this->title = $model->isNewRecord ? '➕ Создать тариф' : '✏️ �
         </div>
         
         <div class="form-section">
-            <h3 class="section-title">🚚 Доставка</h3>
+            <h3 class="section-title"><i class="bi bi-truck"></i> Доставка</h3>
             <div class="form-grid">
                 <div class="form-group">
                     <?= $form->field($model, 'delivery_cost_per_kg')->textInput(['type' => 'number', 'step' => '0.01', 'placeholder' => '15.00']) ?>

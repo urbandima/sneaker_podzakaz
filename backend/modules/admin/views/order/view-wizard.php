@@ -66,7 +66,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
             <div class="metric-note">Доставка: <?= Yii::$app->formatter->asDecimal((float)$model->delivery_cost, 2) ?> BYN</div>
         </div>
         <div class="metric-card metric-card--success">
-            <div class="metric-label">📦 Позиции</div>
+            <div class="metric-label"><i class="bi bi-box-seam"></i> Позиции</div>
             <div class="metric-value"><?= $itemCount ?></div>
             <div class="metric-note"><?= Html::encode($model->source ?? 'Источник не указан') ?></div>
         </div>
@@ -109,7 +109,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                 <div class="panel-header">
                     <div>
                         <h2 class="panel-title">
-                            📞 Клиент и доставка
+                            <i class="bi bi-telephone"></i> Клиент и доставка
                         </h2>
                         <div class="panel-subtitle">Контактные данные и параметры получения</div>
                     </div>
@@ -319,7 +319,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                         <div class="panel-header">
                             <div>
                                 <h2 class="panel-title">
-                                    🚚 Логистика и ссылки
+                                    <i class="bi bi-truck"></i> Логистика и ссылки
                                 </h2>
                                 <div class="panel-subtitle">Трек-номера и стоимость доставки</div>
                             </div>

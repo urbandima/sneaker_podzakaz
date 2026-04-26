@@ -234,7 +234,7 @@ function pollStatus() {
         statusBadge.style.display = 'inline';
         if (status === 'running') {
             statusBadge.className = 'admin-badge admin-badge-warning';
-            statusBadge.textContent = '⏳ Идёт парсинг...';
+            statusBadge.innerHTML = '<i class="bi bi-hourglass-split"></i> Идёт парсинг...';
         } else {
             statusBadge.className = 'admin-badge admin-badge-success';
             statusBadge.textContent = '✓ Готово';

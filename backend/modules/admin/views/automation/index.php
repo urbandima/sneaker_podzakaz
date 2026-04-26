@@ -39,7 +39,7 @@ $storageKey = 'triggersColumns';
 <form method="get" class="filter-wrap">
     <div class="compact-filter-bar filter-row1">
         <input type="text" name="search" class="compact-filter-input"
-               placeholder="🔍 Название триггера…" value="<?= Html::encode($filterSearch) ?>">
+               placeholder="Название триггера…" value="<?= Html::encode($filterSearch) ?>">
         <select name="event" class="compact-filter-select">
             <option value="">Все события</option>
             <?php foreach ($eventCodes as $k => $v): ?>

@@ -28,7 +28,7 @@ $storageKey = 'suppliersColumns';
 <form method="get" class="filter-wrap">
     <div class="compact-filter-bar filter-row1">
         <input type="text" name="search" class="compact-filter-input"
-               placeholder="🔍 Название, контакт…" value="<?= htmlspecialchars($filterSearch) ?>">
+               placeholder="Название, контакт…" value="<?= htmlspecialchars($filterSearch) ?>">
         <select name="active" class="compact-filter-select" style="min-width:130px">
             <option value="">Все статусы</option>
             <option value="1" <?= $filterActive === '1' ? 'selected' : '' ?>>Активные</option>

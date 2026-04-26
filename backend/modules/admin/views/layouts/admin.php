@@ -359,8 +359,14 @@ $controllerId = Yii::$app->controller->id;
                 </button>
             </div>
             <div class="admin-topbar-right">
-                <!-- "+ Новый заказ" (скрыть на странице создания заказа) -->
-                <?php if (!(Yii::$app->controller->id === 'order' && Yii::$app->controller->action->id === 'create')): ?>
+                <!-- Z84: "+ Новый заказ" only on order/dashboard/customer pages -->
+                <?php
+                $_cid = Yii::$app->controller->id ?? '';
+                $_aid = Yii::$app->controller->action->id ?? '';
+                $_showNewOrder = in_array($_cid, ['order', 'dashboard', 'customer'])
+                              && !($_cid === 'order' && $_aid === 'create');
+                if ($_showNewOrder):
+                ?>
                 <a href="<?= \yii\helpers\Url::to(['/admin/order/create']) ?>" class="admin-btn admin-btn-primary admin-btn-sm">
                     <i class="bi bi-plus-circle"></i> Новый заказ
                 </a>

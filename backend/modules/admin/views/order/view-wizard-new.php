@@ -95,7 +95,7 @@ try {
         </div>
         
         <div class="metric-card">
-            <div class="metric-icon">📦</div>
+            <div class="metric-icon"><i class="bi bi-box-seam"></i></div>
             <div class="metric-value"><?= $itemCount ?></div>
             <div class="metric-label">Позиций</div>
             <div class="metric-subtitle">товаров</div>
@@ -119,7 +119,7 @@ try {
             <!-- Клиент и доставка -->
             <section class="section">
                 <div class="section-header">
-                    <span style="font-size: 1.5rem;">📞</span>
+                    <i class="bi bi-telephone" style="font-size: 1.5rem;"></i>
                     <h2 class="section-title">Клиент и доставка</h2>
                 </div>
                 <div class="section-content">
@@ -314,7 +314,7 @@ try {
             <div class="accordion-item" id="logistics-accordion">
                 <div class="accordion-header" onclick="toggleAccordion('logistics-accordion')">
                     <div class="accordion-title">
-                        <span>🚚</span>
+                        <i class="bi bi-truck"></i>
                         <span>Логистика и ссылки</span>
                     </div>
                     <div class="accordion-icon">▼</div>
@@ -455,7 +455,7 @@ try {
             <!-- Таможня:ДП -->
             <div class="control-section">
                 <div class="control-header flex-between">
-                    <span>📦 Таможня:ДП</span>
+                    <span><i class="bi bi-box-seam"></i> Таможня:ДП</span>
                     <?php
                     $dpShipmentId = $model->dp_shipment_id ?? null;
                     $dpStatus     = $model->dp_status ?? null;

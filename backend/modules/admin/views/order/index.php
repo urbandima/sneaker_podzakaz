@@ -320,7 +320,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
     <div class="compact-filter-bar filter-row1 <?= $row2Active ? 'has-row2' : '' ?>">
         <input type="hidden" name="status" value="<?= Html::encode($filterStatus) ?>">
         <input type="text" name="search" class="compact-filter-input"
-               placeholder="🔍 Номер, клиент, телефон…"
+               placeholder="Номер, клиент, телефон…"
                value="<?= Html::encode($filterSearch) ?>">
         <input type="date" name="date_from" class="compact-filter-input"
                value="<?= Html::encode($filterDateFrom) ?>" title="Дата от">

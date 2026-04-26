@@ -1589,13 +1589,28 @@
     margin: 0 auto;
 }
 
+/* Z82: prevent header buttons from wrapping to 2nd line */
 .admin-page-header {
     margin-bottom: 30px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
 }
-
+.admin-page-header .admin-page-title,
 .admin-page-header h1 {
     color: #333;
-    margin-bottom: 10px;
+    margin-bottom: 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+.admin-page-header .admin-btn,
+.admin-page-header button {
+    flex-shrink: 0;
 }
 
 .admin-grid {
