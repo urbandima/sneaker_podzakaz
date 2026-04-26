@@ -1,11 +1,14 @@
 <?php
 /** @var yii\web\View $this */
 /** @var app\backend\modules\checkout\models\Order $model */
+/** @var string $mode 'view'|'create' */
 
 use yii\helpers\Html;
 use yii\helpers\Url;
 
-$this->title = 'Заказ №' . ($model->order_number ?: $model->id);
+$mode = $mode ?? 'view';
+$isCreate = $mode === 'create';
+$this->title = $isCreate ? 'Новый заказ' : ('Заказ №' . ($model->order_number ?: $model->id));
 $user = Yii::$app->user->identity;
 $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::$app->settings->getStatuses();
 
@@ -370,6 +373,12 @@ $customer = $model->customer ?? null;
             <a href="<?= Url::to(['/admin/order/index']) ?>" class="admin-btn admin-btn-secondary admin-btn-sm" style="padding:4px 8px">
                 <i class="bi bi-arrow-left"></i>
             </a>
+            <?php if ($isCreate): ?>
+            <span class="crm-order-num">Новый заказ</span>
+            <span class="crm-status-pill" style="background:#f3f4f6;color:#6b7280;border-color:transparent">
+                <i class="bi bi-circle" style="font-size:6px"></i> Черновик
+            </span>
+            <?php else: ?>
             <span class="crm-order-num"><?= Html::encode($this->title) ?></span>
             <span class="crm-status-pill" id="crm-status-pill">
                 <i class="bi bi-circle-fill" style="font-size:6px"></i>
@@ -387,7 +396,6 @@ $customer = $model->customer ?? null;
             </span>
             <?php endif; ?>
             <?php
-            /* Three-track badges */
             $ptColors = \app\backend\modules\checkout\models\Order::paymentTrackColors();
             $ltColors = \app\backend\modules\checkout\models\Order::logisticsTrackColors();
             $dtColors = \app\backend\modules\checkout\models\Order::deliveryTrackColors();
@@ -410,8 +418,17 @@ $customer = $model->customer ?? null;
                 <?= Yii::$app->formatter->asDatetime($model->created_at, 'short') ?>
                 <?php if ($model->creator): ?> · <?= Html::encode($model->creator->username) ?><?php endif; ?>
             </span>
+            <?php endif; // $isCreate ?>
         </div>
         <div class="crm-topbar-actions">
+            <?php if ($isCreate): ?>
+            <a href="<?= Url::to(['/admin/order/index']) ?>" class="admin-btn admin-btn-secondary admin-btn-sm">
+                Отмена
+            </a>
+            <a href="<?= Url::to(['/admin/order/view', 'id' => $model->id]) ?>" class="admin-btn admin-btn-primary admin-btn-sm" id="btn-finalize-order">
+                <i class="bi bi-check-lg"></i> Создать заказ
+            </a>
+            <?php else: ?>
             <form method="post" action="<?= Url::to(['/admin/order/change-status', 'id' => $model->id]) ?>" style="display:flex;align-items:center;gap:6px">
                 <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                 <select name="status" class="crm-status-select" onchange="guardStatusChange(this)" title="Изменить статус"
@@ -445,6 +462,7 @@ $customer = $model->customer ?? null;
                 <i class="bi bi-clock-history"></i>
                 <?php if (!empty($model->history)): ?><span style="font-size:10px;background:#dbeafe;color:#1e40af;border-radius:10px;padding:0 5px;margin-left:2px"><?= count($model->history) ?></span><?php endif; ?>
             </button>
+            <?php endif; // $isCreate ?>
         </div>
     </div>
 
@@ -1071,6 +1089,18 @@ JS, \yii\web\View::POS_END); ?>
                     <?php endif; ?>
                 </div>
                 <div class="crm-customer-card">
+                    <?php if ($isCreate): ?>
+                    <!-- CREATE MODE: customer search autocomplete -->
+                    <div style="margin-bottom:12px;border-bottom:1px solid var(--admin-border,#e5e7eb);padding-bottom:12px">
+                        <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:6px"><i class="bi bi-search"></i> Поиск клиента</div>
+                        <div style="position:relative">
+                            <input type="text" id="create-customer-search" class="admin-form-input" style="font-size:0.8125rem;padding:5px 8px;width:100%"
+                                   placeholder="ФИО, телефон или email…" autocomplete="off">
+                            <div id="create-customer-drop" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--admin-surface,#fff);border:1px solid var(--admin-border,#e5e7eb);border-radius:8px;z-index:100;max-height:200px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.1)"></div>
+                        </div>
+                        <div id="create-customer-linked" style="display:none;margin-top:6px;font-size:0.75rem;color:#059669"><i class="bi bi-check-circle-fill"></i> <span id="create-customer-linked-name"></span></div>
+                    </div>
+                    <?php endif; ?>
                     <?php if ($customer): ?>
                     <?php $customerFullName = trim(($customer->last_name ?? '') . ' ' . ($customer->first_name ?? '')) ?: ($customer->email ?? '—'); ?>
                     <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px">
@@ -1813,6 +1843,7 @@ JS, \yii\web\View::POS_END); ?>
     </div>
 </div>
 
+<?php if (!$isCreate): ?>
 <!-- ═══ HISTORY SLIDE PANEL ═══ -->
 <div class="crm-history-popup" id="crm-history-popup" onclick="if(event.target===this)this.classList.remove('open')">
     <div class="crm-history-panel">
@@ -1858,6 +1889,7 @@ JS, \yii\web\View::POS_END); ?>
         </div>
     </div>
 </div>
+<?php endif; // !$isCreate — history panel ?>
 
 </div><!-- /.crm-wrap -->
 
@@ -2458,4 +2490,84 @@ window.saveBuyout = function(orderId) {
 };
 JS
 , \yii\web\View::POS_END);
+
+// ── Create-mode JS ──────────────────────────────────────────────────────────
+if ($isCreate):
+$_customerSearchUrl = Url::to(['/admin/customer/search']);
+$_csrfToken2 = Yii::$app->request->csrfToken;
+$_modelId2   = $model->id;
+$this->registerJs(<<<JS
+(function() {
+    // In create mode: open add-item section by default if order has no items
+    var showBtn = document.getElementById('showAddItemBtn');
+    var addSection = document.getElementById('addItemSection');
+    if (showBtn && addSection) {
+        var tbody = document.querySelector('.crm-items-table tbody');
+        var itemCount = tbody ? tbody.querySelectorAll('.item-main-row').length : 0;
+        if (itemCount === 0) {
+            showBtn.style.display = 'none';
+            addSection.style.display = 'block';
+        }
+    }
+
+    // Customer search autocomplete
+    var searchInput = document.getElementById('create-customer-search');
+    var drop = document.getElementById('create-customer-drop');
+    var linkedBadge = document.getElementById('create-customer-linked');
+    var linkedName  = document.getElementById('create-customer-linked-name');
+    if (!searchInput) return;
+
+    var timer = null;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(timer);
+        var q = this.value.trim();
+        if (q.length < 2) { drop.style.display = 'none'; return; }
+        timer = setTimeout(function() {
+            fetch('{$_customerSearchUrl}?q=' + encodeURIComponent(q), {
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            }).then(function(r) { return r.json(); }).then(function(list) {
+                drop.innerHTML = '';
+                if (!list.length) {
+                    drop.innerHTML = '<div style="padding:9px 14px;font-size:0.8125rem;color:var(--admin-text-secondary)">Не найден</div>';
+                } else {
+                    list.forEach(function(c) {
+                        var el = document.createElement('div');
+                        el.style.cssText = 'padding:9px 14px;cursor:pointer;font-size:0.8125rem;border-bottom:1px solid var(--admin-border,#f3f4f6)';
+                        el.innerHTML = '<strong style="display:block;font-weight:600">' + (c.name || 'Клиент #' + c.id) + '</strong>' +
+                            '<span style="color:var(--admin-text-secondary,#6b7280)">' + [c.phone, c.email].filter(Boolean).join(' · ') + '</span>';
+                        el.onmouseover = function(){ this.style.background='var(--admin-surface-hover,#f9fafb)'; };
+                        el.onmouseout  = function(){ this.style.background=''; };
+                        el.addEventListener('click', function() {
+                            drop.style.display = 'none';
+                            searchInput.value = '';
+                            if (linkedBadge) { linkedBadge.style.display = 'block'; }
+                            if (linkedName)  { linkedName.textContent = (c.name || 'Клиент #' + c.id) + (c.phone ? ' (' + c.phone + ')' : ''); }
+                            // Save customer_id and client fields via saveField
+                            saveField('customer_id', c.id);
+                            if (c.name)  { saveField('client_name',  c.name);  }
+                            if (c.phone) { saveField('client_phone', c.phone); }
+                            if (c.email) { saveField('client_email', c.email); }
+                            // Update displayed editable values
+                            function setEditable(field, val) {
+                                var el = document.querySelector('.crm-editable[data-field="' + field + '"]');
+                                if (el && val) { el.innerHTML = val; el.classList.remove('crm-editable-empty'); }
+                            }
+                            setEditable('client_name',  c.name);
+                            setEditable('client_phone', c.phone);
+                            setEditable('client_email', c.email);
+                        });
+                        drop.appendChild(el);
+                    });
+                }
+                drop.style.display = 'block';
+            }).catch(function() { drop.style.display = 'none'; });
+        }, 280);
+    });
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !drop.contains(e.target)) drop.style.display = 'none';
+    });
+})();
+JS
+, \yii\web\View::POS_END);
+endif;
 ?>

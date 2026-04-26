@@ -398,56 +398,65 @@ class OrderController extends BaseAdminController
      */
     public function actionCreate()
     {
+        $productId  = (int)Yii::$app->request->get('product_id', 0);
+        $customerId = (int)Yii::$app->request->get('customer_id', 0);
+        $source     = Yii::$app->request->get('source', '');
+        $phone      = Yii::$app->request->get('phone', '');
+
         $model = new Order();
-        $model->created_by = Yii::$app->user->id;
+        $model->created_by   = Yii::$app->user->id;
+        $model->status       = 'new';
+        $model->client_name  = 'Новый заказ';
+        $model->total_amount = 0;
 
-        if ($model->load(Yii::$app->request->post())) {
-            $transaction = Yii::$app->db->beginTransaction();
-            try {
-                // Валидация заказа
-                if (!$model->save()) {
-                    throw new \Exception('Ошибка сохранения заказа: ' . json_encode($model->errors));
-                }
+        if ($source)     $model->source = $source;
+        if ($phone)      { $model->client_phone = $phone; $model->client_name = 'Новый клиент'; }
 
-                $items = Yii::$app->request->post('OrderItem', []);
-                [$totalAmount, $itemCount] = $this->saveOrderItems($model, $items, false);
-
-                // Инвалидируем кеш статистики
-                TagDependency::invalidate(Yii::$app->cache, ['orders-stats']);
-
-                $transaction->commit();
-
-                Yii::info('Заказ #' . $model->id . ' создан пользователем #' . Yii::$app->user->id . ', товаров: ' . $itemCount . ', сумма: ' . $totalAmount, 'order');
-                $this->flashSuccess('Заказ успешно создан!');
-                
-                // Очищаем черновик после успешного создания
-                if (Yii::$app->request->isPost) {
-                    // JavaScript очистит localStorage
-                }
-                
-                return $this->redirect(['/admin/order/view', 'id' => $model->id]);
-                
-            } catch (\Exception $e) {
-                $transaction->rollBack();
-                Yii::error('Ошибка создания заказа: ' . $e->getMessage(), 'order');
-                $this->flashError('Ошибка при создании заказа: ' . $e->getMessage());
+        if ($customerId) {
+            $model->customer_id = $customerId;
+            $customer = \app\backend\modules\account\models\Customer::findOne($customerId);
+            if ($customer) {
+                $fullName = trim(($customer->last_name ?? '') . ' ' . ($customer->first_name ?? ''));
+                $model->client_name  = $fullName ?: ($customer->email ?? 'Клиент #' . $customerId);
+                $model->client_phone = $customer->phone ?? '';
+                $model->client_email = $customer->email ?? '';
             }
         }
 
-        // Загружаем способы доставки из DB для выпадающего списка
-        $shippingMethods = [];
-        $rawShipping = Yii::$app->settings->get('checkout', 'shipping_methods');
-        if ($rawShipping) {
-            $decoded = json_decode($rawShipping, true);
-            if (is_array($decoded)) {
-                $shippingMethods = array_values(array_filter($decoded, fn($m) => ($m['status'] ?? '') === 'active'));
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            if (!$model->save()) {
+                throw new \Exception('Ошибка создания черновика: ' . json_encode($model->errors));
             }
+
+            if ($productId) {
+                $product = \app\backend\modules\catalog\models\Product::findOne($productId);
+                if ($product) {
+                    $item = new \app\backend\modules\checkout\models\OrderItem();
+                    $item->order_id     = $model->id;
+                    $item->product_id   = $product->id;
+                    $item->product_name = $product->name;
+                    $item->quantity     = 1;
+                    $item->price        = (float)($product->price ?? 0);
+                    $item->total        = $item->price;
+                    $item->save(false);
+                    $model->total_amount = $item->total;
+                    $model->save(false);
+                }
+            }
+
+            TagDependency::invalidate(Yii::$app->cache, ['orders-stats']);
+            $transaction->commit();
+
+            Yii::info('Создан черновик заказа #' . $model->id . ' пользователем #' . Yii::$app->user->id, 'order');
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::error('Ошибка создания черновика: ' . $e->getMessage(), 'order');
+            $this->flashError('Ошибка при создании заказа: ' . $e->getMessage());
+            return $this->redirect(['/admin/order/index']);
         }
 
-        return $this->render('create', [
-            'model' => $model,
-            'shippingMethods' => $shippingMethods,
-        ]);
+        return $this->redirect(['/admin/order/view', 'id' => $model->id, 'mode' => 'create']);
     }
 
     /**
@@ -486,6 +495,8 @@ class OrderController extends BaseAdminController
         $sourcesSaved = Yii::$app->settings->get('order', 'sources', '');
         $orderSources = $sourcesSaved ? (json_decode($sourcesSaved, true) ?: []) : [];
 
+        $mode = Yii::$app->request->get('mode', 'view');
+
         return $this->render('view', [
             'model' => $model,
             'editing' => Yii::$app->request->get('editing', false),
@@ -494,6 +505,7 @@ class OrderController extends BaseAdminController
             'shippingMethods' => $shippingMethods ?: [],
             'canEdit' => $canEdit,
             'orderSources' => $orderSources,
+            'mode' => $mode,
         ]);
     }
 
@@ -559,6 +571,10 @@ class OrderController extends BaseAdminController
             'editing' => true,
             'statuses' => $statuses,
             'canEdit' => $canEdit,
+            'mode' => 'view',
+            'paymentMethods' => [],
+            'shippingMethods' => [],
+            'orderSources' => [],
         ]);
     }
 
@@ -1365,6 +1381,7 @@ class OrderController extends BaseAdminController
         $allowedFields = [
             'client_name', 'client_phone', 'client_email', 'delivery_date', 'comment',
             'china_track_number', 'shipment_value_cny', 'status', 'total_amount', 'assigned_logist',
+            'customer_id', 'source',
             'recipient_last_name', 'recipient_first_name', 'recipient_middle_name',
             'citizenship',
             'passport_series', 'passport_number', 'passport_issue_date', 'birth_date', 'inn',
@@ -1538,7 +1555,9 @@ class OrderController extends BaseAdminController
         $field = $data['field'] ?? '';
         $value = $data['value'] ?? '';
         $allowed = ['china_track_number','local_track_number','delivery_method','delivery_address',
-            'pickup_point','china_delivery_status','warehouse_arrival_date','delivery_date'];
+            'pickup_point','china_delivery_status','warehouse_arrival_date','delivery_date',
+            'customer_id','client_name','client_phone','client_email','source',
+            'comment','total_amount','delivery_cost'];
         if (!in_array($field, $allowed)) return ['success' => false, 'message' => 'Недопустимое поле'];
         $order = Order::findOne($id);
         if (!$order) return ['success' => false, 'message' => 'Не найден'];
