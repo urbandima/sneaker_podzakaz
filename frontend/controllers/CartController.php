@@ -60,7 +60,7 @@ class CartController extends Controller
             return [
                 'success' => true,
                 'message' => 'Товар добавлен в корзину',
-                'count' => Cart::getItemsCount(),
+                'positions' => Cart::getPositionsCount(), 'count' => Cart::getItemsCount(),
                 'total' => Cart::getTotal(),
             ];
         }
@@ -88,7 +88,7 @@ class CartController extends Controller
                 'success' => true,
                 'subtotal' => (float) $cart->getSubtotal(),
                 'total' => (float) Cart::getTotal(),
-                'count' => Cart::getItemsCount(),
+                'positions' => Cart::getPositionsCount(), 'count' => Cart::getItemsCount(),
             ];
         }
 
@@ -111,7 +111,7 @@ class CartController extends Controller
             return [
                 'success' => true,
                 'message' => 'Товар удален',
-                'count' => Cart::getItemsCount(),
+                'positions' => Cart::getPositionsCount(), 'count' => Cart::getItemsCount(),
                 'total' => Cart::getTotal(),
             ];
         }
@@ -142,7 +142,7 @@ class CartController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         return [
-            'count' => Cart::getItemsCount(),
+            'positions' => Cart::getPositionsCount(), 'count' => Cart::getItemsCount(),
             'total' => Cart::getTotal(),
         ];
     }
@@ -164,7 +164,7 @@ class CartController extends Controller
         return [
             'success' => true,
             'html' => $html,
-            'count' => Cart::getItemsCount(),
+            'positions' => Cart::getPositionsCount(), 'count' => Cart::getItemsCount(),
             'total' => $total,
         ];
     }
@@ -183,7 +183,7 @@ class CartController extends Controller
 
         return [
             'inCart' => $exists,
-            'count' => Cart::getItemsCount(),
+            'positions' => Cart::getPositionsCount(), 'count' => Cart::getItemsCount(),
         ];
     }
 }

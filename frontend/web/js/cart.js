@@ -23,7 +23,7 @@ function loadCartDrawerItems() {
     .then(function (data) {
         if (data.success) {
             drawerItems.innerHTML = data.html;
-            updateCartCount(data.count);
+            updateCartCount(data.count, data.positions);
             document.querySelectorAll('.cart-total').forEach(function (el) {
                 el.textContent = SH.formatCurrency(data.total);
             });
@@ -60,7 +60,7 @@ function addToCart(productId, quantity = 1, size = null, color = null) {
     SH.fetch('/cart/add', { method: 'POST', body: formData })
         .then(function (data) {
             if (data.success) {
-                updateCartCount(data.count);
+                updateCartCount(data.count, data.positions);
                 openCartDrawer();
             } else {
                 SH.notify(data.message || 'Ошибка добавления', 'error');
@@ -144,7 +144,7 @@ function updateCartItem(id, quantity) {
                 });
 
                 // Обновляем счётчик корзины
-                updateCartCount(data.count);
+                updateCartCount(data.count, data.positions);
 
                 SH.notify('Количество обновлено', 'success');
             } else {
@@ -205,7 +205,7 @@ function removeCartItem(id) {
             if (data.success) {
                 setTimeout(function () {
                     cartItem.remove();
-                    updateCartCount(data.count);
+                    updateCartCount(data.count, data.positions);
                     if (typeof updateCartTotals === 'function') {
                         updateCartTotals(data.total, data.count);
                     }
@@ -228,10 +228,14 @@ function removeCartItem(id) {
 }
 
 // Обновить счетчик корзины в header
-function updateCartCount(count) {
+function updateCartCount(count, positions) {
     const cartCount = document.getElementById('cartCount');
     if (cartCount) {
-        cartCount.textContent = count;
+        if (positions && positions > 0 && count !== positions) {
+            cartCount.textContent = positions + ' поз. / ' + count + ' шт.';
+        } else {
+            cartCount.textContent = count;
+        }
         cartCount.style.display = count > 0 ? 'flex' : 'none';
     }
 }
@@ -259,7 +263,7 @@ function animateCartIcon() {
 // Загрузить текущее количество при загрузке страницы
 document.addEventListener('DOMContentLoaded', function () {
     SH.fetch('/cart/count')
-        .then(function (data) { if (data.count) updateCartCount(data.count); })
+        .then(function (data) { if (data.count) updateCartCount(data.count, data.positions); })
         .catch(function () { /* production: silent */ });
 
     // Добавляем CSS для анимаций если еще нет

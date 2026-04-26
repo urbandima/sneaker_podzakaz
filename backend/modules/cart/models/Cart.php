@@ -194,6 +194,22 @@ class Cart extends ActiveRecord
     }
 
     /**
+     * Количество отдельных позиций (строк) в корзине
+     */
+    public static function getPositionsCount()
+    {
+        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $sessionId = Yii::$app->session->id;
+        $query = self::find();
+        if ($userId) {
+            $query->where(['user_id' => $userId]);
+        } else {
+            $query->where(['session_id' => $sessionId, 'user_id' => null]);
+        }
+        return (int) $query->count();
+    }
+
+    /**
      * Получить количество товаров в корзине (оптимизировано)
      */
     public static function getItemsCount()
