@@ -36,14 +36,35 @@ class AmocrmOrderController extends Controller
 
     public function beforeAction($action)
     {
+        // CORS for AmoCRM widget
+        $headers = Yii::$app->response->headers;
+        $origin  = Yii::$app->request->headers->get('Origin', '');
+        if ($origin && preg_match('/\.amocrm\.(ru|com)$/i', parse_url($origin, PHP_URL_HOST) ?? '')) {
+            $headers->set('Access-Control-Allow-Origin', $origin);
+        }
+        $headers->set('Access-Control-Allow-Headers', 'Content-Type, X-Api-Key, Authorization, ngrok-skip-browser-warning');
+        $headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        $headers->set('Access-Control-Allow-Private-Network', 'true');
+
+        if (Yii::$app->request->isOptions) {
+            Yii::$app->response->statusCode = 204;
+            Yii::$app->end();
+        }
+
         if (!parent::beforeAction($action)) {
             return false;
         }
 
-        $key = Yii::$app->request->headers->get('X-Api-Key');
+        $key = Yii::$app->request->headers->get('X-Api-Key', '');
+        if ($key === '') {
+            $auth = Yii::$app->request->headers->get('Authorization', '');
+            if (strncasecmp($auth, 'Bearer ', 7) === 0) {
+                $key = substr($auth, 7);
+            }
+        }
         $stored = Yii::$app->settings->get('amocrm', 'widget_api_key', '');
 
-        if (empty($stored) || $key !== $stored) {
+        if (empty($stored) || !hash_equals($stored, $key)) {
             Yii::$app->response->statusCode = 401;
             Yii::$app->response->data = ['success' => false, 'message' => 'Неверный API ключ'];
             Yii::$app->response->send();

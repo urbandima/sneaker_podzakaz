@@ -39,8 +39,9 @@ class AmocrmController extends Controller
         if ($origin && preg_match('/\.amocrm\.(ru|com)$/i', parse_url($origin, PHP_URL_HOST) ?? '')) {
             $headers->set('Access-Control-Allow-Origin', $origin);
         }
-        $headers->set('Access-Control-Allow-Headers', 'Content-Type, X-Api-Key, Authorization');
+        $headers->set('Access-Control-Allow-Headers', 'Content-Type, X-Api-Key, Authorization, ngrok-skip-browser-warning');
         $headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        $headers->set('Access-Control-Allow-Private-Network', 'true');
 
         // OPTIONS preflight
         if (Yii::$app->request->isOptions) {
