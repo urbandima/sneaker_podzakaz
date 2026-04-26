@@ -142,24 +142,6 @@ $statusPills = [
     'imported'               => ['bg' => '#f3f4f6', 'color' => '#6b7280'],
 ];
 
-// Column selector definitions (Task 2)
-$columnDefs = [
-    'email'       => 'Email',
-    'item'        => 'Товар',
-    'status'      => 'Статус',
-    'amount'      => 'Сумма',
-    'payment'     => 'Оплата',
-    'delivery'    => 'Доставка',
-    'china_track' => 'Трек Китай',
-    'dp_track'    => 'Трек ДП',
-    'local_track' => 'Трек РБ',
-    'dp_status'   => 'Статус ДП',
-    'city'        => 'Город',
-    'logist'      => 'Логист',
-    'source'      => 'Источник',
-    'comment'     => 'Комментарий',
-];
-
 $pmLabels = ['cash' => 'Наличные', 'card' => 'Карта', 'transfer' => 'Перевод', 'erip' => 'ЕРИП'];
 $dmLabels = ['europochta' => 'Европочта', 'belpochta' => 'Белпочта', 'cdek' => 'СДЭК', 'courier' => 'Курьер'];
 
@@ -345,26 +327,6 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
         <a href="<?= Url::to(['/admin/order']) ?>" class="compact-filter-btn compact-filter-btn--reset">
             <i class="bi bi-x-lg"></i> Сбросить
         </a>
-        <!-- Column selector (Task 2) -->
-        <div class="col-selector-wrap" style="margin-left:auto">
-            <button type="button" class="compact-filter-btn" onclick="toggleColSelector(event)">
-                <i class="bi bi-layout-three-columns"></i> Столбцы
-            </button>
-            <div id="colSelector" class="col-selector-dropdown" style="display:none">
-                <div style="font-weight:700;margin-bottom:8px;font-size:.8125rem">Показать столбцы:</div>
-                <?php foreach ($columnDefs as $colKey => $colLabel): ?>
-                <label class="col-selector-item">
-                    <input type="checkbox" data-col="<?= $colKey ?>"
-                           onchange="toggleColumn('<?= $colKey ?>', this.checked)" checked>
-                    <?= Html::encode($colLabel) ?>
-                </label>
-                <?php endforeach; ?>
-                <div style="margin-top:8px;border-top:1px solid var(--admin-border,#e5e7eb);padding-top:8px;display:flex;gap:6px">
-                    <button type="button" onclick="selectAllCols(true)"  class="compact-filter-btn compact-filter-btn--apply"  style="flex:1;height:26px;font-size:11px;padding:0 8px">Все</button>
-                    <button type="button" onclick="selectAllCols(false)" class="compact-filter-btn compact-filter-btn--reset" style="flex:1;height:26px;font-size:11px;padding:0 8px">Скрыть</button>
-                </div>
-            </div>
-        </div>
     </div>
     <!-- Row 2: expandable (Task 3) -->
     <div id="filterRow2" class="compact-filter-bar filter-row2"
@@ -440,6 +402,41 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
             <span style="font-size:.8125rem;font-weight:400;color:var(--admin-text-secondary,#6b7280);margin-left:8px"><?= $totalCount ?></span>
         </h2>
         <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+            <!-- Column toggle dropdown -->
+            <div style="position:relative" id="colToggleWrap">
+                <button class="compact-filter-btn" onclick="toggleColDropdown()" style="gap:5px">
+                    <i class="bi bi-layout-three-columns"></i> Столбцы
+                </button>
+                <div id="colDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--admin-border,#e5e7eb);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:100;min-width:180px;padding:8px 0">
+                    <?php
+                    $toggleCols = [
+                        'email'       => 'Email',
+                        'item'        => 'Товар',
+                        'status'      => 'Статус',
+                        'amount'      => 'Сумма',
+                        'payment'     => 'Оплата',
+                        'delivery'    => 'Доставка',
+                        'china_track' => 'Трек Китай',
+                        'dp_track'    => 'Трек ДП',
+                        'local_track' => 'Трек РБ',
+                        'dp_status'   => 'Статус ДП',
+                        'city'        => 'Город',
+                        'logist'      => 'Логист',
+                        'source'      => 'Источник',
+                        'comment'     => 'Комментарий',
+                    ];
+                    foreach ($toggleCols as $col => $label):
+                    ?>
+                    <label style="display:flex;align-items:center;gap:8px;padding:5px 14px;cursor:pointer;font-size:.8125rem;font-weight:500;color:var(--admin-text-primary,#111);white-space:nowrap" onmousedown="event.preventDefault()">
+                        <input type="checkbox" data-col-toggle="<?= $col ?>" onchange="toggleColumn('<?= $col ?>', this.checked)" style="cursor:pointer">
+                        <?= Html::encode($label) ?>
+                    </label>
+                    <?php endforeach; ?>
+                    <div style="border-top:1px solid var(--admin-border,#f3f4f6);margin:6px 0;padding:4px 14px">
+                        <button onclick="resetColumns()" style="background:none;border:none;font-size:.75rem;color:var(--admin-primary,#2563eb);cursor:pointer;padding:0">Сбросить к умолчанию</button>
+                    </div>
+                </div>
+            </div>
             <div class="view-toggle">
                 <button class="view-toggle-btn view-toggle-btn--active" id="btnTable" data-view="table" onclick="switchView('table')">
                     <i class="bi bi-table"></i> Таблица
@@ -682,49 +679,6 @@ function applyDatePreset(from, to) {
 }
 
 /* ──────────────────────────────────────────
-   Task 2: Column selector
-────────────────────────────────────────── */
-function toggleColSelector(e) {
-    e.stopPropagation();
-    const d = document.getElementById('colSelector');
-    d.style.display = d.style.display === 'none' ? 'block' : 'none';
-}
-// Close on outside click
-document.addEventListener('click', function(e) {
-    const w = document.querySelector('.col-selector-wrap');
-    if (w && !w.contains(e.target)) {
-        const d = document.getElementById('colSelector');
-        if (d) d.style.display = 'none';
-    }
-});
-function toggleColumn(col, show) {
-    document.querySelectorAll('[data-col="' + col + '"]').forEach(el => {
-        el.style.display = show ? '' : 'none';
-    });
-    const saved = JSON.parse(localStorage.getItem('orderColumns') || '{}');
-    saved[col] = show;
-    localStorage.setItem('orderColumns', JSON.stringify(saved));
-}
-function selectAllCols(show) {
-    document.querySelectorAll('#colSelector input[type=checkbox]').forEach(cb => {
-        cb.checked = show;
-        toggleColumn(cb.dataset.col, show);
-    });
-}
-/* Restore column visibility from localStorage on page load */
-(function() {
-    const saved = JSON.parse(localStorage.getItem('orderColumns') || '{}');
-    Object.entries(saved).forEach(([col, show]) => {
-        if (show === false) {
-            const cb = document.querySelector('#colSelector input[data-col="' + col + '"]');
-            if (cb) {
-                cb.checked = false;
-                toggleColumn(col, false);
-            }
-        }
-    });
-})();
-
 /* ──────────────────────────────────────────
    Task 3: Expandable filter row 2
 ────────────────────────────────────────── */
@@ -773,12 +727,12 @@ function sortBy(col) {
     if (!hasMore || !sentinel) return;
 
     function applyHiddenColumns(rows) {
-        var saved = {};
-        try { saved = JSON.parse(localStorage.getItem('orderColumns') || '{}'); } catch(e){}
-        Object.keys(saved).forEach(function(col) {
-            if (saved[col] === false) {
+        var state = [];
+        try { state = JSON.parse(localStorage.getItem('admin_order_columns') || '[]'); } catch(e){}
+        state.forEach(function(entry) {
+            if (!entry.visible) {
                 rows.forEach(function(row) {
-                    row.querySelectorAll('[data-col="' + col + '"]').forEach(function(el) {
+                    row.querySelectorAll('[data-col="' + entry.col + '"]').forEach(function(el) {
                         el.style.display = 'none';
                     });
                 });
@@ -1031,4 +985,82 @@ function tblEditSelect(cell, field, orderId, optMap) {
     sel.addEventListener('blur', commit);
     sel.addEventListener('click', function(e){e.stopPropagation();});
 }
+
+// ── Column visibility ───────────────────────────────────────────────────────
+var COL_KEY      = 'admin_order_columns';
+var DEFAULT_HIDDEN = ['china_track', 'dp_track', 'local_track', 'dp_status'];
+
+function loadColumnState() {
+    try {
+        var raw = localStorage.getItem(COL_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+}
+function saveColumnState(state) {
+    try { localStorage.setItem(COL_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+function applyColumnState(state) {
+    var table = document.getElementById('ordersTable');
+    if (!table) return;
+    state.forEach(function(entry) {
+        var visible = entry.visible;
+        var col = entry.col;
+        // Toggle th
+        var th = table.querySelector('thead th[data-col="' + col + '"]');
+        if (th) th.style.display = visible ? '' : 'none';
+        // Toggle all td
+        table.querySelectorAll('td[data-col="' + col + '"]').forEach(function(td) {
+            td.style.display = visible ? '' : 'none';
+        });
+        // Sync checkbox
+        var cb = document.querySelector('input[data-col-toggle="' + col + '"]');
+        if (cb) cb.checked = visible;
+    });
+}
+
+function buildDefaultState() {
+    var cols = [];
+    document.querySelectorAll('input[data-col-toggle]').forEach(function(cb) {
+        cols.push({ col: cb.dataset.colToggle, visible: DEFAULT_HIDDEN.indexOf(cb.dataset.colToggle) === -1 });
+    });
+    return cols;
+}
+
+function toggleColumn(col, visible) {
+    var state = loadColumnState() || buildDefaultState();
+    var entry = state.find(function(e) { return e.col === col; });
+    if (entry) entry.visible = visible;
+    else state.push({ col: col, visible: visible });
+    saveColumnState(state);
+    applyColumnState(state);
+}
+
+function resetColumns() {
+    var state = buildDefaultState();
+    saveColumnState(state);
+    applyColumnState(state);
+}
+
+function toggleColDropdown() {
+    var dd = document.getElementById('colDropdown');
+    if (!dd) return;
+    dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+
+document.addEventListener('click', function(e) {
+    var wrap = document.getElementById('colToggleWrap');
+    if (wrap && !wrap.contains(e.target)) {
+        var dd = document.getElementById('colDropdown');
+        if (dd) dd.style.display = 'none';
+    }
+});
+
+// Init column state on load
+(function() {
+    var saved = loadColumnState();
+    var state = saved || buildDefaultState();
+    if (!saved) saveColumnState(state);
+    applyColumnState(state);
+})();
 </script>
