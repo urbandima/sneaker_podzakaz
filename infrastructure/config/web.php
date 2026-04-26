@@ -569,6 +569,21 @@ $config = [
                 'admin/procurement/create-return/<purchaseOrderId:\d+>' => 'admin/procurement/create-return',
                 'admin/procurement/view-return/<id:\d+>'           => 'admin/procurement/view-return',
                 'admin/procurement/update-return-status'           => 'admin/procurement/update-return-status',
+
+                // ── Buyouts ────────────────────────────────────────────────
+                'admin/procurement/buyouts'                        => 'admin/buyout/index',
+                'admin/procurement/buyout/create'                  => 'admin/buyout/create',
+                'admin/procurement/buyout/parse-url'               => 'admin/buyout/parse-url',
+                'admin/procurement/buyout/link-order'              => 'admin/buyout/link-order',
+                'admin/procurement/buyout/unlink-order'            => 'admin/buyout/unlink-order',
+                'admin/procurement/buyout/bulk-status'             => 'admin/buyout/bulk-status',
+                'admin/procurement/buyout/update-status'           => 'admin/buyout/update-status',
+                'admin/procurement/buyout/<id:\d+>/accept'         => 'admin/buyout/accept',
+                'admin/procurement/buyout/<id:\d+>/cancel'         => 'admin/buyout/cancel',
+                'admin/procurement/buyout/<id:\d+>/history'        => 'admin/buyout/history',
+                'admin/procurement/buyout/<id:\d+>/edit'           => 'admin/buyout/update',
+                'admin/procurement/buyout/<id:\d+>/delete'         => 'admin/buyout/delete',
+                'admin/procurement/buyout/<id:\d+>'                => 'admin/buyout/view',
                 // Automation triggers
                 'admin/settings/triggers' => 'admin/automation/index',
                 'admin/settings/triggers/create' => 'admin/automation/create',
