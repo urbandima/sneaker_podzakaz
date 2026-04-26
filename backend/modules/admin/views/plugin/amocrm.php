@@ -23,7 +23,7 @@ $recentOrders = \app\backend\modules\checkout\models\Order::find()
 ?>
 
 <!-- 1. API-ключ -->
-<div class="admin-card" style="max-width:640px;margin-bottom:20px">
+<div class="admin-card" style="margin-bottom:20px">
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-key"></i> API-ключ для виджета</h2>
     </div>
@@ -36,7 +36,8 @@ $recentOrders = \app\backend\modules\checkout\models\Order::find()
                 <label class="admin-form-label">API Key</label>
                 <input type="text" class="admin-form-input" id="amo-api-key"
                        value="<?= Html::encode($apiKey) ?>"
-                       placeholder="Нажмите «Сгенерировать» или вставьте свой ключ" readonly>
+                       placeholder="Введите API-ключ"
+                       style="text-overflow:ellipsis" readonly>
             </div>
             <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="generateApiKey()" title="Сгенерировать новый ключ">
                 <i class="bi bi-arrow-repeat"></i> Сгенерировать
@@ -53,7 +54,7 @@ $recentOrders = \app\backend\modules\checkout\models\Order::find()
 </div>
 
 <!-- 2. Настройки OAuth (существующие) -->
-<div class="admin-card" style="max-width:640px;margin-bottom:20px">
+<div class="admin-card" style="margin-bottom:20px">
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-shield-lock"></i> Настройки OAuth (для двусторонней синхронизации)</h2>
     </div>
@@ -89,7 +90,7 @@ $recentOrders = \app\backend\modules\checkout\models\Order::find()
 </div>
 
 <!-- 3. Код для встраивания виджета -->
-<div class="admin-card" style="max-width:640px;margin-bottom:20px">
+<div class="admin-card" style="margin-bottom:20px">
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-code-slash"></i> Код виджета для AmoCRM</h2>
     </div>
@@ -114,7 +115,7 @@ window.SNEAKERHEAD_API_KEY = '<?= Html::encode($apiKey) ?>';
 </div>
 
 <!-- 4. Webhook URL -->
-<div class="admin-card" style="max-width:640px;margin-bottom:20px">
+<div class="admin-card" style="margin-bottom:20px">
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-link-45deg"></i> Webhook URL</h2>
     </div>
