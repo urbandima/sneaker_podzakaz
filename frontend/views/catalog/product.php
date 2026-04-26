@@ -54,15 +54,21 @@ $galleryPlaceholderSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" he
 $galleryPlaceholderDataUri = 'data:image/svg+xml;base64,' . base64_encode($galleryPlaceholderSvg);
 
 $galleryImages = [];
+$seenGalleryUrls = [];
 if (!empty($product->images)) {
     foreach ($product->images as $idx => $img) {
         $url = $img->getUrl();
         if (!$url) {
             continue;
         }
+        $webpUrl = ImageHelper::getWebpUrl($url);
+        if (isset($seenGalleryUrls[$webpUrl])) {
+            continue; // дедупликация по URL
+        }
+        $seenGalleryUrls[$webpUrl] = true;
         $galleryImages[] = [
-            'url' => ImageHelper::getWebpUrl($url),
-            'alt' => $product->name . ' — фото ' . ($idx + 1),
+            'url' => $webpUrl,
+            'alt' => $product->name . ' — фото ' . (count($galleryImages) + 1),
             'placeholder' => false,
         ];
     }
@@ -416,16 +422,6 @@ $this->registerJsVar('productVideo', $productVideo);
                     </div>
                 </div>
             </div>
-
-            <!-- Описание товара -->
-            <?php if (!empty($product->description)): ?>
-                <div class="product-description-section">
-                    <h3>Описание</h3>
-                    <div class="description-content">
-                        <?= $product->description ?>
-                    </div>
-                </div>
-            <?php endif; ?>
 
             <!-- Кнопки покупки -->
             <div class="purchase-actions">
