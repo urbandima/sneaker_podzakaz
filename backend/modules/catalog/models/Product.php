@@ -1044,4 +1044,37 @@ class Product extends ActiveRecord
         }
         parent::__set($name, $value);
     }
+
+    /**
+     * Похожие товары по названию модели или бренду+категории
+     */
+    public function getRelatedByModel(): \yii\db\ActiveQuery
+    {
+        $query = static::find()
+            ->andWhere(['!=', 'id', $this->id])
+            ->andWhere(['is_active' => true])
+            ->andWhere(['>', 'price', 0])
+            ->limit(8);
+
+        // Prefer model_name match, fall back to brand+category
+        $modelBase = $this->model_name;
+        if (!$modelBase && $this->name) {
+            preg_match('/^(\S+(?:\s+\S+){0,2})/', trim($this->name), $m);
+            $modelBase = $m[1] ?? null;
+        }
+
+        if ($modelBase) {
+            $query->andWhere(['OR',
+                ['LIKE', 'name', $modelBase],
+                ['LIKE', 'model_name', $modelBase],
+            ]);
+        } else {
+            $query->andWhere(['brand_id' => $this->brand_id]);
+            if ($this->category_id) {
+                $query->andWhere(['category_id' => $this->category_id]);
+            }
+        }
+
+        return $query;
+    }
 }

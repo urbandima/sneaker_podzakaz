@@ -77,15 +77,30 @@ try {
         ->all();
 } catch (\Exception $e) { $productOrders = []; }
 
-// Similar products
+// Similar products — by model_name match or brand+category
 try {
-    $similarProducts = \app\backend\modules\catalog\models\Product::find()
-        ->where(['brand_id' => $product->brand_id, 'is_active' => true])
+    $modelBase = $product->model_name ?: null;
+    if (!$modelBase && $product->name) {
+        preg_match('/^(\S+(?:\s+\S+){0,2})/', trim($product->name), $_m);
+        $modelBase = $_m[1] ?? null;
+    }
+    $spQuery = \app\backend\modules\catalog\models\Product::find()
         ->andWhere(['!=', 'id', $product->id])
+        ->andWhere(['is_active' => true])
         ->andWhere(['>', 'price', 0])
-        ->limit(8)
-        ->all();
+        ->limit(8);
+    if ($modelBase) {
+        $spQuery->andWhere(['OR',
+            ['LIKE', 'name', $modelBase],
+            ['LIKE', 'model_name', $modelBase],
+        ]);
+    } else {
+        $spQuery->andWhere(['brand_id' => $product->brand_id, 'category_id' => $product->category_id]);
+    }
+    $similarProducts = $spQuery->all();
 } catch (\Exception $e) { $similarProducts = []; }
+
+$recentOrders = array_slice($productOrders, 0, 5);
 
 // Margin calc
 $marginPct = 0;
@@ -144,6 +159,37 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
 .inline-edit-input{border:1px solid #3b82f6;border-radius:4px;padding:2px 6px;font-size:inherit;font-family:inherit;width:100%;max-width:140px;outline:none;background:var(--admin-surface,#fff)}
 @media(max-width:1023px){.crm-body{grid-template-columns:1fr}}
 @media(max-width:600px){.crm-info-grid{grid-template-columns:1fr}}
+/* Compact sidebar image grid */
+.prod-img-compact{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:12px 14px}
+.prod-img-thumb{position:relative;aspect-ratio:1;border-radius:6px;overflow:hidden;cursor:pointer;border:1.5px solid transparent;transition:border-color .15s}
+.prod-img-thumb:hover{border-color:var(--admin-primary,#3b82f6)}
+.prod-img-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.prod-img-thumb .t-badge{position:absolute;top:3px;left:3px;font-size:.5rem;padding:1px 4px;line-height:1.5;border-radius:4px;font-weight:700}
+.prod-img-thumb .t-actions{position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;gap:4px;opacity:0;transition:opacity .15s}
+.prod-img-thumb:hover .t-actions{opacity:1}
+.prod-img-add{aspect-ratio:1;border-radius:6px;border:1.5px dashed var(--admin-border,#d1d5db);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--admin-text-secondary,#9ca3af);font-size:1.5rem;transition:all .15s}
+.prod-img-add:hover{border-color:var(--admin-primary,#3b82f6);color:var(--admin-primary,#3b82f6);background:#eff6ff}
+/* Lightbox */
+.pv-lb{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:none;align-items:center;justify-content:center}
+.pv-lb.open{display:flex}
+.pv-lb img{max-width:90vw;max-height:90vh;border-radius:10px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.pv-lb-close{position:absolute;top:16px;right:20px;color:#fff;font-size:2.5rem;cursor:pointer;line-height:1;opacity:.75;background:none;border:none;padding:0}
+.pv-lb-close:hover{opacity:1}
+/* Similar products in main */
+.similar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 16px}
+@media(max-width:1200px){.similar-grid{grid-template-columns:repeat(3,1fr)}}
+.similar-card{border:1px solid var(--admin-border,#e5e7eb);border-radius:8px;overflow:hidden;transition:box-shadow .15s,border-color .15s}
+.similar-card:hover{box-shadow:0 3px 12px rgba(0,0,0,.1);border-color:var(--admin-primary,#3b82f6)}
+.similar-card img,.similar-card .similar-nophoto{width:100%;height:80px;object-fit:cover;display:block}
+.similar-nophoto{background:#f3f4f6;display:flex;align-items:center;justify-content:center;color:#9ca3af}
+/* Recent orders timeline */
+.order-hist-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--admin-border,#f3f4f6);font-size:.75rem;line-height:1.4}
+.order-hist-item:last-child{border-bottom:none}
+.order-hist-dot{width:7px;height:7px;border-radius:50%;background:var(--admin-primary,#2563eb);flex-shrink:0;margin-top:4px}
+/* MS images area in sidebar */
+#ms-images-container{padding:0 14px 12px}
+#ms-images-container .ms-imgs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}
+#ms-images-container .ms-imgs-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:5px;cursor:pointer}
 </style>
 
 <div class="crm-wrap">
@@ -200,65 +246,6 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
 
 <!-- ── MAIN COLUMN ── -->
 <div class="crm-main">
-
-    <!-- Изображения -->
-    <div class="crm-card">
-        <div class="crm-card-head">
-            <h3><i class="bi bi-images"></i> Изображения</h3>
-            <div style="display:flex;gap:6px;align-items:center">
-                <?php if ($hasCollectionUrl): ?>
-                <button class="admin-btn admin-btn-secondary admin-btn-sm" id="ms-load-btn"
-                        onclick="loadMsImages(<?= $product->id ?>)" title="Загрузить фото из МойСклад">
-                    <i class="bi bi-cloud-download"></i>
-                    <span class="admin-badge" style="background:#dbeafe;color:#1e40af;font-size:.6rem;padding:1px 5px;margin-left:2px">МС</span>
-                </button>
-                <?php endif; ?>
-                <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm"
-                        data-bs-toggle="modal" data-bs-target="#addImageModal">
-                    <i class="bi bi-plus"></i> Добавить
-                </button>
-            </div>
-        </div>
-        <?php if ($product->images && count($product->images) > 0): ?>
-        <div class="prod-img-grid">
-            <?php foreach ($product->images as $image): ?>
-            <div class="prod-img-wrap">
-                <img src="<?= $image->getImageUrl() ?>" alt="">
-                <?php if ($image->is_main): ?>
-                <span class="prod-img-badge admin-badge admin-badge-success" style="font-size:.6rem">Главное</span>
-                <?php endif; ?>
-                <div class="prod-img-actions">
-                    <?php if (!$image->is_main): ?>
-                    <a href="<?= Url::to(['/admin/product/set-main-image', 'id' => $image->id]) ?>"
-                       class="admin-btn admin-btn-warning admin-btn-xs" data-method="post" title="Сделать главным">
-                        <i class="bi bi-star"></i>
-                    </a>
-                    <?php endif; ?>
-                    <a href="<?= Url::to(['/admin/product/delete-image', 'id' => $image->id]) ?>"
-                       class="admin-btn admin-btn-danger admin-btn-xs" data-method="post"
-                       data-confirm="Удалить изображение?">
-                        <i class="bi bi-trash"></i>
-                    </a>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        </div>
-        <?php else: ?>
-        <div class="crm-card-body" style="text-align:center;padding:2.5rem;color:var(--admin-text-secondary)">
-            <i class="bi bi-image" style="font-size:2.5rem"></i>
-            <p style="margin-top:.75rem;font-size:.8125rem">Нет изображений. Добавьте по URL.</p>
-        </div>
-        <?php endif; ?>
-        <?php if ($hasCollectionUrl): ?>
-        <div id="ms-images-container" style="display:none;padding:12px 0 0">
-            <div style="display:flex;align-items:center;gap:6px;padding:0 16px 8px;font-size:.75rem;color:var(--admin-text-secondary,#6b7280)">
-                <span class="admin-badge" style="background:#dbeafe;color:#1e40af;font-size:.6rem"><i class="bi bi-cloud-check"></i> МС</span>
-                Фото из МойСклад
-            </div>
-            <div id="ms-images-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;padding:0 16px 12px"></div>
-        </div>
-        <?php endif; ?>
-    </div>
 
     <?php if ($product->poizon_id): ?>
     <!-- Данные Poizon -->
@@ -503,10 +490,114 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
         <?php endif; ?>
     </div>
 
+    <!-- Похожие товары -->
+    <?php if (!empty($similarProducts)): ?>
+    <div class="crm-card">
+        <div class="crm-card-head">
+            <h3><i class="bi bi-grid-3x3-gap"></i> Похожие товары по модели</h3>
+            <span style="font-size:.75rem;color:var(--admin-text-secondary)"><?= count($similarProducts) ?></span>
+        </div>
+        <div class="similar-grid">
+            <?php foreach ($similarProducts as $sp): ?>
+            <div class="similar-card">
+                <?php $spImg = $sp->getMainImageUrl(); ?>
+                <?php if ($spImg): ?>
+                <img src="<?= Html::encode($spImg) ?>" alt="">
+                <?php else: ?>
+                <div class="similar-nophoto"><i class="bi bi-image" style="font-size:1.5rem"></i></div>
+                <?php endif; ?>
+                <div style="padding:7px 8px">
+                    <div style="font-size:.72rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="<?= Html::encode($sp->name) ?>"><?= Html::encode($sp->name) ?></div>
+                    <div style="font-size:.68rem;color:var(--admin-text-secondary);margin:2px 0"><?= number_format($sp->price, 2) ?> BYN</div>
+                    <div style="display:flex;gap:3px;margin-top:5px">
+                        <a href="<?= Url::to(['/admin/product/view', 'id' => $sp->id]) ?>"
+                           class="admin-btn admin-btn-secondary admin-btn-xs" style="flex:1;justify-content:center;display:inline-flex" title="Просмотр">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="<?= Url::to(['/admin/order/create', 'product_id' => $sp->id]) ?>"
+                           class="admin-btn admin-btn-primary admin-btn-xs" style="flex:1;justify-content:center;display:inline-flex" title="Создать заказ">
+                            <i class="bi bi-bag-plus"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
 </div><!-- /crm-main -->
 
 <!-- ── RIGHT SIDEBAR ── -->
 <div class="crm-sidebar">
+
+    <!-- Изображения (компактные) -->
+    <div class="crm-card">
+        <div class="crm-card-head">
+            <h3><i class="bi bi-images"></i> Изображения</h3>
+            <div style="display:flex;gap:5px">
+                <?php if ($hasCollectionUrl): ?>
+                <button id="ms-load-btn" class="admin-btn admin-btn-secondary admin-btn-sm"
+                        onclick="loadMsImages(<?= $product->id ?>)" title="МойСклад">
+                    <i class="bi bi-cloud-download"></i>
+                    <span class="admin-badge" style="background:#dbeafe;color:#1e40af;font-size:.55rem;padding:1px 4px">МС</span>
+                </button>
+                <?php endif; ?>
+                <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm"
+                        data-bs-toggle="modal" data-bs-target="#addImageModal" title="Добавить">
+                    <i class="bi bi-plus"></i>
+                </button>
+            </div>
+        </div>
+        <?php if ($product->images && count($product->images) > 0): ?>
+        <div class="prod-img-compact">
+            <?php foreach ($product->images as $image): ?>
+            <div class="prod-img-thumb" onclick="openLightbox('<?= Html::encode($image->getImageUrl()) ?>')">
+                <img src="<?= Html::encode($image->getImageUrl()) ?>" loading="lazy" alt="">
+                <?php if ($image->is_main): ?>
+                <span class="t-badge" style="background:#059669;color:#fff">&#9733;</span>
+                <?php endif; ?>
+                <div class="t-actions">
+                    <?php if (!$image->is_main): ?>
+                    <a href="<?= Url::to(['/admin/product/set-main-image', 'id' => $image->id]) ?>"
+                       class="admin-btn admin-btn-warning admin-btn-xs"
+                       data-method="post" title="Главное" onclick="event.stopPropagation()">
+                        <i class="bi bi-star"></i>
+                    </a>
+                    <?php endif; ?>
+                    <a href="<?= Url::to(['/admin/product/delete-image', 'id' => $image->id]) ?>"
+                       class="admin-btn admin-btn-danger admin-btn-xs"
+                       data-method="post" data-confirm="Удалить?" onclick="event.stopPropagation()">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </div>
+            </div>
+            <?php endforeach; ?>
+            <div class="prod-img-add" title="Добавить фото"
+                 data-bs-toggle="modal" data-bs-target="#addImageModal">
+                <i class="bi bi-plus-lg"></i>
+            </div>
+        </div>
+        <?php else: ?>
+        <div class="crm-card-body" style="text-align:center;padding:1.5rem;color:var(--admin-text-secondary)">
+            <i class="bi bi-image" style="font-size:2rem"></i>
+            <p style="margin:.5rem 0 0;font-size:.8rem">Нет изображений</p>
+            <div class="prod-img-add" style="margin:.75rem auto 0;max-width:60px"
+                 data-bs-toggle="modal" data-bs-target="#addImageModal">
+                <i class="bi bi-plus-lg"></i>
+            </div>
+        </div>
+        <?php endif; ?>
+        <?php if ($hasCollectionUrl): ?>
+        <div id="ms-images-container" style="display:none">
+            <div style="padding:0 14px;font-size:.7rem;color:var(--admin-text-secondary,#6b7280);display:flex;align-items:center;gap:4px">
+                <span class="admin-badge" style="background:#dbeafe;color:#1e40af;font-size:.55rem"><i class="bi bi-cloud-check"></i> МС</span>
+                Фото из МойСклад
+            </div>
+            <div id="ms-images-grid" class="ms-imgs-grid"></div>
+        </div>
+        <?php endif; ?>
+    </div>
 
     <!-- Статус -->
     <div class="crm-card">
@@ -568,6 +659,78 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
         </div>
     </div>
 
+    <!-- Статистика -->
+    <div class="crm-card">
+        <div class="crm-card-head"><h3><i class="bi bi-bar-chart"></i> Статистика</h3></div>
+        <div class="crm-card-body">
+            <div class="crm-info-grid">
+                <div style="background:var(--admin-surface-hover,#f9fafb);border-radius:8px;padding:10px;text-align:center">
+                    <div style="font-size:1.25rem;font-weight:800"><?= count($productOrders) ?></div>
+                    <div style="font-size:.65rem;color:var(--admin-text-secondary);text-transform:uppercase;letter-spacing:.04em">Заказов</div>
+                </div>
+                <div style="background:var(--admin-surface-hover,#f9fafb);border-radius:8px;padding:10px;text-align:center">
+                    <div style="font-size:1.25rem;font-weight:800"><?= $product->views_count ?? 0 ?></div>
+                    <div style="font-size:.65rem;color:var(--admin-text-secondary);text-transform:uppercase;letter-spacing:.04em">Просмотров</div>
+                </div>
+                <div style="background:var(--admin-surface-hover,#f9fafb);border-radius:8px;padding:10px;text-align:center">
+                    <div style="font-size:1.25rem;font-weight:800"><?= $product->favorite_count ?? 0 ?></div>
+                    <div style="font-size:.65rem;color:var(--admin-text-secondary);text-transform:uppercase;letter-spacing:.04em">Избранное</div>
+                </div>
+                <div style="background:var(--admin-surface-hover,#f9fafb);border-radius:8px;padding:10px;text-align:center">
+                    <div style="font-size:1.25rem;font-weight:800"><?= count($sizes) ?></div>
+                    <div style="font-size:.65rem;color:var(--admin-text-secondary);text-transform:uppercase;letter-spacing:.04em">Размеров</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- История заказов -->
+    <?php if (!empty($recentOrders)): ?>
+    <div class="crm-card">
+        <div class="crm-card-head">
+            <h3><i class="bi bi-clock-history"></i> История заказов</h3>
+            <a href="<?= Url::to(['/admin/order', 'product_id' => $product->id]) ?>"
+               class="crm-int-btn" style="font-size:.7rem">Все &rarr;</a>
+        </div>
+        <div class="crm-card-body" style="padding:8px 14px">
+            <?php foreach ($recentOrders as $oi): if (!$oi->order) continue; ?>
+            <?php
+                $st = $oi->order->status;
+                $stRu = $orderStatusMap[$st] ?? $st;
+                $stClass = in_array($st, ['delivered','paid','confirmed_and_paid']) ? '#059669'
+                    : (in_array($st, ['cancelled','returned','refunded']) ? '#dc2626' : '#6b7280');
+            ?>
+            <div class="order-hist-item">
+                <div class="order-hist-dot" style="background:<?= $stClass ?>"></div>
+                <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+                        <a href="<?= Url::to(['/admin/order/view', 'id' => $oi->order->id]) ?>"
+                           style="font-weight:700;color:var(--admin-text-primary,#111);text-decoration:none;font-size:.75rem">
+                            #<?= Html::encode($oi->order->order_number ?: $oi->order->id) ?>
+                        </a>
+                        <span style="color:<?= $stClass ?>;font-weight:600;font-size:.75rem"><?= Html::encode($stRu) ?></span>
+                        <?php if ($oi->quantity > 1): ?><span style="color:var(--admin-text-secondary);font-size:.75rem">&times;<?= (int)$oi->quantity ?></span><?php endif; ?>
+                    </div>
+                    <div style="color:var(--admin-text-secondary,#6b7280);margin-top:1px;font-size:.72rem">
+                        <?= Html::encode($oi->order->client_name ?: '—') ?>
+                        &middot; <?= date('d.m.Y', $oi->order->created_at) ?>
+                        &middot; <?= number_format($oi->price, 0) ?> BYN
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php if (count($productOrders) > 5): ?>
+        <div style="padding:6px 14px 12px;text-align:center">
+            <a href="<?= Url::to(['/admin/order', 'product_id' => $product->id]) ?>"
+               class="admin-btn admin-btn-secondary admin-btn-sm" style="font-size:.75rem;width:100%;justify-content:center">
+                Показать все (<?= count($productOrders) ?>)
+            </a>
+        </div>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
     <!-- Основная информация -->
     <div class="crm-card">
         <div class="crm-card-head"><h3><i class="bi bi-info-circle"></i> Основная информация</h3></div>
@@ -623,31 +786,6 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
         </div>
     </div>
 
-    <!-- Статистика -->
-    <div class="crm-card">
-        <div class="crm-card-head"><h3><i class="bi bi-bar-chart"></i> Статистика</h3></div>
-        <div class="crm-card-body">
-            <div class="crm-info-grid">
-                <div style="background:var(--admin-surface-hover,#f9fafb);border-radius:8px;padding:10px;text-align:center">
-                    <div style="font-size:1.25rem;font-weight:800"><?= count($productOrders) ?></div>
-                    <div style="font-size:.65rem;color:var(--admin-text-secondary);text-transform:uppercase;letter-spacing:.04em">Заказов</div>
-                </div>
-                <div style="background:var(--admin-surface-hover,#f9fafb);border-radius:8px;padding:10px;text-align:center">
-                    <div style="font-size:1.25rem;font-weight:800"><?= $product->views_count ?? 0 ?></div>
-                    <div style="font-size:.65rem;color:var(--admin-text-secondary);text-transform:uppercase;letter-spacing:.04em">Просмотров</div>
-                </div>
-                <div style="background:var(--admin-surface-hover,#f9fafb);border-radius:8px;padding:10px;text-align:center">
-                    <div style="font-size:1.25rem;font-weight:800"><?= $product->favorite_count ?? 0 ?></div>
-                    <div style="font-size:.65rem;color:var(--admin-text-secondary);text-transform:uppercase;letter-spacing:.04em">Избранное</div>
-                </div>
-                <div style="background:var(--admin-surface-hover,#f9fafb);border-radius:8px;padding:10px;text-align:center">
-                    <div style="font-size:1.25rem;font-weight:800"><?= count($sizes) ?></div>
-                    <div style="font-size:.65rem;color:var(--admin-text-secondary);text-transform:uppercase;letter-spacing:.04em">Размеров</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- МойСклад -->
     <?php if ($product->moysklad_id || $product->ms_code || $product->ms_external_code): ?>
     <div class="crm-card">
@@ -681,84 +819,6 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
 
 </div><!-- /crm-sidebar -->
 </div><!-- /crm-body -->
-
-<!-- ═══ FULL-WIDTH SECTIONS ═══ -->
-<?php if (!empty($productOrders)): ?>
-<div style="padding:0 16px 16px">
-    <div class="crm-card">
-        <div class="crm-card-head">
-            <h3><i class="bi bi-bag-check"></i> Заказы с этим товаром</h3>
-            <span style="font-size:.75rem;color:var(--admin-text-secondary)"><?= count($productOrders) ?> заказов</span>
-        </div>
-        <div style="overflow-x:auto">
-            <table class="crm-tbl">
-                <thead>
-                    <tr><th>№ Заказа</th><th>Размер</th><th>Кол-во</th><th>Цена</th><th>Статус</th><th>Дата</th></tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($productOrders as $oi): if (!$oi->order) continue; ?>
-                    <tr>
-                        <td><a href="<?= Url::to(['/admin/order/view', 'id' => $oi->order->id]) ?>" style="font-weight:600">#<?= Html::encode($oi->order->order_number ?: $oi->order->id) ?></a></td>
-                        <td><?= Html::encode($oi->size ?: '—') ?></td>
-                        <td><?= (int)$oi->quantity ?></td>
-                        <td><?= number_format($oi->price, 2) ?> BYN</td>
-                        <td>
-                            <?php
-                            $st = $oi->order->status;
-                            $stRu = $orderStatusMap[$st] ?? $st;
-                            $stClass = in_array($st, ['delivered','paid','confirmed_and_paid']) ? 'success'
-                                : (in_array($st, ['cancelled','returned','refunded']) ? 'danger' : 'secondary');
-                            ?>
-                            <span class="admin-badge admin-badge-<?= $stClass ?>"><?= Html::encode($stRu) ?></span>
-                        </td>
-                        <td style="font-size:.8rem;color:var(--admin-text-secondary)"><?= date('d.m.Y', $oi->order->created_at) ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-<?php endif; ?>
-
-<?php if (!empty($similarProducts)): ?>
-<div style="padding:0 16px 20px">
-    <div class="crm-card">
-        <div class="crm-card-head">
-            <h3><i class="bi bi-grid-3x3-gap"></i> Похожие товары</h3>
-            <span style="font-size:.75rem;color:var(--admin-text-secondary)"><?= count($similarProducts) ?></span>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;padding:14px 16px">
-            <?php foreach ($similarProducts as $sp): ?>
-            <div style="border:1px solid var(--admin-border,#e5e7eb);border-radius:10px;overflow:hidden">
-                <?php $spImg = $sp->getMainImageUrl(); ?>
-                <?php if ($spImg): ?>
-                <img src="<?= Html::encode($spImg) ?>" style="width:100%;height:90px;object-fit:cover" alt="">
-                <?php else: ?>
-                <div style="width:100%;height:90px;background:#f3f4f6;display:flex;align-items:center;justify-content:center">
-                    <i class="bi bi-image" style="font-size:1.75rem;color:#9ca3af"></i>
-                </div>
-                <?php endif; ?>
-                <div style="padding:8px">
-                    <div style="font-size:.75rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="<?= Html::encode($sp->name) ?>"><?= Html::encode($sp->name) ?></div>
-                    <div style="font-size:.7rem;color:var(--admin-text-secondary);margin:2px 0"><?= number_format($sp->price, 2) ?> BYN</div>
-                    <div style="display:flex;gap:4px;margin-top:6px">
-                        <a href="<?= Url::to(['/admin/product/view', 'id' => $sp->id]) ?>"
-                           class="admin-btn admin-btn-secondary admin-btn-sm" style="flex:1;justify-content:center;display:inline-flex;font-size:.65rem" title="Просмотр">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                        <a href="<?= Url::to(['/admin/order/create', 'product_id' => $sp->id]) ?>"
-                           class="admin-btn admin-btn-primary admin-btn-sm" style="flex:1;justify-content:center;display:inline-flex;font-size:.65rem" title="Создать заказ">
-                            <i class="bi bi-bag-plus"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</div>
-<?php endif; ?>
 
 </div><!-- /crm-wrap -->
 
@@ -1092,24 +1152,29 @@ window.loadMsImages = function(productId) {
         .then(function(r){ return r.json(); })
         .then(function(images) {
             if (!images || images.length === 0) {
-                btn.innerHTML = '<i class="bi bi-image"></i> <span class="admin-badge" style="background:#dbeafe;color:#1e40af;font-size:.6rem">МС</span>';
-                btn.disabled = false;
-                return;
+                btn.innerHTML = '<i class="bi bi-cloud-download"></i> <span class="admin-badge" style="background:#dbeafe;color:#1e40af;font-size:.55rem;padding:1px 4px">МС</span>';
+                btn.disabled = false; return;
             }
-            btn.innerHTML = '<i class="bi bi-cloud-check"></i> <span class="admin-badge" style="background:#dbeafe;color:#1e40af;font-size:.6rem">МС ' + images.length + '</span>';
+            btn.innerHTML = '<i class="bi bi-cloud-check"></i> <span class="admin-badge" style="background:#dbeafe;color:#1e40af;font-size:.55rem;padding:1px 4px">МС ' + images.length + '</span>';
             container.style.display = 'block';
             grid.innerHTML = '';
             images.forEach(function(img) {
                 var el = document.createElement('img');
                 el.src = img.miniature; el.alt = img.filename || '';
-                el.style.cssText = 'width:100%;border-radius:6px;cursor:pointer';
-                el.onclick = function() { window.open(img.miniature, '_blank'); };
+                el.onclick = function() { openLightbox(img.miniature); };
                 grid.appendChild(el);
             });
-        }).catch(function(){
-            btn.innerHTML = '<i class="bi bi-exclamation-circle"></i>';
-            btn.disabled = false;
-        });
+        }).catch(function(){ btn.innerHTML = '<i class="bi bi-exclamation-circle"></i>'; btn.disabled = false; });
 };
+
+// Lightbox
+var _lb = document.createElement('div');
+_lb.className = 'pv-lb';
+_lb.innerHTML = '<button class="pv-lb-close" onclick="closeLightbox()">&times;</button><img id="pv-lb-img" src="" alt="">';
+document.body.appendChild(_lb);
+_lb.addEventListener('click', function(e){ if(e.target===_lb) closeLightbox(); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLightbox(); });
+window.openLightbox = function(src){ document.getElementById('pv-lb-img').src=src; _lb.classList.add('open'); };
+window.closeLightbox = function(){ _lb.classList.remove('open'); document.getElementById('pv-lb-img').src=''; };
 })();
 </script>
