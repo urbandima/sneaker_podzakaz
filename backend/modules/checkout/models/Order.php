@@ -276,6 +276,26 @@ class Order extends ActiveRecord
         return $statuses[$this->status] ?? $this->status;
     }
 
+    public function getStatusColor(): string
+    {
+        $map = [
+            'new'                  => '#6b7280',
+            'paid'                 => '#2563eb',
+            'confirmed_and_paid'   => '#2563eb',
+            'ordered'              => '#d97706',
+            'awaiting_warehouse'   => '#7c3aed',
+            'international_delivery' => '#0891b2',
+            'at_warehouse'         => '#0891b2',
+            'local_delivery'       => '#059669',
+            'delivered'            => '#059669',
+            'canceled'             => '#dc2626',
+            'cancelled'            => '#dc2626',
+            'refunded'             => '#6b7280',
+            'imported'             => '#6b7280',
+        ];
+        return $map[$this->status] ?? '#6b7280';
+    }
+
     public function canChangeStatus($newStatus)
     {
         $user = Yii::$app->user->identity;

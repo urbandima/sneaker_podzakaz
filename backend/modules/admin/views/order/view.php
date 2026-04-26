@@ -1640,21 +1640,24 @@ $customer = $model->customer ?? null;
             <button type="button" onclick="document.getElementById('crm-history-popup').classList.remove('open')"
                     style="background:none;border:none;cursor:pointer;padding:4px 8px;font-size:1.25rem;color:var(--admin-text-secondary,#6b7280);line-height:1">&times;</button>
         </div>
-        <div style="padding:12px 16px;border-bottom:1px solid var(--admin-border,#e5e7eb);background:var(--admin-surface-hover,#f9fafb)">
-            <form method="post" action="<?= Url::to(['/admin/order/change-status', 'id' => $model->id]) ?>">
-                <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
-                <select name="status" class="admin-form-input" style="font-size:0.8125rem;padding:6px 10px;margin-bottom:6px;width:100%">
-                    <?php foreach ($statuses as $key => $label): ?>
-                    <option value="<?= $key ?>" <?= $model->status == $key ? 'selected' : '' ?>><?= $label ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <textarea name="comment" class="crm-note-textarea" rows="2" placeholder="Комментарий к смене статуса..." style="min-height:40px;margin-bottom:6px"></textarea>
-                <button type="submit" class="admin-btn admin-btn-primary admin-btn-sm" style="width:100%;justify-content:center">
-                    <i class="bi bi-check2-circle"></i> Сменить статус
-                </button>
-            </form>
+        <div style="padding:10px 16px;border-bottom:1px solid var(--admin-border,#e5e7eb);background:var(--admin-surface-hover,#f9fafb);display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <div style="font-size:0.75rem;color:var(--admin-text-secondary,#6b7280);font-weight:600;text-transform:uppercase;letter-spacing:.04em">Текущий статус</div>
+            <span style="background:<?= Html::encode($model->getStatusColor()) ?>;color:#fff;border-radius:20px;padding:3px 10px;font-size:0.75rem;font-weight:700">
+                <?= Html::encode($statuses[$model->status] ?? $model->status) ?>
+            </span>
+            <div style="font-size:0.7rem;color:var(--admin-text-secondary,#9ca3af)">Смена — в шапке страницы</div>
         </div>
-        <div class="crm-timeline">
+        <div style="padding:10px 16px;border-bottom:1px solid var(--admin-border,#f3f4f6)">
+            <button type="button" id="historyToggle" onclick="toggleHistoryTimeline()"
+                style="background:none;border:none;cursor:pointer;font-size:0.8125rem;color:var(--admin-primary,#2563eb);font-weight:600;padding:0;display:flex;align-items:center;gap:4px">
+                <i class="bi bi-chevron-right" id="historyToggleIcon"></i>
+                <span id="historyToggleLabel">Развернуть историю</span>
+                <?php if (!empty($model->history)): ?>
+                    <span style="font-size:0.7rem;background:#dbeafe;color:#1e40af;border-radius:10px;padding:0 6px;margin-left:2px"><?= count($model->history) ?></span>
+                <?php endif; ?>
+            </button>
+        </div>
+        <div class="crm-timeline" id="historyTimeline" style="display:none">
             <?php if (!empty($model->history)): ?>
                 <?php foreach ($model->history as $h): ?>
                 <div class="crm-tl-item">
@@ -1672,7 +1675,7 @@ $customer = $model->customer ?? null;
                 </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <p style="color:var(--admin-text-secondary,#9ca3af);font-size:0.8rem;margin:0">История пуста.</p>
+                <p style="color:var(--admin-text-secondary,#9ca3af);font-size:0.8rem;margin:0;padding:12px 16px">История пуста.</p>
             <?php endif; ?>
         </div>
     </div>
@@ -2165,6 +2168,18 @@ window.uploadOrderFiles = function(input, orderId) {
     .catch(function() {
         if (result) { result.textContent = '✗ Ошибка загрузки'; result.style.color = '#dc2626'; }
     });
+};
+
+// ── History timeline toggle ──────────────────────────────
+window.toggleHistoryTimeline = function() {
+    var tl   = document.getElementById('historyTimeline');
+    var icon = document.getElementById('historyToggleIcon');
+    var lbl  = document.getElementById('historyToggleLabel');
+    if (!tl) return;
+    var open = tl.style.display !== 'none';
+    tl.style.display = open ? 'none' : 'block';
+    if (icon) icon.className = open ? 'bi bi-chevron-right' : 'bi bi-chevron-down';
+    if (lbl)  lbl.textContent = open ? 'Развернуть историю' : 'Свернуть историю';
 };
 
 // ── Sidebar collapse (medium screens) ────────────────────
