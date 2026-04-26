@@ -216,16 +216,35 @@ class AmocrmClient extends Component
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
         }
         $responseBody = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $ms = (int)((microtime(true) - $t0) * 1000);
+        $curlErrno = curl_errno($ch);
+        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $ms        = (int)((microtime(true) - $t0) * 1000);
         curl_close($ch);
 
+        if ($curlErrno) {
+            Yii::warning('[AmoCRM] curl error ' . $curlErrno . ' for ' . $method . ' ' . $path, 'amocrm');
+            $this->logRequest($method . ' ' . $path, 'fail', $body ? json_encode($body) : null, 'curl_errno=' . $curlErrno, $ms);
+            return null;
+        }
+
         $this->logRequest($method . ' ' . $path, $httpCode < 400 ? 'ok' : 'fail', $body ? json_encode($body) : null, $responseBody, $ms);
+
+        // Rate limit: back off and retry once
+        if ($httpCode === 429 && $retry) {
+            Yii::warning('[AmoCRM] Rate limited on ' . $method . ' ' . $path . ', retrying in 1s', 'amocrm');
+            sleep(1);
+            return $this->request($method, $path, $query, $body, false);
+        }
 
         if ($httpCode === 401 && $retry && !$this->usingLongToken) {
             if ($this->refreshAccessToken()) {
                 return $this->request($method, $path, $query, $body, false);
             }
+            return null;
+        }
+
+        if ($httpCode >= 500) {
+            Yii::warning('[AmoCRM] Server error ' . $httpCode . ' for ' . $method . ' ' . $path, 'amocrm');
             return null;
         }
 

@@ -208,6 +208,7 @@ class PluginController extends BaseAdminController
     public function actionAmocrmSave(): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
+        $this->requirePermission('manageSettings');
         $s      = Yii::$app->settings;
         $fields = [
             'domain', 'client_id', 'client_secret',

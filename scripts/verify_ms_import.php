@@ -19,10 +19,10 @@ define('MS_LOGIN_VALUE', $dotenv['MS_LOGIN'] ?? getenv('MS_LOGIN') ?: die("MS_LO
 define('MS_PASSWORD', $dotenv['MS_PASSWORD'] ?? getenv('MS_PASSWORD') ?: die("MS_PASSWORD not set in .env\n"));
 const MS_BASE     = 'https://api.moysklad.ru/api/remap/1.2';
 
-const DB_HOST = '127.0.0.1';
-const DB_NAME = 'sneakerhead';
-const DB_USER = 'sneaker';
-const DB_PASS = 'secret'; // TODO: also move to .env
+define('DB_HOST', $dotenv['DB_HOST'] ?? getenv('DB_HOST') ?: '127.0.0.1');
+define('DB_NAME', $dotenv['DB_NAME'] ?? getenv('DB_NAME') ?: 'sneakerhead');
+define('DB_USER', $dotenv['DB_USER'] ?? getenv('DB_USER') ?: 'sneaker');
+define('DB_PASS', $dotenv['DB_PASSWORD'] ?? $dotenv['DB_PASS'] ?? getenv('DB_PASSWORD') ?: die("DB_PASSWORD not set in .env\n"));
 
 ini_set('memory_limit', '256M');
 

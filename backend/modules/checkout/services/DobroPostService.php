@@ -292,6 +292,22 @@ class DobroPostService extends Component
         return true;
     }
 
+    /**
+     * Health-check: authenticate and fetch a single shipment list page.
+     * Returns ['ok' => true, 'latency_ms' => int] on success.
+     */
+    public function ping(): array
+    {
+        $t0 = microtime(true);
+        try {
+            $this->authenticate();
+            $this->authorizedRequest('GET', '/api/shipment?limit=1&offset=0');
+            return ['ok' => true, 'latency_ms' => (int)((microtime(true) - $t0) * 1000)];
+        } catch (\Throwable $e) {
+            return ['ok' => false, 'error' => $e->getMessage(), 'latency_ms' => (int)((microtime(true) - $t0) * 1000)];
+        }
+    }
+
     // -------------------------------------------------------------------------
     // HTTP layer
     // -------------------------------------------------------------------------
