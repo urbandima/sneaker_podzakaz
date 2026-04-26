@@ -495,8 +495,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
                             } else {
                                 $sp = $statusPills[$order->status] ?? ['bg' => '#f3f4f6', 'color' => '#6b7280'];
                             }
-                            // Z10: always use translated label, never raw status key
-                            $statusLabel = $statuses[$order->status] ?? $order->status;
+                            $statusLabel = \app\backend\modules\checkout\models\Order::statusLabel($order->status);
                         ?>
                         <tr>
                             <td style="padding:6px"><input type="checkbox" class="order-checkbox" value="<?= $order->id ?>"></td>

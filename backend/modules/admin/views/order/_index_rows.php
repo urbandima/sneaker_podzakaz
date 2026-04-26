@@ -36,7 +36,7 @@ foreach ($orders as $order):
     $daysSince = (int)floor((time() - $order->created_at) / 86400);
     $firstItem = $order->orderItems[0] ?? null;
     $sp          = $statusPills[$order->status] ?? ['bg' => '#f3f4f6', 'color' => '#6b7280'];
-    $statusLabel = $statuses[$order->status] ?? $order->status;
+    $statusLabel = \app\backend\modules\checkout\models\Order::statusLabel($order->status);
 ?>
 <tr>
     <td style="padding:6px"><input type="checkbox" class="order-checkbox" value="<?= $order->id ?>"></td>

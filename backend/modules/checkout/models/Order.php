@@ -270,10 +270,57 @@ class Order extends ActiveRecord
         return $base . '/order/' . $this->token;
     }
 
-    public function getStatusLabel()
+    public function getStatusLabel(): string
     {
-        $statuses = Yii::$app->settings->getStatuses();
-        return $statuses[$this->status] ?? $this->status;
+        return static::statusLabel($this->status);
+    }
+
+    /**
+     * Returns a human-readable Russian label for any order status code.
+     * Checks the DB-configured labels first, then falls back to a built-in map.
+     */
+    public static function statusLabel(string $status): string
+    {
+        try {
+            $statuses = Yii::$app->settings->getStatuses();
+            if (isset($statuses[$status])) {
+                return $statuses[$status];
+            }
+        } catch (\Throwable $e) {
+            // settings component unavailable — use built-in map below
+        }
+
+        static $fallbackMap = [
+            'new'                    => 'Новый',
+            'created'                => 'Составлен',
+            'paid'                   => 'Оплачен',
+            'confirmed'              => 'Подтверждён',
+            'confirmed_and_paid'     => 'Подтверждён и оплачен',
+            'ordered'                => 'Заказано',
+            'processing'             => 'В обработке',
+            'awaiting_warehouse'     => 'Ожидается на складе',
+            'international_delivery' => 'В международной доставке',
+            'at_warehouse'           => 'На складе',
+            'local_delivery'         => 'Отправлен покупателю',
+            'shipped'                => 'Отправлен',
+            'delivered'              => 'Выдан',
+            'completed'              => 'Завершён',
+            'canceled'               => 'Отменён',
+            'cancelled'              => 'Отменён',
+            'refunded'               => 'Возврат средств',
+            'return'                 => 'Возврат',
+            'returned'               => 'Возврат',
+            'imported'               => 'Импортирован',
+            'imported_invalid'       => 'Ошибка импорта',
+            'awaiting_buyout'        => 'Ожидает выкупа',
+            'bought_at_source'       => 'Куплено у поставщика',
+            'in_transit_from_source' => 'В пути от поставщика',
+            'arrived_at_warehouse'   => 'Прибыл на склад',
+            'ready_to_ship'          => 'Готов к отправке',
+            'trash'                  => 'Удалён',
+        ];
+
+        return $fallbackMap[$status] ?? $status;
     }
 
     public function getStatusColor(): string
