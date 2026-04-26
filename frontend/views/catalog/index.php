@@ -86,7 +86,7 @@ setTimeout(function() {
             if (data.success && data.html) {
                 container.insertAdjacentHTML('beforeend', data.html);
                 currentPage = data.page;
-                loadedCount += (data.html.match(/class="product-card"/g) || []).length;
+                loadedCount += (data.html.match(/class=\"product-card\"/g) || []).length;
 
                 if (loadedSpan) loadedSpan.textContent = loadedCount;
                 if (loader) loader.style.display = 'none';
