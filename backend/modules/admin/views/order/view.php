@@ -131,7 +131,17 @@ $customer = $model->customer ?? null;
     border-bottom: 1px solid var(--admin-border, #e5e7eb);
 }
 .crm-items-table td { padding: 8px 10px; border-bottom: 1px solid var(--admin-border, #f3f4f6); vertical-align: middle; }
-.crm-items-table tr:last-child td { border-bottom: none; }
+.crm-items-table tr.item-main-row:last-of-type td { border-bottom: none; }
+.crm-items-table tr.item-detail-row td { border-bottom: 1px solid var(--admin-border,#e5e7eb); padding:0; }
+.item-expand-btn { background:none;border:none;cursor:pointer;padding:3px 5px;border-radius:5px;color:var(--admin-text-secondary,#9ca3af);font-size:1rem;line-height:1;transition:color .15s,background .15s }
+.item-expand-btn:hover { color:var(--admin-text-primary,#111);background:var(--admin-surface-hover,#f3f4f6) }
+.item-expand-panel { padding:10px 12px 12px;background:var(--admin-surface-hover,#f9fafb);border-top:1px dashed var(--admin-border,#e5e7eb) }
+.ief-grid { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px }
+.ief { display:flex;flex-direction:column;gap:2px;min-width:0 }
+.ief label { font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af) }
+.ief .admin-form-input { padding:3px 6px;font-size:.78rem;height:26px }
+.ief-section { font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#4338ca;margin:8px 0 5px;padding-top:6px;border-top:1px dashed var(--admin-border,#e5e7eb);width:100% }
+.ief-actions { display:flex;align-items:center;gap:6px;padding-top:8px;border-top:1px solid var(--admin-border,#e5e7eb);margin-top:4px }
 .crm-items-table .item-img {
     width: 36px; height: 36px; border-radius: 6px; object-fit: cover;
     background: var(--admin-surface-hover, #f3f4f6);
@@ -361,6 +371,17 @@ $customer = $model->customer ?? null;
                 <i class="bi bi-circle-fill" style="font-size:6px"></i>
                 <?= Html::encode($statusLabel) ?>
             </span>
+            <?php
+            $slaStatus = $model->getSlaStatus();
+            if ($slaStatus === 'overdue'): ?>
+            <span style="background:#fee2e2;color:#dc2626;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap">
+                <i class="bi bi-alarm-fill"></i> Просрочено
+            </span>
+            <?php elseif ($slaStatus === 'warn'): ?>
+            <span style="background:#fef3c7;color:#d97706;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap">
+                <i class="bi bi-exclamation-triangle-fill"></i> &le;2ч до дедлайна
+            </span>
+            <?php endif; ?>
             <span class="crm-order-date">
                 <?= Yii::$app->formatter->asDatetime($model->created_at, 'short') ?>
                 <?php if ($model->creator): ?> · <?= Html::encode($model->creator->username) ?><?php endif; ?>
@@ -369,17 +390,14 @@ $customer = $model->customer ?? null;
         <div class="crm-topbar-actions">
             <form method="post" action="<?= Url::to(['/admin/order/change-status', 'id' => $model->id]) ?>" style="display:flex;align-items:center;gap:6px">
                 <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
-                <select name="status" class="crm-status-select" onchange="this.form.submit()" title="Изменить статус">
+                <select name="status" class="crm-status-select" onchange="guardStatusChange(this)" title="Изменить статус"
+                        data-current-status="<?= Html::encode($model->status) ?>"
+                        data-buyout-filled="<?= $model->isBuyoutFilled() ? '1' : '0' ?>">
                     <?php foreach ($statuses as $key => $label): ?>
                         <option value="<?= $key ?>" <?= $model->status == $key ? 'selected' : '' ?>><?= $label ?></option>
                     <?php endforeach; ?>
                 </select>
             </form>
-            <?php if (!$user->isLogist()): ?>
-            <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm" id="toggleEditMode">
-                <i class="bi bi-pencil"></i> Редактировать
-            </button>
-            <?php endif; ?>
             <a href="<?= Url::to(['/admin/order/pdf', 'id' => $model->id]) ?>" target="_blank" class="admin-btn admin-btn-secondary admin-btn-sm" title="Печать бланка">
                 <i class="bi bi-printer"></i> Печать
             </a>
@@ -411,126 +429,216 @@ $customer = $model->customer ?? null;
         <!-- ═══ MAIN COLUMN ═══ -->
         <div class="crm-main">
 
-            <!-- Products -->
+            <!-- Products (unified expandable rows) -->
             <div class="crm-card">
                 <div class="crm-card-head">
                     <h3><i class="bi bi-bag-check"></i> Состав заказа</h3>
                     <span style="font-size:0.75rem;color:var(--admin-text-secondary,#6b7280)"><?= count($model->orderItems) ?> позиций</span>
                 </div>
-                <div id="viewModeItems">
-                    <table class="crm-items-table">
-                        <thead>
-                            <tr>
-                                <th style="width:44px"></th>
-                                <th>Наименование</th>
-                                <th style="width:70px">Кол-во</th>
-                                <th style="width:90px;text-align:right">Цена</th>
-                                <th style="width:100px;text-align:right">Сумма</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($model->orderItems as $idx => $item): ?>
-                            <tr>
-                                <td>
-                                    <?php if (!empty($item->product) && !empty($item->product->getMainImageUrl())): ?>
-                                        <img src="<?= Html::encode($item->product->getMainImageUrl()) ?>" class="item-img" alt="">
-                                    <?php else: ?>
-                                        <div class="item-img" style="display:flex;align-items:center;justify-content:center">
-                                            <i class="bi bi-box" style="color:#9ca3af;font-size:1rem"></i>
-                                        </div>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?php if (!empty($item->product_id)): ?>
-                                        <a href="<?= Url::to(['/admin/product/view', 'id' => $item->product_id]) ?>" class="item-name" style="text-decoration:none;color:inherit"><?= Html::encode($item->product_name) ?></a>
-                                    <?php else: ?>
-                                        <div class="item-name"><?= Html::encode($item->product_name) ?></div>
-                                    <?php endif; ?>
+                <?php
+                $subtotal = 0;
+                foreach ($model->orderItems as $_ti) { $subtotal += (float)($_ti->total ?? $_ti->price * $_ti->quantity); }
+                $discountAmt  = (float)($model->discount ?? 0);
+                $deliveryCost = (float)($model->delivery_cost ?? 0);
+                $commissionRow = (float)($model->commission_amount ?? $model->commission_price ?? 0);
+                ?>
+                <table class="crm-items-table">
+                    <thead>
+                        <tr>
+                            <th style="width:22px"></th>
+                            <th style="width:44px"></th>
+                            <th>Наименование</th>
+                            <th style="width:70px">Кол-во</th>
+                            <th style="width:90px;text-align:right">Цена</th>
+                            <th style="width:100px;text-align:right">Сумма</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($model->orderItems as $idx => $item):
+                            $expandId = 'ied-' . $item->id;
+                        ?>
+                        <tr class="item-main-row">
+                            <td>
+                                <button class="item-expand-btn" id="expbtn-<?= $item->id ?>"
+                                        onclick="toggleItemDetail('<?= $expandId ?>', this)"
+                                        title="Редактировать позицию">
+                                    <i class="bi bi-chevron-down"></i>
+                                </button>
+                            </td>
+                            <td>
+                                <?php if (!empty($item->product) && !empty($item->product->getMainImageUrl())): ?>
+                                    <img src="<?= Html::encode($item->product->getMainImageUrl()) ?>" class="item-img" alt="">
+                                <?php else: ?>
+                                    <div class="item-img" style="display:flex;align-items:center;justify-content:center">
+                                        <i class="bi bi-box" style="color:#9ca3af;font-size:1rem"></i>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if (!empty($item->product_id)): ?>
+                                    <a href="<?= Url::to(['/admin/product/view', 'id' => $item->product_id]) ?>"
+                                       class="item-name" style="text-decoration:none;color:inherit"><?= Html::encode($item->product_name) ?></a>
+                                <?php else: ?>
+                                    <div class="item-name"><?= Html::encode($item->product_name) ?></div>
+                                <?php endif; ?>
+                                <div class="item-sku" style="display:flex;gap:8px;flex-wrap:wrap">
                                     <?php if (!empty($item->size)): ?>
-                                        <div class="item-sku">Размер: <?= Html::encode($item->size) ?></div>
+                                        <span><?= Html::encode($item->size) ?></span>
+                                    <?php endif; ?>
+                                    <?php if (!empty($item->color)): ?>
+                                        <span style="color:#6b7280"><?= Html::encode($item->color) ?></span>
                                     <?php endif; ?>
                                     <?php if (!empty($item->product_article)): ?>
-                                        <div class="item-sku">Арт.: <?= Html::encode($item->product_article) ?></div>
+                                        <span>Арт.: <?= Html::encode($item->product_article) ?></span>
                                     <?php endif; ?>
-                                    <?php if (!empty($item->ms_position_id)): ?>
-                                        <div class="item-sku" style="font-family:monospace;color:#9ca3af">МС: <?= Html::encode($item->ms_position_id) ?></div>
-                                    <?php endif; ?>
-                                </td>
-                                <td style="color:var(--admin-text-secondary,#6b7280)"><?= $item->quantity ?> шт.</td>
-                                <td style="text-align:right"><?= Yii::$app->formatter->asDecimal($item->price, 2) ?> Br</td>
-                                <td style="text-align:right;font-weight:700"><?= Yii::$app->formatter->asDecimal($item->total, 2) ?> Br</td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    <?php
-                    $subtotal = 0;
-                    foreach ($model->orderItems as $_ti) { $subtotal += (float)($_ti->total ?? $_ti->price * $_ti->quantity); }
-                    $discountAmt  = (float)($model->discount ?? 0);
-                    $deliveryCost = (float)($model->delivery_cost ?? 0);
-                    $commissionRow = (float)($model->commission_amount ?? $model->commission_price ?? 0);
-                    ?>
-                    <div style="padding: 8px 16px; border-top: 1px solid var(--admin-border, #e5e7eb); font-size: 0.8125rem;">
-                        <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:var(--admin-text-secondary,#6b7280)">
-                            <span>Подытог:</span>
-                            <span style="min-width:90px;text-align:right"><?= Yii::$app->formatter->asDecimal($subtotal, 2) ?> Br</span>
-                        </div>
-                        <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:<?= $discountAmt > 0 ? '#059669' : 'var(--admin-text-secondary,#9ca3af)' ?>">
-                            <span>Скидка:</span>
-                            <span style="min-width:90px;text-align:right"><?= $discountAmt > 0 ? '−' . Yii::$app->formatter->asDecimal($discountAmt, 2) . ' Br' : '<span style="font-style:italic;font-size:0.75rem">не задана</span>' ?></span>
-                        </div>
-                        <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:<?= $deliveryCost > 0 ? 'var(--admin-text-primary,#111)' : 'var(--admin-text-secondary,#9ca3af)' ?>">
-                            <span>Доставка:</span>
-                            <span style="min-width:90px;text-align:right"><?= $deliveryCost > 0 ? Yii::$app->formatter->asDecimal($deliveryCost, 2) . ' Br' : '<span style="font-style:italic;font-size:0.75rem">не задана</span>' ?></span>
-                        </div>
-                        <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:<?= $commissionRow > 0 ? 'var(--admin-text-primary,#111)' : 'var(--admin-text-secondary,#9ca3af)' ?>">
-                            <span>Комиссия:</span>
-                            <span style="min-width:90px;text-align:right"><?= $commissionRow > 0 ? Yii::$app->formatter->asDecimal($commissionRow, 2) . ' Br' : '<span style="font-style:italic;font-size:0.75rem">не задана</span>' ?></span>
-                        </div>
+                                </div>
+                            </td>
+                            <td style="color:var(--admin-text-secondary,#6b7280)"><?= $item->quantity ?> шт.</td>
+                            <td style="text-align:right"><?= Yii::$app->formatter->asDecimal($item->price, 2) ?> Br</td>
+                            <td style="text-align:right;font-weight:700"><?= Yii::$app->formatter->asDecimal($item->total, 2) ?> Br</td>
+                        </tr>
+                        <tr class="item-detail-row" id="<?= $expandId ?>" style="display:none">
+                            <td colspan="6">
+                                <div class="item-expand-panel" data-item-id="<?= $item->id ?>" data-order-id="<?= $model->id ?>">
+                                    <div class="ief-grid">
+                                        <div class="ief" style="flex:2;min-width:150px">
+                                            <label>Название</label>
+                                            <input type="text" class="admin-form-input" data-ifield="product_name"
+                                                   value="<?= Html::encode($item->product_name) ?>">
+                                        </div>
+                                        <div class="ief" style="width:70px">
+                                            <label>Размер</label>
+                                            <input type="text" class="admin-form-input" data-ifield="size"
+                                                   value="<?= Html::encode($item->size ?? '') ?>">
+                                        </div>
+                                        <div class="ief" style="width:80px">
+                                            <label>Цвет</label>
+                                            <input type="text" class="admin-form-input" data-ifield="color"
+                                                   value="<?= Html::encode($item->color ?? '') ?>">
+                                        </div>
+                                        <div class="ief" style="width:90px">
+                                            <label>Артикул</label>
+                                            <input type="text" class="admin-form-input" data-ifield="product_article"
+                                                   value="<?= Html::encode($item->product_article ?? '') ?>">
+                                        </div>
+                                        <div class="ief" style="width:55px">
+                                            <label>Кол-во</label>
+                                            <input type="number" class="admin-form-input" data-ifield="quantity"
+                                                   value="<?= $item->quantity ?>" min="1">
+                                        </div>
+                                        <div class="ief" style="width:80px">
+                                            <label>Цена, Br</label>
+                                            <input type="number" step="0.01" class="admin-form-input" data-ifield="price"
+                                                   value="<?= $item->price ?>">
+                                        </div>
+                                    </div>
+                                    <div class="ief-section"><i class="bi bi-truck" style="color:#4338ca"></i> Данные ДоброПост</div>
+                                    <div class="ief-grid">
+                                        <div class="ief" style="flex:2;min-width:180px">
+                                            <label>Ссылка на товар</label>
+                                            <input type="url" class="admin-form-input" data-ofield="product_link"
+                                                   value="<?= Html::encode($model->product_link ?? '') ?>">
+                                        </div>
+                                        <div class="ief" style="flex:2;min-width:180px">
+                                            <label>Описание для таможни</label>
+                                            <input type="text" class="admin-form-input" data-ofield="customs_description"
+                                                   value="<?= Html::encode($model->customs_description ?? '') ?>">
+                                        </div>
+                                        <div class="ief" style="width:65px">
+                                            <label>Кол-во (тамож.)</label>
+                                            <input type="number" class="admin-form-input" data-ofield="item_quantity"
+                                                   value="<?= Html::encode($model->item_quantity ?? '') ?>">
+                                        </div>
+                                        <div class="ief" style="width:75px">
+                                            <label>Цена (CNY)</label>
+                                            <input type="number" step="0.01" class="admin-form-input" data-ofield="item_price_cny"
+                                                   value="<?= Html::encode($model->item_price_cny ?? '') ?>">
+                                        </div>
+                                        <div class="ief" style="width:75px">
+                                            <label>Отпр. (CNY)</label>
+                                            <input type="number" step="0.01" class="admin-form-input" data-ofield="shipment_value_cny"
+                                                   value="<?= Html::encode($model->shipment_value_cny ?? '') ?>">
+                                        </div>
+                                    </div>
+                                    <div class="ief-actions">
+                                        <button type="button" class="admin-btn admin-btn-primary admin-btn-sm"
+                                                onclick="saveItemRow(this)">
+                                            <i class="bi bi-check2"></i> Сохранить
+                                        </button>
+                                        <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm"
+                                                onclick="toggleItemDetail('<?= $expandId ?>', document.getElementById('expbtn-<?= $item->id ?>'))">
+                                            Отмена
+                                        </button>
+                                        <a href="<?= Url::to(['/admin/order/delete-item', 'id' => $item->id, 'order_id' => $model->id]) ?>"
+                                           onclick="return confirm('Удалить эту позицию?')"
+                                           style="margin-left:auto;font-size:0.75rem;color:#b91c1c;text-decoration:none">
+                                            <i class="bi bi-trash3"></i> Удалить
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <div style="padding:8px 16px;border-top:1px solid var(--admin-border,#e5e7eb);font-size:0.8125rem">
+                    <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:var(--admin-text-secondary,#6b7280)">
+                        <span>Подытог:</span>
+                        <span style="min-width:90px;text-align:right"><?= Yii::$app->formatter->asDecimal($subtotal, 2) ?> Br</span>
                     </div>
-                    <div class="crm-total-row">
-                        <span class="label">Итого к оплате:</span>
-                        <span><?= Yii::$app->formatter->asDecimal($model->total_amount, 2) ?> Br</span>
+                    <?php if ($discountAmt > 0): ?>
+                    <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:#059669">
+                        <span>Скидка:</span>
+                        <span style="min-width:90px;text-align:right">−<?= Yii::$app->formatter->asDecimal($discountAmt, 2) ?> Br</span>
                     </div>
+                    <?php endif; ?>
+                    <?php if ($deliveryCost > 0): ?>
+                    <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0">
+                        <span>Доставка:</span>
+                        <span style="min-width:90px;text-align:right"><?= Yii::$app->formatter->asDecimal($deliveryCost, 2) ?> Br</span>
+                    </div>
+                    <?php endif; ?>
                 </div>
-
-                <!-- Edit mode items -->
-                <div id="editModeItems" style="display:none;padding:12px 16px 16px">
-                    <form method="post" action="<?= Url::to(['/admin/order/update-items', 'id' => $model->id]) ?>" id="itemsForm">
-                        <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
-                        <div style="font-size:0.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--admin-text-secondary,#6b7280);margin-bottom:8px">Состав заказа</div>
-                        <div id="order-items-edit">
-                            <?php foreach ($model->orderItems as $idx => $item): ?>
-                            <div class="order-item" style="display:grid;grid-template-columns:1fr 70px 100px 32px;gap:8px;align-items:end;background:var(--admin-surface-2,#f8f9fa);border:1px solid var(--admin-border,#e5e7eb);border-radius:8px;padding:10px 12px;margin-bottom:6px">
-                                <div>
-                                    <label class="admin-form-label" style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px;display:block">Название</label>
-                                    <input type="text" class="admin-form-input" name="OrderItem[<?= $idx ?>][product_name]" value="<?= Html::encode($item->product_name) ?>" style="font-size:0.8125rem;padding:5px 8px">
-                                </div>
-                                <div>
-                                    <label class="admin-form-label" style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px;display:block">Кол-во</label>
-                                    <input type="number" class="admin-form-input" name="OrderItem[<?= $idx ?>][quantity]" value="<?= $item->quantity ?>" min="1" style="font-size:0.8125rem;padding:5px 8px;text-align:center">
-                                </div>
-                                <div>
-                                    <label class="admin-form-label" style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px;display:block">Цена, BYN</label>
-                                    <input type="number" step="0.01" class="admin-form-input" name="OrderItem[<?= $idx ?>][price]" value="<?= $item->price ?>" style="font-size:0.8125rem;padding:5px 8px;text-align:right">
-                                </div>
-                                <div style="display:flex;align-items:flex-end;padding-bottom:1px">
-                                    <button type="button" class="admin-btn admin-btn-sm remove-item" style="padding:5px 7px;font-size:12px;background:transparent;border:1px solid var(--admin-border,#e5e7eb);color:var(--admin-text-secondary,#6b7280);border-radius:6px" title="Удалить строку">
-                                        <i class="bi bi-trash3" style="pointer-events:none"></i>
-                                    </button>
-                                </div>
+                <div class="crm-total-row">
+                    <span class="label">Итого к оплате:</span>
+                    <span><?= Yii::$app->formatter->asDecimal($model->total_amount, 2) ?> Br</span>
+                </div>
+                <div style="padding:8px 16px 12px">
+                    <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm"
+                            onclick="document.getElementById('addItemSection').style.display='block';this.style.display='none'"
+                            id="showAddItemBtn">
+                        <i class="bi bi-plus-lg"></i> Добавить позицию
+                    </button>
+                    <div id="addItemSection" style="display:none;margin-top:8px;padding:10px;background:var(--admin-surface-hover,#f9fafb);border:1px solid var(--admin-border,#e5e7eb);border-radius:8px">
+                        <div class="ief-grid">
+                            <div class="ief" style="flex:2;min-width:150px">
+                                <label>Название *</label>
+                                <input type="text" class="admin-form-input" id="newItemName" placeholder="Название товара">
                             </div>
-                            <?php endforeach; ?>
+                            <div class="ief" style="width:55px">
+                                <label>Кол-во</label>
+                                <input type="number" class="admin-form-input" id="newItemQty" value="1" min="1">
+                            </div>
+                            <div class="ief" style="width:80px">
+                                <label>Цена, Br *</label>
+                                <input type="number" step="0.01" class="admin-form-input" id="newItemPrice" placeholder="0.00">
+                            </div>
+                            <div class="ief" style="width:70px">
+                                <label>Размер</label>
+                                <input type="text" class="admin-form-input" id="newItemSize">
+                            </div>
                         </div>
-                        <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
-                            <button type="button" id="add-item-edit" class="admin-btn admin-btn-secondary admin-btn-sm" style="font-size:0.75rem;gap:4px">
-                                <i class="bi bi-plus-lg"></i> Добавить позицию
+                        <div class="ief-actions" style="margin-top:6px">
+                            <button type="button" class="admin-btn admin-btn-primary admin-btn-sm"
+                                    onclick="submitAddItem(<?= $model->id ?>)">
+                                <i class="bi bi-plus-lg"></i> Добавить
                             </button>
-                            <button type="submit" class="admin-btn admin-btn-primary admin-btn-sm" style="font-size:0.75rem;gap:4px">
-                                <i class="bi bi-check2"></i> Сохранить состав
+                            <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm"
+                                    onclick="document.getElementById('addItemSection').style.display='none';document.getElementById('showAddItemBtn').style.display=''">
+                                Отмена
                             </button>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
 
@@ -575,45 +683,15 @@ $customer = $model->customer ?? null;
                         </div>
                     </div>
 
-                    <!-- Блок: Товарная информация -->
-                    <div style="font-size:0.7rem;font-weight:700;color:var(--admin-text-secondary,#6b7280);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 8px;border-top:1px dashed var(--admin-border,#e5e7eb);padding-top:12px"><i class="bi bi-tags"></i> Товарная информация</div>
-                    <div class="crm-info-grid">
-                        <?php if (!empty($model->product_link)): ?>
-                        <div class="crm-field" style="grid-column: span 2">
-                            <div class="crm-field-label">Ссылка на товар</div>
-                            <div class="crm-editable" data-field="product_link" data-id="<?= $model->id ?>" onclick="startEdit(this)">
-                                <a href="<?= Html::encode($model->product_link) ?>" target="_blank" onclick="event.stopPropagation()" style="color:inherit;word-break:break-all;font-size:0.8rem"><?= Html::encode($model->product_link) ?></a>
-                            </div>
-                        </div>
-                        <?php else: ?>
-                        <div class="crm-field" style="grid-column: span 2">
-                            <div class="crm-field-label">Ссылка на товар</div>
-                            <div class="crm-editable" data-field="product_link" data-id="<?= $model->id ?>" onclick="startEdit(this)"><span class="crm-editable-empty">—</span></div>
-                        </div>
-                        <?php endif; ?>
-                        <div class="crm-field" style="grid-column: span 2">
-                            <div class="crm-field-label">Описание для таможни <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
-                            <div class="crm-editable" data-field="customs_description" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->customs_description) ? Html::encode($model->customs_description) : '<span class="crm-editable-empty">—</span>' ?></div>
-                        </div>
-                        <div class="crm-field">
-                            <div class="crm-field-label">Кол-во (тамож.) <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
-                            <div class="crm-editable" data-field="item_quantity" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= isset($model->item_quantity) && $model->item_quantity !== null ? Html::encode($model->item_quantity) . ' шт.' : '<span class="crm-editable-empty">—</span>' ?></div>
-                        </div>
-                        <div class="crm-field">
-                            <div class="crm-field-label">Цена ед. (CNY) <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
-                            <div class="crm-editable" data-field="item_price_cny" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= isset($model->item_price_cny) && $model->item_price_cny !== null ? Html::encode($model->item_price_cny) . ' ¥' : '<span class="crm-editable-empty">—</span>' ?></div>
-                        </div>
-                        <div class="crm-field">
-                            <div class="crm-field-label">Стоимость отправления (CNY) <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
-                            <div class="crm-editable" data-field="shipment_value_cny" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= isset($model->shipment_value_cny) && $model->shipment_value_cny !== null ? Html::encode($model->shipment_value_cny) . ' ¥' : '<span class="crm-editable-empty">—</span>' ?></div>
-                        </div>
-                        <?php if (!empty($model->sneakerhead_order_link)): ?>
-                        <div class="crm-field" style="grid-column: span 2">
-                            <div class="crm-field-label">Ссылка Sneakerhead</div>
-                            <div class="crm-field-val"><a href="<?= Html::encode($model->sneakerhead_order_link) ?>" target="_blank" style="font-size:0.8rem;word-break:break-all"><?= Html::encode($model->sneakerhead_order_link) ?></a></div>
-                        </div>
-                        <?php endif; ?>
+                    <div style="font-size:0.72rem;color:var(--admin-text-secondary,#9ca3af);margin-top:8px;padding-top:8px;border-top:1px dashed var(--admin-border,#e5e7eb)">
+                        <i class="bi bi-info-circle"></i> Товарная информация редактируется в составе заказа (кнопка <i class="bi bi-chevron-down"></i> рядом с позицией).
                     </div>
+                    <?php if (!empty($model->sneakerhead_order_link)): ?>
+                    <div style="margin-top:8px">
+                        <div class="crm-field-label" style="margin-bottom:4px">Ссылка Sneakerhead</div>
+                        <a href="<?= Html::encode($model->sneakerhead_order_link) ?>" target="_blank" style="font-size:0.8rem;word-break:break-all"><?= Html::encode($model->sneakerhead_order_link) ?></a>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -688,6 +766,87 @@ $customer = $model->customer ?? null;
                     <button class="admin-btn admin-btn-primary" onclick="addOrderNote(<?= $model->id ?>)" style="padding:6px 10px;align-self:flex-end">
                         <i class="bi bi-send" style="font-size:1rem;color:inherit"></i>
                     </button>
+                </div>
+            </div>
+
+            <!-- Выкуп (#12) -->
+            <?php
+            $buyoutFilled = $model->isBuyoutFilled();
+            $buyoutUsers  = [];
+            try {
+                $buyoutUsers = \app\backend\modules\admin\models\User::find()
+                    ->select(['id', 'username'])->where(['is_active' => 1])
+                    ->orderBy(['username' => SORT_ASC])->asArray()->all();
+            } catch (\Throwable $_e) {}
+            ?>
+            <div class="crm-card" id="buyout-card">
+                <div class="crm-card-head">
+                    <h3><i class="bi bi-bag-check"></i> Выкуп</h3>
+                    <span id="buyout-status-badge" style="<?= $buyoutFilled ? 'background:#d1fae5;color:#065f46' : 'background:#fef3c7;color:#92400e' ?>;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:6px">
+                        <?= $buyoutFilled ? '<i class="bi bi-check-circle-fill"></i> Заполнен' : '<i class="bi bi-exclamation-triangle-fill"></i> Не заполнен' ?>
+                    </span>
+                </div>
+                <div class="crm-card-body">
+                    <?php if ($model->status === 'confirmed_and_paid' && !$buyoutFilled): ?>
+                    <div style="margin-bottom:10px;padding:8px 10px;background:#fef3c7;border-radius:8px;font-size:0.8125rem;color:#92400e;display:flex;align-items:center;gap:6px">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        Обязательно — заполните выкуп перед переводом в «Заказано»
+                    </div>
+                    <?php endif; ?>
+                    <div class="crm-info-grid" style="grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px">
+                        <div class="crm-field">
+                            <div class="crm-field-label">Закупочная цена</div>
+                            <div style="display:flex;gap:4px">
+                                <input type="number" id="inp-purchase-cost" class="admin-form-input"
+                                       style="font-size:0.8125rem;padding:4px 8px;flex:1"
+                                       value="<?= Html::encode($model->purchase_cost ?? '') ?>" min="0" step="0.01" placeholder="0.00">
+                                <select id="inp-purchase-currency" class="admin-form-input" style="font-size:0.8125rem;padding:4px 6px;width:76px">
+                                    <?php foreach (['CNY', 'USD', 'EUR', 'RUB', 'BYN'] as $_cur): ?>
+                                    <option value="<?= $_cur ?>" <?= ($model->purchase_currency ?? 'CNY') === $_cur ? 'selected' : '' ?>><?= $_cur ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="crm-field">
+                            <div class="crm-field-label">Дата выкупа</div>
+                            <input type="datetime-local" id="inp-purchase-date" class="admin-form-input"
+                                   style="font-size:0.8125rem;padding:4px 8px"
+                                   value="<?= $model->purchase_date ? Html::encode(date('Y-m-d\TH:i', strtotime($model->purchase_date))) : '' ?>">
+                        </div>
+                        <div class="crm-field">
+                            <div class="crm-field-label">Трек источника</div>
+                            <input type="text" id="inp-china-track" class="admin-form-input"
+                                   style="font-size:0.8125rem;padding:4px 8px"
+                                   value="<?= Html::encode($model->china_track_number ?? '') ?>" placeholder="CN...">
+                        </div>
+                        <div class="crm-field">
+                            <div class="crm-field-label">Ответственный</div>
+                            <select id="inp-purchase-user" class="admin-form-input" style="font-size:0.8125rem;padding:4px 6px">
+                                <option value="">— выбрать —</option>
+                                <?php foreach ($buyoutUsers as $_bu): ?>
+                                <option value="<?= (int)$_bu['id'] ?>" <?= (int)($model->purchase_user_id ?? 0) === (int)$_bu['id'] ? 'selected' : '' ?>>
+                                    <?= Html::encode($_bu['username']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="crm-field" style="margin-bottom:10px">
+                        <div class="crm-field-label">Скрин чека</div>
+                        <?php if (!empty($model->purchase_receipt_url)): ?>
+                        <div style="margin-bottom:6px;font-size:0.8125rem">
+                            <a href="<?= Html::encode($model->purchase_receipt_url) ?>" target="_blank" style="color:#2563eb">
+                                <i class="bi bi-file-earmark-image"></i> Текущий скрин
+                            </a>
+                        </div>
+                        <?php endif; ?>
+                        <input type="file" id="inp-receipt-file" accept="image/*,.pdf" style="font-size:0.8125rem">
+                    </div>
+                    <button type="button" class="admin-btn admin-btn-primary admin-btn-sm" style="width:100%;justify-content:center"
+                            onclick="saveBuyout(<?= $model->id ?>)" id="btn-save-buyout">
+                        <i class="bi bi-floppy-fill"></i> Сохранить выкуп
+                    </button>
+                    <div id="buyout-save-result" style="font-size:0.75rem;margin-top:6px;text-align:center"></div>
                 </div>
             </div>
 
@@ -1620,22 +1779,10 @@ $_addNoteUrl  = '/admin/order/add-note';
 $_msSyncUrl   = Url::to(['/admin/order/sync-moysklad', 'id' => $model->id]);
 $_dpAutoFillUrl = Url::to(['/admin/order/auto-fill-dp', 'id' => $model->id]);
 $_itemCount   = count($model->orderItems);
+$_saveItemFieldUrl = Url::to(['/admin/order/save-item-field']);
+$_addItemUrl       = Url::to(['/admin/order/add-item']);
 
 $this->registerJs(<<<JS
-// ── Edit mode toggle ──────────────────────────────────────
-var editModeActive = false;
-var toggleBtn = document.getElementById('toggleEditMode');
-if (toggleBtn) {
-    toggleBtn.addEventListener('click', function() {
-        editModeActive = !editModeActive;
-        document.getElementById('editModeItems').style.display  = editModeActive ? 'block' : 'none';
-        document.getElementById('viewModeItems').style.display  = editModeActive ? 'none' : 'block';
-        this.innerHTML = editModeActive
-            ? '<i class="bi bi-x-circle"></i> Выйти'
-            : '<i class="bi bi-pencil"></i> Редактировать';
-    });
-}
-
 // ── Inline click-to-edit ──────────────────────────────────
 window.startEdit = function(el) {
     if (el.querySelector('input,textarea')) return;
@@ -1841,30 +1988,90 @@ window.addOrderNote = function(id) {
     });
 };
 
-// ── Add item row ──────────────────────────────────────────
-var addItemBtn = document.getElementById('add-item-edit');
-var itemIndex = $_itemCount;
-if (addItemBtn) {
-    addItemBtn.addEventListener('click', function() {
-        var lbl = 'font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px;display:block';
-        var row = '<div class="order-item" style="display:grid;grid-template-columns:1fr 70px 100px 32px;gap:8px;align-items:end;background:var(--admin-surface-2,#f8f9fa);border:1px solid var(--admin-border,#e5e7eb);border-radius:8px;padding:10px 12px;margin-bottom:6px">'
-            + '<div><label class="admin-form-label" style="' + lbl + '">Название</label>'
-            + '<input type="text" class="admin-form-input" name="OrderItem[' + itemIndex + '][product_name]" style="font-size:0.8125rem;padding:5px 8px" placeholder="Название товара"></div>'
-            + '<div><label class="admin-form-label" style="' + lbl + '">Кол-во</label>'
-            + '<input type="number" class="admin-form-input" name="OrderItem[' + itemIndex + '][quantity]" value="1" min="1" style="font-size:0.8125rem;padding:5px 8px;text-align:center"></div>'
-            + '<div><label class="admin-form-label" style="' + lbl + '">Цена, BYN</label>'
-            + '<input type="number" step="0.01" class="admin-form-input" name="OrderItem[' + itemIndex + '][price]" style="font-size:0.8125rem;padding:5px 8px;text-align:right" placeholder="0.00"></div>'
-            + '<div style="display:flex;align-items:flex-end;padding-bottom:1px"><button type="button" class="admin-btn admin-btn-sm remove-item" style="padding:5px 7px;font-size:12px;background:transparent;border:1px solid var(--admin-border,#e5e7eb);color:var(--admin-text-secondary,#6b7280);border-radius:6px" title="Удалить строку"><i class="bi bi-trash3" style="pointer-events:none"></i></button></div>'
-            + '</div>';
-        document.getElementById('order-items-edit').insertAdjacentHTML('beforeend', row);
-        itemIndex++;
-    });
-}
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('remove-item')) {
-        e.target.closest('.order-item').remove();
+// ── Expand item detail row ────────────────────────────────
+window.toggleItemDetail = function(id, btn) {
+    var row = document.getElementById(id);
+    if (!row) return;
+    var open = row.style.display !== 'none';
+    row.style.display = open ? 'none' : 'table-row';
+    if (btn) {
+        var icon = btn.querySelector('i');
+        if (icon) icon.className = open ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
+        btn.style.color = open ? '' : 'var(--admin-accent,#2563eb)';
     }
-});
+};
+
+// ── Save item fields ──────────────────────────────────────
+window.saveItemRow = function(saveBtnEl) {
+    var panel = saveBtnEl.closest('.item-expand-panel');
+    if (!panel) return;
+    var itemId  = panel.dataset.itemId;
+    var orderId = panel.dataset.orderId;
+    var csrf = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+    var saves = [];
+
+    panel.querySelectorAll('[data-ifield]').forEach(function(inp) {
+        saves.push(fetch('$_saveItemFieldUrl', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrf, 'X-Requested-With': 'XMLHttpRequest'},
+            body: JSON.stringify({item_id: itemId, field: inp.dataset.ifield, value: inp.value})
+        }));
+    });
+
+    panel.querySelectorAll('[data-ofield]').forEach(function(inp) {
+        saves.push(fetch('$_saveUrl', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrf, 'X-Requested-With': 'XMLHttpRequest'},
+            body: JSON.stringify({id: orderId, field: inp.dataset.ofield, value: inp.value})
+        }));
+    });
+
+    saveBtnEl.disabled = true;
+    Promise.all(saves)
+        .then(function(resps) { return Promise.all(resps.map(function(r) { return r.json(); })); })
+        .then(function(results) {
+            saveBtnEl.disabled = false;
+            var failed = results.filter(function(r) { return !r.success; });
+            if (!failed.length) {
+                showFlash('Позиция сохранена');
+                var mainRow = panel.closest('tr').previousElementSibling;
+                if (mainRow) {
+                    var n = panel.querySelector('[data-ifield="product_name"]');
+                    var q = panel.querySelector('[data-ifield="quantity"]');
+                    var p = panel.querySelector('[data-ifield="price"]');
+                    var s = panel.querySelector('[data-ifield="size"]');
+                    var c = panel.querySelector('[data-ifield="color"]');
+                    if (n) { var nd = mainRow.querySelector('.item-name'); if (nd) nd.textContent = n.value; }
+                    var sd = mainRow.querySelector('.item-sku');
+                    if (sd) { var pts = []; if (s && s.value) pts.push(s.value); if (c && c.value) pts.push(c.value); sd.textContent = pts.join(' · '); }
+                    var cells = mainRow.querySelectorAll('td');
+                    if (cells[3] && q) cells[3].textContent = q.value + ' шт.';
+                    if (cells[4] && p) cells[4].textContent = parseFloat(p.value).toFixed(2) + ' Br';
+                    if (cells[5] && p && q) cells[5].textContent = (parseFloat(p.value) * parseInt(q.value)).toFixed(2) + ' Br';
+                }
+            } else { alert('Ошибка: ' + failed.map(function(r) { return r.message; }).join(', ')); }
+        })
+        .catch(function() { saveBtnEl.disabled = false; alert('Ошибка сети'); });
+};
+
+// ── Add new item ──────────────────────────────────────────
+window.submitAddItem = function(orderId) {
+    var name  = document.getElementById('newItemName').value.trim();
+    var qty   = parseInt(document.getElementById('newItemQty').value) || 1;
+    var price = parseFloat(document.getElementById('newItemPrice').value) || 0;
+    var size  = document.getElementById('newItemSize').value.trim();
+    if (!name)  { document.getElementById('newItemName').focus(); return; }
+    if (!price) { document.getElementById('newItemPrice').focus(); return; }
+    var csrf = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+    fetch('$_addItemUrl', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrf, 'X-Requested-With': 'XMLHttpRequest'},
+        body: JSON.stringify({order_id: orderId, product_name: name, quantity: qty, price: price, size: size})
+    }).then(function(r) { return r.json(); }).then(function(d) {
+        if (d.success) { showFlash('Позиция добавлена'); setTimeout(function() { location.reload(); }, 700); }
+        else { alert('Ошибка: ' + (d.message || '')); }
+    }).catch(function() { alert('Ошибка сети'); });
+};
 
 // ── Customer quick-view modal ─────────────────────────────
 window.openCustomerQuickView = function(customerId) {
@@ -2023,6 +2230,69 @@ window.uploadOrderFiles = function(input, orderId) {
     })
     .catch(function() {
         if (result) { result.textContent = '✗ Ошибка загрузки'; result.style.color = '#dc2626'; }
+    });
+};
+
+// ── #12 Buyout guard + save ───────────────────────────────
+window.guardStatusChange = function(sel) {
+    var from = sel.getAttribute('data-current-status');
+    var to   = sel.value;
+    var filled = sel.getAttribute('data-buyout-filled') === '1';
+    if (from === 'confirmed_and_paid' && to === 'ordered' && !filled) {
+        alert('Необходимо заполнить блок «Выкуп» перед переводом в статус «Заказано».');
+        sel.value = from;
+        return;
+    }
+    sel.form.submit();
+};
+
+window.saveBuyout = function(orderId) {
+    var btn    = document.getElementById('btn-save-buyout');
+    var result = document.getElementById('buyout-save-result');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Сохраняем...'; }
+    if (result) { result.textContent = ''; }
+
+    var fd = new FormData();
+    fd.append('purchase_cost',     (document.getElementById('inp-purchase-cost') || {}).value || '');
+    fd.append('purchase_currency', (document.getElementById('inp-purchase-currency') || {}).value || 'CNY');
+    fd.append('purchase_date',     (document.getElementById('inp-purchase-date') || {}).value || '');
+    fd.append('purchase_user_id',  (document.getElementById('inp-purchase-user') || {}).value || '');
+    fd.append('china_track_number',(document.getElementById('inp-china-track') || {}).value || '');
+    var fileInput = document.getElementById('inp-receipt-file');
+    if (fileInput && fileInput.files[0]) { fd.append('purchase_receipt', fileInput.files[0]); }
+
+    fetch('/admin/order/save-buyout?id=' + orderId, {
+        method: 'POST',
+        headers: {'X-CSRF-Token': '$_csrfToken', 'X-Requested-With': 'XMLHttpRequest'},
+        body: fd
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-floppy-fill"></i> Сохранить выкуп'; }
+        if (result) {
+            result.textContent = (d.success ? '✓ ' : '✗ ') + (d.message || '');
+            result.style.color = d.success ? '#059669' : '#dc2626';
+        }
+        if (d.success) {
+            var badge = document.getElementById('buyout-status-badge');
+            if (badge) {
+                badge.innerHTML = '<i class="bi bi-check-circle-fill"></i> Заполнен';
+                badge.style.cssText = 'background:#d1fae5;color:#065f46;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:6px';
+            }
+            var sel = document.querySelector('select[data-buyout-filled]');
+            if (sel) { sel.setAttribute('data-buyout-filled', '1'); }
+            // Update product_price display if it was auto-filled
+            if (d.product_price > 0) {
+                var ppEl = document.querySelector('.crm-editable[data-field="product_price"]');
+                if (ppEl && ppEl.querySelector('.crm-editable-empty')) {
+                    ppEl.textContent = parseFloat(d.product_price).toFixed(2) + ' Br';
+                }
+            }
+        }
+    })
+    .catch(function() {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-floppy-fill"></i> Сохранить выкуп'; }
+        if (result) { result.textContent = '✗ Ошибка сети'; result.style.color = '#dc2626'; }
     });
 };
 JS

@@ -106,8 +106,6 @@ class OrderController extends BaseAdminController
         $filterAmountFrom   = Yii::$app->request->get('amount_from');
         $filterAmountTo     = Yii::$app->request->get('amount_to');
         $filterCreatedBefore = Yii::$app->request->get('created_before');
-        $filterDelayed       = Yii::$app->request->get('delayed');
-        $filterDeadlineToday = Yii::$app->request->get('deadline_today');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -197,17 +195,25 @@ class OrderController extends BaseAdminController
             $query->andWhere(['<=', 'total_amount', (float)$filterAmountTo]);
         }
 
-        if ($filterDelayed) {
-            $threeDaysAgo = strtotime('-3 days');
-            $query->andWhere(['<', 'updated_at', $threeDaysAgo]);
-            $query->andWhere(['not in', 'status', ['delivered', 'canceled', 'cancelled', 'completed', 'refunded', 'return', 'trash', 'imported']]);
-        }
+        $filterOverdue = Yii::$app->request->get('overdue');
+        $filterSla     = Yii::$app->request->get('sla');
+        $slaTerminal   = ['delivered', 'cancelled', 'canceled', 'refunded'];
+        $nowDt         = date('Y-m-d H:i:s');
+        $warn2hDt      = date('Y-m-d H:i:s', strtotime('+2 hours'));
 
-        if ($filterDeadlineToday) {
-            $today = date('Y-m-d');
-            $query->andWhere(['not in', 'status', ['delivered', 'completed', 'issued', 'canceled', 'cancelled', 'refunded', 'return', 'trash']]);
-            $query->andWhere(['IS NOT', 'delivery_date', null]);
-            $query->andWhere(['<=', 'delivery_date', $today]);
+        if ($filterOverdue || $filterSla === 'overdue') {
+            $query->andWhere(['NOT IN', 'status', $slaTerminal])
+                  ->andWhere(['IS NOT', 'expected_delivery_at', null])
+                  ->andWhere(['<', 'expected_delivery_at', $nowDt]);
+        } elseif ($filterSla === 'warn') {
+            $query->andWhere(['NOT IN', 'status', $slaTerminal])
+                  ->andWhere(['IS NOT', 'expected_delivery_at', null])
+                  ->andWhere(['>=', 'expected_delivery_at', $nowDt])
+                  ->andWhere(['<=', 'expected_delivery_at', $warn2hDt]);
+        } elseif ($filterSla === 'ok') {
+            $query->andWhere(['NOT IN', 'status', $slaTerminal])
+                  ->andWhere(['IS NOT', 'expected_delivery_at', null])
+                  ->andWhere(['>', 'expected_delivery_at', $warn2hDt]);
         }
 
         $statuses = Yii::$app->settings->getStatuses();
@@ -364,8 +370,10 @@ class OrderController extends BaseAdminController
             'logistMap' => $logistMap,
             'statuses' => $statuses,
             'statusDescriptions' => $statusDescriptions,
-            'dupMap' => $dupMap,
-            'user' => $user,
+            'dupMap'        => $dupMap,
+            'user'          => $user,
+            'filterOverdue' => $filterOverdue,
+            'filterSla'     => $filterSla,
         ]);
     }
 
@@ -374,7 +382,6 @@ class OrderController extends BaseAdminController
      */
     public function actionCreate()
     {
-        $this->requirePermission('createOrder');
         $model = new Order();
         $model->created_by = Yii::$app->user->id;
 
@@ -421,8 +428,10 @@ class OrderController extends BaseAdminController
             }
         }
 
-        return $this->render('create', [
+        // Используем новый wizard интерфейс
+        return $this->render('create-wizard', [
             'model' => $model,
+            'shippingMethods' => $shippingMethods,
         ]);
     }
 
@@ -480,7 +489,6 @@ class OrderController extends BaseAdminController
      */
     public function actionUpdate($id)
     {
-        $this->requirePermission('editOrder');
         $model = $this->findModel($id);
 
         // Логист не может редактировать заказ, только менять статус
@@ -553,6 +561,18 @@ class OrderController extends BaseAdminController
             $newStatus = Yii::$app->request->post('status');
             $comment = Yii::$app->request->post('comment', '');
 
+            // Buyout guard: confirmed_and_paid → ordered requires buyout to be filled
+            if ($model->status === 'confirmed_and_paid' && $newStatus === 'ordered') {
+                if (!$model->isBuyoutFilled()) {
+                    if (Yii::$app->request->isAjax) {
+                        Yii::$app->response->format = Response::FORMAT_JSON;
+                        return ['success' => false, 'message' => 'Необходимо заполнить блок «Выкуп» перед переводом в статус «Заказано»', 'buyout_required' => true];
+                    }
+                    $this->flashError('Заполните блок «Выкуп» перед переводом заказа в статус «Заказано».');
+                    return $this->redirect(['/admin/order/view', 'id' => $model->id]);
+                }
+            }
+
             if (!$model->canChangeStatus($newStatus)) {
                 Yii::warning('Попытка изменить статус без прав: пользователь #' . $user->id . ', заказ #' . $id . ', статус: ' . $newStatus, 'security');
                 
@@ -601,20 +621,6 @@ class OrderController extends BaseAdminController
                     }
                 }
 
-                // Push status to AmoCRM if order is linked to a lead
-                if ($model->amocrm_lead_id && Yii::$app->settings->get('amocrm', 'sync_status_to_amo', '1') === '1') {
-                    try {
-                        $amoStatusId = \app\backend\modules\admin\services\AmocrmStatusMapper::toAmocrmStatusId($newStatus);
-                        if ($amoStatusId) {
-                            Yii::$app->amocrm->updateLead($model->amocrm_lead_id, ['status_id' => $amoStatusId]);
-                            $model->amocrm_last_sync_at = time();
-                            $model->saveAttributes(['amocrm_last_sync_at']);
-                        }
-                    } catch (\Throwable $amoErr) {
-                        Yii::warning('AmoCRM status push failed: ' . $amoErr->getMessage(), 'amocrm');
-                    }
-                }
-
                 if (Yii::$app->request->isAjax) {
                     Yii::$app->response->format = Response::FORMAT_JSON;
                     return ['success' => true, 'message' => 'Статус изменен'];
@@ -642,8 +648,98 @@ class OrderController extends BaseAdminController
     }
 
     /**
+     * #12 Сохранение данных выкупа, создание Buyout draft и линковка к заказу.
+     */
+    public function actionSaveBuyout($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $model = $this->findModel($id);
+
+        if (!Yii::$app->request->isPost) {
+            return ['success' => false, 'message' => 'Invalid request'];
+        }
+
+        $post = Yii::$app->request->post();
+
+        if (isset($post['purchase_cost']))     { $model->purchase_cost     = $post['purchase_cost']; }
+        if (isset($post['purchase_currency'])) { $model->purchase_currency = $post['purchase_currency']; }
+        if (isset($post['purchase_date']))     { $model->purchase_date     = $post['purchase_date']; }
+        if (isset($post['purchase_user_id']))  { $model->purchase_user_id  = (int)$post['purchase_user_id']; }
+        if (!empty($post['china_track_number'])) { $model->china_track_number = $post['china_track_number']; }
+
+        // File upload for receipt
+        $receipt = \yii\web\UploadedFile::getInstanceByName('purchase_receipt');
+        if ($receipt) {
+            $uploadDir = Yii::getAlias('@webroot') . '/uploads/receipts/';
+            if (!is_dir($uploadDir)) {
+                @mkdir($uploadDir, 0755, true);
+            }
+            $filename = 'receipt_' . $model->id . '_' . time() . '.' . $receipt->extension;
+            if ($receipt->saveAs($uploadDir . $filename)) {
+                $model->purchase_receipt_url = '/uploads/receipts/' . $filename;
+            }
+        }
+
+        $model->purchase_status = 'draft';
+
+        // Auto-fill product_price from purchase_cost if empty
+        if ((float)$model->purchase_cost > 0 && (float)($model->product_price ?? 0) == 0) {
+            $model->product_price = $model->purchase_cost;
+        }
+
+        // Set expected_delivery_at if not already set
+        if (empty($model->expected_delivery_at)) {
+            $model->expected_delivery_at = $model->computeExpectedDelivery();
+        }
+
+        $model->save(false);
+
+        // Create or update linked Buyout
+        try {
+            $link   = \app\backend\modules\procurement\models\BuyoutOrderLink::find()
+                ->where(['order_id' => $model->id])->one();
+            $buyout = $link
+                ? \app\backend\modules\procurement\models\Buyout::findOne($link->buyout_id)
+                : null;
+
+            if (!$buyout) {
+                $buyout = new \app\backend\modules\procurement\models\Buyout();
+            }
+
+            $buyout->status           = \app\backend\modules\procurement\models\Buyout::STATUS_DRAFT;
+            $buyout->unit_cost_source = (float)($model->purchase_cost ?: 0);
+            $buyout->source_currency  = $model->purchase_currency ?: 'CNY';
+            $buyout->tracking_number  = $model->china_track_number ?: '';
+            $buyout->receipt_url      = $model->purchase_receipt_url ?: '';
+            $buyout->ordered_at       = !empty($model->purchase_date)
+                ? strtotime($model->purchase_date) : null;
+            $buyout->buyer_user_id    = $model->purchase_user_id ?: Yii::$app->user->id;
+            $buyout->source           = 'manual';
+            $buyout->qty              = 1;
+
+            if ($buyout->save(false) && !$link) {
+                $link            = new \app\backend\modules\procurement\models\BuyoutOrderLink();
+                $link->buyout_id = $buyout->id;
+                $link->order_id  = $model->id;
+                $link->qty       = 1;
+                $link->save(false);
+            }
+        } catch (\Throwable $e) {
+            Yii::warning('Buyout save error for order #' . $id . ': ' . $e->getMessage(), 'order');
+        }
+
+        return [
+            'success'       => true,
+            'message'       => 'Данные выкупа сохранены',
+            'buyout_filled' => $model->isBuyoutFilled(),
+            'product_price' => (float)$model->product_price,
+        ];
+    }
+
+    /**
      * Назначение логиста на заказ
-     * 
+     *
      * @param int $id
      */
     public function actionAssignLogist($id)
@@ -1395,49 +1491,11 @@ class OrderController extends BaseAdminController
         $id = (int)($data['id'] ?? 0);
         $field = $data['field'] ?? '';
         $value = $data['value'] ?? '';
-        $allowed = [
-            // Logistics / track
-            'china_track_number', 'local_track_number', 'delivery_method', 'delivery_address',
-            'pickup_point', 'china_delivery_status', 'local_delivery_status', 'warehouse_arrival_date',
-            'delivery_date', 'estimated_delivery_date',
-            // Client info
-            'client_name', 'client_phone', 'client_email',
-            // Address
-            'city', 'region', 'postal_code', 'full_address',
-            // Passport
-            'recipient_last_name', 'recipient_first_name', 'recipient_middle_name',
-            'passport_series', 'passport_number', 'passport_issue_date', 'birth_date', 'inn',
-            // Order details
-            'comment', 'source', 'customs_description',
-            // Financial
-            'total_amount', 'product_price', 'logistics_price', 'commission_price',
-            'commission_amount', 'insurance_amount', 'delivery_cost', 'payment_method', 'discount',
-            // Dobropost
-            'shipment_value_cny', 'item_price_cny', 'item_quantity', 'dobropost_tariff',
-            'customs_description', 'product_link', 'sneakerhead_order_link', 'ms_number',
-            // Flags
-            'is_processed', 'is_shipped', 'customs_cleared', 'offer_accepted',
-        ];
-        if (!in_array($field, $allowed)) return ['success' => false, 'message' => 'Недопустимое поле: ' . $field];
+        $allowed = ['china_track_number','local_track_number','delivery_method','delivery_address',
+            'pickup_point','china_delivery_status','warehouse_arrival_date','delivery_date'];
+        if (!in_array($field, $allowed)) return ['success' => false, 'message' => 'Недопустимое поле'];
         $order = Order::findOne($id);
         if (!$order) return ['success' => false, 'message' => 'Не найден'];
-
-        // Logist restriction
-        $user = $this->getCurrentUser();
-        if ($this->isLogist()) {
-            $logistFields = ['china_track_number','local_track_number','is_processed','is_shipped',
-                'customs_cleared','ms_number','comment','delivery_date','china_delivery_status'];
-            if (!in_array($field, $logistFields)) return ['success' => false, 'message' => 'Недостаточно прав'];
-        }
-
-        // Type coercion
-        if (in_array($field, ['is_processed','is_shipped','customs_cleared','offer_accepted'])) $value = (bool)$value;
-        if (in_array($field, ['total_amount','product_price','logistics_price','commission_price',
-            'commission_amount','insurance_amount','delivery_cost','shipment_value_cny','item_price_cny','discount'])) {
-            $value = $value !== '' ? (float)$value : null;
-        }
-        if ($field === 'item_quantity') $value = $value !== '' ? (int)$value : null;
-
         $oldValue = $order->getAttribute($field);
         $order->$field = $value;
         $order->save(false);
@@ -1446,74 +1504,6 @@ class OrderController extends BaseAdminController
             AdminLogService::log(AdminLog::ACTION_UPDATE, AdminLog::ENTITY_ORDER, $order->id, 'Заказ #' . $order->id, "Поле {$field}: {$oldValue} → {$value}");
         }
         return ['success' => true];
-    }
-
-    /** #15 — Apply customer profile data to order snapshot */
-    public function actionApplyCustomerData()
-    {
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $data    = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
-        $orderId = (int)($data['order_id'] ?? 0);
-        $order   = Order::findOne($orderId);
-        if (!$order) return ['success' => false, 'message' => 'Заказ не найден'];
-        if (!$order->customer_id) return ['success' => false, 'message' => 'Заказ не привязан к клиенту'];
-
-        $customer = \app\backend\modules\account\models\Customer::findOne($order->customer_id);
-        if (!$customer) return ['success' => false, 'message' => 'Клиент не найден'];
-
-        $fields = [
-            'client_name'  => ['order' => $order->client_name,  'customer' => trim($customer->getFullName())],
-            'client_phone' => ['order' => $order->client_phone, 'customer' => $customer->phone],
-            'client_email' => ['order' => $order->client_email, 'customer' => $customer->email],
-        ];
-
-        $changed = [];
-        foreach ($fields as $field => $vals) {
-            $customerVal = trim((string)$vals['customer']);
-            $orderVal    = trim((string)$vals['order']);
-            if ($customerVal && $orderVal !== $customerVal) {
-                $old = $order->$field;
-                $order->$field = $customerVal;
-                OrderHistory::log($orderId, 'field_changed', $field, $old, $customerVal,
-                    'Синхронизация с профилем клиента');
-                $changed[$field] = ['from' => $old, 'to' => $customerVal];
-            }
-        }
-
-        if (empty($changed)) {
-            return ['success' => true, 'changed' => [], 'message' => 'Данные уже совпадают'];
-        }
-
-        $order->save(false);
-        return ['success' => true, 'changed' => $changed, 'message' => 'Данные обновлены'];
-    }
-
-    /** #15 — Get diff between order snapshot and customer profile */
-    public function actionCustomerDiff()
-    {
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $orderId = (int)Yii::$app->request->get('order_id');
-        $order   = Order::findOne($orderId);
-        if (!$order || !$order->customer_id) return [];
-
-        $customer = \app\backend\modules\account\models\Customer::findOne($order->customer_id);
-        if (!$customer) return [];
-
-        $fields = [
-            'client_name'  => ['label' => 'ФИО',     'order' => $order->client_name,  'customer' => trim($customer->getFullName())],
-            'client_phone' => ['label' => 'Телефон', 'order' => $order->client_phone, 'customer' => $customer->phone],
-            'client_email' => ['label' => 'Email',   'order' => $order->client_email, 'customer' => $customer->email],
-        ];
-
-        $diff = [];
-        foreach ($fields as $field => $info) {
-            $cv = trim((string)$info['customer']);
-            $ov = trim((string)$info['order']);
-            if ($cv && $ov !== $cv) {
-                $diff[] = ['field' => $field, 'label' => $info['label'], 'in_order' => $ov ?: '(пусто)', 'in_profile' => $cv];
-            }
-        }
-        return $diff;
     }
 
     /** Feature 6 — MoySklad sync */
@@ -1525,30 +1515,12 @@ class OrderController extends BaseAdminController
         $order = Order::findOne($id);
         if (!$order) return ['success' => false, 'message' => 'Заказ не найден'];
 
-        $userId = Yii::$app->user->id ?? null;
         try {
             $result = Yii::$app->moysklad->pushOrder($order);
             $msId   = $result['id'] ?? null;
-            Yii::$app->db->createCommand()->insert('moysklad_sync_log', [
-                'order_id'   => $id,
-                'success'    => 1,
-                'message'    => 'Заказ отправлен в МойСклад',
-                'ms_id'      => $msId,
-                'user_id'    => $userId,
-                'created_at' => date('Y-m-d H:i:s'),
-            ])->execute();
             return ['success' => true, 'message' => 'Заказ отправлен в МойСклад', 'ms_id' => $msId];
         } catch (\Throwable $e) {
-            $msg = $e->getMessage();
-            Yii::$app->db->createCommand()->insert('moysklad_sync_log', [
-                'order_id'   => $id,
-                'success'    => 0,
-                'message'    => $msg,
-                'ms_id'      => null,
-                'user_id'    => $userId,
-                'created_at' => date('Y-m-d H:i:s'),
-            ])->execute();
-            return ['success' => false, 'message' => $msg];
+            return ['success' => false, 'message' => $e->getMessage()];
         }
     }
 
@@ -1695,13 +1667,8 @@ class OrderController extends BaseAdminController
 
         $model = $this->findModel($id);
 
-        $missingFields = $model->missingPassportFields();
-        if (!empty($missingFields)) {
-            return [
-                'success'        => false,
-                'message'        => 'Заполните обязательные поля перед отправкой: ' . implode(', ', $missingFields),
-                'missing_fields' => $missingFields,
-            ];
+        if (!$model->isPassportComplete()) {
+            return ['success' => false, 'message' => 'Паспортные данные получателя заполнены не полностью'];
         }
 
         if ($model->isSubmittedToDP()) {
@@ -1714,17 +1681,14 @@ class OrderController extends BaseAdminController
             $response = $dp->createShipment($model);
 
             return [
-                'success'      => true,
-                'message'      => 'Заказ успешно отправлен в Таможня:ДП',
+                'success'    => true,
+                'message'    => 'Заказ успешно отправлен в Таможня:ДП',
                 'shipment_id'  => $response['id'] ?? null,
                 'track_number' => $response['dptrackNumber'] ?? null,
             ];
         } catch (\Exception $e) {
             Yii::error('Исключение при отправке заказа #' . $id . ' в Таможня:ДП: ' . $e->getMessage(), 'dp-api');
-            $rawMsg  = $e->getMessage();
-            // Extract just the DP API error text (after last ': ')
-            $friendly = preg_replace('/^Таможня:ДП HTTP \d+ для \w+ [^\s]+:\s*/', '', $rawMsg);
-            return ['success' => false, 'message' => 'Ошибка Таможня:ДП: ' . $friendly];
+            return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
         }
     }
 

@@ -91,6 +91,12 @@ class Order extends ActiveRecord
             [['dp_status_date', 'estimated_delivery_date'], 'safe'],
             [['passport_validated'], 'boolean'],
             [['dp_response'], 'safe'],
+            // Purchase / buyout fields
+            [['purchase_cost', 'commission_amount', 'insurance_amount', 'tariff_weight_kg'], 'number'],
+            [['purchase_user_id'], 'integer'],
+            [['purchase_currency', 'purchase_status', 'purchase_id'], 'string', 'max' => 50],
+            [['purchase_receipt_url'], 'string', 'max' => 500],
+            [['purchase_date', 'expected_delivery_at'], 'safe'],
         ];
     }
 
@@ -369,6 +375,66 @@ class Order extends ActiveRecord
         }
 
         return false;
+    }
+
+    public function isBuyoutFilled(): bool
+    {
+        return !empty($this->purchase_cost) && (float)$this->purchase_cost > 0
+            && !empty($this->purchase_date);
+    }
+
+    public function isOverdue(): bool
+    {
+        if (empty($this->expected_delivery_at)) {
+            return false;
+        }
+        static $terminal = ['delivered', 'cancelled', 'canceled', 'refunded'];
+        if (in_array($this->status, $terminal, true)) {
+            return false;
+        }
+        return strtotime($this->expected_delivery_at) < time();
+    }
+
+    public function getSlaStatus(): string
+    {
+        if (empty($this->expected_delivery_at)) {
+            return 'none';
+        }
+        static $terminal = ['delivered', 'cancelled', 'canceled', 'refunded'];
+        if (in_array($this->status, $terminal, true)) {
+            return 'none';
+        }
+        $deadline = strtotime($this->expected_delivery_at);
+        $now = time();
+        if ($deadline < $now) {
+            return 'overdue';
+        }
+        if ($deadline <= $now + 7200) {
+            return 'warn';
+        }
+        return 'ok';
+    }
+
+    public function computeExpectedDelivery(): string
+    {
+        $slaByMethod = [
+            'dobropost'   => 3,
+            'sdek'        => 3,
+            'belpochta'   => 5,
+            'pickup'      => 1,
+            'europost'    => 4,
+            'b2c_europe'  => 21,
+        ];
+        $days = $slaByMethod[$this->delivery_method ?? ''] ?? 3;
+        return date('Y-m-d H:i:s', strtotime("+{$days} days"));
+    }
+
+    public function getLinkedBuyout()
+    {
+        return $this->hasOne(
+            \app\backend\modules\procurement\models\BuyoutOrderLink::class,
+            ['order_id' => 'id']
+        );
     }
 
     public function sendNotification()
