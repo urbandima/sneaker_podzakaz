@@ -26,7 +26,7 @@ $this->params['headerActions'] = [
         <div class="admin-stat-icon primary"><i class="bi bi-database"></i></div>
         <div class="admin-stat-content">
             <div class="admin-stat-value"><?= count($sources) ?></div>
-            <div class="admin-stat-label">Всё источники</div>
+            <div class="admin-stat-label">Все источники</div>
         </div>
     </div>
     <div class="admin-stat-card">
@@ -85,7 +85,13 @@ $this->params['headerActions'] = [
                         </div>
                     </td>
                     <td><?= $task->processed_products ?> / <?= $task->total_products ?></td>
-                    <td><?= Yii::$app->formatter->asRelativeTime($task->started_at) ?></td>
+                    <td>
+                        <?php if ($task->started_at && (int)$task->started_at > 0): ?>
+                            <?= Yii::$app->formatter->asDatetime((int)$task->started_at, 'dd.MM.yyyy HH:mm:ss') ?>
+                        <?php else: ?>
+                            Запущен только что
+                        <?php endif; ?>
+                    </td>
                     <td>
                         <?= Html::button('<i class="bi bi-stop"></i> Стоп', [
                             'class' => 'admin-btn admin-btn-danger admin-btn-sm btn-stop-task',

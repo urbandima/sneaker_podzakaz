@@ -590,13 +590,19 @@ class SettingsController extends BaseAdminController
         $clean = [];
         foreach ($raw['shipping']['methods'] as $m) {
             if (empty($m['id']) || empty($m['name'])) continue;
+            $plugin = preg_replace('/[^a-z0-9_]/', '', strtolower($m['plugin'] ?? ''));
+            // Z74: if plugin is empty, force status to inactive
+            $status = ($m['status'] ?? '') === 'active' ? 'active' : 'inactive';
+            if (empty($plugin) && $status === 'active') {
+                $status = 'inactive';
+            }
             $clean[] = [
                 'id' => preg_replace('/[^a-z0-9_]/', '', strtolower($m['id'])),
                 'name' => mb_substr(strip_tags($m['name']), 0, 80),
                 'type' => mb_substr(strip_tags($m['type'] ?? 'international'), 0, 20),
                 'carrier' => mb_substr(strip_tags($m['carrier'] ?? ''), 0, 50),
-                'plugin' => preg_replace('/[^a-z0-9_]/', '', strtolower($m['plugin'] ?? '')),
-                'status' => ($m['status'] ?? '') === 'active' ? 'active' : 'inactive',
+                'plugin' => $plugin,
+                'status' => $status,
                 'delivery_time' => mb_substr(strip_tags($m['delivery_time'] ?? ''), 0, 50),
                 'base_cost' => (float)($m['base_cost'] ?? 0),
                 'currency' => mb_substr(strip_tags($m['currency'] ?? 'BYN'), 0, 10),

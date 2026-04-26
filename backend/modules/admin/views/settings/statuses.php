@@ -24,11 +24,11 @@ $this->params['headerActions'] = [
         <h2 class="admin-card-title"><i class="bi bi-arrow-right-circle"></i> Цепочка статусов</h2>
     </div>
     <div class="admin-card-body">
-        <div id="status-chain" style="display:flex;align-items:center;gap:8px;overflow-x:auto;padding:16px">
+        <div id="status-chain" style="display:flex;align-items:flex-start;gap:8px;overflow-x:auto;padding:16px;flex-wrap:wrap">
             <?php foreach ($statuses as $i => $status): ?>
                 <?php if ($status['is_active'] && $status['key'] !== 'canceled'): ?>
-                    <div class="status-chain-item">
-                        <div class="status-badge-large admin-badge-<?= $status['color'] ?? 'secondary' ?>">
+                    <div class="status-chain-item" style="flex-shrink:0">
+                        <div class="status-badge-large admin-badge-<?= $status['color'] ?? 'secondary' ?>" style="white-space:normal;word-break:break-word;min-height:2.5em;display:flex;align-items:center;text-align:center">
                             <?= $i + 1 ?>. <?= Html::encode($status['label']) ?>
                         </div>
                     </div>
