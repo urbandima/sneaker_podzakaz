@@ -151,9 +151,6 @@ $priceView = ProductCardHelper::calculatePriceView($product, null, [], $sizeFiel
                 </button>
             </div>
             
-            <a href="<?= $product->getUrl() ?>" class="qv-full-link">
-                Подробнее о товаре →
-            </a>
         </div>
     </div>
 </div>

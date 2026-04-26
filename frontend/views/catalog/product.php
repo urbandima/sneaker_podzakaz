@@ -57,10 +57,11 @@ if (!empty($product->images)) {
             continue;
         }
         $webpUrl = ImageHelper::getWebpUrl($url);
-        if (isset($seenGalleryUrls[$webpUrl])) {
+        $normalizedUrl = preg_replace('/-[a-f0-9]{6,8}(\.\w+)$/', '$1', $webpUrl);
+        if (isset($seenGalleryUrls[$normalizedUrl])) {
             continue;
         }
-        $seenGalleryUrls[$webpUrl] = true;
+        $seenGalleryUrls[$normalizedUrl] = true;
         $galleryImages[] = [
             'url' => $webpUrl,
             'alt' => $product->name . ' — фото ' . (count($galleryImages) + 1),
@@ -448,16 +449,6 @@ $this->registerJsVar('productVideo', $productVideo);
                 </button>
                 <?php endif; ?>
             </div>
-
-            <!-- Описание товара -->
-            <?php if (!empty($product->description)): ?>
-                <div class="product-description-section">
-                    <h3>Описание</h3>
-                    <div class="description-content">
-                        <?= $product->description ?>
-                    </div>
-                </div>
-            <?php endif; ?>
 
         </div>
     </div>
