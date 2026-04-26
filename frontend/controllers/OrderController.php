@@ -64,6 +64,10 @@ class OrderController extends Controller
                     $europochtaPoints = $decoded;
                 }
             }
+
+            $company        = \app\backend\modules\admin\models\CompanySettings::getSettings();
+            $pickupAddress  = Yii::$app->settings->get('checkout', 'pickup_address', $company['address'] ?? 'пр.Победителей 5 офис 9');
+            $pickupWorkTime = $company['work_time'] ?? Yii::$app->settings->get('company', 'work_time', 'Пн-Вс: 10:00-22:00');
         } catch (\Exception $e) {
             Yii::warning('Checkout page error: ' . $e->getMessage(), 'checkout');
         }
@@ -74,6 +78,8 @@ class OrderController extends Controller
             'customer'         => $customer,
             'shippingMethods'  => $shippingMethods,
             'europochtaPoints' => $europochtaPoints,
+            'pickupAddress'    => $pickupAddress  ?? 'пр.Победителей 5 офис 9',
+            'pickupWorkTime'   => $pickupWorkTime ?? 'Пн-Вс: 10:00-22:00',
         ]);
     }
 
@@ -604,7 +610,8 @@ class OrderController extends Controller
             return ['success' => false, 'message' => 'Паспортные данные принимаются только для оплаченных заказов'];
         }
 
-        $post = Yii::$app->request->post();
+        $post        = Yii::$app->request->post();
+        $citizenship = in_array($post['citizenship'] ?? '', ['by', 'ru'], true) ? $post['citizenship'] : 'by';
         $errors = [];
 
         $required = [
@@ -614,7 +621,8 @@ class OrderController extends Controller
             'passport_series'      => 'Серия паспорта',
             'passport_number'      => 'Номер паспорта',
             'passport_issue_date'  => 'Дата выдачи паспорта',
-            'inn'                  => 'ИНН',
+            'passport_issued_by'   => 'Кем выдан',
+            'inn'                  => $citizenship === 'ru' ? 'ИНН' : 'Идентификационный номер',
             'full_address'         => 'Адрес',
             'city'                 => 'Город',
             'postal_code'          => 'Почтовый индекс',
@@ -627,25 +635,54 @@ class OrderController extends Controller
             }
         }
 
-        $inn = trim($post['inn'] ?? '');
-        if (!empty($inn) && !preg_match('/^[0-9]{12}$/', $inn)) {
-            $errors['inn'] = 'ИНН должен содержать ровно 12 цифр';
+        $series = trim(strtoupper($post['passport_series'] ?? ''));
+        if (!empty($series)) {
+            if ($citizenship === 'ru') {
+                if (!preg_match('/^[0-9]{4}$/', $series)) {
+                    $errors['passport_series'] = 'Серия РФ: ровно 4 цифры';
+                }
+            } else {
+                if (!preg_match('/^[A-Z]{2,4}$/', $series)) {
+                    $errors['passport_series'] = 'Серия РБ: 2–4 латинские заглавные буквы';
+                }
+            }
         }
 
         $passNum = trim($post['passport_number'] ?? '');
-        if (!empty($passNum) && !preg_match('/^[0-9]{6,7}$/', $passNum)) {
-            $errors['passport_number'] = 'Номер паспорта должен содержать 6–7 цифр';
+        $expectedLen = $citizenship === 'ru' ? 6 : 7;
+        if (!empty($passNum) && !preg_match('/^[0-9]{' . $expectedLen . '}$/', $passNum)) {
+            $errors['passport_number'] = 'Номер паспорта: ровно ' . $expectedLen . ' цифр';
+        }
+
+        $inn = trim($post['inn'] ?? '');
+        if (!empty($inn)) {
+            if ($citizenship === 'ru') {
+                if (!preg_match('/^[0-9]{12}$/', $inn)) {
+                    $errors['inn'] = 'ИНН: ровно 12 цифр';
+                }
+            } else {
+                if (mb_strlen($inn) !== 14) {
+                    $errors['inn'] = 'Идентификационный номер: ровно 14 символов';
+                }
+            }
         }
 
         if (!empty($errors)) {
             return ['success' => false, 'message' => 'Проверьте введённые данные', 'errors' => $errors];
         }
 
-        $fields = array_merge(array_keys($required), ['recipient_middle_name', 'region']);
+        $fields = array_merge(
+            array_keys($required),
+            ['recipient_middle_name', 'region', 'passport_division_code', 'citizenship']
+        );
         foreach ($fields as $field) {
             if ($model->hasAttribute($field)) {
                 $model->$field = trim(strip_tags($post[$field] ?? ''));
             }
+        }
+        // Force uppercase on series
+        if ($model->hasAttribute('passport_series')) {
+            $model->passport_series = strtoupper($model->passport_series);
         }
         if ($model->hasAttribute('passport_submitted_at')) {
             $model->passport_submitted_at = time();

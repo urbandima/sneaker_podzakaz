@@ -312,6 +312,20 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                         <?php endif; ?>
                     </div>
 
+                    <!-- Самовывоз: адрес из настроек (read-only) -->
+                    <?php
+                    $pickupAddress  = $pickupAddress  ?? 'пр.Победителей 5 офис 9';
+                    $pickupWorkTime = $pickupWorkTime ?? 'Пн-Вс: 10:00-22:00';
+                    ?>
+                    <div id="pickupInfo" style="display:none;margin-top:10px;padding:10px 14px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;font-size:13px;color:#166534">
+                        <i class="bi bi-shop" style="margin-right:6px"></i>
+                        <strong>Адрес самовывоза:</strong> <?= Html::encode($pickupAddress) ?>
+                        <span style="margin-left:8px;color:#6b7280" title="Время работы: <?= Html::encode($pickupWorkTime) ?>">
+                            <i class="bi bi-clock"></i> <?= Html::encode($pickupWorkTime) ?>
+                        </span>
+                        <input type="hidden" id="pickupAddressHidden" value="<?= Html::encode($pickupAddress) ?>">
+                    </div>
+
                     <!-- Адрес: город + индекс на одной строке, затем улица -->
                     <div id="addressGroup" style="display:none">
                         <div class="address-row">
@@ -682,7 +696,12 @@ function updateDelivery(cost, method) {
     var pvzWrap = document.getElementById('europochtaPvz');
     if (pvzWrap) pvzWrap.style.display = (method === 'europochta') ? 'block' : 'none';
 
-    var needAddress = (method !== 'pickup' && method !== 'pickup_minsk' && method !== 'europochta');
+    var isPickup = (method === 'pickup' || method === 'pickup_minsk' || method === 'local_pickup');
+    // Show pickup address info card (read-only), hide regular address form
+    var pickupInfoEl = document.getElementById('pickupInfo');
+    if (pickupInfoEl) pickupInfoEl.style.display = isPickup ? 'block' : 'none';
+
+    var needAddress = (!isPickup && method !== 'europochta');
     document.getElementById('addressGroup').style.display = needAddress ? 'block' : 'none';
     document.getElementById('field-address').required = needAddress;
 
@@ -767,7 +786,14 @@ function submitOrder() {
         selectedPvz = pvzVal;
     }
 
-    if (delivery.value !== 'pickup' && delivery.value !== 'pickup_minsk' && delivery.value !== 'europochta' && !address) {
+    // For pickup: use stored pickup address
+    var isPickupMethod = (delivery.value === 'pickup' || delivery.value === 'pickup_minsk' || delivery.value === 'local_pickup');
+    if (isPickupMethod) {
+        var pickupHidden = document.getElementById('pickupAddressHidden');
+        address = pickupHidden ? pickupHidden.value : 'Самовывоз';
+    }
+
+    if (!isPickupMethod && delivery.value !== 'europochta' && !address) {
         alert('Укажите адрес доставки');
         var cityEl = document.getElementById('field-city');
         if (cityEl) cityEl.focus(); else document.getElementById('field-address').focus();
