@@ -82,7 +82,7 @@ use yii\helpers\Url;
                 <label>ИНН (12 цифр) <span class="req">*</span></label>
                 <input type="text" id="pf_inn" name="inn"
                        value="<?= Html::encode($order->inn ?? '') ?>"
-                       maxlength="12" required placeholder="123456789012">
+                       maxlength="12" required placeholder="ИНН (только для РФ)">
                 <span class="field-error" id="err_inn"></span>
             </div>
         </div>

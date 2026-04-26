@@ -372,4 +372,22 @@ class Customer extends ActiveRecord implements IdentityInterface
             ->orderBy(['created_at' => SORT_DESC])
             ->limit($limit);
     }
+
+    public function getLoyaltyPoints()
+    {
+        return $this->hasMany(\app\backend\modules\loyalty\models\LoyaltyPoints::class, ['customer_id' => 'id'])
+            ->orderBy(['created_at' => SORT_DESC]);
+    }
+
+    public function getPayments()
+    {
+        return $this->hasMany(\app\backend\modules\finance\models\Payment::class, ['customer_id' => 'id'])
+            ->orderBy(['created_at' => SORT_DESC]);
+    }
+
+    public function getReturnRequests()
+    {
+        return $this->hasMany(\app\backend\modules\returns\models\ReturnRequest::class, ['customer_id' => 'id'])
+            ->orderBy(['created_at' => SORT_DESC]);
+    }
 }

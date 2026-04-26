@@ -33,6 +33,7 @@ namespace app\backend\modules\catalog\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use yii\helpers\Inflector;
 
 /**
  * Модель SizeGrid (Размерная сетка)
@@ -59,6 +60,20 @@ class SizeGrid extends ActiveRecord
     public static function tableName()
     {
         return 'size_grid';
+    }
+
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            if (empty($this->slug)) {
+                $this->slug = Inflector::slug($this->name ?: '');
+                if (empty($this->slug)) {
+                    $this->slug = 'grid-' . time();
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     public function rules()

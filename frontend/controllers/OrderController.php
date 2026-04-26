@@ -37,10 +37,9 @@ class OrderController extends Controller
             $items = Cart::getItems();
             $total = Cart::getTotal();
 
-            // Если корзина пуста — перенаправляем в корзину
             if (empty($items)) {
                 Yii::$app->session->setFlash('warning', 'Корзина пуста. Добавьте товары перед оформлением заказа.');
-                return $this->redirect(['/cart/cart/index']);
+                return $this->redirect(['/catalog']);
             }
 
             $customerId = Yii::$app->session->get('customer_id');

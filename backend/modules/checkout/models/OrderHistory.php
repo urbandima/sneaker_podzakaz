@@ -1,27 +1,5 @@
 <?php
 
-/**
- * OrderHistory — Модель истории изменений заказа
- * 
- * НАЗНАЧЕНИЕ:
- * Логирование всех изменений статуса заказа: кто изменил,
- * какой статус был, какой стал, комментарий.
- * 
- * ОСНОВНЫЕ СВОЙСТВА:
- * - order_id: ID заказа
- * - old_status: предыдущий статус
- * - new_status: новый статус
- * - changed_by: ID пользователя, изменившего статус
- * - comment: комментарий к изменению
- * 
- * СВЯЗИ:
- * - Order (принадлежит заказу)
- * - User (изменивший пользователь)
- * 
- * ИСПОЛЬЗОВАНИЕ:
- * - OrderController/admin (просмотр истории заказа)
- * - Автоматическое создание при смене статуса
- */
 namespace app\backend\modules\checkout\models;
 
 use Yii;
@@ -51,7 +29,10 @@ class OrderHistory extends ActiveRecord
         return [
             [['order_id'], 'required'],
             [['order_id', 'changed_by'], 'integer'],
-            [['old_status', 'new_status', 'field'], 'string', 'max' => 64],
+            [['old_status', 'new_status'], 'string', 'max' => 50],
+            [['action', 'field_name'], 'string', 'max' => 100],
+            [['user_name'], 'string', 'max' => 255],
+            [['ip_address'], 'string', 'max' => 45],
             [['comment', 'old_value', 'new_value'], 'string'],
         ];
     }
@@ -61,18 +42,53 @@ class OrderHistory extends ActiveRecord
         return [
             'id'         => 'ID',
             'order_id'   => 'Заказ',
+            'action'     => 'Действие',
+            'field_name' => 'Поле',
             'old_status' => 'Старый статус',
             'new_status' => 'Новый статус',
-            'field'      => 'Поле',
-            'old_value'  => 'Было',
-            'new_value'  => 'Стало',
+            'old_value'  => 'Старое значение',
+            'new_value'  => 'Новое значение',
             'comment'    => 'Комментарий',
-            'changed_by' => 'Изменил',
-            'created_at' => 'Дата изменения',
+            'changed_by' => 'Изменил (ID)',
+            'user_name'  => 'Изменил',
+            'ip_address' => 'IP',
+            'created_at' => 'Дата',
         ];
     }
 
-    public function getOldStatusLabel()
+    /**
+     * Universal helper to record any order change.
+     */
+    public static function log(
+        int $orderId,
+        string $action,
+        ?string $fieldName,
+        mixed $oldValue,
+        mixed $newValue,
+        ?string $comment = null
+    ): void {
+        $user = Yii::$app->user;
+
+        $h = new self();
+        $h->order_id   = $orderId;
+        $h->action     = $action;
+        $h->field_name = $fieldName;
+        $h->old_value  = is_array($oldValue) ? json_encode($oldValue, JSON_UNESCAPED_UNICODE) : (string)$oldValue;
+        $h->new_value  = is_array($newValue) ? json_encode($newValue, JSON_UNESCAPED_UNICODE) : (string)$newValue;
+        $h->changed_by = $user->isGuest ? null : $user->id;
+        $h->user_name  = $user->isGuest ? null : ($user->identity->username ?? null);
+        $h->ip_address = Yii::$app->request->userIP ?? null;
+        $h->comment    = $comment;
+
+        if ($action === 'status_changed') {
+            $h->old_status = (string)$oldValue;
+            $h->new_status = (string)$newValue;
+        }
+
+        $h->save(false);
+    }
+
+    public function getOldStatusLabel(): string
     {
         if (!$this->old_status) {
             return 'Создан';
@@ -81,30 +97,28 @@ class OrderHistory extends ActiveRecord
         return $statuses[$this->old_status] ?? $this->old_status;
     }
 
-    public function getNewStatusLabel()
+    public function getNewStatusLabel(): string
     {
+        if (!$this->new_status) return '—';
         $statuses = Yii::$app->settings->getStatuses();
         return $statuses[$this->new_status] ?? $this->new_status;
     }
 
-    // Write a generic field-change record
-    public static function logFieldChange(int $orderId, string $field, $oldValue, $newValue, int $userId): void
+    public function getActionLabel(): string
     {
-        $h = new self();
-        $h->order_id   = $orderId;
-        $h->field      = $field;
-        $h->old_value  = (string)$oldValue;
-        $h->new_value  = (string)$newValue;
-        $h->changed_by = $userId;
-        // Keep status columns populated when field is 'status'
-        if ($field === 'status') {
-            $h->old_status = (string)$oldValue;
-            $h->new_status = (string)$newValue;
-        }
-        $h->save(false);
+        $labels = [
+            'status_changed' => 'Смена статуса',
+            'field_changed'  => 'Изменение поля',
+            'note_added'     => 'Заметка',
+            'item_added'     => 'Товар добавлен',
+            'item_removed'   => 'Товар удалён',
+            'item_updated'   => 'Товар изменён',
+            'sent_to_dp'     => 'Отправлено в ТД',
+            'created'        => 'Создан',
+        ];
+        return $labels[$this->action ?? 'status_changed'] ?? ($this->action ?? 'Изменение');
     }
 
-    // Relations
     public function getOrder()
     {
         return $this->hasOne(Order::class, ['id' => 'order_id']);

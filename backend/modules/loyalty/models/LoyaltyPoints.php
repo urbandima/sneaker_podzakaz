@@ -71,6 +71,7 @@ class LoyaltyPoints extends ActiveRecord
         return [
             [
                 'class' => TimestampBehavior::class,
+                'value' => function() { return date('Y-m-d H:i:s'); },
                 'updatedAtAttribute' => false,
             ],
         ];

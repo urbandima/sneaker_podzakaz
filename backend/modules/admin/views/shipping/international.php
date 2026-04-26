@@ -68,11 +68,13 @@ $this->params['breadcrumbs'][] = $this->title;
             
             <div class="method-actions">
                 <button class="btn-action btn-primary-action">
-                    <i class="badmin-i b -dmni-"></i> dm-btn-sm
-                    Редактировать tton>
+                    <i class="bi bi-pencil"></i>
+                    Редактировать
+                </button>
                 <button class="btn-action btn-secondary-action">
-                    <i class="badmin-i b -dmue-></i> adminb-sm
-                    <?= $method['status'] === 'utton>
+                    <i class="bi bi-toggle-<?= $method['status'] === 'active' ? 'on' : 'off' ?>"></i>
+                    <?= $method['status'] === 'active' ? 'Деактивировать' : 'Активировать' ?>
+                </button>
             </div>
         </div>
         <?php endforeach; ?>

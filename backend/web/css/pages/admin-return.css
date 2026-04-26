@@ -1,0 +1,178 @@
+/* ==============================================
+   ADMIN RETURN PAGE
+   Управление возвратами в админ-панели
+   ============================================== */
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-8);
+}
+
+.admin-header-title {
+    margin: 0;
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+.admin-header-actions {
+    display: flex;
+    gap: var(--space-4);
+}
+
+.admin-card {
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+}
+
+.admin-card-title {
+    margin: 0 0 var(--space-6) 0;
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+.admin-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+}
+
+.admin-form-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.admin-form-actions {
+    display: flex;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+}
+
+.admin-form .field-returnrequest-order_id,
+.admin-form .field-returnrequest-reason,
+.admin-form .field-returnrequest-refund_amount,
+.admin-form .field-returnrequest-refund_method,
+.admin-form .field-returnrequest-comment,
+.admin-form .field-returnrequest-admin_comment,
+.admin-form .field-returnrequest-pickup_address {
+    margin-bottom: 0;
+}
+
+.admin-form .form-group {
+    margin-bottom: var(--space-4);
+}
+
+.admin-form label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.admin-form .form-control,
+.admin-form .form-select {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+    color: var(--color-text-primary);
+    background: var(--color-bg-primary);
+    transition: all var(--duration-fast);
+}
+
+.admin-form .form-control:focus,
+.admin-form .form-select:focus {
+    outline: none;
+    border-color: var(--c-black);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.admin-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--duration-fast);
+}
+
+.admin-btn-primary {
+    background: var(--c-black);
+    color: var(--c-white);
+}
+
+.admin-btn-primary:hover {
+    background: var(--c-gray-900);
+}
+
+.admin-btn-secondary {
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+}
+
+.admin-btn-secondary:hover {
+    background: var(--color-border);
+}
+
+.text-danger {
+    color: var(--color-danger);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .admin-header {
+        flex-direction: column;
+        gap: var(--space-4);
+        align-items: flex-start;
+    }
+
+    .admin-header-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .admin-header-actions .admin-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .admin-card {
+        padding: var(--space-6);
+    }
+
+    .admin-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-form-actions {
+        flex-direction: column;
+    }
+
+    .admin-form-actions .admin-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

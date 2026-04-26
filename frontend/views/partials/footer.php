@@ -47,6 +47,7 @@ $company = Yii::$app->settings->getCompany();
                         <li><?= Html::a('Инструкция по оплате', ['/site/payment-instruction']) ?></li>
                         <li><?= Html::a('Политика конфиденциальности', ['/page/privacy']) ?></li>
                         <li><?= Html::a('Реквизиты', ['/page/about']) ?></li>
+                        <li style="margin-top:0.5rem"><?= Html::a('<i class="bi bi-chat-heart"></i>&nbsp; Написать директору', ['/feedback'], ['encode' => false, 'style' => 'color:#e11d48;font-weight:600']) ?></li>
                     </ul>
                 </div>
 
@@ -124,55 +125,48 @@ $company = Yii::$app->settings->getCompany();
                     <span class="payment-label">Принимаем к оплате:</span>
                     <div class="payment-icons">
 
-                        <!-- Visa -->
-                        <span class="payment-icon payment-icon--visa" role="img" title="Visa" aria-label="Visa">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 30" width="48" height="30" fill="none">
-                                <rect width="48" height="30" rx="4" fill="#1A1F71"/>
-                                <path d="M19.5 21H16.7L18.5 9H21.3L19.5 21Z" fill="white"/>
-                                <path d="M30.2 9.3C29.6 9.1 28.7 9 27.6 9C24.9 9 22.9 10.3 22.9 12.2C22.9 13.7 24.3 14.5 25.4 15C26.5 15.5 26.9 15.9 26.9 16.4C26.9 17.2 25.9 17.6 25 17.6C23.8 17.6 23.1 17.4 22.1 17L21.7 16.8L21.3 19.4C22 19.7 23.3 20 24.6 20C27.5 20 29.5 18.7 29.5 16.7C29.5 15.6 28.8 14.7 27.2 14C26.2 13.5 25.6 13.2 25.6 12.7C25.6 12.2 26.2 11.7 27.3 11.7C28.2 11.7 28.8 11.9 29.3 12.1L29.6 12.2L30.2 9.3Z" fill="white"/>
-                                <path d="M35.4 9H33.2C32.5 9 32 9.2 31.7 9.9L27.8 21H30.7L31.3 19.2H34.8L35.1 21H37.7L35.4 9ZM32.1 17C32.3 16.4 33.3 13.7 33.3 13.7C33.3 13.7 33.6 12.9 33.8 12.4L34 13.6C34 13.6 34.6 16.3 34.8 17H32.1Z" fill="white"/>
-                                <path d="M14.2 9L11.5 17.3L11.2 15.9C10.7 14.2 9.1 12.3 7.3 11.3L9.8 21H12.7L17 9H14.2Z" fill="white"/>
-                                <path d="M8.9 9H4.3L4.2 9.2C8 10.1 10.5 12.4 11.2 15.9L10.4 9.9C10.3 9.2 9.7 9 8.9 9Z" fill="#F9A533"/>
+                        <!-- Visa — official colours #1A1F71 wordmark -->
+                        <span class="payment-icon payment-icon--visa" title="Visa" aria-label="Visa">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#1A1F71"/>
+                                <text x="390" y="330" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="280" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="-10">VISA</text>
                             </svg>
                         </span>
 
-                        <!-- Mastercard -->
-                        <span class="payment-icon payment-icon--mc" role="img" title="Mastercard" aria-label="Mastercard">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 30" width="48" height="30" fill="none">
-                                <rect width="48" height="30" rx="4" fill="#252525"/>
-                                <circle cx="19" cy="15" r="8" fill="#EB001B"/>
-                                <circle cx="29" cy="15" r="8" fill="#F79E1B"/>
-                                <path d="M24 8.8A8 8 0 0 1 28.2 15 8 8 0 0 1 24 21.2 8 8 0 0 1 19.8 15 8 8 0 0 1 24 8.8Z" fill="#FF5F00"/>
+                        <!-- Mastercard — two overlapping circles -->
+                        <span class="payment-icon payment-icon--mc" title="Mastercard" aria-label="Mastercard">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#252525"/>
+                                <circle cx="290" cy="250" r="160" fill="#EB001B"/>
+                                <circle cx="490" cy="250" r="160" fill="#F79E1B"/>
+                                <path d="M390 121a160 160 0 0 1 0 258 160 160 0 0 1 0-258z" fill="#FF5F00"/>
                             </svg>
                         </span>
 
-                        <!-- Белкарт -->
-                        <span class="payment-icon payment-icon--belcard" role="img" title="Белкарт" aria-label="Белкарт">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 30" width="48" height="30" fill="none">
-                                <rect width="48" height="30" rx="4" fill="#005BAA"/>
-                                <rect x="0" y="20" width="48" height="10" rx="0" fill="#C8102E"/>
-                                <rect x="0" y="20" width="48" height="4" rx="0" fill="#C8102E"/>
-                                <text x="8" y="17" font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="white" letter-spacing="0.5">БЕЛКАРТ</text>
+                        <!-- Белкарт — blue/red stripes wordmark -->
+                        <span class="payment-icon payment-icon--belcard" title="Белкарт" aria-label="Белкарт">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#FFFFFF"/>
+                                <rect y="0" width="780" height="167" rx="0" fill="#005BAA"/>
+                                <rect y="167" width="780" height="167" fill="#FFFFFF"/>
+                                <rect y="334" width="780" height="166" rx="0" fill="#C8102E"/>
+                                <text x="390" y="295" font-family="'Arial',sans-serif" font-size="150" font-weight="800" fill="#005BAA" text-anchor="middle" letter-spacing="2">БЕЛКАРТ</text>
                             </svg>
                         </span>
 
-                        <!-- Халва -->
-                        <span class="payment-icon payment-icon--halva" role="img" title="Халва" aria-label="Халва">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 30" width="48" height="30" fill="none">
-                                <rect width="48" height="30" rx="4" fill="#6B3FA0"/>
-                                <circle cx="24" cy="13" r="7" fill="none" stroke="#FFD700" stroke-width="2"/>
-                                <path d="M20 13 Q24 9 28 13 Q24 17 20 13Z" fill="#FFD700"/>
-                                <text x="50%" y="26" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="white" text-anchor="middle">ХАЛВА</text>
+                        <!-- Халва (Беларусбанк) — purple card -->
+                        <span class="payment-icon payment-icon--halva" title="Халва" aria-label="Халва">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#5B2D8E"/>
+                                <text x="390" y="310" font-family="'Arial',sans-serif" font-size="200" font-weight="900" fill="#FFFFFF" text-anchor="middle">Халва</text>
                             </svg>
                         </span>
 
-                        <!-- ЕРИП -->
-                        <span class="payment-icon payment-icon--erip" role="img" title="ЕРИП" aria-label="ЕРИП">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 30" width="48" height="30" fill="none">
-                                <rect width="48" height="30" rx="4" fill="#009A44"/>
-                                <rect x="6" y="8" width="36" height="14" rx="2" fill="none" stroke="white" stroke-width="1.5"/>
-                                <line x1="14" y1="8" x2="14" y2="22" stroke="white" stroke-width="1.5"/>
-                                <text x="19" y="18.5" font-family="Arial, sans-serif" font-size="8" font-weight="700" fill="white">ЕРИП</text>
+                        <!-- ЕРИП — green -->
+                        <span class="payment-icon payment-icon--erip" title="ЕРИП" aria-label="ЕРИП">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#009A44"/>
+                                <text x="390" y="330" font-family="'Arial',sans-serif" font-size="260" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="10">ЕРИП</text>
                             </svg>
                         </span>
 

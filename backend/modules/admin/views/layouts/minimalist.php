@@ -72,7 +72,7 @@ $controllerId = Yii::$app->controller->id;
                     'items' => [
                         ['label' => 'Заказы', 'url' => '/admin/order', 'ids' => ['order']],
                         ['label' => 'Возвраты', 'url' => '/admin/return', 'ids' => ['return']],
-                        ['label' => 'Доставка', 'url' => '/admin/shipping', 'ids' => ['shipping']]
+                        ['label' => 'Отправка заказов', 'url' => '/admin/shipping/dispatch', 'ids' => ['dispatch']]
                     ]
                 ],
                 
@@ -135,6 +135,7 @@ $controllerId = Yii::$app->controller->id;
                     'items' => [
                         ['label' => 'Настройки', 'url' => '/admin/settings', 'ids' => ['settings']],
                         ['label' => 'Настройки доставки', 'url' => '/admin/settings/shipping', 'ids' => ['settings']],
+                        ['label' => 'Способы оплаты', 'url' => '/admin/settings/payment', 'ids' => ['settings']],
                         ['label' => 'Меню навигации', 'url' => '/admin/sidebar-menu', 'ids' => ['sidebar-menu']]
                     ]
                 ]

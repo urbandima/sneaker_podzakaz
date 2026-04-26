@@ -162,6 +162,34 @@ class FavoriteController extends Controller
     }
 
     /**
+     * Merge guest localStorage wishlist after login (POST AJAX, JSON body)
+     */
+    public function actionMergeGuest()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $userId = Yii::$app->session->get('customer_id');
+        if (!$userId) {
+            return ['success' => false, 'message' => 'Not authenticated'];
+        }
+
+        $body = Yii::$app->request->rawBody;
+        $data = json_decode($body, true);
+        $ids = isset($data['ids']) && is_array($data['ids']) ? $data['ids'] : [];
+
+        foreach ($ids as $productId) {
+            $productId = (int) $productId;
+            if ($productId <= 0) continue;
+            ProductFavorite::add($productId, $userId, null);
+        }
+
+        return [
+            'success' => true,
+            'count' => ProductFavorite::getCount($userId, null),
+        ];
+    }
+
+    /**
      * Очистить всё избранное (POST AJAX)
      */
     public function actionClear()

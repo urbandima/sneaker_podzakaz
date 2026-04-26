@@ -21,12 +21,12 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
 <?php if ($customer): ?>
 <div class="account-page">
     <div class="account-container">
-        <nav class="account-breadcrumbs">
+        <nav class="breadcrumb">
             <a href="/">Главная</a>
-            <span>/</span>
+            <span class="breadcrumb-separator">/</span>
             <a href="/account">Личный кабинет</a>
-            <span>/</span>
-            <span class="current">Избранное</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Избранное</span>
         </nav>
 
         <div class="account-header">
@@ -88,10 +88,12 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
 <?php else: ?>
 <div class="catalog-page">
     <div class="container">
-        <nav class="breadcrumbs">
-            <a href="/">Главная</a> /
-            <a href="/catalog">Каталог</a> /
-            <span>Избранное</span>
+        <nav class="breadcrumb">
+            <a href="/">Главная</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="/catalog">Каталог</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Избранное</span>
         </nav>
 
         <div class="w-100">

@@ -67,8 +67,8 @@ class CatalogApiController extends Controller
             ->where(['product.is_active' => true])
             ->andWhere(['!=', 'product.stock_status', Product::STOCK_OUT_OF_STOCK]);
         
-        // Применяем фильтры
-        $query = FilterBuilder::applyFiltersToProductQuery($query, $filters);
+        // Применяем фильтры (метод модифицирует $query in-place)
+        FilterBuilder::applyFiltersToProductQuery($query, $filters);
         
         // Применяем сортировку
         $this->applySorting($query, $filters['sort'] ?? 'popular');

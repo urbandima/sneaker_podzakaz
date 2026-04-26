@@ -20,18 +20,20 @@ $this->params['breadcrumbs'][] = $this->title;
     data-type-banner="<?= SidebarMenuItem::TYPE_BANNER ?>"
 ></div>
 
-<div class="admin-page-header">
-    <h1><?= Html::encode($this->title) ?></h1>
-    <div class="header-actions">
-        <?= Html::a('<i class="bi bi-arrow-left"></i> Назад', ['index'], ['class' => 'btn btn-outline']) ?>
-    </div>
-</div>
+<?php
+$this->params['headerActions'] = [
+    Html::a('<i class="bi bi-arrow-left"></i> К списку', ['index'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm']),
+];
+?>
 
 <div class="admin-card">
     <?php $form = ActiveForm::begin([
         'options' => ['class' => 'admin-form'],
         'fieldConfig' => [
-            'template' => "<div class=\"form-group\">{label}{input}{error}</div>",
+            'template' => "<div class=\"admin-form-group\">{label}<div class=\"admin-form-input-wrap\">{input}</div>{error}</div>",
+            'labelOptions' => ['class' => 'admin-form-label'],
+            'inputOptions' => ['class' => 'admin-form-input'],
+            'errorOptions' => ['class' => 'admin-form-error'],
         ],
     ]); ?>
 
@@ -42,6 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="form-col-6">
             <?= $form->field($model, 'type')->dropDownList($types, [
                 'prompt' => 'Выберите тип',
+                'class' => 'admin-form-input',
                 'onchange' => 'toggleTypeFields(this.value)'
             ]) ?>
         </div>
@@ -58,7 +61,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <div class="form-row">
         <div class="form-col-6">
-            <?= $form->field($model, 'parent_id')->dropDownList($parents, ['prompt' => 'Без родителя']) ?>
+            <?= $form->field($model, 'parent_id')->dropDownList($parents, ['prompt' => 'Без родителя', 'class' => 'admin-form-input']) ?>
         </div>
         <div class="form-col-6">
             <?= $form->field($model, 'icon')->textInput(['maxlength' => true, 'placeholder' => 'bi bi-house']) ?>
@@ -90,9 +93,9 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 
-    <div class="form-actions">
-        <?= Html::submitButton('<i class="bi bi-check-lg"></i> Сохранить', ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Отмена', ['index'], ['class' => 'btn btn-outline']) ?>
+    <div class="admin-form-group" style="display:flex;gap:0.75rem;margin-top:1.5rem">
+        <?= Html::submitButton('<i class="bi bi-check-lg"></i> Сохранить', ['class' => 'admin-btn admin-btn-primary']) ?>
+        <?= Html::a('Отмена', ['index'], ['class' => 'admin-btn admin-btn-secondary']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

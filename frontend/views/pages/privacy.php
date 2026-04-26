@@ -6,12 +6,33 @@ $this->title = 'Политика конфиденциальности';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="container py-5">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="page-header text-center mb-5">
-                <h1 class="h2 mb-3">Политика конфиденциальности</h1>
-                <p class="text-muted">Информация о сборе, обработке и защите персональных данных в соответствии с законодательством РБ</p>
+<style>
+.info-page-wrap{max-width:760px;margin:0 auto}
+.page-edit-admin-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:#0f0f0f;color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;opacity:.7;transition:opacity .15s}
+.page-edit-admin-btn:hover{opacity:1;color:#fff}
+.alert{padding:14px 18px;border-radius:10px;margin-bottom:16px}
+.alert-primary{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
+.alert-warning{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+.alert-info{background:#f0f9ff;border:1px solid #bae6fd;color:#0c4a6e}
+.alert-heading{font-size:14px;font-weight:700;margin:0 0 6px}
+.mb-0{margin-bottom:0!important}.mb-3{margin-bottom:1rem}
+.text-success{color:#16a34a}.text-primary{color:#2563eb}.text-info{color:#0284c7}.text-warning{color:#d97706}.text-muted{color:var(--color-text-secondary,#666)}
+.small{font-size:.85em}.list-unstyled{list-style:none;padding-left:0}
+.h4{font-size:1.1rem;font-weight:700}.h6{font-size:.9rem;font-weight:700}
+.content-section h2{font-size:1.1rem!important;font-weight:700!important;margin-bottom:.75rem!important}
+</style>
+<div class="container" style="padding-top:var(--space-12,3rem);padding-bottom:var(--space-16,4rem)">
+    <div class="info-page-wrap">
+        <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()): ?>
+        <div style="margin-bottom:1rem;text-align:right">
+            <a href="/admin/page/edit?slug=privacy" class="page-edit-admin-btn" target="_blank">
+                <i class="bi bi-pencil-square"></i> Редактировать страницу
+            </a>
+        </div>
+        <?php endif; ?>
+            <div style="margin-bottom:var(--space-10,2.5rem)">
+                <h1 style="font-size:clamp(1.75rem,4vw,2.5rem);font-weight:900;letter-spacing:-0.03em;margin-bottom:var(--space-2,.5rem)">Политика конфиденциальности</h1>
+                <p style="color:var(--color-text-secondary,#666);font-size:var(--text-base,1rem)">Информация о сборе, обработке и защите персональных данных в соответствии с законодательством РБ</p>
             </div>
 
             <div class="content-section">
@@ -439,7 +460,6 @@ $this->params['breadcrumbs'][] = $this->title;
                     </div>
                 </div>
             </div>
-        </div>
     </div>
 </div>
 
@@ -447,260 +467,137 @@ $this->params['breadcrumbs'][] = $this->title;
 .policy-basics {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+    gap: 16px;
     margin-bottom: 30px;
 }
-
 .policy-item {
     display: flex;
     align-items: center;
     gap: 15px;
     padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 4px solid #6c5ce7;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-lg, 12px);
+    border-left: 3px solid var(--c-black, #111);
 }
-
-.policy-icon {
-    font-size: 1.5rem;
-    color: #6c5ce7;
-}
-
+.policy-icon { font-size: 1.4rem; color: var(--color-text-primary, #111); flex-shrink: 0; }
 .data-types {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
 }
-
 .data-category {
     padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border-top: 4px solid #6c5ce7;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-lg, 12px);
+    border-top: 3px solid var(--c-black, #111);
 }
-
-.category-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.category-header i {
-    font-size: 1.3rem;
-    color: #6c5ce7;
-}
-
-.data-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.data-list li {
-    padding: 5px 0;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.data-list li:last-child {
-    border-bottom: none;
-}
-
+.category-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.category-header i { font-size: 1.2rem; color: var(--color-text-primary, #111); }
+.data-list { list-style: none; padding: 0; margin: 0; }
+.data-list li { padding: 5px 0; border-bottom: 1px solid var(--color-border, #e5e5e5); font-size: var(--text-sm, 0.875rem); }
+.data-list li:last-child { border-bottom: none; }
 .purposes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
 }
-
 .purpose-card {
     text-align: center;
     padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    transition: transform 0.2s;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-lg, 12px);
+    border: 1px solid var(--color-border, #e5e5e5);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
-
-.purpose-card:hover {
-    transform: translateY(-2px);
-}
-
-.purpose-icon {
-    font-size: 1.5rem;
-    color: #6c5ce7;
-    margin-bottom: 10px;
-}
-
-.cookie-info {
-    display: grid;
-    gap: 20px;
-}
-
-.cookie-section {
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-.cookie-types {
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-.cookie-type-item {
-    margin-bottom: 15px;
-}
-
-.cookie-type-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 5px;
-}
-
+.purpose-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+.purpose-icon { font-size: 1.5rem; color: var(--color-text-primary, #111); margin-bottom: 10px; }
+.cookie-info { display: grid; gap: 16px; }
+.cookie-section,
+.cookie-types,
 .cookie-control {
     padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-lg, 12px);
 }
-
-.storage-periods {
-    display: grid;
-    gap: 15px;
-}
-
+.cookie-type-item { margin-bottom: 14px; }
+.cookie-type-header { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.storage-periods { display: grid; gap: 12px; }
 .period-item {
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    padding: 18px 20px;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-lg, 12px);
 }
-
-.period-icon {
-    font-size: 1.3rem;
-    color: #6c5ce7;
-}
-
-.security-measures {
-    display: grid;
-    gap: 15px;
-}
-
+.period-icon { font-size: 1.3rem; color: var(--color-text-primary, #111); flex-shrink: 0; }
+.security-measures { display: grid; gap: 12px; }
 .security-item {
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    padding: 18px 20px;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-lg, 12px);
 }
-
-.security-icon {
-    font-size: 1.3rem;
-}
-
-.sharing-cases {
-    display: grid;
-    gap: 15px;
-}
-
+.security-icon { font-size: 1.3rem; flex-shrink: 0; }
+.sharing-cases { display: grid; gap: 12px; }
 .case-item {
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    padding: 15px 18px;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-lg, 12px);
 }
-
-.case-item i {
-    font-size: 1.3rem;
-    color: #6c5ce7;
-}
-
+.case-item i { font-size: 1.3rem; color: var(--color-text-primary, #111); flex-shrink: 0; }
 .rights-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
 }
-
 .right-card {
     text-align: center;
     padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    transition: transform 0.2s;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-lg, 12px);
+    border: 1px solid var(--color-border, #e5e5e5);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
-
-.right-card:hover {
-    transform: translateY(-2px);
-}
-
-.right-icon {
-    font-size: 1.5rem;
-    color: #6c5ce7;
-    margin-bottom: 10px;
-}
-
-.contact-info {
-    display: grid;
-    gap: 15px;
-}
-
+.right-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+.right-icon { font-size: 1.5rem; color: var(--color-text-primary, #111); margin-bottom: 10px; }
+.contact-info { display: grid; gap: 12px; }
 .contact-item {
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    padding: 18px 20px;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-lg, 12px);
 }
-
-.contact-item i {
-    font-size: 1.3rem;
-}
-
-.legal-list {
-    list-style: none;
-    padding: 0;
-}
-
+.contact-item i { font-size: 1.2rem; flex-shrink: 0; }
+.legal-list { list-style: none; padding: 0; }
 .legal-list li {
     padding: 8px 0;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--color-border, #e5e5e5);
+    font-size: var(--text-sm, 0.875rem);
+    color: var(--color-text-secondary, #666);
 }
-
-.legal-list li:last-child {
-    border-bottom: none;
-}
-
+.legal-list li:last-child { border-bottom: none; }
 .last-updated {
     margin-top: 15px;
-    padding: 15px;
-    background: rgba(108, 92, 231, 0.1);
-    border-radius: 6px;
+    padding: 14px;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: var(--radius-md, 8px);
     text-align: center;
+    font-size: var(--text-sm, 0.875rem);
 }
-
-.content-section {
-    margin-bottom: 40px;
-}
+.content-section { margin-bottom: 36px; }
+.content-section h2 { font-size: var(--text-lg, 1.125rem) !important; font-weight: 700 !important; }
 
 @media (max-width: 768px) {
-    .policy-item,
-    .period-item,
-    .security-item,
-    .case-item,
-    .contact-item {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .purpose-card,
-    .right-card {
-        text-align: center;
+    .policy-item, .period-item, .security-item, .case-item, .contact-item {
+        flex-direction: column; text-align: center;
     }
 }
 </style>

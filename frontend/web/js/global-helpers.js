@@ -33,7 +33,7 @@
             // Прямой AJAX fallback
             if (!id) return;
             const isActive = button && button.classList.contains('active');
-            const url = isActive ? '/catalog/remove-favorite' : '/catalog/add-favorite';
+            const url = isActive ? '/favorite/remove' : '/favorite/add';
             const csrf = document.querySelector('meta[name="csrf-token"]');
             const csrfToken = csrf ? csrf.getAttribute('content') : '';
 

@@ -1,134 +1,215 @@
 <?php
 
 /**
- * AmocrmController — REST API for the AmoCRM marketplace widget.
+ * AmocrmController — API-эндпоинты для интеграции с AmoCRM
  *
- * GET  /api/amocrm/order?external_id=<lead_id>  — order info by AmoCRM lead id
- * POST /api/amocrm/sync                          — sync order → AmoCRM lead
+ * ENDPOINTS:
+ * - POST /api/amocrm/create-order — Создание заказа из виджета AmoCRM
+ * - GET  /api/amocrm/products     — Автокомплит товаров (поиск по названию)
+ *
+ * АУТЕНТИФИКАЦИЯ:
+ * Все запросы проверяются по заголовку X-Api-Key.
+ * Ключ хранится в настройках: Yii::$app->settings->get('amocrm', 'api_key')
  */
-
 namespace app\api\controllers;
 
 use Yii;
 use yii\web\Controller;
 use yii\web\Response;
+use yii\web\UnauthorizedHttpException;
+use yii\web\BadRequestHttpException;
 use app\backend\modules\checkout\models\Order;
+use app\backend\modules\catalog\models\Product;
 
 class AmocrmController extends Controller
 {
     public $enableCsrfValidation = false;
 
+    /**
+     * Проверяем API-ключ перед каждым действием
+     */
     public function beforeAction($action)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        if (!$this->checkWidgetAuth()) {
-            Yii::$app->response->statusCode = 401;
-            Yii::$app->response->data = ['error' => 'Unauthorized'];
-            Yii::$app->response->send();
+
+        // CORS headers для виджета AmoCRM
+        $headers = Yii::$app->response->headers;
+        $origin = Yii::$app->request->headers->get('Origin', '');
+        if ($origin && preg_match('/\.amocrm\.(ru|com)$/i', parse_url($origin, PHP_URL_HOST) ?? '')) {
+            $headers->set('Access-Control-Allow-Origin', $origin);
+        }
+        $headers->set('Access-Control-Allow-Headers', 'Content-Type, X-Api-Key');
+        $headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+
+        // OPTIONS preflight
+        if (Yii::$app->request->isOptions) {
+            Yii::$app->response->statusCode = 204;
             Yii::$app->end();
         }
+
+        // Проверяем API-ключ
+        $apiKey = Yii::$app->request->headers->get('X-Api-Key', '');
+        $storedKey = Yii::$app->settings->get('amocrm', 'api_key', '');
+
+        if (empty($storedKey) || !hash_equals($storedKey, $apiKey)) {
+            Yii::warning('[AmoCRM API] Неверный API-ключ. IP: ' . Yii::$app->request->userIP, 'amocrm');
+            throw new UnauthorizedHttpException('Invalid API key');
+        }
+
+        // Логируем запрос
+        Yii::info(
+            sprintf('[AmoCRM API] %s %s | IP: %s', Yii::$app->request->method, Yii::$app->request->url, Yii::$app->request->userIP),
+            'amocrm'
+        );
+
         return parent::beforeAction($action);
     }
 
     /**
-     * GET /api/amocrm/order?external_id=<lead_id>
+     * POST /api/amocrm/create-order
+     *
+     * Принимает JSON:
+     * {
+     *   "name": "Иван Иванов",
+     *   "phone": "+375291234567",
+     *   "email": "ivan@example.com",      // необязательно
+     *   "product": "Nike Dunk Low",        // необязательно
+     *   "size": "42",                      // необязательно
+     *   "price": 350.00,                   // необязательно
+     *   "deal_id": 12345,                  // ID сделки в AmoCRM
+     *   "deal_link": "https://...",        // ссылка на сделку
+     *   "notes": "Доп. примечание"         // необязательно
+     * }
+     *
+     * @return array
      */
-    public function actionOrder(): array
+    public function actionCreateOrder()
     {
-        $leadId = (int)Yii::$app->request->get('external_id', 0);
-        if (!$leadId) {
-            Yii::$app->response->statusCode = 400;
-            return ['error' => 'external_id required'];
+        if (!Yii::$app->request->isPost) {
+            throw new BadRequestHttpException('Only POST allowed');
         }
 
-        $order = Order::findOne(['amocrm_lead_id' => $leadId]);
-        if (!$order) {
-            return ['found' => false];
+        $rawBody = Yii::$app->request->getRawBody();
+        $data = json_decode($rawBody, true);
+
+        if (!is_array($data)) {
+            throw new BadRequestHttpException('Invalid JSON');
         }
 
-        return [
-            'found'          => true,
-            'order_id'       => $order->id,
-            'status'         => $order->status,
-            'total'          => (float)($order->total ?? 0),
-            'recipient_name' => $order->recipient_name ?? '',
-            'phone'          => $order->recipient_phone ?? '',
-            'created_at'     => $order->created_at,
-            'last_sync_at'   => $order->amocrm_last_sync_at,
-        ];
+        $name  = trim($data['name'] ?? '');
+        $phone = trim($data['phone'] ?? '');
+
+        if (empty($name) && empty($phone)) {
+            return [
+                'success' => false,
+                'message' => 'Укажите имя или телефон клиента',
+            ];
+        }
+
+        try {
+            $order = new Order();
+            $order->client_name  = $name;
+            $order->client_phone = $phone;
+            $order->client_email = trim($data['email'] ?? '');
+            $order->source       = 'amoCRM';
+            $order->source_id    = !empty($data['deal_id']) ? (int)$data['deal_id'] : null;
+            $order->comment      = $this->buildComment($data);
+            $order->total_amount = !empty($data['price']) ? (float)$data['price'] : 0;
+            $order->status       = 'new';
+
+            if (!$order->save()) {
+                Yii::error('[AmoCRM API] Ошибка сохранения заказа: ' . json_encode($order->errors), 'amocrm');
+                return [
+                    'success' => false,
+                    'message' => 'Ошибка создания заказа',
+                    'errors'  => $order->errors,
+                ];
+            }
+
+            Yii::info('[AmoCRM API] Создан заказ #' . $order->id . ' (deal_id: ' . ($data['deal_id'] ?? '-') . ')', 'amocrm');
+
+            return [
+                'success'      => true,
+                'order_id'     => $order->id,
+                'order_number' => $order->order_number,
+                'message'      => 'Заказ #' . $order->order_number . ' создан',
+            ];
+        } catch (\Exception $e) {
+            Yii::error('[AmoCRM API] Exception: ' . $e->getMessage(), 'amocrm');
+            return [
+                'success' => false,
+                'message' => 'Внутренняя ошибка сервера',
+            ];
+        }
     }
 
     /**
-     * POST /api/amocrm/sync — push order to AmoCRM (create/update lead)
+     * GET /api/amocrm/products?q=search
+     *
+     * Автокомплит товаров для виджета. Возвращает до 20 товаров.
+     *
+     * @return array
      */
-    public function actionSync(): array
+    public function actionProducts()
     {
-        if (!Yii::$app->request->isPost) {
-            Yii::$app->response->statusCode = 405;
-            return ['error' => 'POST required'];
+        $q = trim(Yii::$app->request->get('q', ''));
+
+        if (mb_strlen($q) < 2) {
+            return ['results' => []];
         }
 
-        $raw  = Yii::$app->request->getRawBody();
-        $data = json_decode($raw, true) ?: [];
+        $products = Product::find()
+            ->select(['id', 'name', 'price', 'main_image', 'brand_name', 'sku'])
+            ->where(['is_active' => 1])
+            ->andWhere(['or',
+                ['like', 'name', $q],
+                ['like', 'sku', $q],
+                ['like', 'brand_name', $q],
+                ['like', 'vendor_code', $q],
+            ])
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(20)
+            ->asArray()
+            ->all();
 
-        $orderId = (int)($data['order_id'] ?? 0);
-        $leadId  = (int)($data['lead_id']  ?? 0);
-
-        if (!$orderId && !$leadId) {
-            Yii::$app->response->statusCode = 400;
-            return ['error' => 'order_id or lead_id required'];
+        $results = [];
+        foreach ($products as $p) {
+            $results[] = [
+                'id'    => $p['id'],
+                'name'  => $p['name'],
+                'price' => (float)$p['price'],
+                'sku'   => $p['sku'] ?? '',
+                'brand' => $p['brand_name'] ?? '',
+                'image' => $p['main_image'] ?? '',
+            ];
         }
 
-        $order = $orderId
-            ? Order::findOne($orderId)
-            : Order::findOne(['amocrm_lead_id' => $leadId]);
-
-        if (!$order) {
-            Yii::$app->response->statusCode = 404;
-            return ['error' => 'Order not found'];
-        }
-
-        /** @var \app\backend\shared\components\AmocrmClient $amo */
-        $amo = Yii::$app->amocrm;
-        if (!$amo->isConfigured()) {
-            return ['success' => false, 'message' => 'AmoCRM not configured'];
-        }
-
-        if ($order->amocrm_lead_id) {
-            $amo->updateLead($order->amocrm_lead_id, [
-                'price' => (int)($order->total ?? 0),
-            ]);
-            $order->amocrm_last_sync_at = time();
-            $order->save(false);
-            return ['success' => true, 'lead_id' => $order->amocrm_lead_id, 'action' => 'updated'];
-        }
-
-        $lead = $amo->createLead([
-            'name'  => 'Заказ #' . $order->id . ($order->recipient_name ? ' — ' . $order->recipient_name : ''),
-            'price' => (int)($order->total ?? 0),
-        ]);
-        if (!$lead || empty($lead['id'])) {
-            return ['success' => false, 'message' => 'Lead creation failed'];
-        }
-        $order->amocrm_lead_id      = $lead['id'];
-        $order->amocrm_last_sync_at = time();
-        $order->save(false);
-
-        return ['success' => true, 'lead_id' => $lead['id'], 'action' => 'created'];
+        return ['results' => $results];
     }
 
-    private function checkWidgetAuth(): bool
+    /**
+     * Формирует комментарий к заказу из данных AmoCRM
+     */
+    private function buildComment(array $data): string
     {
-        $authHeader = Yii::$app->request->headers->get('Authorization', '');
-        if (strncmp($authHeader, 'Bearer ', 7) === 0) {
-            $token = substr($authHeader, 7);
-            $stored = Yii::$app->settings->get('amocrm', 'widget_api_token', '');
-            if ($stored && hash_equals($stored, $token)) return true;
-        }
-        // Allow from same server (internal calls)
-        $ip = Yii::$app->request->userIP;
-        if ($ip === '127.0.0.1' || $ip === '::1') return true;
+        $parts = ['Источник: AmoCRM'];
 
-        return false;
+        if (!empty($data['product'])) {
+            $parts[] = 'Товар: ' . $data['product'];
+        }
+        if (!empty($data['size'])) {
+            $parts[] = 'Размер: ' . $data['size'];
+        }
+        if (!empty($data['deal_id'])) {
+            $parts[] = 'Сделка AmoCRM: #' . $data['deal_id'];
+        }
+        if (!empty($data['deal_link'])) {
+            $parts[] = 'Ссылка: ' . $data['deal_link'];
+        }
+        if (!empty($data['notes'])) {
+            $parts[] = 'Примечание: ' . $data['notes'];
+        }
+
+        return implode("\n", $parts);
     }
 }

@@ -1,0 +1,45 @@
+{
+  "cookies": [
+    {
+      "name": "PHPSESSID",
+      "value": "4cd4c3737e7838c610fd18e37711fc66",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_identity-admin",
+      "value": "6ded82cb29b90c6ba56fee1c1a841d466156521e3ea48efc8c328f638622ce50a%3A2%3A%7Bi%3A0%3Bs%3A15%3A%22_identity-admin%22%3Bi%3A1%3Bs%3A24%3A%22%5B4%2C%22testkey123%22%2C2592000%5D%22%3B%7D",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1779511206.694399,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_csrf",
+      "value": "bcb6165ad19b42c8feee1905965cd6b116b9ee2004736ba4dec29a903da04deba%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22uKM0dh9LMhFL9hHOUVFJXTlTyuG3jy6q%22%3B%7D",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:8080",
+      "localStorage": [
+        {
+          "name": "orderView",
+          "value": "table"
+        }
+      ]
+    }
+  ]
+}

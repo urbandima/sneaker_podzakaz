@@ -123,8 +123,9 @@ class PageController extends Controller
         $this->view->registerMetaTag(['property' => 'og:description', 'content' => 'Свяжитесь с нами для заказа оригинальных кроссовок']);
         $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
-        
-        return $this->render('/pages/contacts');
+
+        $company = Yii::$app->settings->getCompany() ?? [];
+        return $this->render('/pages/contacts', ['company' => $company]);
     }
 
     /**

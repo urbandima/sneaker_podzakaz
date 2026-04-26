@@ -316,7 +316,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const label = document.getElementById('stickySizeLabel');
             if (label) {
                 label.textContent = size;
-                // Обновлен label
+            }
+
+            // Обновляем бейдж размера
+            const badge = document.getElementById('stickySizeBadge');
+            if (badge) {
+                badge.textContent = size;
+                badge.classList.remove('hidden');
             }
 
             // Обновляем цену в sticky bar

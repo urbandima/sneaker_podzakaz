@@ -51,9 +51,10 @@ class User extends ActiveRecord implements IdentityInterface
     const STATUS_INACTIVE = 9;
     const STATUS_ACTIVE = 10;
 
-    const ROLE_ADMIN = 'admin';
-    const ROLE_MANAGER = 'manager';
-    const ROLE_LOGIST = 'logist';
+    const ROLE_ADMIN    = 'admin';
+    const ROLE_DIRECTOR = 'director';
+    const ROLE_MANAGER  = 'manager';
+    const ROLE_LOGIST   = 'logist';
 
     public $password; // Для формы создания
 
@@ -105,7 +106,7 @@ class User extends ActiveRecord implements IdentityInterface
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
             
             ['role', 'default', 'value' => self::ROLE_MANAGER],
-            ['role', 'in', 'range' => [self::ROLE_ADMIN, self::ROLE_MANAGER, self::ROLE_LOGIST]],
+            ['role', 'in', 'range' => [self::ROLE_ADMIN, self::ROLE_DIRECTOR, self::ROLE_MANAGER, self::ROLE_LOGIST]],
             
             [['username', 'email'], 'required'],
             [['username', 'email'], 'string', 'max' => 255],
@@ -190,35 +191,20 @@ class User extends ActiveRecord implements IdentityInterface
     // Custom methods
     public static function findByUsername($username)
     {
-        // Демо-режим при отсутствии БД
         try {
             return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
         } catch (\yii\db\Exception $e) {
-            // Возвращаем демо-пользователя
-            if ($username === 'admin') {
-                return new static([
-                    'id' => 1,
-                    'username' => 'admin',
-                    'email' => 'admin@example.com',
-                    'role' => self::ROLE_ADMIN,
-                    'status' => self::STATUS_ACTIVE,
-                    'auth_key' => 'demo-key',
-                    'password_hash' => Yii::$app->security->generatePasswordHash('admin123'),
-                ]);
-            }
+            Yii::error('DB error in findByUsername: ' . $e->getMessage(), 'security');
             return null;
         }
     }
 
     public function validatePassword($password)
     {
-        // Всегда используем хеширование, даже в демо-режиме
-        if (isset($this->password_hash) && $this->password_hash) {
-            return Yii::$app->security->validatePassword($password, $this->password_hash);
+        if (!isset($this->password_hash) || !$this->password_hash) {
+            return false;
         }
-        
-        // Для демо-пользователя генерируем хеш на лету
-        return Yii::$app->security->validatePassword($password, Yii::$app->security->generatePasswordHash('admin123'));
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
     }
 
     public function setPassword($password)
@@ -231,27 +217,43 @@ class User extends ActiveRecord implements IdentityInterface
         $this->auth_key = Yii::$app->security->generateRandomString();
     }
 
-    public function isAdmin()
+    public function isAdmin(): bool
     {
-        return $this->role === self::ROLE_ADMIN;
+        return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_DIRECTOR], true);
     }
 
-    public function isManager()
+    public function isDirector(): bool
+    {
+        return $this->role === self::ROLE_DIRECTOR;
+    }
+
+    public function isManager(): bool
     {
         return $this->role === self::ROLE_MANAGER;
     }
 
-    public function isLogist()
+    public function isLogist(): bool
     {
         return $this->role === self::ROLE_LOGIST;
     }
 
-    public function getRoleName()
+    public function canAccessFinance(): bool
+    {
+        return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_DIRECTOR], true);
+    }
+
+    public function canAccessProcurement(): bool
+    {
+        return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_DIRECTOR, self::ROLE_LOGIST], true);
+    }
+
+    public function getRoleName(): string
     {
         $roles = [
-            self::ROLE_ADMIN => 'Администратор',
-            self::ROLE_MANAGER => 'Менеджер',
-            self::ROLE_LOGIST => 'Логист',
+            self::ROLE_ADMIN    => 'Администратор',
+            self::ROLE_DIRECTOR => 'Директор',
+            self::ROLE_MANAGER  => 'Менеджер',
+            self::ROLE_LOGIST   => 'Логист',
         ];
         return $roles[$this->role] ?? $this->role;
     }

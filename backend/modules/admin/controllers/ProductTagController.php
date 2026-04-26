@@ -44,7 +44,6 @@ class ProductTagController extends BaseAdminController
                 'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
-                    'assign' => ['POST'],
                 ],
             ],
         ]);

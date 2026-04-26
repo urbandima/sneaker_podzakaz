@@ -2,22 +2,16 @@
 
 namespace app\frontend\widgets;
 
-use yii\base\Widget;
-use yii\helpers\Html;
-
 /**
  * HeaderWidget - Виджет для рендеринга хедера сайта
- * 
- * Заменяет inline HTML хедера в layout/main.php
+ *
+ * @deprecated Используйте LayoutPartWidget с viewName='header'
  */
-class HeaderWidget extends Widget
+class HeaderWidget extends LayoutPartWidget
 {
-    public $company = [];
-    
-    public function run()
+    public function init()
     {
-        return $this->render('header', [
-            'company' => $this->company,
-        ]);
+        parent::init();
+        $this->viewName = 'header';
     }
 }

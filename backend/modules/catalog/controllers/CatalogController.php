@@ -236,6 +236,9 @@ class CatalogController extends Controller
     {
         $brands = Brand::find()
             ->where(['is_active' => true])
+            ->andWhere(['!=', 'name', '-'])
+            ->andWhere(['!=', 'name', ''])
+            ->andWhere(['not', ['name' => null]])
             ->orderBy(['name' => SORT_ASC])
             ->all();
         

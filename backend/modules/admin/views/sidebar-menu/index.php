@@ -11,12 +11,9 @@ $this->title = 'Боковое меню (Sidebar)';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="admin-page-header">
-    <h1><?= Html::encode($this->title) ?></h1>
-    <div class="header-actions">
-        <?= Html::a('<i class="bi bi-plus-lg"></i> Добавить пункт', ['create'], ['class' => 'admin-btn admin-btn-primary admin-btn-sm']) ?>
-    </div>
-</div>
+<?php $this->params['headerActions'] = [
+    Html::a('<i class="bi bi-plus-lg"></i> Добавить пункт', ['create'], ['class' => 'admin-btn admin-btn-primary admin-btn-sm'])
+]; ?>
 
 <div class="admin-card">
     <div class="admin-card-header">
@@ -62,11 +59,11 @@ $this->params['breadcrumbs'][] = $this->title;
                         <?php endif; ?>
                         <?= Html::encode($model->title) ?>
                         <?php if ($model->parent_id): ?>
-                            <small class="text-muted">(подпункт)</small>
+                            <small style="color:var(--admin-text-secondary)">(подпункт)</small>
                         <?php endif; ?>
                     </td>
                     <td>
-                        <span class="badge badge-type-<?= $model->type ?>">
+                        <span class="admin-badge admin-badge-secondary">
                             <?= SidebarMenuItem::TYPES[$model->type] ?? $model->type ?>
                         </span>
                     </td>
@@ -85,28 +82,28 @@ $this->params['breadcrumbs'][] = $this->title;
                             $model->is_active ? '<i class="bi bi-check-circle"></i> Активен' : '<i class="bi bi-x-circle"></i> Отключен',
                             ['toggle', 'id' => $model->id],
                             [
-                                'class' => $model->is_active ? 'badge badge-success' : 'badge badge-danger',
+                                'class' => 'admin-badge ' . ($model->is_active ? 'admin-badge-success' : 'admin-badge-danger'),
                                 'data-method' => 'post'
                             ]
-                        ) ?> outline
-                    </td>mbtoulie
+                        ) ?>
+                    </td>
                     <td>
-                        <div class="btn-groubtn bttysm le=-outlple y:flex;gap
-                            <?= Html::a('<i class="bi bi-eye"></i> <span class="d-none d-md-inline">Просмотр</span>', ['view', 'id' => $model->id], ['class' => 'btn btn-sm btn-outline', 'title' => 'Просмотр']) ?>
-                            <?= Html::a('<i class="bi bi-pencil"></i> <span class="d-none d-md-inline">Изменить</span>', ['update', 'id' => $model->id], ['class' => 'btn btn-sm btn-outline', 'title' => 'Редактировать']) ?>
-                            <?= Html::a('<i class="bi bi-trash"></i> <span class="d-none d-md-inline">Удалить</span>', ['delete', 'id' => $model->id], [
-                                'class' => 'btn btn-sm btn-outline btn-danger',
+                        <div class="product-actions">
+                            <?= Html::a('<i class="bi bi-eye"></i>', ['view', 'id' => $model->id], ['class' => 'action-btn', 'title' => 'Просмотр']) ?>
+                            <?= Html::a('<i class="bi bi-pencil"></i>', ['update', 'id' => $model->id], ['class' => 'action-btn', 'title' => 'Редактировать']) ?>
+                            <?= Html::a('<i class="bi bi-trash"></i>', ['delete', 'id' => $model->id], [
+                                'class' => 'action-btn',
                                 'title' => 'Удалить',
                                 'data-method' => 'post',
-                                'data-confirm' => 'Удалить пункт меню?'
+                                'data-confirm' => 'Удалить пункт меню?',
+                                'style' => 'color:var(--admin-danger)'
                             ]) ?>
                         </div>
-               >
-    </div     </td>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
-    </div>
-</div>
-
+    </div><!-- /.table-responsive -->
+    </div><!-- /.admin-card-body -->
+</div><!-- /.admin-card -->

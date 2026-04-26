@@ -16,7 +16,7 @@ use app\backend\modules\checkout\models\Order;
 class PdfController extends BaseAdminController
 {
     /**
-     * Генерация накладной для заказа
+     * Накладная заказа: PDF если доступна библиотека, иначе HTML для печати
      */
     public function actionInvoice($id)
     {
@@ -25,14 +25,23 @@ class PdfController extends BaseAdminController
             throw new NotFoundHttpException('Заказ не найден');
         }
 
-        $company = Yii::$app->settings->getCompany();
-        $pdf = $this->generateInvoicePdf($order, $company);
+        $company = Yii::$app->settings->getCompany() ?? [];
 
-        Yii::$app->response->format = Response::FORMAT_RAW;
-        Yii::$app->response->headers->add('Content-Type', 'application/pdf');
-        Yii::$app->response->headers->add('Content-Disposition', 'inline; filename="nakladnaya_' . $order->order_number . '.pdf"');
+        // If TCPDF is available, generate a real PDF download
+        if (class_exists('TCPDF')) {
+            $pdf = $this->generateInvoicePdf($order, $company);
+            Yii::$app->response->format = Response::FORMAT_RAW;
+            Yii::$app->response->headers->add('Content-Type', 'application/pdf');
+            Yii::$app->response->headers->add('Content-Disposition', 'inline; filename="nakladnaya_' . ($order->order_number ?: $order->id) . '.pdf"');
+            return $pdf;
+        }
 
-        return $pdf;
+        // Fallback: render a printable HTML invoice (no PDF library needed)
+        $this->layout = false;
+        return $this->render('invoice', [
+            'order'   => $order,
+            'company' => $company,
+        ]);
     }
 
     /**

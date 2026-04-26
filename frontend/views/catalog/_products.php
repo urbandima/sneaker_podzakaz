@@ -2,7 +2,6 @@
 
 use app\helpers\ProductCardHelper;
 use app\models\Product;
-use Yii;
 
 /**
  * Частичный шаблон каталога для списка товаров.

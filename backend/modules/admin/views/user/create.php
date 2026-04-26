@@ -12,7 +12,7 @@ $this->title = 'Создать пользователя';
 <div class="admin-create-user">
     <div class="mb-4">
         <h1><?= Html::encode($this->title) ?></h1>
-        <?= Html::a('<i class="bi bi-arrow-left me-2"></i>Назад к списку', ['/admin/user/index'], ['class' => 'btn btn-outline-secondary']) ?>
+        <?= Html::a('<i class="bi bi-arrow-left me-2"></i>Назад к списку', ['/admin/user/index'], ['class' => 'admin-btn admin-btn-outlined']) ?>
     </div>
 
     <div class="card">
@@ -52,9 +52,10 @@ $this->title = 'Создать пользователя';
 
                 <div class="col-md-6">
                     <?= $form->field($model, 'role')->dropDownList([
-                        'manager' => 'Менеджер',
-                        'logist' => 'Логист',
-                        'admin' => 'Администратор',
+                        'manager'  => 'Менеджер',
+                        'logist'   => 'Логист',
+                        'director' => 'Директор',
+                        'admin'    => 'Администратор',
                     ], ['prompt' => 'Выберите роль', 'class' => 'form-select']) ?>
                 </div>
             </div>
@@ -70,9 +71,9 @@ $this->title = 'Создать пользователя';
 
             <div class="d-flex gap-2">
                 <?= Html::submitButton('<i class="bi bi-check-circle me-2"></i>Создать пользователя', [
-                    'class' => 'btn btn-success'
+                    'class' => 'admin-btn admin-btn-success'
                 ]) ?>
-                <?= Html::a('Отмена', ['/admin/user/index'], ['class' => 'btn btn-outline-secondary']) ?>
+                <?= Html::a('Отмена', ['/admin/user/index'], ['class' => 'admin-btn admin-btn-outlined']) ?>
             </div>
 
             <?php ActiveForm::end(); ?>

@@ -958,7 +958,7 @@
         e.preventDefault();
         // Вызываем глобальную функцию с правильными параметрами
         if (typeof window.toggleFavorite === 'function') {
-            window.toggleFavorite(e, id);
+            window.toggleFavorite(e.currentTarget, id);
         } else {
         }
     };

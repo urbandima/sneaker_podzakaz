@@ -74,63 +74,65 @@ class ProductController extends BaseAdminController
      */
     public function actionIndex()
     {
-        $query = Product::find()->with(['brand', 'category', 'images']);
+        $query = Product::find()->alias('p')->with(['brand', 'category', 'images', 'sizes']);
 
         // Фильтры
-        $filterBrand = Yii::$app->request->get('brand');
+        $filterBrand    = Yii::$app->request->get('brand');
         $filterCategory = Yii::$app->request->get('category');
-        $filterSource = Yii::$app->request->get('source'); // poizon, manual
-        $filterActive = Yii::$app->request->get('is_active');
-        $filterSearch = Yii::$app->request->get('search');
-        $filterStatus = Yii::$app->request->get('status');
-        $filterStock = Yii::$app->request->get('stock');
+        $filterSource   = Yii::$app->request->get('source');
+        $filterSearch   = Yii::$app->request->get('search');
+        $filterStatus   = Yii::$app->request->get('status');
+        $filterStock    = Yii::$app->request->get('stock');
+        $filterGender   = Yii::$app->request->get('gender');
+        $filterSeason   = Yii::$app->request->get('season');
+        $filterPriceFrom = Yii::$app->request->get('price_from');
+        $filterPriceTo   = Yii::$app->request->get('price_to');
 
         if ($filterBrand) {
-            $query->andWhere(['brand_id' => $filterBrand]);
+            $query->andWhere(['p.brand_id' => $filterBrand]);
         }
-
         if ($filterCategory) {
-            $query->andWhere(['category_id' => $filterCategory]);
+            $query->andWhere(['p.category_id' => $filterCategory]);
         }
-
         if ($filterSearch) {
             $query->andWhere(['or',
-                ['like', 'name', $filterSearch],
-                ['like', 'vendor_code', $filterSearch],
-                ['like', 'poizon_id', $filterSearch],
+                ['like', 'p.name', $filterSearch],
+                ['like', 'p.sku', $filterSearch],
+                ['like', 'p.vendor_code', $filterSearch],
+                ['like', 'p.poizon_id', $filterSearch],
+                ['like', 'p.style_code', $filterSearch],
             ]);
         }
-
-        if ($filterStatus) {
-            $query->andWhere(['is_active' => $filterStatus === 'active' ? true : false]);
+        if ($filterStatus === 'active') {
+            $query->andWhere(['p.is_active' => true]);
+        } elseif ($filterStatus === 'archived') {
+            $query->andWhere(['p.is_active' => false]);
+        } elseif ($filterStatus === 'out_of_stock') {
+            $query->andWhere(['p.stock_status' => 'out_of_stock']);
+        } elseif ($filterStatus === 'zero_price') {
+            $query->andWhere(['or', ['p.price' => null], ['p.price' => 0]]);
         }
-
-        if ($filterStock) {
-            if ($filterStock === 'in') {
-                $query->andWhere(['!=', 'stock_status', 'out_of_stock']);
-            } elseif ($filterStock === 'out') {
-                $query->andWhere(['stock_status' => 'out_of_stock']);
-            }
+        if ($filterStock === 'in') {
+            $query->andWhere(['!=', 'p.stock_status', 'out_of_stock']);
+        } elseif ($filterStock === 'out') {
+            $query->andWhere(['p.stock_status' => 'out_of_stock']);
         }
-
         if ($filterSource === 'poizon') {
-            $query->andWhere(['not', ['poizon_id' => null]]);
+            $query->andWhere(['not', ['p.poizon_id' => null]]);
         } elseif ($filterSource === 'manual') {
-            $query->andWhere(['poizon_id' => null]);
+            $query->andWhere(['p.poizon_id' => null]);
         }
-
-        if ($filterActive !== null && $filterActive !== '') {
-            $query->andWhere(['is_active' => $filterActive]);
+        if ($filterGender) {
+            $query->andWhere(['p.gender' => $filterGender]);
         }
-
-        if ($filterSearch) {
-            $query->andWhere([
-                'or',
-                ['like', 'name', $filterSearch],
-                ['like', 'sku', $filterSearch],
-                ['like', 'poizon_id', $filterSearch],
-                ['like', 'vendor_code', $filterSearch],
-            ]);
+        if ($filterSeason) {
+            $query->andWhere(['p.season' => $filterSeason]);
+        }
+        if ($filterPriceFrom !== null && $filterPriceFrom !== '') {
+            $query->andWhere(['>=', 'p.price', (float)$filterPriceFrom]);
+        }
+        if ($filterPriceTo !== null && $filterPriceTo !== '') {
+            $query->andWhere(['<=', 'p.price', (float)$filterPriceTo]);
         }
 
         $dataProvider = new ActiveDataProvider([
@@ -139,8 +141,14 @@ class ProductController extends BaseAdminController
                 'pageSize' => 50,
             ],
             'sort' => [
-                'defaultOrder' => [
-                    'created_at' => SORT_DESC,
+                'defaultOrder' => ['created_at' => SORT_DESC],
+                'attributes' => [
+                    'created_at',
+                    'name',
+                    'price',
+                    'brand_name',
+                    'is_active',
+                    'stock_status',
                 ],
             ],
         ]);
@@ -154,33 +162,57 @@ class ProductController extends BaseAdminController
 
         // Статистика
         $stats = [
-            'total' => Product::find()->count(),
-            'active' => Product::find()->where(['is_active' => true])->count(),
-            'poizon' => Product::find()->where(['not', ['poizon_id' => null]])->count(),
-            'inactive' => Product::find()->where(['is_active' => false])->count(),
-            'inStock' => Product::find()->where(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK])->count(),
-            'manual' => Product::find()->where(['poizon_id' => null])->count(),
+            'total'      => Product::find()->count(),
+            'active'     => Product::find()->where(['is_active' => true])->count(),
+            'inactive'   => Product::find()->where(['is_active' => false])->count(),
+            'inStock'    => Product::find()->where(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK])->count(),
             'outOfStock' => Product::find()->where(['stock_status' => 'out_of_stock'])->count(),
+            'zeroPrice'  => Product::find()->where(['or', ['price' => null], ['price' => 0]])->count(),
         ];
 
         // Списки для фильтров
-        $brands = Brand::find()->orderBy(['name' => SORT_ASC])->all();
+        $brands     = Brand::find()->orderBy(['name' => SORT_ASC])->all();
         $categories = Category::find()->orderBy(['name' => SORT_ASC])->all();
 
-        // Используем основной интерфейс списка товаров
+        // Infinite scroll AJAX
+        if (Yii::$app->request->get('scroll') && Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $products = $dataProvider->getModels();
+            $pagination = $dataProvider->getPagination();
+
+            $rows = '';
+            foreach ($products as $product) {
+                $rows .= $this->renderPartial('_product_row', ['product' => $product]);
+            }
+            $gridCards = '';
+            foreach ($products as $product) {
+                $gridCards .= $this->renderPartial('_product_card', ['product' => $product]);
+            }
+
+            return [
+                'rows'     => $rows,
+                'cards'    => $gridCards,
+                'hasMore'  => $pagination->page < $pagination->pageCount - 1,
+                'nextPage' => $pagination->page + 2,
+            ];
+        }
+
         return $this->render('index', [
-            'dataProvider' => $dataProvider,
-            'stats' => $stats,
-            'brands' => $brands,
-            'categories' => $categories,
-            'filterBrand' => $filterBrand,
-            'filterCategory' => $filterCategory,
-            'filterSource' => $filterSource,
-            'filterActive' => $filterActive,
-            'filterSearch' => $filterSearch,
-            'filterStatus' => $filterStatus,
-            'filterStock' => $filterStock,
-            'pageSize' => $requestedPageSize,
+            'dataProvider'    => $dataProvider,
+            'stats'           => $stats,
+            'brands'          => $brands,
+            'categories'      => $categories,
+            'filterBrand'     => $filterBrand,
+            'filterCategory'  => $filterCategory,
+            'filterSource'    => $filterSource,
+            'filterSearch'    => $filterSearch,
+            'filterStatus'    => $filterStatus,
+            'filterStock'     => $filterStock,
+            'filterGender'    => $filterGender,
+            'filterSeason'    => $filterSeason,
+            'filterPriceFrom' => $filterPriceFrom,
+            'filterPriceTo'   => $filterPriceTo,
+            'pageSize'        => $requestedPageSize,
             'pageSizeOptions' => $pageSizeOptions,
         ]);
     }
@@ -216,7 +248,14 @@ class ProductController extends BaseAdminController
      */
     public function actionView($id)
     {
-        $product = $this->findModel($id);
+        $product = Product::find()
+            ->where(['id' => $id])
+            ->with(['images', 'brand', 'category', 'sizes'])
+            ->one();
+
+        if ($product === null) {
+            throw new NotFoundHttpException('Товар не найден');
+        }
 
         return $this->render('view', [
             'product' => $product,
@@ -230,7 +269,14 @@ class ProductController extends BaseAdminController
      */
     public function actionEdit($id)
     {
-        $product = $this->findModel($id);
+        $product = Product::find()
+            ->where(['id' => $id])
+            ->with(['images', 'brand', 'category', 'sizes'])
+            ->one();
+
+        if ($product === null) {
+            throw new NotFoundHttpException('Товар не найден');
+        }
 
         if ($product->load(Yii::$app->request->post())) {
             // Обработка объединенных ключевых слов
@@ -926,6 +972,38 @@ class ProductController extends BaseAdminController
         return ['success' => true, 'is_active' => $product->is_active];
     }
 
+    /** Сохранение быстрой сетки доступных размеров (sizes_data JSON) */
+    public function actionSaveSizesData()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $data = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
+        $id = (int)($data['id'] ?? 0);
+        $sizes = $data['sizes'] ?? null;
+
+        $product = Product::findOne($id);
+        if (!$product) {
+            return ['success' => false, 'message' => 'Товар не найден'];
+        }
+
+        if ($sizes === null || !is_array($sizes)) {
+            return ['success' => false, 'message' => 'Некорректные данные'];
+        }
+
+        // Валидируем: ключи должны быть числами/размерами, значения — bool
+        $clean = [];
+        foreach ($sizes as $size => $available) {
+            $sizeStr = (string)$size;
+            if (preg_match('/^\d{1,3}(\.\d)?$/', $sizeStr)) {
+                $clean[$sizeStr] = (bool)$available;
+            }
+        }
+
+        $product->sizes_data = !empty($clean) ? json_encode($clean, JSON_UNESCAPED_UNICODE) : null;
+        $product->save(false);
+
+        return ['success' => true, 'saved' => count($clean)];
+    }
+
     /** B7.3 — Update size BYN price via AJAX */
     public function actionUpdateSizePrice()
     {
@@ -942,6 +1020,146 @@ class ProductController extends BaseAdminController
         } catch (\Exception $e) {
             return ['success' => false, 'message' => $e->getMessage()];
         }
+    }
+
+    /**
+     * AJAX: Сохранение одного поля товара (auto-save из карточки редактирования)
+     * POST {id, field, value} → JSON
+     *
+     * Разрешённые поля: material, season, gender, height, fastening,
+     *                   country, style_code, release_year, weight,
+     *                   name, price, old_price, description, is_active, is_featured
+     */
+    public function actionSaveField()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $data  = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
+        $id    = (int)($data['id'] ?? 0);
+        $field = trim((string)($data['field'] ?? ''));
+        $value = $data['value'] ?? '';
+
+        $allowedFields = [
+            'material', 'season', 'gender', 'height', 'fastening',
+            'country', 'style_code', 'release_year', 'weight',
+            'name', 'price', 'old_price', 'description',
+            'is_active', 'is_featured', 'stock_count',
+            'upper_material', 'sole_material', 'color_description',
+            'series_name', 'delivery_time_min', 'delivery_time_max',
+        ];
+
+        if (!in_array($field, $allowedFields, true)) {
+            return ['success' => false, 'message' => 'Поле не разрешено: ' . $field];
+        }
+
+        $product = Product::findOne($id);
+        if (!$product) {
+            return ['success' => false, 'message' => 'Товар не найден'];
+        }
+
+        // Type-cast
+        if (in_array($field, ['release_year', 'weight', 'stock_count', 'delivery_time_min', 'delivery_time_max', 'is_active', 'is_featured'], true)) {
+            $value = $value === '' ? null : (int)$value;
+        } elseif (in_array($field, ['price', 'old_price'], true)) {
+            $value = $value === '' ? null : (float)$value;
+        }
+
+        $product->$field = $value;
+
+        if (!$product->save(false)) {
+            return ['success' => false, 'message' => 'Ошибка сохранения'];
+        }
+
+        // Human-readable display value for select fields
+        $displayMap = [
+            'material'  => ['leather' => 'Кожа', 'textile' => 'Текстиль', 'synthetic' => 'Синтетика', 'suede' => 'Замша', 'mesh' => 'Сетка', 'canvas' => 'Канвас'],
+            'season'    => ['summer' => 'Лето', 'winter' => 'Зима', 'demi' => 'Демисезон', 'all' => 'Всесезон'],
+            'gender'    => ['male' => 'Мужской', 'female' => 'Женский', 'unisex' => 'Унисекс'],
+            'height'    => ['low' => 'Низкие', 'mid' => 'Средние', 'high' => 'Высокие'],
+            'fastening' => ['laces' => 'Шнурки', 'velcro' => 'Липучки', 'zipper' => 'Молния', 'slip_on' => 'Без застёжки'],
+        ];
+        $displayValue = (string)$value;
+        if (isset($displayMap[$field][$value])) {
+            $displayValue = $displayMap[$field][$value];
+        }
+
+        return ['success' => true, 'displayValue' => $displayValue];
+    }
+
+    /**
+     * AJAX: Inline update for product or size fields (auto-save from product card)
+     * Accepts JSON or POST: {entity, id, field, value}
+     * entity = 'product' | 'size'
+     */
+    public function actionInlineUpdate()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $data = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
+
+        $entity = $data['entity'] ?? '';
+        $id     = (int)($data['id'] ?? 0);
+        $field  = trim((string)($data['field'] ?? ''));
+        $value  = $data['value'] ?? '';
+
+        if (!$id || !$field) {
+            return ['success' => false, 'message' => 'Missing id or field'];
+        }
+
+        if ($entity === 'size') {
+            $allowedSizeFields = ['price_byn', 'price_cny', 'stock', 'is_available'];
+            if (!in_array($field, $allowedSizeFields, true)) {
+                return ['success' => false, 'message' => 'Size field not allowed: ' . $field];
+            }
+            $size = ProductSize::findOne($id);
+            if (!$size) {
+                return ['success' => false, 'message' => 'Size not found'];
+            }
+            if (in_array($field, ['price_byn', 'price_cny'], true)) {
+                $value = $value === '' ? null : (float)$value;
+            } elseif ($field === 'stock') {
+                $value = $value === '' ? 0 : (int)$value;
+            } elseif ($field === 'is_available') {
+                $value = (int)(bool)$value;
+            }
+            $size->$field = $value;
+            if (!$size->save(false)) {
+                return ['success' => false, 'message' => 'Save error'];
+            }
+            return ['success' => true, 'value' => $size->$field];
+        }
+
+        if ($entity === 'product') {
+            // Reuse the same allowed fields as actionSaveField
+            $allowedFields = [
+                'material', 'season', 'gender', 'height', 'fastening',
+                'country', 'style_code', 'release_year', 'weight',
+                'name', 'price', 'old_price', 'description',
+                'is_active', 'is_featured', 'stock_count',
+                'upper_material', 'sole_material', 'color_description',
+                'series_name', 'delivery_time_min', 'delivery_time_max',
+                // MS characteristic fields
+                'brand_name', 'model_name', 'ms_size_grid', 'ms_purpose',
+                'ms_sole_height', 'ms_sole_color', 'ms_inner_material',
+            ];
+            if (!in_array($field, $allowedFields, true)) {
+                return ['success' => false, 'message' => 'Product field not allowed: ' . $field];
+            }
+            $product = Product::findOne($id);
+            if (!$product) {
+                return ['success' => false, 'message' => 'Product not found'];
+            }
+            if (in_array($field, ['release_year', 'weight', 'stock_count', 'delivery_time_min', 'delivery_time_max', 'is_active', 'is_featured'], true)) {
+                $value = $value === '' ? null : (int)$value;
+            } elseif (in_array($field, ['price', 'old_price'], true)) {
+                $value = $value === '' ? null : (float)$value;
+            }
+            $product->$field = $value;
+            if (!$product->save(false)) {
+                return ['success' => false, 'message' => 'Save error'];
+            }
+            return ['success' => true, 'value' => $product->$field];
+        }
+
+        return ['success' => false, 'message' => 'Unknown entity: ' . $entity];
     }
 
     /** B7.5 — Trigger Poizon sync */

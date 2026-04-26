@@ -5,10 +5,11 @@
 /** @var app\backend\modules\account\models\Customer $customer */
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 use app\frontend\assets\CatalogAsset;
 
 $this->title = 'Избранное';
-$this->params['breadcrumbs'][] = ['label' => 'Личный кабинет', 'url' => ['account/index']];
+$this->params['breadcrumbs'][] = ['label' => 'Личный кабинет', 'url' => ['/account']];
 $this->params['breadcrumbs'][] = $this->title;
 
 CatalogAsset::register($this);
@@ -28,7 +29,7 @@ $csrfToken = Yii::$app->request->csrfToken;
 .wishlist-clear-btn{height:34px;padding:0 14px;border-radius:8px;border:1.5px solid #fca5a5;color:#dc2626;background:#fff;font-size:.8125rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s}
 .wishlist-clear-btn:hover{background:#fef2f2;border-color:#dc2626}
 .wishlist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
-.wishlist-card{background:#fff;border-radius:12px;overflow:hidden;border:1.5px solid var(--c-gray-100,#f3f4f6);transition:box-shadow .18s,transform .18s,opacity .35s;position:relative}
+.wishlist-card{background:#fff;border-radius:12px;overflow:hidden;border:1.5px solid var(--c-gray-100,#f3f4f6);transition:box-shadow .18s,transform .18s,opacity .35s,transform .35s;position:relative}
 .wishlist-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.1);transform:translateY(-2px)}
 .wishlist-card.removing{opacity:0;transform:scale(.94) translateY(8px);pointer-events:none}
 .wishlist-card-img{position:relative;aspect-ratio:1;overflow:hidden;background:var(--c-gray-50,#f9fafb)}
@@ -53,102 +54,94 @@ $csrfToken = Yii::$app->request->csrfToken;
 </style>
 
 <div class="wishlist-page">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="account-sidebar">
-                <div class="list-group">
-                    <?= Html::a('Профиль', ['account/profile'], ['class' => 'list-group-item']) ?>
-                    <?= Html::a('Мои заказы', ['account/orders'], ['class' => 'list-group-item']) ?>
-                    <?= Html::a('Избранное', ['account/wishlist'], ['class' => 'list-group-item active']) ?>
-                    <?= Html::a('Настройки', ['account/settings'], ['class' => 'list-group-item']) ?>
-                    <?= Html::a('Выход', ['account/logout'], ['class' => 'list-group-item text-danger']) ?>
-                </div>
-            </div>
-        </div>
+    <div class="account-page">
+        <div class="account-grid">
+            <?= $this->render('_sidebar', ['customer' => $customer, 'activePage' => 'favorites']) ?>
 
-        <div class="col-md-9">
-            <div class="wishlist-header">
-                <div class="wishlist-title">
-                    <i class="bi bi-heart-fill" style="color:#dc2626"></i>
-                    Избранное
-                    <span class="wishlist-count" id="wishlistCount"><?= $count ?></span>
-                </div>
-                <div class="wishlist-actions" id="wishlistActions" style="<?= $count === 0 ? 'display:none' : '' ?>">
-                    <select class="wishlist-sort" id="wishlistSort" onchange="sortWishlist(this.value)" aria-label="Сортировка">
-                        <option value="date_desc">Недавно добавленные</option>
-                        <option value="date_asc">Сначала давние</option>
-                        <option value="price_asc">Цена: ↑</option>
-                        <option value="price_desc">Цена: ↓</option>
-                    </select>
-                    <button class="wishlist-clear-btn" onclick="clearWishlist()">
-                        <i class="bi bi-trash3"></i> Очистить всё
-                    </button>
-                </div>
-            </div>
-
-            <?php if (empty($favorites)): ?>
-            <div class="wishlist-empty" id="wishlistEmpty">
-                <i class="bi bi-heart"></i>
-                <h3>В избранном пусто</h3>
-                <p>Добавляйте товары, нажимая ♡ на карточке товара</p>
-                <a href="/catalog" class="btn btn-primary">
-                    <i class="bi bi-grid-3x3-gap"></i> Перейти в каталог
-                </a>
-            </div>
-            <?php else: ?>
-            <div class="wishlist-grid" id="wishlistGrid">
-                <?php foreach ($favorites as $fav):
-                    $p = $fav->product;
-                    if (!$p) continue;
-                    $imgUrl   = $p->getMainImageUrl() ?: '/images/placeholder.png';
-                    $price    = number_format((float)$p->price, 2, '.', ' ');
-                    $oldPrice = $p->old_price ? number_format((float)$p->old_price, 2, '.', ' ') : null;
-                    $brand    = $p->brand ? Html::encode($p->brand->name) : '';
-                ?>
-                <div class="wishlist-card"
-                     data-product-id="<?= $p->id ?>"
-                     data-price="<?= (float)$p->price ?>"
-                     data-date="<?= $fav->created_at ?>">
-                    <div class="wishlist-card-img">
-                        <a href="<?= Html::encode($p->getUrl()) ?>" tabindex="-1" aria-hidden="true">
-                            <img src="<?= Html::encode($imgUrl) ?>"
-                                 alt="<?= Html::encode($p->name) ?>"
-                                 loading="lazy"
-                                 onerror="this.src='/images/placeholder.png'">
-                        </a>
-                        <button class="wishlist-remove-btn"
-                                onclick="removeFromWishlist(event, <?= $p->id ?>)"
-                                title="Удалить из избранного"
-                                aria-label="Удалить <?= Html::encode($p->name) ?> из избранного">
-                            <i class="bi bi-x-lg"></i>
+            <main class="account-content">
+                <div class="wishlist-header">
+                    <div class="wishlist-title">
+                        <i class="bi bi-heart-fill" style="color:#dc2626"></i>
+                        Избранное
+                        <span class="wishlist-count" id="wishlistCount"><?= $count ?></span>
+                    </div>
+                    <div class="wishlist-actions" id="wishlistActions" style="<?= $count === 0 ? 'display:none' : '' ?>">
+                        <select class="wishlist-sort" id="wishlistSort" onchange="sortWishlist(this.value)" aria-label="Сортировка">
+                            <option value="date_desc">Недавно добавленные</option>
+                            <option value="date_asc">Сначала давние</option>
+                            <option value="price_asc">Цена: ↑</option>
+                            <option value="price_desc">Цена: ↓</option>
+                        </select>
+                        <button class="wishlist-clear-btn" onclick="clearWishlist()">
+                            <i class="bi bi-trash3"></i> Очистить всё
                         </button>
                     </div>
-                    <div class="wishlist-card-body">
-                        <?php if ($brand): ?>
-                        <div class="wishlist-card-brand"><?= $brand ?></div>
-                        <?php endif; ?>
-                        <div class="wishlist-card-name">
-                            <a href="<?= Html::encode($p->getUrl()) ?>"><?= Html::encode($p->name) ?></a>
-                        </div>
-                        <div class="wishlist-card-footer">
-                            <div>
-                                <div class="wishlist-card-price"><?= $price ?> BYN</div>
-                                <?php if ($oldPrice): ?>
-                                <div class="wishlist-card-price-old"><?= $oldPrice ?> BYN</div>
-                                <?php endif; ?>
-                            </div>
-                            <button class="wishlist-cart-btn"
-                                    onclick="wishlistAddToCart(event, <?= $p->id ?>)"
-                                    title="Добавить в корзину"
-                                    aria-label="Добавить <?= Html::encode($p->name) ?> в корзину">
-                                <i class="bi bi-bag-plus"></i>
+                </div>
+
+                <?php if (empty($favorites)): ?>
+                <div class="wishlist-empty" id="wishlistEmpty">
+                    <i class="bi bi-heart"></i>
+                    <h3>В избранном пусто</h3>
+                    <p>Добавляйте товары, нажимая ♡ на карточке товара</p>
+                    <a href="/catalog" class="admin-btn admin-btn-primary">
+                        <i class="bi bi-grid-3x3-gap"></i> Перейти в каталог
+                    </a>
+                </div>
+                <?php else: ?>
+                <div class="wishlist-grid" id="wishlistGrid">
+                    <?php foreach ($favorites as $fav):
+                        $p = $fav->product;
+                        if (!$p) continue;
+                        $imgUrl   = $p->getMainImageUrl() ?: '/images/placeholder.png';
+                        $price    = number_format((float)$p->price, 2, '.', ' ');
+                        $oldPrice = $p->old_price ? number_format((float)$p->old_price, 2, '.', ' ') : null;
+                        $brand    = $p->brand ? Html::encode($p->brand->name) : '';
+                    ?>
+                    <div class="wishlist-card"
+                         data-product-id="<?= $p->id ?>"
+                         data-price="<?= (float)$p->price ?>"
+                         data-date="<?= $fav->created_at ?>">
+                        <div class="wishlist-card-img">
+                            <a href="<?= Html::encode($p->getUrl()) ?>" tabindex="-1" aria-hidden="true">
+                                <img src="<?= Html::encode($imgUrl) ?>"
+                                     alt="<?= Html::encode($p->name) ?>"
+                                     loading="lazy"
+                                     onerror="this.src='/images/placeholder.png'">
+                            </a>
+                            <button class="wishlist-remove-btn"
+                                    onclick="removeFromWishlist(event, <?= $p->id ?>)"
+                                    title="Удалить из избранного"
+                                    aria-label="Удалить <?= Html::encode($p->name) ?> из избранного">
+                                <i class="bi bi-x-lg"></i>
                             </button>
                         </div>
+                        <div class="wishlist-card-body">
+                            <?php if ($brand): ?>
+                            <div class="wishlist-card-brand"><?= $brand ?></div>
+                            <?php endif; ?>
+                            <div class="wishlist-card-name">
+                                <a href="<?= Html::encode($p->getUrl()) ?>"><?= Html::encode($p->name) ?></a>
+                            </div>
+                            <div class="wishlist-card-footer">
+                                <div>
+                                    <div class="wishlist-card-price"><?= $price ?> BYN</div>
+                                    <?php if ($oldPrice): ?>
+                                    <div class="wishlist-card-price-old"><?= $oldPrice ?> BYN</div>
+                                    <?php endif; ?>
+                                </div>
+                                <button class="wishlist-cart-btn"
+                                        onclick="wishlistAddToCart(event, <?= $p->id ?>)"
+                                        title="Добавить в корзину"
+                                        aria-label="Добавить <?= Html::encode($p->name) ?> в корзину">
+                                    <i class="bi bi-bag-plus"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
-            </div>
-            <?php endif; ?>
+                <?php endif; ?>
+            </main>
         </div>
     </div>
 </div>
@@ -167,7 +160,7 @@ $csrfToken = Yii::$app->request->csrfToken;
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: 'product_id=' + productId + '&_csrf=' + encodeURIComponent(CSRF),
-            }).then(function () {
+            }).then(function (data) {
                 card.remove();
                 _updateCount();
             }).catch(function () { card.classList.remove('removing'); });
@@ -237,14 +230,14 @@ $csrfToken = Yii::$app->request->csrfToken;
         if (badge) badge.textContent = '0';
         var favBadge = document.getElementById('favCount');
         if (favBadge) { favBadge.textContent = '0'; favBadge.style.display = 'none'; }
-        var content = document.querySelector('.col-md-9');
-        if (content && !document.getElementById('wishlistEmpty')) {
-            content.insertAdjacentHTML('beforeend',
+        var main = document.querySelector('.account-content');
+        if (main && !document.getElementById('wishlistEmpty')) {
+            main.insertAdjacentHTML('beforeend',
                 '<div class="wishlist-empty" id="wishlistEmpty">' +
                 '<i class="bi bi-heart"></i>' +
                 '<h3>В избранном пусто</h3>' +
                 '<p>Добавляйте товары, нажимая ♡ на карточке</p>' +
-                '<a href="/catalog" class="btn btn-primary">Перейти в каталог</a>' +
+                '<a href="/catalog" class="admin-btn admin-btn-primary">Перейти в каталог</a>' +
                 '</div>');
         }
     }

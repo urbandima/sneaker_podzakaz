@@ -2,22 +2,16 @@
 
 namespace app\frontend\widgets;
 
-use yii\base\Widget;
-use yii\helpers\Html;
-
 /**
  * FooterWidget - Виджет для рендеринга футера сайта
- * 
- * Заменяет inline HTML футера в layout/main.php
+ *
+ * @deprecated Используйте LayoutPartWidget с viewName='footer'
  */
-class FooterWidget extends Widget
+class FooterWidget extends LayoutPartWidget
 {
-    public $company = [];
-    
-    public function run()
+    public function init()
     {
-        return $this->render('footer', [
-            'company' => $this->company,
-        ]);
+        parent::init();
+        $this->viewName = 'footer';
     }
 }

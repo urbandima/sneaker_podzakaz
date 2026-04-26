@@ -18,9 +18,6 @@ $this->params['headerActions'] = [
 
 ?>
 
-    </div>
-</div>
-
 <!-- Визуализация цепочки -->
 <div class="admin-card mb-5">
     <div class="admin-card-header">
@@ -64,10 +61,14 @@ $this->params['headerActions'] = [
             </thead>
             <tbody id="statuses-list">
                 <?php foreach ($statuses as $i => $status): ?>
+                <?php $isSystem = !empty($status['is_system']); ?>
                 <tr class="status-row" data-key="<?= Html::encode($status['key']) ?>">
                     <td style="cursor:move;color:var(--admin-text-secondary)"><i class="bi bi-grip-vertical"></i></td>
                     <td>
-                        <input type="text" class="admin-form-input status-key w-100" value="<?= Html::encode($status['key']) ?>" placeholder="status_key" <?= in_array($status['key'], ['new','paid','canceled']) ? 'readonly style="width:100%;background:#f1f5f9"' : '' ?>>
+                        <div style="display:flex;align-items:center;gap:6px">
+                        <input type="text" class="admin-form-input status-key" value="<?= Html::encode($status['key']) ?>" style="width:100%" placeholder="status_key" <?= $isSystem ? 'readonly style="width:100%;background:#f1f5f9"' : '' ?>>
+                        <?php if ($isSystem): ?><span class="admin-badge admin-badge-secondary" style="font-size:10px;white-space:nowrap;padding:2px 6px" title="Системный статус — нельзя удалить">Системный</span><?php endif; ?>
+                        </div>
                     </td>
                     <td>
                         <input type="text" class="admin-form-input status-label w-100" value="<?= Html::encode($status['label']) ?>" placeholder="Название">
@@ -89,7 +90,7 @@ $this->params['headerActions'] = [
                         <input type="checkbox" class="status-logist" <?= !empty($status['logist_available']) ? 'checked' : '' ?>>
                     </td>
                     <td>
-                        <?php if (!in_array($status['key'], ['new','paid','canceled'])): ?>
+                        <?php if (!$isSystem): ?>
                         <button class="admin-btn admin-btn-danger" style="padding:4px 8px;font-size:12px" onclick="removeStatus(this)" title="Удалить">
                             <i class="bi bi-trash"></i>
                         </button>

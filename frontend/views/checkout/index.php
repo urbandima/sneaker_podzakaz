@@ -96,6 +96,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                                    placeholder="+375 (__) ___-__-__"
                                    value="<?= Html::encode($customer?->phone ?? '') ?>"
                                    required aria-required="true" autocomplete="tel"
+                                   pattern="[+]?[0-9\s\-\(\)]{7,}"
                                    aria-describedby="error-phone" maxlength="50">
                             <div id="error-phone" class="invalid-feedback" role="alert" aria-live="polite"></div>
                         </div>

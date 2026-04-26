@@ -132,25 +132,45 @@ class DobroPostService extends Component
             'dp-api'
         );
 
+        if (Yii::$app->has('automation')) {
+            Yii::$app->automation->fireEvent('order.sent_to_dp', [
+                'order'       => $order,
+                'dp_response' => $response,
+            ]);
+        }
+
         return $response;
     }
 
     /**
      * Формирует payload для создания/обновления шипмента из полей заказа.
      */
+    /**
+     * Возвращает случайный телефон из справочника proxy_phones (настройки ДП).
+     * Каждый элемент — объект {phone, label}. Если список пуст — возвращает дефолт.
+     */
+    public function getRandomPhone(): string
+    {
+        try {
+            $raw   = Yii::$app->settings->get('dobropost', 'proxy_phones', '[]');
+            $items = json_decode($raw, true);
+            if (!empty($items) && is_array($items)) {
+                $item = $items[array_rand($items)];
+                return is_array($item) ? ($item['phone'] ?? '') : (string) $item;
+            }
+        } catch (\Throwable $e) {
+            Yii::warning('proxy_phones setting unavailable: ' . $e->getMessage(), 'dobropost');
+        }
+        return '+375447009001'; // дефолт если справочник пуст
+    }
+
     public function buildShipmentPayload(Order $order): array
     {
-        // Телефон берём из покупателя или из поля client_phone заказа
-        $phone = $order->client_phone;
-        if (empty($phone) && $order->customer) {
-            $phone = $order->customer->phone ?? '';
-        }
+        // Телефон — случайный из справочника proxy_phones (НЕ реальный телефон клиента)
+        $phone = $this->getRandomPhone();
 
-        // Email берём из заказа или покупателя
-        $email = $order->client_email;
-        if (empty($email) && $order->customer) {
-            $email = $order->customer->email ?? '';
-        }
+        // Email всегда хардкодим, реальный email клиента не передаём в DP
+        $email = '1@mail.ru';
 
         // Тариф: из поля dobropost_tariff заказа, иначе — дефолтный
         $tariff = !empty($order->dobropost_tariff) ? (int) $order->dobropost_tariff : $this->defaultTariff;

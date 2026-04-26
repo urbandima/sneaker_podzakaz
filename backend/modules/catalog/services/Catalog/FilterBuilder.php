@@ -488,7 +488,17 @@ class FilterBuilder
         $excludeKeys = ['char_' . $characteristicId];
         self::applyFiltersToQuery($productIdsQuery, $currentFilters, $baseConditions, $excludeKeys);
         
-        // Запрос значений с количеством
+        // Получаем список product_id через column() — безопасно, без rawSql
+        $productIds = $productIdsQuery->column();
+
+        if (empty($productIds)) {
+            return [];
+        }
+
+        // Безопасный IN-список: явное приведение к int исключает SQL-инъекцию
+        $safeIds = implode(',', array_map('intval', $productIds));
+
+        // Запрос значений с количеством — IN-список в JOIN condition строится из целых чисел
         $values = CharacteristicValue::find()
             ->select([
                 'characteristic_value.id',
@@ -498,11 +508,11 @@ class FilterBuilder
             ])
             ->leftJoin(
                 'product_characteristic_value pcv',
-                'pcv.characteristic_value_id = characteristic_value.id AND pcv.product_id IN (' . $productIdsQuery->createCommand()->rawSql . ')'
+                "pcv.characteristic_value_id = characteristic_value.id AND pcv.product_id IN ({$safeIds})"
             )
             ->where([
                 'characteristic_value.characteristic_id' => $characteristicId,
-                'characteristic_value.is_active' => true
+                'characteristic_value.is_active' => true,
             ])
             ->groupBy(['characteristic_value.id'])
             ->orderBy(['characteristic_value.sort_order' => SORT_ASC])

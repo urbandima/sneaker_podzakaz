@@ -273,26 +273,67 @@ class AccountController extends Controller
             return $this->redirect(['account/login']);
         }
 
-        // Заглушка данных лояльности (в реальном проекте - из БД)
+        // Реальные данные лояльности из БД
+        $balance = 0;
+        $history = [];
+        try {
+            $pointsRows = \Yii::$app->db->createCommand(
+                "SELECT points, description, created_at FROM loyalty_points WHERE customer_id = :cid ORDER BY created_at DESC LIMIT 50",
+                [':cid' => $customer->id]
+            )->queryAll();
+            foreach ($pointsRows as $row) {
+                $balance += (int)$row['points'];
+                $history[] = [
+                    'date' => date('Y-m-d', $row['created_at']),
+                    'points' => (int)$row['points'],
+                    'description' => $row['description'] ?? '',
+                ];
+            }
+        } catch (\Exception $e) {
+            // If loyalty_points table doesn't exist yet, use orders to calculate
+            try {
+                $totalSpent = (float)\app\backend\modules\checkout\models\Order::find()
+                    ->where(['customer_id' => $customer->id])
+                    ->andWhere(['status' => 'delivered'])
+                    ->sum('total_amount') ?: 0;
+                $balance = (int)($totalSpent * 10); // 10 points per BYN
+                $orderRows = \app\backend\modules\checkout\models\Order::find()
+                    ->where(['customer_id' => $customer->id])
+                    ->andWhere(['status' => 'delivered'])
+                    ->orderBy(['created_at' => SORT_DESC])
+                    ->limit(20)
+                    ->all();
+                foreach ($orderRows as $order) {
+                    $history[] = [
+                        'date' => date('Y-m-d', $order->created_at),
+                        'points' => (int)($order->total_amount * 10),
+                        'description' => 'Покупка #' . ($order->order_number ?: $order->id),
+                    ];
+                }
+            } catch (\Exception $e2) {}
+        }
+
+        // Determine level based on total spent
+        $totalSpentForLevel = $customer->total_spent ?? 0;
+        if ($totalSpentForLevel >= 50000) {
+            $levelKey = 'platinum'; $levelName = 'Платина'; $multiplier = 2.0; $discount = 10; $nextLevelMin = null;
+        } elseif ($totalSpentForLevel >= 15000) {
+            $levelKey = 'gold'; $levelName = 'Золото'; $multiplier = 1.75; $discount = 7; $nextLevelMin = 50000;
+        } elseif ($totalSpentForLevel >= 5000) {
+            $levelKey = 'silver'; $levelName = 'Серебро'; $multiplier = 1.5; $discount = 5; $nextLevelMin = 15000;
+        } else {
+            $levelKey = 'bronze'; $levelName = 'Бронза'; $multiplier = 1.0; $discount = 0; $nextLevelMin = 5000;
+        }
+
+        $nextLevel = $nextLevelMin ? (object)['name' => ['bronze'=>'Серебро','silver'=>'Золото','gold'=>'Платина'][$levelKey] ?? '', 'min_points' => (int)($nextLevelMin * 10)] : null;
+        $pointsToNext = $nextLevel ? max(0, $nextLevel->min_points - $balance) : 0;
+
         $loyaltyInfo = [
-            'level' => (object)[
-                'level' => 'silver',
-                'name' => 'Серебро',
-                'points_multiplier' => 1.5,
-                'discount_percent' => 5,
-            ],
-            'balance' => 1250,
-            'nextLevel' => (object)[
-                'name' => 'Золото',
-                'min_points' => 2500,
-            ],
-            'pointsToNextLevel' => 1250,
-            'history' => [
-                ['date' => '2026-03-15', 'type' => 'earn', 'points' => 150, 'description' => 'Покупка кроссовок Nike Air Max'],
-                ['date' => '2026-03-10', 'type' => 'earn', 'points' => 200, 'description' => 'Покупка кроссовок Adidas Ultraboost'],
-                ['date' => '2026-03-01', 'type' => 'spend', 'points' => -500, 'description' => 'Скидка на заказ #1234'],
-                ['date' => '2026-02-20', 'type' => 'earn', 'points' => 100, 'description' => 'Бонус за регистрацию'],
-            ],
+            'level' => (object)['level' => $levelKey, 'name' => $levelName, 'points_multiplier' => $multiplier, 'discount_percent' => $discount],
+            'balance' => $balance,
+            'nextLevel' => $nextLevel,
+            'pointsToNextLevel' => $pointsToNext,
+            'history' => $history,
         ];
 
         return $this->render('loyalty', [

@@ -62,17 +62,28 @@ $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam
         </div>
         
         <!-- Избранное -->
-        <button class="action-btn favorite btn-favorite" 
+        <button class="action-btn favorite btn-favorite"
                 data-product-id="<?= $product->id ?>"
-                onclick="toggleFav(event,<?= $product->id ?>)" 
+                onclick="toggleFav(event,<?= $product->id ?>)"
                 aria-label="Добавить в избранное">
             <i class="bi bi-heart"></i>
         </button>
+
+        <!-- Hover overlay: быстрый просмотр + добавление в корзину -->
+        <div class="product-card-overlay">
+            <a href="<?= $product->getUrl() ?>" class="overlay-quick-view">
+                <i class="bi bi-eye"></i>
+                Быстрый просмотр
+            </a>
+            <button class="overlay-cart-btn" onclick="quickAddToCart(event, <?= $product->id ?>)" aria-label="Добавить в корзину">
+                <i class="bi bi-bag-plus"></i>
+            </button>
+        </div>
     </div>
     
     <!-- Информация -->
     <div class="product-info">
-        <?php if ($product->brand_name): ?>
+        <?php if ($product->brand_name && $product->brand_name !== '-'): ?>
         <div class="product-card-brand"><?= Html::encode($product->brand_name) ?></div>
         <?php endif; ?>
         
@@ -93,20 +104,27 @@ $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam
         <?php endif; ?>
         
         <!-- Цена -->
+        <?php
+        $effectivePrice = $priceView['currentPrice'] ?? $product->price ?? 0;
+        $hasPriceRange = $priceView['showRange'] && $priceView['minPrice'] && $priceView['maxPrice'];
+        $hasPrice = $hasPriceRange ? ($priceView['minPrice'] > 0) : ($effectivePrice > 0);
+        ?>
         <div class="product-price">
-            <?php if ($priceView['showRange'] && $priceView['minPrice'] !== null && $priceView['maxPrice'] !== null): ?>
+            <?php if ($hasPriceRange): ?>
                 <span class="product-card-price-current">
                     от <?= Yii::$app->formatter->asCurrency($priceView['minPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
                 </span>
                 <span class="product-card-price-range">
                     до <?= Yii::$app->formatter->asCurrency($priceView['maxPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
                 </span>
-            <?php else: ?>
+            <?php elseif ($hasPrice): ?>
                 <span class="product-card-price-current">
-                    <?= Yii::$app->formatter->asCurrency($priceView['currentPrice'] ?? $product->price, ProductCardHelper::PRICE_CURRENCY) ?>
+                    <?= Yii::$app->formatter->asCurrency($effectivePrice, ProductCardHelper::PRICE_CURRENCY) ?>
                 </span>
+            <?php else: ?>
+                <span class="product-card-price-pending">Цена уточняется</span>
             <?php endif; ?>
-            <?php if ($priceView['showOldPrice'] && $priceView['oldPrice'] !== null): ?>
+            <?php if ($hasPrice && $priceView['showOldPrice'] && $priceView['oldPrice'] !== null): ?>
             <span class="product-card-price-old">
                 <?= Yii::$app->formatter->asCurrency($priceView['oldPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
             </span>
@@ -121,10 +139,11 @@ $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam
             'showLinks' => true,
             'containerClass' => 'product-tags--compact',
         ]) ?>
-        
-        <!-- Кнопка -->
-        <button class="btn-add-to-cart-card" onclick="quickAddToCart(event, <?= $product->id ?>)">
-            В корзину
+
+        <!-- Кнопка В корзину -->
+        <button class="product-card-add-to-cart" onclick="quickAddToCart(event, <?= $product->id ?>)" aria-label="Добавить в корзину">
+            <i class="bi bi-bag-plus"></i> В корзину
         </button>
+
     </div>
 </article>

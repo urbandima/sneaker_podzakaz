@@ -17,16 +17,12 @@ $this->params['breadcrumbs'][] = $product->isNewRecord ? 'Создание' : '�
 
 // Парсим JSON данные если есть
 $properties = [];
-$sizesData = [];
 $keywords = [];
 if ($product->properties) {
-    $properties = json_decode($product->properties, true) ?: [];
-}
-if ($product->sizes_data) {
-    $sizesData = json_decode($product->sizes_data, true) ?: [];
+    $properties = is_array($product->properties) ? $product->properties : (json_decode($product->properties, true) ?: []);
 }
 if ($product->keywords) {
-    $keywords = json_decode($product->keywords, true) ?: [];
+    $keywords = is_array($product->keywords) ? $product->keywords : (json_decode($product->keywords, true) ?: []);
 }
 
 // Объединяем keywords с meta_keywords для предзаполнения поля
@@ -41,12 +37,17 @@ if ($product->meta_keywords) {
 $allKeywords = array_unique(array_filter($allKeywords));
 
 // Объединяем характеристики из справочников
-$characteristicsFromRegistry = !$product->isNewRecord 
-    ? \app\backend\modules\catalog\models\ProductCharacteristicValue::find()
-        ->where(['product_id' => $product->id])
-        ->with(['characteristic', 'characteristicValue'])
-        ->all()
-    : [];
+$characteristicsFromRegistry = [];
+if (!$product->isNewRecord) {
+    try {
+        $characteristicsFromRegistry = \app\backend\modules\catalog\models\ProductCharacteristicValue::find()
+            ->where(['product_id' => $product->id])
+            ->with(['characteristic', 'characteristicValue'])
+            ->all();
+    } catch (\Exception $e) {
+        $characteristicsFromRegistry = [];
+    }
+}
 ?>
 
 <?php if (!$product->isNewRecord): ?>
@@ -92,6 +93,9 @@ $characteristicsFromRegistry = !$product->isNewRecord
                     </a>
                     <a href="#section-specs" class="btn btn-outline-secondary">
                         <i class="bi bi-list-ul"></i> Характеристики
+                    </a>
+                    <a href="#section-ms-attrs" class="btn btn-outline-secondary">
+                        <i class="bi bi-database"></i> МойСклад
                     </a>
                     <a href="#section-seo" class="btn btn-outline-success">
                         <i class="bi bi-search"></i> SEO
@@ -250,15 +254,6 @@ $characteristicsFromRegistry = !$product->isNewRecord
                             ])->label('Серия товара')->hint('Название коллекции или серии') ?>
                         </div>
                         <div class="col-md-6">
-                            <?= $form->field($product, 'country')->textInput([
-                                'maxlength' => true,
-                                'placeholder' => 'Китай, Вьетнам, США...'
-                            ])->label('Страна производства') ?>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
                             <label class="form-label">Сроки доставки (дни)</label>
                             <div class="input-group">
                                 <?= Html::activeTextInput($product, 'delivery_time_min', [
@@ -277,280 +272,10 @@ $characteristicsFromRegistry = !$product->isNewRecord
                             </div>
                             <small class="text-muted">Минимум и максимум дней доставки</small>
                         </div>
-                        <div class="col-md-6">
-                            <?= $form->field($product, 'related_products_json')->textarea([
-                                'rows' => 2,
-                                'placeholder' => '{"productIds": [123, 456, 789]}'
-                            ])->label('Связанные товары (JSON)')->hint('Массив ID связанных товаров') ?>
-                        </div>
                     </div>
 
-                    <div id="section-specs" class="mt-5 pt-4 border-top">
-                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                            <h5 class="mb-0"><i class="bi bi-list-check"></i> Характеристики товара</h5>
-                            <?php if (!$product->isNewRecord): ?>
-                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#manageCharacteristicsModal">
-                                <i class="bi bi-plus-circle"></i> Добавить характеристику
-                            </button>
-                            <?php endif; ?>
-                        </div>
-
-                        <?php if (!$product->isNewRecord):
-                            // Получаем характеристики из справочников
-                            $hasRegistryChars = count($characteristicsFromRegistry) > 0;
-                            $hasPoizonProps = !empty($properties);
-
-                            // Добавляем параметры продукта как характеристики
-                            $productParams = [
-                                ['key' => 'material', 'name' => 'Материал', 'value' => $product->material, 'type' => 'select', 'options' => [
-                                    'leather' => 'Кожа', 'textile' => 'Текстиль', 'synthetic' => 'Синтетика',
-                                    'suede' => 'Замша', 'mesh' => 'Сетка', 'canvas' => 'Канвас'
-                                ]],
-                                ['key' => 'season', 'name' => 'Сезон', 'value' => $product->season, 'type' => 'select', 'options' => [
-                                    'summer' => 'Лето', 'winter' => 'Зима', 'demi' => 'Демисезон', 'all' => 'Всесезон'
-                                ]],
-                                ['key' => 'gender', 'name' => 'Пол', 'value' => $product->gender, 'type' => 'select', 'options' => [
-                                    'male' => 'Мужской', 'female' => 'Женский', 'unisex' => 'Унисекс'
-                                ]],
-                                ['key' => 'height', 'name' => 'Высота', 'value' => $product->height, 'type' => 'select', 'options' => [
-                                    'low' => 'Низкие', 'mid' => 'Средние', 'high' => 'Высокие'
-                                ]],
-                                ['key' => 'fastening', 'name' => 'Застежка', 'value' => $product->fastening, 'type' => 'select', 'options' => [
-                                    'laces' => 'Шнурки', 'velcro' => 'Липучки', 'zipper' => 'Молния', 'slip_on' => 'Без застежки'
-                                ]],
-                                ['key' => 'country', 'name' => 'Страна производства', 'value' => $product->country, 'type' => 'text'],
-                                ['key' => 'style_code', 'name' => 'Артикул', 'value' => $product->style_code, 'type' => 'text'],
-                                ['key' => 'release_year', 'name' => 'Дата релиза', 'value' => $product->release_year, 'type' => 'number'],
-                                ['key' => 'weight', 'name' => 'Вес (граммы)', 'value' => $product->weight, 'type' => 'number'],
-                            ];
-
-                            $hasProductParams = true;
-
-                            if ($hasRegistryChars || $hasPoizonProps || $hasProductParams):
-                        ?>
-                        <div class="table-responsive">
-                            <table class="table table-sm mb-3" id="characteristicsTable">
-                                <thead>
-                                    <tr>
-                                        <th width="30%">Характеристика</th>
-                                        <th width="45%">Значение</th>
-                                        <th width="15%" class="text-center">Источник</th>
-                                        <th width="10%" class="text-center">Действия</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    // 1. Параметры продукта (редактируемые inline)
-                                    foreach ($productParams as $param):
-                                        if (!empty($param['value'])):
-                                            $displayValue = $param['value'];
-                                            if ($param['type'] === 'select' && isset($param['options'][$param['value']])) {
-                                                $displayValue = $param['options'][$param['value']];
-                                            }
-                                    ?>
-                                        <tr class="product-param-row" data-param-key="<?= $param['key'] ?>">
-                                            <td><?= Html::encode($param['name']) ?></td>
-                                            <td>
-                                                <div class="param-value-display"><?= Html::encode($displayValue) ?></div>
-                                                <div class="param-value-edit d-none">
-                                                    <?php if ($param['type'] === 'select'): ?>
-                                                        <select class="form-select form-select-sm param-edit-input" 
-                                                                name="Product[<?= $param['key'] ?>]" 
-                                                                data-original="<?= Html::encode($param['value']) ?>">
-                                                            <option value="">Не выбрано</option>
-                                                            <?php foreach ($param['options'] as $optKey => $optValue): ?>
-                                                                <option value="<?= $optKey ?>" <?= $optKey === $param['value'] ? 'selected' : '' ?>>
-                                                                    <?= Html::encode($optValue) ?>
-                                                                </option>
-                                                            <?php endforeach; ?>
-                                                        </select>
-                                                    <?php elseif ($param['type'] === 'number'): ?>
-                                                        <input type="number" class="form-control form-control-sm param-edit-input" 
-                                                               name="Product[<?= $param['key'] ?>]" 
-                                                               value="<?= Html::encode($param['value']) ?>" 
-                                                               data-original="<?= Html::encode($param['value']) ?>">
-                                                    <?php else: ?>
-                                                        <input type="text" class="form-control form-control-sm param-edit-input" 
-                                                               name="Product[<?= $param['key'] ?>]" 
-                                                               value="<?= Html::encode($param['value']) ?>" 
-                                                               data-original="<?= Html::encode($param['value']) ?>">
-                                                    <?php endif; ?>
-                                                </div>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-primary">Продукт</span>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="btn-group btn-group-sm param-actions-display">
-                                                    <button type="button" class="btn btn-sm btn-link text-secondary p-0 px-1" 
-                                                            onclick="editProductParam('<?= $param['key'] ?>')" title="Редактировать">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
-                                                </div>
-                                                <div class="btn-group btn-group-sm param-actions-edit d-none">
-                                                    <button type="button" class="btn btn-sm btn-link text-success p-0 px-1" 
-                                                            onclick="saveProductParam('<?= $param['key'] ?>')" title="Сохранить">
-                                                        <i class="bi bi-check-lg"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-link text-secondary p-0 px-1" 
-                                                            onclick="cancelEditProductParam('<?= $param['key'] ?>')" title="Отмена">
-                                                        <i class="bi bi-x-lg"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php 
-                                        endif;
-                                    endforeach; 
-                                    ?>
-                                    
-                                    <?php
-                                    // 2. Характеристики из справочников (редактируемые)
-                                    foreach ($characteristicsFromRegistry as $pcv): ?>
-                                        <tr data-char-id="<?= $pcv->id ?>" class="editable-char-row">
-                                            <td><?= Html::encode($pcv->characteristic->name) ?></td>
-                                            <td>
-                                                <div class="char-value-display">
-                                                    <?php if ($pcv->characteristicValue): ?>
-                                                        <?= Html::encode($pcv->characteristicValue->value) ?>
-                                                    <?php elseif ($pcv->value_text): ?>
-                                                        <?= Html::encode($pcv->value_text) ?>
-                                                    <?php elseif ($pcv->value_number !== null): ?>
-                                                        <?= Html::encode($pcv->value_number) ?>
-                                                    <?php endif; ?>
-                                                </div>
-                                                <div class="char-value-edit d-none">
-                                                    <?php 
-                                                    $charType = $pcv->characteristic->type;
-                                                    if ($charType === 'select'): 
-                                                        $values = \yii\helpers\ArrayHelper::map($pcv->characteristic->values, 'id', 'value');
-                                                    ?>
-                                                        <select class="form-select form-select-sm char-edit-input" data-original="<?= $pcv->characteristic_value_id ?>">
-                                                            <?php foreach ($values as $valId => $valName): ?>
-                                                                <option value="<?= $valId ?>" <?= $valId == $pcv->characteristic_value_id ? 'selected' : '' ?>>
-                                                                    <?= Html::encode($valName) ?>
-                                                                </option>
-                                                            <?php endforeach; ?>
-                                                        </select>
-                                                    <?php elseif ($charType === 'text'): ?>
-                                                        <input type="text" class="form-control form-control-sm char-edit-input" 
-                                                               value="<?= Html::encode($pcv->value_text) ?>" 
-                                                               data-original="<?= Html::encode($pcv->value_text) ?>">
-                                                    <?php elseif ($charType === 'number'): ?>
-                                                        <input type="number" step="0.01" class="form-control form-control-sm char-edit-input" 
-                                                               value="<?= $pcv->value_number ?>" 
-                                                               data-original="<?= $pcv->value_number ?>">
-                                                    <?php endif; ?>
-                                                </div>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-light text-dark border">Справочник</span>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="btn-group btn-group-sm char-actions-display">
-                                                    <button type="button" class="btn btn-sm btn-link text-secondary p-0 px-1" 
-                                                            onclick="editCharacteristic(<?= $pcv->id ?>)" title="Редактировать">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-link text-danger p-0 px-1" 
-                                                            onclick="deleteCharacteristicInline(<?= $pcv->id ?>)" title="Удалить">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </div>
-                                                <div class="btn-group btn-group-sm char-actions-edit d-none">
-                                                    <button type="button" class="btn btn-sm btn-link text-success p-0 px-1" 
-                                                            onclick="saveCharacteristic(<?= $pcv->id ?>)" title="Сохранить">
-                                                        <i class="bi bi-check-lg"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-link text-secondary p-0 px-1" 
-                                                            onclick="cancelEditCharacteristic(<?= $pcv->id ?>)" title="Отмена">
-                                                        <i class="bi bi-x-lg"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                    
-                                    <?php
-                                    // 3. Характеристики из Poizon (редактируемые)
-                                    if ($hasPoizonProps):
-                                        $propIndex = 0;
-                                        foreach ($properties as $prop): 
-                                            $propKey = 'poizon_prop_' . $propIndex;
-                                    ?>
-                                        <tr class="poizon-prop-row" data-prop-index="<?= $propIndex ?>" style="background-color: #f8f9fa;">
-                                            <td>
-                                                <div class="poizon-prop-key-display"><?= Html::encode($prop['key'] ?? '') ?></div>
-                                                <div class="poizon-prop-key-edit d-none">
-                                                    <input type="text" class="form-control form-control-sm" 
-                                                           name="poizon_props[<?= $propIndex ?>][key]"
-                                                           value="<?= Html::encode($prop['key'] ?? '') ?>" 
-                                                           data-original="<?= Html::encode($prop['key'] ?? '') ?>">
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="poizon-prop-value-display"><?= Html::encode($prop['value'] ?? '') ?></div>
-                                                <div class="poizon-prop-value-edit d-none">
-                                                    <input type="text" class="form-control form-control-sm" 
-                                                           name="poizon_props[<?= $propIndex ?>][value]"
-                                                           value="<?= Html::encode($prop['value'] ?? '') ?>" 
-                                                           data-original="<?= Html::encode($prop['value'] ?? '') ?>">
-                                                </div>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-info">Poizon</span>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="btn-group btn-group-sm poizon-prop-actions-display">
-                                                    <button type="button" class="btn btn-sm btn-link text-secondary p-0 px-1" 
-                                                            onclick="editPoizonProp(<?= $propIndex ?>)" title="Редактировать">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-link text-danger p-0 px-1" 
-                                                            onclick="deletePoizonProp(<?= $propIndex ?>)" title="Удалить">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </div>
-                                                <div class="btn-group btn-group-sm poizon-prop-actions-edit d-none">
-                                                    <button type="button" class="btn btn-sm btn-link text-success p-0 px-1" 
-                                                            onclick="savePoizonProp(<?= $propIndex ?>)" title="Сохранить">
-                                                        <i class="bi bi-check-lg"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-link text-secondary p-0 px-1" 
-                                                            onclick="cancelEditPoizonProp(<?= $propIndex ?>)" title="Отмена">
-                                                        <i class="bi bi-x-lg"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php 
-                                            $propIndex++;
-                                        endforeach;
-                                    endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="text-muted mt-2 fs-sm">
-                            <i class="bi bi-info-circle"></i> 
-                            Нажмите <i class="bi bi-pencil"></i> для редактирования значения. 
-                            Для добавления новых характеристик используйте кнопку "Добавить характеристику".
-                        </div>
-                        <?php else: ?>
-                        <div class="alert alert-light border mb-0">
-                            <i class="bi bi-info-circle"></i> Характеристики не заполнены. 
-                            <?php if ($product->poizon_id): ?>
-                                Синхронизируйте товар с Poizon для автоматического импорта.
-                            <?php else: ?>
-                                Нажмите "Добавить характеристику" для добавления.
-                            <?php endif; ?>
-                        </div>
-                        <?php endif; ?>
-                        <?php else: ?>
-                        <div class="alert alert-light border mb-0">
-                            <i class="bi bi-info-circle"></i> Сохраните товар для редактирования характеристик.
-                        </div>
-                        <?php endif; ?>
-                    </div>
+                    <!-- anchor for quick nav -->
+                    <div id="section-specs-anchor"></div>
                 </div>
             </div>
             
@@ -663,25 +388,20 @@ $characteristicsFromRegistry = !$product->isNewRecord
                 </div>
             </div></div>
 
-            <!-- Характеристики товара (Объединенные) -->
+            <!-- Характеристики товара -->
             <div class="card mt-3" id="section-specs">
                 <div class="card-header d-flex justify-content-between align-items-center bg-light">
-                    <h5 class="mb-0"><i class="bi bi-list-check"></i> Характеристики товара</h5>
+                    <h5 class="mb-0"><i class="bi bi-list-check"></i> Характеристики</h5>
                     <?php if (!$product->isNewRecord): ?>
                     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#manageCharacteristicsModal">
-                        <i class="bi bi-plus-circle"></i> Добавить характеристику
+                        <i class="bi bi-plus-circle"></i> Добавить
                     </button>
                     <?php endif; ?>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     <?php if (!$product->isNewRecord):
-                        // Получаем характеристики из справочников
-                        $hasRegistryChars = count($characteristicsFromRegistry) > 0;
-                        $hasPoizonProps = !empty($properties);
-                        
-                        // Добавляем параметры продукта как характеристики
                         $productParams = [
-                            ['key' => 'material', 'name' => 'Материал', 'value' => $product->material, 'type' => 'select', 'options' => [
+                            ['key' => 'material', 'name' => 'Материал верха', 'value' => $product->material, 'type' => 'select', 'options' => [
                                 'leather' => 'Кожа', 'textile' => 'Текстиль', 'synthetic' => 'Синтетика',
                                 'suede' => 'Замша', 'mesh' => 'Сетка', 'canvas' => 'Канвас'
                             ]],
@@ -694,245 +414,256 @@ $characteristicsFromRegistry = !$product->isNewRecord
                             ['key' => 'height', 'name' => 'Высота', 'value' => $product->height, 'type' => 'select', 'options' => [
                                 'low' => 'Низкие', 'mid' => 'Средние', 'high' => 'Высокие'
                             ]],
-                            ['key' => 'fastening', 'name' => 'Застежка', 'value' => $product->fastening, 'type' => 'select', 'options' => [
-                                'laces' => 'Шнурки', 'velcro' => 'Липучки', 'zipper' => 'Молния', 'slip_on' => 'Без застежки'
+                            ['key' => 'fastening', 'name' => 'Застёжка', 'value' => $product->fastening, 'type' => 'select', 'options' => [
+                                'laces' => 'Шнурки', 'velcro' => 'Липучки', 'zipper' => 'Молния', 'slip_on' => 'Без застёжки'
                             ]],
-                            ['key' => 'country', 'name' => 'Страна производства', 'value' => $product->country, 'type' => 'text'],
-                            ['key' => 'style_code', 'name' => 'Артикул', 'value' => $product->style_code, 'type' => 'text'],
-                            ['key' => 'release_year', 'name' => 'Дата релиза', 'value' => $product->release_year, 'type' => 'number'],
-                            ['key' => 'weight', 'name' => 'Вес (граммы)', 'value' => $product->weight, 'type' => 'number'],
+                            ['key' => 'country', 'name' => 'Страна пр-ва', 'value' => $product->country, 'type' => 'text'],
+                            ['key' => 'style_code', 'name' => 'Style Code', 'value' => $product->style_code, 'type' => 'text'],
+                            ['key' => 'release_year', 'name' => 'Год релиза', 'value' => $product->release_year, 'type' => 'number'],
+                            ['key' => 'weight', 'name' => 'Вес (г)', 'value' => $product->weight, 'type' => 'number'],
                         ];
-                        
-                        $hasProductParams = true;
-                        
-                        if ($hasRegistryChars || $hasPoizonProps || $hasProductParams):
+
+                        // Parse MS attributes
+                        $msAttrs = [];
+                        if ($product->hasAttribute('ms_attributes_json') && !empty($product->ms_attributes_json)) {
+                            $rawMsAttrs = is_array($product->ms_attributes_json)
+                                ? $product->ms_attributes_json
+                                : (json_decode($product->ms_attributes_json, true) ?: []);
+                            foreach ($rawMsAttrs as $attr) {
+                                if (empty($attr['name'])) continue;
+                                $val = '';
+                                if (isset($attr['value'])) {
+                                    if (is_array($attr['value']) && isset($attr['value']['name'])) {
+                                        $val = $attr['value']['name'];
+                                    } elseif (is_string($attr['value']) || is_numeric($attr['value'])) {
+                                        $val = (string)$attr['value'];
+                                    } elseif (is_bool($attr['value'])) {
+                                        $val = $attr['value'] ? 'Да' : 'Нет';
+                                    }
+                                }
+                                if ($val !== '') {
+                                    $msAttrs[] = ['name' => $attr['name'], 'value' => $val, 'type' => $attr['type'] ?? 'text'];
+                                }
+                            }
+                        }
+
+                        $hasPoizonProps = !empty($properties);
+                        $hasMsAttrs = !empty($msAttrs);
+                        $hasRegistryChars = count($characteristicsFromRegistry) > 0;
+                        $hasAny = $hasRegistryChars || $hasPoizonProps || $hasMsAttrs || true; // always show params
+                        if ($hasAny):
                     ?>
                     <div class="table-responsive">
-                        <table class="table table-sm mb-3" id="characteristicsTable">
-                            <thead>
+                        <table class="table table-sm table-hover mb-0" id="characteristicsTable">
+                            <thead class="table-light">
                                 <tr>
-                                    <th width="30%">Характеристика</th>
-                                    <th width="45%">Значение</th>
-                                    <th width="15%" class="text-center">Источник</th>
-                                    <th width="10%" class="text-center">Действия</th>
+                                    <th width="32%">Характеристика</th>
+                                    <th>Значение</th>
+                                    <th width="14%" class="text-center">Источник</th>
+                                    <th width="90px" class="text-center">Авт.</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
-                                // 1. Параметры продукта (редактируемые inline)
+                                // 1. Основные поля товара — авто-сохранение через saveField
                                 foreach ($productParams as $param):
-                                    if (!empty($param['value'])):
-                                        $displayValue = $param['value'];
-                                        if ($param['type'] === 'select' && isset($param['options'][$param['value']])) {
-                                            $displayValue = $param['options'][$param['value']];
-                                        }
+                                    if (empty($param['value'])) continue;
+                                    $displayValue = $param['value'];
+                                    if ($param['type'] === 'select' && isset($param['options'][$param['value']])) {
+                                        $displayValue = $param['options'][$param['value']];
+                                    }
                                 ?>
-                                    <tr class="product-param-row" data-param-key="<?= $param['key'] ?>">
-                                        <td><?= Html::encode($param['name']) ?></td>
-                                        <td>
-                                            <div class="param-value-display"><?= Html::encode($displayValue) ?></div>
-                                            <div class="param-value-edit d-none">
-                                                <?php if ($param['type'] === 'select'): ?>
-                                                    <select class="form-select form-select-sm param-edit-input" 
-                                                            name="Product[<?= $param['key'] ?>]" 
-                                                            data-original="<?= Html::encode($param['value']) ?>">
-                                                        <option value="">Не выбрано</option>
-                                                        <?php foreach ($param['options'] as $optKey => $optValue): ?>
-                                                            <option value="<?= $optKey ?>" <?= $optKey === $param['value'] ? 'selected' : '' ?>>
-                                                                <?= Html::encode($optValue) ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                <?php elseif ($param['type'] === 'number'): ?>
-                                                    <input type="number" class="form-control form-control-sm param-edit-input" 
-                                                           name="Product[<?= $param['key'] ?>]" 
-                                                           value="<?= Html::encode($param['value']) ?>" 
-                                                           data-original="<?= Html::encode($param['value']) ?>">
-                                                <?php else: ?>
-                                                    <input type="text" class="form-control form-control-sm param-edit-input" 
-                                                           name="Product[<?= $param['key'] ?>]" 
-                                                           value="<?= Html::encode($param['value']) ?>" 
-                                                           data-original="<?= Html::encode($param['value']) ?>">
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge bg-primary">Продукт</span>
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="btn-group btn-group-sm param-actions-display">
-                                                <button type="button" class="btn btn-sm btn-link text-secondary p-0 px-1" 
-                                                        onclick="editProductParam('<?= $param['key'] ?>')" title="Редактировать">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                            </div>
-                                            <div class="btn-group btn-group-sm param-actions-edit d-none">
-                                                <button type="button" class="btn btn-sm btn-link text-success p-0 px-1" 
-                                                        onclick="saveProductParam('<?= $param['key'] ?>')" title="Сохранить">
-                                                    <i class="bi bi-check-lg"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-link text-secondary p-0 px-1" 
-                                                        onclick="cancelEditProductParam('<?= $param['key'] ?>')" title="Отмена">
-                                                    <i class="bi bi-x-lg"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php 
-                                    endif;
-                                endforeach; 
-                                ?>
-                                
-                                <?php
-                                // 2. Характеристики из справочников (редактируемые)
-                                foreach ($characteristicsFromRegistry as $pcv): ?>
-                                    <tr data-char-id="<?= $pcv->id ?>" class="editable-char-row">
-                                        <td><?= Html::encode($pcv->characteristic->name) ?></td>
-                                        <td>
-                                            <div class="char-value-display">
-                                                <?php if ($pcv->characteristicValue): ?>
-                                                    <?= Html::encode($pcv->characteristicValue->value) ?>
-                                                <?php elseif ($pcv->value_text): ?>
-                                                    <?= Html::encode($pcv->value_text) ?>
-                                                <?php elseif ($pcv->value_number !== null): ?>
-                                                    <?= Html::encode($pcv->value_number) ?>
-                                                <?php endif; ?>
-                                            </div>
-                                            <div class="char-value-edit d-none">
-                                                <?php 
-                                                $charType = $pcv->characteristic->type;
-                                                if ($charType === 'select'): 
-                                                    $values = \yii\helpers\ArrayHelper::map($pcv->characteristic->values, 'id', 'value');
-                                                ?>
-                                                    <select class="form-select form-select-sm char-edit-input" data-original="<?= $pcv->characteristic_value_id ?>">
-                                                        <?php foreach ($values as $valId => $valName): ?>
-                                                            <option value="<?= $valId ?>" <?= $valId == $pcv->characteristic_value_id ? 'selected' : '' ?>>
-                                                                <?= Html::encode($valName) ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                <?php elseif ($charType === 'text'): ?>
-                                                    <input type="text" class="form-control form-control-sm char-edit-input" 
-                                                           value="<?= Html::encode($pcv->value_text) ?>" 
-                                                           data-original="<?= Html::encode($pcv->value_text) ?>">
-                                                <?php elseif ($charType === 'number'): ?>
-                                                    <input type="number" step="0.01" class="form-control form-control-sm char-edit-input" 
-                                                           value="<?= $pcv->value_number ?>" 
-                                                           data-original="<?= $pcv->value_number ?>">
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge bg-light text-dark border">Справочник</span>
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="btn-group btn-group-sm char-actions-display">
-                                                <button type="button" class="btn btn-sm btn-link text-secondary p-0 px-1" 
-                                                        onclick="editCharacteristic(<?= $pcv->id ?>)" title="Редактировать">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-link text-danger p-0 px-1" 
-                                                        onclick="deleteCharacteristicInline(<?= $pcv->id ?>)" title="Удалить">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </div>
-                                            <div class="btn-group btn-group-sm char-actions-edit d-none">
-                                                <button type="button" class="btn btn-sm btn-link text-success p-0 px-1" 
-                                                        onclick="saveCharacteristic(<?= $pcv->id ?>)" title="Сохранить">
-                                                    <i class="bi bi-check-lg"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-link text-secondary p-0 px-1" 
-                                                        onclick="cancelEditCharacteristic(<?= $pcv->id ?>)" title="Отмена">
-                                                    <i class="bi bi-x-lg"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                <tr class="product-param-row" data-param-key="<?= $param['key'] ?>">
+                                    <td class="text-muted small"><?= Html::encode($param['name']) ?></td>
+                                    <td>
+                                        <div class="param-value-display fw-semibold"><?= Html::encode($displayValue) ?></div>
+                                        <div class="param-value-edit d-none">
+                                            <?php if ($param['type'] === 'select'): ?>
+                                                <select class="form-select form-select-sm param-edit-input"
+                                                        name="Product[<?= $param['key'] ?>]"
+                                                        data-field="<?= $param['key'] ?>"
+                                                        data-original="<?= Html::encode($param['value']) ?>">
+                                                    <option value="">— не выбрано —</option>
+                                                    <?php foreach ($param['options'] as $optKey => $optValue): ?>
+                                                        <option value="<?= $optKey ?>" <?= $optKey === $param['value'] ? 'selected' : '' ?>>
+                                                            <?= Html::encode($optValue) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            <?php elseif ($param['type'] === 'number'): ?>
+                                                <input type="number" class="form-control form-control-sm param-edit-input"
+                                                       name="Product[<?= $param['key'] ?>]"
+                                                       data-field="<?= $param['key'] ?>"
+                                                       value="<?= Html::encode($param['value']) ?>"
+                                                       data-original="<?= Html::encode($param['value']) ?>">
+                                            <?php else: ?>
+                                                <input type="text" class="form-control form-control-sm param-edit-input"
+                                                       name="Product[<?= $param['key'] ?>]"
+                                                       data-field="<?= $param['key'] ?>"
+                                                       value="<?= Html::encode($param['value']) ?>"
+                                                       data-original="<?= Html::encode($param['value']) ?>">
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td class="text-center"><span class="badge bg-primary">Продукт</span></td>
+                                    <td class="text-center">
+                                        <span class="param-actions-display">
+                                            <button type="button" class="btn btn-sm btn-link text-secondary p-0"
+                                                    onclick="editProductParam('<?= $param['key'] ?>')" title="Редактировать">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                        </span>
+                                        <span class="param-actions-edit d-none gap-1">
+                                            <button type="button" class="btn btn-sm btn-link text-success p-0"
+                                                    onclick="saveProductParamAjax('<?= $param['key'] ?>')" title="Сохранить">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-link text-secondary p-0"
+                                                    onclick="cancelEditProductParam('<?= $param['key'] ?>')" title="Отмена">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </span>
+                                    </td>
+                                </tr>
                                 <?php endforeach; ?>
-                                
+
                                 <?php
-                                // 3. Характеристики из Poizon (редактируемые)
+                                // 2. Характеристики из справочников
+                                foreach ($characteristicsFromRegistry as $pcv): ?>
+                                <tr data-char-id="<?= $pcv->id ?>" class="editable-char-row">
+                                    <td class="text-muted small"><?= Html::encode($pcv->characteristic ? $pcv->characteristic->name : '—') ?></td>
+                                    <td>
+                                        <div class="char-value-display fw-semibold">
+                                            <?php if ($pcv->characteristicValue): ?>
+                                                <?= Html::encode($pcv->characteristicValue->value) ?>
+                                            <?php elseif ($pcv->value_text): ?>
+                                                <?= Html::encode($pcv->value_text) ?>
+                                            <?php elseif ($pcv->value_number !== null): ?>
+                                                <?= Html::encode($pcv->value_number) ?>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="char-value-edit d-none">
+                                            <?php $charType = $pcv->characteristic ? $pcv->characteristic->type : null;
+                                            if ($charType === 'select'):
+                                                $values = \yii\helpers\ArrayHelper::map($pcv->characteristic->values ?? [], 'id', 'value'); ?>
+                                                <select class="form-select form-select-sm char-edit-input" data-original="<?= $pcv->characteristic_value_id ?>">
+                                                    <?php foreach ($values as $valId => $valName): ?>
+                                                        <option value="<?= $valId ?>" <?= $valId == $pcv->characteristic_value_id ? 'selected' : '' ?>>
+                                                            <?= Html::encode($valName) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            <?php elseif ($charType === 'number'): ?>
+                                                <input type="number" step="0.01" class="form-control form-control-sm char-edit-input"
+                                                       value="<?= $pcv->value_number ?>" data-original="<?= $pcv->value_number ?>">
+                                            <?php else: ?>
+                                                <input type="text" class="form-control form-control-sm char-edit-input"
+                                                       value="<?= Html::encode($pcv->value_text) ?>" data-original="<?= Html::encode($pcv->value_text) ?>">
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td class="text-center"><span class="badge bg-light text-dark border">Справочник</span></td>
+                                    <td class="text-center">
+                                        <span class="char-actions-display gap-1">
+                                            <button type="button" class="btn btn-sm btn-link text-secondary p-0"
+                                                    onclick="editCharacteristic(<?= $pcv->id ?>)" title="Редактировать">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-link text-danger p-0"
+                                                    onclick="deleteCharacteristicInline(<?= $pcv->id ?>)" title="Удалить">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </span>
+                                        <span class="char-actions-edit d-none gap-1">
+                                            <button type="button" class="btn btn-sm btn-link text-success p-0"
+                                                    onclick="saveCharacteristic(<?= $pcv->id ?>)" title="Сохранить">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-link text-secondary p-0"
+                                                    onclick="cancelEditCharacteristic(<?= $pcv->id ?>)" title="Отмена">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+
+                                <?php
+                                // 3. Poizon props
                                 if ($hasPoizonProps):
                                     $propIndex = 0;
-                                    foreach ($properties as $prop): 
-                                        $propKey = 'poizon_prop_' . $propIndex;
-                                    ?>
-                                        <tr class="poizon-prop-row" data-prop-index="<?= $propIndex ?>" style="background-color: #f8f9fa;">
-                                            <td>
-                                                <div class="poizon-prop-key-display"><?= Html::encode($prop['key'] ?? '') ?></div>
-                                                <div class="poizon-prop-key-edit d-none">
-                                                    <input type="text" class="form-control form-control-sm" 
-                                                           name="poizon_props[<?= $propIndex ?>][key]"
-                                                           value="<?= Html::encode($prop['key'] ?? '') ?>" 
-                                                           data-original="<?= Html::encode($prop['key'] ?? '') ?>">
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="poizon-prop-value-display"><?= Html::encode($prop['value'] ?? '') ?></div>
-                                                <div class="poizon-prop-value-edit d-none">
-                                                    <input type="text" class="form-control form-control-sm" 
-                                                           name="poizon_props[<?= $propIndex ?>][value]"
-                                                           value="<?= Html::encode($prop['value'] ?? '') ?>" 
-                                                           data-original="<?= Html::encode($prop['value'] ?? '') ?>">
-                                                </div>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-info">Poizon</span>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="btn-group btn-group-sm poizon-prop-actions-display">
-                                                    <button type="button" class="btn btn-sm btn-link text-secondary p-0 px-1" 
-                                                            onclick="editPoizonProp(<?= $propIndex ?>)" title="Редактировать">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-link text-danger p-0 px-1" 
-                                                            onclick="deletePoizonProp(<?= $propIndex ?>)" title="Удалить">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </div>
-                                                <div class="btn-group btn-group-sm poizon-prop-actions-edit d-none">
-                                                    <button type="button" class="btn btn-sm btn-link text-success p-0 px-1" 
-                                                            onclick="savePoizonProp(<?= $propIndex ?>)" title="Сохранить">
-                                                        <i class="bi bi-check-lg"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-link text-secondary p-0 px-1" 
-                                                            onclick="cancelEditPoizonProp(<?= $propIndex ?>)" title="Отмена">
-                                                        <i class="bi bi-x-lg"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php 
-                                        $propIndex++;
-                                    endforeach;
+                                    foreach ($properties as $prop): ?>
+                                <tr class="poizon-prop-row" data-prop-index="<?= $propIndex ?>">
+                                    <td class="text-muted small">
+                                        <div class="poizon-prop-key-display"><?= Html::encode($prop['key'] ?? '') ?></div>
+                                        <div class="poizon-prop-key-edit d-none">
+                                            <input type="text" class="form-control form-control-sm"
+                                                   name="poizon_props[<?= $propIndex ?>][key]"
+                                                   value="<?= Html::encode($prop['key'] ?? '') ?>">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="poizon-prop-value-display fw-semibold"><?= Html::encode($prop['value'] ?? '') ?></div>
+                                        <div class="poizon-prop-value-edit d-none">
+                                            <input type="text" class="form-control form-control-sm"
+                                                   name="poizon_props[<?= $propIndex ?>][value]"
+                                                   value="<?= Html::encode($prop['value'] ?? '') ?>">
+                                        </div>
+                                    </td>
+                                    <td class="text-center"><span class="badge bg-info">Poizon</span></td>
+                                    <td class="text-center">
+                                        <span class="poizon-prop-actions-display gap-1">
+                                            <button type="button" class="btn btn-sm btn-link text-secondary p-0"
+                                                    onclick="editPoizonProp(<?= $propIndex ?>)" title="Редактировать">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                        </span>
+                                        <span class="poizon-prop-actions-edit d-none gap-1">
+                                            <button type="button" class="btn btn-sm btn-link text-success p-0"
+                                                    onclick="savePoizonProp(<?= $propIndex ?>)" title="Сохранить">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-link text-secondary p-0"
+                                                    onclick="cancelEditPoizonProp(<?= $propIndex ?>)" title="Отмена">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </span>
+                                    </td>
+                                </tr>
+                                    <?php $propIndex++; endforeach;
                                 endif; ?>
+
+                                <?php if ($hasMsAttrs): ?>
+                                <tr class="table-secondary">
+                                    <td colspan="4" class="py-1 px-3">
+                                        <small class="text-muted fw-semibold"><i class="bi bi-database me-1"></i>Атрибуты МойСклад</small>
+                                    </td>
+                                </tr>
+                                <?php foreach ($msAttrs as $msAttr): ?>
+                                <tr id="section-ms-attrs">
+                                    <td class="text-muted small"><?= Html::encode($msAttr['name']) ?></td>
+                                    <td class="fw-semibold"><?= Html::encode($msAttr['value']) ?></td>
+                                    <td class="text-center"><span class="badge" style="background:#5c3d1e;color:#fff;">МС</span></td>
+                                    <td class="text-center text-muted small">—</td>
+                                </tr>
+                                <?php endforeach; ?>
+                                <?php endif; ?>
+
                             </tbody>
                         </table>
                     </div>
-                    <div class="text-muted mt-2 fs-sm">
-                        <i class="bi bi-info-circle"></i> 
-                        Нажмите <i class="bi bi-pencil"></i> для редактирования значения. 
-                        Для добавления новых характеристик используйте кнопку "Добавить характеристику".
+                    <div class="px-3 py-2 text-muted border-top" style="font-size: 0.8rem;">
+                        <i class="bi bi-pencil-square"></i> Нажмите карандаш — изменение сохраняется мгновенно без перезагрузки страницы.
                     </div>
                     <?php else: ?>
-                    <div class="alert alert-light border mb-0">
-                        <i class="bi bi-info-circle"></i> Характеристики не заполнены. 
-                        <?php if ($product->poizon_id): ?>
-                            Синхронизируйте товар с Poizon для автоматического импорта.
-                        <?php else: ?>
-                            Нажмите "Добавить характеристику" для добавления.
-                        <?php endif; ?>
-                    </div>
+                    <div class="p-3 text-muted">Сохраните товар для редактирования характеристик.</div>
                     <?php endif; ?>
-                    
                     <?php else: ?>
-                    <div class="alert alert-light border mb-0">
-                        <i class="bi bi-info-circle"></i> Сохраните товар для редактирования характеристик.
-                    </div>
-                    <?php endif; ?>
+                    <div class="p-3 text-muted">Сохраните товар для добавления характеристик.</div>
+                    <?php endif; // !isNewRecord ?>
                 </div>
             </div>
-            
+
             <!-- Размерная сетка -->
             <div class="card mt-3 admin-card size-dashboard-card" id="section-sizes">
                 <div class="card-header size-card-hero">
@@ -1082,19 +813,41 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <?php if ($size->price_byn): ?>
-                                            <span class="size-price-pill size-price-pill--custom">
-                                                <?= number_format($size->price_byn, 2) ?> ₽
+                                        <?php
+                                        $sizePriceByn = $size->price_byn ?: ($size->price ?: null);
+                                        $sizePriceDisplay = $sizePriceByn
+                                            ? number_format($sizePriceByn, 2)
+                                            : number_format($product->price, 2);
+                                        $sizePriceIsCustom = (bool)$sizePriceByn;
+                                        ?>
+                                        <div class="size-price-display" id="sp-display-<?= $size->id ?>">
+                                            <span class="size-price-pill <?= $sizePriceIsCustom ? 'size-price-pill--custom' : 'size-price-pill--default' ?>"
+                                                  style="cursor:pointer;" title="Нажмите для редактирования"
+                                                  onclick="editSizePrice(<?= $size->id ?>)">
+                                                <?= $sizePriceDisplay ?> BYN
+                                                <i class="bi bi-pencil ms-1" style="font-size:0.7em;opacity:0.5;"></i>
                                             </span>
-                                        <?php elseif ($size->price): ?>
-                                            <span class="size-price-pill size-price-pill--custom">
-                                                <?= number_format($size->price, 2) ?> ₽
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="size-price-pill size-price-pill--default">
-                                                Общая (<?= number_format($product->price, 2) ?> ₽)
-                                            </span>
-                                        <?php endif; ?>
+                                            <?php if (!$sizePriceIsCustom): ?>
+                                            <small class="text-muted d-block" style="font-size:0.7em;">общая</small>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="size-price-edit d-none" id="sp-edit-<?= $size->id ?>">
+                                            <div class="input-group input-group-sm" style="min-width:110px;max-width:150px;">
+                                                <input type="number" step="0.01" min="0"
+                                                       class="form-control form-control-sm"
+                                                       id="sp-input-<?= $size->id ?>"
+                                                       value="<?= $sizePriceByn ?: '' ?>"
+                                                       placeholder="<?= number_format($product->price, 2) ?>">
+                                                <button class="btn btn-success btn-sm px-1" type="button"
+                                                        onclick="saveSizePrice(<?= $size->id ?>)" title="Сохранить">
+                                                    <i class="bi bi-check"></i>
+                                                </button>
+                                                <button class="btn btn-secondary btn-sm px-1" type="button"
+                                                        onclick="cancelSizePrice(<?= $size->id ?>)" title="Отмена">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </td>
                                     <?php if ($product->poizon_id): ?>
                                         <td>
@@ -1187,38 +940,92 @@ $characteristicsFromRegistry = !$product->isNewRecord
                 </div>
             </div>
 
-            <!-- Размерные сетки из Poizon (только для информации) -->
-            <?php if (!empty($sizesData)): ?>
-            <div class="card mt-3 border-info">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="bi bi-rulers"></i> Размерные сетки Poizon (справочно)</h5>
+            <?php if (!$product->isNewRecord): ?>
+            <!-- Быстрая сетка доступных размеров (sizes_data) -->
+            <?php
+            $quickSizes = [];
+            if (!empty($product->sizes_data)) {
+                $rawSd = is_array($product->sizes_data) ? $product->sizes_data : (json_decode($product->sizes_data, true) ?: []);
+                // Use only if dict format (not Poizon array)
+                if (!empty($rawSd) && array_keys($rawSd) !== range(0, count($rawSd) - 1)) {
+                    $quickSizes = $rawSd;
+                }
+            }
+            $allEuSizes = ['36','36.5','37','37.5','38','38.5','39','39.5','40','40.5','41','41.5','42','42.5','43','43.5','44','44.5','45','46','47'];
+            ?>
+            <div class="card mt-3" id="sizes-quick-grid-card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0"><i class="bi bi-check2-square"></i> Быстрая сетка размеров EU</h5>
+                    <small class="text-muted">Переопределяет отображение размеров на сайте</small>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-light mb-3">
-                        <i class="bi bi-info-circle"></i> 
-                        <strong>Информация:</strong> Размерные сетки из Poizon уже интегрированы в основную таблицу размеров выше. 
-                        Здесь показаны оригинальные данные для справки.
+                    <div class="d-flex flex-wrap gap-2 mb-3" id="sizeCheckboxGrid">
+                        <?php foreach ($allEuSizes as $eu): ?>
+                        <?php $checked = !empty($quickSizes) ? !empty($quickSizes[$eu]) : false; ?>
+                        <label class="size-quick-btn <?= $checked ? 'active' : '' ?>" title="EU <?= $eu ?>">
+                            <input type="checkbox" value="<?= $eu ?>" <?= $checked ? 'checked' : '' ?> style="position:absolute;opacity:0;pointer-events:none">
+                            <?= $eu ?>
+                        </label>
+                        <?php endforeach; ?>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-sm table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th width="30%">Сетка</th>
-                                    <th>Размеры</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($sizesData as $sizeGrid): ?>
-                                <tr>
-                                    <td><strong><?= Html::encode($sizeGrid['name'] ?? '') ?></strong></td>
-                                    <td><small class="text-muted"><?= Html::encode($sizeGrid['value'] ?? '') ?></small></td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                    <div class="d-flex gap-2 align-items-center">
+                        <button type="button" class="btn btn-sm btn-dark" onclick="saveQuickSizesGrid()">
+                            <i class="bi bi-save"></i> Сохранить сетку
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllSizes(true)">Все</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllSizes(false)">Ни одного</button>
+                        <span id="sizeGridSaveMsg" class="ms-2" style="font-size:13px"></span>
                     </div>
                 </div>
             </div>
+            <style>
+            .size-quick-btn {
+                display: inline-flex; align-items: center; justify-content: center;
+                min-width: 48px; height: 36px; padding: 0 10px;
+                border: 1.5px solid #dee2e6; border-radius: 8px;
+                font-size: 13px; font-weight: 500; cursor: pointer;
+                background: #f9fafb; color: #374151; transition: all 0.15s;
+                user-select: none;
+            }
+            .size-quick-btn:hover { border-color: #6366f1; color: #6366f1; }
+            .size-quick-btn.active { background: #111; color: #fff; border-color: #111; }
+            </style>
+            <script>
+            document.querySelectorAll('.size-quick-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    btn.classList.toggle('active');
+                    btn.querySelector('input').checked = btn.classList.contains('active');
+                });
+            });
+            function selectAllSizes(val) {
+                document.querySelectorAll('.size-quick-btn').forEach(function(btn) {
+                    btn.classList.toggle('active', val);
+                    btn.querySelector('input').checked = val;
+                });
+            }
+            function saveQuickSizesGrid() {
+                var sizes = {};
+                document.querySelectorAll('#sizeCheckboxGrid .size-quick-btn').forEach(function(btn) {
+                    sizes[btn.querySelector('input').value] = btn.classList.contains('active');
+                });
+                var msg = document.getElementById('sizeGridSaveMsg');
+                msg.textContent = 'Сохраняем...'; msg.style.color = '#6b7280';
+                fetch('<?= \yii\helpers\Url::to(['/admin/product/save-sizes-data']) ?>', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    },
+                    body: JSON.stringify({id: <?= $product->id ?>, sizes: sizes})
+                })
+                .then(r => r.json())
+                .then(d => {
+                    msg.textContent = d.success ? ('✓ Сохранено (' + d.saved + ' размеров)') : ('✗ ' + (d.message || 'Ошибка'));
+                    msg.style.color = d.success ? '#065f46' : '#991b1b';
+                })
+                .catch(() => { msg.textContent = '✗ Ошибка сети'; msg.style.color = '#991b1b'; });
+            }
+            </script>
             <?php endif; ?>
 
             <!-- Кнопки действий -->
@@ -1669,4 +1476,175 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// ─── Auto-save helpers ──────────────────────────────────────────────────────
+const _productId = document.getElementById('js-product-id')
+    ? parseInt(document.getElementById('js-product-id').dataset.id)
+    : 0;
+const _csrfToken = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+const _saveFieldUrl = '<?= \yii\helpers\Url::to(['/admin/product/save-field']) ?>';
+const _updateSizePriceUrl = '<?= \yii\helpers\Url::to(['/admin/product/update-size-price']) ?>';
+
+function _showSaveToast(msg, ok) {
+    let t = document.getElementById('_saveToast');
+    if (!t) {
+        t = document.createElement('div');
+        t.id = '_saveToast';
+        t.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,.2);transition:opacity .3s;';
+        document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.background = ok ? '#065f46' : '#991b1b';
+    t.style.color = '#fff';
+    t.style.opacity = '1';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2000);
+}
+
+// Product param: enter edit mode
+function editProductParam(key) {
+    const row = document.querySelector('.product-param-row[data-param-key="' + key + '"]');
+    if (!row) return;
+    row.querySelector('.param-value-display').classList.add('d-none');
+    row.querySelector('.param-value-edit').classList.remove('d-none');
+    row.querySelector('.param-actions-display').classList.add('d-none');
+    row.querySelector('.param-actions-edit').classList.remove('d-none');
+    const inp = row.querySelector('.param-edit-input');
+    if (inp) inp.focus();
+}
+
+function cancelEditProductParam(key) {
+    const row = document.querySelector('.product-param-row[data-param-key="' + key + '"]');
+    if (!row) return;
+    row.querySelector('.param-value-display').classList.remove('d-none');
+    row.querySelector('.param-value-edit').classList.add('d-none');
+    row.querySelector('.param-actions-display').classList.remove('d-none');
+    row.querySelector('.param-actions-edit').classList.add('d-none');
+    const inp = row.querySelector('.param-edit-input');
+    if (inp) inp.value = inp.dataset.original;
+}
+
+// Auto-save via saveField endpoint
+function saveProductParamAjax(key) {
+    const row = document.querySelector('.product-param-row[data-param-key="' + key + '"]');
+    if (!row) return;
+    const inp = row.querySelector('.param-edit-input');
+    if (!inp) return;
+    const value = inp.value;
+
+    fetch(_saveFieldUrl, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRF-Token': _csrfToken},
+        body: JSON.stringify({id: _productId, field: key, value: value})
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            // Update display label
+            const display = row.querySelector('.param-value-display');
+            display.textContent = d.displayValue || value;
+            inp.dataset.original = value;
+            cancelEditProductParam(key);
+            _showSaveToast('✓ Сохранено', true);
+        } else {
+            _showSaveToast('✗ ' + (d.message || 'Ошибка'), false);
+        }
+    })
+    .catch(() => _showSaveToast('✗ Ошибка сети', false));
+}
+
+// Poizon props helpers (keep existing pattern, just convert style to d-none)
+function editPoizonProp(idx) {
+    const row = document.querySelector('.poizon-prop-row[data-prop-index="' + idx + '"]');
+    if (!row) return;
+    row.querySelector('.poizon-prop-key-display').classList.add('d-none');
+    row.querySelector('.poizon-prop-key-edit').classList.remove('d-none');
+    row.querySelector('.poizon-prop-value-display').classList.add('d-none');
+    row.querySelector('.poizon-prop-value-edit').classList.remove('d-none');
+    row.querySelector('.poizon-prop-actions-display').classList.add('d-none');
+    row.querySelector('.poizon-prop-actions-edit').classList.remove('d-none');
+}
+function cancelEditPoizonProp(idx) {
+    const row = document.querySelector('.poizon-prop-row[data-prop-index="' + idx + '"]');
+    if (!row) return;
+    row.querySelector('.poizon-prop-key-display').classList.remove('d-none');
+    row.querySelector('.poizon-prop-key-edit').classList.add('d-none');
+    row.querySelector('.poizon-prop-value-display').classList.remove('d-none');
+    row.querySelector('.poizon-prop-value-edit').classList.add('d-none');
+    row.querySelector('.poizon-prop-actions-display').classList.remove('d-none');
+    row.querySelector('.poizon-prop-actions-edit').classList.add('d-none');
+}
+function savePoizonProp(idx) {
+    // Just submit the whole form (Poizon props go via normal form POST)
+    document.getElementById('product-form').submit();
+}
+
+// Registry char helpers
+function editCharacteristic(id) {
+    const row = document.querySelector('tr[data-char-id="' + id + '"]');
+    if (!row) return;
+    row.querySelector('.char-value-display').classList.add('d-none');
+    row.querySelector('.char-value-edit').classList.remove('d-none');
+    row.querySelector('.char-actions-display').classList.add('d-none');
+    row.querySelector('.char-actions-edit').classList.remove('d-none');
+}
+function cancelEditCharacteristic(id) {
+    const row = document.querySelector('tr[data-char-id="' + id + '"]');
+    if (!row) return;
+    row.querySelector('.char-value-display').classList.remove('d-none');
+    row.querySelector('.char-value-edit').classList.add('d-none');
+    row.querySelector('.char-actions-display').classList.remove('d-none');
+    row.querySelector('.char-actions-edit').classList.add('d-none');
+}
+function saveCharacteristic(id) { /* extend as needed */ document.getElementById('product-form').submit(); }
+function deleteCharacteristicInline(id) { if (confirm('Удалить характеристику?')) { /* TODO */ } }
+
+// ─── Size price inline edit ──────────────────────────────────────────────────
+function editSizePrice(sizeId) {
+    document.getElementById('sp-display-' + sizeId).classList.add('d-none');
+    document.getElementById('sp-edit-' + sizeId).classList.remove('d-none');
+    const inp = document.getElementById('sp-input-' + sizeId);
+    if (inp) inp.focus();
+}
+function cancelSizePrice(sizeId) {
+    document.getElementById('sp-display-' + sizeId).classList.remove('d-none');
+    document.getElementById('sp-edit-' + sizeId).classList.add('d-none');
+}
+function saveSizePrice(sizeId) {
+    const inp = document.getElementById('sp-input-' + sizeId);
+    const priceByn = parseFloat(inp.value) || 0;
+    fetch(_updateSizePriceUrl, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRF-Token': _csrfToken},
+        body: JSON.stringify({size_id: sizeId, price_byn: priceByn})
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            const display = document.getElementById('sp-display-' + sizeId);
+            const pill = display.querySelector('.size-price-pill');
+            const formatted = priceByn > 0
+                ? priceByn.toFixed(2) + ' BYN'
+                : '<?= number_format($product->price, 2) ?> BYN';
+            pill.textContent = formatted;
+            pill.className = 'size-price-pill ' + (priceByn > 0 ? 'size-price-pill--custom' : 'size-price-pill--default');
+            const note = display.querySelector('small');
+            if (note) note.remove();
+            cancelSizePrice(sizeId);
+            _showSaveToast('✓ Цена сохранена', true);
+        } else {
+            _showSaveToast('✗ ' + (d.message || 'Ошибка'), false);
+        }
+    })
+    .catch(() => _showSaveToast('✗ Ошибка сети', false));
+}
+
+// Clipboard copy helper (used by CNY price buttons)
+function copyToClipboard(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = btn.innerHTML.replace('bi-clipboard', 'bi-clipboard-check');
+        setTimeout(() => { btn.innerHTML = orig; }, 1200);
+    });
+}
 </script>

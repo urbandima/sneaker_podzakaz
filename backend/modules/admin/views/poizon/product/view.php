@@ -16,13 +16,13 @@ $properties = [];
 $sizesData = [];
 $keywords = [];
 if ($product->properties) {
-    $properties = json_decode($product->properties, true) ?: [];
+    $properties = is_array($product->properties) ? $product->properties : (json_decode($product->properties, true) ?: []);
 }
 if ($product->sizes_data) {
-    $sizesData = json_decode($product->sizes_data, true) ?: [];
+    $sizesData = is_array($product->sizes_data) ? $product->sizes_data : (json_decode($product->sizes_data, true) ?: []);
 }
 if ($product->keywords) {
-    $keywords = json_decode($product->keywords, true) ?: [];
+    $keywords = is_array($product->keywords) ? $product->keywords : (json_decode($product->keywords, true) ?: []);
 }
 
 // Объединяем keywords с meta_keywords (устраняем дублирование)
@@ -541,7 +541,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                             </td>
                                             <td>
                                                 <?php 
-                                                $variantImages = $size->images_json ? json_decode($size->images_json, true) : [];
+                                                $variantImages = $size->images_json ? (is_array($size->images_json) ? $size->images_json : json_decode($size->images_json, true)) : [];
                                                 if (!empty($variantImages)): ?>
                                                     <button type="button" class="btn btn-sm btn-outline-info" 
                                                             data-bs-toggle="modal" 
@@ -843,7 +843,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
 <?php 
 $sizes = $product->getSizes()->all();
 foreach ($sizes as $size):
-    $variantImages = $size->images_json ? json_decode($size->images_json, true) : [];
+    $variantImages = $size->images_json ? (is_array($size->images_json) ? $size->images_json : json_decode($size->images_json, true)) : [];
     if (!empty($variantImages)):
 ?>
 <div class="modal fade" id="imagesModal<?= $size->id ?>" tabindex="-1">

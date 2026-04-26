@@ -42,7 +42,9 @@ use app\backend\modules\admin\services\AdminLogService;
 
 abstract class BaseAdminController extends Controller
 {
-    protected bool $adminOnly = false;
+    protected bool $adminOnly    = false;
+    protected bool $financeOnly  = false;
+    protected bool $procureOnly  = false;
     public $layout = 'admin'; // Admin layout с сайдбаром
     public $layoutPath = '@backend/modules/admin/views/layouts';
 
@@ -78,7 +80,10 @@ abstract class BaseAdminController extends Controller
                             
                             // В проде: проверяем права
                             try {
-                                return !$this->adminOnly || $this->isAdmin();
+                                if ($this->adminOnly && !$this->isAdmin()) return false;
+                                if ($this->financeOnly && !$this->canAccessFinance()) return false;
+                                if ($this->procureOnly && !$this->canAccessProcurement()) return false;
+                                return true;
                             } catch (\Exception $e) {
                                 // При ошибке - доступ запрещён (безопасно по умолчанию)
                                 Yii::error('Access control error: ' . $e->getMessage(), 'security');
@@ -178,10 +183,37 @@ abstract class BaseAdminController extends Controller
      * 
      * @return bool
      */
-    protected function isManager()
+    protected function isManager(): bool
     {
         try {
             return !Yii::$app->user->isGuest && Yii::$app->user->identity->isManager();
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    protected function isDirector(): bool
+    {
+        try {
+            return !Yii::$app->user->isGuest && Yii::$app->user->identity->isDirector();
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    protected function canAccessFinance(): bool
+    {
+        try {
+            return !Yii::$app->user->isGuest && Yii::$app->user->identity->canAccessFinance();
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    protected function canAccessProcurement(): bool
+    {
+        try {
+            return !Yii::$app->user->isGuest && Yii::$app->user->identity->canAccessProcurement();
         } catch (\Exception $e) {
             return false;
         }

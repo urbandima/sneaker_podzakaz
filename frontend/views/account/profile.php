@@ -16,8 +16,8 @@ $this->params['breadcrumbs'][] = ['label' => 'Личный кабинет', 'url
 $this->params['breadcrumbs'][] = 'Профиль';
 ?>
 
-<div class="account-page">
-    <div class="account-container">
+<div class="account-page account-page--wide">
+    <div class="container">
         <!-- Breadcrumbs -->
         <nav class="account-breadcrumbs">
             <a href="/">Главная</a>
@@ -39,9 +39,21 @@ $this->params['breadcrumbs'][] = 'Профиль';
             ]) ?>
 
             <main class="account-content">
+                <?php if (Yii::$app->session->hasFlash('success')): ?>
+                    <div class="alert alert-success" style="background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;padding:12px 16px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <?= Html::encode(Yii::$app->session->getFlash('success')) ?>
+                    </div>
+                <?php endif; ?>
+                <?php if (Yii::$app->session->hasFlash('error')): ?>
+                    <div class="alert alert-error" style="background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:12px 16px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                        <?= Html::encode(Yii::$app->session->getFlash('error')) ?>
+                    </div>
+                <?php endif; ?>
                 <div class="content-card">
                     <h2><i class="bi bi-person-lines-fill"></i> Личные данные</h2>
-                    
+
                     <?php $form = ActiveForm::begin([
                         'id' => 'profile-form',
                         'options' => ['class' => 'profile-form'],
@@ -105,7 +117,7 @@ $this->params['breadcrumbs'][] = 'Профиль';
                             <?= $form->field($customer, 'passport_issue_date')->input('date') ?>
                         </div>
                         
-                        <?= $form->field($customer, 'inn')->textInput(['placeholder' => 'ИНН (если есть)']) ?>
+                        <?= $form->field($customer, 'inn')->textInput(['placeholder' => 'ИНН (только для РФ)']) ?>
                     </div>
 
                     <div class="form-section">
@@ -124,45 +136,38 @@ $this->params['breadcrumbs'][] = 'Профиль';
                     </div>
 
                     <div class="profile-form-submit">
-                        <?= Html::submitButton('Сохранить изменения', ['class' => 'btn-save']) ?>
+                        <?= Html::submitButton('Сохранить изменения', ['class' => 'btn-save btn-save--prominent']) ?>
                     </div>
 
                     <?php ActiveForm::end(); ?>
-                </div>
-
-                <div class="content-card">
-                    <h2><i class="bi bi-bag-check"></i> Последние заказы</h2>
-                    
-                    <?php if (empty($orders)): ?>
-                        <div class="empty-orders">
-                            <i class="bi bi-bag-x"></i>
-                            <p>У вас пока нет заказов</p>
-                            <a href="<?= Url::to(['/catalog']) ?>" class="view-all-link">
-                                Перейти в каталог <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-                    <?php else: ?>
-                        <div class="orders-list">
-                            <?php foreach ($orders as $order): ?>
-                                <a href="<?= Url::to(['/account/order-view', 'id' => $order->id]) ?>" class="order-card">
-                                    <div class="order-info">
-                                        <span class="order-number">Заказ #<?= $order->order_number ?: $order->id ?></span>
-                                        <span class="order-date"><?= Yii::$app->formatter->asDate($order->created_at, 'long') ?></span>
-                                    </div>
-                                    <div class="order-meta">
-                                        <div class="order-total"><?= Yii::$app->formatter->asCurrency($order->total_amount, 'BYN') ?></div>
-                                        <span class="order-status <?= $order->status ?>"><?= $order->getStatusLabel() ?></span>
-                                    </div>
-                                </a>
-                            <?php endforeach; ?>
-                        </div>
-                        
-                        <a href="<?= Url::to(['/account/orders']) ?>" class="view-all-link">
-                            Все заказы <i class="bi bi-arrow-right"></i>
-                        </a>
-                    <?php endif; ?>
                 </div>
             </main>
         </div>
     </div>
 </div>
+<?php
+// Inline CSS for full-width profile
+$this->registerCss('
+.account-page--wide { padding: var(--space-6) 0 var(--space-12); }
+.account-page--wide .account-grid { display: grid; grid-template-columns: 260px 1fr; gap: var(--space-8); }
+.btn-save--prominent {
+    display: block;
+    width: 100%;
+    padding: 14px 24px;
+    background: #000;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    transition: background 0.18s, transform 0.12s;
+}
+.btn-save--prominent:hover { background: #222; transform: translateY(-1px); }
+.btn-save--prominent:active { transform: none; }
+@media (max-width: 768px) {
+    .account-page--wide .account-grid { grid-template-columns: 1fr; }
+}
+');
+?>

@@ -48,11 +48,12 @@ class OrderItem extends ActiveRecord
     {
         return [
             [['order_id', 'product_name', 'price'], 'required'],
-            [['order_id', 'quantity'], 'integer'],
+            [['order_id', 'quantity', 'product_id'], 'integer'],
             [['price', 'total'], 'number'],
             [['product_name', 'size'], 'string', 'max' => 255],
+            [['product_article', 'color'], 'string', 'max' => 100],
             ['quantity', 'default', 'value' => 1],
-            ['size', 'default', 'value' => null],
+            [['size', 'color', 'product_article', 'product_id'], 'default', 'value' => null],
         ];
     }
 
@@ -61,8 +62,11 @@ class OrderItem extends ActiveRecord
         return [
             'id' => 'ID',
             'order_id' => 'Заказ',
+            'product_id' => 'Товар (ID)',
             'product_name' => 'Товар',
+            'product_article' => 'Артикул',
             'size' => 'Размер',
+            'color' => 'Цвет',
             'quantity' => 'Количество',
             'price' => 'Цена',
             'total' => 'Итого',
@@ -84,5 +88,10 @@ class OrderItem extends ActiveRecord
     public function getOrder()
     {
         return $this->hasOne(Order::class, ['id' => 'order_id']);
+    }
+
+    public function getProduct()
+    {
+        return $this->hasOne(\app\backend\modules\catalog\models\Product::class, ['id' => 'product_id']);
     }
 }

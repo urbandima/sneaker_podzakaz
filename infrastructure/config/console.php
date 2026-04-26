@@ -55,6 +55,23 @@ $config = [
             'cnyToBynRate' => 0.45, // Курс CNY к BYN (обновляется автоматически через API)
             'cacheDuration' => 86400, // 24 часа
         ],
+        'dobropost' => [
+            'class'         => 'app\backend\modules\checkout\services\DobroPostService',
+            'apiUrl'        => env('DP_API_URL', 'https://api.dobropost.com'),
+            'email'         => env('DP_API_EMAIL', ''),
+            'password'      => env('DP_API_PASSWORD', ''),
+            'defaultTariff' => (int) env('DP_DEFAULT_TARIFF', 26),
+        ],
+        'sms' => [
+            'class'      => 'app\backend\modules\notification\services\SmsService',
+            'provider'   => env('SMS_PROVIDER', 'rocketsms'),
+            'senderName' => env('SMS_SENDER', null),
+            'apiKeys'    => [
+                'rocketsms_username' => env('ROCKETSMS_USERNAME', ''),
+                'rocketsms_password' => env('ROCKETSMS_PASSWORD', ''),
+                'rocketsms_sender'   => env('ROCKETSMS_SENDER', ''),
+            ],
+        ],
         'urlManager' => [
             'class' => 'yii\web\UrlManager',
             'baseUrl' => 'http://localhost:8080',

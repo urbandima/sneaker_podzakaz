@@ -85,7 +85,9 @@ $this->registerCssFile('@web/css/pages/settings.css');
                             <input type="password" id="confirm_password" name="confirm_password" class="form-control" minlength="6" required>
                         </div>
 
-                        <button type="submit" class="btn-save">Изменить пароль</button>
+                        <button type="submit" class="btn-save btn-password-change">
+                            <i class="bi bi-shield-lock-fill"></i> Изменить пароль
+                        </button>
                     </form>
                 </div>
 
@@ -104,3 +106,23 @@ $this->registerCssFile('@web/css/pages/settings.css');
         </div>
     </div>
 </div>
+<?php $this->registerCss('
+.btn-password-change {
+    display: block;
+    width: 100%;
+    padding: 14px 24px;
+    background: #000;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    transition: background 0.18s, transform 0.12s;
+    margin-top: 8px;
+}
+.btn-password-change:hover { background: #222; transform: translateY(-1px); }
+.btn-password-change:active { transform: none; }
+.btn-password-change i { margin-right: 6px; }
+'); ?>

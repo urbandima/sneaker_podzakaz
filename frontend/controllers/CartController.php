@@ -16,24 +16,11 @@ class CartController extends Controller
     public $layout = 'main';
 
     /**
-     * Страница корзины
+     * Страница корзины — редиректим на оформление заказа
      */
     public function actionIndex()
     {
-        $items = Cart::getItems();
-        $total = Cart::getTotal();
-        
-        // Получаем customer только для реальных пользователей, не для админа
-        $customer = null;
-        if (!Yii::$app->user->isGuest && !Yii::$app->user->identity->isAdmin()) {
-            $customer = Yii::$app->user->identity;
-        }
-
-        return $this->render('index', [
-            'items' => $items,
-            'total' => $total,
-            'customer' => $customer,
-        ]);
+        return $this->redirect(['/checkout'], 302);
     }
 
     /**
@@ -55,6 +42,18 @@ class CartController extends Controller
         $product = Product::findOne($productId);
         if (!$product) {
             return ['success' => false, 'message' => 'Товар не найден'];
+        }
+
+        // Refuse zero-price products
+        if ($product->price <= 0) {
+            Yii::$app->response->statusCode = 422;
+            return ['success' => false, 'message' => 'Цена товара уточняется — добавление в корзину недоступно'];
+        }
+
+        // Require size when product has sizes
+        if (empty($size) && $product->getSizes()->count() > 0) {
+            Yii::$app->response->statusCode = 422;
+            return ['success' => false, 'message' => 'Пожалуйста, выберите размер'];
         }
 
         if (Cart::add($productId, $quantity, $size, $color)) {

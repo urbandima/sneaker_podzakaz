@@ -6,184 +6,170 @@
  * @var string $tab
  */
 
-use yii\grid\GridView;
 use yii\helpers\Html;
 use yii\helpers\Url;
-use app\models\Characteristic;
-use app\models\SizeGrid;
 
 $this->title = 'Характеристики и размеры';
-$this->params['breadcrumbs'][] = ['label' => 'Управление', 'url' => ['/admin']];
-$this->params['breadcrumbs'][] = $this->title;
+
+$this->params['headerActions'] = [
+    $tab === 'sizes'
+        ? Html::a('<i class="bi bi-plus-circle"></i> Новая сетка', ['size-create'], ['class' => 'admin-btn admin-btn-primary admin-btn-sm'])
+        : Html::a('<i class="bi bi-plus-circle"></i> Новая характеристика', ['create'], ['class' => 'admin-btn admin-btn-primary admin-btn-sm']),
+];
 ?>
 
-<div class="admin-characteristics-page">
-    <div class="page-header">
-        <div>
-            <p class="page-eyebrow">Каталог · Настройки</p>
-            <h1><?= Html::encode($this->title) ?></h1>
-        </div>
-        <div class="actions">
-            <?= Html::a('<i class="bi bi-plus-circle"></i> Новая характеристика', ['create'], ['class' => 'btn btn-primary']) ?>
-            <?= Html::a('<i class="bi bi-journal-text"></i> Справочник', ['guide'], ['class' => 'btn btn-link']) ?>
-            <?= Html::a('<i class="bi bi-rulers"></i> Новая размерная сетка', ['size-create'], ['class' => 'btn btn-outline-secondary']) ?>
-        </div>
-    </div>
-
-    <ul class="nav nav-pills nav-fill shadow-sm mb-3">
-        <li class="nav-item">
-            <a class="nav-link <?= $tab === 'characteristics' ? 'active' : '' ?>"
-               href="<?= Html::encode(Url::to(['index', 'tab' => 'characteristics'])) ?>">
-                <i class="bi bi-sliders"></i> Характеристики
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link <?= $tab === 'sizes' ? 'active' : '' ?>"
-               href="<?= Html::encode(Url::to(['index', 'tab' => 'sizes'])) ?>">
-                <i class="bi bi-rulers"></i> Размерные сетки
-            </a>
-        </li>
-    </ul>
-
-    <?php if ($tab === 'sizes'): ?>
-        <div class="card mb-4">
-            <div class="card-body p-0">
-                <?= GridView::widget([
-                    'dataProvider' => $sizeGridProvider,
-                    'layout' => "{items}\n{pager}",
-                    'tableOptions' => ['class' => 'table table-hover mb-0 align-middle'],
-                    'columns' => [
-                        [
-                            'attribute' => 'id',
-                            'headerOptions' => ['width' => '60'],
-                        ],
-                        [
-                            'attribute' => 'name',
-                            'label' => 'Название',
-                            'format' => 'raw',
-                            'value' => function (SizeGrid $model) {
-                                return Html::a(
-                                    Html::encode($model->name),
-                                    ['size-update', 'id' => $model->id],
-                                    ['class' => 'fw-semibold text-decoration-none']
-                                );
-                            },
-                        ],
-                        [
-                            'attribute' => 'brand_id',
-                            'label' => 'Бренд',
-                            'format' => 'raw',
-                            'value' => function (SizeGrid $model) {
-                                if ($model->brand) {
-                                    return '<span class="badge bg-dark">' . Html::encode($model->brand->name) . '</span>';
-                                }
-                                return '<span class="badge bg-secondary">Универсальная</span>';
-                            },
-                        ],
-                        [
-                            'attribute' => 'gender',
-                            'label' => 'Пол',
-                            'format' => 'raw',
-                            'value' => function (SizeGrid $model) {
-                                $colors = [
-                                    'male' => 'primary',
-                                    'female' => 'danger',
-                                    'unisex' => 'info',
-                                    'kids' => 'success',
-                                ];
-                                $color = $colors[$model->gender] ?? 'secondary';
-                                return '<span class="badge bg-' . $color . '">' . $model->getGenderLabel() . '</span>';
-                            },
-                        ],
-                        [
-                            'label' => 'Размеров',
-                            'value' => function (SizeGrid $model) {
-                                return count($model->items);
-                            },
-                            'headerOptions' => ['width' => '100'],
-                        ],
-                        [
-                            'attribute' => 'is_active',
-                            'label' => 'Статус',
-                            'format' => 'boolean',
-                            'headerOptions' => ['width' => '90'],
-                        ],
-                        [
-                            'attribute' => 'created_at',
-                            'format' => 'datetime',
-                            'headerOptions' => ['width' => '180'],
-                        ],
-                        [
-                            'class' => 'yii\grid\ActionColumn',
-                            'header' => 'Действия',
-                            'template' => '{update} {delete}',
-                            'buttons' => [
-                                'update' => function ($url, SizeGrid $model) {
-                                    return Html::a(
-                                        '<i class="bi bi-pencil"></i>',
-                                        ['size-update', 'id' => $model->id],
-                                        ['class' => 'btn btn-sm btn-outline-primary', 'title' => 'Редактировать']
-                                    );
-                                },
-                                'delete' => function ($url, SizeGrid $model) {
-                                    return Html::a(
-                                        '<i class="bi bi-trash"></i>',
-                                        ['size-delete', 'id' => $model->id],
-                                        [
-                                            'class' => 'btn btn-sm btn-outline-danger',
-                                            'data-confirm' => 'Удалить размерную сетку?',
-                                            'data-method' => 'post',
-                                            'title' => 'Удалить',
-                                        ]
-                                    );
-                                },
-                            ],
-                            'headerOptions' => ['width' => '120'],
-                        ],
-                    ],
-                ]) ?>
-            </div>
-        </div>
-    <?php else: ?>
-        <div class="card mb-4">
-            <div class="card-body">
-                <?= GridView::widget([
-                    'dataProvider' => $characteristicsProvider,
-                    'layout' => "{items}\n{pager}",
-                    'tableOptions' => ['class' => 'table table-striped table-hover align-middle'],
-                    'columns' => [
-                        ['class' => 'yii\grid\SerialColumn'],
-                        'id',
-                        'key',
-                        'name',
-                        [
-                            'attribute' => 'type',
-                            'value' => function (Characteristic $model) {
-                                return Characteristic::getTypeList()[$model->type] ?? $model->type;
-                            },
-                        ],
-                        [
-                            'attribute' => 'is_filter',
-                            'format' => 'boolean',
-                        ],
-                        [
-                            'attribute' => 'is_active',
-                            'format' => 'boolean',
-                        ],
-                        'sort_order',
-                        [
-                            'label' => 'Значений',
-                            'value' => function (Characteristic $model) {
-                                return $model->getValues()->count();
-                            },
-                        ],
-                        [
-                            'class' => 'yii\grid\ActionColumn',
-                            'template' => '{update} {delete}',
-                        ],
-                    ],
-                ]) ?>
-            </div>
-        </div>
-    <?php endif; ?>
+<!-- Tabs -->
+<div style="display:flex;gap:0;border-bottom:1px solid var(--admin-border);margin-bottom:16px">
+    <a href="<?= Url::to(['index', 'tab' => 'characteristics']) ?>"
+       style="padding:10px 20px;font-size:13px;font-weight:600;text-decoration:none;border-bottom:2px solid <?= $tab === 'characteristics' ? 'var(--admin-accent)' : 'transparent' ?>;color:<?= $tab === 'characteristics' ? 'var(--admin-accent)' : 'var(--admin-text-secondary)' ?>">
+        <i class="bi bi-sliders"></i> Характеристики
+    </a>
+    <a href="<?= Url::to(['index', 'tab' => 'sizes']) ?>"
+       style="padding:10px 20px;font-size:13px;font-weight:600;text-decoration:none;border-bottom:2px solid <?= $tab === 'sizes' ? 'var(--admin-accent)' : 'transparent' ?>;color:<?= $tab === 'sizes' ? 'var(--admin-accent)' : 'var(--admin-text-secondary)' ?>">
+        <i class="bi bi-rulers"></i> Размерные сетки
+    </a>
 </div>
+
+<?php if ($tab === 'sizes'): ?>
+<!-- SIZE GRIDS -->
+<div class="admin-card">
+    <div class="admin-card-body" style="padding:0">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Бренд</th>
+                    <th>Пол</th>
+                    <th>Размеров</th>
+                    <th>Статус</th>
+                    <th>Создана</th>
+                    <th style="width:100px">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($sizeGridProvider->getModels() as $grid): ?>
+            <tr>
+                <td style="color:var(--admin-text-secondary);font-size:12px">#<?= $grid->id ?></td>
+                <td>
+                    <a href="<?= Url::to(['size-update', 'id' => $grid->id]) ?>" style="font-weight:600;text-decoration:none;color:var(--admin-text)">
+                        <?= Html::encode($grid->name) ?>
+                    </a>
+                </td>
+                <td>
+                    <?php if ($grid->brand): ?>
+                        <span class="admin-badge admin-badge-secondary"><?= Html::encode($grid->brand->name) ?></span>
+                    <?php else: ?>
+                        <span style="color:var(--admin-text-secondary);font-size:12px">Универсальная</span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <?php
+                    $genderLabels = ['male'=>'Мужской','female'=>'Женский','unisex'=>'Унисекс','kids'=>'Детский'];
+                    $genderBadge = ['male'=>'admin-badge-primary','female'=>'admin-badge-danger','unisex'=>'admin-badge-info','kids'=>'admin-badge-success'];
+                    $g = $grid->gender ?? 'unisex';
+                    ?>
+                    <span class="admin-badge <?= $genderBadge[$g] ?? 'admin-badge-secondary' ?>"><?= $genderLabels[$g] ?? $g ?></span>
+                </td>
+                <td><?= count($grid->items) ?></td>
+                <td>
+                    <span class="admin-badge <?= $grid->is_active ? 'admin-badge-success' : 'admin-badge-secondary' ?>">
+                        <?= $grid->is_active ? 'Активна' : 'Неактивна' ?>
+                    </span>
+                </td>
+                <td style="font-size:12px;color:var(--admin-text-secondary)"><?= Yii::$app->formatter->asDate($grid->created_at) ?></td>
+                <td>
+                    <div style="display:flex;gap:4px">
+                        <?= Html::a('<i class="bi bi-pencil"></i>', ['size-update', 'id' => $grid->id], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm', 'title' => 'Редактировать']) ?>
+                        <?= Html::a('<i class="bi bi-trash"></i>', ['size-delete', 'id' => $grid->id], ['class' => 'admin-btn admin-btn-sm', 'style' => 'color:var(--admin-danger)', 'data-confirm' => 'Удалить размерную сетку?', 'data-method' => 'post']) ?>
+                    </div>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+            <?php if (!$sizeGridProvider->getModels()): ?>
+            <tr>
+                <td colspan="8" style="text-align:center;padding:3rem;color:var(--admin-text-secondary)">
+                    <i class="bi bi-rulers" style="font-size:2rem;display:block;margin-bottom:0.5rem"></i>
+                    Нет размерных сеток. <?= Html::a('Создать первую', ['size-create']) ?>
+                </td>
+            </tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<?php else: ?>
+<!-- CHARACTERISTICS -->
+<div class="admin-card">
+    <div class="admin-card-body" style="padding:0">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Ключ</th>
+                    <th>Название</th>
+                    <th>Тип</th>
+                    <th>Фильтр</th>
+                    <th>Значений</th>
+                    <th>Статус</th>
+                    <th style="width:80px">Порядок</th>
+                    <th style="width:100px">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($characteristicsProvider->getModels() as $char): ?>
+            <tr>
+                <td style="color:var(--admin-text-secondary);font-size:12px">#<?= $char->id ?></td>
+                <td><code style="font-size:12px;background:var(--admin-surface-hover);padding:2px 6px;border-radius:4px"><?= Html::encode($char->key) ?></code></td>
+                <td>
+                    <a href="<?= Url::to(['update', 'id' => $char->id]) ?>" style="font-weight:600;text-decoration:none;color:var(--admin-text)">
+                        <?= Html::encode($char->name) ?>
+                    </a>
+                </td>
+                <td>
+                    <?php
+                    $typeLabels = ['select'=>'Список','multiselect'=>'Мультивыбор','boolean'=>'Да/Нет','color'=>'Цвет','size'=>'Размер','text'=>'Текст','number'=>'Число'];
+                    ?>
+                    <span class="admin-badge admin-badge-secondary" style="font-size:11px"><?= $typeLabels[$char->type] ?? Html::encode($char->type) ?></span>
+                </td>
+                <td>
+                    <?php if ($char->is_filter): ?>
+                        <span class="admin-badge admin-badge-info"><i class="bi bi-funnel"></i></span>
+                    <?php else: ?>
+                        <span style="color:var(--admin-text-secondary);font-size:12px">—</span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <?php
+                    try { $valCount = $char->getValues()->count(); } catch (\Exception $e) { $valCount = '?'; }
+                    ?>
+                    <span class="admin-badge admin-badge-secondary"><?= $valCount ?></span>
+                </td>
+                <td>
+                    <span class="admin-badge <?= $char->is_active ? 'admin-badge-success' : 'admin-badge-secondary' ?>">
+                        <?= $char->is_active ? 'Активна' : 'Отключена' ?>
+                    </span>
+                </td>
+                <td style="text-align:center"><?= (int)$char->sort_order ?></td>
+                <td>
+                    <div style="display:flex;gap:4px">
+                        <?= Html::a('<i class="bi bi-pencil"></i>', ['update', 'id' => $char->id], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm']) ?>
+                        <?= Html::a('<i class="bi bi-trash"></i>', ['delete', 'id' => $char->id], ['class' => 'admin-btn admin-btn-sm', 'style' => 'color:var(--admin-danger)', 'data-confirm' => 'Удалить характеристику и все её значения?', 'data-method' => 'post']) ?>
+                    </div>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+            <?php if (!$characteristicsProvider->getModels()): ?>
+            <tr>
+                <td colspan="9" style="text-align:center;padding:3rem;color:var(--admin-text-secondary)">
+                    <i class="bi bi-sliders" style="font-size:2rem;display:block;margin-bottom:0.5rem"></i>
+                    Нет характеристик. <?= Html::a('Создать первую', ['create']) ?>
+                </td>
+            </tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+<?php endif; ?>

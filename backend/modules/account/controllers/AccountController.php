@@ -33,6 +33,7 @@ use app\backend\modules\checkout\models\Order;
 use app\backend\modules\account\models\Customer;
 use app\backend\modules\account\models\CustomerLoginForm;
 use app\backend\modules\account\models\CustomerRegisterForm;
+use app\backend\modules\catalog\models\ProductFavorite;
 use app\backend\shared\components\RateLimiter;
 use app\backend\modules\catalog\models\ProductFavorite;
 
@@ -115,9 +116,10 @@ class AccountController extends Controller
             return $this->redirect(['account/profile']);
         }
 
-        // Rate limiting: 5 попыток за 15 минут
         $ip = Yii::$app->request->userIP;
-        RateLimiter::check('login', $ip, 5, 900);
+        if (Yii::$app->request->isPost) {
+            RateLimiter::check('login', $ip, 5, 900);
+        }
 
         $model = new CustomerLoginForm();
 
@@ -142,9 +144,10 @@ class AccountController extends Controller
             return $this->redirect(['account/profile']);
         }
 
-        // Rate limiting: 3 попытки за 15 минут
         $ip = Yii::$app->request->userIP;
-        RateLimiter::check('register', $ip, 3, 900);
+        if (Yii::$app->request->isPost) {
+            RateLimiter::check('register', $ip, 3, 900);
+        }
 
         $model = new CustomerRegisterForm();
 
@@ -509,7 +512,7 @@ class AccountController extends Controller
     }
 
     /**
-     * Избранные товары
+     * Избранные товары покупателя
      */
     public function actionWishlist()
     {
@@ -520,6 +523,7 @@ class AccountController extends Controller
 
         $userId    = $customer->id;
         $sessionId = Yii::$app->session->id;
+
         $favorites = ProductFavorite::getFavorites($userId, $sessionId);
 
         return $this->render('wishlist', [

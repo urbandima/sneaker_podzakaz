@@ -2,31 +2,41 @@
 /**
  * RFM аналитика - сегментация клиентов
  * @var yii\web\View $this
+ * @var array $rfmSegments
+ * @var array $ltvSegments
+ * @var array $atRiskCustomers
+ * @var array $allCustomers
+ * @var int   $totalCustomers
+ * @var float $totalRevenue
  */
 
 use yii\helpers\Html;
-use app\backend\modules\checkout\models\Order;
 
 $this->title = 'RFM Аналитика';
-
-// Расчет RFM метрик для демонстрации
-$rfmSegments = [
-    ['segment' => 'Чемпионы', 'rfm' => '555', 'count' => 12, 'revenue' => 45600, 'color' => '#10b981', 'desc' => 'Покупают часто, недавно и много'],
-    ['segment' => 'Лояльные', 'rfm' => '544', 'count' => 28, 'revenue' => 78400, 'color' => '#3b82f6', 'desc' => 'Регулярные покупатели с высоким чеком'],
-    ['segment' => 'Потенциальные', 'rfm' => '455', 'count' => 45, 'revenue' => 56700, 'color' => '#8b5cf6', 'desc' => 'Недавние клиенты с потенциалом роста'],
-    ['segment' => 'Новички', 'rfm' => '511', 'count' => 67, 'revenue' => 34200, 'color' => '#06b6d4', 'desc' => 'Новые клиенты, требуют внимания'],
-    ['segment' => 'Обещающие', 'rfm' => '415', 'count' => 34, 'revenue' => 28900, 'color' => '#f59e0b', 'desc' => 'Средняя активность, можно развивать'],
-    ['segment' => 'Нуждаются в внимании', 'rfm' => '344', 'count' => 56, 'revenue' => 23400, 'color' => '#f97316', 'desc' => 'Снижение активности'],
-    ['segment' => 'Засыпающие', 'rfm' => '233', 'count' => 89, 'revenue' => 12300, 'color' => '#ef4444', 'desc' => 'Давно не покупали'],
-    ['segment' => 'Потерянные', 'rfm' => '111', 'count' => 123, 'revenue' => 5600, 'color' => '#991b1b', 'desc' => 'Неактивны более 6 месяцев'],
-];
-
-$totalCustomers = array_sum(array_column($rfmSegments, 'count'));
-$totalRevenue = array_sum(array_column($rfmSegments, 'revenue'));
-?>
-
-<?php
 $this->params['headerActions'] = [];
+
+if (empty($allCustomers)) {
+    echo '<div class="admin-card"><div class="admin-card-body" style="text-align:center;padding:48px 24px">'
+       . '<i class="bi bi-bar-chart" style="font-size:3rem;color:var(--admin-text-muted)"></i>'
+       . '<p style="margin:16px 0 0;font-size:1.125rem;color:var(--admin-text-secondary)">Нет данных для RFM-анализа. Данные появятся после первых заказов.</p>'
+       . '</div></div>';
+    return;
+}
+
+// VIP KPI: champions + loyal
+$vipCount = 0;
+foreach ($rfmSegments as $s) {
+    if (in_array($s['key'] ?? '', ['champions', 'loyal'])) {
+        $vipCount += $s['count'];
+    }
+}
+// At-risk KPI: at_risk + lost
+$atRiskCount = 0;
+foreach ($rfmSegments as $s) {
+    if (in_array($s['key'] ?? '', ['at_risk', 'lost'])) {
+        $atRiskCount += $s['count'];
+    }
+}
 ?>
 
 <!-- KPI -->
@@ -48,14 +58,14 @@ $this->params['headerActions'] = [];
     <div class="admin-stat-card">
         <div class="admin-stat-icon warning"><i class="bi bi-star-fill"></i></div>
         <div class="admin-stat-content">
-            <div class="admin-stat-value"><?= $rfmSegments[0]['count'] + $rfmSegments[1]['count'] ?></div>
+            <div class="admin-stat-value"><?= $vipCount ?></div>
             <div class="admin-stat-label">VIP клиенты</div>
         </div>
     </div>
     <div class="admin-stat-card">
         <div class="admin-stat-icon danger"><i class="bi bi-exclamation-triangle-fill"></i></div>
         <div class="admin-stat-content">
-            <div class="admin-stat-value"><?= $rfmSegments[6]['count'] + $rfmSegments[7]['count'] ?></div>
+            <div class="admin-stat-value"><?= $atRiskCount ?></div>
             <div class="admin-stat-label">Требуют внимания</div>
         </div>
     </div>
@@ -113,7 +123,7 @@ $this->params['headerActions'] = [];
                         <h3 style="margin:0 0 4px;font-size:16px;font-weight:700"><?= $segment['segment'] ?></h3>
                         <div style="display:flex;align-items:center;gap:8px">
                             <span style="font-size:12px;padding:2px 8px;background:<?= $segment['color'] ?>;color:white;border-radius:4px;font-weight:600">
-                                RFM: <?= $segment['rfm'] ?>
+                                <?= Html::encode($segment['key'] ?? '') ?>
                             </span>
                         </div>
                     </div>
@@ -122,7 +132,7 @@ $this->params['headerActions'] = [];
                         <div style="display:flex;gap:16px;font-size:14px">
                             <span><strong><?= $segment['count'] ?></strong> клиентов (<?= $percent ?>%)</span>
                             <span><strong><?= number_format($segment['revenue'], 0, '.', ' ') ?></strong> BYN</span>
-                            <span><strong><?= number_format($segment['revenue'] / $segment['count'], 0, '.', ' ') ?></strong> BYN средний чек</span>
+                            <span><strong><?= number_format($segment['avg_check'] ?? 0, 0, '.', ' ') ?></strong> BYN средний чек</span>
                         </div>
                     </div>
                     <div style="flex:0 0 auto">
@@ -138,25 +148,8 @@ $this->params['headerActions'] = [];
 
 <!-- LTV Сегментация -->
 <?php
-// LTV сегменты
-$ltvSegments = [
-    ['name' => 'VIP', 'min' => 5000, 'max' => null, 'count' => 24, 'color' => '#7c3aed', 'desc' => 'Высокая ценность, требуют особого внимания'],
-    ['name' => 'Высокий', 'min' => 2000, 'max' => 4999, 'count' => 89, 'color' => '#10b981', 'desc' => 'Активные покупатели с хорошим LTV'],
-    ['name' => 'Средний', 'min' => 500, 'max' => 1999, 'count' => 156, 'color' => '#3b82f6', 'desc' => 'Стабильные клиенты с потенциалом роста'],
-    ['name' => 'Низкий', 'min' => 0, 'max' => 499, 'count' => 234, 'color' => '#6b7280', 'desc' => 'Требуют развития и удержания'],
-];
-
-// Покупатели в статусе риска с LTV
-$atRiskCustomers = [
-    ['name' => 'Иванов Иван', 'email' => 'ivan@example.com', 'ltv' => 4500, 'last_order' => '2026-01-15', 'risk' => 'Высокий', 'risk_days' => 75, 'color' => '#dc2626'],
-    ['name' => 'Петрова Мария', 'email' => 'maria@example.com', 'ltv' => 3200, 'last_order' => '2026-02-01', 'risk' => 'Высокий', 'risk_days' => 58, 'color' => '#dc2626'],
-    ['name' => 'Сидоров Алексей', 'email' => 'alex@example.com', 'ltv' => 1800, 'last_order' => '2026-02-20', 'risk' => 'Средний', 'risk_days' => 39, 'color' => '#f59e0b'],
-    ['name' => 'Козлова Елена', 'email' => 'elena@example.com', 'ltv' => 8900, 'last_order' => '2026-01-05', 'risk' => 'Критический', 'risk_days' => 85, 'color' => '#991b1b'],
-    ['name' => 'Морозов Дмитрий', 'email' => 'dmitry@example.com', 'ltv' => 1200, 'last_order' => '2026-02-25', 'risk' => 'Средний', 'risk_days' => 34, 'color' => '#f59e0b'],
-];
-
-$totalAtRisk = count($atRiskCustomers);
-$totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'ltv'));
+$totalAtRisk    = count($atRiskCustomers);
+$totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'monetary'));
 ?>
 
 <div class="admin-card mt-5">
@@ -206,39 +199,43 @@ $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'ltv'));
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($atRiskCustomers as $customer): 
-                    $ltvClass = $customer['ltv'] >= 5000 ? 'VIP' : ($customer['ltv'] >= 2000 ? 'Высокий' : ($customer['ltv'] >= 500 ? 'Средний' : 'Низкий'));
-                    $ltvColor = $customer['ltv'] >= 5000 ? '#7c3aed' : ($customer['ltv'] >= 2000 ? '#10b981' : ($customer['ltv'] >= 500 ? '#3b82f6' : '#6b7280'));
+                <?php foreach ($atRiskCustomers as $customer):
+                    $ltv      = (float)($customer['monetary'] ?? 0);
+                    $days     = (int)($customer['days'] ?? 0);
+                    $ltvClass = $ltv >= 5000 ? 'VIP' : ($ltv >= 2000 ? 'Высокий' : ($ltv >= 500 ? 'Средний' : 'Низкий'));
+                    $ltvColor = $ltv >= 5000 ? '#7c3aed' : ($ltv >= 2000 ? '#10b981' : ($ltv >= 500 ? '#3b82f6' : '#6b7280'));
+                    $riskLabel = $days >= 90 ? 'Критический' : ($days >= 60 ? 'Высокий' : 'Средний');
+                    $riskColor = $days >= 90 ? '#991b1b'    : ($days >= 60 ? '#dc2626'  : '#f59e0b');
                 ?>
                 <tr style="border-bottom:1px solid var(--admin-border-light)">
                     <td style="padding:12px 16px">
-                        <div style="font-weight:600;color:var(--admin-text)"><?= $customer['name'] ?></div>
-                        <div style="font-size:0.75rem;color:var(--admin-text-secondary)"><?= $customer['email'] ?></div>
+                        <div style="font-weight:600;color:var(--admin-text)"><?= Html::encode($customer['name'] ?? '') ?></div>
+                        <div style="font-size:0.75rem;color:var(--admin-text-secondary)"><?= Html::encode($customer['email'] ?? '') ?></div>
                     </td>
                     <td style="padding:12px 16px;text-align:center;font-weight:700;color:var(--admin-text)">
-                        <?= number_format($customer['ltv'], 0) ?> BYN
+                        <?= number_format($ltv, 0) ?> BYN
                     </td>
                     <td style="padding:12px 16px;text-align:center">
                         <span style="padding:2px 8px;background:<?= $ltvColor ?>20;color:<?= $ltvColor ?>;border-radius:4px;font-size:0.75rem;font-weight:600"><?= $ltvClass ?></span>
                     </td>
                     <td style="padding:12px 16px;text-align:center;color:var(--admin-text-secondary);font-size:0.875rem">
-                        <?= $customer['last_order'] ?>
+                        <?= Html::encode($customer['last_order_date'] ?? '—') ?>
                     </td>
                     <td style="padding:12px 16px;text-align:center">
-                        <span style="padding:2px 8px;background:#fee2e2;color:#dc2626;border-radius:4px;font-size:0.75rem;font-weight:600"><?= $customer['risk_days'] ?> дн</span>
+                        <span style="padding:2px 8px;background:#fee2e2;color:#dc2626;border-radius:4px;font-size:0.75rem;font-weight:600"><?= $days ?> дн</span>
                     </td>
                     <td style="padding:12px 16px;text-align:center">
-                        <span style="padding:2px 8px;background:<?= $customer['color'] ?>20;color:<?= $customer['color'] ?>;border-radius:4px;font-size:0.75rem;font-weight:600"><?= $customer['risk'] ?></span>
+                        <span style="padding:2px 8px;background:<?= $riskColor ?>20;color:<?= $riskColor ?>;border-radius:4px;font-size:0.75rem;font-weight:600"><?= $riskLabel ?></span>
                     </td>
                     <td style="padding:12px 16px;text-align:center">
                         <div style="display:flex;gap:4px;justify-content:center">
-                            <button class="admin-btn admin-btn-xs admin-btn-secondary" onclick="sendEmail('<?= $customer['email'] ?>')" title="Отправить email">
+                            <button class="admin-btn admin-btn-xs admin-btn-secondary" onclick="sendEmail('<?= Html::encode($customer['email'] ?? '') ?>')" title="Отправить email">
                                 <i class="bi bi-envelope"></i>
                             </button>
-                            <button class="admin-btn admin-btn-xs admin-btn-secondary" onclick="sendSms('<?= $customer['email'] ?>')" title="Отправить SMS">
+                            <button class="admin-btn admin-btn-xs admin-btn-secondary" onclick="sendSms('<?= Html::encode($customer['email'] ?? '') ?>')" title="Отправить SMS">
                                 <i class="bi bi-chat-dots"></i>
                             </button>
-                            <button class="admin-btn admin-btn-xs admin-btn-primary" onclick="createOffer('<?= $customer['email'] ?>')" title="Создать персональное предложение">
+                            <button class="admin-btn admin-btn-xs admin-btn-primary" onclick="createOffer('<?= Html::encode($customer['email'] ?? '') ?>')" title="Создать персональное предложение">
                                 <i class="bi bi-gift"></i>
                             </button>
                         </div>

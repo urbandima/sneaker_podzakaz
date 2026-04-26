@@ -98,15 +98,20 @@
     }
 
     // ===== CALCULATOR =====
-    const calcOverlay = document.createElement('div');
-    calcOverlay.className = 'admin-calculator-overlay';
-    calcOverlay.id = 'calculator-overlay';
-    document.body.appendChild(calcOverlay);
-
-    const calcDrawer = document.createElement('div');
-    calcDrawer.className = 'admin-calculator-drawer';
-    calcDrawer.id = 'calculator-drawer';
-    calcDrawer.innerHTML = `
+    // Skip DOM creation if static HTML already provided by layout (main.php)
+    let calcOverlay = document.getElementById('calculator-overlay');
+    let calcDrawer = document.getElementById('calculator-drawer');
+    if (!calcOverlay) {
+        calcOverlay = document.createElement('div');
+        calcOverlay.className = 'admin-calculator-overlay';
+        calcOverlay.id = 'calculator-overlay';
+        document.body.appendChild(calcOverlay);
+    }
+    if (!calcDrawer) {
+        calcDrawer = document.createElement('div');
+        calcDrawer.className = 'admin-calculator-drawer';
+        calcDrawer.id = 'calculator-drawer';
+        calcDrawer.innerHTML = `
         <div class="admin-calculator-header">
             <h3><i class="bi bi-calculator"></i> Калькулятор цены</h3>
             <button class="admin-btn admin-btn-secondary" onclick="closeCalculator()">
@@ -167,7 +172,8 @@
             </div>
         </div>
     `;
-    document.body.appendChild(calcDrawer);
+        document.body.appendChild(calcDrawer);
+    }
 
     // Открыть калькулятор
     window.openCalculator = function() {

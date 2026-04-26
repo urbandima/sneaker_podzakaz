@@ -31,38 +31,25 @@ $company = Yii::$app->settings->getCompany();
     
     <?php // Preconnect CDN origins — must precede any resource from those domains ?>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
-
-    <?php // Google Fonts — async (non-render-blocking) ?>
-    <link rel="preload" as="style"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-          onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
-
-    <?php // Bootstrap Icons — async (non-render-blocking) ?>
-    <link rel="preload" as="style"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
-          onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"></noscript>
 
     <?php
-    // A16: only inject GA snippet for a valid GA4 measurement ID (never placeholder)
-    $gaId = Yii::$app->settings->get('seo', 'ga_id', '');
-    if ($gaId && preg_match('/^G-[A-Z0-9]{8,}$/i', $gaId)):
+    $s = Yii::$app->settings;
+    $ga4Id     = $s->get('analytics', 'ga4_id', '');
+    $metrikaId = $s->get('analytics', 'metrika_id', '') ?: $s->get('seo', 'metrika_id', '');
+    // Skip placeholder / demo values
+    $ga4Valid     = !empty($ga4Id) && $ga4Id !== 'G-XXXXXXXXXX' && strlen($ga4Id) > 5;
+    $metrikaValid = !empty($metrikaId) && $metrikaId !== '12345678' && strlen($metrikaId) >= 6 && ctype_digit($metrikaId);
     ?>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=<?= Html::encode($gaId) ?>"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', '<?= Html::encode($gaId) ?>', { anonymize_ip: true });
-    </script>
+    <?php if ($ga4Valid): ?>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<?= htmlspecialchars($ga4Id) ?>"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','<?= htmlspecialchars($ga4Id) ?>');</script>
+    <?php endif; ?>
+    <?php if ($metrikaValid): ?>
+    <script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");ym(<?= (int)$metrikaId ?>,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true});</script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/<?= (int)$metrikaId ?>" style="position:absolute;left:-9999px;" alt=""/></div></noscript>
     <?php endif; ?>
 </head>
-<body>
+<body data-is-guest="<?= Yii::$app->session->get('customer_id') ? '0' : '1' ?>">
 <?php $this->beginBody() ?>
 
 <!-- Skip to main content (a11y) -->
@@ -244,7 +231,10 @@ $company = Yii::$app->settings->getCompany();
 <div class="search-modal" id="searchModal">
     <div class="search-modal-content">
         <div class="search-header">
-            <input type="text" placeholder="Поиск товаров..." id="searchInput" class="search-input" onkeyup="handleSearch(event)">
+            <input type="text" placeholder="Поиск товаров..." id="searchInput" class="search-input"
+                   oninput="handleSearchInput(this.value)"
+                   onkeydown="handleSearchKey(event)"
+                   autocomplete="off" aria-label="Поиск товаров">
             <button class="search-close close-search" onclick="closeSearch()">
                 <i class="bi bi-x"></i>
             </button>

@@ -212,17 +212,6 @@ class AdminLog extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function beforeSave($insert)
-    {
-        if ($insert) {
-            $this->created_at = time();
-        }
-        return parent::beforeSave($insert);
-    }
-
-    /**
      * Форматировать дату относительно
      */
     public function getRelativeTime(): string

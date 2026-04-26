@@ -68,7 +68,8 @@ class OrderController extends Controller
     {
         parent::init();
         $this->notificationService = new NotificationService();
-        $this->smsService = new SmsService(['provider' => 'test']);
+        // Используем зарегистрированный компонент Yii::$app->sms (RocketSMS и др.)
+        $this->smsService = Yii::$app->has('sms') ? Yii::$app->sms : new SmsService(['provider' => 'test']);
         $this->webhookService = new WebhookService([
             'secret' => Yii::$app->params['webhook_secret'] ?? 'default-secret',
             'endpoints' => Yii::$app->params['webhook_endpoints'] ?? [],
@@ -108,6 +109,7 @@ class OrderController extends Controller
         $country = Yii::$app->request->post('country', 'belarus');
         $delivery = Yii::$app->request->post('delivery');
         $address = Yii::$app->request->post('address');
+        $pickupPoint = Yii::$app->request->post('pickup_point'); // Europochta PVZ
         $comment = Yii::$app->request->post('comment');
         
         // Купон и баллы лояльности
@@ -132,7 +134,11 @@ class OrderController extends Controller
         }
         
         // Проверяем адрес (обязателен для всех кроме самовывоза)
-        if ($delivery !== 'pickup_minsk' && empty($address)) {
+        // Для Европочты адрес = выбранный ПВЗ (приходит как address или pickup_point)
+        if ($delivery === 'europochta' && empty($address) && empty($pickupPoint)) {
+            return ['success' => false, 'message' => 'Выберите пункт выдачи Европочты'];
+        }
+        if ($delivery !== 'pickup_minsk' && $delivery !== 'europochta' && empty($address)) {
             return ['success' => false, 'message' => 'Укажите адрес доставки'];
         }
         
@@ -163,6 +169,10 @@ class OrderController extends Controller
             $order->delivery_country = $country;
             $order->delivery_method = $delivery;
             $order->delivery_address = $address ?? '';
+            // Save Europochta PVZ as pickup_point (if model has the field)
+            if ($pickupPoint && $order->hasAttribute('pickup_point')) {
+                $order->pickup_point = $pickupPoint;
+            }
             $order->comment = $comment;
             $order->status = 'new';
 
@@ -310,11 +320,61 @@ class OrderController extends Controller
             }
             
             // Привязываем заказ к покупателю, если авторизован
+            $autoAccountPassword = null;
+            $autoAccountPhone = null;
             if ($customerId) {
                 $order->customer_id = $customerId;
                 $order->save(false);
+            } else {
+                // Гостевой заказ: найти или создать покупателя по email/телефону
+                try {
+                    $CustomerClass = \app\backend\modules\account\models\Customer::class;
+                    $existingCustomer = null;
+                    if (!empty($email)) {
+                        $existingCustomer = $CustomerClass::find()->where(['email' => $email])->one();
+                    }
+                    if (!$existingCustomer && !empty($phone)) {
+                        $existingCustomer = $CustomerClass::find()->where(['phone' => $phone])->one();
+                    }
+                    if (!$existingCustomer && (!empty($email) || !empty($phone))) {
+                        $newCustomer = new $CustomerClass();
+                        $newCustomer->email      = $email ?: null;
+                        $newCustomer->phone      = $phone ?: null;
+                        $newCustomer->first_name = $name ?: null;
+                        $newCustomer->created_at = time();
+                        $newCustomer->updated_at = time();
+                        $newCustomer->is_active  = 1;
+
+                        // Generate password and set it on the new customer
+                        $autoAccountPassword = Yii::$app->security->generateRandomString(8);
+                        $newCustomer->setPassword($autoAccountPassword);
+
+                        if ($newCustomer->save(false)) {
+                            $existingCustomer = $newCustomer;
+                            $autoAccountPhone = $phone;
+                            Yii::info('Авто-создан покупатель #' . $newCustomer->id . ' из гостевого заказа #' . $order->id, 'order');
+
+                            // Send SMS with credentials
+                            try {
+                                $smsCredentials = "Ваш заказ #{$order->order_number} оформлен! Логин: {$phone}, Пароль: {$autoAccountPassword}. Личный кабинет: https://sneaker-head.by/account/login";
+                                $this->smsService->send($phone, $smsCredentials);
+                            } catch (\Exception $smsEx) {
+                                Yii::warning('Не удалось отправить SMS с данными аккаунта: ' . $smsEx->getMessage(), 'order');
+                            }
+                        } else {
+                            $autoAccountPassword = null;
+                        }
+                    }
+                    if ($existingCustomer) {
+                        $order->customer_id = $existingCustomer->id;
+                        $order->save(false);
+                    }
+                } catch (\Exception $e) {
+                    Yii::warning('Не удалось авто-создать покупателя: ' . $e->getMessage(), 'order');
+                    $autoAccountPassword = null;
+                }
             }
-            
+
             // Финализируем купон (увеличиваем счётчик использований)
             if (!empty($order->coupon_id)) {
                 $couponService = new CouponService();
@@ -363,18 +423,39 @@ class OrderController extends Controller
             }
             
             $transaction->commit();
-            
+
             // Отправляем уведомления через сервисы
             $this->sendOrderNotifications($order, $customerId);
-            
+
+            if (Yii::$app->has('automation')) {
+                Yii::$app->automation->fireEvent('order.created', ['order' => $order]);
+            }
+
             Yii::info('Создан заказ #' . $order->id . ' через корзину', 'order');
-            
-            return [
+
+            // Store auto-created account info in session flash for the success page
+            if ($autoAccountPassword && $autoAccountPhone) {
+                Yii::$app->session->setFlash('auto_account', [
+                    'phone' => $autoAccountPhone,
+                    'password' => $autoAccountPassword,
+                ]);
+            }
+
+            $response = [
                 'success' => true,
                 'order_id' => $order->id,
                 'order_number' => $order->order_number,
-                'token' => $order->token
+                'token' => $order->token,
             ];
+
+            if ($autoAccountPassword && $autoAccountPhone) {
+                $response['auto_account'] = [
+                    'phone' => $autoAccountPhone,
+                    'password' => $autoAccountPassword,
+                ];
+            }
+
+            return $response;
             
         } catch (\Throwable $e) {
             $transaction->rollBack();
@@ -400,12 +481,16 @@ class OrderController extends Controller
             throw new NotFoundHttpException('Заказ не найден.');
         }
 
+        // Check for auto-created account credentials
+        $autoAccount = Yii::$app->session->getFlash('auto_account');
+
         // Получаем рекомендованные товары для upsell
         $recommendedProducts = $this->getRecommendedProducts($model);
 
         return $this->render('success', [
             'model' => $model,
             'recommendedProducts' => $recommendedProducts,
+            'autoAccount' => $autoAccount ?: null,
         ]);
     }
 

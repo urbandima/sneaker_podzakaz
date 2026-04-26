@@ -35,7 +35,7 @@ function openSearch() {
     if (!modal) return;
     modal.classList.add('open');
     var input = document.getElementById('searchInput');
-    if (input) input.focus();
+    if (input) { input.focus(); input.select(); }
     SH.lockScroll();
 }
 
@@ -46,59 +46,91 @@ function closeSearch() {
     SH.unlockScroll();
 }
 
-var _handleSearchDebounced = SH.debounce(function (query, container) {
-    _doSearch(query, container);
-}, 300);
+var _searchDebounced = SH.debounce(function (query) {
+    var container = document.getElementById('searchResults');
+    if (container) _doSearch(query, container);
+}, 280);
 
-function handleSearch(event) {
-    if (event.key === 'Escape') {
-        closeSearch();
-        return;
-    }
-
-    var query = event.target.value.trim();
-    var resultsContainer = document.getElementById('searchResults');
-    if (!resultsContainer) return;
+/* New input handler (oninput) */
+function handleSearchInput(value) {
+    var query = value.trim();
+    var container = document.getElementById('searchResults');
+    if (!container) return;
+    var hints = document.getElementById('searchHints');
 
     if (query.length < 2) {
-        resultsContainer.innerHTML = '';
+        if (hints) hints.style.display = '';
+        container.innerHTML = '';
+        if (hints) container.appendChild(hints);
         return;
     }
+    if (hints) hints.style.display = 'none';
+    _searchDebounced(query);
+}
 
-    _handleSearchDebounced(query, resultsContainer);
+/* Keyboard handler (onkeydown) */
+function handleSearchKey(event) {
+    if (event.key === 'Escape') { closeSearch(); return; }
+    if (event.key === 'Enter') {
+        var query = event.target.value.trim();
+        if (query.length >= 2) {
+            window.location.href = '/catalog?q=' + encodeURIComponent(query);
+        }
+    }
+}
+
+/* Legacy: keep backward compat */
+function handleSearch(event) {
+    if (event.key === 'Escape') { closeSearch(); return; }
+    handleSearchInput(event.target ? event.target.value : '');
 }
 
 function _doSearch(query, container) {
     container.innerHTML =
-        '<div class="search-loading"><div class="spinner"></div><p>Поиск товаров...</p></div>';
+        '<div class="search-loading"><div class="spinner"></div><span>Ищем...</span></div>';
 
     SH.fetch('/catalog/search?q=' + encodeURIComponent(query))
         .then(function (data) {
             if (data.results && data.results.length > 0) {
-                var html = data.results.map(function (p) {
-                    return '<a href="' + p.url + '" class="search-result-item">' +
-                        '<img src="' + p.mainImage + '" alt="' + p.name + '" loading="lazy">' +
+                var items = data.results.slice(0, 8).map(function (p) {
+                    var img = p.mainImage || p.image || '';
+                    var brand = (p.brand && p.brand.name) ? p.brand.name : (p.brand_name || '');
+                    var oldPriceHtml = p.oldPrice
+                        ? '<span class="search-result-old-price">' + p.oldPrice + ' BYN</span>'
+                        : '';
+                    var discountHtml = p.discount
+                        ? '<span class="search-result-discount">-' + p.discount + '%</span>'
+                        : '';
+                    return '<a href="' + p.url + '" class="search-result-item" onclick="closeSearch()">' +
+                        (img ? '<img src="' + img + '" alt="' + SH.escapeHtml(p.name) + '" loading="lazy">' : '<span class="search-result-no-img"><i class="bi bi-image"></i></span>') +
                         '<div class="search-result-info">' +
-                        '<h4>' + p.name + '</h4>' +
-                        '<p class="search-result-brand">' + p.brand.name + '</p>' +
-                        '<p class="search-result-price">' + p.price + ' BYN' +
-                        (p.oldPrice ? '<span class="search-result-old-price">' + p.oldPrice + ' BYN</span>' : '') +
-                        '</p></div></a>';
+                            (brand ? '<div class="search-result-brand">' + SH.escapeHtml(brand) + '</div>' : '') +
+                            '<h4>' + SH.escapeHtml(p.name) + '</h4>' +
+                        '</div>' +
+                        '<div>' +
+                            '<span class="search-result-price">' + p.price + ' BYN</span>' +
+                            oldPriceHtml +
+                            discountHtml +
+                        '</div>' +
+                    '</a>';
                 }).join('');
 
-                container.innerHTML =
-                    '<div class="search-results-list">' + html +
-                    '<a href="/catalog?q=' + encodeURIComponent(query) + '" class="search-view-all">Посмотреть все результаты</a>' +
-                    '</div>';
+                container.innerHTML = items +
+                    '<a href="/catalog?q=' + encodeURIComponent(query) + '" class="search-view-all" onclick="closeSearch()">' +
+                    '<i class="bi bi-search"></i> Смотреть все результаты по «' + SH.escapeHtml(query) + '»' +
+                    '</a>';
             } else {
                 container.innerHTML =
-                    '<div class="search-empty"><p>По запросу "' + query + '" ничего не найдено</p>' +
-                    '<a href="/catalog?q=' + encodeURIComponent(query) + '" class="btn btn-primary">Посмотреть все товары</a></div>';
+                    '<div class="search-empty">' +
+                    '<i class="bi bi-search" style="font-size:2rem;margin-bottom:0.5rem;display:block"></i>' +
+                    '<p style="margin-bottom:0.75rem">Ничего не найдено по «' + SH.escapeHtml(query) + '»</p>' +
+                    '<a href="/catalog" onclick="closeSearch()" style="font-size:13px;color:inherit;text-decoration:underline">Посмотреть весь каталог</a>' +
+                    '</div>';
             }
         })
         .catch(function () {
             container.innerHTML =
-                '<div class="search-error"><p>Ошибка при поиске. Попробуйте позже.</p></div>';
+                '<div class="search-error"><p>Ошибка соединения. Попробуйте позже.</p></div>';
         });
 }
 
@@ -110,6 +142,13 @@ document.addEventListener('DOMContentLoaded', function () {
             if (e.target.id === 'searchModal') closeSearch();
         });
     }
+
+    /* Keyboard shortcut: / or Ctrl+K opens search */
+    document.addEventListener('keydown', function (e) {
+        var tag = document.activeElement ? document.activeElement.tagName : '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+    });
 });
 
 /* ============================================

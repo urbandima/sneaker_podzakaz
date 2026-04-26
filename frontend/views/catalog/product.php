@@ -349,18 +349,20 @@ $this->registerJsVar('productVideo', $productVideo);
                 'containerClass' => 'product-tags--inline',
             ]) ?>
 
-            <!-- Рейтинг и отзывы -->
+            <!-- Рейтинг и отзывы — показываем только при наличии реальных данных -->
+            <?php if ($product->rating && count($reviews) > 0): ?>
             <div class="product-rating-section">
                 <div class="rating-stars">
                     <?php for ($i = 1; $i <= 5; $i++): ?>
-                        <i class="bi bi-star<?= $i <= ($product->rating ?? 4) ? '-fill' : '' ?>"></i>
+                        <i class="bi bi-star<?= $i <= $product->rating ? '-fill' : '' ?>"></i>
                     <?php endfor; ?>
                 </div>
-                <span class="rating-value"><?= $product->rating ?? 4.5 ?></span>
+                <span class="rating-value"><?= $product->rating ?></span>
                 <a href="#reviews" class="reviews-link">
                     (<?= count($reviews) ?> <?= pluralizeRu(count($reviews), ['отзыв', 'отзыва', 'отзывов']) ?>)
                 </a>
             </div>
+            <?php endif; ?>
 
             <!-- Цена -->
             <div class="product-price-section">
@@ -427,6 +429,7 @@ $this->registerJsVar('productVideo', $productVideo);
 
             <!-- Кнопки покупки -->
             <div class="purchase-actions">
+                <?php if ($product->price > 0): ?>
                 <button type="button"
                         class="btn btn-primary btn-large add-to-cart-btn"
                         onclick="addToCart()"
@@ -434,13 +437,20 @@ $this->registerJsVar('productVideo', $productVideo);
                     <i class="bi bi-cart-plus"></i>
                     <span>Добавить в корзину</span>
                 </button>
-
                 <button type="button"
                         class="btn btn-secondary btn-large buy-one-click-btn"
                         onclick="openOneClickModal()">
                     <i class="bi bi-lightning"></i>
                     <span>Купить в 1 клик</span>
                 </button>
+                <?php else: ?>
+                <button type="button"
+                        class="btn btn-outline btn-large"
+                        onclick="openOneClickModal()">
+                    <i class="bi bi-envelope"></i>
+                    <span>Цена по запросу — оставить заявку</span>
+                </button>
+                <?php endif; ?>
             </div>
 
         </div>
@@ -903,11 +913,12 @@ $this->registerJsVar('productVideo', $productVideo);
             <form class="one-click-form" onsubmit="submitOneClickOrder(event)">
                 <div class="form-group">
                     <label for="oneClickName">Ваше имя</label>
-                    <input type="text" id="oneClickName" required autocomplete="name">
+                    <input type="text" id="oneClickName" autocomplete="name">
                 </div>
                 <div class="form-group">
                     <label for="oneClickPhone">Телефон <span aria-hidden="true">*</span></label>
-                    <input type="tel" id="oneClickPhone" required autocomplete="tel" inputmode="tel">
+                    <input type="tel" id="oneClickPhone" required autocomplete="tel" inputmode="tel"
+                           pattern="[+]?[0-9\s\-\(\)]{7,}">
                 </div>
                 <div class="form-group">
                     <label for="oneClickSize">Размер</label>

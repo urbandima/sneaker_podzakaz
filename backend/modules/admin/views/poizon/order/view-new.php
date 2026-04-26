@@ -174,7 +174,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                         </div>
                         <div class="form-field">
                             <label>ИНН</label>
-                            <input type="text" name="Order[inn]" value="<?= Html::encode($model->inn) ?>" <?= $inputDisabled ?>>
+                            <input type="text" name="Order[inn]" value="<?= Html::encode($model->inn) ?>" placeholder="ИНН (только для РФ)" <?= $inputDisabled ?>>
                         </div>
                     </div>
                 </section>
