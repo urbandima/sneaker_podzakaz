@@ -68,7 +68,7 @@ try {
             
             <div class="public-link-mini">
                 <span>🔗</span>
-                <input type="text" readonly value="<?= Url::to(['/order/view', 'token' => $model->token], true) ?>">
+                <input type="text" readonly value="<?= $model->getPublicUrl() ?>">
                 <button onclick="copyPublicLink()">📋</button>
             </div>
         </div>

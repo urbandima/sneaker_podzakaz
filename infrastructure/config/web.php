@@ -499,6 +499,7 @@ $config = [
                 'admin/finance/confirm-payment'  => 'admin/finance/confirm-payment',
                 'admin/finance/expenses'         => 'admin/finance/expenses',
                 'admin/finance/create-expense'   => 'admin/finance/create-expense',
+                'admin/finance/operation/create' => 'admin/finance/create-expense',
                 'admin/finance/pnl'              => 'admin/finance/pnl',
                 'admin/finance/margin'           => 'admin/finance/margin',
                 // Buyout

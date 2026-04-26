@@ -22,6 +22,17 @@ $recentOrders = \app\backend\modules\checkout\models\Order::find()
 ];
 ?>
 
+<!-- Tab navigation -->
+<div class="amo-tabs-nav" style="margin-bottom:20px">
+    <a href="?tab=settings" class="amo-tab-btn <?= $tab === 'settings' ? 'active' : '' ?>"><i class="bi bi-gear"></i> Настройки</a>
+    <a href="?tab=widget"   class="amo-tab-btn <?= $tab === 'widget'   ? 'active' : '' ?>"><i class="bi bi-code-slash"></i> Виджет</a>
+    <a href="?tab=orders"   class="amo-tab-btn <?= $tab === 'orders'   ? 'active' : '' ?>"><i class="bi bi-list-ul"></i> Заказы</a>
+    <a href="?tab=logs"     class="amo-tab-btn <?= $tab === 'logs'     ? 'active' : '' ?>"><i class="bi bi-clock-history"></i> Логи</a>
+    <a href="?tab=stats"    class="amo-tab-btn <?= $tab === 'stats'    ? 'active' : '' ?>"><i class="bi bi-bar-chart"></i> Статистика</a>
+</div>
+
+<?php if ($tab === 'settings' || $tab === 'widget' || $tab === 'orders'): ?>
+
 <!-- 1. API-ключ -->
 <div class="admin-card" style="margin-bottom:20px">
     <div class="admin-card-header">
