@@ -1462,3 +1462,12 @@
     color: var(--color-text-muted, #6b7280);
     font-size: 0.85rem;
 }
+
+/* Search term highlight */
+.product-card-name mark {
+    background: #fff3cd;
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+    font-style: normal;
+}

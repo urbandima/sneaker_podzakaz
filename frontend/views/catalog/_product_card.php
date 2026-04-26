@@ -43,6 +43,7 @@ $hasPrice = ($priceView['showRange'] && $priceView['minPrice'] && $priceView['ma
                  class="product-image primary"
                  alt="<?= Html::encode($product->name) ?>"
                  loading="<?= $isCriticalCard ? 'eager' : 'lazy' ?>"
+                 <?= $isCriticalCard ? 'fetchpriority="high"' : '' ?>
                  onerror="this.src='/images/placeholder.png';this.onerror=null;">
             <?php if (isset($galleryImages[1])): ?>
             <img src="<?= Html::encode($galleryImages[1]) ?>"

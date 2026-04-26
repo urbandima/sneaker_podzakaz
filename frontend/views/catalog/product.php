@@ -288,10 +288,11 @@ $this->registerJsVar('productVideo', $productVideo);
                         </div>
                     <?php else: ?>
                         <!-- Обычное изображение -->
-                        <img src="<?= $galleryImages[0]['url'] ?>" 
+                        <img src="<?= $galleryImages[0]['url'] ?>"
                              alt="<?= Html::encode($productTitle) ?>"
                              id="mainImage"
-                             loading="eager">
+                             loading="eager"
+                             fetchpriority="high">
                     <?php endif; ?>
                     
                     <!-- Бейджи -->

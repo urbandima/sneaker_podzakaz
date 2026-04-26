@@ -43,6 +43,13 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
             </div>
         <?php endif; ?>
 
+        <?php if (Yii::$app->session->hasFlash('warning')): ?>
+            <div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin: 1rem;">
+                <?= Html::encode(Yii::$app->session->getFlash('warning')) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+
         <?= $content ?>
     </div>
 </main>

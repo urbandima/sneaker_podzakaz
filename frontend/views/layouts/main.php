@@ -53,6 +53,7 @@ $company = Yii::$app->settings->getCompany();
     
     <?php // Preconnect CDN origins — must precede any resource from those domains ?>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://images.unsplash.com">
     <?php // Bootstrap Icons — async to avoid render-blocking (icons are non-critical) ?>
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>
@@ -152,6 +153,30 @@ $company = Yii::$app->settings->getCompany();
 
 <!-- Main Content -->
 <main id="main-content">
+    <?php if (Yii::$app->session->hasFlash('success')): ?>
+        <div class="container" style="padding-top:1rem">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <?= Html::encode(Yii::$app->session->getFlash('success')) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    <?php endif; ?>
+    <?php if (Yii::$app->session->hasFlash('error')): ?>
+        <div class="container" style="padding-top:1rem">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= Html::encode(Yii::$app->session->getFlash('error')) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    <?php endif; ?>
+    <?php if (Yii::$app->session->hasFlash('warning')): ?>
+        <div class="container" style="padding-top:1rem">
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <?= Html::encode(Yii::$app->session->getFlash('warning')) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    <?php endif; ?>
     <?= $content ?>
 </main>
 
