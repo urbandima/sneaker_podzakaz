@@ -1877,10 +1877,23 @@ window.saveField = function(field, value) {
 window.copyToClipboard = function(inputId) {
     var el = document.getElementById(inputId);
     if (!el) return;
-    navigator.clipboard.writeText(el.value).then(function() {
-        var icon = document.getElementById('copy-icon');
+    var text = el.value;
+    var icon = document.getElementById('copy-icon');
+    var success = function() {
         if (icon) { icon.className = 'bi bi-check2'; setTimeout(function(){ icon.className = 'bi bi-clipboard'; }, 2000); }
-    });
+    };
+    function fallback(t, cb) {
+        var ta = document.createElement('textarea');
+        ta.value = t; ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none;top:0;left:0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        try { if (document.execCommand('copy')) cb(); } catch(e) {}
+        ta.remove();
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(success).catch(function() { fallback(text, success); });
+    } else {
+        fallback(text, success);
+    }
 };
 
 // ── Track check ───────────────────────────────────────────
