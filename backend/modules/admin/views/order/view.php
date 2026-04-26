@@ -66,7 +66,7 @@ $customer = $model->customer ?? null;
     z-index: 30;
 }
 .crm-topbar-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
-.crm-order-num { font-size: 1.125rem; font-weight: 800; color: var(--admin-text-primary, #111); white-space: nowrap; }
+.crm-order-num { font-size: 1.125rem; font-weight: 800; color: var(--admin-text-primary, #111); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex-shrink: 1; }
 .crm-order-date { font-size: 0.8rem; color: var(--admin-text-secondary, #6b7280); }
 .crm-status-pill {
     display: inline-flex; align-items: center; gap: 5px;
@@ -463,6 +463,31 @@ $customer = $model->customer ?? null;
                             <?php endforeach; ?>
                         </tbody>
                     </table>
+                    <?php
+                    $subtotal = 0;
+                    foreach ($model->orderItems as $_ti) { $subtotal += (float)($_ti->total ?? $_ti->price * $_ti->quantity); }
+                    $discountAmt  = (float)($model->discount ?? 0);
+                    $deliveryCost = (float)($model->delivery_cost ?? 0);
+                    $commissionRow = (float)($model->commission_amount ?? $model->commission_price ?? 0);
+                    ?>
+                    <div style="padding: 8px 16px; border-top: 1px solid var(--admin-border, #e5e7eb); font-size: 0.8125rem;">
+                        <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:var(--admin-text-secondary,#6b7280)">
+                            <span>Подытог:</span>
+                            <span style="min-width:90px;text-align:right"><?= Yii::$app->formatter->asDecimal($subtotal, 2) ?> Br</span>
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:<?= $discountAmt > 0 ? '#059669' : 'var(--admin-text-secondary,#9ca3af)' ?>">
+                            <span>Скидка:</span>
+                            <span style="min-width:90px;text-align:right"><?= $discountAmt > 0 ? '−' . Yii::$app->formatter->asDecimal($discountAmt, 2) . ' Br' : '<span style="font-style:italic;font-size:0.75rem">не задана</span>' ?></span>
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:<?= $deliveryCost > 0 ? 'var(--admin-text-primary,#111)' : 'var(--admin-text-secondary,#9ca3af)' ?>">
+                            <span>Доставка:</span>
+                            <span style="min-width:90px;text-align:right"><?= $deliveryCost > 0 ? Yii::$app->formatter->asDecimal($deliveryCost, 2) . ' Br' : '<span style="font-style:italic;font-size:0.75rem">не задана</span>' ?></span>
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:<?= $commissionRow > 0 ? 'var(--admin-text-primary,#111)' : 'var(--admin-text-secondary,#9ca3af)' ?>">
+                            <span>Комиссия:</span>
+                            <span style="min-width:90px;text-align:right"><?= $commissionRow > 0 ? Yii::$app->formatter->asDecimal($commissionRow, 2) . ' Br' : '<span style="font-style:italic;font-size:0.75rem">не задана</span>' ?></span>
+                        </div>
+                    </div>
                     <div class="crm-total-row">
                         <span class="label">Итого к оплате:</span>
                         <span><?= Yii::$app->formatter->asDecimal($model->total_amount, 2) ?> Br</span>
@@ -513,7 +538,7 @@ $customer = $model->customer ?? null;
             <div class="crm-card">
                 <div class="crm-card-head">
                     <h3><i class="bi bi-box-seam"></i> Данные для ДоброПост</h3>
-                    <span style="font-size:0.7rem;padding:2px 8px;border-radius:6px;background:#eef2ff;color:#4338ca;font-weight:700">🚚 ДП</span>
+                    <span style="font-size:0.7rem;padding:2px 8px;border-radius:6px;background:#eef2ff;color:#4338ca;font-weight:700"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i> ДП</span>
                     <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm" onclick="autoFillDp(<?= $model->id ?>)" style="margin-left:8px;font-size:0.7rem;padding:2px 10px" title="Заполнить пустые поля ДП из данных заказа и профиля клиента"><i class="bi bi-lightning"></i> Авто-заполнить из заказа</button>
                 </div>
                 <div class="crm-card-body">
@@ -521,11 +546,11 @@ $customer = $model->customer ?? null;
                     <div style="font-size:0.7rem;font-weight:700;color:var(--admin-text-secondary,#6b7280);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px"><i class="bi bi-geo-alt"></i> Получатель и адрес</div>
                     <div class="crm-info-grid">
                         <div class="crm-field">
-                            <div class="crm-field-label">Фамилия <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem">🚚</span></div>
+                            <div class="crm-field-label">Фамилия <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
                             <div class="crm-editable" data-field="recipient_last_name" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->recipient_last_name) ? Html::encode($model->recipient_last_name) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
-                            <div class="crm-field-label">Имя <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem">🚚</span></div>
+                            <div class="crm-field-label">Имя <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
                             <div class="crm-editable" data-field="recipient_first_name" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->recipient_first_name) ? Html::encode($model->recipient_first_name) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
@@ -533,19 +558,19 @@ $customer = $model->customer ?? null;
                             <div class="crm-editable" data-field="recipient_middle_name" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->recipient_middle_name) ? Html::encode($model->recipient_middle_name) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
-                            <div class="crm-field-label">Город <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem">🚚</span></div>
+                            <div class="crm-field-label">Город <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
                             <div class="crm-editable" data-field="city" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->city) ? Html::encode($model->city) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
-                            <div class="crm-field-label">Регион <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem">🚚</span></div>
+                            <div class="crm-field-label">Регион <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
                             <div class="crm-editable" data-field="region" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->region) ? Html::encode($model->region) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
-                            <div class="crm-field-label">Индекс <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem">🚚</span></div>
+                            <div class="crm-field-label">Индекс <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
                             <div class="crm-editable" data-field="postal_code" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->postal_code) ? Html::encode($model->postal_code) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field" style="grid-column: span 2">
-                            <div class="crm-field-label">Полный адрес <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem">🚚</span></div>
+                            <div class="crm-field-label">Полный адрес <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
                             <div class="crm-editable" data-field="full_address" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->full_address) ? Html::encode($model->full_address) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                     </div>
@@ -567,19 +592,19 @@ $customer = $model->customer ?? null;
                         </div>
                         <?php endif; ?>
                         <div class="crm-field" style="grid-column: span 2">
-                            <div class="crm-field-label">Описание для таможни <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem">🚚</span></div>
+                            <div class="crm-field-label">Описание для таможни <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
                             <div class="crm-editable" data-field="customs_description" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->customs_description) ? Html::encode($model->customs_description) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
-                            <div class="crm-field-label">Кол-во (тамож.) <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem">🚚</span></div>
+                            <div class="crm-field-label">Кол-во (тамож.) <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
                             <div class="crm-editable" data-field="item_quantity" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= isset($model->item_quantity) && $model->item_quantity !== null ? Html::encode($model->item_quantity) . ' шт.' : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
-                            <div class="crm-field-label">Цена ед. (CNY) <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem">🚚</span></div>
+                            <div class="crm-field-label">Цена ед. (CNY) <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
                             <div class="crm-editable" data-field="item_price_cny" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= isset($model->item_price_cny) && $model->item_price_cny !== null ? Html::encode($model->item_price_cny) . ' ¥' : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
-                            <div class="crm-field-label">Стоимость отправления (CNY) <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem">🚚</span></div>
+                            <div class="crm-field-label">Стоимость отправления (CNY) <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
                             <div class="crm-editable" data-field="shipment_value_cny" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= isset($model->shipment_value_cny) && $model->shipment_value_cny !== null ? Html::encode($model->shipment_value_cny) . ' ¥' : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <?php if (!empty($model->sneakerhead_order_link)): ?>
@@ -605,11 +630,11 @@ $customer = $model->customer ?? null;
                 <div class="crm-card-body">
                     <div class="crm-info-grid">
                         <div class="crm-field">
-                            <div class="crm-field-label">Серия <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem">🚚</span></div>
+                            <div class="crm-field-label">Серия <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
                             <div class="crm-editable" data-field="passport_series" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->passport_series) ? Html::encode($model->passport_series) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
-                            <div class="crm-field-label">Номер <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem">🚚</span></div>
+                            <div class="crm-field-label">Номер <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
                             <div class="crm-editable" data-field="passport_number" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->passport_number) ? Html::encode($model->passport_number) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
@@ -621,7 +646,7 @@ $customer = $model->customer ?? null;
                             <div class="crm-editable" data-field="birth_date" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->birth_date) ? Html::encode($model->birth_date) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
-                            <div class="crm-field-label">ИНН <span title="Обязательно для Таможня:ДП (РФ)" style="cursor:help;font-size:0.75rem">🚚</span></div>
+                            <div class="crm-field-label">ИНН <span title="Обязательно для Таможня:ДП (РФ)" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
                             <div class="crm-editable" data-field="inn" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->inn) ? Html::encode($model->inn) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <?php if (!empty($model->passport_submitted_at)): ?>
@@ -660,8 +685,8 @@ $customer = $model->customer ?? null;
                 </div>
                 <div class="crm-note-form">
                     <textarea id="new-note-text" class="crm-note-textarea" rows="2" placeholder="Добавить заметку..."></textarea>
-                    <button class="admin-btn admin-btn-primary" onclick="addOrderNote(<?= $model->id ?>)" style="padding:8px 12px">
-                        <i class="bi bi-send"></i>
+                    <button class="admin-btn admin-btn-primary" onclick="addOrderNote(<?= $model->id ?>)" style="padding:6px 10px;align-self:flex-end">
+                        <i class="bi bi-send" style="font-size:1rem;color:inherit"></i>
                     </button>
                 </div>
             </div>
@@ -679,10 +704,16 @@ $customer = $model->customer ?? null;
             <div class="crm-card">
                 <div class="crm-card-head">
                     <h3><i class="bi bi-graph-up-arrow"></i> Маржинальность</h3>
+                    <?php if ($purchasePrice <= 0 && $logisticsPrice <= 0): ?>
+                    <span style="font-size:0.75rem;font-weight:600;padding:3px 8px;border-radius:6px;background:#f3f4f6;color:#6b7280">
+                        <i class="bi bi-question-circle"></i> Недостаточно данных
+                    </span>
+                    <?php else: ?>
                     <span style="font-size:0.9rem;font-weight:800;color:<?= $profit >= 0 ? '#059669' : '#dc2626' ?>">
                         <?= ($profit >= 0 ? '+' : '') . Yii::$app->formatter->asDecimal($profit, 2) ?> Br
                         <span style="font-size:0.7rem;font-weight:600;opacity:.8">(<?= $margin ?>%)</span>
                     </span>
+                    <?php endif; ?>
                 </div>
                 <div class="crm-card-body">
                     <div class="crm-info-grid" style="grid-template-columns:repeat(3,1fr);gap:8px">
@@ -899,9 +930,20 @@ $customer = $model->customer ?? null;
                             </div>
                             <div class="crm-field">
                                 <div class="crm-field-label">Срок доставки</div>
+                                <?php $earlyStatuses = ['new', 'processing', 'pending', 'new_order']; ?>
+                                <?php if (!$model->delivery_date && in_array($model->status, $earlyStatuses)): ?>
                                 <div class="crm-editable" data-field="delivery_date" data-id="<?= $model->id ?>" onclick="startEdit(this)">
-                                    <?= $model->delivery_date ? Html::encode($model->delivery_date) : '<span class="crm-editable-empty">—</span>' ?>
+                                    <span class="crm-editable-empty" style="font-style:italic">Не задан (новый заказ)</span>
                                 </div>
+                                <?php elseif (!$model->delivery_date): ?>
+                                <div class="crm-editable" data-field="delivery_date" data-id="<?= $model->id ?>" onclick="startEdit(this)">
+                                    <span class="crm-editable-empty">—</span>
+                                </div>
+                                <?php else: ?>
+                                <div class="crm-editable" data-field="delivery_date" data-id="<?= $model->id ?>" onclick="startEdit(this)">
+                                    <?= Html::encode($model->delivery_date) ?>
+                                </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <?php if ($model->comment): ?>
@@ -1033,7 +1075,7 @@ $customer = $model->customer ?? null;
                 </div>
                 <div class="crm-card-body">
                     <div class="crm-field" style="margin-bottom:8px">
-                        <div class="crm-field-label">Трек Poizon / SF <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem">🚚</span></div>
+                        <div class="crm-field-label">Трек Poizon / SF <span title="Обязательно для Таможня:ДП" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
                         <div class="crm-track-wrap">
                             <input type="text" class="crm-track-input" id="china-track-input"
                                    value="<?= Html::encode($model->china_track_number ?? '') ?>"
