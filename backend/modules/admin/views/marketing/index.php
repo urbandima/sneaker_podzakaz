@@ -8,7 +8,7 @@ $this->title = 'Маркетинг';
 $tab = Yii::$app->request->get('tab', 'abandoned');
 
 $this->params['headerActions'] = [
-    Html::a('<i class="bi bi-plus-circle"></i> Новая кампания', ['marketing/campaigns'], ['class' => 'admin-btn admin-btn-primary admin-btn-sm']),
+    Html::a('<i class="bi bi-plus-circle"></i> Новая кампания', ['marketing/campaigns'], ['class' => 'admin-btn admin-btn-primary admin-btn-sm', 'style' => 'flex-shrink:0']),
 ];
 
 // Campaigns demo data (no DB table yet)
@@ -22,6 +22,11 @@ $typeLabels   = ['email' => ['label' => 'Email', 'icon' => 'bi-envelope', 'color
 $statusLabels = ['active' => ['label' => 'Активна', 'class' => 'admin-badge-success'], 'completed' => ['label' => 'Завершена', 'class' => 'admin-badge-secondary'], 'draft' => ['label' => 'Черновик', 'class' => 'admin-badge-warning'], 'scheduled' => ['label' => 'Запланирована', 'class' => 'admin-badge-info']];
 ?>
 
+<style>
+/* Z66 — header layout fix */
+.admin-page-header { flex-wrap: nowrap !important; align-items: center !important; }
+</style>
+
 <!-- KPI Stats -->
 <div class="admin-stats" style="margin-bottom:1.5rem">
     <div class="admin-stat-card">
@@ -31,6 +36,7 @@ $statusLabels = ['active' => ['label' => 'Активна', 'class' => 'admin-bad
             <div class="admin-stat-label">Брошенных корзин</div>
         </div>
     </div>
+    <?php if ((int)$abandonedStats['total_abandoned'] > 0): ?>
     <div class="admin-stat-card">
         <div class="admin-stat-icon success"><i class="bi bi-check-circle-fill"></i></div>
         <div class="admin-stat-content">
@@ -38,6 +44,15 @@ $statusLabels = ['active' => ['label' => 'Активна', 'class' => 'admin-bad
             <div class="admin-stat-label">Восстановление корзин</div>
         </div>
     </div>
+    <?php else: ?>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon success"><i class="bi bi-check-circle-fill"></i></div>
+        <div class="admin-stat-content">
+            <div class="admin-stat-value" style="font-size:1rem;color:var(--admin-text-secondary)">Нет данных</div>
+            <div class="admin-stat-label">Восстановление корзин</div>
+        </div>
+    </div>
+    <?php endif; ?>
     <div class="admin-stat-card">
         <div class="admin-stat-icon upsell"><i class="bi bi-arrow-up-circle"></i></div>
         <div class="admin-stat-content">
@@ -86,7 +101,8 @@ $statusLabels = ['active' => ['label' => 'Активна', 'class' => 'admin-bad
         <h2 class="admin-card-title"><i class="bi bi-cart-x"></i> Брошенные корзины</h2>
         <button type="button" class="admin-btn admin-btn-primary admin-btn-sm"
                 onclick="sendBulkReminders(this)"
-                data-bulk-url="<?= Url::to(['marketing/send-bulk-reminders']) ?>">
+                data-bulk-url="<?= Url::to(['marketing/send-bulk-reminders']) ?>"
+                <?= empty($abandonedCarts) ? 'disabled' : '' ?>>
             <i class="bi bi-send"></i> Напомнить всем
         </button>
     </div>
