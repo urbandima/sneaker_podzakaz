@@ -13,6 +13,7 @@ $tabs = [
     'dashboard' => ['label' => 'Dashboard',  'icon' => 'bi-speedometer2'],
     'settings'  => ['label' => 'Settings',   'icon' => 'bi-gear'],
     'webhooks'  => ['label' => 'Webhooks',   'icon' => 'bi-link-45deg'],
+    'fields'    => ['label' => 'Поля',       'icon' => 'bi-table'],
     'logs'      => ['label' => 'Logs',       'icon' => 'bi-journal-text'],
     'stats'     => ['label' => 'Stats',      'icon' => 'bi-bar-chart-line'],
 ];
@@ -341,6 +342,100 @@ window.SNEAKERHEAD_API_KEY = '<?= Html::encode($apiKey) ?>';
     <div style="display:flex;gap:8px;margin-top:12px" id="amo-log-pager"></div>
 </div>
 
+<?php elseif ($tab === 'fields'): ?>
+<!-- ══════════════════════════════════════════════════════════════════════
+     TAB: FIELDS — Field mapping AmoCRM ↔ our order fields
+     ════════════════════════════════════════════════════════════════════ -->
+
+<div class="amo-tab-pane">
+    <div class="admin-card" style="margin-bottom:20px">
+        <div class="admin-card-header" style="display:flex;justify-content:space-between;align-items:center">
+            <h2 class="admin-card-title"><i class="bi bi-table"></i> Маппинг полей AmoCRM → наши поля</h2>
+            <button class="admin-btn admin-btn-sm admin-btn-secondary" onclick="amoLoadFields()">
+                <i class="bi bi-arrow-clockwise"></i> Обновить поля
+            </button>
+        </div>
+        <div class="admin-card-body">
+            <p style="color:var(--admin-text-secondary);font-size:13px;margin-bottom:16px">
+                Укажите какие кастомные поля AmoCRM соответствуют полям заказа.
+                При создании заказа из сделки значения будут скопированы автоматически.
+            </p>
+
+            <div id="amo-fields-loading" style="text-align:center;padding:32px;color:var(--admin-text-muted)">
+                <i class="bi bi-hourglass-split" style="font-size:24px;display:block;margin-bottom:8px"></i>
+                Загрузка полей из AmoCRM...
+            </div>
+
+            <table class="admin-table" id="amo-fields-table" style="display:none;margin:0">
+                <thead>
+                    <tr>
+                        <th>Поле AmoCRM</th>
+                        <th>ID поля</th>
+                        <th>Тип</th>
+                        <th>Наше поле заказа</th>
+                    </tr>
+                </thead>
+                <tbody id="amo-fields-tbody"></tbody>
+            </table>
+
+            <div id="amo-fields-empty" style="display:none;padding:24px;text-align:center;color:var(--admin-text-muted)">
+                <i class="bi bi-inbox" style="font-size:28px;display:block;margin-bottom:8px;opacity:.5"></i>
+                Кастомных полей в AmoCRM не найдено. Проверьте настройки токена.
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header" style="display:flex;justify-content:space-between;align-items:center">
+            <h2 class="admin-card-title"><i class="bi bi-floppy"></i> Сохранённые маппинги</h2>
+            <div id="amo-fields-save-wrap" style="display:none;gap:8px">
+                <button class="admin-btn admin-btn-sm admin-btn-primary" onclick="amoSaveFields()">
+                    <i class="bi bi-floppy"></i> Сохранить маппинг
+                </button>
+            </div>
+        </div>
+        <div class="admin-card-body">
+            <div id="amo-save-msg"></div>
+            <table class="admin-table" id="amo-saved-table" style="margin:0">
+                <thead>
+                    <tr>
+                        <th>Наше поле</th>
+                        <th>AmoCRM field_id</th>
+                        <th>Название в AMO</th>
+                        <th>Направление</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="amo-saved-tbody">
+                    <?php
+                    try {
+                        $mappings = Yii::$app->db->createCommand('SELECT * FROM {{%amocrm_field_mapping}} WHERE entity_type="lead" ORDER BY local_field')->queryAll();
+                        foreach ($mappings as $m): ?>
+                        <tr id="amo-mapping-row-<?= $m['id'] ?>">
+                            <td><code><?= Html::encode($m['local_field']) ?></code></td>
+                            <td><?= (int)$m['amocrm_field_id'] ?></td>
+                            <td><?= Html::encode($m['amocrm_field_name'] ?? '—') ?></td>
+                            <td><?= Html::encode($m['direction']) ?></td>
+                            <td>
+                                <button class="admin-btn admin-btn-sm admin-btn-danger"
+                                    onclick="amoDeleteMapping(<?= $m['id'] ?>)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                        <?php if (empty($mappings)): ?>
+                        <tr id="amo-saved-empty"><td colspan="5" style="text-align:center;padding:20px;color:var(--admin-text-muted)">Нет сохранённых маппингов</td></tr>
+                        <?php endif; ?>
+                    <?php } catch (\Exception $e) { ?>
+                        <tr><td colspan="5" style="color:var(--admin-danger)">Таблица маппинга не найдена. Запустите миграции.</td></tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <?php elseif ($tab === 'stats'): ?>
 <!-- ══════════════════════════════════════════════════════════════════════
      TAB: STATS
@@ -542,10 +637,99 @@ function loadStats() {
     });
 }
 
+/* ── Fields tab ── */
+var _amoFields = [];
+var LOCAL_FIELDS = [
+    {value: '', label: '— не маппить —'},
+    {value: 'order.client_name',    label: 'Имя клиента'},
+    {value: 'order.client_phone',   label: 'Телефон'},
+    {value: 'order.client_email',   label: 'Email'},
+    {value: 'order.total_amount',   label: 'Сумма заказа'},
+    {value: 'order.comment',        label: 'Комментарий'},
+    {value: 'order.product_name',   label: 'Название товара'},
+    {value: 'order.size',           label: 'Размер'},
+    {value: 'order.source',         label: 'Источник'},
+    {value: 'order.delivery_address', label: 'Адрес доставки'},
+];
+
+window.amoLoadFields = function() {
+    var loading = document.getElementById('amo-fields-loading');
+    var table   = document.getElementById('amo-fields-table');
+    var empty   = document.getElementById('amo-fields-empty');
+    var saveWrap = document.getElementById('amo-fields-save-wrap');
+    if (loading) loading.style.display = '';
+    if (table)   table.style.display   = 'none';
+    if (empty)   empty.style.display   = 'none';
+
+    get('/admin/plugin/amocrm/fields', function(d) {
+        if (loading) loading.style.display = 'none';
+        if (!d.success || !d.fields || !d.fields.length) {
+            if (empty) empty.style.display = '';
+            return;
+        }
+        _amoFields = d.fields;
+        var tbody = document.getElementById('amo-fields-tbody');
+        if (!tbody) return;
+
+        tbody.innerHTML = _amoFields.map(function(f) {
+            var sel = '<select class="admin-form-control" data-amo-id="' + f.id + '" data-amo-name="' + (f.name||'').replace(/"/g,'&quot;') + '">'
+                + LOCAL_FIELDS.map(function(lf) { return '<option value="' + lf.value + '">' + lf.label + '</option>'; }).join('')
+                + '</select>';
+            return '<tr><td>' + (f.name||'') + '</td><td><code>' + f.id + '</code></td><td>' + (f.field_type||'') + '</td><td>' + sel + '</td></tr>';
+        }).join('');
+
+        // Pre-fill existing mappings
+        if (d.mappings) {
+            d.mappings.forEach(function(m) {
+                var sel = tbody.querySelector('[data-amo-id="' + m.amocrm_field_id + '"]');
+                if (sel) sel.value = m.local_field;
+            });
+        }
+
+        if (table)    table.style.display    = '';
+        if (saveWrap) saveWrap.style.display  = 'flex';
+    });
+};
+
+window.amoSaveFields = function() {
+    var tbody = document.getElementById('amo-fields-tbody');
+    if (!tbody) return;
+    var rows = [];
+    tbody.querySelectorAll('select[data-amo-id]').forEach(function(sel) {
+        if (sel.value) rows.push({
+            amocrm_field_id:   parseInt(sel.getAttribute('data-amo-id')),
+            amocrm_field_name: sel.getAttribute('data-amo-name'),
+            local_field:       sel.value,
+        });
+    });
+    msg('amo-save-msg', 'Сохраняем...', '#6b7280');
+    post('/admin/plugin/amocrm/fields-save', {mappings: rows}, function(d) {
+        msg('amo-save-msg', d.success ? '✓ Маппинг сохранён' : '✗ ' + d.message, d.success ? '#065f46' : '#991b1b');
+        if (d.success) {
+            // Refresh saved list
+            var emptyRow = document.getElementById('amo-saved-empty');
+            if (emptyRow) emptyRow.remove();
+            // Simple reload of saved section
+            setTimeout(function() { location.reload(); }, 800);
+        }
+    });
+};
+
+window.amoDeleteMapping = function(id) {
+    if (!confirm('Удалить маппинг?')) return;
+    post('/admin/plugin/amocrm/fields-delete', {id: id}, function(d) {
+        if (d.success) {
+            var row = document.getElementById('amo-mapping-row-' + id);
+            if (row) row.remove();
+        }
+    });
+};
+
 /* Auto-init current tab */
 var curTab = '<?= $tab ?>';
-if (curTab === 'logs')  amoLoadLogs(1);
-if (curTab === 'stats') loadStats();
+if (curTab === 'logs')   amoLoadLogs(1);
+if (curTab === 'stats')  loadStats();
+if (curTab === 'fields') amoLoadFields();
 
 })();
 </script>

@@ -350,6 +350,7 @@ $config = [
                 'api/webhook/dobropost' => 'api/webhook/dobropost',
                 'api/webhook/amocrm' => 'api/webhook/amocrm',
                 'webhook/amocrm/event' => 'api/webhook/amocrm',
+                'webhook/amocrm/lead-status-changed' => 'api/webhook/lead-status-changed',
                 'api/amocrm/order' => 'api/amocrm/order',
                 'api/amocrm/sync' => 'api/amocrm/sync',
 
@@ -546,9 +547,12 @@ $config = [
                 'api/amocrm/create-order' => 'api/amocrm-order/create-order',
                 'api/amocrm/products'     => 'api/amocrm-order/products',
                 // AmoCRM plugin pages
-                'admin/plugin/amocrm'            => 'admin/plugin/amocrm',
-                'admin/plugin/amocrm-widget'     => 'admin/plugin/amocrm-widget',
-                'admin/plugin/amocrm-widget/key' => 'admin/plugin/amocrm-widget-key',
+                'admin/plugin/amocrm'                   => 'admin/plugin/amocrm',
+                'admin/plugin/amocrm/fields'            => 'admin/plugin/amocrm-fields',
+                'admin/plugin/amocrm/fields-save'       => 'admin/plugin/amocrm-fields-save',
+                'admin/plugin/amocrm/fields-delete'     => 'admin/plugin/amocrm-fields-delete',
+                'admin/plugin/amocrm-widget'            => 'admin/plugin/amocrm-widget',
+                'admin/plugin/amocrm-widget/key'        => 'admin/plugin/amocrm-widget-key',
                 // Lamoda Parser plugin pages
                 'admin/plugin/lamoda-parser'          => 'admin/plugin/lamoda-parser',
                 'admin/plugin/lamoda-parser/run'      => 'admin/plugin/lamoda-run',

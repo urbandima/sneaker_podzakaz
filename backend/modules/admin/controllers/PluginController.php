@@ -373,6 +373,100 @@ class PluginController extends BaseAdminController
         }
     }
 
+    /**
+     * GET /admin/plugin/amocrm/fields
+     * Returns AmoCRM custom fields for leads + existing field mappings.
+     */
+    public function actionAmocrmFields(): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        try {
+            $amoFields = Yii::$app->amocrm->getCustomFields('leads');
+        } catch (\Throwable $e) {
+            return ['success' => false, 'message' => 'Ошибка AmoCRM: ' . $e->getMessage(), 'fields' => []];
+        }
+
+        $fields = [];
+        foreach ($amoFields as $f) {
+            $fields[] = [
+                'id'         => (int)($f['id'] ?? 0),
+                'name'       => $f['name'] ?? '',
+                'field_type' => $f['field_type'] ?? '',
+            ];
+        }
+
+        $mappings = [];
+        try {
+            $mappings = Yii::$app->db->createCommand(
+                'SELECT * FROM {{%amocrm_field_mapping}} WHERE entity_type="lead"'
+            )->queryAll();
+        } catch (\Exception $e) {}
+
+        return ['success' => true, 'fields' => $fields, 'mappings' => $mappings];
+    }
+
+    /**
+     * POST /admin/plugin/amocrm/fields-save
+     * Body: { mappings: [{amocrm_field_id, amocrm_field_name, local_field}, ...] }
+     */
+    public function actionAmocrmFieldsSave(): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $body     = json_decode(Yii::$app->request->rawBody, true) ?: [];
+        $mappings = $body['mappings'] ?? [];
+
+        if (!is_array($mappings)) {
+            return ['success' => false, 'message' => 'Invalid payload'];
+        }
+
+        $db = Yii::$app->db;
+        try {
+            foreach ($mappings as $m) {
+                $fieldId   = (int)($m['amocrm_field_id'] ?? 0);
+                $fieldName = trim($m['amocrm_field_name'] ?? '');
+                $localField = trim($m['local_field'] ?? '');
+                if (!$fieldId || !$localField) continue;
+
+                // Upsert: delete old + insert new
+                $db->createCommand()->delete('{{%amocrm_field_mapping}}', [
+                    'entity_type' => 'lead',
+                    'local_field' => $localField,
+                ])->execute();
+                $db->createCommand()->insert('{{%amocrm_field_mapping}}', [
+                    'entity_type'      => 'lead',
+                    'local_field'      => $localField,
+                    'amocrm_field_id'  => $fieldId,
+                    'amocrm_field_name'=> $fieldName,
+                    'direction'        => 'from_amocrm',
+                    'created_at'       => date('Y-m-d H:i:s'),
+                ])->execute();
+            }
+            return ['success' => true, 'saved' => count($mappings)];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * POST /admin/plugin/amocrm/fields-delete
+     * Body: { id: 123 }
+     */
+    public function actionAmocrmFieldsDelete(): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $body = json_decode(Yii::$app->request->rawBody, true) ?: [];
+        $id   = (int)($body['id'] ?? 0);
+        if (!$id) return ['success' => false, 'message' => 'id required'];
+
+        try {
+            Yii::$app->db->createCommand()->delete('{{%amocrm_field_mapping}}', ['id' => $id])->execute();
+            return ['success' => true];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
     public function actionTelegram()
     {
         return $this->render('telegram');

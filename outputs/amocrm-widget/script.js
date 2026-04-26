@@ -1,6 +1,6 @@
 /**
  * SneakerHead Orders Widget — AmoCRM marketplace widget
- * Shows store order data on a lead card and allows manual sync.
+ * Shows store order data on a lead card and allows manual sync / order creation.
  */
 define(['jquery'], function ($) {
   'use strict';
@@ -14,7 +14,7 @@ define(['jquery'], function ($) {
 
     /* Called when navigating to the lead card */
     render: function () {
-      var self = this;
+      var self     = this;
       var settings = self.system().settings;
       var shopUrl  = (settings.shop_url  || '').replace(/\/$/, '');
       var apiToken = settings.api_token  || '';
@@ -32,16 +32,49 @@ define(['jquery'], function ($) {
         headers: { Authorization: 'Bearer ' + apiToken },
         success: function (data) {
           if (!data.found) {
-            $wrap.html('<p class="sh-empty">' + lang('order_not_found') + '</p>');
+            $wrap.html(
+              '<p class="sh-empty">' + lang('order_not_found') + '</p>' +
+              '<div class="sh-actions">' +
+              '<button class="button-input" id="sh-create-btn">' + lang('create_order') + '</button>' +
+              '</div>'
+            );
+
+            $('#sh-create-btn').on('click', function () {
+              var $btn = $(this);
+              $btn.prop('disabled', true).text(lang('creating'));
+              $.ajax({
+                url:         shopUrl + '/api/amocrm/create-order',
+                method:      'POST',
+                contentType: 'application/json',
+                headers:     { Authorization: 'Bearer ' + apiToken },
+                data:        JSON.stringify({ lead_id: leadId }),
+                success: function (r) {
+                  if (r.success) {
+                    $wrap.html(
+                      '<p class="sh-ok">' + lang('order_created') + ' <a href="' + (r.admin_url || r.order_url) + '" target="_blank" class="sh-link">#' + r.order_number + '</a></p>'
+                    );
+                  } else {
+                    $btn.prop('disabled', false).text(lang('create_order'));
+                    $wrap.prepend('<p class="sh-error">' + (r.message || lang('create_error')) + '</p>');
+                  }
+                },
+                error: function () {
+                  $btn.prop('disabled', false).text(lang('create_order'));
+                  $wrap.prepend('<p class="sh-error">' + lang('create_error') + '</p>');
+                },
+              });
+            });
+
             return;
           }
+
           var statusLabels = {
             new: 'Новый', paid: 'Оплачен', processing: 'В обработке',
             shipped: 'Отправлен', delivered: 'Доставлен', cancelled: 'Отменён',
           };
           $wrap.html(
             '<table class="sh-table">' +
-            '<tr><td>' + lang('order_id') + '</td><td><a href="' + shopUrl + '/admin/order/' + data.order_id + '" target="_blank" class="sh-link">#' + data.order_id + '</a></td></tr>' +
+            '<tr><td>' + lang('order_id') + '</td><td><a href="' + data.admin_url + '" target="_blank" class="sh-link">#' + data.order_id + '</a></td></tr>' +
             '<tr><td>' + lang('status') + '</td><td><span class="sh-badge sh-badge-' + data.status + '">' + (statusLabels[data.status] || data.status) + '</span></td></tr>' +
             '<tr><td>' + lang('total') + '</td><td>' + parseFloat(data.total).toFixed(2) + ' BYN</td></tr>' +
             '<tr><td>' + lang('client') + '</td><td>' + (data.recipient_name || '—') + '</td></tr>' +
@@ -49,6 +82,7 @@ define(['jquery'], function ($) {
             '</table>' +
             '<div class="sh-actions">' +
             '<button class="button-input" id="sh-sync-btn">' + lang('sync') + '</button>' +
+            '<a href="' + data.admin_url + '" target="_blank" class="button-input sh-btn-open">' + lang('open_order') + '</a>' +
             '</div>'
           );
 
@@ -78,7 +112,7 @@ define(['jquery'], function ($) {
       return self;
     },
 
-    /* Callback on lead save — sync automatically if configured */
+    /* Callback on lead save */
     onSave: function () {
       return this;
     },

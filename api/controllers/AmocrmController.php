@@ -20,6 +20,7 @@ use yii\web\UnauthorizedHttpException;
 use yii\web\BadRequestHttpException;
 use app\backend\modules\checkout\models\Order;
 use app\backend\modules\catalog\models\Product;
+use app\backend\modules\admin\services\OrderFromLeadService;
 
 class AmocrmController extends Controller
 {
@@ -38,7 +39,7 @@ class AmocrmController extends Controller
         if ($origin && preg_match('/\.amocrm\.(ru|com)$/i', parse_url($origin, PHP_URL_HOST) ?? '')) {
             $headers->set('Access-Control-Allow-Origin', $origin);
         }
-        $headers->set('Access-Control-Allow-Headers', 'Content-Type, X-Api-Key');
+        $headers->set('Access-Control-Allow-Headers', 'Content-Type, X-Api-Key, Authorization');
         $headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
 
         // OPTIONS preflight
@@ -47,9 +48,17 @@ class AmocrmController extends Controller
             Yii::$app->end();
         }
 
-        // Проверяем API-ключ
+        // Accept X-Api-Key header OR Authorization: Bearer <key>
         $apiKey = Yii::$app->request->headers->get('X-Api-Key', '');
-        $storedKey = Yii::$app->settings->get('amocrm', 'api_key', '');
+        if ($apiKey === '') {
+            $auth = Yii::$app->request->headers->get('Authorization', '');
+            if (strncasecmp($auth, 'Bearer ', 7) === 0) {
+                $apiKey = substr($auth, 7);
+            }
+        }
+
+        $storedKey = Yii::$app->settings->get('amocrm', 'widget_api_key', '')
+            ?: Yii::$app->settings->get('amocrm', 'api_key', '');
 
         if (empty($storedKey) || !hash_equals($storedKey, $apiKey)) {
             Yii::warning('[AmoCRM API] Неверный API-ключ. IP: ' . Yii::$app->request->userIP, 'amocrm');
@@ -185,6 +194,102 @@ class AmocrmController extends Controller
         }
 
         return ['results' => $results];
+    }
+
+    /**
+     * GET /api/amocrm/order?external_id=<lead_id>
+     *
+     * Виджет вызывает этот endpoint при открытии карточки сделки.
+     * Ищет заказ по amocrm_lead_id и возвращает его данные.
+     *
+     * @return array
+     */
+    public function actionOrder()
+    {
+        $leadId = (int)Yii::$app->request->get('external_id', 0);
+        if (!$leadId) {
+            return ['found' => false, 'error' => 'external_id required'];
+        }
+
+        $order = Order::findOne(['amocrm_lead_id' => $leadId]);
+        if (!$order) {
+            return ['found' => false];
+        }
+
+        $adminUrl = Yii::$app->urlManager->createAbsoluteUrl(['/admin/order/' . $order->id]);
+
+        return [
+            'found'          => true,
+            'order_id'       => $order->id,
+            'order_number'   => $order->order_number,
+            'status'         => $order->status,
+            'total'          => (float)$order->total_amount,
+            'recipient_name' => $order->client_name,
+            'phone'          => $order->client_phone,
+            'admin_url'      => $adminUrl,
+        ];
+    }
+
+    /**
+     * POST /api/amocrm/sync
+     *
+     * Виджет вызывает при нажатии кнопки "Синхронизировать".
+     * Если заказ уже есть — обновляет данные из AmoCRM API.
+     * Если нет — создаёт новый заказ.
+     *
+     * Body: { "lead_id": 123 }
+     *
+     * @return array
+     */
+    public function actionSync()
+    {
+        if (!Yii::$app->request->isPost) {
+            throw new BadRequestHttpException('Only POST allowed');
+        }
+
+        $body   = json_decode(Yii::$app->request->rawBody, true) ?: [];
+        $leadId = (int)($body['lead_id'] ?? 0);
+
+        if (!$leadId) {
+            return ['success' => false, 'message' => 'lead_id required'];
+        }
+
+        try {
+            $service  = new OrderFromLeadService();
+            $existing = Order::findOne(['amocrm_lead_id' => $leadId]);
+
+            if ($existing) {
+                // Fetch fresh data from AmoCRM and update
+                $lead = Yii::$app->amocrm->getLead($leadId, ['contacts', 'custom_fields_values']);
+                if ($lead) {
+                    $service->updateOrderFromLead($existing, $lead);
+                    $existing->amocrm_last_sync_at = time();
+                    $existing->save(false);
+                }
+                $adminUrl = Yii::$app->urlManager->createAbsoluteUrl(['/admin/order/' . $existing->id]);
+                return [
+                    'success'      => true,
+                    'action'       => 'updated',
+                    'order_id'     => $existing->id,
+                    'order_number' => $existing->order_number,
+                    'admin_url'    => $adminUrl,
+                ];
+            }
+
+            // No order yet — create from lead
+            $order    = $service->createFromLeadId($leadId);
+            $adminUrl = Yii::$app->urlManager->createAbsoluteUrl(['/admin/order/' . $order->id]);
+            return [
+                'success'      => true,
+                'action'       => 'created',
+                'order_id'     => $order->id,
+                'order_number' => $order->order_number,
+                'admin_url'    => $adminUrl,
+            ];
+        } catch (\Throwable $e) {
+            Yii::error('[AmoCRM API] sync error for lead #' . $leadId . ': ' . $e->getMessage(), 'amocrm');
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
     }
 
     /**

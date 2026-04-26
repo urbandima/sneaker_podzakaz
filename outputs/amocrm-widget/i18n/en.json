@@ -13,6 +13,10 @@
     "sync": "Synchronise",
     "sync_ok": "Synchronised",
     "sync_error": "Sync error",
-    "open_order": "Open in store"
+    "open_order": "Open in store",
+    "create_order": "Create order",
+    "creating": "Creating...",
+    "order_created": "Order created",
+    "create_error": "Failed to create order"
   }
 }
