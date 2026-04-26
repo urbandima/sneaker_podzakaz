@@ -1688,7 +1688,7 @@ body {
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 2000;
-    display: flex;
+    display: none;       /* hidden by default — JS sets display:flex on open */
     align-items: flex-start;
     justify-content: center;
     padding-top: 10vh;

@@ -8,94 +8,13 @@
 (function() {
     'use strict';
 
-    // ===== GLOBAL SEARCH =====
-    const searchOverlay = document.getElementById('search-overlay');
-    const searchInput = document.getElementById('admin-search-input');
-    const searchResults = document.getElementById('search-results');
-    let searchDebounceTimer;
-
-    // Открыть поиск
-    function openSearch() {
-        if (searchOverlay) {
-            searchOverlay.style.display = 'flex';
-            if (searchInput) searchInput.focus();
-            document.body.style.overflow = 'hidden';
-        }
-    }
-
-    // Закрыть поиск
-    function closeSearch() {
-        if (searchOverlay) {
-            searchOverlay.style.display = 'none';
-            if (searchInput) searchInput.value = '';
-            if (searchResults) searchResults.innerHTML = '';
-            document.body.style.overflow = '';
-        }
-    }
-
-    // Горячие клавиши
+    // Search (Ctrl+K, overlay, AJAX) is handled by admin.js — no duplicate here.
+    // Only close the calculator on Escape.
     document.addEventListener('keydown', function(e) {
-        // Cmd/Ctrl + K
-        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-            e.preventDefault();
-            openSearch();
-        }
-        // Esc
         if (e.key === 'Escape') {
-            closeSearch();
             closeCalculator();
         }
     });
-
-    // Закрыть по клику на overlay
-    if (searchOverlay) {
-        searchOverlay.addEventListener('click', function(e) {
-            if (e.target === searchOverlay) closeSearch();
-        });
-    }
-
-    // AJAX поиск
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchDebounceTimer);
-            const query = this.value.trim();
-
-            if (query.length < 2) {
-                if (searchResults) searchResults.innerHTML = '';
-                return;
-            }
-
-            searchDebounceTimer = setTimeout(function() {
-                fetch('/admin/search/global?q=' + encodeURIComponent(query))
-                    .then(r => r.json())
-                    .then(data => renderSearchResults(data))
-                    .catch(err => { /* production: silent */ });
-            }, 200);
-        });
-    }
-
-    // Рендер результатов
-    function renderSearchResults(data) {
-        if (!searchResults) return;
-
-        if (!data.results || data.results.length === 0) {
-            searchResults.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--admin-text-secondary);">Ничего не найдено</div>';
-            return;
-        }
-
-        const html = data.results.map(item => `
-            <a href="${item.url}" class="admin-search-result-item">
-                <i class="bi ${item.icon || 'bi-search'}"></i>
-                <div class="admin-search-result-content">
-                    <div class="admin-search-result-title">${item.title}</div>
-                    <div class="admin-search-result-subtitle">${item.subtitle || ''}</div>
-                </div>
-                <span class="admin-search-result-type">${item.type}</span>
-            </a>
-        `).join('');
-
-        searchResults.innerHTML = html;
-    }
 
     // ===== CALCULATOR =====
     // Skip DOM creation if static HTML already provided by layout (main.php)
