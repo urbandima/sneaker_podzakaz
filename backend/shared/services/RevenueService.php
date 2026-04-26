@@ -1,84 +1,99 @@
 <?php
-
 namespace app\backend\shared\services;
 
 use Yii;
+use yii\db\Query;
 
+/**
+ * Centralized revenue queries — single source of truth for all SUM(total_amount) calculations.
+ *
+ * Excluded statuses (Z40/Z43): cancelled, canceled, trash, return, imported, imported_invalid
+ */
 class RevenueService
 {
-    public function getTotalRevenue(\DateTime $from, \DateTime $to, array $statuses = []): float
+    const EXCLUDED_STATUSES = ['cancelled', 'canceled', 'trash', 'return', 'imported', 'imported_invalid'];
+
+    /**
+     * Total revenue for a Unix-timestamp range.
+     *
+     * @param int|null $from  Unix timestamp (inclusive); null = no lower bound
+     * @param int|null $to    Unix timestamp (exclusive); null = no upper bound
+     * @return float
+     */
+    public static function getTotal(?int $from = null, ?int $to = null): float
     {
-        $query = (new \yii\db\Query())
-            ->select(['SUM(o.total_amount)'])
-            ->from('{{%order}} o')
-            ->where(['>=', 'o.created_at', $from->getTimestamp()])
-            ->andWhere(['<=', 'o.created_at', $to->getTimestamp()]);
+        $q = (new Query())
+            ->select(['SUM(total_amount)'])
+            ->from('`order`')
+            ->where(['NOT IN', 'status', self::EXCLUDED_STATUSES]);
 
-        if (!empty($statuses)) {
-            $query->andWhere(['o.status' => $statuses]);
-        }
+        if ($from !== null) $q->andWhere(['>=', 'created_at', $from]);
+        if ($to   !== null) $q->andWhere(['<',  'created_at', $to]);
 
-        return (float) ($query->scalar() ?? 0);
+        return (float)($q->scalar() ?: 0);
     }
 
-    public function getRevenueByDay(\DateTime $from, \DateTime $to, array $statuses = []): array
+    /**
+     * Revenue grouped by calendar day for the last N days.
+     *
+     * Returns array of ['date' => 'YYYY-MM-DD', 'revenue' => float]
+     */
+    public static function getByDay(int $days = 30): array
     {
-        $query = (new \yii\db\Query())
+        $from = strtotime("-{$days} days midnight");
+
+        return (new Query())
             ->select([
-                "DATE(FROM_UNIXTIME(o.created_at)) AS day",
-                "SUM(o.total_amount) AS revenue",
-                "COUNT(*) AS orders",
+                'DATE(FROM_UNIXTIME(created_at)) AS date',
+                'COALESCE(SUM(total_amount), 0)  AS revenue',
             ])
-            ->from('{{%order}} o')
-            ->where(['>=', 'o.created_at', $from->getTimestamp()])
-            ->andWhere(['<=', 'o.created_at', $to->getTimestamp()])
-            ->groupBy('day')
-            ->orderBy('day');
-
-        if (!empty($statuses)) {
-            $query->andWhere(['o.status' => $statuses]);
-        }
-
-        $rows = $query->all();
-        $result = [];
-        foreach ($rows as $row) {
-            $result[$row['day']] = [
-                'revenue' => (float) $row['revenue'],
-                'orders'  => (int)   $row['orders'],
-            ];
-        }
-        return $result;
+            ->from('`order`')
+            ->where(['NOT IN', 'status', self::EXCLUDED_STATUSES])
+            ->andWhere(['>=', 'created_at', $from])
+            ->groupBy('date')
+            ->orderBy('date')
+            ->all();
     }
 
-    public function getRevenueByMonth(int $year, array $statuses = []): array
+    /**
+     * Revenue grouped by month for a specific year.
+     *
+     * Returns array indexed by month number (1–12): ['revenue' => float]
+     */
+    public static function getByMonth(int $year): array
     {
-        $query = (new \yii\db\Query())
+        $rows = (new Query())
             ->select([
-                "MONTH(FROM_UNIXTIME(o.created_at)) AS month",
-                "SUM(o.total_amount) AS revenue",
-                "COUNT(*) AS orders",
+                'MONTH(FROM_UNIXTIME(created_at)) AS month',
+                'SUM(total_amount)                AS revenue',
             ])
-            ->from('{{%order}} o')
-            ->where([
-                'AND',
-                ['>=', 'o.created_at', mktime(0, 0, 0, 1,  1, $year)],
-                ['<=', 'o.created_at', mktime(23, 59, 59, 12, 31, $year)],
-            ])
+            ->from('`order`')
+            ->where(['NOT IN', 'status', self::EXCLUDED_STATUSES])
+            ->andWhere(['YEAR(FROM_UNIXTIME(created_at))' => $year])
             ->groupBy('month')
-            ->orderBy('month');
+            ->indexBy('month')
+            ->all();
 
-        if (!empty($statuses)) {
-            $query->andWhere(['o.status' => $statuses]);
-        }
-
-        $rows = $query->all();
         $result = [];
-        foreach ($rows as $row) {
-            $result[(int) $row['month']] = [
-                'revenue' => (float) $row['revenue'],
-                'orders'  => (int)   $row['orders'],
-            ];
+        for ($m = 1; $m <= 12; $m++) {
+            $result[$m] = ['revenue' => (float)($rows[$m]['revenue'] ?? 0)];
         }
         return $result;
+    }
+
+    /**
+     * Revenue for today (midnight to now).
+     */
+    public static function getToday(): float
+    {
+        return self::getTotal(strtotime('today'), strtotime('tomorrow'));
+    }
+
+    /**
+     * Revenue for the current calendar month.
+     */
+    public static function getThisMonth(): float
+    {
+        return self::getTotal(strtotime('first day of this month midnight'));
     }
 }

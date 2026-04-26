@@ -4,7 +4,8 @@ return [
     'adminEmail' => 'admin@sneakerculture.by',
     'senderEmail' => 'noreply@sneakerculture.by',
     'senderName' => 'СНИКЕРХЭД',
-    'frontendUrl' => env('FRONTEND_URL', 'https://sneakerhead.by'),
+    'frontendUrl'     => env('FRONTEND_URL', 'https://sneakerhead.by'),
+    'frontendBaseUrl' => env('FRONTEND_URL', 'https://sneakerhead.by'),
     
     'socialAuth' => [
         'googleClientId' => env('GOOGLE_CLIENT_ID'),

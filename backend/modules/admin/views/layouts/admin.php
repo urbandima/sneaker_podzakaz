@@ -185,18 +185,20 @@ $controllerId = Yii::$app->controller->id;
                     'items' => [
                         ['label' => 'Товары', 'url' => '/admin/catalog', 'ids' => ['catalog', 'product']],
                         ['label' => 'Характеристики', 'url' => '/admin/characteristic', 'ids' => ['characteristic']],
-                        ['label' => 'Теги', 'url' => '/admin/product-tag', 'ids' => ['product-tag']],
                         ['label' => 'Отзывы', 'url' => '/admin/review', 'ids' => ['review']]
                     ]
                 ],
-                
+
                 // 👥 КЛИЕНТЫ
                 [
                     'label' => 'Клиенты',
                     'icon' => 'bi-people-fill',
-                    'url' => '/admin/customer',
-                    'ids' => ['customer'],
-                    'items' => []
+                    'items' => [
+                        ['label' => 'Список клиентов', 'url' => '/admin/customer', 'ids' => ['customer'], 'icon' => 'bi-people'],
+                        ['label' => 'Купоны',    'url' => '/admin/coupon',                    'ids' => ['coupon'],    'icon' => 'bi-ticket-perforated'],
+                        ['label' => 'Маркетинг', 'url' => '/admin/marketing',                 'ids' => ['marketing'], 'icon' => 'bi-megaphone'],
+                        ['label' => 'Кампании',  'url' => '/admin/marketing?tab=campaigns',   'ids' => ['marketing'], 'icon' => 'bi-flag'],
+                    ]
                 ],
                 
                 // 💰 ФИНАНСЫ
@@ -211,27 +213,15 @@ $controllerId = Yii::$app->controller->id;
                     ]
                 ],
 
-                // 📦 ЗАКУПКИ
+                // 📦 ПРИЁМКИ
                 [
-                    'label' => 'Закупки',
+                    'label' => 'Приёмки',
                     'icon' => 'bi-box-seam',
                     'items' => [
                         ['label' => 'Поставщики',         'url' => '/admin/procurement/suppliers', 'ids' => ['procurement'], 'icon' => 'bi-building'],
-                        ['label' => 'Закупки',             'url' => '/admin/procurement',           'ids' => ['procurement'], 'icon' => 'bi-clipboard-data'],
                         ['label' => 'Приёмка',             'url' => '/admin/procurement/receiving', 'ids' => ['procurement'], 'icon' => 'bi-box-arrow-in-down'],
                         ['label' => 'Возвраты поставщику', 'url' => '/admin/procurement/returns',   'ids' => ['procurement'], 'icon' => 'bi-arrow-return-left'],
-                        ['label' => 'Выкупы',              'url' => '/admin/procurement/buyouts',  'ids' => ['buyout'],       'icon' => 'bi-bag-check'],
-                    ]
-                ],
-
-                // 🎟️ ПРОМО
-                [
-                    'label' => 'Промо',
-                    'icon' => 'bi-ticket-detailed-fill',
-                    'items' => [
-                        ['label' => 'Купоны', 'url' => '/admin/coupon', 'ids' => ['coupon']],
-                        ['label' => 'Маркетинг', 'url' => '/admin/marketing', 'ids' => ['marketing']],
-                        ['label' => 'Кампании', 'url' => '/admin/marketing?tab=campaigns', 'ids' => ['marketing']]
+                        ['label' => 'Выкупы',              'url' => '/admin/procurement/buyouts',   'ids' => ['procurement'], 'icon' => 'bi-bag-check'],
                     ]
                 ],
                 
@@ -240,10 +230,10 @@ $controllerId = Yii::$app->controller->id;
                     'label' => 'Интеграции',
                     'icon' => 'bi-plugin',
                     'items' => [
-                        ['label' => 'Плагины', 'url' => '/admin/plugin', 'ids' => ['plugin']],
-                        ['label' => 'Импорт/Экспорт', 'url' => '/admin/import', 'ids' => ['import']],
-                        ['label' => 'AmoCRM', 'url' => '/admin/plugin/amocrm', 'ids' => ['plugin'], 'icon' => 'bi-diagram-3'],
-                        ['label' => 'Lamoda Parser', 'url' => '/admin/plugin/lamoda', 'ids' => ['plugin'], 'icon' => 'bi-cloud-download'],
+                        ['label' => 'Плагины',        'url' => '/admin/plugin',        'ids' => ['plugin'],  'icon' => 'bi-puzzle'],
+                        ['label' => 'AmoCRM',         'url' => '/admin/plugin/amocrm', 'ids' => ['plugin'],  'icon' => 'bi-diagram-3'],
+                        ['label' => 'Импорт/Экспорт', 'url' => '/admin/import',        'ids' => ['import'],  'icon' => 'bi-arrow-left-right'],
+                        ['label' => 'Lamoda Parser',  'url' => '/admin/plugin/lamoda', 'ids' => ['plugin'],  'icon' => 'bi-cloud-download'],
                     ]
                 ],
                 
@@ -639,7 +629,7 @@ document.addEventListener('click',function(e){
 document.addEventListener('keydown',function(e){
     if(e.ctrlKey&&e.key==='d'){e.preventDefault();var btn=document.getElementById('theme-toggle');if(btn)btn.click();}
     if(e.key==='Escape'){closeMobileSidebar();}
-    if(e.ctrlKey&&e.key==='k'){e.preventDefault();var o=document.getElementById('search-overlay');if(o)o.style.display=o.style.display==='none'?'flex':'none';var inp=document.getElementById('admin-search-input');if(inp)inp.focus();}
+    // Ctrl+K search is handled by admin.js initSearch() — no duplicate handler here
 });
 </script>
 

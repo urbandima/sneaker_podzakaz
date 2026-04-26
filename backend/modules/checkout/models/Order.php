@@ -42,7 +42,6 @@ use Yii;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 use app\backend\modules\admin\models\User;
-use app\backend\modules\admin\services\AdminLogService;
 
 class Order extends ActiveRecord
 {
@@ -205,20 +204,6 @@ class Order extends ActiveRecord
             }
         }
 
-        // Admin activity log
-        if (!Yii::$app instanceof \yii\console\Application) {
-            $action = $insert ? 'create' : 'update';
-            AdminLogService::log(
-                $action,
-                'order',
-                $this->id,
-                'Заказ №' . $this->order_number,
-                $insert ? 'Создан заказ' : 'Обновлён заказ',
-                $insert ? null : $changedAttributes,
-                $insert ? null : array_intersect_key($this->attributes, $changedAttributes)
-            );
-        }
-
         // Уведомление при создании заказа отправляется в OrderController::actionCreate()
         // чтобы избежать двойной отправки email клиенту.
     }
@@ -281,7 +266,7 @@ class Order extends ActiveRecord
 
     public function getPublicUrl()
     {
-        $base = rtrim(Yii::$app->params['frontendUrl'] ?? Yii::$app->urlManager->createAbsoluteUrl('/'), '/');
+        $base = rtrim(Yii::$app->params['frontendBaseUrl'] ?? Yii::$app->params['frontendUrl'] ?? Yii::$app->request->hostInfo, '/');
         return $base . '/order/' . $this->token;
     }
 

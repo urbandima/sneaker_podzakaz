@@ -205,10 +205,19 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
     <div class="crm-card">
         <div class="crm-card-head">
             <h3><i class="bi bi-images"></i> Изображения</h3>
-            <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm"
-                    data-bs-toggle="modal" data-bs-target="#addImageModal">
-                <i class="bi bi-plus"></i> Добавить
-            </button>
+            <div style="display:flex;gap:6px;align-items:center">
+                <?php if ($hasCollectionUrl): ?>
+                <button class="admin-btn admin-btn-secondary admin-btn-sm" id="ms-load-btn"
+                        onclick="loadMsImages(<?= $product->id ?>)" title="Загрузить фото из МойСклад">
+                    <i class="bi bi-cloud-download"></i>
+                    <span class="admin-badge" style="background:#dbeafe;color:#1e40af;font-size:.6rem;padding:1px 5px;margin-left:2px">МС</span>
+                </button>
+                <?php endif; ?>
+                <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm"
+                        data-bs-toggle="modal" data-bs-target="#addImageModal">
+                    <i class="bi bi-plus"></i> Добавить
+                </button>
+            </div>
         </div>
         <?php if ($product->images && count($product->images) > 0): ?>
         <div class="prod-img-grid">
@@ -240,21 +249,16 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
             <p style="margin-top:.75rem;font-size:.8125rem">Нет изображений. Добавьте по URL.</p>
         </div>
         <?php endif; ?>
-    </div>
-
-    <?php if ($hasCollectionUrl): ?>
-    <!-- Фото МойСклад -->
-    <div class="crm-card">
-        <div class="crm-card-head"><h3><i class="bi bi-cloud-download"></i> Фото МойСклад</h3></div>
-        <div class="crm-card-body" id="ms-images-container" style="text-align:center">
-            <button class="admin-btn admin-btn-secondary admin-btn-sm"
-                    onclick="loadMsImages(<?= $product->id ?>)" id="ms-load-btn">
-                <i class="bi bi-cloud-download"></i> Загрузить фото из МС
-            </button>
-            <div id="ms-images-grid" style="display:none;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:10px"></div>
+        <?php if ($hasCollectionUrl): ?>
+        <div id="ms-images-container" style="display:none;padding:12px 0 0">
+            <div style="display:flex;align-items:center;gap:6px;padding:0 16px 8px;font-size:.75rem;color:var(--admin-text-secondary,#6b7280)">
+                <span class="admin-badge" style="background:#dbeafe;color:#1e40af;font-size:.6rem"><i class="bi bi-cloud-check"></i> МС</span>
+                Фото из МойСклад
+            </div>
+            <div id="ms-images-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;padding:0 16px 12px"></div>
         </div>
+        <?php endif; ?>
     </div>
-    <?php endif; ?>
 
     <?php if ($product->poizon_id): ?>
     <!-- Данные Poizon -->
@@ -1082,12 +1086,19 @@ window.toggleActive = function(productId) {
 window.loadMsImages = function(productId) {
     var btn = document.getElementById('ms-load-btn');
     var grid = document.getElementById('ms-images-grid');
-    btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Загрузка…';
+    var container = document.getElementById('ms-images-container');
+    btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i>';
     fetch('<?= \yii\helpers\Url::to(['/admin/moysklad/ms-images']) ?>?product_id=' + productId)
         .then(function(r){ return r.json(); })
         .then(function(images) {
-            if (!images || images.length === 0) { btn.innerHTML = '<i class="bi bi-image"></i> Нет фото'; return; }
-            btn.style.display = 'none'; grid.style.display = 'grid';
+            if (!images || images.length === 0) {
+                btn.innerHTML = '<i class="bi bi-image"></i> <span class="admin-badge" style="background:#dbeafe;color:#1e40af;font-size:.6rem">МС</span>';
+                btn.disabled = false;
+                return;
+            }
+            btn.innerHTML = '<i class="bi bi-cloud-check"></i> <span class="admin-badge" style="background:#dbeafe;color:#1e40af;font-size:.6rem">МС ' + images.length + '</span>';
+            container.style.display = 'block';
+            grid.innerHTML = '';
             images.forEach(function(img) {
                 var el = document.createElement('img');
                 el.src = img.miniature; el.alt = img.filename || '';
@@ -1095,7 +1106,10 @@ window.loadMsImages = function(productId) {
                 el.onclick = function() { window.open(img.miniature, '_blank'); };
                 grid.appendChild(el);
             });
-        }).catch(function(){ btn.innerHTML = '<i class="bi bi-exclamation-circle"></i> Ошибка'; btn.disabled = false; });
+        }).catch(function(){
+            btn.innerHTML = '<i class="bi bi-exclamation-circle"></i>';
+            btn.disabled = false;
+        });
 };
 })();
 </script>

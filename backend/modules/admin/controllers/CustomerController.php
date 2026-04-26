@@ -851,4 +851,25 @@ class CustomerController extends BaseAdminController
         ];
     }
 
+    public function actionAutocomplete()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $q = Yii::$app->request->get('q', '');
+        if (strlen($q) < 2) return [];
+
+        $rows = Customer::find()
+            ->select(['id', 'TRIM(CONCAT(COALESCE(last_name,"")," ",COALESCE(first_name,""))) AS name', 'email'])
+            ->where(['OR',
+                ['LIKE', 'email', $q],
+                ['LIKE', 'last_name', $q],
+                ['LIKE', 'first_name', $q],
+                ['LIKE', 'phone', $q],
+            ])
+            ->limit(10)
+            ->asArray()
+            ->all();
+
+        return $rows;
+    }
+
 }

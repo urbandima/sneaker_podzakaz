@@ -5,22 +5,29 @@
 /** @var array $statuses */
 $this->title = 'Возвраты поставщику';
 
-$currentSort = Yii::$app->request->get('sort', '');
-$sortIcon = function(string $col) use ($currentSort): string {
-    if ($currentSort === $col)       return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▲</span>';
-    if ($currentSort === '-' . $col) return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▼</span>';
-    return ' <span style="color:#d1d5db;font-size:.6rem">⇅</span>';
-};
-
 $statusPills = [
-    'pending'    => ['bg' => '#fff4e5', 'color' => '#ffa500'],
-    'in_transit' => ['bg' => '#eff6ff', 'color' => '#2563eb'],
-    'received'   => ['bg' => '#d1f7e5', 'color' => '#008060'],
-    'cancelled'  => ['bg' => '#fbeae5', 'color' => '#d72c0d'],
+    'pending'    => ['bg' => '#fff4e5', 'color' => '#ffa500', 'icon' => 'bi-clock'],
+    'in_transit' => ['bg' => '#eff6ff', 'color' => '#2563eb', 'icon' => 'bi-truck'],
+    'received'   => ['bg' => '#d1f7e5', 'color' => '#008060', 'icon' => 'bi-check-circle'],
+    'cancelled'  => ['bg' => '#fbeae5', 'color' => '#d72c0d', 'icon' => 'bi-x-circle'],
 ];
 ?>
 
-<!-- Page header with create button -->
+<style>
+.returns-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-top:16px}
+.return-card{background:var(--admin-surface,#fff);border:1.5px solid var(--admin-border,#e5e7eb);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .15s,border-color .15s;cursor:default}
+.return-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);border-color:var(--admin-border-hover,#c1c9d2)}
+.return-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.return-card-num{font-weight:700;font-size:.9375rem;color:var(--admin-text-primary,#111);text-decoration:none}
+.return-card-num:hover{color:var(--admin-primary,#2563eb)}
+.return-card-meta{display:flex;flex-direction:column;gap:4px;font-size:.8125rem;color:var(--admin-text-secondary,#6b7280)}
+.return-card-meta-row{display:flex;align-items:center;gap:6px}
+.return-card-meta-row i{font-size:.85rem;flex-shrink:0}
+.return-card-amount{font-weight:700;font-size:1.0625rem;color:var(--admin-text-primary,#111);white-space:nowrap}
+.return-card-actions{display:flex;gap:6px;margin-top:4px}
+.status-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;line-height:1.6}
+</style>
+
 <div class="admin-page-header" style="display:flex;flex-wrap:nowrap;align-items:center;gap:12px;margin-bottom:16px">
     <h1 class="admin-page-title" style="margin:0;min-width:0;flex:1">Возвраты поставщику</h1>
     <a href="/admin/procurement/create-return/0" class="admin-btn admin-btn-primary admin-btn-sm" style="flex-shrink:0">
@@ -28,7 +35,6 @@ $statusPills = [
     </a>
 </div>
 
-<!-- Filter bar -->
 <form method="get" class="filter-wrap">
     <div class="compact-filter-bar filter-row1">
         <select name="status" class="compact-filter-select" style="min-width:180px">
@@ -40,92 +46,109 @@ $statusPills = [
         <button type="submit" class="compact-filter-btn compact-filter-btn--apply"><i class="bi bi-search"></i> Найти</button>
         <a href="?" class="compact-filter-btn compact-filter-btn--reset"><i class="bi bi-x-lg"></i> Сброс</a>
         <a href="/admin/procurement" class="compact-filter-btn" style="margin-left:auto">
-            <i class="bi bi-arrow-left"></i> Закупки
+            <i class="bi bi-arrow-left"></i> Приёмки
         </a>
     </div>
 </form>
 
-<div class="admin-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-        <h2 class="admin-card-title" style="margin:0"><i class="bi bi-arrow-return-left"></i> Возвраты поставщику
-            <span style="font-size:.8125rem;font-weight:400;color:var(--admin-text-secondary,#6d7175);margin-left:8px"><?= count($returns) ?></span>
-        </h2>
-    </div>
-    <div style="overflow-x:auto">
-        <table class="admin-table" style="font-size:.8125rem">
-            <thead>
-                <tr>
-                    <th data-sort="return_number" onclick="AdminTable.sortBy('return_number')">Номер <?= $sortIcon('return_number') ?></th>
-                    <th>Закупка</th>
-                    <th>Поставщик</th>
-                    <th>Причина</th>
-                    <th>Статус</th>
-                    <th data-sort="total_amount" onclick="AdminTable.sortBy('total_amount')" style="text-align:right">Сумма BYN <?= $sortIcon('total_amount') ?></th>
-                    <th data-sort="created_at" onclick="AdminTable.sortBy('created_at')">Создан <?= $sortIcon('created_at') ?></th>
-                    <th style="width:80px">Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!$returns): ?>
-                    <tr><td colspan="8" style="text-align:center;padding:2.5rem;color:var(--admin-text-secondary,#6d7175)">Возвратов нет</td></tr>
-                <?php endif; ?>
-                <?php foreach ($returns as $r):
-                    $sp = $statusPills[$r->status] ?? ['bg' => '#f3f4f6', 'color' => '#6d7175'];
-                ?>
-                <tr>
-                    <td style="white-space:nowrap">
-                        <a href="/admin/procurement/view-return/<?= $r->id ?>" style="font-weight:700;color:var(--admin-text-primary,#202223);text-decoration:none">
-                            <?= htmlspecialchars($r->return_number) ?>
-                        </a>
-                    </td>
-                    <td>
-                        <?php if ($r->purchaseOrder): ?>
-                            <a href="/admin/procurement/view/<?= $r->purchase_order_id ?>" style="color:var(--admin-info,#0078d4)">
-                                <?= htmlspecialchars($r->purchaseOrder->purchase_number) ?>
-                            </a>
-                        <?php else: ?> — <?php endif; ?>
-                    </td>
-                    <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-                        <?= htmlspecialchars($r->supplier->name ?? '—') ?>
-                    </td>
-                    <td style="color:var(--admin-text-secondary,#6d7175)"><?= $r->getReasonLabel() ?></td>
-                    <td>
-                        <span class="status-pill" style="background:<?= $sp['bg'] ?>;color:<?= $sp['color'] ?>">
-                            <?= $r->getStatusLabel() ?>
-                        </span>
-                    </td>
-                    <td style="text-align:right;font-weight:700;white-space:nowrap">
-                        <?= $r->total_amount ? number_format($r->total_amount, 2) . ' <span style="font-size:.7rem;color:var(--admin-text-secondary,#6d7175);font-weight:400">BYN</span>' : '—' ?>
-                    </td>
-                    <td style="white-space:nowrap;color:var(--admin-text-secondary,#6d7175)">
-                        <?= $r->created_at ? date('d.m.Y', strtotime($r->created_at)) : '—' ?>
-                    </td>
-                    <td style="padding:4px 6px">
-                        <div style="position:relative;display:inline-block" class="rt-dropdown-wrap">
-                            <button class="admin-btn admin-btn-sm admin-btn-secondary"
-                                    onclick="toggleRTDropdown(<?= $r->id ?>)" title="Сменить статус">
-                                <i class="bi bi-three-dots"></i>
-                            </button>
-                            <div id="rt-dd-<?= $r->id ?>" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--admin-surface,#fff);border:1.5px solid var(--admin-border,#e1e3e5);border-radius:8px;padding:4px;z-index:200;min-width:140px;box-shadow:0 4px 16px rgba(0,0,0,.1)">
-                                <?php foreach ($statuses as $k => $v): ?>
-                                    <?php if ($k !== $r->status): ?>
-                                    <a href="#" onclick="updateReturnStatus(<?= $r->id ?>, '<?= $k ?>'); return false"
-                                       style="display:block;padding:5px 10px;font-size:.8125rem;color:var(--admin-text-primary,#202223);text-decoration:none;border-radius:5px;white-space:nowrap"
-                                       onmouseover="this.style.background='var(--admin-surface-hover,#f3f4f6)'"
-                                       onmouseout="this.style.background=''">
-                                        <?= htmlspecialchars($v) ?>
-                                    </a>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+<div style="display:flex;align-items:center;gap:8px;margin-top:12px">
+    <span style="font-size:.8125rem;color:var(--admin-text-secondary,#6b7280)">
+        <i class="bi bi-arrow-return-left"></i>
+        <?= count($returns) ?> <?= count($returns) === 1 ? 'возврат' : (count($returns) < 5 ? 'возврата' : 'возвратов') ?>
+    </span>
 </div>
+
+<?php if (!$returns): ?>
+<div class="empty-state" style="padding:3rem;text-align:center;margin-top:16px">
+    <div class="empty-state-icon"><i class="bi bi-arrow-return-left" style="font-size:2.5rem;color:var(--admin-text-secondary,#9ca3af)"></i></div>
+    <h3 style="margin:12px 0 6px;font-size:1rem">Возвратов нет</h3>
+    <p style="color:var(--admin-text-secondary,#6b7280);margin:0 0 16px">Создайте первый возврат поставщику</p>
+    <a href="/admin/procurement/create-return/0" class="admin-btn admin-btn-primary admin-btn-sm">
+        <i class="bi bi-plus-lg"></i> Создать возврат
+    </a>
+</div>
+<?php else: ?>
+<div class="returns-grid">
+    <?php foreach ($returns as $r):
+        $sp = $statusPills[$r->status] ?? ['bg' => '#f3f4f6', 'color' => '#6b7280', 'icon' => 'bi-circle'];
+    ?>
+    <div class="return-card crm-card">
+        <div class="return-card-head">
+            <div>
+                <a href="/admin/procurement/view-return/<?= $r->id ?>" class="return-card-num">
+                    <?= htmlspecialchars($r->return_number) ?>
+                </a>
+                <div style="margin-top:4px">
+                    <span class="status-pill" style="background:<?= $sp['bg'] ?>;color:<?= $sp['color'] ?>">
+                        <i class="bi <?= $sp['icon'] ?>" style="font-size:10px"></i>
+                        <?= $r->getStatusLabel() ?>
+                    </span>
+                </div>
+            </div>
+            <?php if ($r->total_amount): ?>
+            <div class="return-card-amount">
+                <?= number_format($r->total_amount, 2) ?>
+                <span style="font-size:.75rem;font-weight:400;color:var(--admin-text-secondary,#6b7280)">BYN</span>
+            </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="return-card-meta">
+            <?php if ($r->supplier): ?>
+            <div class="return-card-meta-row">
+                <i class="bi bi-building"></i>
+                <span><?= htmlspecialchars($r->supplier->name) ?></span>
+            </div>
+            <?php endif; ?>
+            <?php if ($r->purchaseOrder): ?>
+            <div class="return-card-meta-row">
+                <i class="bi bi-receipt"></i>
+                <a href="/admin/procurement/view/<?= $r->purchase_order_id ?>"
+                   style="color:var(--admin-primary,#2563eb);text-decoration:none">
+                    <?= htmlspecialchars($r->purchaseOrder->purchase_number) ?>
+                </a>
+            </div>
+            <?php endif; ?>
+            <?php if (!empty($r->reason)): ?>
+            <div class="return-card-meta-row">
+                <i class="bi bi-exclamation-circle"></i>
+                <span><?= $r->getReasonLabel() ?></span>
+            </div>
+            <?php endif; ?>
+            <div class="return-card-meta-row">
+                <i class="bi bi-calendar3"></i>
+                <span><?= $r->created_at ? date('d.m.Y', strtotime($r->created_at)) : '—' ?></span>
+            </div>
+        </div>
+
+        <div class="return-card-actions">
+            <a href="/admin/procurement/view-return/<?= $r->id ?>" class="admin-btn admin-btn-sm admin-btn-secondary">
+                <i class="bi bi-eye"></i> Открыть
+            </a>
+            <div style="position:relative" class="rt-dropdown-wrap">
+                <button class="admin-btn admin-btn-sm admin-btn-secondary"
+                        onclick="toggleRTDropdown(<?= $r->id ?>)" title="Сменить статус">
+                    <i class="bi bi-arrow-repeat"></i> Статус
+                </button>
+                <div id="rt-dd-<?= $r->id ?>" style="display:none;position:absolute;left:0;top:calc(100% + 4px);background:var(--admin-surface,#fff);border:1.5px solid var(--admin-border,#e1e3e5);border-radius:8px;padding:4px;z-index:200;min-width:150px;box-shadow:0 4px 16px rgba(0,0,0,.1)">
+                    <?php foreach ($statuses as $k => $v): ?>
+                        <?php $ddSp = $statusPills[$k] ?? ['bg' => '#f3f4f6', 'color' => '#6b7280', 'icon' => 'bi-circle']; ?>
+                        <a href="#" onclick="updateReturnStatus(<?= $r->id ?>, '<?= $k ?>'); return false"
+                           style="display:flex;align-items:center;gap:6px;padding:6px 10px;font-size:.8125rem;color:var(--admin-text-primary,#202223);text-decoration:none;border-radius:5px;white-space:nowrap<?= $k === $r->status ? ';font-weight:700' : '' ?>"
+                           onmouseover="this.style.background='var(--admin-surface-hover,#f3f4f6)'"
+                           onmouseout="this.style.background=''">
+                            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:<?= $ddSp['color'] ?>;flex-shrink:0"></span>
+                            <?= htmlspecialchars($v) ?>
+                            <?php if ($k === $r->status): ?> <i class="bi bi-check" style="margin-left:auto"></i><?php endif; ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
 
 <script>
 const csrf = <?= json_encode(\Yii::$app->request->csrfToken) ?>;
