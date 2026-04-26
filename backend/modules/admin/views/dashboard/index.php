@@ -123,7 +123,7 @@ $opStats = $operationalStats ?? ['unprocessed2h' => 0, 'delayed3d' => 0, 'awaiti
        style="<?= $deadlineToday > 0 ? 'background:#fef2f2;border-color:#fecaca' : '' ?>">
         <div class="dash-op-widget-icon <?= $deadlineToday > 0 ? 'danger' : 'info' ?>"><i class="bi bi-alarm-fill"></i></div>
         <div class="dash-op-widget-value <?= $deadlineToday > 0 ? 'danger' : 'info' ?>"><?= $deadlineToday ?></div>
-        <div class="dash-op-widget-label">Сроки сегодня<br>delivery_date ≤ сегодня</div>
+        <div class="dash-op-widget-label">Сроки сегодня<br>ожидаемая доставка</div>
     </a>
 </div>
 

@@ -3,10 +3,7 @@
  * B3.2: Chart.js для графика продаж
  */
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Инициализация графика продаж
-    initSalesChart();
-});
+// initSalesChart superseded by initOrdersChart — removed to avoid double Chart init on same canvas
 
 function initSalesChart() {
     const canvas = document.getElementById('salesChart');
@@ -142,6 +139,9 @@ function initSalesChart() {
 function initOrdersChart() {
     var ctx = document.getElementById('salesChart');
     if (!ctx || typeof Chart === 'undefined' || !window.chartData || !window.chartData.length) return;
+
+    var existing = Chart.getChart(ctx);
+    if (existing) existing.destroy();
 
     var labels     = window.chartData.map(function(d) { return d.day || d.date; });
     var curOrders  = window.chartData.map(function(d) { return d.orders || 0; });
