@@ -248,6 +248,10 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
 .preset-btn:hover{border-color:var(--admin-primary,#2563eb);color:var(--admin-primary,#2563eb);background:#eff6ff}
 .preset-btn.is-active{background:var(--admin-primary,#2563eb);color:#fff;border-color:var(--admin-primary,#2563eb)}
 .preset-bar-label{font-size:.75rem;color:var(--admin-text-secondary,#6b7280);font-weight:500;margin-right:2px}
+/* === Inline cell editing === */
+.tbl-editable{cursor:text;border-radius:4px;padding:2px 4px;transition:background .1s}
+.tbl-editable:hover{background:var(--admin-surface-hover,#f3f4f6);outline:1px dashed var(--admin-border,#d1d5db)}
+.tbl-editable input,.tbl-editable select{width:100%;font-size:.8125rem;padding:2px 5px;border:1.5px solid var(--admin-primary,#2563eb);border-radius:4px;background:#fff;outline:none;min-width:80px}
 </style>
 
 <!-- Order Funnel -->
@@ -510,14 +514,15 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
                                     <?php if ($daysSince > 0): ?><span style="opacity:.7"> · <?= $daysSince ?>д</span><?php endif; ?>
                                 </div>
                             </td>
-                            <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                            <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+                                class="tbl-editable" onclick="tblEdit(this,'client_name',<?= $order->id ?>)"
+                                data-val="<?= Html::encode($order->client_name) ?>">
                                 <?= Html::encode($order->client_name) ?>
                             </td>
-                            <td style="white-space:nowrap">
-                                <a href="tel:<?= Html::encode($order->client_phone) ?>"
-                                   style="color:inherit;text-decoration:none">
-                                    <?= Html::encode($order->client_phone) ?>
-                                </a>
+                            <td style="white-space:nowrap"
+                                class="tbl-editable" onclick="tblEdit(this,'client_phone',<?= $order->id ?>)"
+                                data-val="<?= Html::encode($order->client_phone) ?>">
+                                <?= Html::encode($order->client_phone) ?>
                             </td>
                             <td data-col="email" style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--admin-text-secondary,#6b7280)">
                                 <?= $order->client_email ? Html::encode($order->client_email) : '—' ?>
@@ -525,12 +530,16 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
                             <td data-col="item" style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
                                 <?= $firstItem ? Html::encode($firstItem->product_name) : '—' ?>
                             </td>
-                            <td data-col="status" style="padding:6px 8px">
+                            <td data-col="status" style="padding:6px 8px"
+                                class="tbl-editable" onclick="tblEditSelect(this,'status',<?= $order->id ?>,tblStatuses)"
+                                data-val="<?= Html::encode($order->status) ?>">
                                 <span class="status-pill" style="background:<?= $sp['bg'] ?>;color:<?= $sp['color'] ?>">
                                     <?= Html::encode($statusLabel) ?>
                                 </span>
                             </td>
-                            <td data-col="amount" style="font-weight:700;white-space:nowrap">
+                            <td data-col="amount" style="font-weight:700;white-space:nowrap"
+                                class="tbl-editable" onclick="tblEdit(this,'total_amount',<?= $order->id ?>)"
+                                data-val="<?= $order->total_amount ?>">
                                 <?= number_format($order->total_amount, 2) ?> <span style="font-size:.7rem;color:var(--admin-text-secondary,#9ca3af);font-weight:400">Br</span>
                             </td>
                             <td data-col="payment" style="white-space:nowrap;color:var(--admin-text-secondary,#6b7280)">
@@ -563,7 +572,9 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
                             <td data-col="city" style="white-space:nowrap">
                                 <?= Html::encode($order->city ?: '—') ?>
                             </td>
-                            <td data-col="logist" style="white-space:nowrap;color:var(--admin-text-secondary,#6b7280)">
+                            <td data-col="logist" style="white-space:nowrap;color:var(--admin-text-secondary,#6b7280)"
+                                class="tbl-editable" onclick="tblEditSelect(this,'assigned_logist',<?= $order->id ?>,tblLogists)"
+                                data-val="<?= $order->assigned_logist ?? '' ?>">
                                 <?= Html::encode($logistMap[$order->assigned_logist] ?? '—') ?>
                             </td>
                             <td data-col="source" style="font-size:.75rem;white-space:nowrap;color:var(--admin-text-secondary,#6b7280)">
@@ -958,5 +969,64 @@ function changePageSize(size) {
     url.searchParams.set('per-page', size);
     url.searchParams.delete('page');
     window.location.href = url.toString();
+}
+
+// ── Table inline-edit ────────────────────────────────────────
+var tblStatuses = <?= json_encode($statuses, JSON_UNESCAPED_UNICODE) ?>;
+var tblLogists  = <?= json_encode(array_merge(['' => '— не назначен —'], $logistMap), JSON_UNESCAPED_UNICODE) ?>;
+var tblUpdateUrl = '<?= \yii\helpers\Url::to(['/admin/order/update-field']) ?>';
+
+function tblSaveField(orderId, field, value, cell) {
+    var fd = new FormData();
+    fd.append('field', field);
+    fd.append('value', value);
+    fd.append(document.querySelector('meta[name=csrf-param]').content, document.querySelector('meta[name=csrf-token]').content);
+    fetch(tblUpdateUrl + '?id=' + orderId, {method:'POST', body:fd})
+        .then(function(r){return r.json();})
+        .then(function(d){if(!d.success){cell.style.outline='2px solid #dc2626';}});
+}
+
+function tblEdit(cell, field, orderId) {
+    if (cell.querySelector('input')) return;
+    var val = cell.dataset.val || '';
+    var inp = document.createElement('input');
+    inp.value = val; inp.className = 'tbl-editable-inp';
+    inp.style.cssText = 'width:100%;font-size:.8125rem;padding:2px 5px;border:1.5px solid var(--admin-primary,#2563eb);border-radius:4px;background:#fff;outline:none;min-width:80px';
+    cell.innerHTML = ''; cell.appendChild(inp); inp.focus(); inp.select();
+    var commit = function() {
+        cell.dataset.val = inp.value;
+        cell.textContent = inp.value || '—';
+        tblSaveField(orderId, field, inp.value, cell);
+    };
+    inp.addEventListener('blur', commit);
+    inp.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+        if (e.key === 'Escape') { cell.textContent = val || '—'; }
+    });
+    inp.addEventListener('click', function(e){e.stopPropagation();});
+}
+
+function tblEditSelect(cell, field, orderId, optMap) {
+    if (cell.querySelector('select')) return;
+    var val = cell.dataset.val || '';
+    var sel = document.createElement('select');
+    sel.style.cssText = 'font-size:.8125rem;padding:2px 4px;border:1.5px solid var(--admin-primary,#2563eb);border-radius:4px;background:#fff;outline:none;max-width:130px';
+    for (var k in optMap) {
+        var o = document.createElement('option');
+        o.value = k; o.textContent = optMap[k];
+        if (k == val) o.selected = true;
+        sel.appendChild(o);
+    }
+    cell.innerHTML = ''; cell.appendChild(sel); sel.focus();
+    var commit = function() {
+        var newVal = sel.value;
+        var newLabel = optMap[newVal] || newVal;
+        cell.dataset.val = newVal;
+        cell.textContent = newLabel;
+        tblSaveField(orderId, field, newVal, cell);
+    };
+    sel.addEventListener('change', function(){commit(); sel.blur();});
+    sel.addEventListener('blur', commit);
+    sel.addEventListener('click', function(e){e.stopPropagation();});
 }
 </script>

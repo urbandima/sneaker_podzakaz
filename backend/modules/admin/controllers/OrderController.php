@@ -1195,7 +1195,7 @@ class OrderController extends BaseAdminController
         // Разрешенные поля для inline редактирования
         $allowedFields = [
             'client_name', 'client_phone', 'client_email', 'delivery_date', 'comment',
-            'china_track_number', 'shipment_value_cny', 'status',
+            'china_track_number', 'shipment_value_cny', 'status', 'total_amount', 'assigned_logist',
             'recipient_last_name', 'recipient_first_name', 'recipient_middle_name',
             'passport_series', 'passport_number', 'passport_issue_date', 'birth_date', 'inn',
             'full_address', 'city', 'region', 'postal_code',
@@ -1889,5 +1889,25 @@ class OrderController extends BaseAdminController
             'marked' => $count,
             'message' => "Помечено как imported_invalid: {$count} заказов",
         ];
+    }
+
+    public function actionAutocomplete()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $q = Yii::$app->request->get('q', '');
+        if (strlen($q) < 2) return [];
+
+        $rows = Order::find()
+            ->select(['id', 'order_number', 'client_name'])
+            ->where(['OR',
+                ['LIKE', 'order_number', $q],
+                ['LIKE', 'client_name', $q],
+                ['LIKE', 'client_phone', $q],
+            ])
+            ->limit(10)
+            ->asArray()
+            ->all();
+
+        return $rows;
     }
 }

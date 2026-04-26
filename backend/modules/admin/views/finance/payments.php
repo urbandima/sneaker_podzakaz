@@ -150,42 +150,73 @@ $storageKey = 'paymentsColumns';
     </div>
 </div>
 
-<!-- Create Payment Modal -->
-<div class="modal" id="createPaymentModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">Новый платёж</h5><button type="button" class="btn-close" onclick="closeModal('createPaymentModal')"></button></div>
-      <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Заказ ID</label><input type="number" id="cp_order_id" class="form-control" placeholder="Необязательно"></div>
-        <div class="mb-3"><label class="form-label">Клиент ID</label><input type="number" id="cp_customer_id" class="form-control" placeholder="Необязательно"></div>
-        <div class="mb-3"><label class="form-label">Сумма *</label><input type="number" step="0.01" id="cp_amount" class="form-control" required></div>
-        <div class="mb-3">
-          <label class="form-label">Валюта</label>
-          <select id="cp_currency" class="form-control"><option>BYN</option><option>USD</option><option>EUR</option><option>CNY</option></select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Метод</label>
-          <select id="cp_method" class="form-control">
-            <?php foreach ($methods as $k => $v): ?><option value="<?= $k ?>"><?= $v ?></option><?php endforeach; ?>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Статус</label>
-          <select id="cp_status" class="form-control">
-            <?php foreach ($statuses as $k => $v): ?><option value="<?= $k ?>"><?= $v ?></option><?php endforeach; ?>
-          </select>
-        </div>
-        <div class="mb-3"><label class="form-label">Реквизит банка</label><input type="text" id="cp_bank_ref" class="form-control"></div>
-        <div class="mb-3"><label class="form-label">Описание</label><textarea id="cp_desc" class="form-control" rows="2"></textarea></div>
-      </div>
-      <div class="modal-footer">
-        <button class="admin-btn admin-btn-secondary" onclick="closeModal('createPaymentModal')">Отмена</button>
-        <button class="admin-btn admin-btn-primary" onclick="submitCreatePayment()">Сохранить</button>
+<!-- Create Payment Slide-in Panel -->
+<style>
+.pay-panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1040;display:none}
+.pay-panel-overlay.active{display:block}
+.pay-panel{position:fixed;top:0;right:0;height:100%;width:480px;max-width:100vw;background:var(--admin-surface,#fff);box-shadow:-4px 0 32px rgba(0,0,0,.18);z-index:1041;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s ease}
+.pay-panel.active{transform:translateX(0)}
+.pay-panel-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--admin-border,#e5e7eb)}
+.pay-panel-header h5{margin:0;font-size:1rem;font-weight:700}
+.pay-panel-body{flex:1;overflow-y:auto;padding:20px}
+.pay-panel-footer{padding:14px 20px;border-top:1px solid var(--admin-border,#e5e7eb);display:flex;gap:8px;justify-content:flex-end}
+.pay-ac-wrap{position:relative}
+.pay-ac-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--admin-border,#e5e7eb);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:9999;max-height:200px;overflow-y:auto;display:none}
+.pay-ac-item{padding:8px 12px;cursor:pointer;font-size:.8125rem;border-bottom:1px solid #f3f4f6}
+.pay-ac-item:last-child{border-bottom:none}
+.pay-ac-item:hover{background:var(--admin-surface-hover,#f9fafb)}
+.pay-ac-item strong{display:block;font-weight:600}
+.pay-ac-item span{color:var(--admin-text-secondary,#6b7280);font-size:.75rem}
+</style>
+
+<div class="pay-panel-overlay" id="payPanelOverlay" onclick="closePayPanel()"></div>
+<div class="pay-panel" id="payPanel">
+  <div class="pay-panel-header">
+    <h5>Новый платёж</h5>
+    <button class="btn-close" onclick="closePayPanel()"></button>
+  </div>
+  <div class="pay-panel-body">
+    <div class="mb-3">
+      <label class="form-label">Заказ</label>
+      <div class="pay-ac-wrap">
+        <input type="text" id="cp_order_search" class="form-control" placeholder="Поиск по номеру заказа…" autocomplete="off">
+        <input type="hidden" id="cp_order_id">
+        <div class="pay-ac-list" id="cp_order_ac"></div>
       </div>
     </div>
+    <div class="mb-3">
+      <label class="form-label">Клиент</label>
+      <div class="pay-ac-wrap">
+        <input type="text" id="cp_customer_search" class="form-control" placeholder="Поиск по имени или email…" autocomplete="off">
+        <input type="hidden" id="cp_customer_id">
+        <div class="pay-ac-list" id="cp_customer_ac"></div>
+      </div>
+    </div>
+    <div class="mb-3"><label class="form-label">Сумма *</label><input type="number" step="0.01" id="cp_amount" class="form-control" required></div>
+    <div class="mb-3">
+      <label class="form-label">Валюта</label>
+      <select id="cp_currency" class="form-control"><option>BYN</option><option>USD</option><option>EUR</option><option>CNY</option></select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Метод</label>
+      <select id="cp_method" class="form-control">
+        <?php foreach ($methods as $k => $v): ?><option value="<?= $k ?>"><?= Html::encode($v) ?></option><?php endforeach; ?>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Статус</label>
+      <select id="cp_status" class="form-control">
+        <?php foreach ($statuses as $k => $v): ?><option value="<?= $k ?>"><?= Html::encode($v) ?></option><?php endforeach; ?>
+      </select>
+    </div>
+    <div class="mb-3"><label class="form-label">Реквизит банка</label><input type="text" id="cp_bank_ref" class="form-control"></div>
+    <div class="mb-3"><label class="form-label">Описание</label><textarea id="cp_desc" class="form-control" rows="3"></textarea></div>
+  </div>
+  <div class="pay-panel-footer">
+    <button class="admin-btn admin-btn-secondary" onclick="closePayPanel()">Отмена</button>
+    <button class="admin-btn admin-btn-primary" onclick="submitCreatePayment()">Сохранить</button>
   </div>
 </div>
-<div class="modal-backdrop" id="createPaymentModal-backdrop" style="display:none"></div>
 
 <script>
 const csrf = <?= json_encode(\Yii::$app->request->csrfToken) ?>;
@@ -193,16 +224,61 @@ const csrf = <?= json_encode(\Yii::$app->request->csrfToken) ?>;
 AdminTable.initColSelector('<?= $storageKey ?>');
 
 function openCreatePayment() {
-    document.getElementById('createPaymentModal').style.display = 'block';
-    document.getElementById('createPaymentModal').classList.add('show');
-    document.getElementById('createPaymentModal-backdrop').style.display = 'block';
-    document.getElementById('createPaymentModal-backdrop').classList.add('show');
+    document.getElementById('payPanelOverlay').classList.add('active');
+    document.getElementById('payPanel').classList.add('active');
+    document.getElementById('cp_amount').focus();
+}
+function closePayPanel() {
+    document.getElementById('payPanelOverlay').classList.remove('active');
+    document.getElementById('payPanel').classList.remove('active');
 }
 function closeModal(id) {
-    document.getElementById(id).style.display = 'none';
-    document.getElementById(id).classList.remove('show');
-    document.getElementById(id + '-backdrop').style.display = 'none';
+    closePayPanel();
 }
+
+// Autocomplete helper
+function acSearch(inputId, hiddenId, acListId, url, renderFn, selectFn) {
+    var inp = document.getElementById(inputId);
+    var hid = document.getElementById(hiddenId);
+    var lst = document.getElementById(acListId);
+    var timer;
+    inp.addEventListener('input', function() {
+        hid.value = '';
+        clearTimeout(timer);
+        var q = inp.value.trim();
+        if (q.length < 2) { lst.style.display = 'none'; return; }
+        timer = setTimeout(function() {
+            fetch(url + encodeURIComponent(q)).then(r=>r.json()).then(function(data) {
+                lst.innerHTML = '';
+                if (!data.length) { lst.style.display = 'none'; return; }
+                data.forEach(function(item) {
+                    var div = document.createElement('div');
+                    div.className = 'pay-ac-item';
+                    div.innerHTML = renderFn(item);
+                    div.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        selectFn(item, inp, hid);
+                        lst.style.display = 'none';
+                    });
+                    lst.appendChild(div);
+                });
+                lst.style.display = 'block';
+            });
+        }, 250);
+    });
+    inp.addEventListener('blur', function() { setTimeout(function(){ lst.style.display='none'; }, 200); });
+}
+
+acSearch('cp_order_search', 'cp_order_id', 'cp_order_ac',
+    '/admin/order/autocomplete?q=',
+    function(o){ return '<strong>' + o.order_number + '</strong><span>' + o.client_name + '</span>'; },
+    function(o, inp, hid){ inp.value = o.order_number + ' — ' + o.client_name; hid.value = o.id; }
+);
+acSearch('cp_customer_search', 'cp_customer_id', 'cp_customer_ac',
+    '/admin/customer/autocomplete?q=',
+    function(c){ return '<strong>' + c.name + '</strong><span>' + c.email + '</span>'; },
+    function(c, inp, hid){ inp.value = c.name + ' (' + c.email + ')'; hid.value = c.id; }
+);
 
 function submitCreatePayment() {
     const body = {

@@ -1627,7 +1627,8 @@ window.startEdit = function(el) {
     if (el.querySelector('input,textarea')) return;
     var field  = el.dataset.field;
     var curVal = el.innerText.trim();
-    if (curVal === 'Не указано') curVal = '';
+    if (curVal === 'Не указано' || curVal === '—' || curVal === '-' || curVal.trim() === '') curVal = '';
+    el.classList.remove('crm-editable-empty');
     var isArea = field === 'comment';
     var input  = document.createElement(isArea ? 'textarea' : 'input');
     input.className = 'crm-editable-input';
@@ -1638,13 +1639,19 @@ window.startEdit = function(el) {
     input.focus();
     var save = function() {
         saveField(field, input.value);
-        var newVal = input.value || '<span class="crm-editable-empty">Не указано</span>';
-        el.innerHTML = field === 'comment' ? newVal.replace(/\\n/g,'<br>') : newVal;
+        if (input.value) {
+            el.innerHTML = field === 'comment' ? input.value.replace(/\\n/g,'<br>') : input.value;
+            el.classList.remove('crm-editable-empty');
+        } else {
+            el.innerHTML = '<span class="crm-editable-empty">—</span>';
+        }
     };
     input.addEventListener('blur', save);
     input.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !isArea) { e.preventDefault(); save(); }
-        if (e.key === 'Escape') { el.innerHTML = curVal || '<span class="crm-editable-empty">Не указано</span>'; }
+        if (e.key === 'Escape') {
+            el.innerHTML = curVal ? curVal : '<span class="crm-editable-empty">—</span>';
+        }
     });
 };
 
