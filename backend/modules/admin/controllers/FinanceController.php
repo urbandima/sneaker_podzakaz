@@ -203,7 +203,7 @@ class FinanceController extends BaseAdminController
         $deliveryRows = (new Query())
             ->select(['MONTH(FROM_UNIXTIME(created_at)) as month', 'SUM(delivery_cost) as total'])
             ->from('`order`')
-            ->where(['NOT IN', 'status', $excludedStatuses])
+            ->where(['NOT IN', 'status', self::REVENUE_EXCLUDED_STATUSES])
             ->andWhere(['YEAR(FROM_UNIXTIME(created_at))' => $year])
             ->groupBy('month')
             ->indexBy('month')
