@@ -157,6 +157,36 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
     <?php endforeach; ?>
 </div>
 
+<!-- Brand Mismatch Banner -->
+<?php if (!empty($filterBrandMismatch)): ?>
+<div id="brand-mismatch-banner" style="margin-bottom:12px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:.825rem;color:#991b1b">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <strong>Показаны товары с несоответствием бренда</strong>
+        <span style="font-weight:400;opacity:.8">(бренд не совпадает с началом названия)</span>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+            <button type="button" onclick="previewBrandFix()" class="admin-btn admin-btn-secondary admin-btn-sm">
+                <i class="bi bi-eye"></i> Предпросмотр исправления
+            </button>
+            <button type="button" id="btn-fix-brand" onclick="applyBrandFix()" class="admin-btn admin-btn-danger admin-btn-sm" style="display:none">
+                <i class="bi bi-check2-all"></i> Применить (установить бренд по правилу)
+            </button>
+        </div>
+    </div>
+    <div id="brand-fix-preview" style="display:none;margin-top:10px;max-height:240px;overflow-y:auto">
+        <table style="width:100%;font-size:.78rem;border-collapse:collapse">
+            <thead><tr style="font-weight:700;background:#fee2e2">
+                <th style="padding:3px 6px;text-align:left">Товар</th>
+                <th style="padding:3px 6px;text-align:left">Было</th>
+                <th style="padding:3px 6px;text-align:left">Станет</th>
+            </tr></thead>
+            <tbody id="brand-fix-rows"></tbody>
+        </table>
+    </div>
+    <div id="brand-fix-status" style="margin-top:6px;font-size:.78rem"></div>
+</div>
+<?php endif; ?>
+
 <!-- Filter Bar -->
 <form method="get" id="filterForm" class="filter-wrap">
     <!-- Row 1 -->
@@ -547,4 +577,52 @@ function sortBy(col) {
         window.location.href = row.dataset.href;
     });
 })();
+
+// ── Brand mismatch fix ────────────────────────────────────
+function previewBrandFix() {
+    var status = document.getElementById('brand-fix-status');
+    if (status) { status.textContent = 'Загружаем предпросмотр...'; status.style.color = '#6b7280'; }
+    fetch('/admin/catalog/fix-brand?preview=1')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+        if (!d.success) { if (status) { status.textContent = 'Ошибка'; status.style.color = '#dc2626'; } return; }
+        var tbody = document.getElementById('brand-fix-rows');
+        var preview = document.getElementById('brand-fix-preview');
+        var applyBtn = document.getElementById('btn-fix-brand');
+        if (!tbody || !preview) return;
+        if (!d.preview || d.preview.length === 0) {
+            if (status) { status.textContent = 'Все бренды уже корректны.'; status.style.color = '#059669'; }
+            return;
+        }
+        tbody.innerHTML = d.preview.map(function(item) {
+            return '<tr><td style="padding:3px 6px">' + escHtml(item.name.substring(0, 50)) + '</td>'
+                 + '<td style="padding:3px 6px;text-decoration:line-through;opacity:.7">' + escHtml(item.brand_old) + '</td>'
+                 + '<td style="padding:3px 6px;font-weight:600;color:#065f46">' + escHtml(item.brand_new) + '</td></tr>';
+        }).join('');
+        preview.style.display = 'block';
+        if (applyBtn) applyBtn.style.display = '';
+        if (status) { status.textContent = d.preview.length + ' товаров будет обновлено'; status.style.color = '#d97706'; }
+    }).catch(function() { if (status) { status.textContent = 'Ошибка сети'; status.style.color = '#dc2626'; } });
+}
+function applyBrandFix() {
+    if (!confirm('Применить исправление брендов для всех показанных товаров? Действие необратимо.')) return;
+    var btn = document.getElementById('btn-fix-brand');
+    var status = document.getElementById('brand-fix-status');
+    if (btn) { btn.disabled = true; btn.style.opacity = '.6'; }
+    fetch('/admin/catalog/fix-brand?preview=0')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+        if (d.success) {
+            if (status) { status.textContent = '✓ Обновлено ' + d.fixed + ' товаров'; status.style.color = '#059669'; }
+            setTimeout(function(){ location.reload(); }, 1200);
+        } else {
+            if (status) { status.textContent = 'Ошибка: ' + (d.message || ''); status.style.color = '#dc2626'; }
+            if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+        }
+    }).catch(function() {
+        if (status) { status.textContent = 'Ошибка сети'; status.style.color = '#dc2626'; }
+        if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+    });
+}
+function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 </script>

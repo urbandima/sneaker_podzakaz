@@ -470,6 +470,7 @@ $config = [
                 'admin/order/<id:\d+>/retry-dp' => 'admin/order/retry-dp',
                 
                 // Products
+                'admin/catalog/fix-brand' => 'admin/product/fix-brand',
                 'admin/catalog' => 'admin/product/index',
                 'admin/product' => 'admin/product/index',
                 'admin/product/create' => 'admin/product/create',

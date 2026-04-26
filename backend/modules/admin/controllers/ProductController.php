@@ -77,16 +77,17 @@ class ProductController extends BaseAdminController
         $query = Product::find()->alias('p')->with(['brand', 'category', 'images', 'sizes']);
 
         // Фильтры
-        $filterBrand    = Yii::$app->request->get('brand');
-        $filterCategory = Yii::$app->request->get('category');
-        $filterSource   = Yii::$app->request->get('source');
-        $filterSearch   = Yii::$app->request->get('search');
-        $filterStatus   = Yii::$app->request->get('status');
-        $filterStock    = Yii::$app->request->get('stock');
-        $filterGender   = Yii::$app->request->get('gender');
-        $filterSeason   = Yii::$app->request->get('season');
-        $filterPriceFrom = Yii::$app->request->get('price_from');
-        $filterPriceTo   = Yii::$app->request->get('price_to');
+        $filterBrand       = Yii::$app->request->get('brand');
+        $filterCategory    = Yii::$app->request->get('category');
+        $filterSource      = Yii::$app->request->get('source');
+        $filterSearch      = Yii::$app->request->get('search');
+        $filterStatus      = Yii::$app->request->get('status');
+        $filterStock       = Yii::$app->request->get('stock');
+        $filterGender      = Yii::$app->request->get('gender');
+        $filterSeason      = Yii::$app->request->get('season');
+        $filterPriceFrom   = Yii::$app->request->get('price_from');
+        $filterPriceTo     = Yii::$app->request->get('price_to');
+        $filterBrandMismatch = (bool)Yii::$app->request->get('brand_mismatch');
 
         if ($filterBrand) {
             $query->andWhere(['p.brand_id' => $filterBrand]);
@@ -133,6 +134,12 @@ class ProductController extends BaseAdminController
         }
         if ($filterPriceTo !== null && $filterPriceTo !== '') {
             $query->andWhere(['<=', 'p.price', (float)$filterPriceTo]);
+        }
+        if ($filterBrandMismatch) {
+            $query->andWhere(['p.is_active' => 1])
+                  ->andWhere(['not', ['p.brand_name' => null]])
+                  ->andWhere(['!=', 'p.brand_name', ''])
+                  ->andWhere('LOWER(p.name) NOT LIKE CONCAT(LOWER(p.brand_name), \'%\')');
         }
 
         $dataProvider = new ActiveDataProvider([
@@ -198,23 +205,73 @@ class ProductController extends BaseAdminController
         }
 
         return $this->render('index', [
-            'dataProvider'    => $dataProvider,
-            'stats'           => $stats,
-            'brands'          => $brands,
-            'categories'      => $categories,
-            'filterBrand'     => $filterBrand,
-            'filterCategory'  => $filterCategory,
-            'filterSource'    => $filterSource,
-            'filterSearch'    => $filterSearch,
-            'filterStatus'    => $filterStatus,
-            'filterStock'     => $filterStock,
-            'filterGender'    => $filterGender,
-            'filterSeason'    => $filterSeason,
-            'filterPriceFrom' => $filterPriceFrom,
-            'filterPriceTo'   => $filterPriceTo,
-            'pageSize'        => $requestedPageSize,
-            'pageSizeOptions' => $pageSizeOptions,
+            'dataProvider'       => $dataProvider,
+            'stats'              => $stats,
+            'brands'             => $brands,
+            'categories'         => $categories,
+            'filterBrand'        => $filterBrand,
+            'filterCategory'     => $filterCategory,
+            'filterSource'       => $filterSource,
+            'filterSearch'       => $filterSearch,
+            'filterStatus'       => $filterStatus,
+            'filterStock'        => $filterStock,
+            'filterGender'       => $filterGender,
+            'filterSeason'       => $filterSeason,
+            'filterPriceFrom'    => $filterPriceFrom,
+            'filterPriceTo'      => $filterPriceTo,
+            'filterBrandMismatch'=> $filterBrandMismatch,
+            'pageSize'           => $requestedPageSize,
+            'pageSizeOptions'    => $pageSizeOptions,
         ]);
+    }
+
+    /**
+     * #20 — Fix brand name: set brand_name = first word of product name (bulk, preview mode)
+     */
+    public function actionFixBrand()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $preview = (bool)Yii::$app->request->get('preview', true);
+
+        $rows = Yii::$app->db->createCommand(
+            "SELECT id, name, brand_name FROM `product`
+             WHERE is_active = 1
+               AND brand_name IS NOT NULL AND brand_name != ''
+               AND LOWER(name) NOT LIKE CONCAT(LOWER(brand_name), '%')
+             LIMIT 500"
+        )->queryAll();
+
+        if (empty($rows)) {
+            return ['success' => true, 'fixed' => 0, 'preview' => []];
+        }
+
+        $previewData = [];
+        foreach ($rows as $row) {
+            $firstWord = preg_split('/\s+/', trim($row['name']), 2)[0] ?? '';
+            if (!$firstWord) continue;
+            $previewData[] = [
+                'id'        => $row['id'],
+                'name'      => $row['name'],
+                'brand_old' => $row['brand_name'],
+                'brand_new' => $firstWord,
+            ];
+        }
+
+        if ($preview) {
+            return ['success' => true, 'preview' => $previewData];
+        }
+
+        $fixed = 0;
+        foreach ($previewData as $item) {
+            Yii::$app->db->createCommand()->update('product',
+                ['brand_name' => $item['brand_new'], 'updated_at' => date('Y-m-d H:i:s')],
+                ['id' => $item['id']]
+            )->execute();
+            $fixed++;
+        }
+
+        Yii::info("Brand mismatch bulk fix: $fixed products updated by user " . (Yii::$app->user->id ?? 'cli'), 'admin.catalog');
+        return ['success' => true, 'fixed' => $fixed];
     }
 
     /**
