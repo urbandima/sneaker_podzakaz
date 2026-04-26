@@ -1667,12 +1667,17 @@ class OrderController extends BaseAdminController
 
         $model = $this->findModel($id);
 
-        if (!$model->isPassportComplete()) {
-            return ['success' => false, 'message' => 'Паспортные данные получателя заполнены не полностью'];
-        }
-
         if ($model->isSubmittedToDP()) {
             return ['success' => false, 'message' => 'Заказ уже отправлен в Таможня:ДП (шипмент #' . $model->dp_shipment_id . ')'];
+        }
+
+        $missing = $model->missingDpFields();
+        if (!empty($missing)) {
+            return [
+                'success' => false,
+                'message' => 'Не заполнены обязательные поля: ' . implode(', ', $missing),
+                'missing_fields' => $missing,
+            ];
         }
 
         try {
@@ -1750,8 +1755,13 @@ class OrderController extends BaseAdminController
 
         $model = $this->findModel($id);
 
-        if (!$model->isPassportComplete()) {
-            return ['success' => false, 'message' => 'Паспортные данные получателя заполнены не полностью'];
+        $missing = $model->missingDpFields();
+        if (!empty($missing)) {
+            return [
+                'success' => false,
+                'message' => 'Не заполнены обязательные поля: ' . implode(', ', $missing),
+                'missing_fields' => $missing,
+            ];
         }
 
         try {

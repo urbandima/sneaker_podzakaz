@@ -549,13 +549,32 @@ class Order extends ActiveRecord
     }
 
     /**
+     * Returns all human-readable validation errors preventing DP submission.
+     * Empty array means the order is ready to submit.
+     */
+    public function missingDpFields(): array
+    {
+        $errors = $this->missingPassportFields();
+
+        if (empty($this->china_track_number)) {
+            $errors[] = 'Трек-номер из Китая (china_track_number)';
+        }
+
+        $itemPrice = (float)($this->item_price_cny ?? 0);
+        $totalAmount = (float)($this->shipment_value_cny ?? ($itemPrice * max(1, (int)($this->item_quantity ?? 1))));
+        if ($totalAmount <= 0) {
+            $errors[] = 'Стоимость товара в юанях (item_price_cny или shipment_value_cny)';
+        }
+
+        return $errors;
+    }
+
+    /**
      * Заказ готов к отправке в Таможня:ДП.
      */
     public function canSubmitToDP(): bool
     {
-        return $this->isPassportComplete()
-            && !empty($this->china_track_number)
-            && !$this->isSubmittedToDP();
+        return empty($this->missingDpFields()) && !$this->isSubmittedToDP();
     }
 
     /**
