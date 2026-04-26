@@ -2016,6 +2016,86 @@ class OrderController extends BaseAdminController
         ];
     }
 
+    public function actionSaveItemField()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $request = Yii::$app->request;
+        if (!$request->isPost) return ['success' => false, 'message' => 'POST required'];
+
+        $body = json_decode($request->rawBody, true);
+        $itemId = (int)($body['item_id'] ?? 0);
+        $field  = $body['field'] ?? '';
+        $value  = $body['value'] ?? '';
+
+        $allowed = ['product_name', 'quantity', 'price', 'size', 'color', 'product_article'];
+        if (!$itemId || !in_array($field, $allowed, true)) {
+            return ['success' => false, 'message' => 'Invalid field'];
+        }
+
+        $item = OrderItem::findOne($itemId);
+        if (!$item) return ['success' => false, 'message' => 'Item not found'];
+
+        if ($field === 'quantity') $value = max(1, (int)$value);
+        if ($field === 'price')    $value = max(0, (float)$value);
+
+        $item->$field = $value;
+
+        if ($field === 'quantity' || $field === 'price') {
+            $item->total = (float)$item->price * (int)$item->quantity;
+        }
+
+        if (!$item->save(false)) {
+            return ['success' => false, 'message' => 'Save failed'];
+        }
+
+        return ['success' => true, 'item_id' => $itemId];
+    }
+
+    public function actionAddItem()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $request = Yii::$app->request;
+        if (!$request->isPost) return ['success' => false, 'message' => 'POST required'];
+
+        $body    = json_decode($request->rawBody, true);
+        $orderId = (int)($body['order_id'] ?? 0);
+        $name    = trim($body['product_name'] ?? '');
+        $qty     = max(1, (int)($body['quantity'] ?? 1));
+        $price   = max(0, (float)($body['price'] ?? 0));
+        $size    = trim($body['size'] ?? '');
+
+        if (!$orderId || !$name || !$price) {
+            return ['success' => false, 'message' => 'order_id, product_name и price обязательны'];
+        }
+
+        $order = Order::findOne($orderId);
+        if (!$order) return ['success' => false, 'message' => 'Заказ не найден'];
+
+        $item = new OrderItem();
+        $item->order_id     = $orderId;
+        $item->product_name = $name;
+        $item->quantity     = $qty;
+        $item->price        = $price;
+        $item->total        = $price * $qty;
+        $item->size         = $size ?: null;
+        $item->product_id   = (int)($body['product_id'] ?? 0) ?: null;
+
+        if (!$item->save()) {
+            return ['success' => false, 'message' => 'Ошибка сохранения: ' . json_encode($item->errors)];
+        }
+
+        return ['success' => true, 'item_id' => $item->id];
+    }
+
+    public function actionDeleteItem($id)
+    {
+        $item = OrderItem::findOne((int)$id);
+        if (!$item) throw new NotFoundHttpException('Item not found');
+        $orderId = $item->order_id;
+        $item->delete();
+        return $this->redirect(['/admin/order/view', 'id' => $orderId]);
+    }
+
     public function actionAutocomplete()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
