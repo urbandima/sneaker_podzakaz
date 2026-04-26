@@ -2133,7 +2133,7 @@ window.syncMoyskladRetry = function(id) {
 
 // ── Customer data sync ────────────────────────────────────
 window.syncCustomerData = function(orderId) {
-    if (!confirm('Перезаписать данные заказа данными из профиля клиента?\nЭто действие будет зафиксировано в истории.')) return;
+    if (!confirm('Перезаписать данные заказа данными из профиля клиента?\\nЭто действие будет зафиксировано в истории.')) return;
     var btn = document.getElementById('btn-sync-customer');
     if (btn) { btn.disabled = true; btn.style.opacity = '.6'; }
     fetch('/admin/order/apply-customer-data', {
