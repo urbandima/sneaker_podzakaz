@@ -20,6 +20,14 @@ $statusPills = [
 ];
 ?>
 
+<!-- Page header with create button -->
+<div class="admin-page-header" style="display:flex;flex-wrap:nowrap;align-items:center;gap:12px;margin-bottom:16px">
+    <h1 class="admin-page-title" style="margin:0;min-width:0;flex:1">Возвраты поставщику</h1>
+    <a href="/admin/procurement/create-return/0" class="admin-btn admin-btn-primary admin-btn-sm" style="flex-shrink:0">
+        <i class="bi bi-plus-lg"></i> Создать возврат
+    </a>
+</div>
+
 <!-- Filter bar -->
 <form method="get" class="filter-wrap">
     <div class="compact-filter-bar filter-row1">
@@ -54,7 +62,7 @@ $statusPills = [
                     <th>Статус</th>
                     <th data-sort="total_amount" onclick="AdminTable.sortBy('total_amount')" style="text-align:right">Сумма BYN <?= $sortIcon('total_amount') ?></th>
                     <th data-sort="created_at" onclick="AdminTable.sortBy('created_at')">Создан <?= $sortIcon('created_at') ?></th>
-                    <th style="width:80px">—</th>
+                    <th style="width:80px">Действия</th>
                 </tr>
             </thead>
             <tbody>
