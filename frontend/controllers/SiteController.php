@@ -157,23 +157,26 @@ class SiteController extends Controller
         $popularProducts = $this->getPopularProducts();
         $categories = $this->getCategories();
         $brands = $this->getBrands();
-        
+
+        // Live product count rounded down to hundreds (X8)
+        $rawCount = \app\backend\modules\catalog\models\Product::find()->where(['is_active' => 1])->count();
+        $productCount = (int)(floor($rawCount / 100) * 100);
+
+        $viewData = [
+            'popularProducts' => $popularProducts,
+            'categories'      => $categories,
+            'brands'          => $brands,
+            'productCount'    => $productCount,
+        ];
+
         // Проверяем, есть ли главная страница в landing
         $landingView = '@frontend/views/landing/index';
         if (file_exists(Yii::getAlias($landingView . '.php'))) {
-            return $this->render($landingView, [
-                'popularProducts' => $popularProducts,
-                'categories' => $categories,
-                'brands' => $brands,
-            ]);
+            return $this->render($landingView, $viewData);
         }
-        
+
         // Если нет landing страницы, показываем базовую главную
-        return $this->render('index', [
-            'popularProducts' => $popularProducts,
-            'categories' => $categories,
-            'brands' => $brands,
-        ]);
+        return $this->render('index', $viewData);
     }
     
     /**
