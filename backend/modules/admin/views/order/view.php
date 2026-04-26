@@ -801,6 +801,19 @@ $customer = $model->customer ?? null;
                 </div>
             </div>
 
+            <!-- Comment -->
+            <div class="crm-card">
+                <div class="crm-card-head">
+                    <h3><i class="bi bi-chat-left-text"></i> Комментарий к заказу</h3>
+                </div>
+                <div class="crm-card-body" style="padding:12px 16px">
+                    <div class="crm-editable" data-field="comment" data-id="<?= $model->id ?>" onclick="startEdit(this)"
+                         style="min-height:52px;font-size:0.875rem;line-height:1.5;white-space:pre-wrap;border-radius:8px;background:var(--admin-surface-hover,#f9fafb);border:1px dashed var(--admin-border,#e5e7eb);padding:8px 12px">
+                        <?= $model->comment ? nl2br(Html::encode($model->comment)) : '<span class="crm-editable-empty" style="font-style:italic">Нажмите чтобы добавить комментарий…</span>' ?>
+                    </div>
+                </div>
+            </div>
+
             <!-- Маржинальность -->
             <?php
             $salePrice       = (float)($model->total_amount ?? 0);
@@ -1097,14 +1110,6 @@ $customer = $model->customer ?? null;
                                 <?php else: ?>
                                 <span style="background:#d1fae5;color:#065f46;font-size:0.7rem;padding:2px 8px;border-radius:6px;font-weight:700"><i class="bi bi-check-circle"></i> <?= $slaInfo['hours_left'] ?> ч до дедлайна</span>
                                 <?php endif; ?>
-                            </div>
-                        </div>
-                        <?php endif; ?>
-                        <?php if ($model->comment): ?>
-                        <div style="margin-top:8px;padding:7px 10px;background:var(--admin-warning-bg,#fef3c7);border-radius:7px;border-left:3px solid var(--admin-warning,#d97706)">
-                            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#92400e);margin-bottom:2px">Комментарий</div>
-                            <div class="crm-editable" data-field="comment" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-size:.8125rem;border:none;padding:0">
-                                <?= nl2br(Html::encode($model->comment)) ?>
                             </div>
                         </div>
                         <?php endif; ?>
