@@ -106,6 +106,7 @@ class OrderController extends BaseAdminController
         $filterAmountFrom   = Yii::$app->request->get('amount_from');
         $filterAmountTo     = Yii::$app->request->get('amount_to');
         $filterCreatedBefore = Yii::$app->request->get('created_before');
+        $filterDelayed       = Yii::$app->request->get('delayed');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -193,6 +194,13 @@ class OrderController extends BaseAdminController
         }
         if ($filterAmountTo !== null && $filterAmountTo !== '') {
             $query->andWhere(['<=', 'total_amount', (float)$filterAmountTo]);
+        }
+
+        if ($filterDelayed) {
+            $threeDaysAgo = strtotime('-3 days');
+            $query->andWhere(['<', 'updated_at', $threeDaysAgo]);
+            $query->andWhere(['or', ['is_trash' => null], ['is_trash' => 0]]);
+            $query->andWhere(['not in', 'status', ['delivered', 'canceled', 'cancelled', 'completed', 'refunded', 'return', 'trash', 'imported']]);
         }
 
         $statuses = Yii::$app->settings->getStatuses();

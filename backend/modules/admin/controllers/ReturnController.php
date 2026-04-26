@@ -77,8 +77,17 @@ class ReturnController extends BaseAdminController
             ],
         ]);
 
+        // Orders with status='return' that have no ReturnRequest — show as implicit returns
+        $implicitReturns = Order::find()
+            ->where(['status' => 'return'])
+            ->andWhere(['not in', 'id', ReturnRequest::find()->select('order_id')->where(['not', ['order_id' => null]])])
+            ->orderBy(['updated_at' => SORT_DESC])
+            ->limit(100)
+            ->all();
+
         return $this->render('index', [
-            'dataProvider' => $dataProvider,
+            'dataProvider'    => $dataProvider,
+            'implicitReturns' => $implicitReturns,
         ]);
     }
 

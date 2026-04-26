@@ -88,9 +88,13 @@ $totalMargin  = $totalRevenue > 0 ? round($totalNet / $totalRevenue * 100, 1) : 
                         </strong>
                     </td>
                     <td style="text-align:right">
-                        <span class="status-pill" style="background:<?= $row['revenue'] > 0 && $row['margin'] >= 15 ? '#d1f7e5;color:#008060' : ($row['revenue'] > 0 && $row['margin'] >= 0 ? '#fff4e5;color:#ffa500' : '#f3f4f6;color:#6d7175') ?>">
-                            <?= $row['revenue'] > 0 ? $row['margin'].'%' : '—' ?>
-                        </span>
+                        <?php if ($row['revenue'] > 0 && $row['cogs'] == 0): ?>
+                            <span class="status-pill" style="background:#f3f4f6;color:#6d7175" title="Себестоимость не указана — добавьте расходы на закупку">Нет данных</span>
+                        <?php else: ?>
+                            <span class="status-pill" style="background:<?= $row['revenue'] > 0 && $row['margin'] >= 15 ? '#d1f7e5;color:#008060' : ($row['revenue'] > 0 && $row['margin'] >= 0 ? '#fff4e5;color:#ffa500' : '#f3f4f6;color:#6d7175') ?>">
+                                <?= $row['revenue'] > 0 ? $row['margin'].'%' : '—' ?>
+                            </span>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>

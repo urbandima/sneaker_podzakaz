@@ -130,3 +130,35 @@ $this->params['headerActions'] = [
     <?php endif; ?>
 </div>
 
+<?php if (!empty($implicitReturns)): ?>
+<div class="admin-card" style="margin-top:1.5rem">
+    <div class="admin-card-header">
+        <h2 class="admin-card-title"><i class="bi bi-exclamation-circle text-warning"></i> Заказы со статусом "Возврат" (без заявки)</h2>
+    </div>
+    <table class="admin-table">
+        <thead><tr>
+            <th>№ Заказа</th><th>Клиент</th><th>Телефон</th><th>Сумма</th><th>Дата</th><th></th>
+        </tr></thead>
+        <tbody>
+            <?php foreach ($implicitReturns as $ord): ?>
+            <tr>
+                <td><strong><?= Html::encode($ord->order_number) ?></strong></td>
+                <td><?= Html::encode($ord->client_name) ?></td>
+                <td><?= Html::encode($ord->client_phone) ?></td>
+                <td><?= Yii::$app->formatter->asDecimal($ord->total_amount, 2) ?> Br</td>
+                <td><?= $ord->created_at ? Yii::$app->formatter->asDate($ord->created_at, 'dd.MM.yyyy') : '—' ?></td>
+                <td>
+                    <a href="<?= Url::to(['/admin/order/view', 'id' => $ord->id]) ?>" class="admin-btn admin-btn-secondary" style="padding:.25rem .5rem;font-size:.875rem">
+                        <i class="bi bi-eye"></i> Заказ
+                    </a>
+                    <a href="<?= Url::to(['/admin/return/create', 'order_id' => $ord->id]) ?>" class="admin-btn admin-btn-primary" style="padding:.25rem .5rem;font-size:.875rem">
+                        <i class="bi bi-plus"></i> Создать заявку
+                    </a>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+<?php endif; ?>
+

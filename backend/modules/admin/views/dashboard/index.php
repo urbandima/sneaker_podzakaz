@@ -104,7 +104,7 @@ $opStats = $operationalStats ?? ['unprocessed2h' => 0, 'delayed3d' => 0, 'awaiti
         <div class="dash-op-widget-value danger"><?= (int)($opStats['unprocessed2h'] ?? 0) ?></div>
         <div class="dash-op-widget-label">Необработанных<br>&gt;2 часов</div>
     </a>
-    <a href="<?= Url::to(['/admin/order']) ?>" class="dash-op-widget">
+    <a href="<?= Url::to(['/admin/order', 'delayed' => '1']) ?>" class="dash-op-widget">
         <div class="dash-op-widget-icon warning"><i class="bi bi-exclamation-triangle-fill"></i></div>
         <div class="dash-op-widget-value warning"><?= (int)($opStats['delayed3d'] ?? 0) ?></div>
         <div class="dash-op-widget-label">Задержек<br>&gt;3 дней без изменений</div>

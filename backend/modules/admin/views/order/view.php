@@ -1585,7 +1585,7 @@ window.startEdit = function(el) {
     if (el.querySelector('input,textarea')) return;
     var field  = el.dataset.field;
     var curVal = el.innerText.trim();
-    if (curVal === 'Не указано') curVal = '';
+    if (curVal === 'Не указано' || curVal === '—') curVal = '';
     var isArea = field === 'comment';
     var input  = document.createElement(isArea ? 'textarea' : 'input');
     input.className = 'crm-editable-input';

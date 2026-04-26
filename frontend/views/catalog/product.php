@@ -54,15 +54,21 @@ $galleryPlaceholderSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" he
 $galleryPlaceholderDataUri = 'data:image/svg+xml;base64,' . base64_encode($galleryPlaceholderSvg);
 
 $galleryImages = [];
+$_seenImageUrls = [];
 if (!empty($product->images)) {
-    foreach ($product->images as $idx => $img) {
+    foreach ($product->images as $img) {
         $url = $img->getUrl();
         if (!$url) {
             continue;
         }
+        $webpUrl = ImageHelper::getWebpUrl($url);
+        if (isset($_seenImageUrls[$webpUrl])) {
+            continue;
+        }
+        $_seenImageUrls[$webpUrl] = true;
         $galleryImages[] = [
-            'url' => ImageHelper::getWebpUrl($url),
-            'alt' => $product->name . ' — фото ' . ($idx + 1),
+            'url' => $webpUrl,
+            'alt' => $product->name . ' — фото ' . (count($galleryImages) + 1),
             'placeholder' => false,
         ];
     }

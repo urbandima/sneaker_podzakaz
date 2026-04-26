@@ -256,7 +256,8 @@ class DashboardController extends BaseAdminController
             $delayed3d = (int)Yii::$app->db->createCommand("
                 SELECT COUNT(*) FROM `order`
                 WHERE updated_at < :ts
-                  AND status NOT IN ('delivered','canceled')
+                  AND (is_trash IS NULL OR is_trash = 0)
+                  AND status NOT IN ('delivered','canceled','cancelled','completed','refunded','return','trash','imported')
             ", [':ts' => $threeDaysAgo])->queryScalar();
         } catch (\Exception $e) {
             $delayed3d = 0;

@@ -135,9 +135,13 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
 </style>
 
 <?php $form = ActiveForm::begin([
-    'id'      => 'orderCreateForm',
-    'action'  => Url::to(['/admin/order/create']),
-    'options' => ['style' => 'display:contents'],
+    'id'                   => 'orderCreateForm',
+    'action'               => Url::to(['/admin/order/create']),
+    'options'              => ['style' => 'display:contents'],
+    'validateOnLoad'       => false,
+    'validateOnChange'     => true,
+    'validateOnBlur'       => true,
+    'validateOnSubmit'     => true,
 ]); ?>
 
 <div class="crm-wrap">
