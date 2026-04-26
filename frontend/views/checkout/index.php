@@ -1,8 +1,13 @@
 <?php
 /** @var yii\web\View $this */
-/** @var array $items          Позиции корзины */
-/** @var float $total          Итого по товарам */
+/** @var array $items                  Позиции корзины */
+/** @var float $total                  Итого по товарам */
 /** @var \app\backend\modules\account\models\Customer|null $customer */
+/** @var array $paymentMethods         Способы оплаты из DB */
+/** @var array $shippingMethods        Способы доставки из DB */
+/** @var array $europochtaPoints       Пункты выдачи Европочты из DB */
+/** @var string $pickupAddress         Адрес самовывоза из DB */
+/** @var float  $freeDeliveryThreshold Порог бесплатной доставки из DB */
 
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -12,9 +17,8 @@ AppAsset::register($this);
 
 $this->title = 'Оформление заказа';
 
-$createUrl  = Url::to(['/order/create']);
-$csrfToken  = Yii::$app->request->csrfToken;
-$successUrl = Url::to(['/order/success']);
+$createUrl = Url::to(['/order/create']);
+$csrfToken = Yii::$app->request->csrfToken;
 
 // Russian plural for "товар"
 $cnt = count($items);
@@ -60,7 +64,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                         <span class="summary-item-price"><?= number_format($item->price * $item->quantity, 2) ?> BYN</span>
                     </div>
                 <?php endforeach; ?>
-                <div class="summary-totals mt-2">
+                <div class="summary-totals" style="margin-top:8px">
                     <div class="summary-row">
                         <span>Доставка:</span>
                         <span id="mobileDeliveryCost" class="delivery-cost">Бесплатно</span>
@@ -82,30 +86,24 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                     <h2><i class="bi bi-person"></i> Контактные данные</h2>
                     <div class="checkout-contact-grid">
                         <div class="form-group">
-                            <label for="field-name">ФИО <span class="text-danger" aria-hidden="true">*</span><span class="sr-only">(обязательное)</span></label>
+                            <label for="field-name">ФИО <span class="text-danger">*</span></label>
                             <input type="text" id="field-name" name="name" class="form-control"
                                    placeholder="Иванов Иван Иванович"
                                    value="<?= Html::encode($customer ? $customer->getFullName() : '') ?>"
-                                   required aria-required="true" autocomplete="name"
-                                   aria-describedby="error-name" maxlength="100">
-                            <div id="error-name" class="invalid-feedback" role="alert" aria-live="polite"></div>
+                                   required maxlength="100">
                         </div>
                         <div class="form-group">
-                            <label for="field-phone">Телефон <span class="text-danger" aria-hidden="true">*</span><span class="sr-only">(обязательное)</span></label>
+                            <label for="field-phone">Телефон <span class="text-danger">*</span></label>
                             <input type="tel" id="field-phone" name="phone" class="form-control"
                                    placeholder="+375 (__) ___-__-__"
                                    value="<?= Html::encode($customer?->phone ?? '') ?>"
-                                   required aria-required="true" autocomplete="tel"
-                                   pattern="[+]?[0-9\s\-\(\)]{7,}"
-                                   aria-describedby="error-phone" maxlength="50">
-                            <div id="error-phone" class="invalid-feedback" role="alert" aria-live="polite"></div>
+                                   required maxlength="50">
                         </div>
                         <div class="form-group">
                             <label for="field-email">Email</label>
                             <input type="email" id="field-email" name="email" class="form-control"
                                    placeholder="email@example.com"
                                    value="<?= Html::encode($customer?->email ?? '') ?>"
-                                   autocomplete="email" inputmode="email"
                                    maxlength="255">
                         </div>
                     </div>
@@ -125,154 +123,253 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                     </div>
                     <input type="hidden" name="country" id="selectedCountry" value="belarus">
 
+                    <?php
+                    $belarusMethods = array_values(array_filter($shippingMethods, fn($m) => ($m['country'] ?? '') === 'belarus'));
+                    $russiaMethods  = array_values(array_filter($shippingMethods, fn($m) => ($m['country'] ?? '') === 'russia'));
+                    $firstBelarusId = !empty($belarusMethods) ? $belarusMethods[0]['id'] : '';
+                    $firstRussiaId  = !empty($russiaMethods)  ? $russiaMethods[0]['id']  : '';
+                    // Build europochta PVZ grouped by city
+                    $pvzByCity = [];
+                    foreach ($europochtaPoints as $pt) {
+                        $pvzByCity[$pt['city']][] = $pt;
+                    }
+                    ?>
+
                     <!-- Беларусь -->
                     <div class="shipping-options" id="deliveryBelarus">
+                        <?php if (empty($belarusMethods)): ?>
+                        <div class="checkout-notice">
+                            <i class="bi bi-truck"></i> Доставка рассчитывается индивидуально.
+                            Мы свяжемся с вами для уточнения.
+                            <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()): ?>
+                            <a href="/admin/settings/shipping" style="margin-left:8px;font-size:0.85em;opacity:0.7">(Настроить в админке)</a>
+                            <?php endif; ?>
+                        </div>
+                        <?php else: ?>
+                        <?php foreach ($belarusMethods as $smIdx => $sm): ?>
+                        <?php
+                            $smPrice = (float)($sm['price'] ?? 0);
+                            $smIcon  = Html::encode($sm['icon'] ?? 'truck');
+                            $smId    = Html::encode($sm['id']);
+                            $smName  = Html::encode($sm['name']);
+                            $smDesc  = Html::encode($sm['description'] ?? '');
+                            $smTime  = Html::encode($sm['delivery_time'] ?? '');
+                            $smPriceLabel = isset($sm['price_label'])
+                                ? Html::encode($sm['price_label'])
+                                : ($smPrice > 0 ? $smPrice . ' BYN' : 'Бесплатно');
+                        ?>
                         <label class="shipping-option">
-                            <input type="radio" name="delivery" value="pickup_minsk" checked
-                                   onchange="updateDelivery(0, 'pickup_minsk')">
+                            <input type="radio" name="delivery" value="<?= $smId ?>"
+                                   <?= $smIdx === 0 ? 'checked' : '' ?>
+                                   onchange="updateDelivery(<?= $smPrice ?>, '<?= Html::encode($sm['id']) ?>')">
                             <div class="option-content">
-                                <div class="option-icon"><i class="bi bi-shop"></i></div>
+                                <div class="option-icon"><i class="bi bi-<?= $smIcon ?>"></i></div>
                                 <div class="option-info">
-                                    <span class="option-name">Самовывоз</span>
-                                    <span class="option-desc">Минск, пр. Победителей 5</span>
-                                    <span class="option-time">Сегодня–завтра</span>
+                                    <span class="option-name"><?= $smName ?></span>
+                                    <?php if ($smDesc): ?><span class="option-desc"><?= $smDesc ?></span><?php endif; ?>
+                                    <?php if ($smTime): ?><span class="option-time"><?= $smTime ?></span><?php endif; ?>
                                 </div>
-                                <span class="option-price">Бесплатно</span>
+                                <span class="option-price"><?= $smPriceLabel ?></span>
                                 <div class="option-radio"></div>
                             </div>
                         </label>
+                        <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
 
-                        <label class="shipping-option">
-                            <input type="radio" name="delivery" value="courier_minsk"
-                                   onchange="updateDelivery(10, 'courier_minsk')">
-                            <div class="option-content">
-                                <div class="option-icon"><i class="bi bi-truck"></i></div>
-                                <div class="option-info">
-                                    <span class="option-name">Курьер по Минску</span>
-                                    <span class="option-desc">Доставка по городу</span>
-                                    <span class="option-time">1–2 дня</span>
-                                </div>
-                                <span class="option-price">10 BYN</span>
-                                <div class="option-radio"></div>
-                            </div>
-                        </label>
+                    <!-- Европочта ПВЗ — показывается при выборе europochta -->
+                    <style>
+                    .pvz-option{padding:9px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f3f4f6;line-height:1.4}
+                    .pvz-option:last-child{border-bottom:none}
+                    .pvz-option:hover,.pvz-option:active{background:#f0f9ff;color:#0369a1}
+                    .pvz-option strong{color:#1d4ed8}
+                    </style>
+                    <div class="pvz-select-wrap" id="europochtaPvz" style="display:none">
+                        <label for="pvzSearch"><i class="bi bi-geo-alt-fill"></i> Пункт выдачи Европочты</label>
+                        <div class="pvz-autocomplete-wrap" style="position:relative">
+                            <input type="text" id="pvzSearch" class="pvz-search-input form-control"
+                                   placeholder="Начните вводить город или адрес..." autocomplete="off"
+                                   oninput="filterPvz(this.value)" onfocus="showPvzDropdown()" onblur="hidePvzDropdown()">
+                            <div id="pvzDropdown" class="pvz-dropdown" style="display:none;position:absolute;left:0;right:0;top:100%;z-index:100;background:#fff;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);max-height:240px;overflow-y:auto;"></div>
+                        </div>
+                        <div id="pvzSelected" style="display:none;margin-top:6px;padding:8px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;font-size:13px;color:#166534">
+                            <i class="bi bi-check-circle-fill"></i> <span id="pvzSelectedText"></span>
+                            <button type="button" onclick="clearPvz()" style="float:right;background:none;border:none;color:#dc2626;cursor:pointer;font-size:12px">✕ Изменить</button>
+                        </div>
+                        <!-- Hidden field sent to server -->
+                        <input type="hidden" id="pvzHidden" name="pvz_address" value="">
+                        <?php
+                        // Build flat JS array of all PVZ points for autocomplete
+                        $pvzJs = [];
+                        foreach ($europochtaPoints as $pt) {
+                            $num  = $pt['num']  ?? '';
+                            $city = $pt['city'] ?? '';
+                            $name = $pt['name'] ?? '';
+                            $addr = $pt['address'] ?? $pt['full'] ?? ($city . ', ' . $name);
+                            $label = '№' . $num . ': ' . $city . ', ' . $name;
+                            $value = '№' . $num . ': ' . $addr;
+                            $pvzJs[] = ['num' => $num, 'label' => $label, 'value' => $value];
+                        }
+                        ?>
+                        <script>
+                        var _pvzPoints = <?= json_encode($pvzJs, JSON_UNESCAPED_UNICODE) ?>;
 
-                        <label class="shipping-option">
-                            <input type="radio" name="delivery" value="europochta"
-                                   onchange="updateDelivery(5, 'europochta')">
-                            <div class="option-content">
-                                <div class="option-icon"><i class="bi bi-envelope"></i></div>
-                                <div class="option-info">
-                                    <span class="option-name">Европочта</span>
-                                    <span class="option-desc">По Беларуси</span>
-                                    <span class="option-time">3–7 дней</span>
-                                </div>
-                                <span class="option-price">5 BYN</span>
-                                <div class="option-radio"></div>
-                            </div>
-                        </label>
+                        function _renderPvzDropdown(filtered, query) {
+                            var dropdown = document.getElementById('pvzDropdown');
+                            if (!filtered.length) {
+                                dropdown.innerHTML = '<div style="padding:10px 14px;color:#9ca3af;font-size:13px">Ничего не найдено</div>';
+                            } else {
+                                var esc = query ? query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') : '';
+                                dropdown.innerHTML = filtered.slice(0, 50).map(function(p){
+                                    var display = p.label;
+                                    if (esc) display = display.replace(new RegExp('(' + esc + ')', 'gi'), '<strong>$1</strong>');
+                                    return '<div class="pvz-option" onmousedown="selectPvzItem(\'' + p.value.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\',\'' + p.label.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\')">' + display + '</div>';
+                                }).join('');
+                            }
+                            dropdown.style.display = 'block';
+                        }
 
-                        <label class="shipping-option">
-                            <input type="radio" name="delivery" value="belpochta"
-                                   onchange="updateDelivery(4, 'belpochta')">
-                            <div class="option-content">
-                                <div class="option-icon"><i class="bi bi-mailbox"></i></div>
-                                <div class="option-info">
-                                    <span class="option-name">Белпочта</span>
-                                    <span class="option-desc">По Беларуси</span>
-                                    <span class="option-time">5–10 дней</span>
-                                </div>
-                                <span class="option-price">4 BYN</span>
-                                <div class="option-radio"></div>
-                            </div>
-                        </label>
+                        function filterPvz(q) {
+                            var query = q.trim().toLowerCase();
+                            var filtered = query
+                                ? _pvzPoints.filter(function(p){ return p.label.toLowerCase().indexOf(query) !== -1; })
+                                : _pvzPoints;
+                            _renderPvzDropdown(filtered, query);
+                        }
+
+                        function selectPvzItem(value, label) {
+                            document.getElementById('pvzHidden').value = value;
+                            document.getElementById('pvzSearch').value = '';
+                            document.getElementById('pvzSearch').style.display = 'none';
+                            document.getElementById('pvzSelectedText').textContent = label;
+                            document.getElementById('pvzSelected').style.display = 'block';
+                            document.getElementById('pvzDropdown').style.display = 'none';
+                            selectedPvz = value;
+                        }
+
+                        function clearPvz() {
+                            document.getElementById('pvzHidden').value = '';
+                            document.getElementById('pvzSearch').value = '';
+                            document.getElementById('pvzSearch').style.display = '';
+                            document.getElementById('pvzSelected').style.display = 'none';
+                            selectedPvz = '';
+                        }
+
+                        function showPvzDropdown() {
+                            filterPvz(document.getElementById('pvzSearch').value);
+                        }
+
+                        function hidePvzDropdown() {
+                            setTimeout(function(){ document.getElementById('pvzDropdown').style.display = 'none'; }, 200);
+                        }
+                        </script>
+                        <?php if (empty($pvzJs)): ?>
+                        <p style="color:#9ca3af;font-size:12px;margin-top:4px">Пункты выдачи не загружены — настройте в плагине Европочта</p>
+                        <?php endif; ?>
                     </div>
 
                     <!-- Россия -->
-                    <div class="shipping-options d-none" id="deliveryRussia">
+                    <div class="shipping-options" id="deliveryRussia" style="display:none">
+                        <?php if (empty($russiaMethods)): ?>
+                        <div class="checkout-notice">
+                            <i class="bi bi-truck"></i> Доставка по России рассчитывается индивидуально.
+                            Мы свяжемся с вами после оформления заказа.
+                            <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()): ?>
+                            <a href="/admin/settings/shipping" style="margin-left:8px;font-size:0.85em;opacity:0.7">(Настроить в админке)</a>
+                            <?php endif; ?>
+                        </div>
+                        <?php else: ?>
+                        <?php foreach ($russiaMethods as $smIdx => $sm): ?>
+                        <?php
+                            $smPrice = (float)($sm['price'] ?? 0);
+                            $smIcon  = Html::encode($sm['icon'] ?? 'truck');
+                            $smId    = Html::encode($sm['id']);
+                            $smName  = Html::encode($sm['name']);
+                            $smDesc  = Html::encode($sm['description'] ?? '');
+                            $smTime  = Html::encode($sm['delivery_time'] ?? '');
+                            $smPriceLabel = isset($sm['price_label'])
+                                ? Html::encode($sm['price_label'])
+                                : ($smPrice > 0 ? $smPrice . ' BYN' : 'Бесплатно');
+                        ?>
                         <label class="shipping-option">
-                            <input type="radio" name="delivery" value="sdek"
-                                   onchange="updateDelivery(0, 'sdek')">
+                            <input type="radio" name="delivery" value="<?= $smId ?>"
+                                   <?= $smIdx === 0 ? 'checked' : '' ?>
+                                   onchange="updateDelivery(<?= $smPrice ?>, '<?= Html::encode($sm['id']) ?>')">
                             <div class="option-content">
-                                <div class="option-icon"><i class="bi bi-box-seam"></i></div>
+                                <div class="option-icon"><i class="bi bi-<?= $smIcon ?>"></i></div>
                                 <div class="option-info">
-                                    <span class="option-name">СДЭК</span>
-                                    <span class="option-desc">По России</span>
-                                    <span class="option-time">3–7 дней</span>
+                                    <span class="option-name"><?= $smName ?></span>
+                                    <?php if ($smDesc): ?><span class="option-desc"><?= $smDesc ?></span><?php endif; ?>
+                                    <?php if ($smTime): ?><span class="option-time"><?= $smTime ?></span><?php endif; ?>
                                 </div>
-                                <span class="option-price">По тарифам СДЭК</span>
+                                <span class="option-price"><?= $smPriceLabel ?></span>
                                 <div class="option-radio"></div>
                             </div>
                         </label>
+                        <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
 
                     <!-- Адрес: город + индекс на одной строке, затем улица -->
-                    <div id="addressGroup" class="d-none">
+                    <div id="addressGroup" style="display:none">
                         <div class="address-row">
                             <div class="form-group">
-                                <label for="field-city">Город <span class="text-danger" aria-hidden="true">*</span><span class="sr-only">(обязательное)</span></label>
+                                <label for="field-city">Город <span class="text-danger">*</span></label>
                                 <input type="text" id="field-city" name="city" class="form-control"
-                                       placeholder="Минск" autocomplete="address-level2" maxlength="100">
+                                       placeholder="Минск" maxlength="100">
                             </div>
                             <div class="form-group">
                                 <label for="field-postal">Индекс</label>
                                 <input type="text" id="field-postal" name="postal_code" class="form-control"
-                                       placeholder="220000" autocomplete="postal-code" inputmode="numeric" maxlength="20">
+                                       placeholder="220000" maxlength="20">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="field-address" id="addressLabel">Улица, дом, квартира <span class="text-danger" aria-hidden="true">*</span><span class="sr-only">(обязательное)</span></label>
+                            <label for="field-address" id="addressLabel">Улица, дом, квартира <span class="text-danger">*</span></label>
                             <textarea id="field-address" name="address" class="form-control"
                                       rows="2" placeholder="Улица, дом, квартира"
-                                      autocomplete="street-address"
                                       maxlength="500"><?= Html::encode($customer?->default_address ?? '') ?></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- Оплата -->
+                <!-- Оплата — динамически из DB -->
+                <?php
+                $pmCount        = count($paymentMethods);
+                $pmCols         = $pmCount <= 1 ? 1 : ($pmCount === 2 ? 2 : 3);
+                $firstPaymentId = !empty($paymentMethods) ? ($paymentMethods[0]['id'] ?? '') : '';
+                ?>
                 <div class="checkout-section">
                     <h2><i class="bi bi-credit-card"></i> Оплата</h2>
-                    <div class="payment-options">
-                        <label class="payment-option">
-                            <input type="radio" name="payment" value="bank_transfer" checked
-                                   onchange="selectPayment('bank_transfer')">
-                            <div class="option-content">
-                                <div class="option-icon"><i class="bi bi-bank"></i></div>
-                                <div class="option-info">
-                                    <span class="option-name">Банковский перевод (ЕРИП)</span>
-                                    <span class="option-desc">Реквизиты придут в SMS / Telegram</span>
-                                </div>
-                                <div class="option-radio"></div>
-                            </div>
-                        </label>
-
-                        <label class="payment-option">
-                            <input type="radio" name="payment" value="card_online"
-                                   onchange="selectPayment('card_online')">
-                            <div class="option-content">
-                                <div class="option-icon"><i class="bi bi-credit-card-2-front"></i></div>
-                                <div class="option-info">
-                                    <span class="option-name">Оплата картой онлайн</span>
-                                    <span class="option-desc">Visa, Mastercard, МИР</span>
-                                </div>
-                                <div class="option-radio"></div>
-                            </div>
-                        </label>
-
-                        <label class="payment-option">
-                            <input type="radio" name="payment" value="cash_pickup"
-                                   onchange="selectPayment('cash_pickup')">
-                            <div class="option-content">
-                                <div class="option-icon"><i class="bi bi-cash-coin"></i></div>
-                                <div class="option-info">
-                                    <span class="option-name">Наличные при получении</span>
-                                    <span class="option-desc">Только самовывоз, пр. Победителей 5</span>
-                                </div>
-                                <div class="option-radio"></div>
-                            </div>
-                        </label>
+                    <?php if (empty($paymentMethods)): ?>
+                    <div class="checkout-notice">
+                        <i class="bi bi-credit-card"></i> Способ оплаты уточните у менеджера после оформления.
+                        <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()): ?>
+                        <a href="/admin/settings/payment" style="margin-left:8px;font-size:0.85em;opacity:0.7">(Настроить в админке)</a>
+                        <?php endif; ?>
                     </div>
+                    <?php else: ?>
+                    <div class="payment-options" style="grid-template-columns: repeat(<?= $pmCols ?>, 1fr)">
+                        <?php foreach ($paymentMethods as $i => $pm): ?>
+                        <label class="payment-option">
+                            <input type="radio" name="payment"
+                                   value="<?= Html::encode($pm['id']) ?>"
+                                   <?= $i === 0 ? 'checked' : '' ?>
+                                   onchange="selectPayment(<?= json_encode($pm['id']) ?>)">
+                            <div class="option-content">
+                                <div class="option-icon"><i class="bi bi-<?= Html::encode($pm['icon'] ?? 'credit-card') ?>"></i></div>
+                                <div class="option-info">
+                                    <span class="option-name"><?= Html::encode($pm['name']) ?></span>
+                                    <?php if (!empty($pm['description'])): ?>
+                                    <span class="option-desc"><?= Html::encode($pm['description']) ?></span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="option-radio"></div>
+                            </div>
+                        </label>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Комментарий -->
@@ -291,10 +388,10 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                 <div class="order-summary">
                     <h3>Ваш заказ</h3>
 
-                    <div class="summary-items" id="checkoutSummaryItems">
+                    <div class="summary-items">
                         <?php foreach ($items as $item): ?>
                             <?php if (!$item->product) continue; ?>
-                            <div class="summary-item" id="checkout-item-<?= $item->id ?>">
+                            <div class="summary-item">
                                 <img src="<?= Html::encode($item->product->getMainImageUrl()) ?>"
                                      alt="<?= Html::encode($item->product->name) ?>"
                                      class="summary-item-img">
@@ -303,20 +400,9 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                                     <?php if ($item->size): ?>
                                         <span class="summary-item-meta">Размер: <?= Html::encode($item->size) ?></span>
                                     <?php endif; ?>
-                                    <div class="summary-item-qty" role="group" aria-label="Количество">
-                                        <button type="button" class="qty-btn" aria-label="Уменьшить"
-                                                onclick="checkoutUpdateQty(<?= $item->id ?>, <?= $item->quantity - 1 ?>)"
-                                                <?= $item->quantity <= 1 ? 'disabled' : '' ?>>−</button>
-                                        <span class="qty-val" id="qty-<?= $item->id ?>"><?= (int)$item->quantity ?></span>
-                                        <button type="button" class="qty-btn" aria-label="Увеличить"
-                                                onclick="checkoutUpdateQty(<?= $item->id ?>, <?= $item->quantity + 1 ?>)">+</button>
-                                    </div>
+                                    <span class="summary-item-meta"><?= (int)$item->quantity ?> × <?= number_format($item->price, 2) ?> BYN</span>
                                 </div>
-                                <div class="summary-item-right">
-                                    <span class="summary-item-price" id="price-<?= $item->id ?>"><?= number_format($item->price * $item->quantity, 2) ?> BYN</span>
-                                    <button type="button" class="summary-item-remove" aria-label="Удалить товар"
-                                            onclick="checkoutRemoveItem(<?= $item->id ?>, <?= $item->price ?>)">×</button>
-                                </div>
+                                <span class="summary-item-price"><?= number_format($item->price * $item->quantity, 2) ?> BYN</span>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -338,7 +424,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                             </div>
                             <div class="coupon-message" id="couponMessage"></div>
                         </div>
-                        <div class="summary-row coupon-discount-row d-none" id="couponDiscountRow">
+                        <div class="summary-row coupon-discount-row" id="couponDiscountRow" style="display:none">
                             <span>Скидка:</span>
                             <span id="couponDiscount">0 BYN</span>
                         </div>
@@ -349,16 +435,16 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                         </div>
                     </div>
 
-                    <?php if ($total < 100): ?>
+                    <?php if ($total < $freeDeliveryThreshold): ?>
                         <div class="delivery-info">
                             <i class="bi bi-truck"></i>
-                            До бесплатной доставки: <?= number_format(100 - $total, 2) ?> BYN
+                            До бесплатной доставки: <?= number_format($freeDeliveryThreshold - $total, 2) ?> BYN
                         </div>
                     <?php endif; ?>
 
                     <button class="btn-place-order" onclick="submitOrder()">
                         <i class="bi bi-check-circle-fill"></i>
-                        Оформить заказ
+                        Оформить заказ — <span id="orderBtnTotal"><?= number_format($total, 0) ?></span> BYN
                     </button>
 
                     <a href="<?= Url::to(['/catalog']) ?>" class="btn-continue">Продолжить покупки</a>
@@ -372,8 +458,22 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
 <div class="mobile-cta-bar">
     <button class="btn-place-order" onclick="submitOrder()">
         <i class="bi bi-check-circle-fill"></i>
-        Оформить заказ
+        Оформить заказ — <span id="mobileBtnTotal"><?= number_format($total, 0) ?></span> BYN
     </button>
+</div>
+
+<!-- Desktop: sticky footer (shows when scrolled past order button) -->
+<div class="checkout-sticky-footer" id="checkoutStickyFooter">
+    <div class="checkout-sticky-inner">
+        <div class="checkout-sticky-total">
+            <span class="checkout-sticky-label">Итого:</span>
+            <span class="checkout-sticky-amount" id="stickyTotal"><?= number_format($total, 2) ?> BYN</span>
+        </div>
+        <button class="checkout-sticky-btn" onclick="submitOrder()">
+            <i class="bi bi-check-circle-fill"></i>
+            Оформить заказ
+        </button>
+    </div>
 </div>
 
 <!-- Модал успеха -->
@@ -395,81 +495,130 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
     </div>
 </div>
 
+<style>
+.field-error { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,.1) !important; }
+.field-valid { border-color: #22c55e !important; }
+.field-error-msg { color: #ef4444; font-size: 12px; margin-top: 4px; animation: fadeIn .2s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
 <script>
 var orderTotal        = <?= (float)$total ?>;
 var orderDeliveryCost = 0;
 var orderDiscount     = 0;
-var selectedDelivery  = 'pickup_minsk';
+var selectedDelivery  = <?= json_encode($firstBelarusId) ?>;
 var selectedCountry   = 'belarus';
-var selectedPayment   = 'bank_transfer';
+var selectedPayment   = <?= json_encode($firstPaymentId) ?>; // '' if no payment methods in DB
+var selectedPvz       = '';
 var csrfToken         = <?= json_encode($csrfToken) ?>;
 var createUrl         = <?= json_encode($createUrl) ?>;
 
-// Cart editing in checkout
-function checkoutUpdateQty(id, newQty) {
-    if (newQty < 1) return;
-    var csrfHeader = { 'X-CSRF-Token': csrfToken, 'X-Requested-With': 'XMLHttpRequest' };
-    fetch('/cart/update', {
-        method: 'POST',
-        headers: Object.assign({ 'Content-Type': 'application/x-www-form-urlencoded' }, csrfHeader),
-        body: 'id=' + id + '&quantity=' + newQty
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        if (data.success) {
-            var qtyEl = document.getElementById('qty-' + id);
-            var priceEl = document.getElementById('price-' + id);
-            var itemRow = document.getElementById('checkout-item-' + id);
-            if (qtyEl) qtyEl.textContent = newQty;
-            var unitPrice = data.item_price || (parseFloat(priceEl.textContent) / parseInt(qtyEl.textContent));
-            if (priceEl && data.item_subtotal) priceEl.textContent = parseFloat(data.item_subtotal).toFixed(2) + ' BYN';
-            // Disable minus when qty=1
-            var btns = itemRow ? itemRow.querySelectorAll('.qty-btn') : [];
-            if (btns[0]) btns[0].disabled = (newQty <= 1);
-            // Update totals
-            orderTotal = data.total || orderTotal;
-            var ptEl = document.getElementById('productsTotal');
-            if (ptEl) ptEl.textContent = parseFloat(data.total).toFixed(2) + ' BYN';
-            updateTotal();
-        }
-    });
-}
+// ===== Phone mask +375 =====
+(function() {
+    var phoneInput = document.getElementById('field-phone');
+    if (!phoneInput) return;
 
-function checkoutRemoveItem(id, price) {
-    var csrfHeader = { 'X-CSRF-Token': csrfToken, 'X-Requested-With': 'XMLHttpRequest' };
-    fetch('/cart/remove/' + id, {
-        method: 'POST',
-        headers: Object.assign({ 'Content-Type': 'application/x-www-form-urlencoded' }, csrfHeader),
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        if (data.success) {
-            var row = document.getElementById('checkout-item-' + id);
-            if (row) row.remove();
-            orderTotal = data.total || Math.max(0, orderTotal - price);
-            var ptEl = document.getElementById('productsTotal');
-            if (ptEl) ptEl.textContent = parseFloat(data.total || orderTotal).toFixed(2) + ' BYN';
-            updateTotal();
-            if (data.count === 0 || document.querySelectorAll('#checkoutSummaryItems .summary-item').length === 0) {
-                window.location.href = '/catalog';
-            }
-        }
+    phoneInput.addEventListener('focus', function() {
+        if (!this.value) this.value = '+375 (';
     });
-}
 
-function showFieldError(fieldId, errorId, message) {
-    var field = document.getElementById(fieldId);
-    if (field) { field.classList.add('is-invalid'); field.focus(); }
-    if (errorId) {
-        var err = document.getElementById(errorId);
-        if (err) err.textContent = message;
+    phoneInput.addEventListener('input', function(e) {
+        var digits = this.value.replace(/\D/g, '');
+        // Ensure starts with 375
+        if (digits.length < 3 || digits.substring(0, 3) !== '375') {
+            digits = '375' + digits.replace(/^375/, '');
+        }
+        // Format: +375 (XX) XXX-XX-XX
+        var formatted = '+375';
+        if (digits.length > 3) formatted += ' (' + digits.substring(3, 5);
+        if (digits.length >= 5) formatted += ') ';
+        if (digits.length > 5) formatted += digits.substring(5, 8);
+        if (digits.length > 8) formatted += '-' + digits.substring(8, 10);
+        if (digits.length > 10) formatted += '-' + digits.substring(10, 12);
+        this.value = formatted;
+    });
+
+    phoneInput.addEventListener('keydown', function(e) {
+        // Allow backspace, delete, tab, arrows
+        if ([8, 46, 9, 37, 39].indexOf(e.keyCode) !== -1) return;
+        // Block non-digit
+        if (e.key && e.key.length === 1 && !/\d/.test(e.key)) e.preventDefault();
+    });
+})();
+
+// ===== Inline validation =====
+(function() {
+    function showError(el, msg) {
+        clearError(el);
+        el.classList.add('field-error');
+        var err = document.createElement('div');
+        err.className = 'field-error-msg';
+        err.textContent = msg;
+        err.style.cssText = 'color:#ef4444;font-size:12px;margin-top:4px;';
+        el.parentNode.appendChild(err);
     }
+    function clearError(el) {
+        el.classList.remove('field-error');
+        var prev = el.parentNode.querySelector('.field-error-msg');
+        if (prev) prev.remove();
+    }
+    function validateField(el) {
+        var val = el.value.trim();
+        var name = el.getAttribute('name');
+        clearError(el);
+        if (name === 'name') {
+            if (!val) { showError(el, 'Укажите ФИО'); return false; }
+            if (val.length < 3) { showError(el, 'ФИО слишком короткое'); return false; }
+        }
+        if (name === 'phone') {
+            var digits = val.replace(/\D/g, '');
+            if (digits.length < 12) { showError(el, 'Введите полный номер телефона'); return false; }
+        }
+        if (name === 'email' && val) {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { showError(el, 'Некорректный email'); return false; }
+        }
+        el.classList.add('field-valid');
+        return true;
+    }
+
+    ['field-name', 'field-phone', 'field-email'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('blur', function() { validateField(this); });
+            el.addEventListener('input', function() {
+                if (this.classList.contains('field-error')) validateField(this);
+            });
+        }
+    });
+
+    // Expose for use in submitOrder
+    window.validateCheckoutFields = function() {
+        var valid = true;
+        ['field-name', 'field-phone'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el && !validateField(el)) { valid = false; if (!document.querySelector('.field-error:focus')) el.focus(); }
+        });
+        var emailEl = document.getElementById('field-email');
+        if (emailEl && emailEl.value.trim() && !validateField(emailEl)) valid = false;
+        return valid;
+    };
+})();
+
+function selectPvz(val) {
+    selectedPvz = val;
 }
 
-function clearFieldErrors() {
-    document.querySelectorAll('.form-control.is-invalid').forEach(function(f) { f.classList.remove('is-invalid'); });
-    document.querySelectorAll('.invalid-feedback[role="alert"]').forEach(function(e) { e.textContent = ''; });
-}
+// Init delivery state on page load (ensure address hidden for pickup by default)
+document.addEventListener('DOMContentLoaded', function() {
+    var checked = document.querySelector('input[name="delivery"]:checked');
+    if (checked) {
+        var cost = 0;
+        if (checked.value === 'courier_minsk') cost = 10;
+        else if (checked.value === 'europochta') cost = 5;
+        else if (checked.value === 'belpochta') cost = 4;
+        updateDelivery(cost, checked.value);
+    }
+});
 
 // Mobile summary toggle
 function toggleMobileSummary() {
@@ -514,9 +663,9 @@ function updateDelivery(cost, method) {
     selectedDelivery  = method;
 
     var label;
-    if (method === 'pickup_minsk') {
+    if (method === 'pickup' || method === 'pickup_minsk') {
         label = 'Бесплатно';
-    } else if (method === 'sdek') {
+    } else if (method === 'sdek' || method === 'cdek') {
         label = 'По тарифам СДЭК';
     } else {
         label = cost.toFixed(2) + ' BYN';
@@ -527,7 +676,11 @@ function updateDelivery(cost, method) {
     if (deliveryEl)       deliveryEl.textContent = label;
     if (mobileDeliveryEl) mobileDeliveryEl.textContent = label;
 
-    var needAddress = (method !== 'pickup_minsk');
+    // Show Europochta ПВЗ dropdown
+    var pvzWrap = document.getElementById('europochtaPvz');
+    if (pvzWrap) pvzWrap.style.display = (method === 'europochta') ? 'block' : 'none';
+
+    var needAddress = (method !== 'pickup' && method !== 'pickup_minsk' && method !== 'europochta');
     document.getElementById('addressGroup').style.display = needAddress ? 'block' : 'none';
     document.getElementById('field-address').required = needAddress;
 
@@ -537,9 +690,14 @@ function updateDelivery(cost, method) {
 function updateTotal() {
     var total = orderTotal + orderDeliveryCost - orderDiscount;
     var fmt = total.toFixed(2) + ' BYN';
-    ['finalTotal', 'mobileFinalTotal', 'mobileFinalTotal2'].forEach(function(id) {
+    ['finalTotal', 'mobileFinalTotal', 'mobileFinalTotal2', 'stickyTotal'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.textContent = fmt;
+    });
+    var fmtShort = Math.round(total);
+    ['orderBtnTotal', 'mobileBtnTotal'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = fmtShort;
     });
 }
 
@@ -588,18 +746,29 @@ function submitOrder() {
     // Combine address parts
     var address = [city, postal, street].filter(Boolean).join(', ');
 
-    clearFieldErrors();
-    if (!name)  { showFieldError('field-name', 'error-name', 'Укажите ФИО'); return; }
-    if (!phone) { showFieldError('field-phone', 'error-phone', 'Укажите телефон'); return; }
-    if (!/^[\+]?[\d\s\-\(\)]{7,}$/.test(phone)) {
-        showFieldError('field-phone', 'error-phone', 'Некорректный формат телефона');
-        return;
-    }
+    // Inline validation
+    if (typeof window.validateCheckoutFields === 'function' && !window.validateCheckoutFields()) return;
+    if (!name)  { alert('Укажите ФИО'); document.getElementById('field-name').focus(); return; }
+    if (!phone) { alert('Укажите телефон'); document.getElementById('field-phone').focus(); return; }
     if (!delivery) { alert('Выберите способ доставки'); return; }
-    if (delivery.value !== 'pickup_minsk' && !address) {
+
+    // For Europochta: use selected ПВЗ as pickup_point and address
+    if (delivery.value === 'europochta') {
+        var pvzVal = document.getElementById('pvzHidden') ? document.getElementById('pvzHidden').value : selectedPvz;
+        if (!pvzVal) {
+            alert('Выберите пункт выдачи Европочты');
+            var pvzSearchEl = document.getElementById('pvzSearch');
+            if (pvzSearchEl) pvzSearchEl.focus();
+            return;
+        }
+        address = pvzVal;
+        selectedPvz = pvzVal;
+    }
+
+    if (delivery.value !== 'pickup' && delivery.value !== 'pickup_minsk' && delivery.value !== 'europochta' && !address) {
+        alert('Укажите адрес доставки');
         var cityEl = document.getElementById('field-city');
-        if (cityEl) { showFieldError('field-city', null, 'Укажите город'); }
-        else { showFieldError('field-address', null, 'Укажите адрес доставки'); }
+        if (cityEl) cityEl.focus(); else document.getElementById('field-address').focus();
         return;
     }
 
@@ -617,6 +786,10 @@ function submitOrder() {
     params.append('address',  address);
     params.append('country',  selectedCountry);
     params.append('payment',  selectedPayment);
+    // Send pickup_point separately for Europochta
+    if (delivery.value === 'europochta' && selectedPvz) {
+        params.append('pickup_point', selectedPvz);
+    }
 
     fetch(createUrl, {
         method: 'POST',
@@ -633,6 +806,24 @@ function submitOrder() {
             document.getElementById('orderNumber').textContent = data.order_number || data.order_id;
             document.getElementById('successModal').classList.add('active');
             document.body.style.overflow = 'hidden';
+
+            // GA4 purchase event
+            if (typeof gtag === 'function') {
+                gtag('event', 'purchase', {
+                    transaction_id: data.order_number || data.order_id,
+                    value: orderTotal + orderDeliveryCost - orderDiscount,
+                    currency: 'BYN',
+                    shipping: orderDeliveryCost,
+                    items: <?= json_encode(array_map(function($item) {
+                        return [
+                            'item_id' => $item->product ? $item->product->id : '',
+                            'item_name' => $item->product ? $item->product->name : '',
+                            'price' => (float)$item->price,
+                            'quantity' => (int)$item->quantity,
+                        ];
+                    }, $items), JSON_UNESCAPED_UNICODE) ?>
+                });
+            }
         } else {
             document.querySelectorAll('.btn-place-order').forEach(function(btn) {
                 btn.disabled = false;
@@ -649,4 +840,29 @@ function submitOrder() {
         alert('Ошибка соединения. Попробуйте позже.');
     });
 }
+
+// Desktop sticky footer: show when order button scrolls off screen
+(function () {
+    var stickyFooter = document.getElementById('checkoutStickyFooter');
+    var orderBtn = document.querySelector('.checkout-right .btn-place-order');
+    if (!stickyFooter) return;
+
+    function checkScroll() {
+        if (window.innerWidth <= 768) return;
+        if (!orderBtn) {
+            stickyFooter.classList.add('visible');
+            return;
+        }
+        var rect = orderBtn.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > window.innerHeight) {
+            stickyFooter.classList.add('visible');
+        } else {
+            stickyFooter.classList.remove('visible');
+        }
+    }
+
+    window.addEventListener('scroll', checkScroll, { passive: true });
+    window.addEventListener('resize', checkScroll, { passive: true });
+    checkScroll();
+})();
 </script>

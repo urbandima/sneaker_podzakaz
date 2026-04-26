@@ -220,6 +220,7 @@ $controllerId = Yii::$app->controller->id;
                         ['label' => 'Закупки',             'url' => '/admin/procurement',           'ids' => ['procurement'], 'icon' => 'bi-clipboard-data'],
                         ['label' => 'Приёмка',             'url' => '/admin/procurement/receiving', 'ids' => ['procurement'], 'icon' => 'bi-box-arrow-in-down'],
                         ['label' => 'Возвраты поставщику', 'url' => '/admin/procurement/returns',   'ids' => ['procurement'], 'icon' => 'bi-arrow-return-left'],
+                        ['label' => 'Выкупы',              'url' => '/admin/procurement/buyouts',  'ids' => ['buyout'],       'icon' => 'bi-bag-check'],
                     ]
                 ],
 
