@@ -146,11 +146,12 @@ class AnalyticsEvent extends ActiveRecord
                 $sessionId = Yii::$app->session->id;
             }
             Yii::$app->db->createCommand()->insert('{{%analytics_event}}', [
-                'event'       => $event,
-                'product_id'  => $productId,
-                'customer_id' => $customerId,
+                'event_type'  => $event,
+                'entity_type' => $productId ? 'product' : null,
+                'entity_id'   => $productId ?: null,
+                'user_id'     => $customerId,
                 'session_id'  => $sessionId,
-                'extra'       => $extra ? json_encode($extra, JSON_UNESCAPED_UNICODE) : null,
+                'meta_json'   => $extra ? json_encode($extra, JSON_UNESCAPED_UNICODE) : null,
                 'created_at'  => date('Y-m-d H:i:s'),
             ])->execute();
         } catch (\Exception $e) {

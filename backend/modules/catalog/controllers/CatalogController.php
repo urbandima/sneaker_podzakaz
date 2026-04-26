@@ -171,11 +171,17 @@ class CatalogController extends Controller
         // Нормализуем фильтры
         $currentFilters = $this->normalizeFilterList($filters);
         
+        $searchQuery = trim($request->get('q', ''));
+
         // Строим запрос
         $query = Product::find()
             ->with(['brand', 'characteristicValues'])
             ->where(['is_active' => true]);
-        
+
+        if ($searchQuery !== '' && mb_strlen($searchQuery) >= 2) {
+            $query->andWhere(['like', 'name', $searchQuery]);
+        }
+
         // ИСПРАВЛЕНО: Передаём фильтры напрямую вместо мутации $_GET
         $query = $this->applyFilters($query, [
             'filters' => $filters,
@@ -216,7 +222,9 @@ class CatalogController extends Controller
 
         // Заголовок страницы
         $h1 = 'Каталог товаров';
-        if (!empty($currentFilters['brand'])) {
+        if ($searchQuery !== '') {
+            $h1 = 'Поиск: ' . $searchQuery;
+        } elseif (!empty($currentFilters['brand'])) {
             $brand = Brand::findOne(['slug' => $currentFilters['brand'][0]]);
             $h1 = $brand ? $brand->name : 'Каталог товаров';
         }
@@ -234,13 +242,14 @@ class CatalogController extends Controller
 
         // Рендерим view
         return $this->render('index', [
-            'products' => $products,
-            'pagination' => $pagination,
-            'h1' => $h1,
-            'filters' => $filters,
-            'currentFilters' => $currentFilters,
-            'activeFilters' => $currentFilters,
+            'products'          => $products,
+            'pagination'        => $pagination,
+            'h1'                => $h1,
+            'filters'           => $filters,
+            'currentFilters'    => $currentFilters,
+            'activeFilters'     => $currentFilters,
             'currentSizeSystem' => $currentSizeSystem,
+            'searchQuery'       => $searchQuery,
         ]);
     }
     
