@@ -119,11 +119,34 @@ $opStats = $operationalStats ?? ['unprocessed2h' => 0, 'delayed3d' => 0, 'awaiti
     </a>
     <?php $deadlineToday = (int)($opStats['deadlineToday'] ?? 0); ?>
     <a href="<?= Url::to(['/admin/order', 'deadline_today' => '1']) ?>"
-       class="dash-op-widget<?= $deadlineToday > 0 ? '' : '' ?>"
+       class="dash-op-widget"
        style="<?= $deadlineToday > 0 ? 'background:#fef2f2;border-color:#fecaca' : '' ?>">
         <div class="dash-op-widget-icon <?= $deadlineToday > 0 ? 'danger' : 'info' ?>"><i class="bi bi-alarm-fill"></i></div>
         <div class="dash-op-widget-value <?= $deadlineToday > 0 ? 'danger' : 'info' ?>"><?= $deadlineToday ?></div>
         <div class="dash-op-widget-label">Сроки сегодня<br>ожидаемая доставка</div>
+    </a>
+</div>
+
+<!-- #14 SLA tiles: Сроки сегодня -->
+<?php $sla = $slaStats ?? ['ok' => 0, 'warn' => 0, 'overdue' => 0]; ?>
+<div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+    <a href="<?= Url::to(['/admin/order', 'sla' => 'ok']) ?>"
+       class="dash-op-widget" style="flex:1;min-width:130px;background:#f0fdf4;border-color:#bbf7d0">
+        <div class="dash-op-widget-icon success"><i class="bi bi-check-circle-fill"></i></div>
+        <div class="dash-op-widget-value success"><?= (int)$sla['ok'] ?></div>
+        <div class="dash-op-widget-label">В SLA<br>в срок</div>
+    </a>
+    <a href="<?= Url::to(['/admin/order', 'sla' => 'warn']) ?>"
+       class="dash-op-widget" style="flex:1;min-width:130px;<?= (int)$sla['warn'] > 0 ? 'background:#fffbeb;border-color:#fde68a' : '' ?>">
+        <div class="dash-op-widget-icon warning"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <div class="dash-op-widget-value warning"><?= (int)$sla['warn'] ?></div>
+        <div class="dash-op-widget-label">На грани<br>&le;2ч до дедлайна</div>
+    </a>
+    <a href="<?= Url::to(['/admin/order', 'sla' => 'overdue']) ?>"
+       class="dash-op-widget" style="flex:1;min-width:130px;<?= (int)$sla['overdue'] > 0 ? 'background:#fef2f2;border-color:#fecaca' : '' ?>">
+        <div class="dash-op-widget-icon <?= (int)$sla['overdue'] > 0 ? 'danger' : 'info' ?>"><i class="bi bi-alarm-fill"></i></div>
+        <div class="dash-op-widget-value <?= (int)$sla['overdue'] > 0 ? 'danger' : 'info' ?>"><?= (int)$sla['overdue'] ?></div>
+        <div class="dash-op-widget-label">Просрочено<br>за пределами SLA</div>
     </a>
 </div>
 

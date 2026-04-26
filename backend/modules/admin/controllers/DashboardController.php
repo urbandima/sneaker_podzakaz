@@ -112,6 +112,13 @@ class DashboardController extends BaseAdminController
         // A20: abandoned carts (cart updated > 1h ago, order not placed)
         $abandonedCarts = $this->getAbandonedCartCount();
 
+        // #14: SLA tiles
+        try {
+            $slaStats = $this->getSlaStats();
+        } catch (\Exception $e) {
+            $slaStats = ['ok' => 0, 'warn' => 0, 'overdue' => 0];
+        }
+
         return $this->render('index', [
             'user'                     => $user,
             'orderStats'               => $orderStats,
@@ -128,6 +135,7 @@ class DashboardController extends BaseAdminController
             'abandonedCarts'           => $abandonedCarts,
             'productsNoCategoryCount'  => (int)$productsNoCategoryCount,
             'brandMismatchCount'       => (int)$brandMismatchCount,
+            'slaStats'                 => $slaStats,
         ]);
     }
     
@@ -396,6 +404,25 @@ class DashboardController extends BaseAdminController
         } catch (\Exception $e) {
             return ['views' => 0, 'carts' => 0, 'orders' => 0];
         }
+    }
+
+    // #13/#14: SLA stats — ok / warn (≤2h to deadline) / overdue
+    private function getSlaStats(): array
+    {
+        $terminal = ['delivered', 'cancelled', 'canceled', 'refunded'];
+        $now      = date('Y-m-d H:i:s');
+        $warn2h   = date('Y-m-d H:i:s', strtotime('+2 hours'));
+
+        $base = \app\backend\modules\checkout\models\Order::find()
+            ->andWhere(['NOT IN', 'status', $terminal])
+            ->andWhere(['IS NOT', 'expected_delivery_at', null]);
+
+        $overdue = (int)(clone $base)->andWhere(['<', 'expected_delivery_at', $now])->count();
+        $warn    = (int)(clone $base)->andWhere(['>=', 'expected_delivery_at', $now])
+                                     ->andWhere(['<=', 'expected_delivery_at', $warn2h])->count();
+        $ok      = (int)(clone $base)->andWhere(['>', 'expected_delivery_at', $warn2h])->count();
+
+        return ['ok' => $ok, 'warn' => $warn, 'overdue' => $overdue];
     }
 
     // A20: count carts that haven't converted to an order (updated > 1h ago)
