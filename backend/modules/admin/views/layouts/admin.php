@@ -638,7 +638,7 @@ document.addEventListener('click',function(e){
 document.addEventListener('keydown',function(e){
     if(e.ctrlKey&&e.key==='d'){e.preventDefault();var btn=document.getElementById('theme-toggle');if(btn)btn.click();}
     if(e.key==='Escape'){closeMobileSidebar();}
-    if(e.ctrlKey&&e.key==='k'){e.preventDefault();var o=document.getElementById('search-overlay');if(o)o.style.display=o.style.display==='none'?'flex':'none';var inp=document.getElementById('admin-search-input');if(inp)inp.focus();}
+    // Ctrl+K search is handled by admin.js initSearch() — no duplicate handler here
 });
 </script>
 
