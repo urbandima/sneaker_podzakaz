@@ -392,7 +392,7 @@ $this->registerJsVar('productVideo', $productVideo);
             <!-- Выбор размера -->
             <div class="size-selector-section">
                 <div class="size-header">
-                    <h3>Выберите размер</h3>
+                    <h3>Выберите размер <span class="size-system-label-badge" title="Система размеров">EU</span></h3>
                     <button type="button" class="size-guide-btn" onclick="openSizeGuide()">
                         <i class="bi bi-rulers"></i>
                         Таблица размеров

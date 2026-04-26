@@ -21,20 +21,6 @@ $company = Yii::$app->settings->getCompany();
                         <p class="footer-tagline">Оригинальные кроссовки из США и Европы</p>
                     </div>
 
-                    <div class="footer-badges">
-                        <div class="badge-item">
-                            <i class="bi bi-shield-check"></i>
-                            <span>100% оригинал</span>
-                        </div>
-                        <div class="badge-item">
-                            <i class="bi bi-truck"></i>
-                            <span>Быстрая доставка</span>
-                        </div>
-                        <div class="badge-item">
-                            <i class="bi bi-arrow-repeat"></i>
-                            <span>14 дней возврат</span>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- О компании -->
