@@ -21,7 +21,10 @@ $this->params['breadcrumbs'][] = $this->title;
         <h1><?= Html::encode($this->title) ?></h1>
         <div class="page-header-actions">
             <?= Html::a('<i class="bi bi-plus-lg"></i> Создать тег', ['create'], ['class' => 'admin-btn admin-btn-primary']) ?>
-            <?= Html::a('<i class="bi bi-tags"></i> Массовое назначение', ['assign'], ['class' => 'admin-btn admin-btn-secondary']) ?>
+            <?= Html::a('<i class="bi bi-tags"></i> Массовое назначение', ['assign'], array_merge(
+                ['class' => 'admin-btn admin-btn-secondary'],
+                $dataProvider->getCount() === 0 ? ['disabled' => true, 'style' => 'pointer-events:none;opacity:.5'] : []
+            )) ?>
         </div>
     </div>
 
