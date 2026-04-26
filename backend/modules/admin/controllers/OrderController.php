@@ -1395,11 +1395,48 @@ class OrderController extends BaseAdminController
         $id = (int)($data['id'] ?? 0);
         $field = $data['field'] ?? '';
         $value = $data['value'] ?? '';
-        $allowed = ['china_track_number','local_track_number','delivery_method','delivery_address',
-            'pickup_point','china_delivery_status','warehouse_arrival_date','delivery_date'];
-        if (!in_array($field, $allowed)) return ['success' => false, 'message' => 'Недопустимое поле'];
+        $allowed = [
+            // Logistics / track
+            'china_track_number', 'local_track_number', 'delivery_method', 'delivery_address',
+            'pickup_point', 'china_delivery_status', 'warehouse_arrival_date', 'delivery_date',
+            // Client info
+            'client_name', 'client_phone', 'client_email',
+            // Address
+            'city', 'region', 'postal_code', 'full_address',
+            // Passport
+            'recipient_last_name', 'recipient_first_name', 'recipient_middle_name',
+            'passport_series', 'passport_number', 'passport_issue_date', 'birth_date', 'inn',
+            // Order details
+            'comment', 'source', 'customs_description',
+            // Financial
+            'total_amount', 'product_price', 'logistics_price', 'commission_price',
+            'commission_amount', 'insurance_amount', 'delivery_cost', 'payment_method', 'discount',
+            // Dobropost
+            'shipment_value_cny', 'item_price_cny', 'item_quantity', 'dobropost_tariff',
+            'customs_description', 'product_link', 'sneakerhead_order_link', 'ms_number',
+            // Flags
+            'is_processed', 'is_shipped', 'customs_cleared', 'offer_accepted',
+        ];
+        if (!in_array($field, $allowed)) return ['success' => false, 'message' => 'Недопустимое поле: ' . $field];
         $order = Order::findOne($id);
         if (!$order) return ['success' => false, 'message' => 'Не найден'];
+
+        // Logist restriction
+        $user = $this->getCurrentUser();
+        if ($this->isLogist()) {
+            $logistFields = ['china_track_number','local_track_number','is_processed','is_shipped',
+                'customs_cleared','ms_number','comment','delivery_date','china_delivery_status'];
+            if (!in_array($field, $logistFields)) return ['success' => false, 'message' => 'Недостаточно прав'];
+        }
+
+        // Type coercion
+        if (in_array($field, ['is_processed','is_shipped','customs_cleared','offer_accepted'])) $value = (bool)$value;
+        if (in_array($field, ['total_amount','product_price','logistics_price','commission_price',
+            'commission_amount','insurance_amount','delivery_cost','shipment_value_cny','item_price_cny','discount'])) {
+            $value = $value !== '' ? (float)$value : null;
+        }
+        if ($field === 'item_quantity') $value = $value !== '' ? (int)$value : null;
+
         $oldValue = $order->getAttribute($field);
         $order->$field = $value;
         $order->save(false);

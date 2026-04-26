@@ -585,17 +585,23 @@ $customer = $model->customer ?? null;
                             <span>Подытог:</span>
                             <span style="min-width:90px;text-align:right"><?= Yii::$app->formatter->asDecimal($subtotal, 2) ?> Br</span>
                         </div>
-                        <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:<?= $discountAmt > 0 ? '#059669' : 'var(--admin-text-secondary,#9ca3af)' ?>">
+                        <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:3px 0;color:<?= $discountAmt > 0 ? '#059669' : 'var(--admin-text-secondary,#9ca3af)' ?>">
                             <span>Скидка:</span>
-                            <span style="min-width:90px;text-align:right"><?= $discountAmt > 0 ? '−' . Yii::$app->formatter->asDecimal($discountAmt, 2) . ' Br' : '<span style="font-style:italic;font-size:0.75rem">не задана</span>' ?></span>
+                            <div class="crm-editable" data-field="discount" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="min-width:90px;text-align:right;padding:2px 6px">
+                                <?= $discountAmt > 0 ? '−' . Yii::$app->formatter->asDecimal($discountAmt, 2) . ' Br' : '<span class="crm-editable-empty" style="font-style:italic;font-size:0.75rem">не задана</span>' ?>
+                            </div>
                         </div>
-                        <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:<?= $deliveryCost > 0 ? 'var(--admin-text-primary,#111)' : 'var(--admin-text-secondary,#9ca3af)' ?>">
+                        <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:3px 0;color:<?= $deliveryCost > 0 ? 'var(--admin-text-primary,#111)' : 'var(--admin-text-secondary,#9ca3af)' ?>">
                             <span>Доставка:</span>
-                            <span style="min-width:90px;text-align:right"><?= $deliveryCost > 0 ? Yii::$app->formatter->asDecimal($deliveryCost, 2) . ' Br' : '<span style="font-style:italic;font-size:0.75rem">не задана</span>' ?></span>
+                            <div class="crm-editable" data-field="delivery_cost" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="min-width:90px;text-align:right;padding:2px 6px">
+                                <?= $deliveryCost > 0 ? Yii::$app->formatter->asDecimal($deliveryCost, 2) . ' Br' : '<span class="crm-editable-empty" style="font-style:italic;font-size:0.75rem">не задана</span>' ?>
+                            </div>
                         </div>
-                        <div style="display:flex;justify-content:flex-end;gap:8px;padding:3px 0;color:<?= $commissionRow > 0 ? 'var(--admin-text-primary,#111)' : 'var(--admin-text-secondary,#9ca3af)' ?>">
+                        <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:3px 0;color:<?= $commissionRow > 0 ? 'var(--admin-text-primary,#111)' : 'var(--admin-text-secondary,#9ca3af)' ?>">
                             <span>Комиссия:</span>
-                            <span style="min-width:90px;text-align:right"><?= $commissionRow > 0 ? Yii::$app->formatter->asDecimal($commissionRow, 2) . ' Br' : '<span style="font-style:italic;font-size:0.75rem">не задана</span>' ?></span>
+                            <div class="crm-editable" data-field="commission_price" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="min-width:90px;text-align:right;padding:2px 6px">
+                                <?= $commissionRow > 0 ? Yii::$app->formatter->asDecimal($commissionRow, 2) . ' Br' : '<span class="crm-editable-empty" style="font-style:italic;font-size:0.75rem">не задана</span>' ?>
+                            </div>
                         </div>
                     </div>
                     <div class="crm-total-row">
