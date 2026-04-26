@@ -197,7 +197,7 @@ $this->title = 'Купить оригинальные кроссовки в Бе
         <?php foreach (array_slice($topBrands, 0, 10) as $brand): ?>
         <a href="/catalog/brand/<?= Html::encode($brand->slug ?? $brand->id) ?>" class="brand-card">
             <?php if (!empty($brand->logo_url)): ?>
-                <img src="<?= Html::encode($brand->logo_url) ?>" alt="<?= Html::encode($brand->name) ?>"
+                <img src="<?= Html::encode($brand->logo_url) ?>" alt=""
                      loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                 <span class="brand-name-fallback" style="display:none"><?= Html::encode($brand->name) ?></span>
             <?php else: ?>

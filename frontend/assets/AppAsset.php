@@ -12,7 +12,7 @@ class AppAsset extends AssetBundle
     // Модульная CSS архитектура - версии добавятся автоматически в init()
     // Google Fonts загружается async в layouts/main.php чтобы не блокировать рендер
     public $css = [
-        'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',
+        // Bootstrap Icons loaded async in main.php to avoid render-blocking
         'css/core/design-tokens.css',
         'css/core/design-system.css',
         'css/core/container-system.css',

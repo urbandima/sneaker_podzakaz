@@ -185,7 +185,16 @@ body.has-sticky-bar .main-footer {
 
 .payment-label {
     font-size: var(--text-sm);
-    color: var(--c-gray-500);
+    color: var(--c-gray-400);
+}
+
+.footer-director-link {
+    color: #f87171;
+    font-weight: 600;
+}
+
+.footer-director-link:hover {
+    color: #fca5a5;
 }
 
 .payment-icons {

@@ -33,7 +33,7 @@ $company = Yii::$app->settings->getCompany();
                         <li><?= Html::a('Инструкция по оплате', ['/site/payment-instruction']) ?></li>
                         <li><?= Html::a('Политика конфиденциальности', ['/page/privacy']) ?></li>
                         <li><?= Html::a('Реквизиты', ['/page/about']) ?></li>
-                        <li style="margin-top:0.5rem"><?= Html::a('<i class="bi bi-chat-heart"></i>&nbsp; Написать директору', ['/feedback'], ['encode' => false, 'style' => 'color:#e11d48;font-weight:600']) ?></li>
+                        <li style="margin-top:0.5rem"><?= Html::a('<i class="bi bi-chat-heart"></i>&nbsp; Написать директору', ['/feedback'], ['encode' => false, 'class' => 'footer-director-link']) ?></li>
                     </ul>
                 </div>
 
@@ -136,7 +136,7 @@ $company = Yii::$app->settings->getCompany();
                     <div class="payment-icons">
 
                         <!-- Visa — official colours #1A1F71 wordmark -->
-                        <span class="payment-icon payment-icon--visa" title="Visa" aria-label="Visa">
+                        <span class="payment-icon payment-icon--visa" title="Visa" role="img" aria-label="Visa">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
                                 <rect width="780" height="500" rx="40" fill="#1A1F71"/>
                                 <text x="390" y="330" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="280" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="-10">VISA</text>
@@ -144,7 +144,7 @@ $company = Yii::$app->settings->getCompany();
                         </span>
 
                         <!-- Mastercard — two overlapping circles -->
-                        <span class="payment-icon payment-icon--mc" title="Mastercard" aria-label="Mastercard">
+                        <span class="payment-icon payment-icon--mc" title="Mastercard" role="img" aria-label="Mastercard">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
                                 <rect width="780" height="500" rx="40" fill="#252525"/>
                                 <circle cx="290" cy="250" r="160" fill="#EB001B"/>
@@ -154,7 +154,7 @@ $company = Yii::$app->settings->getCompany();
                         </span>
 
                         <!-- Белкарт — blue/red stripes wordmark -->
-                        <span class="payment-icon payment-icon--belcard" title="Белкарт" aria-label="Белкарт">
+                        <span class="payment-icon payment-icon--belcard" title="Белкарт" role="img" aria-label="Белкарт">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
                                 <rect width="780" height="500" rx="40" fill="#FFFFFF"/>
                                 <rect y="0" width="780" height="167" rx="0" fill="#005BAA"/>
@@ -165,7 +165,7 @@ $company = Yii::$app->settings->getCompany();
                         </span>
 
                         <!-- Халва (Беларусбанк) — purple card -->
-                        <span class="payment-icon payment-icon--halva" title="Халва" aria-label="Халва">
+                        <span class="payment-icon payment-icon--halva" title="Халва" role="img" aria-label="Халва">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
                                 <rect width="780" height="500" rx="40" fill="#5B2D8E"/>
                                 <text x="390" y="310" font-family="'Arial',sans-serif" font-size="200" font-weight="900" fill="#FFFFFF" text-anchor="middle">Халва</text>
@@ -173,7 +173,7 @@ $company = Yii::$app->settings->getCompany();
                         </span>
 
                         <!-- ЕРИП — green -->
-                        <span class="payment-icon payment-icon--erip" title="ЕРИП" aria-label="ЕРИП">
+                        <span class="payment-icon payment-icon--erip" title="ЕРИП" role="img" aria-label="ЕРИП">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
                                 <rect width="780" height="500" rx="40" fill="#009A44"/>
                                 <text x="390" y="330" font-family="'Arial',sans-serif" font-size="260" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="10">ЕРИП</text>

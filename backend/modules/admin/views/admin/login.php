@@ -85,7 +85,12 @@ $this->title = 'Вход в админ-панель - СНИКЕРХЭД';
     border: none;
     cursor: pointer;
     color: var(--admin-text-secondary);
-    padding: 5px;
+    padding: 10px;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .password-toggle:hover {
