@@ -44,6 +44,7 @@ use yii\behaviors\SluggableBehavior;
 use app\backend\shared\components\SitemapNotifier;
 use app\backend\modules\catalog\models\ProductFavorite;
 use app\backend\modules\catalog\models\ProductReview;
+use app\backend\modules\admin\behaviors\LogBehavior;
 
 /**
  * Модель Product (Товар)
@@ -138,6 +139,11 @@ class Product extends ActiveRecord
                 'slugAttribute' => 'slug',
                 'immutable' => false,
                 'ensureUnique' => true,
+            ],
+            [
+                'class'          => LogBehavior::class,
+                'targetType'     => 'Product',
+                'labelAttribute' => 'name',
             ],
         ];
     }

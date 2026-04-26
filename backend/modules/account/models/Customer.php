@@ -40,6 +40,7 @@ use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 use yii\behaviors\TimestampBehavior;
 use app\backend\modules\checkout\models\Order;
+use app\backend\modules\admin\behaviors\LogBehavior;
 
 /**
  * Модель покупателя (Customer)
@@ -97,6 +98,11 @@ class Customer extends ActiveRecord implements IdentityInterface
     {
         return [
             TimestampBehavior::class,
+            [
+                'class'          => LogBehavior::class,
+                'targetType'     => 'Customer',
+                'labelAttribute' => 'email',
+            ],
         ];
     }
 

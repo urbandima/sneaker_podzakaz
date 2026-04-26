@@ -42,6 +42,7 @@ use Yii;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 use app\backend\modules\admin\models\User;
+use app\backend\modules\admin\behaviors\LogBehavior;
 
 class Order extends ActiveRecord
 {
@@ -100,6 +101,11 @@ class Order extends ActiveRecord
     {
         return [
             TimestampBehavior::class,
+            [
+                'class'          => LogBehavior::class,
+                'targetType'     => 'Order',
+                'labelAttribute' => 'order_number',
+            ],
         ];
     }
 

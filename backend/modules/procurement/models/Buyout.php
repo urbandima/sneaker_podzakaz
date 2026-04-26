@@ -8,6 +8,7 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
 use app\backend\modules\checkout\models\Order;
 use app\backend\modules\procurement\services\BuyoutStatusSyncService;
+use app\backend\modules\admin\behaviors\LogBehavior;
 
 class Buyout extends ActiveRecord
 {
@@ -49,6 +50,11 @@ class Buyout extends ActiveRecord
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value'              => new Expression('NOW()'),
+            ],
+            [
+                'class'          => LogBehavior::class,
+                'targetType'     => 'Buyout',
+                'labelAttribute' => 'external_id',
             ],
         ];
     }
