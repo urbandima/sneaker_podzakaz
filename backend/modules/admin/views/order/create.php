@@ -138,7 +138,6 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
     'id'                   => 'orderCreateForm',
     'action'               => Url::to(['/admin/order/create']),
     'options'              => ['style' => 'display:contents'],
-    'validateOnLoad'       => false,
     'validateOnChange'     => false,
     'validateOnBlur'       => false,
     'validateOnSubmit'     => true,

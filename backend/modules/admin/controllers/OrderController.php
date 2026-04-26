@@ -421,10 +421,8 @@ class OrderController extends BaseAdminController
             }
         }
 
-        // Используем новый wizard интерфейс
-        return $this->render('create-wizard', [
+        return $this->render('create', [
             'model' => $model,
-            'shippingMethods' => $shippingMethods,
         ]);
     }
 
