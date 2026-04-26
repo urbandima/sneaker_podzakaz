@@ -566,8 +566,8 @@ class OrderController extends Controller
     {
         $session = Yii::$app->session;
         $key = 'upload_attempts_' . $token;
-        $attempts = $session->get($key, 0);
-        $lastAttempt = $session->get($key . '_time', 0);
+        $attempts    = (int)$session->get($key, 0);
+        $lastAttempt = (int)$session->get($key . '_time', 0);
 
         // Сброс счетчика через 15 минут
         if (time() - $lastAttempt > 900) {
@@ -580,7 +580,7 @@ class OrderController extends Controller
         }
 
         $session->set($key, $attempts + 1);
-        $session->set($key . '_time', time());
+        $session->set($key . '_time', (int)time());
     }
 
     /**
