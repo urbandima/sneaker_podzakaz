@@ -226,7 +226,8 @@ $controllerId = Yii::$app->controller->id;
                     'icon' => 'bi-box-seam',
                     'items' => [
                         ['label' => 'Поставщики',         'url' => '/admin/procurement/suppliers', 'ids' => ['procurement'], 'icon' => 'bi-building'],
-                        ['label' => 'Приёмка',             'url' => '/admin/procurement/receiving', 'ids' => ['procurement'], 'icon' => 'bi-box-arrow-in-down'],
+                        ['label' => 'Приёмки (новые)',     'url' => '/admin/receiving',            'ids' => ['receiving'],    'icon' => 'bi-box-arrow-in-down'],
+                        ['label' => 'Приёмка (старая)',    'url' => '/admin/procurement/receiving', 'ids' => ['procurement'], 'icon' => 'bi-box-arrow-in-down'],
                         ['label' => 'Возвраты поставщику', 'url' => '/admin/procurement/returns',   'ids' => ['procurement'], 'icon' => 'bi-arrow-return-left'],
                         ['label' => 'Выкупы',              'url' => '/admin/procurement/buyouts',   'ids' => ['procurement'], 'icon' => 'bi-bag-check'],
                     ]
