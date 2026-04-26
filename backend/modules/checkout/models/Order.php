@@ -47,6 +47,50 @@ class Order extends ActiveRecord
 {
     public $items = []; // Для формы создания заказа
 
+    // ── Payment track ─────────────────────────────────────────
+    const PAYMENT_NOT_PAID  = 'not_paid';
+    const PAYMENT_PAID      = 'paid';
+    const PAYMENT_REFUNDED  = 'refunded';
+
+    // ── Logistics track ───────────────────────────────────────
+    const LOGISTICS_AWAITING_BUYOUT  = 'awaiting_buyout';
+    const LOGISTICS_BOUGHT_AT_SOURCE = 'bought_at_source';
+    const LOGISTICS_IN_TRANSIT       = 'in_transit';
+    const LOGISTICS_AT_WAREHOUSE     = 'at_warehouse';
+
+    // ── Delivery track ────────────────────────────────────────
+    const DELIVERY_READY     = 'ready_to_ship';
+    const DELIVERY_SHIPPING  = 'shipping';
+    const DELIVERY_DELIVERED = 'delivered';
+
+    // ── Status → tracks map ───────────────────────────────────
+    private static $statusToTracks = [
+        'new'                    => ['not_paid',  'awaiting_buyout',  null],
+        'created'                => ['not_paid',  'awaiting_buyout',  null],
+        'paid'                   => ['paid',      'awaiting_buyout',  null],
+        'confirmed_and_paid'     => ['paid',      'awaiting_buyout',  null],
+        'processing'             => ['paid',      'awaiting_buyout',  null],
+        'ordered'                => ['paid',      'bought_at_source', null],
+        'awaiting_buyout'        => ['paid',      'awaiting_buyout',  null],
+        'bought_at_source'       => ['paid',      'bought_at_source', null],
+        'awaiting_warehouse'     => ['paid',      'in_transit',       null],
+        'international_delivery' => ['paid',      'in_transit',       null],
+        'in_transit_from_source' => ['paid',      'in_transit',       null],
+        'in_transit'             => ['paid',      'in_transit',       null],
+        'arrived_at_warehouse'   => ['paid',      'at_warehouse',     null],
+        'at_warehouse'           => ['paid',      'at_warehouse',     'ready_to_ship'],
+        'ready_to_ship'          => ['paid',      'at_warehouse',     'ready_to_ship'],
+        'local_delivery'         => ['paid',      'at_warehouse',     'shipping'],
+        'shipped'                => ['paid',      'at_warehouse',     'shipping'],
+        'delivered'              => ['paid',      'at_warehouse',     'delivered'],
+        'cancelled'              => ['not_paid',  'awaiting_buyout',  null],
+        'canceled'               => ['not_paid',  'awaiting_buyout',  null],
+        'refunded'               => ['refunded',  'awaiting_buyout',  null],
+        'return'                 => ['refunded',  'awaiting_buyout',  null],
+        'imported'               => ['not_paid',  'awaiting_buyout',  null],
+        'imported_invalid'       => ['not_paid',  'awaiting_buyout',  null],
+    ];
+
     public static function tableName()
     {
         return 'order';
@@ -91,6 +135,8 @@ class Order extends ActiveRecord
             [['dp_status_date', 'estimated_delivery_date'], 'safe'],
             [['passport_validated'], 'boolean'],
             [['dp_response'], 'safe'],
+            // Three-track status fields
+            [['payment_status', 'logistics_status', 'delivery_status'], 'string', 'max' => 32],
             // Purchase / buyout fields
             [['purchase_cost', 'commission_amount', 'insurance_amount', 'tariff_weight_kg'], 'number'],
             [['purchase_user_id'], 'integer'],
@@ -189,6 +235,10 @@ class Order extends ActiveRecord
                 if (empty($this->status)) {
                     $this->status = 'new';
                 }
+            }
+            // Sync three-track fields whenever status changes or on insert
+            if ($insert || $this->isAttributeChanged('status')) {
+                $this->syncTracksFromStatus();
             }
             return true;
         }
@@ -435,6 +485,83 @@ class Order extends ActiveRecord
             \app\backend\modules\procurement\models\BuyoutOrderLink::class,
             ['order_id' => 'id']
         );
+    }
+
+    // ── Three-track methods ───────────────────────────────────
+
+    public function syncTracksFromStatus(): void
+    {
+        $tracks = self::$statusToTracks[$this->status] ?? ['not_paid', 'awaiting_buyout', null];
+        if (empty($this->payment_status))   { $this->payment_status   = $tracks[0]; }
+        if (empty($this->logistics_status)) { $this->logistics_status = $tracks[1]; }
+        // delivery_status: only auto-set if null; never clear a set value
+        if ($this->delivery_status === null && $tracks[2] !== null) {
+            $this->delivery_status = $tracks[2];
+        }
+    }
+
+    public static function tracksFromStatus(string $status): array
+    {
+        return self::$statusToTracks[$status] ?? ['not_paid', 'awaiting_buyout', null];
+    }
+
+    public function getPaymentStatusLabel(): string
+    {
+        return [
+            'not_paid'  => 'Не оплачен',
+            'paid'      => 'Оплачен',
+            'refunded'  => 'Возврат',
+        ][$this->payment_status ?? ''] ?? ($this->payment_status ?: '—');
+    }
+
+    public function getLogisticsStatusLabel(): string
+    {
+        return [
+            'awaiting_buyout'  => 'Ожидает выкупа',
+            'bought_at_source' => 'Выкуплен',
+            'in_transit'       => 'В пути',
+            'at_warehouse'     => 'На складе',
+        ][$this->logistics_status ?? ''] ?? ($this->logistics_status ?: '—');
+    }
+
+    public function getDeliveryStatusLabel(): string
+    {
+        if (empty($this->delivery_status)) {
+            return '—';
+        }
+        return [
+            'ready_to_ship' => 'Готов к отправке',
+            'shipping'      => 'В доставке',
+            'delivered'     => 'Выдан',
+        ][$this->delivery_status] ?? $this->delivery_status;
+    }
+
+    public static function paymentTrackColors(): array
+    {
+        return [
+            'not_paid'  => ['bg' => '#fef3c7', 'color' => '#92400e'],
+            'paid'      => ['bg' => '#d1fae5', 'color' => '#065f46'],
+            'refunded'  => ['bg' => '#fee2e2', 'color' => '#991b1b'],
+        ];
+    }
+
+    public static function logisticsTrackColors(): array
+    {
+        return [
+            'awaiting_buyout'  => ['bg' => '#f3f4f6', 'color' => '#6b7280'],
+            'bought_at_source' => ['bg' => '#dbeafe', 'color' => '#1d4ed8'],
+            'in_transit'       => ['bg' => '#fde8d8', 'color' => '#c2410c'],
+            'at_warehouse'     => ['bg' => '#ede9fe', 'color' => '#6d28d9'],
+        ];
+    }
+
+    public static function deliveryTrackColors(): array
+    {
+        return [
+            'ready_to_ship' => ['bg' => '#e0f2fe', 'color' => '#0369a1'],
+            'shipping'      => ['bg' => '#fef9c3', 'color' => '#854d0e'],
+            'delivered'     => ['bg' => '#dcfce7', 'color' => '#15803d'],
+        ];
     }
 
     public function sendNotification()
