@@ -76,10 +76,13 @@ setTimeout(function() {
 
         var nextPage = currentPage + 1;
         var url = new URL(window.location.href);
-        url.searchParams.set('page', nextPage);
+        // Yii2 Pagination uses 1-based page params in URLs (page=1 = internal index 0),
+        // but $pagination->page is 0-indexed, so convert: next URL param = nextPage + 1
+        url.searchParams.set('page', nextPage + 1);
 
         fetch(url.toString(), {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            cache: 'no-store'
         })
         .then(function (res) { return res.json(); })
         .then(function (data) {
