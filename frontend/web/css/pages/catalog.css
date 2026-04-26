@@ -1441,3 +1441,25 @@
         justify-content: center;
     }
 }
+/* Infinite Scroll */
+.infinite-scroll-sentinel {
+    height: 1px;
+    margin-top: 40px;
+}
+
+.infinite-scroll-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    color: var(--color-text-muted, #6b7280);
+    font-size: 0.9rem;
+}
+
+.infinite-scroll-counter {
+    text-align: center;
+    padding: 12px;
+    color: var(--color-text-muted, #6b7280);
+    font-size: 0.85rem;
+}
