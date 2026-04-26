@@ -162,11 +162,23 @@ class SiteController extends Controller
         $rawCount = \app\backend\modules\catalog\models\Product::find()->where(['is_active' => 1])->count();
         $productCount = (int)(floor($rawCount / 100) * 100);
 
+        // Real reviews (X11): only show if ≥3 published reviews exist
+        try {
+            $siteReviews = \app\backend\modules\catalog\models\ProductReview::find()
+                ->where(['is_published' => 1])
+                ->orderBy(['created_at' => SORT_DESC])
+                ->limit(6)
+                ->all();
+        } catch (\Throwable $e) {
+            $siteReviews = [];
+        }
+
         $viewData = [
             'popularProducts' => $popularProducts,
             'categories'      => $categories,
             'brands'          => $brands,
             'productCount'    => $productCount,
+            'siteReviews'     => $siteReviews,
         ];
 
         // Проверяем, есть ли главная страница в landing
