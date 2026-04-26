@@ -166,7 +166,7 @@ $this->registerJs("
         'wrapAround': true,
         'albumLabel': 'Фото %1 из %2'
     });
-", \yii\web\View::POS_READY);
+", \yii\web\View::POS_END);
 
 // Инициализация галереи — функции определены в product-page.js
 // (initProductGallery/initSizeSelector/initStickyPurchaseBar запускаются автоматически)

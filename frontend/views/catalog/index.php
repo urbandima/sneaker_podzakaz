@@ -122,7 +122,7 @@ setTimeout(function() {
 
     observer.observe(sentinel);
 })();
-", \yii\web\View::POS_READY);
+", \yii\web\View::POS_END);
 ?>
 
 <div class="catalog-page">
