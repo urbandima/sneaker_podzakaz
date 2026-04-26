@@ -1571,13 +1571,15 @@ $customer = $model->customer ?? null;
                 </div>
                 <div class="crm-card-body">
                     <?php
-                    $msLastLog = Yii::$app->db->createCommand(
-                        "SELECT * FROM moysklad_sync_log WHERE entity_type='order' AND entity_id=:id ORDER BY created_at DESC LIMIT 1",
-                        [':id' => $model->id]
-                    )->queryOne();
+                    try {
+                        $msLastLog = Yii::$app->db->createCommand(
+                            'SELECT * FROM moysklad_sync_log WHERE order_id=:id ORDER BY created_at DESC LIMIT 1',
+                            [':id' => $model->id]
+                        )->queryOne();
+                    } catch (\Exception $e) { $msLastLog = null; }
                     ?>
                     <?php if ($msLastLog): ?>
-                    <?php $msOk = ($msLastLog['status'] ?? '') === 'ok'; ?>
+                    <?php $msOk = (int)($msLastLog['success'] ?? 0) === 1; ?>
                     <div style="margin-bottom:8px;padding:5px 8px;border-radius:5px;font-size:.72rem;
                         background:<?= $msOk ? '#d1fae5' : '#fee2e2' ?>;
                         color:<?= $msOk ? '#065f46' : '#991b1b' ?>">
@@ -1585,8 +1587,8 @@ $customer = $model->customer ?? null;
                             <?= $msOk ? '<i class="bi bi-check-circle-fill"></i> Успешно' : '<i class="bi bi-x-circle-fill"></i> Ошибка' ?>
                             <span style="font-weight:400;opacity:.8;margin-left:4px"><?= Html::encode(Yii::$app->formatter->asDatetime($msLastLog['created_at'], 'php:d.m.Y H:i')) ?></span>
                         </div>
-                        <?php if (!$msOk && !empty($msLastLog['details'])): ?>
-                        <div style="margin-top:3px;font-size:.7rem;opacity:.9;word-break:break-word"><?= Html::encode($msLastLog['details']) ?></div>
+                        <?php if (!$msOk && !empty($msLastLog['message'])): ?>
+                        <div style="margin-top:3px;font-size:.7rem;opacity:.9;word-break:break-word"><?= Html::encode($msLastLog['message']) ?></div>
                         <?php endif; ?>
                     </div>
                     <?php endif; ?>
