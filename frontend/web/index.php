@@ -8,32 +8,18 @@ if (PHP_SAPI === 'cli-server') {
     }
 }
 
-// Точка входа для новой архитектуры 2026 (frontend/backend/infrastructure)
+// Public frontend: force production mode before bootstrap reads .env so that
+// YII_DEBUG=true / YII_ENV=dev in .env cannot leak stack traces to browsers.
+defined('YII_DEBUG') or define('YII_DEBUG', false);
+defined('YII_ENV')   or define('YII_ENV', 'prod');
 
 require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../infrastructure/config/bootstrap.php';
 
-// Determine environment — default to 'prod' for safety; set YII_ENV=dev explicitly for local dev
-if (!defined('YII_ENV')) {
-    $isDev = getenv('YII_ENV') === 'dev';
-    define('YII_ENV', $isDev ? 'dev' : 'prod');
-}
-
-if (!defined('YII_DEBUG')) {
-    // Debug only when env explicitly requests it — never expose stack traces in prod
-    define('YII_DEBUG', YII_ENV === 'dev');
-}
-
-// Определяем константы окружения для совместимости с Yii2
-if (!defined('YII_ENV_DEV')) {
-    define('YII_ENV_DEV', YII_ENV === 'dev');
-}
-if (!defined('YII_ENV_PROD')) {
-    define('YII_ENV_PROD', YII_ENV === 'prod');
-}
-if (!defined('YII_ENV_TEST')) {
-    define('YII_ENV_TEST', YII_ENV === 'test');
-}
+// Совместимость с Yii2 env-константами (bootstrap может не определить их)
+if (!defined('YII_ENV_DEV'))  define('YII_ENV_DEV',  YII_ENV === 'dev');
+if (!defined('YII_ENV_PROD')) define('YII_ENV_PROD', YII_ENV === 'prod');
+if (!defined('YII_ENV_TEST')) define('YII_ENV_TEST', YII_ENV === 'test');
 
 require __DIR__ . '/../../vendor/yiisoft/yii2/Yii.php';
 

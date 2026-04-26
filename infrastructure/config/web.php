@@ -170,9 +170,10 @@ $config = [
             ],
         ],
         'errorHandler' => [
-            'class' => 'app\components\SentryErrorHandler',
+            'class' => 'app\components\MaskingErrorHandler',
             'errorAction' => 'site/error',
-            'displayVars' => YII_DEBUG ? ['_GET', '_POST', '_FILES', '_COOKIE', '_SESSION', '_SERVER'] : [],
+            // In debug mode only admins see full vars; $_SERVER is always scrubbed by MaskingErrorHandler
+            'displayVars' => YII_DEBUG ? ['_GET', '_POST', '_FILES', '_COOKIE', '_SESSION'] : [],
         ],
         'mailer' => [
             'class' => 'yii\symfonymailer\Mailer',
