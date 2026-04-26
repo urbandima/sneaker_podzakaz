@@ -116,12 +116,12 @@ $statusLabels = ['active' => ['label' => 'Активна', 'class' => 'admin-bad
                         <?= $cart->customer ? Html::encode($cart->customer->getFullName()) : 'Гость' ?>
                     </div>
                     <div class="cart-meta">
-                        <?= $cart->items_count ?> товаров ·
+                        <?= (int)$cart->quantity ?> товаров ·
                         <?= Yii::$app->formatter->asRelativeTime($cart->updated_at) ?>
                     </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:1rem">
-                    <div class="cart-value"><?= Yii::$app->formatter->asCurrency($cart->total_amount, 'BYN') ?></div>
+                    <div class="cart-value"><?= Yii::$app->formatter->asCurrency($cart->price * $cart->quantity, 'BYN') ?></div>
                     <button type="button" class="admin-btn admin-btn-primary admin-btn-sm"
                             onclick="sendReminder(<?= $cart->id ?>, this)"
                             data-reminder-url="<?= Url::to(['marketing/send-reminder']) ?>">

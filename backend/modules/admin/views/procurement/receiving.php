@@ -1,9 +1,11 @@
 <?php
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\PurchaseOrder[] $orders */
+/** @var \yii\data\Pagination $pagination */
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\widgets\LinkPager;
 
 $this->title = 'Приёмка товара';
 
@@ -187,6 +189,12 @@ textarea.rcv-form-control{height:60px;padding:8px 10px;resize:vertical}
     </div>
 </div>
 <?php endforeach; ?>
+
+<?php if (isset($pagination) && $pagination->pageCount > 1): ?>
+<div style="margin:1.5rem 0;display:flex;justify-content:center">
+    <?= LinkPager::widget(['pagination' => $pagination]) ?>
+</div>
+<?php endif; ?>
 
 <!-- Create Receiving Modal -->
 <div class="rcv-modal-overlay" id="createReceivingModal">

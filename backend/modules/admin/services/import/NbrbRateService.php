@@ -122,9 +122,9 @@ class NbrbRateService extends Component
     protected function fetchRateFromAPI($currencyCode)
     {
         try {
-            // API НБ РБ возвращает курсы за конкретную дату
-            // Формат: /rates/{currency}?parammode=2 (2 = код валюты в формате ISO)
-            $response = $this->client->get($currencyCode, ['parammode' => 2])->send();
+            // API НБ РБ: parammode=2 must be a URL query parameter.
+            // Using FORMAT_JSON client sends data as body even for GET, so append to URL directly.
+            $response = $this->client->get($currencyCode . '?parammode=2')->send();
 
             if (!$response->isOk) {
                 Yii::error("Currency API error: HTTP {$response->statusCode}", 'import');

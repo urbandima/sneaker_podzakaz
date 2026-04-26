@@ -726,16 +726,24 @@ class ProductController extends BaseAdminController
     {
         $ids = Yii::$app->request->get('ids');
         $format = Yii::$app->request->get('format', 'xlsx');
-        
-        $query = Product::find()->with(['brand', 'category']);
-        
+
+        // Use asArray() to avoid loading all products as ActiveRecord objects (prevents OOM on large catalogs)
+        $query = Product::find()
+            ->select(['p.id', 'p.name', 'p.vendor_code as sku', 'p.price', 'p.old_price',
+                       'p.is_active', 'p.stock_status', 'p.poizon_id',
+                       'b.name as brand_name', 'c.name as category_name'])
+            ->alias('p')
+            ->leftJoin('brand b', 'b.id = p.brand_id')
+            ->leftJoin('category c', 'c.id = p.category_id')
+            ->asArray();
+
         if ($ids) {
             $idsArray = is_array($ids) ? $ids : explode(',', $ids);
-            $query->andWhere(['id' => $idsArray]);
+            $query->andWhere(['p.id' => $idsArray]);
         }
-        
+
         $products = $query->all();
-        
+
         if ($format === 'csv') {
             $this->exportToCsv($products);
         } else {
@@ -748,30 +756,33 @@ class ProductController extends BaseAdminController
      */
     private function exportToCsv($products)
     {
-        header('Content-Type: text/csv');
+        header('Content-Type: text/csv; charset=UTF-8');
         header('Content-Disposition: attachment; filename="products_' . date('Y-m-d') . '.csv"');
-        
+
         $output = fopen('php://output', 'w');
-        
+
+        // UTF-8 BOM for Excel compatibility
+        fwrite($output, "\xEF\xBB\xBF");
+
         // Заголовки
         fputcsv($output, [
             'ID', 'Название', 'Артикул', 'Бренд', 'Категория', 'Цена', 'Статус', 'Наличие', 'Poizon ID'
         ]);
-        
+
         foreach ($products as $product) {
             fputcsv($output, [
-                $product->id,
-                $product->name,
-                $product->vendor_code,
-                $product->brand ? $product->brand->name : '',
-                $product->category ? $product->category->name : '',
-                $product->price,
-                $product->is_active ? 'Активен' : 'Неактивен',
-                $product->stock_status,
-                $product->poizon_id
+                $product['id'],
+                $product['name'],
+                $product['sku'] ?? '',
+                $product['brand_name'] ?? '',
+                $product['category_name'] ?? '',
+                $product['price'],
+                ($product['is_active'] ?? 0) ? 'Активен' : 'Неактивен',
+                $product['stock_status'] ?? '',
+                $product['poizon_id'] ?? ''
             ]);
         }
-        
+
         fclose($output);
         exit;
     }
@@ -800,16 +811,16 @@ class ProductController extends BaseAdminController
         $row = 2;
         foreach ($products as $product) {
             $sheet->fromArray([
-                $product->id,
-                $product->sku,
-                $product->name,
-                $product->brand_name,
-                $product->category_name,
-                $product->price,
-                $product->old_price ?: '',
-                $product->stock_status,
-                $product->is_active ? 'Активен' : 'Неактивен',
-                $product->poizon_id ?: ''
+                $product['id'],
+                $product['sku'] ?? '',
+                $product['name'],
+                $product['brand_name'] ?? '',
+                $product['category_name'] ?? '',
+                $product['price'],
+                $product['old_price'] ?: '',
+                $product['stock_status'] ?? '',
+                ($product['is_active'] ?? 0) ? 'Активен' : 'Неактивен',
+                $product['poizon_id'] ?: ''
             ], null, "A{$row}");
             $row++;
         }

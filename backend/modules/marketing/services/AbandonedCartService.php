@@ -37,10 +37,9 @@ class AbandonedCartService
         
         try {
             $threshold = time() - (self::ABANDONED_THRESHOLD_HOURS * 3600);
-            
+
             return Cart::find()
                 ->where(['<', 'updated_at', $threshold])
-                ->andWhere(['>', 'items_count', 0])
                 ->with('customer')
                 ->orderBy(['updated_at' => SORT_DESC])
                 ->limit($limit)
@@ -68,24 +67,21 @@ class AbandonedCartService
         
         try {
             $threshold = time() - (self::ABANDONED_THRESHOLD_HOURS * 3600);
-            
+
             $totalAbandoned = Cart::find()
                 ->where(['<', 'updated_at', $threshold])
-                ->andWhere(['>', 'items_count', 0])
                 ->count();
-            
-            $totalValue = Cart::find()
-                ->where(['<', 'updated_at', $threshold])
-                ->andWhere(['>', 'items_count', 0])
-                ->sum('total_amount') ?: 0;
-            
+
+            // Compute total cart value from price * quantity (cart table has no total_amount column)
+            $totalValue = (float) \Yii::$app->db->createCommand(
+                'SELECT COALESCE(SUM(price * quantity), 0) FROM cart WHERE updated_at < :t',
+                [':t' => $threshold]
+            )->queryScalar() ?: 0;
+
             $avgValue = $totalAbandoned > 0 ? $totalValue / $totalAbandoned : 0;
-            
-            // Отслеживание восстановленных корзин сегодня
-            $recoveredToday = Cart::find()
-                ->where(['>=', 'recovered_at', strtotime('today')])
-                ->andWhere(['>', 'items_count', 0])
-                ->count();
+
+            // No recovered_at column in cart — recovery tracking not available
+            $recoveredToday = 0;
             
             return [
                 'total_abandoned' => $totalAbandoned,
@@ -164,7 +160,6 @@ class AbandonedCartService
                 
                 $carts = Cart::find()
                     ->where(['between', 'updated_at', $nextThreshold, $threshold])
-                    ->andWhere(['>', 'items_count', 0])
                     ->with('customer')
                     ->limit(100)
                     ->all();

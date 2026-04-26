@@ -35,7 +35,7 @@ use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;
 use app\backend\modules\catalog\models\ImportBatch;
-use app\backend\modules\catalog\models\ImportLog;
+use app\backend\modules\admin\models\import\ImportLog;
 use app\backend\modules\catalog\models\Product;
 
 class PoizonController extends BaseAdminController
@@ -54,6 +54,8 @@ class PoizonController extends BaseAdminController
      */
     public function actionIndex()
     {
+        $this->view->title = 'Импорт Poizon';
+
         // Последние батчи
         $dataProvider = new ActiveDataProvider([
             'query' => ImportBatch::find()->orderBy(['created_at' => SORT_DESC]),
@@ -247,7 +249,7 @@ class PoizonController extends BaseAdminController
     {
         $dataProvider = new ActiveDataProvider([
             'query' => ImportLog::find()
-                ->where(['type' => 'error'])
+                ->where(['level' => 'error'])
                 ->orderBy(['created_at' => SORT_DESC]),
             'pagination' => [
                 'pageSize' => 50,

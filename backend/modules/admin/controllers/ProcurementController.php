@@ -4,6 +4,7 @@ namespace app\backend\modules\admin\controllers;
 use Yii;
 use yii\web\Response;
 use yii\web\NotFoundHttpException;
+use yii\data\Pagination;
 use app\backend\modules\procurement\models\Supplier;
 use app\backend\modules\procurement\models\PurchaseOrder;
 use app\backend\modules\procurement\models\PurchaseOrderItem;
@@ -177,13 +178,26 @@ class ProcurementController extends BaseAdminController
 
     public function actionReceiving()
     {
-        $orders = PurchaseOrder::find()
-            ->with(['supplier', 'items'])
+        $query = PurchaseOrder::find()
             ->where(['IN', 'status', [PurchaseOrder::STATUS_ORDERED, PurchaseOrder::STATUS_TRANSIT]])
-            ->orderBy(['ordered_at' => SORT_ASC])
+            ->orderBy(['ordered_at' => SORT_ASC]);
+
+        $pagination = new Pagination([
+            'totalCount' => $query->count(),
+            'pageSize'   => 50,
+            'pageSizeParam' => false,
+        ]);
+
+        $orders = $query
+            ->with(['supplier', 'items'])
+            ->offset($pagination->offset)
+            ->limit($pagination->limit)
             ->all();
 
-        return $this->render('receiving', ['orders' => $orders]);
+        return $this->render('receiving', [
+            'orders'     => $orders,
+            'pagination' => $pagination,
+        ]);
     }
 
     public function actionReceiveItems()
