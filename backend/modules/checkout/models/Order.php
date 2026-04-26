@@ -380,16 +380,33 @@ class Order extends ActiveRecord
      */
     public function isPassportComplete(): bool
     {
-        return !empty($this->recipient_last_name)
-            && !empty($this->recipient_first_name)
-            && !empty($this->passport_series)
-            && !empty($this->passport_number)
-            && !empty($this->passport_issue_date)
-            && !empty($this->inn)
-            && !empty($this->full_address)
-            && !empty($this->city)
-            && !empty($this->region)
-            && !empty($this->postal_code);
+        return empty($this->missingPassportFields());
+    }
+
+    /**
+     * Returns array of human-readable labels for missing required passport/address fields.
+     */
+    public function missingPassportFields(): array
+    {
+        $required = [
+            'recipient_last_name'  => 'Фамилия получателя',
+            'recipient_first_name' => 'Имя получателя',
+            'passport_series'      => 'Серия паспорта',
+            'passport_number'      => 'Номер паспорта',
+            'passport_issue_date'  => 'Дата выдачи паспорта',
+            'inn'                  => 'УНП/ИНН',
+            'full_address'         => 'Полный адрес',
+            'city'                 => 'Город',
+            'region'               => 'Область/регион',
+            'postal_code'          => 'Индекс',
+        ];
+        $missing = [];
+        foreach ($required as $field => $label) {
+            if (empty($this->$field)) {
+                $missing[] = $label;
+            }
+        }
+        return $missing;
     }
 
     /**

@@ -1698,16 +1698,61 @@ window.checkTrack = function(track, resultDivId) {
 // ── DobroPost actions ─────────────────────────────────────
 function dpResult(msg, ok) {
     var r = document.getElementById('dp-action-result');
-    if (r) { r.textContent = (ok ? '✓ ' : '✗ ') + msg; r.style.color = ok ? '#059669' : '#dc2626'; }
+    if (!r) return;
+    r.innerHTML = (ok ? '<i class="bi bi-check-circle-fill" style="color:#059669"></i> ' : '<i class="bi bi-exclamation-triangle-fill" style="color:#dc2626"></i> ') + msg;
+    r.style.color = ok ? '#059669' : '#dc2626';
 }
+
+var DP_REQUIRED_FIELDS = {
+    'recipient_last_name':  'Фамилия получателя',
+    'recipient_first_name': 'Имя получателя',
+    'passport_series':      'Серия паспорта',
+    'passport_number':      'Номер паспорта',
+    'passport_issue_date':  'Дата выдачи паспорта',
+    'inn':                  'УНП/ИНН',
+    'full_address':         'Полный адрес',
+    'city':                 'Город',
+    'region':               'Область/регион',
+    'postal_code':          'Индекс',
+};
+
+function validateDpFields() {
+    var missing = [];
+    Object.keys(DP_REQUIRED_FIELDS).forEach(function(field) {
+        var el = document.querySelector('.crm-editable[data-field="' + field + '"]');
+        var val = el ? el.innerText.trim() : '';
+        if (!val || val === '—' || val === 'Не указано') {
+            missing.push(DP_REQUIRED_FIELDS[field]);
+        }
+    });
+    return missing;
+}
+
 window.sendToDP = function(id) {
-    var btn = event.target; btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Отправка...';
-    fetch('$_dpSendUrl', {method:'POST',headers:{'X-CSRF-Token':'$_csrfToken','Content-Type':'application/json'}})
-    .then(function(r){return r.json();}).then(function(d){
+    var missing = validateDpFields();
+    if (missing.length > 0) {
+        dpResult('Заполните поля: ' + missing.join(', '), false);
+        return;
+    }
+    var btn = event.target.closest('button') || event.target;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Отправка...';
+    fetch('$_dpSendUrl', {method:'POST', headers:{'X-CSRF-Token':'$_csrfToken','Content-Type':'application/json'}})
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
         dpResult(d.message, d.success);
-        if (d.success) setTimeout(function(){location.reload();}, 1500);
-        else { btn.disabled = false; btn.innerHTML = '<i class="bi bi-send"></i> Отправить в ДП'; }
-    }).catch(function(){ dpResult('Ошибка сети', false); btn.disabled = false; });
+        if (d.success) {
+            setTimeout(function() { location.reload(); }, 1500);
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-send"></i> Отправить в ДП';
+        }
+    })
+    .catch(function() {
+        dpResult('Ошибка сети. Проверьте соединение и попробуйте снова.', false);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-send"></i> Отправить в ДП';
+    });
 };
 window.refreshDPStatus = function(id) {
     dpResult('Обновляем...', true);

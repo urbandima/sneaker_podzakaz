@@ -362,6 +362,13 @@ class DobroPostService extends Component
                     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
                 }
 
+                if ($method === 'POST' || $method === 'PUT') {
+                    Yii::info(
+                        sprintf('Таможня:ДП %s %s payload: %s', $method, $path, json_encode($body, JSON_UNESCAPED_UNICODE)),
+                        'dp-api'
+                    );
+                }
+
                 $responseBody = curl_exec($ch);
                 $httpCode     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 $curlError    = curl_error($ch);
@@ -384,6 +391,14 @@ class DobroPostService extends Component
 
                 if ($httpCode >= 400) {
                     $errorMsg = $decoded['message'] ?? $decoded['error'] ?? $responseBody;
+                    Yii::error(
+                        sprintf('Таможня:ДП HTTP %d для %s %s. Payload: %s. Ответ: %s',
+                            $httpCode, $method, $path,
+                            json_encode($body, JSON_UNESCAPED_UNICODE),
+                            $responseBody
+                        ),
+                        'dp-api'
+                    );
                     throw new \RuntimeException(
                         sprintf('Таможня:ДП HTTP %d для %s %s: %s', $httpCode, $method, $path, $errorMsg)
                     );

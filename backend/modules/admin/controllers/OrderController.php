@@ -1389,6 +1389,74 @@ class OrderController extends BaseAdminController
         return ['success' => true];
     }
 
+    /** #15 — Apply customer profile data to order snapshot */
+    public function actionApplyCustomerData()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $data    = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
+        $orderId = (int)($data['order_id'] ?? 0);
+        $order   = Order::findOne($orderId);
+        if (!$order) return ['success' => false, 'message' => 'Заказ не найден'];
+        if (!$order->customer_id) return ['success' => false, 'message' => 'Заказ не привязан к клиенту'];
+
+        $customer = \app\backend\modules\account\models\Customer::findOne($order->customer_id);
+        if (!$customer) return ['success' => false, 'message' => 'Клиент не найден'];
+
+        $fields = [
+            'client_name'  => ['order' => $order->client_name,  'customer' => trim($customer->getFullName())],
+            'client_phone' => ['order' => $order->client_phone, 'customer' => $customer->phone],
+            'client_email' => ['order' => $order->client_email, 'customer' => $customer->email],
+        ];
+
+        $changed = [];
+        foreach ($fields as $field => $vals) {
+            $customerVal = trim((string)$vals['customer']);
+            $orderVal    = trim((string)$vals['order']);
+            if ($customerVal && $orderVal !== $customerVal) {
+                $old = $order->$field;
+                $order->$field = $customerVal;
+                OrderHistory::log($orderId, 'field_changed', $field, $old, $customerVal,
+                    'Синхронизация с профилем клиента');
+                $changed[$field] = ['from' => $old, 'to' => $customerVal];
+            }
+        }
+
+        if (empty($changed)) {
+            return ['success' => true, 'changed' => [], 'message' => 'Данные уже совпадают'];
+        }
+
+        $order->save(false);
+        return ['success' => true, 'changed' => $changed, 'message' => 'Данные обновлены'];
+    }
+
+    /** #15 — Get diff between order snapshot and customer profile */
+    public function actionCustomerDiff()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $orderId = (int)Yii::$app->request->get('order_id');
+        $order   = Order::findOne($orderId);
+        if (!$order || !$order->customer_id) return [];
+
+        $customer = \app\backend\modules\account\models\Customer::findOne($order->customer_id);
+        if (!$customer) return [];
+
+        $fields = [
+            'client_name'  => ['label' => 'ФИО',     'order' => $order->client_name,  'customer' => trim($customer->getFullName())],
+            'client_phone' => ['label' => 'Телефон', 'order' => $order->client_phone, 'customer' => $customer->phone],
+            'client_email' => ['label' => 'Email',   'order' => $order->client_email, 'customer' => $customer->email],
+        ];
+
+        $diff = [];
+        foreach ($fields as $field => $info) {
+            $cv = trim((string)$info['customer']);
+            $ov = trim((string)$info['order']);
+            if ($cv && $ov !== $cv) {
+                $diff[] = ['field' => $field, 'label' => $info['label'], 'in_order' => $ov ?: '(пусто)', 'in_profile' => $cv];
+            }
+        }
+        return $diff;
+    }
+
     /** Feature 6 — MoySklad sync */
     public function actionSyncMoysklad()
     {
@@ -1550,8 +1618,13 @@ class OrderController extends BaseAdminController
 
         $model = $this->findModel($id);
 
-        if (!$model->isPassportComplete()) {
-            return ['success' => false, 'message' => 'Паспортные данные получателя заполнены не полностью'];
+        $missingFields = $model->missingPassportFields();
+        if (!empty($missingFields)) {
+            return [
+                'success'        => false,
+                'message'        => 'Заполните обязательные поля перед отправкой: ' . implode(', ', $missingFields),
+                'missing_fields' => $missingFields,
+            ];
         }
 
         if ($model->isSubmittedToDP()) {
@@ -1564,14 +1637,17 @@ class OrderController extends BaseAdminController
             $response = $dp->createShipment($model);
 
             return [
-                'success'    => true,
-                'message'    => 'Заказ успешно отправлен в Таможня:ДП',
+                'success'      => true,
+                'message'      => 'Заказ успешно отправлен в Таможня:ДП',
                 'shipment_id'  => $response['id'] ?? null,
                 'track_number' => $response['dptrackNumber'] ?? null,
             ];
         } catch (\Exception $e) {
             Yii::error('Исключение при отправке заказа #' . $id . ' в Таможня:ДП: ' . $e->getMessage(), 'dp-api');
-            return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
+            $rawMsg  = $e->getMessage();
+            // Extract just the DP API error text (after last ': ')
+            $friendly = preg_replace('/^Таможня:ДП HTTP \d+ для \w+ [^\s]+:\s*/', '', $rawMsg);
+            return ['success' => false, 'message' => 'Ошибка Таможня:ДП: ' . $friendly];
         }
     }
 
