@@ -4,6 +4,10 @@
 /** @var array $totals */
 /** @var string $filterStatus, $filterMethod, $filterFrom, $filterTo */
 /** @var array $statuses, $methods */
+
+use yii\helpers\Html;
+use yii\helpers\Url;
+
 $this->title = 'Платежи';
 
 $currentSort = Yii::$app->request->get('sort', '');
@@ -221,7 +225,9 @@ $storageKey = 'paymentsColumns';
 <script>
 const csrf = <?= json_encode(\Yii::$app->request->csrfToken) ?>;
 
-AdminTable.initColSelector('<?= $storageKey ?>');
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof AdminTable !== 'undefined') AdminTable.init({ pageKey: '<?= $storageKey ?>' });
+});
 
 function openCreatePayment() {
     document.getElementById('payPanelOverlay').classList.add('active');
