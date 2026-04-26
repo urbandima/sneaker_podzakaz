@@ -102,6 +102,12 @@ try {
 
 $recentOrders = array_slice($productOrders, 0, 5);
 
+// Brands & categories for inline selects
+try {
+    $allBrands     = \app\backend\modules\catalog\models\Brand::find()->select(['id','name'])->orderBy(['name'=>SORT_ASC])->asArray()->all();
+    $allCategories = \app\backend\modules\catalog\models\Category::find()->select(['id','name'])->orderBy(['name'=>SORT_ASC])->asArray()->all();
+} catch (\Exception $e) { $allBrands = []; $allCategories = []; }
+
 // Margin calc
 $marginPct = 0;
 if (($product->price ?? 0) > 0 && ($product->purchase_price ?? 0) > 0) {
@@ -159,6 +165,13 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
 .inline-edit-input{border:1px solid #3b82f6;border-radius:4px;padding:2px 6px;font-size:inherit;font-family:inherit;width:100%;max-width:140px;outline:none;background:var(--admin-surface,#fff)}
 @media(max-width:1023px){.crm-body{grid-template-columns:1fr}}
 @media(max-width:600px){.crm-info-grid{grid-template-columns:1fr}}
+/* Info rows — two-column label/value layout */
+.crm-info-rows{padding:0}
+.ir-row{display:grid;grid-template-columns:110px 1fr;gap:8px;align-items:center;padding:5px 16px;border-bottom:1px solid var(--admin-border,#f3f4f6)}
+.ir-row:last-child{border-bottom:none}
+.ir-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);white-space:nowrap}
+.ir-val{min-width:0;font-size:.8125rem}
+.ir-val .crm-editable{padding:2px 6px;font-size:.8125rem;margin:-2px -6px}
 /* Compact sidebar image grid */
 .prod-img-compact{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:12px 14px}
 .prod-img-thumb{position:relative;aspect-ratio:1;border-radius:6px;overflow:hidden;cursor:pointer;border:1.5px solid transparent;transition:border-color .15s}
@@ -246,6 +259,98 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
 
 <!-- ── MAIN COLUMN ── -->
 <div class="crm-main">
+
+    <!-- Основная информация -->
+    <div class="crm-card">
+        <div class="crm-card-head">
+            <h3><i class="bi bi-info-circle"></i> Основная информация</h3>
+            <a href="<?= Url::to(['/admin/product/edit', 'id' => $product->id]) ?>" class="admin-btn admin-btn-secondary admin-btn-sm">
+                <i class="bi bi-pencil"></i> Редактировать
+            </a>
+        </div>
+        <div class="crm-info-rows">
+            <div class="ir-row">
+                <div class="ir-label">ID</div>
+                <div class="ir-val" style="color:var(--admin-text-secondary)">#<?= $product->id ?></div>
+            </div>
+            <div class="ir-row">
+                <div class="ir-label">Название</div>
+                <div class="ir-val">
+                    <div class="crm-editable" data-field="name" data-id="<?= $product->id ?>"
+                         onclick="startEdit(this)"><?= Html::encode($product->name) ?></div>
+                </div>
+            </div>
+            <div class="ir-row">
+                <div class="ir-label">SKU</div>
+                <div class="ir-val">
+                    <div class="crm-editable" data-field="sku" data-id="<?= $product->id ?>"
+                         onclick="startEdit(this)"><?= $product->sku ? Html::encode($product->sku) : '<span class="crm-editable-empty">не задан</span>' ?></div>
+                </div>
+            </div>
+            <?php if ($product->hasAttribute('vendor_code') && ($product->vendor_code !== $product->sku)): ?>
+            <div class="ir-row">
+                <div class="ir-label">Артикул</div>
+                <div class="ir-val">
+                    <div class="crm-editable" data-field="vendor_code" data-id="<?= $product->id ?>"
+                         onclick="startEdit(this)"><?= Html::encode($product->vendor_code ?: '') ?></div>
+                </div>
+            </div>
+            <?php endif; ?>
+            <?php if ($product->hasAttribute('slug')): ?>
+            <div class="ir-row">
+                <div class="ir-label">Slug</div>
+                <div class="ir-val">
+                    <div class="crm-editable" data-field="slug" data-id="<?= $product->id ?>"
+                         onclick="startEdit(this)" style="font-family:monospace;font-size:.75rem"><?= Html::encode($product->slug ?: '') ?></div>
+                </div>
+            </div>
+            <?php endif; ?>
+            <div class="ir-row">
+                <div class="ir-label">Бренд</div>
+                <div class="ir-val">
+                    <div class="crm-editable" data-field="brand_id" data-id="<?= $product->id ?>"
+                         data-cur-id="<?= (int)$product->brand_id ?>" data-options-key="brands"
+                         onclick="startEditSelect(this)"><?= Html::encode($product->brand ? $product->brand->name : '—') ?></div>
+                </div>
+            </div>
+            <div class="ir-row">
+                <div class="ir-label">Категория</div>
+                <div class="ir-val">
+                    <div class="crm-editable" data-field="category_id" data-id="<?= $product->id ?>"
+                         data-cur-id="<?= (int)$product->category_id ?>" data-options-key="categories"
+                         onclick="startEditSelect(this)"><?= Html::encode($product->category ? $product->category->name : '—') ?></div>
+                </div>
+            </div>
+            <?php if ($product->hasAttribute('model_name')): ?>
+            <div class="ir-row">
+                <div class="ir-label">Модель</div>
+                <div class="ir-val">
+                    <div class="crm-editable" data-field="model_name" data-id="<?= $product->id ?>"
+                         onclick="startEdit(this)"><?= Html::encode($product->model_name ?: '') ?></div>
+                </div>
+            </div>
+            <?php endif; ?>
+            <?php if ($product->hasAttribute('slug') && $product->slug): ?>
+            <div class="ir-row">
+                <div class="ir-label">URL фронта</div>
+                <div class="ir-val">
+                    <a href="/catalog/<?= Html::encode($product->slug) ?>" target="_blank"
+                       style="font-size:.8rem;color:var(--admin-accent,#0078d4);text-decoration:none;display:inline-flex;align-items:center;gap:4px">
+                        <i class="bi bi-box-arrow-up-right" style="font-size:.7rem"></i> /catalog/<?= Html::encode($product->slug) ?>
+                    </a>
+                </div>
+            </div>
+            <?php endif; ?>
+            <?php if ($product->created_at): ?>
+            <div class="ir-row">
+                <div class="ir-label">Добавлен</div>
+                <div class="ir-val" style="color:var(--admin-text-secondary);font-size:.78rem">
+                    <?= is_numeric($product->created_at) ? date('d.m.Y H:i', $product->created_at) : date('d.m.Y', strtotime($product->created_at)) ?>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
 
     <?php if ($product->poizon_id): ?>
     <!-- Данные Poizon -->
@@ -731,61 +836,6 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
     </div>
     <?php endif; ?>
 
-    <!-- Основная информация -->
-    <div class="crm-card">
-        <div class="crm-card-head"><h3><i class="bi bi-info-circle"></i> Основная информация</h3></div>
-        <div class="crm-card-body" style="display:flex;flex-direction:column;gap:8px">
-            <div class="crm-field">
-                <div class="crm-field-label">ID</div>
-                <div class="crm-field-val">#<?= $product->id ?></div>
-            </div>
-            <?php if ($product->sku): ?>
-            <div class="crm-field">
-                <div class="crm-field-label">SKU</div>
-                <div class="crm-editable" data-field="sku" data-id="<?= $product->id ?>"
-                     onclick="startEdit(this)"><?= Html::encode($product->sku) ?></div>
-            </div>
-            <?php endif; ?>
-            <?php if ($product->hasAttribute('vendor_code') && $product->vendor_code): ?>
-            <div class="crm-field">
-                <div class="crm-field-label">Артикул</div>
-                <div class="crm-editable" data-field="vendor_code" data-id="<?= $product->id ?>"
-                     onclick="startEdit(this)"><?= Html::encode($product->vendor_code) ?></div>
-            </div>
-            <?php endif; ?>
-            <?php if ($product->brand): ?>
-            <div class="crm-field">
-                <div class="crm-field-label">Бренд</div>
-                <div class="crm-field-val"><?= Html::encode($product->brand->name) ?></div>
-            </div>
-            <?php endif; ?>
-            <?php if ($product->category): ?>
-            <div class="crm-field">
-                <div class="crm-field-label">Категория</div>
-                <div class="crm-field-val"><?= Html::encode($product->category->name) ?></div>
-            </div>
-            <?php endif; ?>
-            <?php if (!empty($allKeywords)): ?>
-            <div class="crm-field">
-                <div class="crm-field-label">Ключевые слова</div>
-                <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:2px">
-                    <?php foreach ($allKeywords as $kw): ?>
-                    <span class="admin-badge admin-badge-secondary" style="font-size:.65rem"><?= Html::encode($kw) ?></span>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            <?php endif; ?>
-            <?php if ($product->created_at): ?>
-            <div class="crm-field">
-                <div class="crm-field-label">Добавлен</div>
-                <div class="crm-field-val" style="font-size:.8rem">
-                    <?= is_numeric($product->created_at) ? date('d.m.Y H:i', $product->created_at) : date('d.m.Y', strtotime($product->created_at)) ?>
-                </div>
-            </div>
-            <?php endif; ?>
-        </div>
-    </div>
-
     <!-- МойСклад -->
     <?php if ($product->moysklad_id || $product->ms_code || $product->ms_external_code): ?>
     <div class="crm-card">
@@ -961,6 +1011,45 @@ function inlineSaveProduct(field, value, cb) {
 }
 
 window.saveProductField = function(field, value) { inlineSaveProduct(field, value); };
+
+// Data for select-based inline edits
+window._pv_brands     = <?= json_encode(array_values($allBrands), JSON_UNESCAPED_UNICODE) ?>;
+window._pv_categories = <?= json_encode(array_values($allCategories), JSON_UNESCAPED_UNICODE) ?>;
+
+// Inline select (brand, category)
+window.startEditSelect = function(el) {
+    if (el.querySelector('select')) return;
+    var field     = el.dataset.field;
+    var curId     = el.dataset.curId;
+    var optKey    = el.dataset.optionsKey;
+    var options   = window['_pv_' + optKey] || [];
+    var origText  = el.innerText.trim();
+    var sel = document.createElement('select');
+    sel.className = 'crm-editable-input';
+    sel.style.width = '100%';
+    options.forEach(function(opt) {
+        var o = document.createElement('option');
+        o.value = opt.id;
+        o.textContent = opt.name;
+        if (String(opt.id) === String(curId)) o.selected = true;
+        sel.appendChild(o);
+    });
+    el.innerHTML = '';
+    el.appendChild(sel);
+    sel.focus();
+    var commit = function() {
+        var newId   = sel.value;
+        var newName = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : newId;
+        inlineSaveProduct(field, newId);
+        el.innerHTML = newName;
+        el.dataset.curId = newId;
+    };
+    sel.addEventListener('blur', commit);
+    sel.addEventListener('change', function() { sel.blur(); });
+    sel.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { el.innerHTML = origText; }
+    });
+};
 
 // CRM-style inline edit for crm-editable divs
 window.startEdit = function(el) {
