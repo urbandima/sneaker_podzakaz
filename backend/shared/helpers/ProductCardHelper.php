@@ -296,24 +296,15 @@ class ProductCardHelper
             if (!empty($size->$sizeField)) {
                 $sizeValue = (string)$size->$sizeField;
                 $availableSizes[$sizeValue] = !empty($size->is_available);
+            } elseif (!empty($size->size)) {
+                // Parse EU size from full string like "40 EU / 9 US / 6.5 UK / 25.5 CM"
+                if (preg_match('/^(\d+(?:\.\d+)?)\s+EU/i', $size->size, $m)) {
+                    $sizeValue = $m[1];
+                } else {
+                    $sizeValue = $size->size;
+                }
+                $availableSizes[$sizeValue] = !empty($size->is_available);
             }
-        }
-        
-        // Если размеры не найдены, возвращаем стандартные
-        if (empty($availableSizes)) {
-            return [
-                '36' => true,
-                '37' => true,
-                '38' => true,
-                '39' => true,
-                '40' => true,
-                '41' => true,
-                '42' => true,
-                '43' => true,
-                '44' => true,
-                '45' => true,
-                '46' => true,
-            ];
         }
         
         return $availableSizes;
