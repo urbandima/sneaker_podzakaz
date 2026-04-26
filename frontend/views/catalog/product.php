@@ -326,10 +326,12 @@ $this->registerJsVar('productVideo', $productVideo);
             <div class="product-meta">
                 <?php if ($product->brand): ?>
                     <div class="brand-info">
-                        <img src="<?= $product->brand->logo_url ?? '' ?>" 
+                        <?php if (!empty($product->brand->logo_url)): ?>
+                        <img src="<?= Html::encode($product->brand->logo_url) ?>"
                              alt="<?= Html::encode($product->brand->name) ?>"
                              class="brand-logo"
                              onerror="this.style.display='none'">
+                        <?php endif; ?>
                         <span class="brand-name"><?= Html::encode($product->brand->name) ?></span>
                     </div>
                 <?php endif; ?>

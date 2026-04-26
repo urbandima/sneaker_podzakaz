@@ -44,13 +44,12 @@ echo $this->render('_auth-style');
                         ],
                     ]); ?>
 
-                    <?= $form->field($model, 'email')->textInput([
+                    <?= $form->field($model, 'email')->input('email', [
                         'autofocus' => true,
                         'placeholder' => 'example@mail.com',
                         'value' => Yii::$app->request->get('email', ''),
                         'required' => true,
                         'autocomplete' => 'email',
-                        'inputmode' => 'email',
                     ]) ?>
 
                     <?= $form->field($model, 'password')->passwordInput([

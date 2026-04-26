@@ -558,7 +558,8 @@ $this->registerCss($css);
             <div style="font-weight:700;font-size:0.9375rem;margin-bottom:3px">Проблемы с оплатой?</div>
             <div style="font-size:0.8125rem;color:#666">
                 Напишите нам на <a href="mailto:payment@snikered.by" style="color:#111;font-weight:600">payment@snikered.by</a>
-                или позвоните <a href="tel:+375291234567" style="color:#111;font-weight:600">+375 (29) 123-45-67</a> — поможем разобраться.
+                <?php $company = Yii::$app->settings->getCompany(); $phone = $company['phone'] ?? '+375 44 700-90-01'; ?>
+                или позвоните <a href="tel:<?= preg_replace('/[^+\d]/', '', $phone) ?>" style="color:#111;font-weight:600"><?= Html::encode($phone) ?></a> — поможем разобраться.
             </div>
         </div>
     </div>

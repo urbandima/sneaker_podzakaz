@@ -246,8 +246,13 @@ $company = Yii::$app->settings->getCompany();
     </nav>
     <div class="mobile-menu-footer">
         <div class="mobile-menu-contacts">
-            <a href="tel:+375291234567"><i class="bi bi-telephone"></i>+375 (29) 123-45-67</a>
-            <a href="https://t.me" target="_blank"><i class="bi bi-telegram"></i>Telegram</a>
+            <?php if (!empty($company['phone'])): ?>
+            <a href="tel:<?= preg_replace('/[^+\d]/', '', $company['phone']) ?>"><i class="bi bi-telephone"></i><?= Html::encode($company['phone']) ?></a>
+            <?php endif; ?>
+            <?php $tgUrl = Yii::$app->settings->get('social', 'telegram', ''); ?>
+            <?php if (!empty($tgUrl) && strlen($tgUrl) > 5 && $tgUrl !== '#'): ?>
+            <a href="<?= Html::encode($tgUrl) ?>" target="_blank" rel="noopener noreferrer"><i class="bi bi-telegram"></i>Telegram</a>
+            <?php endif; ?>
         </div>
     </div>
 </div>
