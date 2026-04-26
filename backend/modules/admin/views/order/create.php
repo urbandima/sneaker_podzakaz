@@ -219,37 +219,6 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
                 </div>
             </div>
 
-            <!-- Клиент -->
-            <div class="crm-card">
-                <div class="crm-card-head">
-                    <h3><i class="bi bi-person"></i> Клиент</h3>
-                </div>
-                <div class="crm-card-body">
-                    <div class="crm-field" style="position:relative;margin-bottom:14px">
-                        <label class="crm-field-label">Поиск клиента</label>
-                        <input type="text" id="customerSearch" class="crm-input"
-                               placeholder="Имя, телефон или email…" autocomplete="off">
-                        <div id="customerDropdown" class="crm-customer-drop"></div>
-                        <input type="hidden" id="customerIdInput" name="Order[customer_id]" value="<?= Html::encode($model->customer_id ?? '') ?>">
-                        <div id="customerSelectedInfo" style="display:none;margin-top:6px;font-size:0.75rem;color:var(--admin-text-secondary)"></div>
-                    </div>
-                    <div class="crm-info-grid cols3">
-                        <div class="crm-field">
-                            <label class="crm-field-label"><?= $model->getAttributeLabel('client_name') ?></label>
-                            <?= Html::activeTextInput($model, 'client_name', ['class' => 'crm-input', 'id' => 'clientNameInput']) ?>
-                        </div>
-                        <div class="crm-field">
-                            <label class="crm-field-label"><?= $model->getAttributeLabel('client_phone') ?></label>
-                            <?= Html::activeTextInput($model, 'client_phone', ['class' => 'crm-input', 'id' => 'clientPhoneInput', 'type' => 'tel']) ?>
-                        </div>
-                        <div class="crm-field">
-                            <label class="crm-field-label"><?= $model->getAttributeLabel('client_email') ?></label>
-                            <?= Html::activeTextInput($model, 'client_email', ['class' => 'crm-input', 'id' => 'clientEmailInput', 'type' => 'email']) ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Доставка по РБ -->
             <div class="crm-card">
                 <div class="crm-card-head">
@@ -410,6 +379,35 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
                 </div>
             </div>
 
+            <!-- Клиент -->
+            <div class="crm-card">
+                <div class="crm-card-head">
+                    <h3><i class="bi bi-person-circle"></i> Покупатель</h3>
+                </div>
+                <div class="crm-card-body" style="display:flex;flex-direction:column;gap:8px">
+                    <div class="crm-field" style="position:relative">
+                        <label class="crm-field-label">Поиск клиента</label>
+                        <input type="text" id="customerSearch" class="crm-input"
+                               placeholder="Имя, телефон или email…" autocomplete="off">
+                        <div id="customerDropdown" class="crm-customer-drop"></div>
+                        <input type="hidden" id="customerIdInput" name="Order[customer_id]" value="<?= Html::encode($model->customer_id ?? '') ?>">
+                        <div id="customerSelectedInfo" style="display:none;margin-top:6px;font-size:0.75rem;color:var(--admin-text-secondary)"></div>
+                    </div>
+                    <div class="crm-field">
+                        <label class="crm-field-label"><?= $model->getAttributeLabel('client_name') ?></label>
+                        <?= Html::activeTextInput($model, 'client_name', ['class' => 'crm-input', 'id' => 'clientNameInput']) ?>
+                    </div>
+                    <div class="crm-field">
+                        <label class="crm-field-label"><?= $model->getAttributeLabel('client_phone') ?></label>
+                        <?= Html::activeTextInput($model, 'client_phone', ['class' => 'crm-input', 'id' => 'clientPhoneInput', 'type' => 'tel']) ?>
+                    </div>
+                    <div class="crm-field">
+                        <label class="crm-field-label"><?= $model->getAttributeLabel('client_email') ?></label>
+                        <?= Html::activeTextInput($model, 'client_email', ['class' => 'crm-input', 'id' => 'clientEmailInput', 'type' => 'email']) ?>
+                    </div>
+                </div>
+            </div>
+
             <!-- Статус -->
             <div class="crm-card">
                 <div class="crm-card-head">
@@ -554,8 +552,7 @@ $js = <<<JS
                                 fill('regionInput', c.region);
                                 fill('postalCodeInput', c.postal_code);
                                 fill('fullAddressInput', c.address);
-                                var nm = document.getElementById('Order_client_name');
-                                if (nm && !nm.value) nm.value = c.name || '';
+                                fill('clientNameInput', c.name);
                                 csrInfo.style.display = 'block';
                                 csrInfo.innerHTML = '<i class="bi bi-check-circle-fill" style="color:var(--admin-success)"></i> Клиент привязан: <strong>' + (c.name || '#' + c.id) + '</strong>';
                             });
