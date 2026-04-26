@@ -127,6 +127,60 @@ class DashboardController extends BaseAdminController
     }
     
     /**
+     * X5: Batch image health check — scans brand logos and category images for missing files.
+     * Returns JSON with lists of broken entries.
+     */
+    public function actionImageHealth()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $webroot = Yii::getAlias('@webroot');
+        $broken = ['brands' => [], 'categories' => []];
+
+        $brands = \app\backend\modules\catalog\models\Brand::find()
+            ->where(['is_active' => 1])
+            ->andWhere(['IS NOT', 'logo', null])
+            ->andWhere(['!=', 'logo', ''])
+            ->all();
+
+        foreach ($brands as $brand) {
+            $path = $brand->logo;
+            // Skip external URLs — can't check them on disk
+            if (strpos($path, 'http') === 0) {
+                continue;
+            }
+            $full = $webroot . '/' . ltrim($path, '/');
+            if (!file_exists($full)) {
+                $broken['brands'][] = ['id' => $brand->id, 'name' => $brand->name, 'logo' => $path];
+            }
+        }
+
+        $categories = \app\backend\modules\catalog\models\Category::find()
+            ->where(['is_active' => 1])
+            ->andWhere(['IS NOT', 'image', null])
+            ->andWhere(['!=', 'image', ''])
+            ->all();
+
+        foreach ($categories as $cat) {
+            $path = $cat->image;
+            if (strpos($path, 'http') === 0) {
+                continue;
+            }
+            $full = $webroot . '/' . ltrim($path, '/');
+            if (!file_exists($full)) {
+                $broken['categories'][] = ['id' => $cat->id, 'name' => $cat->name, 'image' => $path];
+            }
+        }
+
+        return [
+            'success'      => true,
+            'broken_brands'      => count($broken['brands']),
+            'broken_categories'  => count($broken['categories']),
+            'details'            => $broken,
+        ];
+    }
+
+    /**
      * Получение статистики заказов
      */
     private function getOrderStats($user)
