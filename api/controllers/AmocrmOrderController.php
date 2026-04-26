@@ -10,6 +10,7 @@ use app\backend\modules\checkout\models\Order;
 use app\backend\modules\checkout\models\OrderItem;
 use app\backend\modules\catalog\models\Product;
 use app\backend\modules\catalog\models\ProductSize;
+use app\backend\modules\admin\services\OrderFromLeadService;
 
 /**
  * AmoCRM Widget API — приём заказов из виджета AmoCRM
@@ -55,13 +56,35 @@ class AmocrmOrderController extends Controller
     /**
      * POST /api/amocrm/create-order
      *
-     * Body JSON: {name, phone, email, product_name, size, price, notes,
-     *             source, deal_id, deal_link}
+     * Two modes:
+     *   1. {lead_id: 123}                 → fetch lead from AmoCRM API and create order
+     *   2. {name, phone, email, ...}       → create order from provided data (legacy widget mode)
      */
     public function actionCreateOrder()
     {
         $body = json_decode(Yii::$app->request->rawBody, true) ?: [];
 
+        // Mode 1: fetch from AmoCRM by lead_id
+        $leadId = (int)($body['lead_id'] ?? 0);
+        if ($leadId) {
+            try {
+                $service = new OrderFromLeadService();
+                $order   = $service->createFromLeadId($leadId);
+                $adminUrl = Yii::$app->urlManager->createAbsoluteUrl(['/admin/order/' . $order->id]);
+                return [
+                    'success'      => true,
+                    'order_id'     => $order->id,
+                    'order_number' => $order->order_number,
+                    'order_url'    => $adminUrl,
+                    'admin_url'    => $adminUrl,
+                ];
+            } catch (\Throwable $e) {
+                Yii::error('AmoCRM create-order from lead failed: ' . $e->getMessage(), 'amocrm-widget');
+                return ['success' => false, 'message' => $e->getMessage()];
+            }
+        }
+
+        // Mode 2: legacy widget — create from provided data
         $name        = trim($body['name']         ?? '');
         $phone       = trim($body['phone']        ?? '');
         $email       = trim($body['email']        ?? '');
@@ -72,8 +95,8 @@ class AmocrmOrderController extends Controller
         $dealId      = trim($body['deal_id']      ?? '');
         $dealLink    = trim($body['deal_link']     ?? '');
 
-        if (!$name || !$phone) {
-            return ['success' => false, 'message' => 'Имя и телефон обязательны'];
+        if (!$name && !$phone) {
+            return ['success' => false, 'message' => 'Укажите lead_id или имя/телефон клиента'];
         }
 
         $order = new Order();
@@ -81,24 +104,19 @@ class AmocrmOrderController extends Controller
         $order->client_phone   = $phone;
         $order->client_email   = $email ?: null;
         $order->total_amount   = $price;
-        $order->product_price  = $price;
         $order->status         = 'new';
         $order->source         = 'amoCRM';
         $order->comment        = $notes ?: null;
-        $order->amocrm_deal_id = $dealId ?: null;
+        $order->amocrm_deal_id = $dealId ? (int)$dealId : null;
+        $order->amocrm_lead_id = $dealId ? (int)$dealId : null;
         $order->ms_deal_link   = $dealLink ?: null;
         $order->amocrm_source  = 'widget';
-
-        if (!empty($email)) {
-            $order->client_email = $email;
-        }
 
         if (!$order->save()) {
             Yii::error('AmoCRM order save failed: ' . json_encode($order->errors), 'amocrm-widget');
             return ['success' => false, 'message' => 'Ошибка создания заказа', 'errors' => $order->errors];
         }
 
-        // Создаём позицию заказа если указан товар
         if ($productName) {
             $item = new OrderItem();
             $item->order_id     = $order->id;
@@ -110,13 +128,13 @@ class AmocrmOrderController extends Controller
         }
 
         $adminUrl = Yii::$app->urlManager->createAbsoluteUrl(['/admin/order/' . $order->id]);
-
         Yii::info("AmoCRM widget order #{$order->order_number} created (deal_id={$dealId})", 'amocrm-widget');
 
         return [
             'success'      => true,
             'order_id'     => $order->id,
             'order_number' => $order->order_number,
+            'order_url'    => $adminUrl,
             'admin_url'    => $adminUrl,
         ];
     }

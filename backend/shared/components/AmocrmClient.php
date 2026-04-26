@@ -8,10 +8,11 @@ use yii\base\Component;
 /**
  * AmocrmClient — REST API wrapper for AmoCRM v4.
  *
- * Reads credentials from the `settings` table (section = 'amocrm').
- * All requests are authenticated via Bearer token (access_token).
- * On 401 the client automatically refreshes the token using the
- * stored refresh_token and retries once.
+ * Auth priority:
+ *   1. AMOCRM_LONG_TOKEN env var (long-lived token, valid until 2029)
+ *   2. access_token from settings table (OAuth flow, with auto-refresh on 401)
+ *
+ * Domain: AMOCRM_API_DOMAIN env var or settings[amocrm][domain]
  */
 class AmocrmClient extends Component
 {
@@ -20,16 +21,28 @@ class AmocrmClient extends Component
     private ?string $clientSecret  = null;
     private ?string $accessToken   = null;
     private ?string $refreshToken  = null;
+    private bool    $usingLongToken = false;
 
     public function init(): void
     {
         parent::init();
-        $s = Yii::$app->settings;
-        $this->domain       = $s->get('amocrm', 'domain', '');
-        $this->clientId     = $s->get('amocrm', 'client_id', '');
-        $this->clientSecret = $s->get('amocrm', 'client_secret', '');
-        $this->accessToken  = $s->get('amocrm', 'access_token', '');
-        $this->refreshToken = $s->get('amocrm', 'refresh_token', '');
+
+        // Prefer env-based long token (valid until 2029, no refresh needed)
+        $longToken = getenv('AMOCRM_LONG_TOKEN') ?: null;
+        $envDomain = getenv('AMOCRM_API_DOMAIN') ?: null;
+
+        if ($longToken) {
+            $this->accessToken    = $longToken;
+            $this->usingLongToken = true;
+            $this->domain         = $envDomain ?: Yii::$app->settings->get('amocrm', 'domain', '');
+        } else {
+            $s = Yii::$app->settings;
+            $this->domain         = $envDomain ?: $s->get('amocrm', 'domain', '');
+            $this->clientId       = getenv('AMOCRM_INTEGRATION_ID') ?: $s->get('amocrm', 'client_id', '');
+            $this->clientSecret   = getenv('AMOCRM_SECRET_KEY') ?: $s->get('amocrm', 'client_secret', '');
+            $this->accessToken    = $s->get('amocrm', 'access_token', '');
+            $this->refreshToken   = $s->get('amocrm', 'refresh_token', '');
+        }
     }
 
     public function isConfigured(): bool
@@ -44,9 +57,14 @@ class AmocrmClient extends Component
         return $this->request('GET', '/api/v4/leads', $params) ?? [];
     }
 
-    public function getLead(int $id): ?array
+    /**
+     * Fetch a single lead. Pass $with to embed related entities.
+     * Example: getLead(123, ['contacts', 'custom_fields_values'])
+     */
+    public function getLead(int $id, array $with = []): ?array
     {
-        return $this->request('GET', "/api/v4/leads/{$id}");
+        $query = $with ? ['with' => implode(',', $with)] : [];
+        return $this->request('GET', "/api/v4/leads/{$id}", $query);
     }
 
     public function createLead(array $data): ?array
@@ -61,6 +79,12 @@ class AmocrmClient extends Component
     }
 
     // ── Contacts ───────────────────────────────────────────────────────
+
+    public function getContact(int $id, array $with = []): ?array
+    {
+        $query = $with ? ['with' => implode(',', $with)] : [];
+        return $this->request('GET', "/api/v4/contacts/{$id}", $query);
+    }
 
     public function findContactByPhone(string $phone): ?array
     {
@@ -88,6 +112,25 @@ class AmocrmClient extends Component
         return $result['_embedded']['statuses'] ?? [];
     }
 
+    // ── Custom Fields ──────────────────────────────────────────────────
+
+    /**
+     * Get all custom fields for an entity type.
+     * $entityType: 'leads' | 'contacts' | 'companies'
+     */
+    public function getCustomFields(string $entityType = 'leads'): array
+    {
+        $result = $this->request('GET', "/api/v4/{$entityType}/custom_fields");
+        return $result['_embedded']['custom_fields'] ?? [];
+    }
+
+    // ── Account ────────────────────────────────────────────────────────
+
+    public function getAccount(): ?array
+    {
+        return $this->request('GET', '/api/v4/account');
+    }
+
     // ── Users ──────────────────────────────────────────────────────────
 
     public function getUsers(): array
@@ -111,6 +154,9 @@ class AmocrmClient extends Component
 
     public function refreshAccessToken(): bool
     {
+        if ($this->usingLongToken) {
+            return false; // long tokens don't refresh
+        }
         if (!$this->refreshToken || !$this->clientId || !$this->clientSecret || !$this->domain) {
             return false;
         }
@@ -176,7 +222,7 @@ class AmocrmClient extends Component
 
         $this->logRequest($method . ' ' . $path, $httpCode < 400 ? 'ok' : 'fail', $body ? json_encode($body) : null, $responseBody, $ms);
 
-        if ($httpCode === 401 && $retry) {
+        if ($httpCode === 401 && $retry && !$this->usingLongToken) {
             if ($this->refreshAccessToken()) {
                 return $this->request($method, $path, $query, $body, false);
             }

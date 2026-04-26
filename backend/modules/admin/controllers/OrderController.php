@@ -603,6 +603,20 @@ class OrderController extends BaseAdminController
                     }
                 }
 
+                // Push status to AmoCRM if order is linked to a lead
+                if ($model->amocrm_lead_id && Yii::$app->settings->get('amocrm', 'sync_status_to_amo', '1') === '1') {
+                    try {
+                        $amoStatusId = \app\backend\modules\admin\services\AmocrmStatusMapper::toAmocrmStatusId($newStatus);
+                        if ($amoStatusId) {
+                            Yii::$app->amocrm->updateLead($model->amocrm_lead_id, ['status_id' => $amoStatusId]);
+                            $model->amocrm_last_sync_at = time();
+                            $model->saveAttributes(['amocrm_last_sync_at']);
+                        }
+                    } catch (\Throwable $amoErr) {
+                        Yii::warning('AmoCRM status push failed: ' . $amoErr->getMessage(), 'amocrm');
+                    }
+                }
+
                 if (Yii::$app->request->isAjax) {
                     Yii::$app->response->format = Response::FORMAT_JSON;
                     return ['success' => true, 'message' => 'Статус изменен'];

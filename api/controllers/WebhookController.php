@@ -13,6 +13,8 @@ use yii\web\Controller;
 use yii\web\Response;
 use app\backend\modules\checkout\models\Order;
 use app\backend\modules\checkout\models\DeliveryProvider;
+use app\backend\modules\admin\services\OrderFromLeadService;
+use app\backend\modules\admin\services\AmocrmStatusMapper;
 
 class WebhookController extends Controller
 {
@@ -104,8 +106,10 @@ class WebhookController extends Controller
 
     /**
      * POST /api/webhook/amocrm  (alias: /webhook/amocrm/event)
+     * POST /webhook/amocrm/lead-status-changed
      *
      * Принимает события от AmoCRM: leads[status], leads[add], leads[delete].
+     * AmoCRM может слать и form-encoded, и JSON.
      */
     public function actionAmocrm()
     {
@@ -113,22 +117,57 @@ class WebhookController extends Controller
         Yii::$app->response->statusCode = 200;
 
         $raw  = Yii::$app->request->getRawBody();
-        $data = json_decode($raw, true) ?: [];
+
+        // AmoCRM sends form-encoded webhooks; try to parse both
+        $data = json_decode($raw, true);
+        if (!is_array($data)) {
+            parse_str($raw, $data);
+        }
+        if (!is_array($data)) $data = [];
 
         // Test probe
         if (!empty($data['_test'])) {
             return ['ok' => true, 'message' => 'webhook endpoint is reachable'];
         }
 
+        // HMAC verification (optional — only if secret is set in env)
+        $secret = getenv('AMOCRM_SECRET_KEY') ?: '';
+        if ($secret) {
+            $sig = Yii::$app->request->headers->get('X-Signature', '');
+            if ($sig && !hash_equals(hash_hmac('sha256', $raw, $secret), $sig)) {
+                Yii::warning('[Webhook AMO] Invalid HMAC signature', 'amocrm');
+                // Don't reject — AmoCRM doesn't always send signature; just log
+            }
+        }
+
         try {
             $this->logAmoCrmWebhook($raw);
 
-            // leads[status] — update order status
+            $service = new OrderFromLeadService();
+
+            // leads[status] — create order if trigger status, or update existing
             if (!empty($data['leads']['status'])) {
                 foreach ($data['leads']['status'] as $lead) {
-                    $this->handleLeadStatus($lead);
+                    $this->handleLeadStatus($lead, $service);
                 }
             }
+
+            // leads[add] — new lead added, create order if create_on_add setting is enabled
+            if (!empty($data['leads']['add'])) {
+                $createOnAdd = (bool)Yii::$app->settings->get('amocrm', 'create_order_on_lead_add', false);
+                if ($createOnAdd) {
+                    foreach ($data['leads']['add'] as $lead) {
+                        $leadId = (int)($lead['id'] ?? 0);
+                        if (!$leadId) continue;
+                        try {
+                            $service->createFromLeadId($leadId);
+                        } catch (\Throwable $e) {
+                            Yii::error('[Webhook AMO] leads[add] create error: ' . $e->getMessage(), 'amocrm');
+                        }
+                    }
+                }
+            }
+
             // leads[delete] — clear amocrm_lead_id
             if (!empty($data['leads']['delete'])) {
                 foreach ($data['leads']['delete'] as $lead) {
@@ -139,6 +178,7 @@ class WebhookController extends Controller
                     }
                 }
             }
+
         } catch (\Exception $e) {
             Yii::error('[Webhook AMO] ' . $e->getMessage(), 'amocrm');
         }
@@ -146,22 +186,48 @@ class WebhookController extends Controller
         return ['ok' => true];
     }
 
-    private function handleLeadStatus(array $lead): void
+    /** Alias for /webhook/amocrm/lead-status-changed */
+    public function actionLeadStatusChanged()
     {
-        $leadId  = (int)($lead['id'] ?? 0);
+        return $this->actionAmocrm();
+    }
+
+    private function handleLeadStatus(array $lead, OrderFromLeadService $service): void
+    {
+        $leadId    = (int)($lead['id'] ?? 0);
+        $statusId  = (int)($lead['status_id'] ?? 0);
+        $statusName = $lead['status_name'] ?? null;
         if (!$leadId) return;
+
         $order = Order::findOne(['amocrm_lead_id' => $leadId]);
+
+        // If no order and this status should trigger order creation — create it
+        if (!$order && AmocrmStatusMapper::shouldCreateOrder($statusId, $statusName)) {
+            try {
+                $order = $service->createFromLeadId($leadId);
+                Yii::info('[Webhook AMO] Order created for lead #' . $leadId, 'amocrm');
+            } catch (\Throwable $e) {
+                Yii::error('[Webhook AMO] Create order failed: ' . $e->getMessage(), 'amocrm');
+            }
+            return;
+        }
+
         if (!$order) return;
 
-        // Map AmoCRM status → order status using settings
-        $paidStatusId = (int)Yii::$app->settings->get('amocrm', 'paid_status_id', 0);
-        $newStatusId  = (int)$lead['status_id'] ?? 0;
+        // Map AmoCRM status → our order status
+        $newOrderStatus = AmocrmStatusMapper::fromAmocrmStatusId($statusId, $statusName);
 
-        if ($paidStatusId && $newStatusId === $paidStatusId && $order->status !== 'paid') {
-            $order->status = 'paid';
+        if ($newOrderStatus && $newOrderStatus !== $order->status) {
+            $oldStatus = $order->status;
+            $order->status = $newOrderStatus;
             $order->amocrm_last_sync_at = time();
             $order->save(false);
-            Yii::info('[Webhook AMO] Order #' . $order->id . ' marked paid via lead #' . $leadId, 'amocrm');
+            \app\backend\modules\checkout\models\OrderHistory::log(
+                $order->id, 'status_changed', null,
+                $oldStatus, $newOrderStatus,
+                'AmoCRM webhook: status_id=' . $statusId
+            );
+            Yii::info('[Webhook AMO] Order #' . $order->id . ' status: ' . $oldStatus . ' → ' . $newOrderStatus, 'amocrm');
         }
     }
 
