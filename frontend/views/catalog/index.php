@@ -491,8 +491,8 @@ setTimeout(function() {
                     <!-- Wrapper для размеров и стрелок -->
                     <div class="sizes-with-nav">
                         <!-- Кнопка прокрутки влево -->
-                        <button type="button" class="size-nav-btn size-nav-left" onclick="scrollSizes('left')">
-                            <i class="bi bi-chevron-left"></i>
+                        <button type="button" class="size-nav-btn size-nav-left" onclick="scrollSizes('left')" aria-label="Прокрутить размеры влево">
+                            <i class="bi bi-chevron-left" aria-hidden="true"></i>
                         </button>
                         
                         <div class="sizes-scroll-container" id="sizesScrollContainer">
@@ -518,8 +518,8 @@ setTimeout(function() {
                         </div>
                         
                         <!-- Кнопка прокрутки вправо -->
-                        <button type="button" class="size-nav-btn size-nav-right" onclick="scrollSizes('right')">
-                            <i class="bi bi-chevron-right"></i>
+                        <button type="button" class="size-nav-btn size-nav-right" onclick="scrollSizes('right')" aria-label="Прокрутить размеры вправо">
+                            <i class="bi bi-chevron-right" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
@@ -529,6 +529,7 @@ setTimeout(function() {
                     <h1 class="toolbar-title"><?= isset($h1) ? Html::encode($h1) : 'Каталог' ?> <span class="filter-count">(<?= $pagination->totalCount ?>)</span></h1>
                     
                     <div class="toolbar-actions">
+                        <label for="sortSelect" class="sr-only">Сортировка</label>
                         <select class="sort-select" id="sortSelect" onchange="applySort(this.value)">
                             <option value="popular" <?= ($currentFilters['sort'] ?? 'popular') === 'popular' ? 'selected' : '' ?>>По популярности</option>
                             <option value="price_asc" <?= ($currentFilters['sort'] ?? '') === 'price_asc' ? 'selected' : '' ?>>Сначала дешевые</option>
@@ -538,6 +539,7 @@ setTimeout(function() {
                             <option value="discount" <?= ($currentFilters['sort'] ?? '') === 'discount' ? 'selected' : '' ?>>Со скидкой</option>
                         </select>
 
+                        <label for="perPageSelect" class="sr-only">Товаров на странице</label>
                         <select class="per-page-select" id="perPageSelect" onchange="applyPerPage(this.value)">
                             <option value="4" <?= ($pagination->pageSize ?? 4) == 4 ? 'selected' : '' ?>>4 товара</option>
                             <option value="8" <?= ($pagination->pageSize ?? 4) == 8 ? 'selected' : '' ?>>8 товаров</option>
@@ -567,6 +569,7 @@ setTimeout(function() {
                 </div>
                 <?php endif; ?>
 
+                <h2 class="sr-only">Список товаров</h2>
                 <div class="products-grid" id="products">
                     <?= $this->render('_products', ['products' => $products]) ?>
                 </div>
@@ -646,7 +649,7 @@ if (isCrawler()) {
 <!-- Quick View Modal -->
 <div class="quick-view-modal" id="quickViewModal">
     <div class="qv-content">
-        <button type="button" class="qv-close" onclick="closeQuickView()"><i class="bi bi-x"></i></button>
+        <button type="button" class="qv-close" onclick="closeQuickView()" aria-label="Закрыть быстрый просмотр"><i class="bi bi-x" aria-hidden="true"></i></button>
         <div class="qv-grid">
             <div class="qv-gallery">
                 <img src="" alt="" id="qvMainImg">

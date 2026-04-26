@@ -1277,9 +1277,14 @@
 }
 
 .legend-item.unavailable {
-    color: var(--color-text-muted);
+    color: var(--c-gray-400);
     text-decoration: line-through;
-    opacity: 0.7;
+}
+
+.size-selector-heading {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin: 0;
 }
 
 .size-info {
