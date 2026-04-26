@@ -635,6 +635,7 @@ document.addEventListener('keydown',function(e){
 
 <!-- Bootstrap 5 JS bundle (для модальных окон) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="/js/admin-toast.js"></script>
 <?php $this->endBody() ?>
 </body>
 </html>

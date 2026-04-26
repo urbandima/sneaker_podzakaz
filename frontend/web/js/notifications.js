@@ -1,98 +1,119 @@
 /**
  * Глобальная система уведомлений
- * B&W Design System
+ * API: SH.toast({type, title, message, duration, action: {label, onClick}})
+ *      SH.notify(message, type, duration)  ← обратная совместимость
  */
 
 (function () {
     'use strict';
 
-    var escapeHtml = SH.escapeHtml;
+    var iconMap = {
+        success: 'bi-check-circle-fill',
+        error:   'bi-x-circle-fill',
+        warning: 'bi-exclamation-triangle-fill',
+        info:    'bi-info-circle-fill'
+    };
+
+    function getContainer() {
+        var c = document.querySelector('.notification-container');
+        if (!c) {
+            c = document.createElement('div');
+            c.className = 'notification-container';
+            document.body.appendChild(c);
+        }
+        return c;
+    }
+
+    /**
+     * Показать тост
+     * @param {Object|string} opts  объект {type,title,message,duration,action} или строка
+     * @param {string}  [legacyType]    обратная совместимость: тип если opts — строка
+     * @param {number}  [legacyDuration]
+     */
+    function toast(opts, legacyType, legacyDuration) {
+        if (typeof opts === 'string') {
+            opts = { message: opts, type: legacyType || 'info', duration: legacyDuration };
+        }
+
+        var type     = opts.type     || 'info';
+        var title    = opts.title    || null;
+        var message  = opts.message  || '';
+        var duration = opts.duration || 4500;
+        var action   = opts.action   || null;
+
+        var validTypes = ['success', 'error', 'warning', 'info'];
+        if (validTypes.indexOf(type) === -1) type = 'info';
+
+        var el = document.createElement('div');
+        el.className = 'toast toast-' + type;
+        el.setAttribute('role', 'alert');
+
+        var iconEl = document.createElement('div');
+        iconEl.className = 'toast-icon';
+        var iconI = document.createElement('i');
+        iconI.className = 'bi ' + (iconMap[type] || 'bi-info-circle-fill');
+        iconEl.appendChild(iconI);
+
+        var bodyEl = document.createElement('div');
+        bodyEl.className = 'toast-body';
+
+        if (title) {
+            var titleEl = document.createElement('div');
+            titleEl.className = 'toast-title';
+            titleEl.textContent = title;
+            bodyEl.appendChild(titleEl);
+        }
+
+        var msgEl = document.createElement('div');
+        msgEl.className = 'toast-message';
+        msgEl.textContent = message;
+        bodyEl.appendChild(msgEl);
+
+        if (action && action.label) {
+            var actBtn = document.createElement('button');
+            actBtn.className = 'toast-action';
+            actBtn.textContent = action.label;
+            actBtn.addEventListener('click', function () {
+                if (typeof action.onClick === 'function') action.onClick();
+                dismiss();
+            });
+            bodyEl.appendChild(actBtn);
+        }
+
+        var closeBtn = document.createElement('button');
+        closeBtn.className = 'toast-close';
+        closeBtn.setAttribute('aria-label', 'Закрыть');
+        var closeI = document.createElement('i');
+        closeI.className = 'bi bi-x';
+        closeBtn.appendChild(closeI);
+
+        el.appendChild(iconEl);
+        el.appendChild(bodyEl);
+        el.appendChild(closeBtn);
+
+        var timer;
+        function dismiss() {
+            clearTimeout(timer);
+            el.classList.remove('show');
+            setTimeout(function () { el.remove(); }, 300);
+        }
+
+        closeBtn.addEventListener('click', dismiss);
+
+        getContainer().appendChild(el);
+        setTimeout(function () { el.classList.add('show'); }, 10);
+        timer = setTimeout(dismiss, duration);
+    }
 
     window.NotificationManager = {
-        /**
-         * Показать уведомление
-         * @param {string} message - Текст сообщения
-         * @param {string} type - Тип: 'success', 'error', 'warning', 'info'
-         * @param {number} duration - Длительность в мс (по умолчанию 4000)
-         */
-        show: function (message, type, duration) {
-            type = type || 'info';
-            duration = duration || 4000;
-
-            // Валидация типа
-            var validTypes = ['success', 'error', 'warning', 'info'];
-            if (validTypes.indexOf(type) === -1) type = 'info';
-
-            var notification = document.createElement('div');
-            notification.className = 'toast toast-' + type;
-
-            // Иконка (безопасный HTML — нет пользовательских данных)
-            var iconMap = {
-                success: 'bi-check-circle',
-                error: 'bi-x-circle',
-                warning: 'bi-exclamation-triangle',
-                info: 'bi-info-circle'
-            };
-
-            var iconEl = document.createElement('div');
-            iconEl.className = 'toast-icon';
-            var icon = document.createElement('i');
-            icon.className = 'bi ' + iconMap[type];
-            iconEl.appendChild(icon);
-
-            var messageEl = document.createElement('div');
-            messageEl.className = 'toast-message';
-            messageEl.textContent = message; // textContent — XSS-безопасно
-
-            var closeBtn = document.createElement('button');
-            closeBtn.className = 'toast-close';
-            closeBtn.setAttribute('aria-label', 'Закрыть');
-            var closeIcon = document.createElement('i');
-            closeIcon.className = 'bi bi-x';
-            closeBtn.appendChild(closeIcon);
-            closeBtn.addEventListener('click', function () {
-                notification.classList.remove('show');
-                setTimeout(function () { notification.remove(); }, 300);
-            });
-
-            notification.appendChild(iconEl);
-            notification.appendChild(messageEl);
-            notification.appendChild(closeBtn);
-
-            var container = document.querySelector('.notification-container');
-            if (!container) {
-                container = document.createElement('div');
-                container.className = 'notification-container';
-                document.body.appendChild(container);
-            }
-
-            container.appendChild(notification);
-
-            setTimeout(function () {
-                notification.classList.add('show');
-            }, 10);
-
-            setTimeout(function () {
-                notification.classList.remove('show');
-                setTimeout(function () { notification.remove(); }, 300);
-            }, duration);
-        },
-
-        success: function (message, duration) {
-            this.show(message, 'success', duration);
-        },
-
-        error: function (message, duration) {
-            this.show(message, 'error', duration);
-        },
-
-        warning: function (message, duration) {
-            this.show(message, 'warning', duration);
-        },
-
-        info: function (message, duration) {
-            this.show(message, 'info', duration);
-        }
+        show: function(message, type, duration) { toast(message, type, duration); },
+        success: function(m, d) { toast({type:'success', message: m, duration: d}); },
+        error:   function(m, d) { toast({type:'error',   message: m, duration: d}); },
+        warning: function(m, d) { toast({type:'warning', message: m, duration: d}); },
+        info:    function(m, d) { toast({type:'info',    message: m, duration: d}); },
     };
+
+    window.SH = window.SH || {};
+    window.SH.toast = toast;
 
 })();

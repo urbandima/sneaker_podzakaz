@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.bulkUpdateProducts = function (field, value) {
         const ids = getSelectedProductIds();
         if (!ids.length) {
-            alert('Выберите товары');
+            SH.toast({type:'warning', message:'Выберите товары'});
             return;
         }
 
@@ -94,16 +94,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success) {
                     location.reload();
                 } else {
-                    alert(data.message || 'Не удалось обновить товары.');
+                    SH.toast({type:'error', message: data.message || 'Не удалось обновить товары'});
                 }
             })
-            .catch(() => alert('Ошибка сети'));
+            .catch(() => SH.toast({type:'error', message:'Ошибка сети. Попробуйте снова.'}));
     };
 
     window.confirmBulkDelete = function () {
         const ids = getSelectedProductIds();
         if (!ids.length) {
-            alert('Выберите товары');
+            SH.toast({type:'warning', message:'Выберите товары'});
             return;
         }
         if (confirm(`Удалить ${ids.length} товаров? Действие необратимо.`)) {
@@ -125,10 +125,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success) {
                     location.reload();
                 } else {
-                    alert(data.message || 'Не удалось удалить товары.');
+                    SH.toast({type:'error', message: data.message || 'Не удалось удалить товары'});
                 }
             })
-            .catch(() => alert('Ошибка сети'));
+            .catch(() => SH.toast({type:'error', message:'Ошибка сети. Попробуйте снова.'}));
     }
 
     window.bulkExportSelected = function () {
@@ -234,7 +234,7 @@ function copyToClipboard(text, element) {
                 element.classList.add('bg-info');
             }, 1500);
         }).catch(function (err) {
-            alert('Не удалось скопировать: ' + text);
+            SH.toast({type:'warning', message:'Не удалось скопировать: ' + text});
         });
     } else {
         const tempInput = document.createElement('input');
@@ -346,7 +346,7 @@ async function saveCharacteristic(id) {
 
     const newValue = input.value;
     if (!newValue) {
-        alert('Введите значение');
+        SH.toast({type:'warning', message:'Введите значение'});
         return;
     }
 
@@ -388,10 +388,10 @@ async function saveCharacteristic(id) {
 
             showInlineMessage('Характеристика обновлена', 'success');
         } else {
-            alert('Ошибка: ' + data.message);
+            SH.toast({type:'error', message:'Ошибка: ' + data.message});
         }
     } catch (error) {
-        alert('Ошибка сохранения характеристики');
+        SH.toast({type:'error', message:'Ошибка сохранения характеристики'});
     }
 }
 
@@ -413,10 +413,10 @@ async function deleteCharacteristicInline(id) {
             if (row) row.remove();
             showInlineMessage('Характеристика удалена', 'success');
         } else {
-            alert('Ошибка: ' + data.message);
+            SH.toast({type:'error', message:'Ошибка: ' + data.message});
         }
     } catch (error) {
-        alert('Ошибка удаления характеристики');
+        SH.toast({type:'error', message:'Ошибка удаления характеристики'});
     }
 }
 
@@ -817,7 +817,7 @@ function editPrice(productId, currentPrice) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content || '' },
         body: JSON.stringify({ id: productId, price: parseFloat(newPrice) })
-    }).then(r => r.json()).then(d => { if (d.success) location.reload(); else alert(d.message || 'Ошибка'); });
+    }).then(r => r.json()).then(d => { if (d.success) location.reload(); else SH.toast({type:'error', message: d.message || 'Ошибка'}); });
 }
 
 // B7.2 Toggle active
@@ -839,7 +839,7 @@ function syncPoizon(productId) {
         body: JSON.stringify({ id: productId })
     }).then(r => r.json()).then(d => {
         btn.disabled = false; btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Синхронизировать';
-        if (d.success) location.reload(); else alert(d.message || 'Ошибка синхронизации');
+        if (d.success) location.reload(); else SH.toast({type:'error', message: d.message || 'Ошибка синхронизации'});
     });
 }
 
@@ -871,7 +871,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.applyGlobalMarkup = function () {
         var markup = parseFloat(document.getElementById('global-markup').value);
-        if (isNaN(markup)) { alert('Введите значение наценки'); return; }
+        if (isNaN(markup)) { SH.toast({type:'warning', message:'Введите значение наценки'}); return; }
         document.querySelectorAll('#bulk-price-table tbody tr').forEach(function (tr) {
             var markupInput = tr.querySelector('.markup-input');
             if (markupInput) {
@@ -907,7 +907,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        if (prices.length === 0) { alert('Нет товаров для обновления'); return; }
+        if (prices.length === 0) { SH.toast({type:'warning', message:'Нет товаров для обновления'}); return; }
 
         var btn = document.getElementById('apply-btn');
         var resultEl = document.getElementById('apply-result');
