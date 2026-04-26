@@ -2,6 +2,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\frontend\assets\CartAsset;
+use app\backend\shared\services\DeliveryService;
 
 /** @var yii\web\View $this */
 /** @var app\backend\modules\catalog\models\Cart[] $items */
@@ -13,6 +14,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
 // Подключаем AssetBundle для корзины (все стили автоматически с версионированием)
 CartAsset::register($this);
+
+$delivery = DeliveryService::calculate($total);
 ?>
 
 <div class="cart-page cart-blur-surface">
@@ -145,18 +148,18 @@ CartAsset::register($this);
                         
                         <div class="summary-row">
                             <span>Доставка:</span>
-                            <span id="deliveryCost"><?= $total >= 100 ? 'Бесплатно' : Yii::$app->formatter->asCurrency(10, 'BYN') ?></span>
+                            <span id="deliveryCost"><?= $delivery['is_free'] ? 'Бесплатно' : Yii::$app->formatter->asCurrency($delivery['cost'], 'BYN') ?></span>
                         </div>
-                        
+
                         <div class="summary-total">
                             <span>Всего:</span>
-                            <span class="cart-total" id="finalTotal"><?= Yii::$app->formatter->asCurrency($total >= 100 ? $total : $total + 10, 'BYN') ?></span>
+                            <span class="cart-total" id="finalTotal"><?= Yii::$app->formatter->asCurrency($total + $delivery['cost'], 'BYN') ?></span>
                         </div>
-                        
-                        <?php if ($total < 100): ?>
+
+                        <?php if (!$delivery['is_free'] && $delivery['threshold'] > 0): ?>
                             <div class="delivery-info">
                                 <i class="bi bi-truck"></i>
-                                До бесплатной доставки: <span id="toFreeDelivery"><?= Yii::$app->formatter->asCurrency(100 - $total, 'BYN') ?></span>
+                                До бесплатной доставки: <span id="toFreeDelivery"><?= Yii::$app->formatter->asCurrency($delivery['remaining'], 'BYN') ?></span>
                             </div>
                         <?php endif; ?>
                     </div>
