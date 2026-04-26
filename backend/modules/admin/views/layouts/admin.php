@@ -238,9 +238,8 @@ $controllerId = Yii::$app->controller->id;
                     'icon' => 'bi-plugin',
                     'items' => [
                         ['label' => 'Плагины',        'url' => '/admin/plugin',        'ids' => ['plugin'],  'icon' => 'bi-puzzle'],
-                        ['label' => 'AmoCRM',         'url' => '/admin/plugin/amocrm', 'ids' => ['plugin'],  'icon' => 'bi-diagram-3'],
                         ['label' => 'Импорт/Экспорт', 'url' => '/admin/import',        'ids' => ['import'],  'icon' => 'bi-arrow-left-right'],
-                        ['label' => 'Lamoda Parser',  'url' => '/admin/plugin/lamoda', 'ids' => ['plugin'],  'icon' => 'bi-cloud-download'],
+                        ['label' => 'Парсеры',        'url' => '/admin/plugin/lamoda', 'ids' => ['import', 'plugin'], 'icon' => 'bi-cloud-download'],
                     ]
                 ],
                 

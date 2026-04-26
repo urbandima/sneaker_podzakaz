@@ -136,7 +136,7 @@ try {
     <?php foreach ($recentOrders as $order):
         $sc = $statusColors[$order->status] ?? '#6b7280';
         $sb = $statusBgColors[$order->status] ?? '#f3f4f6';
-        $sl = $statuses[$order->status] ?? $order->status;
+        $sl = $statuses[$order->status] ?? (method_exists($order, 'getStatusLabel') ? $order->getStatusLabel() : $order->status);
     ?>
     <div class="cqv-order-row">
         <div style="flex:1;min-width:0">
