@@ -20,6 +20,7 @@ $selectedSizesParam = Yii::$app->request->get('sizes');
 $selectedSizesArray = ProductCardHelper::normalizeSelectedSizes($selectedSizesParam);
 $currentSizeSystem = Yii::$app->request->get('size_system', ProductCardHelper::DEFAULT_SIZE_SYSTEM);
 $sizeField = ProductCardHelper::resolveSizeField($currentSizeSystem);
+$searchQuery = isset($searchQuery) ? $searchQuery : trim(Yii::$app->request->get('q', ''));
 ?>
 
 <?php if (empty($products)): ?>
@@ -42,6 +43,7 @@ $sizeField = ProductCardHelper::resolveSizeField($currentSizeSystem);
                 'currentSizeSystem' => $currentSizeSystem,
                 'sizeField' => $sizeField,
                 'lazyPlaceholder' => $lazyPlaceholder,
+                'searchQuery' => $searchQuery,
             ]);
         ?>
     <?php endforeach; ?>

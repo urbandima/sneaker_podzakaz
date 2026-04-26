@@ -90,6 +90,9 @@ class CatalogController extends Controller
             'httpCache' => [
                 'class' => 'yii\filters\HttpCache',
                 'only' => ['index', 'brand', 'category', 'product'],
+                // HTML pages must not be cached by browsers — prices and stock change.
+                // Yii2 default is 'public, max-age=3600' which caused stale pages.
+                'cacheControlHeader' => 'no-store',
                 'lastModified' => function ($action, $params) {
                     // Время последнего изменения товаров
                     if ($action->id === 'product') {

@@ -18,6 +18,7 @@ use yii\helpers\Html;
 <?php
 $lazyPlaceholder = $lazyPlaceholder ?? ProductCardHelper::LAZY_PLACEHOLDER;
 $isCriticalCard = $isCriticalCard ?? false;
+$searchQuery = $searchQuery ?? '';
 
 $selectedSizesParam = $selectedSizesParam ?? Yii::$app->request->get('sizes');
 $selectedSizesArray = $selectedSizesArray ?? ProductCardHelper::normalizeSelectedSizes($selectedSizesParam);
@@ -94,7 +95,13 @@ $hasPrice = ($priceView['showRange'] && $priceView['minPrice'] && $priceView['ma
         <?php endif; ?>
         
         <h3 class="product-card-name">
-            <a href="<?= $product->getUrl() ?>"><?= Html::encode($product->getDisplayTitle()) ?></a>
+            <a href="<?= $product->getUrl() ?>"><?php
+                $title = Html::encode($product->getDisplayTitle());
+                if ($searchQuery !== '' && mb_strlen($searchQuery) >= 2) {
+                    $title = preg_replace('/(' . preg_quote(Html::encode($searchQuery), '/') . ')/iu', '<mark>$1</mark>', $title);
+                }
+                echo $title;
+            ?></a>
         </h3>
         
         <!-- Размеры -->
