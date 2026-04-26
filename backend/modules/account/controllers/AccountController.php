@@ -337,14 +337,26 @@ class AccountController extends Controller
     }
 
     /**
-     * API: Поиск заказов по email/телефону (для неавторизованных)
+     * API: Поиск заказов по email/телефону (для неавторизованных).
+     * GET-запрос без AJAX рендерит HTML-форму трекинга.
      */
     public function actionFindOrders()
     {
+        $request = Yii::$app->request;
+
+        if ($request->isGet && !$request->isAjax) {
+            return $this->render('find-orders');
+        }
+
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $email = Yii::$app->request->post('email');
-        $phone = Yii::$app->request->post('phone');
+        $bodyRaw = $request->rawBody;
+        $body = $request->bodyParams;
+        if (empty($body) && $bodyRaw && str_contains((string)$request->contentType, 'application/json')) {
+            $body = json_decode($bodyRaw, true) ?: [];
+        }
+        $email = $body['email'] ?? $request->post('email');
+        $phone = $body['phone'] ?? $request->post('phone');
 
         if (!$email && !$phone) {
             return ['success' => false, 'message' => 'Укажите email или телефон'];
