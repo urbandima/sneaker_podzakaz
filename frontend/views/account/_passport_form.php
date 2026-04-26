@@ -59,8 +59,10 @@ use yii\helpers\Url;
                 <label>Серия <span class="req">*</span></label>
                 <input type="text" id="pf_passport_series" name="passport_series"
                        value="<?= Html::encode($order->passport_series ?? '') ?>"
-                       maxlength="4" required placeholder="МП">
-                <small>2–4 символа</small>
+                       maxlength="4" required placeholder="AB"
+                       pattern="[A-Z]{2,4}" autocomplete="off" spellcheck="false"
+                       oninput="this.value=this.value.replace(/[^A-Za-z]/g,'').toUpperCase().slice(0,4)">
+                <small>2–4 лат. буквы</small>
                 <span class="field-error" id="err_passport_series"></span>
             </div>
             <div class="passport-field">

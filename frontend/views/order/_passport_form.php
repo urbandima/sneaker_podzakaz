@@ -90,7 +90,9 @@ $citizenship = $model->citizenship ?: 'by';
                 <input type="text" id="pf_passport_series" name="passport_series"
                        class="passport-form-input"
                        value="<?= Html::encode($model->passport_series ?? '') ?>"
-                       maxlength="4" required autocomplete="off" spellcheck="false">
+                       maxlength="4" required autocomplete="off" spellcheck="false"
+                       pattern="<?= $citizenship === 'ru' ? '[0-9]{4}' : '[A-Z]{2,4}' ?>"
+                       inputmode="<?= $citizenship === 'ru' ? 'numeric' : 'text' ?>">
                 <small class="passport-form-hint-field" id="series_hint">
                     <?= $citizenship === 'ru' ? '4 цифры (напр. 1234)' : '2–4 лат. буквы (напр. AB)' ?>
                 </small>
@@ -311,6 +313,8 @@ $this->registerJs(<<<JS
         if (cit === 'ru') {
             seriesEl.maxLength = 4;
             seriesEl.placeholder = '1234';
+            seriesEl.pattern = '[0-9]{4}';
+            seriesEl.inputMode = 'numeric';
             seriesHint.textContent = '4 цифры (напр. 1234)';
             numberEl.maxLength = 6;
             numberHint.textContent = '6 цифр';
@@ -321,6 +325,8 @@ $this->registerJs(<<<JS
         } else {
             seriesEl.maxLength = 4;
             seriesEl.placeholder = 'AB';
+            seriesEl.pattern = '[A-Z]{2,4}';
+            seriesEl.inputMode = 'text';
             seriesHint.textContent = '2–4 лат. буквы (напр. AB)';
             numberEl.maxLength = 7;
             numberHint.textContent = '7 цифр';

@@ -657,7 +657,7 @@ $pillBgFromHex = function(string $hex): string {
                                  ondragstart="onDragStart(event)"
                                  ondragend="onDragEnd(event)">
                                 <?php $kcNum = $ord->order_number ?: (string)$ord->id; ?>
-                                <div class="kc-num"><?= Html::encode(ctype_digit(ltrim($kcNum, '#')) ? '#' . ltrim($kcNum, '#') : $kcNum) ?></div>
+                                <div class="kc-num"><?= Html::encode(ctype_digit(ltrim($kcNum, '#')) ? '#' . ltrim($kcNum, '#') : $kcNum) ?><?php if ($daysSince >= 7): ?><span class="kc-overdue-badge" title="Заказ в статусе <?= $daysSince ?> дн.">&#9888; <?= $daysSince ?> дн.</span><?php endif; ?></div>
                                 <div class="kc-client"><?= Html::encode($ord->client_name) ?></div>
                                 <?php if ($firstItem): ?>
                                     <div class="kc-product" title="<?= Html::encode($firstItem->product_name) ?>"><?= Html::encode($firstItem->product_name) ?></div>
