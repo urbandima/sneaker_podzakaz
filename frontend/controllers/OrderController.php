@@ -29,11 +29,13 @@ class OrderController extends Controller
      */
     public function actionIndex()
     {
-        $items           = [];
-        $total           = 0;
-        $customer        = null;
-        $shippingMethods = [];
-        $europochtaPoints = [];
+        $items                 = [];
+        $total                 = 0;
+        $customer              = null;
+        $shippingMethods       = [];
+        $europochtaPoints      = [];
+        $paymentMethods        = [];
+        $freeDeliveryThreshold = 100;
 
         try {
             $items = Cart::getItems();
@@ -68,18 +70,30 @@ class OrderController extends Controller
             $company        = \app\backend\modules\admin\models\CompanySettings::getSettings();
             $pickupAddress  = Yii::$app->settings->get('checkout', 'pickup_address', $company['address'] ?? 'пр.Победителей 5 офис 9');
             $pickupWorkTime = $company['work_time'] ?? Yii::$app->settings->get('company', 'work_time', 'Пн-Вс: 10:00-22:00');
+
+            $rawPayment = Yii::$app->settings->get('checkout', 'payment_methods', '');
+            if ($rawPayment) {
+                $decoded = json_decode($rawPayment, true);
+                if (is_array($decoded)) {
+                    $paymentMethods = array_values(array_filter($decoded, fn($m) => ($m['status'] ?? '') === 'active'));
+                }
+            }
+
+            $freeDeliveryThreshold = (float) Yii::$app->settings->get('checkout', 'free_delivery_threshold', 100);
         } catch (\Exception $e) {
             Yii::warning('Checkout page error: ' . $e->getMessage(), 'checkout');
         }
 
         return $this->render('//checkout/index', [
-            'items'            => $items,
-            'total'            => $total,
-            'customer'         => $customer,
-            'shippingMethods'  => $shippingMethods,
-            'europochtaPoints' => $europochtaPoints,
-            'pickupAddress'    => $pickupAddress  ?? 'пр.Победителей 5 офис 9',
-            'pickupWorkTime'   => $pickupWorkTime ?? 'Пн-Вс: 10:00-22:00',
+            'items'                 => $items,
+            'total'                 => $total,
+            'customer'              => $customer,
+            'shippingMethods'       => $shippingMethods,
+            'europochtaPoints'      => $europochtaPoints,
+            'pickupAddress'         => $pickupAddress  ?? 'пр.Победителей 5 офис 9',
+            'pickupWorkTime'        => $pickupWorkTime ?? 'Пн-Вс: 10:00-22:00',
+            'paymentMethods'        => $paymentMethods ?? [],
+            'freeDeliveryThreshold' => $freeDeliveryThreshold ?? 100,
         ]);
     }
 

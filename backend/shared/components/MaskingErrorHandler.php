@@ -98,8 +98,17 @@ class MaskingErrorHandler extends SentryErrorHandler
         if ($this->errorAction !== null) {
             try {
                 $this->exception = $exception;
-                Yii::$app->runAction($this->errorAction);
-                return;
+                $result = Yii::$app->runAction($this->errorAction);
+                if (is_string($result) && $result !== '') {
+                    echo $result;
+                    return;
+                }
+                // Yii2 may have set the response content instead of returning it
+                $response = Yii::$app->response;
+                if (!empty($response->content)) {
+                    echo $response->content;
+                    return;
+                }
             } catch (\Throwable $e) {
                 // Fall through to bare HTML
             }
