@@ -752,11 +752,6 @@ $customer = $model->customer ?? null;
                             <div class="crm-field-label">Номер <span style="color:#6b7280;font-size:0.7rem">(РБ: 7 цифр)</span> <i class="bi bi-truck" style="font-size:0.7rem;color:#4338ca" title="ДП обязательно"></i></div>
                             <div class="crm-editable" data-field="passport_number" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->passport_number) ? Html::encode($model->passport_number) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
-                        <!-- BY: Личный номер УНП -->
-                        <div class="crm-field pf-by" data-citizenship="by">
-                            <div class="crm-field-label">Личный номер (УНП) <span style="color:#6b7280;font-size:0.7rem">(14 симв.)</span> <i class="bi bi-truck" style="font-size:0.7rem;color:#4338ca" title="ДП обязательно"></i></div>
-                            <div class="crm-editable" data-field="passport_unp" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->passport_unp) ? Html::encode($model->passport_unp) : '<span class="crm-editable-empty">—</span>' ?></div>
-                        </div>
                         <!-- RU: Серия (4 цифры) -->
                         <div class="crm-field pf-ru" data-citizenship="ru">
                             <div class="crm-field-label">Серия <span style="color:#6b7280;font-size:0.7rem">(РФ: 4 цифры)</span> <i class="bi bi-truck" style="font-size:0.7rem;color:#4338ca" title="ДП обязательно"></i></div>

@@ -225,25 +225,23 @@ class DobroPostService extends Component
         ];
 
         if ($citizenship === 'by') {
-            // BY: combine series+number into one field (e.g. "MP1234567")
-            $passportFull = mb_strtoupper(preg_replace('/[^A-Z0-9]/', '',
-                ($order->passport_series ?? '') . ($order->passport_number ?? '')));
-            $payload['consigneePassportNumber'] = $passportFull;
-            // Personal ID (УНП, 14 chars) — additional field if DP supports it
-            if (!empty($order->passport_unp)) {
-                $payload['passportPersonalNumber'] = $order->passport_unp;
+            // BY: passport_series stores full combined value "MP1234567"
+            // Fallback: if series is short (2 chars), combine with number for backward compat
+            $series = $order->passport_series ?? '';
+            if (strlen(preg_replace('/[^A-Z0-9]/i', '', $series)) <= 4 && !empty($order->passport_number)) {
+                $series = $series . $order->passport_number;
             }
-            // DP requires 12-digit vatIdentificationNumber; use inn fallback for BY
+            $payload['consigneePassportNumber'] = mb_strtoupper(preg_replace('/[^A-Z0-9]/', '', $series));
             if (!empty($order->inn)) {
                 $payload['vatIdentificationNumber'] = $order->inn;
             }
         } else {
-            // RU: separate serial (4 digits) and number (6 digits)
-            $payload['consigneePassportSerial'] = $order->passport_series;
-            $payload['consigneePassportNumber'] = $order->passport_number;
+            // RU: passport_series = 4-digit serial, passport_number = 6-digit number
+            $payload['consigneePassportSerial'] = preg_replace('/\D/', '', $order->passport_series ?? '');
+            $payload['consigneePassportNumber'] = preg_replace('/\D/', '', $order->passport_number ?? '');
             $payload['vatIdentificationNumber'] = $order->inn;
-            if (!empty($order->passport_division_code)) {
-                $payload['passportDepartmentCode'] = $order->passport_division_code;
+            if (!empty($order->passport_dept_code)) {
+                $payload['passportDepartmentCode'] = $order->passport_dept_code;
             }
         }
 

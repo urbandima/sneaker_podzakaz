@@ -125,6 +125,7 @@ class Order extends ActiveRecord
             [['passport_series', 'inn', 'postal_code', 'ms_number'], 'string', 'max' => 50],
             [['passport_number', 'dobropost_tariff'], 'string', 'max' => 100],
             [['passport_unp'], 'string', 'max' => 20],
+            [['passport_dept_code'], 'string', 'max' => 7],
             [['product_link', 'sneakerhead_order_link'], 'string', 'max' => 500],
             [['passport_issue_date', 'birth_date'], 'safe'],
             ['citizenship', 'in', 'range' => ['by', 'ru'], 'skipOnEmpty' => true],
@@ -164,7 +165,8 @@ class Order extends ActiveRecord
             'passport_issue_date' => 'Дата выдачи паспорта',
             'birth_date' => 'Дата рождения',
             'inn' => 'ИНН/идентификационный номер',
-            'passport_unp' => 'Личный номер (УНП)',
+            'passport_unp'       => 'Личный номер (УНП)',
+            'passport_dept_code' => 'Код подразделения',
             'citizenship' => 'Гражданство',
             'passport_issued_by' => 'Кем выдан паспорт',
             'passport_division_code' => 'Код подразделения',
@@ -666,8 +668,6 @@ class Order extends ActiveRecord
 
         if (empty($this->recipient_last_name))  $errors[] = 'Фамилия получателя';
         if (empty($this->recipient_first_name)) $errors[] = 'Имя получателя';
-        if (empty($this->passport_series))      $errors[] = 'Серия паспорта';
-        if (empty($this->passport_number))      $errors[] = 'Номер паспорта';
         if (empty($this->passport_issue_date))  $errors[] = 'Дата выдачи паспорта';
         if (empty($this->full_address))         $errors[] = 'Полный адрес';
         if (empty($this->city))                 $errors[] = 'Город';
@@ -675,10 +675,12 @@ class Order extends ActiveRecord
         if (empty($this->postal_code))          $errors[] = 'Индекс';
 
         if ($citizenship === 'by') {
-            if (empty($this->passport_unp)) $errors[] = 'Личный номер УНП (14 символов)';
+            if (empty($this->passport_series)) $errors[] = 'Серия+Номер паспорта (формат MP1234567)';
         } else {
-            if (empty($this->inn))                    $errors[] = 'ИНН (12 цифр)';
-            if (empty($this->passport_division_code)) $errors[] = 'Код подразделения';
+            if (empty($this->passport_series))  $errors[] = 'Серия паспорта (4 цифры)';
+            if (empty($this->passport_number))  $errors[] = 'Номер паспорта (6 цифр)';
+            if (empty($this->inn))              $errors[] = 'ИНН (12 цифр)';
+            if (empty($this->passport_dept_code)) $errors[] = 'Код подразделения (XXX-XXX)';
         }
 
         return $errors;
