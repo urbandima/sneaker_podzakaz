@@ -127,69 +127,65 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                         </button>
                     </div>
                     <p class="order-step-sub">Переведите указанную сумму по реквизитам ниже и приложите квитанцию на шаге 2.</p>
+                    <?php
+                    $reqRecipient = !empty($companySettings['name'])    ? $companySettings['name']    : 'ИП Коляда С.С.';
+                    $reqAccount   = $companySettings['account']  ?? '';
+                    $reqBank      = $companySettings['bank']     ?? '';
+                    $reqBic       = $companySettings['bic']      ?? '';
+                    $reqUnp       = $companySettings['unp']      ?? '';
+                    $reqAmount    = number_format((float)$model->total_amount, 2, '.', ' ') . ' BYN';
+                    $reqPurpose   = 'Оплата по договору оферты №' . $model->order_number;
+                    ?>
                     <div class="order-requisites">
                         <div class="order-req-row">
                             <span class="order-req-label">Получатель:</span>
                             <span class="order-req-value">
-                                ИП Коляда С.С.
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,'ИП Коляда С.С.')" title="Скопировать"><i class="bi bi-clipboard"></i></button>
+                                <?= Html::encode($reqRecipient) ?>
+                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= json_encode($reqRecipient) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
                             </span>
                         </div>
-                        <?php if (!empty($companySettings['unp'])): ?>
+                        <?php if ($reqAccount): ?>
                         <div class="order-req-row">
-                            <span class="order-req-label">УНП:</span>
-                            <span class="order-req-value">
-                                <?= Html::encode($companySettings['unp']) ?>
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,'<?= Html::encode($companySettings['unp']) ?>')" title="Скопировать"><i class="bi bi-clipboard"></i></button>
+                            <span class="order-req-label">Расчётный счёт (IBAN):</span>
+                            <span class="order-req-value order-req-mono">
+                                <?= Html::encode($reqAccount) ?>
+                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= json_encode($reqAccount) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
                             </span>
                         </div>
                         <?php endif; ?>
-                        <?php if (!empty($companySettings['address'])): ?>
-                        <div class="order-req-row">
-                            <span class="order-req-label">Адрес:</span>
-                            <span class="order-req-value">
-                                <?= Html::encode($companySettings['address']) ?>
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,'<?= Html::encode($companySettings['address']) ?>')" title="Скопировать"><i class="bi bi-clipboard"></i></button>
-                            </span>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($companySettings['bank'])): ?>
+                        <?php if ($reqBank): ?>
                         <div class="order-req-row">
                             <span class="order-req-label">Банк:</span>
                             <span class="order-req-value">
-                                <?= Html::encode($companySettings['bank']) ?>
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,'<?= Html::encode($companySettings['bank']) ?>')" title="Скопировать"><i class="bi bi-clipboard"></i></button>
+                                <?= Html::encode($reqBank) ?>
+                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= json_encode($reqBank) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
                             </span>
                         </div>
                         <?php endif; ?>
-                        <?php if (!empty($companySettings['bic'])): ?>
+                        <?php if ($reqBic): ?>
                         <div class="order-req-row">
                             <span class="order-req-label">БИК:</span>
                             <span class="order-req-value order-req-mono">
-                                <?= Html::encode($companySettings['bic']) ?>
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,'<?= Html::encode($companySettings['bic']) ?>')" title="Скопировать"><i class="bi bi-clipboard"></i></button>
+                                <?= Html::encode($reqBic) ?>
+                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= json_encode($reqBic) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
                             </span>
                         </div>
                         <?php endif; ?>
-                        <?php if (!empty($companySettings['account'])): ?>
+                        <?php if ($reqUnp): ?>
                         <div class="order-req-row">
-                            <span class="order-req-label">Расчётный счёт:</span>
-                            <span class="order-req-value order-req-mono">
-                                <?= Html::encode($companySettings['account']) ?>
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,'<?= Html::encode($companySettings['account']) ?>')" title="Скопировать"><i class="bi bi-clipboard"></i></button>
+                            <span class="order-req-label">УНП:</span>
+                            <span class="order-req-value">
+                                <?= Html::encode($reqUnp) ?>
+                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= json_encode($reqUnp) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
                             </span>
                         </div>
                         <?php endif; ?>
-                        <div class="order-req-row">
-                            <span class="order-req-label">Код назначения платежа:</span>
-                            <span class="order-req-value order-req-mono">
-                                90401
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,'90401')" title="Скопировать"><i class="bi bi-clipboard"></i></button>
-                            </span>
-                        </div>
                         <div class="order-req-row order-req-row--highlight">
                             <span class="order-req-label">Сумма к оплате:</span>
-                            <span class="order-req-value"><?= Yii::$app->formatter->asCurrency($model->total_amount, 'BYN') ?></span>
+                            <span class="order-req-value">
+                                <?= Html::encode($reqAmount) ?>
+                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= json_encode($reqAmount) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
+                            </span>
                         </div>
                         <div class="order-req-row order-req-row--purpose">
                             <span class="order-req-label">
@@ -197,8 +193,8 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                                 Назначение платежа:
                             </span>
                             <span class="order-req-value order-req-purpose-value">
-                                Оплата по договору оферты №<?= Html::encode($model->order_number) ?>
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,'Оплата по договору оферты №<?= Html::encode($model->order_number) ?>')" title="Скопировать"><i class="bi bi-clipboard"></i></button>
+                                <?= Html::encode($reqPurpose) ?>
+                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= json_encode($reqPurpose) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
                             </span>
                         </div>
                     </div>
