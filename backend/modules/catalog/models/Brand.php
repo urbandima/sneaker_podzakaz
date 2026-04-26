@@ -46,6 +46,7 @@ use app\backend\shared\components\SitemapNotifier;
  * @property string|null $description Описание бренда
  * @property string|null $logo Путь к логотипу
  * @property string|null $logo_url URL логотипа (из Poizon)
+ * @property string|null $cover_image Обложка бренда (баннер)
  * @property int $sort_order Порядок сортировки
  * @property int $is_active Активен ли бренд
  * @property string|null $meta_title SEO заголовок
@@ -63,6 +64,13 @@ class Brand extends ActiveRecord
      * @var int|null
      */
     public $products_count;
+
+    /**
+     * Виртуальные поля для загрузки файлов через форму
+     * @var \yii\web\UploadedFile|null
+     */
+    public $logoFile;
+    public $coverFile;
     /**
      * {@inheritdoc}
      */
@@ -129,6 +137,8 @@ class Brand extends ActiveRecord
             [['description', 'meta_description', 'meta_keywords'], 'string'],
             [['logo'], 'string', 'max' => 255],
             [['logo_url'], 'string', 'max' => 500],
+            [['cover_image'], 'string', 'max' => 255],
+            [['logoFile', 'coverFile'], 'file', 'skipOnEmpty' => true, 'extensions' => 'jpg,jpeg,png,gif,webp,svg'],
             [['sort_order', 'poizon_id'], 'integer'],
             [['is_active'], 'boolean'],
             [['is_active'], 'default', 'value' => true],
@@ -149,6 +159,7 @@ class Brand extends ActiveRecord
             'description' => 'Описание',
             'logo' => 'Логотип',
             'logo_url' => 'URL логотипа',
+            'cover_image' => 'Обложка (баннер)',
             'sort_order' => 'Порядок сортировки',
             'is_active' => 'Активен',
             'meta_title' => 'SEO заголовок',
