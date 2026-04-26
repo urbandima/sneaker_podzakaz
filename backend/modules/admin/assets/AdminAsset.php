@@ -38,7 +38,7 @@ class AdminAsset extends AssetBundle
         'js/admin-settings.js',     // Настройки
         'js/admin-poizon.js',       // Интеграция Poizon
         'js/admin-wizard.js',       // Wizard страницы (create/view)
-        'js/admin-table-utils.js',  // Shared list-page utils: col selector, sort, filter
+        // admin-table-utils.js loaded in <head> in main.php layout (needed before view inline scripts)
     ];
 
     public $depends = [

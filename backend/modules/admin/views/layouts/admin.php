@@ -60,6 +60,13 @@ $controllerId = Yii::$app->controller->id;
     <style>.yii-debug-toolbar{display:none!important}</style>
     <?php endif ?>
     <?= $this->head() ?>
+
+    <!-- admin-table-utils must load before view inline scripts (which run before POS_END bundles) -->
+    <?php
+    $atuPath = Yii::getAlias('@webroot/js/admin-table-utils.js');
+    $atuV    = file_exists($atuPath) ? filemtime($atuPath) : 0;
+    ?>
+    <script src="/js/admin-table-utils.js?v=<?= $atuV ?>"></script>
 </head>
 <body>
 <?php $this->beginBody() ?>
