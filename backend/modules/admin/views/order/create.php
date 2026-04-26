@@ -186,9 +186,11 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
                         <thead>
                             <tr>
                                 <th>Товар</th>
+                                <th style="width:80px">Размер</th>
+                                <th style="width:80px">Цвет</th>
                                 <th style="width:60px">Кол-во</th>
                                 <th style="width:100px">Цена BYN</th>
-                                <th style="width:160px">Ссылка</th>
+                                <th style="width:130px">Ссылка</th>
                                 <th style="width:32px"></th>
                             </tr>
                         </thead>
@@ -196,8 +198,12 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
                             <?php foreach ($orderItems as $index => $item): ?>
                             <tr class="crm-item-row" data-index="<?= $index ?>">
                                 <td><input type="text" name="OrderItem[<?= $index ?>][product_name]"
-                                    class="crm-input" style="min-width:160px"
+                                    class="crm-input" style="min-width:140px"
                                     value="<?= Html::encode($item['product_name']) ?>" placeholder="Название товара"></td>
+                                <td><input type="text" name="OrderItem[<?= $index ?>][size]"
+                                    class="crm-input" value="<?= Html::encode($item['size'] ?? '') ?>" placeholder="EU 42"></td>
+                                <td><input type="text" name="OrderItem[<?= $index ?>][color]"
+                                    class="crm-input" value="<?= Html::encode($item['color'] ?? '') ?>" placeholder="Белый"></td>
                                 <td><input type="number" name="OrderItem[<?= $index ?>][quantity]"
                                     class="crm-input" value="<?= (int)($item['quantity'] ?: 1) ?>" min="1"></td>
                                 <td><input type="number" step="0.01" name="OrderItem[<?= $index ?>][price]"
@@ -607,7 +613,9 @@ $js = <<<JS
             tr.className = 'crm-item-row';
             tr.dataset.index = idx;
             tr.innerHTML =
-                '<td><input type="text" name="OrderItem[' + idx + '][product_name]" class="crm-input" style="min-width:160px" placeholder="Название товара"></td>' +
+                '<td><input type="text" name="OrderItem[' + idx + '][product_name]" class="crm-input" style="min-width:140px" placeholder="Название товара"></td>' +
+                '<td><input type="text" name="OrderItem[' + idx + '][size]" class="crm-input" placeholder="EU 42"></td>' +
+                '<td><input type="text" name="OrderItem[' + idx + '][color]" class="crm-input" placeholder="Белый"></td>' +
                 '<td><input type="number" name="OrderItem[' + idx + '][quantity]" class="crm-input" value="1" min="1"></td>' +
                 '<td><input type="number" step="0.01" name="OrderItem[' + idx + '][price]" class="crm-input crm-item-price" min="0" placeholder="0.00"></td>' +
                 '<td><input type="text" name="OrderItem[' + idx + '][link]" class="crm-input" placeholder="https://…"></td>' +

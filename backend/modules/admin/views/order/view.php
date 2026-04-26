@@ -556,8 +556,19 @@ $customer = $model->customer ?? null;
                                     <?php else: ?>
                                         <div class="item-name"><?= Html::encode($item->product_name) ?></div>
                                     <?php endif; ?>
-                                    <?php if (!empty($item->size)): ?>
-                                        <div class="item-sku">Размер: <?= Html::encode($item->size) ?></div>
+                                    <?php if (!empty($item->size) || !empty($item->color)): ?>
+                                        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:3px">
+                                            <?php if (!empty($item->size)): ?>
+                                                <span style="display:inline-flex;align-items:center;padding:1px 7px;border-radius:999px;font-size:0.68rem;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe">
+                                                    <?= Html::encode($item->size) ?>
+                                                </span>
+                                            <?php endif; ?>
+                                            <?php if (!empty($item->color)): ?>
+                                                <span style="display:inline-flex;align-items:center;padding:1px 7px;border-radius:999px;font-size:0.68rem;font-weight:700;background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe">
+                                                    <?= Html::encode($item->color) ?>
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
                                     <?php endif; ?>
                                     <?php if (!empty($item->product_article)): ?>
                                         <div class="item-sku">Арт.: <?= Html::encode($item->product_article) ?></div>
