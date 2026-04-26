@@ -117,11 +117,13 @@ class DashboardController extends BaseAdminController
             $baseQuery->andWhere(['assigned_logist' => $user->id]);
         }
         
+        // Z40: Excluded statuses — must match FinanceController::REVENUE_EXCLUDED_STATUSES
+        $revenueExcluded = ['cancelled', 'canceled', 'trash', 'return', 'imported', 'imported_invalid'];
         return [
             'total' => (int)(clone $baseQuery)->count(),
             'today' => (int)(clone $baseQuery)->andWhere(['>=', 'created_at', strtotime('today')])->count(),
             'thisMonth' => (int)(clone $baseQuery)->andWhere(['>=', 'created_at', strtotime('first day of this month')])->count(),
-            'totalAmount' => (float)((clone $baseQuery)->sum('total_amount') ?: 0),
+            'totalAmount' => (float)((clone $baseQuery)->andWhere(['NOT IN', 'status', $revenueExcluded])->sum('total_amount') ?: 0),
             'pending' => (int)(clone $baseQuery)->andWhere(['status' => 'new'])->count(),
             'processing' => (int)(clone $baseQuery)->andWhere(['status' => ['confirmed_and_paid', 'paid', 'ordered']])->count(),
             'completed' => (int)(clone $baseQuery)->andWhere(['status' => 'delivered'])->count(),

@@ -167,11 +167,13 @@ class FinanceController extends BaseAdminController
         $year  = (int) Yii::$app->request->get('year',  date('Y'));
         $years = $this->getAvailableYears();
 
-        // Revenue from orders by month (non-cancelled, non-imported)
+        // Z40/Z43: Revenue from orders by month — same filter as dashboard totalAmount
+        // Excludes cancelled, trash, return, and imported statuses for consistency
+        $excludedStatuses = ['cancelled', 'canceled', 'trash', 'return', 'imported', 'imported_invalid'];
         $revenueRows = (new Query())
             ->select(['MONTH(FROM_UNIXTIME(created_at)) as month', 'SUM(total_amount) as total'])
             ->from('`order`')
-            ->where(['NOT IN', 'status', ['canceled', 'cancelled', 'imported']])
+            ->where(['NOT IN', 'status', $excludedStatuses])
             ->andWhere(['YEAR(FROM_UNIXTIME(created_at))' => $year])
             ->groupBy('month')
             ->indexBy('month')
@@ -201,11 +203,11 @@ class FinanceController extends BaseAdminController
             $expMap[$row['month']][$row['category']] = (float)$row['total'];
         }
 
-        // Delivery cost from orders (delivery_cost field)
+        // Delivery cost from orders (delivery_cost field) — same status filter
         $deliveryRows = (new Query())
             ->select(['MONTH(FROM_UNIXTIME(created_at)) as month', 'SUM(delivery_cost) as total'])
             ->from('`order`')
-            ->where(['NOT IN', 'status', ['canceled', 'cancelled', 'imported']])
+            ->where(['NOT IN', 'status', $excludedStatuses])
             ->andWhere(['YEAR(FROM_UNIXTIME(created_at))' => $year])
             ->groupBy('month')
             ->indexBy('month')
@@ -257,6 +259,9 @@ class FinanceController extends BaseAdminController
         return $this->render('margin', compact('tab', 'from', 'to', 'data'));
     }
 
+    /** Shared excluded statuses — matches dashboard totalAmount filter */
+    private const REVENUE_EXCLUDED_STATUSES = ['cancelled', 'canceled', 'trash', 'return', 'imported', 'imported_invalid'];
+
     private function getMarginByProduct(int $from, int $to): array
     {
         $rows = (new Query())
@@ -268,7 +273,7 @@ class FinanceController extends BaseAdminController
             ])
             ->from('order_item oi')
             ->innerJoin('`order` o', 'o.id = oi.order_id')
-            ->where(['NOT IN', 'o.status', ['canceled', 'cancelled', 'imported']])
+            ->where(['NOT IN', 'o.status', self::REVENUE_EXCLUDED_STATUSES])
             ->andWhere(['BETWEEN', 'o.created_at', $from, $to])
             ->groupBy('oi.product_name')
             ->orderBy(['revenue' => SORT_DESC])
@@ -308,7 +313,7 @@ class FinanceController extends BaseAdminController
             ])
             ->from('`order` o')
             ->leftJoin('user u', 'u.id = o.created_by')
-            ->where(['NOT IN', 'o.status', ['canceled', 'cancelled', 'imported']])
+            ->where(['NOT IN', 'o.status', self::REVENUE_EXCLUDED_STATUSES])
             ->andWhere(['BETWEEN', 'o.created_at', $from, $to])
             ->groupBy('o.created_by')
             ->orderBy(['revenue' => SORT_DESC])
