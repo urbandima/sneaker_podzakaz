@@ -206,12 +206,17 @@ class SiteController extends Controller
     private function getCategories()
     {
         try {
+            // X10: only show categories with ≥5 active products on homepage
             $categories = \app\backend\modules\catalog\models\Category::find()
-                ->where(['is_active' => true])
-                ->orderBy(['sort_order' => SORT_ASC])
+                ->alias('c')
+                ->innerJoin('product p', 'p.category_id = c.id AND p.is_active = 1')
+                ->where(['c.is_active' => true])
+                ->groupBy(['c.id'])
+                ->having(['>=', 'COUNT(p.id)', 5])
+                ->orderBy(['c.sort_order' => SORT_ASC])
                 ->limit(6)
                 ->all();
-                
+
             return $categories;
         } catch (\Throwable $e) {
             Yii::error('Failed to load categories: ' . $e->getMessage(), __METHOD__);
