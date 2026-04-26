@@ -67,8 +67,8 @@ class FinanceController extends BaseAdminController
         $data = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
 
         $payment = new Payment();
-        $payment->order_id      = $data['order_id']      ? (int)$data['order_id'] : null;
-        $payment->customer_id   = $data['customer_id']   ? (int)$data['customer_id'] : null;
+        $payment->order_id      = ($data['order_id']    ?? null) ? (int)$data['order_id'] : null;
+        $payment->customer_id   = ($data['customer_id'] ?? null) ? (int)$data['customer_id'] : null;
         $payment->amount        = (float)($data['amount'] ?? 0);
         $payment->currency      = $data['currency']       ?? 'BYN';
         $payment->payment_method = $data['payment_method'] ?? null;
@@ -139,18 +139,22 @@ class FinanceController extends BaseAdminController
 
     public function actionCreateExpense()
     {
+        if (Yii::$app->request->isGet) {
+            return $this->redirect(['/admin/finance/expenses']);
+        }
+
         Yii::$app->response->format = Response::FORMAT_JSON;
         $data = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
 
         $expense = new Expense();
-        $expense->category        = $data['category']        ?? Expense::CAT_OTHER;
-        $expense->order_id        = $data['order_id']        ? (int)$data['order_id'] : null;
-        $expense->supplier_id     = $data['supplier_id']     ? (int)$data['supplier_id'] : null;
-        $expense->amount          = (float)($data['amount']  ?? 0);
-        $expense->currency        = $data['currency']        ?? 'BYN';
-        $expense->amount_original = $data['amount_original'] ? (float)$data['amount_original'] : null;
+        $expense->category        = $data['category']          ?? Expense::CAT_OTHER;
+        $expense->order_id        = ($data['order_id']    ?? null) ? (int)$data['order_id'] : null;
+        $expense->supplier_id     = ($data['supplier_id'] ?? null) ? (int)$data['supplier_id'] : null;
+        $expense->amount          = (float)($data['amount']    ?? 0);
+        $expense->currency        = $data['currency']          ?? 'BYN';
+        $expense->amount_original = ($data['amount_original']  ?? null) ? (float)$data['amount_original'] : null;
         $expense->currency_original = $data['currency_original'] ?? null;
-        $expense->exchange_rate   = $data['exchange_rate']   ? (float)$data['exchange_rate'] : null;
+        $expense->exchange_rate   = ($data['exchange_rate']    ?? null) ? (float)$data['exchange_rate'] : null;
         $expense->description     = $data['description']     ?? null;
         $expense->document_number = $data['document_number'] ?? null;
         $expense->created_by      = Yii::$app->user->id;

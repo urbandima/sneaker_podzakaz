@@ -568,6 +568,8 @@ $config = [
                 'admin/plugin/amocrm/fields'            => 'admin/plugin/amocrm-fields',
                 'admin/plugin/amocrm/fields-save'       => 'admin/plugin/amocrm-fields-save',
                 'admin/plugin/amocrm/fields-delete'     => 'admin/plugin/amocrm-fields-delete',
+                'admin/plugin/amocrm/pipelines'         => 'admin/plugin/amocrm-pipelines',
+                'admin/plugin/amocrm/status-map-save'   => 'admin/plugin/amocrm-status-map-save',
                 'admin/plugin/amocrm-widget'            => 'admin/plugin/amocrm-widget',
                 'admin/plugin/amocrm-widget/key'        => 'admin/plugin/amocrm-widget-key',
                 // Lamoda Parser plugin pages
@@ -591,6 +593,7 @@ $config = [
                 'admin/plugin/rocketsms/test' => 'admin/plugin/test-rocketsms',
                 // Activity log
                 'admin/activity-log' => 'admin/activity-log/index',
+                'admin/order-history' => 'admin/activity-log/index',
                 // Finance
                 'admin/finance'                  => 'admin/finance/payments',
                 'admin/finance/payments'         => 'admin/finance/payments',
@@ -694,6 +697,7 @@ $config = [
                 'admin/customer/add-note' => 'admin/customer/add-note',
                 
                 // Import
+                'admin/export' => 'admin/import/index',
                 'admin/import' => 'admin/import/index',
                 'admin/import/upload' => 'admin/import/upload',
                 'admin/import/source' => 'admin/import/source',

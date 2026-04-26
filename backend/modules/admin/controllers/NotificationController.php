@@ -24,17 +24,23 @@ class NotificationController extends BaseAdminController
      */
     public function actionIndex()
     {
-        Yii::$app->response->format = Response::FORMAT_JSON;
+        // If called via AJAX/XHR, return JSON for the bell badge
+        if (Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $count = 0;
-        try {
-            $count = (int)Order::find()
-                ->where(['status' => 'new'])
-                ->count();
-        } catch (\Exception $e) {
-            // При ошибке возвращаем 0, не ломаем фронт
+            $count = 0;
+            try {
+                $count = (int)Order::find()
+                    ->where(['status' => 'new'])
+                    ->count();
+            } catch (\Exception $e) {
+                // При ошибке возвращаем 0, не ломаем фронт
+            }
+
+            return ['count' => $count];
         }
 
-        return ['count' => $count];
+        // Direct browser access — redirect to activity log
+        return $this->redirect(['/admin/activity-log/index']);
     }
 }
