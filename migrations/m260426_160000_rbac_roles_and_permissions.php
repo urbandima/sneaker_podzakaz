@@ -96,9 +96,11 @@ class m260426_160000_rbac_roles_and_permissions extends Migration
         }
 
         // 5 — set up role hierarchy
-        foreach ($this->roleHierarchy as $child => $parent) {
-            if (!$this->childExists($parent, $child)) {
-                $this->insert('auth_item_child', ['parent' => $parent, 'child' => $child]);
+        // $roleHierarchy key=higher role, value=lower role it includes
+        // Yii2: parent=higher role (has MORE perms), child=lower role
+        foreach ($this->roleHierarchy as $higher => $lower) {
+            if (!$this->childExists($higher, $lower)) {
+                $this->insert('auth_item_child', ['parent' => $higher, 'child' => $lower]);
             }
         }
 
@@ -131,8 +133,8 @@ class m260426_160000_rbac_roles_and_permissions extends Migration
     public function safeDown()
     {
         // Remove auth_item_child entries
-        foreach ($this->roleHierarchy as $child => $parent) {
-            $this->delete('auth_item_child', ['parent' => $parent, 'child' => $child]);
+        foreach ($this->roleHierarchy as $higher => $lower) {
+            $this->delete('auth_item_child', ['parent' => $higher, 'child' => $lower]);
         }
         foreach ($this->rolePermissions as $role => $perms) {
             foreach ($perms as $perm) {
