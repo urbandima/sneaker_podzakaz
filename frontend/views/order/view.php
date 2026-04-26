@@ -147,7 +147,7 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                     ?>
                     <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
                         <button type="button" class="order-req-copy order-req-copy-all"
-                                onclick="orderCopyReq(this,<?= json_encode($reqAllText) ?>)"
+                                onclick="orderCopyReq(this,<?= htmlspecialchars(json_encode($reqAllText), ENT_QUOTES) ?>)"
                                 title="Скопировать все реквизиты">
                             <i class="bi bi-clipboard-plus"></i> Скопировать всё
                         </button>
@@ -157,7 +157,7 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                             <span class="order-req-label">Получатель:</span>
                             <span class="order-req-value">
                                 <?= Html::encode($reqRecipient) ?>
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= json_encode($reqRecipient) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
+                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= htmlspecialchars(json_encode($reqRecipient), ENT_QUOTES) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
                             </span>
                         </div>
                         <?php if ($reqAccount): ?>
@@ -165,7 +165,7 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                             <span class="order-req-label">Расчётный счёт (IBAN):</span>
                             <span class="order-req-value order-req-mono">
                                 <?= Html::encode($reqAccount) ?>
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= json_encode($reqAccount) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
+                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= htmlspecialchars(json_encode($reqAccount), ENT_QUOTES) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
                             </span>
                         </div>
                         <?php endif; ?>
@@ -174,7 +174,7 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                             <span class="order-req-label">Банк:</span>
                             <span class="order-req-value">
                                 <?= Html::encode($reqBank) ?>
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= json_encode($reqBank) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
+                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= htmlspecialchars(json_encode($reqBank), ENT_QUOTES) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
                             </span>
                         </div>
                         <?php endif; ?>
@@ -183,7 +183,7 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                             <span class="order-req-label">БИК:</span>
                             <span class="order-req-value order-req-mono">
                                 <?= Html::encode($reqBic) ?>
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= json_encode($reqBic) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
+                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= htmlspecialchars(json_encode($reqBic), ENT_QUOTES) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
                             </span>
                         </div>
                         <?php endif; ?>
@@ -192,7 +192,7 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                             <span class="order-req-label">УНП:</span>
                             <span class="order-req-value">
                                 <?= Html::encode($reqUnp) ?>
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= json_encode($reqUnp) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
+                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= htmlspecialchars(json_encode($reqUnp), ENT_QUOTES) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
                             </span>
                         </div>
                         <?php endif; ?>
@@ -200,7 +200,7 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                             <span class="order-req-label">Сумма к оплате:</span>
                             <span class="order-req-value">
                                 <?= Html::encode($reqAmount) ?>
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= json_encode($reqAmount) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
+                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= htmlspecialchars(json_encode($reqAmount), ENT_QUOTES) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
                             </span>
                         </div>
                         <div class="order-req-row order-req-row--purpose">
@@ -210,7 +210,7 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                             </span>
                             <span class="order-req-value order-req-purpose-value">
                                 <?= Html::encode($reqPurpose) ?>
-                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= json_encode($reqPurpose) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
+                                <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= htmlspecialchars(json_encode($reqPurpose), ENT_QUOTES) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
                             </span>
                         </div>
                     </div>
@@ -282,35 +282,60 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
 </div>
 
 <script>
-function orderCopyReq(btn, text){
-    var origHtml = btn.innerHTML;
-    function onSuccess(){
-        btn.innerHTML = '<i class="bi bi-check2"></i>';
-        btn.classList.add('copied');
-        setTimeout(function(){
-            btn.innerHTML = origHtml;
-            btn.classList.remove('copied');
-        }, 1500);
+async function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch (e) {
+            console.warn('clipboard.writeText failed:', e);
+        }
     }
-    function onFail(){
-        alert('Не удалось скопировать. Скопируйте вручную:\n\n' + text);
-    }
-    function execFallback(){
+    try {
         var ta = document.createElement('textarea');
         ta.value = text;
-        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+        ta.style.position = 'fixed';
+        ta.style.top = '0';
+        ta.style.left = '0';
+        ta.style.opacity = '0';
+        ta.style.pointerEvents = 'none';
+        ta.setAttribute('readonly', '');
         document.body.appendChild(ta);
-        ta.focus(); ta.select();
+        ta.focus();
+        ta.select();
+        ta.setSelectionRange(0, text.length);
         var ok = false;
-        try { ok = document.execCommand('copy'); } catch(e){}
+        try { ok = document.execCommand('copy'); } catch (e) { console.error('execCommand copy threw:', e); }
         ta.remove();
-        ok ? onSuccess() : onFail();
+        return ok;
+    } catch (e) {
+        console.error('Fallback copy failed:', e);
+        return false;
     }
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(onSuccess, execFallback);
+}
+
+async function orderCopyReq(btn, text) {
+    var ok = await copyText(text);
+    var original = btn.innerHTML;
+    if (ok) {
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 16 16" fill="#16a34a"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>';
+        btn.classList.add('copied');
     } else {
-        execFallback();
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 16 16" fill="#dc2626"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854z"/></svg>';
+        btn.classList.add('failed');
+        var valueEl = btn.closest('.order-req-value');
+        if (valueEl) {
+            var range = document.createRange();
+            range.selectNodeContents(valueEl);
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
     }
+    setTimeout(function () {
+        btn.innerHTML = original;
+        btn.classList.remove('copied', 'failed');
+    }, 1800);
 }
 
 // Payment instruction modal
@@ -1118,6 +1143,11 @@ document.addEventListener('click', function(e) {
 .order-req-copy.copied {
     color: #16a34a;
     border-color: #16a34a;
+}
+
+.order-req-copy.failed {
+    color: #dc2626;
+    border-color: #dc2626;
 }
 
 .order-req-copy-all {
