@@ -52,6 +52,7 @@
             "app\\": "",
             "app\\api\\": "api/",
             "app\\backend\\": "backend/",
+            "app\\components\\": "backend/shared/components/",
             "app\\console\\": "backend/console/",
             "app\\frontend\\": "frontend/",
             "app\\infrastructure\\": "infrastructure/"

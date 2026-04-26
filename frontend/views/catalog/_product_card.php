@@ -27,6 +27,10 @@ $sizeField = $sizeField ?? ProductCardHelper::resolveSizeField($currentSizeSyste
 $galleryImages = ProductCardHelper::buildGalleryImages($product, $lazyPlaceholder);
 $sizeBadges = ProductCardHelper::prepareSizeBadges($product, $sizeField, $selectedSizesArray);
 $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam, $selectedSizesArray, $sizeField);
+$effectivePrice = $priceView['currentPrice'] ?? $product->price ?? 0;
+$hasPrice = ($priceView['showRange'] && $priceView['minPrice'] && $priceView['maxPrice'])
+    ? ($priceView['minPrice'] > 0)
+    : ($effectivePrice > 0);
 ?>
 
 <article class="product-card" data-product-id="<?= $product->id ?>">
@@ -107,9 +111,7 @@ $priceView = ProductCardHelper::calculatePriceView($product, $selectedSizesParam
         
         <!-- Цена -->
         <?php
-        $effectivePrice = $priceView['currentPrice'] ?? $product->price ?? 0;
         $hasPriceRange = $priceView['showRange'] && $priceView['minPrice'] && $priceView['maxPrice'];
-        $hasPrice = $hasPriceRange ? ($priceView['minPrice'] > 0) : ($effectivePrice > 0);
         ?>
         <div class="product-price">
             <?php if ($hasPriceRange): ?>
