@@ -481,7 +481,6 @@ $config = [
                 'admin/plugin/telegram' => 'admin/plugin/telegram',
                 'admin/plugin/currency' => 'admin/plugin/currency',
                 'admin/plugin/dobropost' => 'admin/plugin/dobropost',
-<<<<<<< HEAD
                 'admin/plugin/import-dobropost' => 'admin/plugin/import-dobropost',
                 'admin/plugin/test-tracking' => 'admin/plugin/test-tracking',
                 'admin/plugin/europochta' => 'admin/plugin/europochta',

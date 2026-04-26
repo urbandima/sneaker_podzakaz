@@ -425,30 +425,28 @@ $this->registerJsVar('productVideo', $productVideo);
 
             <!-- Кнопки покупки -->
             <div class="purchase-actions">
-<<<<<<< HEAD
-                <button type="button" 
-=======
                 <?php if ($product->price > 0): ?>
                 <button type="button"
->>>>>>> origin/claude/compassionate-ptolemy-7e1174
                         class="btn btn-primary btn-large add-to-cart-btn"
                         onclick="addToCart()"
                         id="addToCartBtn">
                     <i class="bi bi-cart-plus"></i>
                     <span>Добавить в корзину</span>
                 </button>
-<<<<<<< HEAD
-
-                <button type="button" 
-=======
                 <button type="button"
->>>>>>> origin/claude/compassionate-ptolemy-7e1174
                         class="btn btn-secondary btn-large buy-one-click-btn"
                         onclick="openOneClickModal()">
                     <i class="bi bi-lightning"></i>
                     <span>Купить в 1 клик</span>
                 </button>
-<<<<<<< HEAD
+                <?php else: ?>
+                <button type="button"
+                        class="btn btn-outline btn-large"
+                        onclick="openOneClickModal()">
+                    <i class="bi bi-envelope"></i>
+                    <span>Цена по запросу — оставить заявку</span>
+                </button>
+                <?php endif; ?>
             </div>
 
             <!-- Описание товара -->
@@ -461,18 +459,6 @@ $this->registerJsVar('productVideo', $productVideo);
                 </div>
             <?php endif; ?>
 
-=======
-                <?php else: ?>
-                <button type="button"
-                        class="btn btn-outline btn-large"
-                        onclick="openOneClickModal()">
-                    <i class="bi bi-envelope"></i>
-                    <span>Цена по запросу — оставить заявку</span>
-                </button>
-                <?php endif; ?>
-            </div>
-
->>>>>>> origin/claude/compassionate-ptolemy-7e1174
         </div>
     </div>
 
