@@ -227,6 +227,39 @@
     filter: grayscale(0) opacity(1);
 }
 
+.brand-card .brand-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--color-text-muted, #6b7280);
+    margin-top: 4px;
+    text-align: center;
+}
+
+.category-placeholder,
+.brand-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+    color: #6b7280;
+    border-radius: 4px;
+    min-height: 80px;
+    user-select: none;
+}
+
+.brand-placeholder {
+    font-size: 1.75rem;
+    min-height: 40px;
+    height: 40px;
+    width: 80px;
+    border-radius: 6px;
+}
+
 /* === BENEFITS === */
 .benefits-section {
     padding: 3.5rem 0;

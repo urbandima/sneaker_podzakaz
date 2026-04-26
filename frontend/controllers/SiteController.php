@@ -244,10 +244,13 @@ class SiteController extends Controller
         try {
             $brands = \app\backend\modules\catalog\models\Brand::find()
                 ->where(['is_active' => true])
+                ->andWhere(['<>', 'name', '-'])
+                ->andWhere(['<>', 'name', ''])
+                ->andWhere(['IS NOT', 'name', null])
                 ->orderBy(['name' => SORT_ASC])
                 ->limit(12)
                 ->all();
-                
+
             return $brands;
         } catch (\Throwable $e) {
             Yii::error('Failed to load brands: ' . $e->getMessage(), __METHOD__);

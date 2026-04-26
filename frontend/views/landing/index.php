@@ -106,10 +106,31 @@ $brands = $brands ?? [];
         </div>
 
         <div class="categories-grid">
-            <?php foreach ($categories as $category): ?>
+            <?php foreach ($categories as $category):
+                $catImg = '';
+                if (!empty($category->image)) {
+                    $catImg = '/' . ltrim($category->image, '/');
+                } else {
+                    // Fallback: first active product image in this category
+                    try {
+                        $fp = \app\backend\modules\catalog\models\Product::find()
+                            ->where(['category_id' => $category->id, 'is_active' => 1])
+                            ->andWhere(['IS NOT', 'main_image_url', null])
+                            ->andWhere(['<>', 'main_image_url', ''])
+                            ->orderBy(['sort_order' => SORT_ASC])
+                            ->limit(1)->one();
+                        if ($fp) $catImg = $fp->main_image_url;
+                    } catch (\Throwable $e) {}
+                }
+                $catInitial = mb_strtoupper(mb_substr($category->name, 0, 1));
+            ?>
             <a href="<?= $category->getUrl() ?>" class="category-card">
                 <div class="category-image">
-                    <img src="<?= $category->image ? '/' . ltrim($category->image, '/') : '/images/placeholder.png' ?>" alt="<?= Html::encode($category->name) ?>">
+                    <?php if ($catImg): ?>
+                        <img src="<?= Html::encode($catImg) ?>" alt="<?= Html::encode($category->name) ?>" loading="lazy">
+                    <?php else: ?>
+                        <div class="category-placeholder" aria-label="<?= Html::encode($category->name) ?>"><?= Html::encode($catInitial) ?></div>
+                    <?php endif; ?>
                 </div>
                 <div class="category-overlay">
                     <h3 class="category-name"><?= Html::encode($category->name) ?></h3>
@@ -134,9 +155,31 @@ $brands = $brands ?? [];
         </div>
 
         <div class="brands-grid">
-            <?php foreach ($brands as $brand): ?>
-            <a href="/catalog?brand=<?= $brand->slug ?>" class="brand-card">
-                <img src="<?= $brand->getLogoUrl() ?>" alt="<?= Html::encode($brand->name) ?>">
+            <?php foreach ($brands as $brand):
+                $logoUrl = '';
+                if (!empty($brand->logo_url)) $logoUrl = $brand->logo_url;
+                elseif (!empty($brand->logo))  $logoUrl = '/' . ltrim($brand->logo, '/');
+                if (!$logoUrl) {
+                    // Fallback: first active product image for this brand
+                    try {
+                        $fb = \app\backend\modules\catalog\models\Product::find()
+                            ->where(['brand_id' => $brand->id, 'is_active' => 1])
+                            ->andWhere(['IS NOT', 'main_image_url', null])
+                            ->andWhere(['<>', 'main_image_url', ''])
+                            ->orderBy(['sort_order' => SORT_ASC])
+                            ->limit(1)->one();
+                        if ($fb) $logoUrl = $fb->main_image_url;
+                    } catch (\Throwable $e) {}
+                }
+                $brandInitial = mb_strtoupper(mb_substr($brand->name, 0, 1));
+            ?>
+            <a href="/catalog?brand=<?= Html::encode($brand->slug) ?>" class="brand-card">
+                <?php if ($logoUrl): ?>
+                    <img src="<?= Html::encode($logoUrl) ?>" alt="<?= Html::encode($brand->name) ?>" loading="lazy">
+                <?php else: ?>
+                    <div class="brand-placeholder"><?= Html::encode($brandInitial) ?></div>
+                <?php endif; ?>
+                <span class="brand-label"><?= Html::encode($brand->name) ?></span>
             </a>
             <?php endforeach; ?>
         </div>
