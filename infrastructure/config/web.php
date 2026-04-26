@@ -598,6 +598,7 @@ $config = [
                 'admin/buyout/<id:\d+>/unlink-order'    => 'admin/buyout/unlink-order',
                 'admin/buyout/<id:\d+>/history'         => 'admin/buyout/history',
                 // Procurement
+                'admin/procurement/buyouts'               => 'admin/buyout/index',
                 'admin/procurement'                       => 'admin/procurement/index',
                 'admin/procurement/suppliers'             => 'admin/procurement/suppliers',
                 'admin/procurement/supplier-save'         => 'admin/procurement/supplier-save',

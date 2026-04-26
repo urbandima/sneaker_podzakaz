@@ -1398,7 +1398,8 @@ class OrderController extends BaseAdminController
         $allowed = [
             // Logistics / track
             'china_track_number', 'local_track_number', 'delivery_method', 'delivery_address',
-            'pickup_point', 'china_delivery_status', 'warehouse_arrival_date', 'delivery_date',
+            'pickup_point', 'china_delivery_status', 'local_delivery_status', 'warehouse_arrival_date',
+            'delivery_date', 'estimated_delivery_date',
             // Client info
             'client_name', 'client_phone', 'client_email',
             // Address

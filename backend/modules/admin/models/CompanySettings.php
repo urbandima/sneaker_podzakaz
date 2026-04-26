@@ -84,8 +84,27 @@ class CompanySettings extends ActiveRecord
             [['name', 'address', 'bank', 'email', 'offer_url'], 'string', 'max' => 255],
             [['unp', 'bic', 'phone'], 'string', 'max' => 50],
             [['account'], 'string', 'max' => 64],
+            [['work_time'], 'string', 'max' => 255],
+            [['work_time'], 'default', 'value' => null],
             ['email', 'email'],
             [['updated_at'], 'integer'],
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'name'       => 'Название компании',
+            'unp'        => 'УНП',
+            'address'    => 'Адрес',
+            'bank'       => 'Банк',
+            'bic'        => 'БИК',
+            'account'    => 'Расчётный счёт',
+            'phone'      => 'Телефон',
+            'email'      => 'Email',
+            'offer_url'  => 'URL оферты',
+            'work_time'  => 'Время работы',
+            'updated_at' => 'Обновлено',
         ];
     }
 }

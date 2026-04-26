@@ -669,7 +669,7 @@ $customer = $model->customer ?? null;
                         </div>
                         <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:3px 0;color:<?= $deliveryCost > 0 ? 'var(--admin-text-primary,#111)' : 'var(--admin-text-secondary,#9ca3af)' ?>">
                             <span>Доставка:</span>
-                            <div class="crm-editable" data-field="delivery_cost" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="min-width:90px;text-align:right;padding:2px 6px">
+                            <div class="crm-editable" data-field="delivery_cost" data-id="<?= $model->id ?>" data-type="number" data-value="<?= (float)($model->delivery_cost ?? 0) ?>" onclick="startEdit(this)" style="min-width:90px;text-align:right;padding:2px 6px">
                                 <?= $deliveryCost > 0 ? Yii::$app->formatter->asDecimal($deliveryCost, 2) . ' Br' : '<span class="crm-editable-empty" style="font-style:italic;font-size:0.75rem">не задана</span>' ?>
                             </div>
                         </div>
@@ -831,11 +831,11 @@ $customer = $model->customer ?? null;
                         </div>
                         <div class="crm-field">
                             <div class="crm-field-label">Дата выдачи</div>
-                            <div class="crm-editable" data-field="passport_issue_date" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->passport_issue_date) ? Html::encode($model->passport_issue_date) : '<span class="crm-editable-empty">—</span>' ?></div>
+                            <div class="crm-editable" data-field="passport_issue_date" data-id="<?= $model->id ?>" data-type="date" data-value="<?= Html::encode($model->passport_issue_date ?? '') ?>" onclick="startEdit(this)"><?= !empty($model->passport_issue_date) ? Html::encode($model->passport_issue_date) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
                             <div class="crm-field-label">Дата рождения</div>
-                            <div class="crm-editable" data-field="birth_date" data-id="<?= $model->id ?>" onclick="startEdit(this)"><?= !empty($model->birth_date) ? Html::encode($model->birth_date) : '<span class="crm-editable-empty">—</span>' ?></div>
+                            <div class="crm-editable" data-field="birth_date" data-id="<?= $model->id ?>" data-type="date" data-value="<?= Html::encode($model->birth_date ?? '') ?>" onclick="startEdit(this)"><?= !empty($model->birth_date) ? Html::encode($model->birth_date) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <div class="crm-field">
                             <div class="crm-field-label">ИНН <span title="Обязательно для Таможня:ДП (РФ)" style="cursor:help;font-size:0.75rem"><i class="bi bi-truck" style="font-size:0.75rem;color:#4338ca"></i></span></div>
@@ -924,7 +924,7 @@ $customer = $model->customer ?? null;
                     <div class="crm-info-grid" style="grid-template-columns:repeat(3,1fr);gap:8px">
                         <div class="crm-field">
                             <div class="crm-field-label">Продажа</div>
-                            <div class="crm-editable" data-field="total_amount" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="color:#059669;font-weight:700"><?= Yii::$app->formatter->asDecimal($salePrice, 2) ?> Br</div>
+                            <div class="crm-editable" data-field="total_amount" data-id="<?= $model->id ?>" data-type="number" data-value="<?= (float)($model->total_amount ?? 0) ?>" onclick="startEdit(this)" style="color:#059669;font-weight:700"><?= Yii::$app->formatter->asDecimal($salePrice, 2) ?> Br</div>
                         </div>
                         <div class="crm-field">
                             <div class="crm-field-label">Закупка</div>
@@ -1151,7 +1151,7 @@ $customer = $model->customer ?? null;
                                 <div class="crm-field-label">Телефон</div>
                                 <div class="crm-editable" data-field="client_phone" data-id="<?= $model->id ?>" onclick="startEdit(this)">
                                     <?php if ($model->client_phone): ?>
-                                        <a href="tel:<?= Html::encode($model->client_phone) ?>" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none"><?= Html::encode($model->client_phone) ?></a>
+                                        <?= Html::encode($model->client_phone) ?>
                                     <?php else: ?><span class="crm-editable-empty">—</span><?php endif; ?>
                                 </div>
                             </div>
@@ -1159,7 +1159,7 @@ $customer = $model->customer ?? null;
                                 <div class="crm-field-label">Email</div>
                                 <div class="crm-editable" data-field="client_email" data-id="<?= $model->id ?>" onclick="startEdit(this)">
                                     <?php if ($model->client_email): ?>
-                                        <a href="mailto:<?= Html::encode($model->client_email) ?>" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;font-size:.8rem;word-break:break-all"><?= Html::encode($model->client_email) ?></a>
+                                        <?= Html::encode($model->client_email) ?>
                                     <?php else: ?><span class="crm-editable-empty">—</span><?php endif; ?>
                                 </div>
                             </div>
@@ -1792,7 +1792,7 @@ $customer = $model->customer ?? null;
                     </div>
                     <div style="display:flex;justify-content:space-between;align-items:baseline">
                         <span style="color:var(--admin-text-secondary,#6b7280)">Ожид. доставка</span>
-                        <div class="crm-editable" data-field="estimated_delivery_date" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-weight:600;<?= $isOverdue ? 'color:#dc2626' : '' ?>">
+                        <div class="crm-editable" data-field="estimated_delivery_date" data-id="<?= $model->id ?>" data-type="date" data-value="<?= Html::encode($model->estimated_delivery_date ?? '') ?>" onclick="startEdit(this)" style="font-weight:600;<?= $isOverdue ? 'color:#dc2626' : '' ?>">
                             <?= $expectedTs ? Html::encode(date('d.m.Y', $expectedTs)) : '<span class="crm-editable-empty">—</span>' ?>
                         </div>
                     </div>
@@ -1924,34 +1924,65 @@ if (toggleBtn) {
 
 // ── Inline click-to-edit ──────────────────────────────────
 window.startEdit = function(el) {
-    if (el.querySelector('input,textarea')) return;
-    var field  = el.dataset.field;
-    var curVal = el.innerText.trim();
-    if (curVal === 'Не указано' || curVal === '—' || curVal === '-' || curVal.trim() === '') curVal = '';
+    if (el.querySelector('input,textarea,select')) return;
+    var field   = el.dataset.field;
+    var dtype   = el.dataset.type || '';
+    var opts    = el.dataset.options ? JSON.parse(el.dataset.options) : null;
+    var curVal  = el.dataset.value !== undefined ? el.dataset.value : el.innerText.trim();
+    if (curVal === 'Не указано' || curVal === '—' || curVal === '-') curVal = '';
     el.classList.remove('crm-editable-empty');
-    var isArea = field === 'comment';
-    var input  = document.createElement(isArea ? 'textarea' : 'input');
-    input.className = 'crm-editable-input';
-    input.value     = curVal;
-    if (isArea) { input.rows = 3; input.style.resize = 'vertical'; }
+    var origHtml = el.innerHTML;
+    var input;
+    if (opts) {
+        input = document.createElement('select');
+        input.className = 'crm-editable-input';
+        Object.keys(opts).forEach(function(k) {
+            var o = document.createElement('option');
+            o.value = k; o.textContent = opts[k];
+            if (k === curVal) o.selected = true;
+            input.appendChild(o);
+        });
+    } else if (dtype === 'textarea' || field === 'comment' || field === 'full_address' || field === 'customs_description') {
+        input = document.createElement('textarea');
+        input.className = 'crm-editable-input';
+        input.value = curVal; input.rows = 3; input.style.resize = 'vertical';
+    } else if (dtype === 'date') {
+        input = document.createElement('input');
+        input.type = 'date'; input.className = 'crm-editable-input'; input.value = curVal;
+    } else if (dtype === 'number') {
+        input = document.createElement('input');
+        input.type = 'number'; input.step = '0.01'; input.className = 'crm-editable-input'; input.value = curVal;
+    } else {
+        input = document.createElement('input');
+        input.type = 'text'; input.className = 'crm-editable-input'; input.value = curVal;
+    }
     el.innerHTML = '';
     el.appendChild(input);
     input.focus();
+    if (input.tagName === 'INPUT' && input.type !== 'date') { input.select(); }
+    var isArea = input.tagName === 'TEXTAREA';
+    var saved = false;
     var save = function() {
-        saveField(field, input.value);
-        if (input.value) {
-            el.innerHTML = field === 'comment' ? input.value.replace(/\\n/g,'<br>') : input.value;
+        if (saved) return; saved = true;
+        var v = input.value;
+        saveField(field, v);
+        if (el.dataset.value !== undefined) el.dataset.value = v;
+        if (v) {
+            el.innerHTML = isArea ? v.replace(/\\n/g,'<br>') : v;
             el.classList.remove('crm-editable-empty');
         } else {
             el.innerHTML = '<span class="crm-editable-empty">—</span>';
         }
     };
+    var cancel = function() {
+        saved = true;
+        el.innerHTML = origHtml;
+    };
     input.addEventListener('blur', save);
     input.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !isArea) { e.preventDefault(); save(); }
-        if (e.key === 'Escape') {
-            el.innerHTML = curVal ? curVal : '<span class="crm-editable-empty">—</span>';
-        }
+        if (e.key === 'Enter' && isArea && e.ctrlKey) { e.preventDefault(); save(); }
+        if (e.key === 'Escape') { e.preventDefault(); cancel(); }
     });
 };
 
