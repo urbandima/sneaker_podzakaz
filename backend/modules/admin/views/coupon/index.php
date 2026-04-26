@@ -79,7 +79,7 @@ $this->params['headerActions'] = [
                         <th>Исп. / Макс.</th>
                         <th>Действителен до</th>
                         <th>Статус</th>
-                        <th>Действия</th>
+                        <th style="min-width:100px">Действия</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -115,7 +115,7 @@ $this->params['headerActions'] = [
                                     echo Html::encode($usedCount) . ' / ' . Html::encode($maxUses);
                                     echo ' <span class="admin-badge admin-badge-' . $color . '">' . round($percent) . '%</span>';
                                 } else {
-                                    echo Html::encode($usedCount) . ' / ∞';
+                                    echo Html::encode($usedCount) . ' / <span style="color:var(--admin-text-secondary,#6d7175);font-size:.8em">Без ограничений</span>';
                                 }
                                 ?>
                             </td>
@@ -123,7 +123,7 @@ $this->params['headerActions'] = [
                                 <?php
                                 $expiryField = $model->valid_until ?? $model->expires_at ?? $model->expiry ?? null;
                                 if (!$expiryField): ?>
-                                    <span class="text-muted-sm">Бессрочный</span>
+                                    <span style="color:var(--admin-text-secondary,#6d7175)">Бессрочный</span>
                                 <?php else: ?>
                                     <?php
                                     $date = is_numeric($expiryField) ? $expiryField : strtotime($expiryField);
