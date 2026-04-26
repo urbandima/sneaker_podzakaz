@@ -69,6 +69,12 @@ use app\backend\shared\components\SitemapNotifier;
 class Category extends ActiveRecord
 {
     /**
+     * Виртуальное поле для загрузки изображения через форму
+     * @var \yii\web\UploadedFile|null
+     */
+    public $imageFile;
+
+    /**
      * {@inheritdoc}
      */
     public static function tableName()
@@ -134,6 +140,7 @@ class Category extends ActiveRecord
             [['parent_id', 'sort_order', 'poizon_id'], 'integer'],
             [['description'], 'string'],
             [['image'], 'string', 'max' => 255],
+            [['imageFile'], 'file', 'skipOnEmpty' => true, 'extensions' => 'jpg,jpeg,png,gif,webp'],
             [['is_active'], 'boolean'],
             [['is_active'], 'default', 'value' => true],
             [['sort_order'], 'default', 'value' => 0],
