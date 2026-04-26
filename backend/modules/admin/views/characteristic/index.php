@@ -101,6 +101,20 @@ $this->params['headerActions'] = [
 
 <?php else: ?>
 <!-- CHARACTERISTICS -->
+<!-- Z34: note about sizes being in a separate section -->
+<div style="margin-bottom:12px;padding:10px 14px;background:var(--admin-surface-hover,#f6f6f7);border-radius:8px;font-size:12px;color:var(--admin-text-secondary,#6d7175);border:1px solid var(--admin-border,#e1e3e5)">
+    <i class="bi bi-info-circle"></i>
+    Размеры (41.5 EU / 8 US и др.) управляются через раздел
+    <a href="<?= Url::to(['index', 'tab' => 'sizes']) ?>" style="color:var(--admin-accent)">Размерные сетки</a>.
+    Здесь хранятся прочие характеристики товара (цвет, материал, пол и т.д.).
+</div>
+
+<?php if (empty($characteristicsProvider->getModels())): ?>
+<div style="text-align:center;padding:3rem;color:var(--admin-text-secondary,#6d7175)">
+    <i class="bi bi-list-ul" style="font-size:2.5rem;display:block;margin-bottom:.75rem;opacity:.3"></i>
+    <p>Характеристики не созданы. <?= Html::a('Создать первую', ['create']) ?></p>
+</div>
+<?php else: ?>
 <div class="admin-card">
     <div class="admin-card-body" style="padding:0">
         <table class="admin-table">
@@ -160,16 +174,9 @@ $this->params['headerActions'] = [
                 </td>
             </tr>
             <?php endforeach; ?>
-            <?php if (!$characteristicsProvider->getModels()): ?>
-            <tr>
-                <td colspan="9" style="text-align:center;padding:3rem;color:var(--admin-text-secondary)">
-                    <i class="bi bi-sliders" style="font-size:2rem;display:block;margin-bottom:0.5rem"></i>
-                    Нет характеристик. <?= Html::a('Создать первую', ['create']) ?>
-                </td>
-            </tr>
-            <?php endif; ?>
             </tbody>
         </table>
     </div>
 </div>
+<?php endif; ?>
 <?php endif; ?>
