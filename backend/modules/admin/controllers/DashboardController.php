@@ -72,6 +72,28 @@ class DashboardController extends BaseAdminController
             $operationalStats = ['unprocessed2h' => 0, 'delayed3d' => 0, 'awaitingPoizon' => 0];
         }
 
+        // X9: Products without category
+        try {
+            $productsNoCategoryCount = \app\backend\modules\catalog\models\Product::find()
+                ->where(['is_active' => true])
+                ->andWhere(['category_id' => null])
+                ->count();
+        } catch (\Exception $e) {
+            $productsNoCategoryCount = 0;
+        }
+
+        // X4: Products where brand_name does not match first word of product name
+        try {
+            $brandMismatchCount = Yii::$app->db->createCommand(
+                "SELECT COUNT(*) FROM `product`
+                 WHERE is_active = 1
+                   AND brand_name IS NOT NULL AND brand_name != ''
+                   AND LOWER(name) NOT LIKE CONCAT(LOWER(brand_name), '%')"
+            )->queryScalar();
+        } catch (\Exception $e) {
+            $brandMismatchCount = 0;
+        }
+
         // Conversion funnel
         try {
             $funnelData = $this->getFunnelData();
@@ -87,18 +109,20 @@ class DashboardController extends BaseAdminController
         }
 
         return $this->render('index', [
-            'user' => $user,
-            'orderStats' => $orderStats,
-            'productStats' => $productStats,
-            'userStats' => $userStats,
-            'topProducts' => $topProducts,
-            'activeLogists' => $activeLogists,
-            'chartData' => $chartData,
-            'companySettings' => $companySettings,
-            'demoMode' => $demoMode,
-            'operationalStats' => $operationalStats,
-            'funnelData' => $funnelData,
-            'currencyInfo' => $currencyInfo,
+            'user'                     => $user,
+            'orderStats'               => $orderStats,
+            'productStats'             => $productStats,
+            'userStats'                => $userStats,
+            'topProducts'              => $topProducts,
+            'activeLogists'            => $activeLogists,
+            'chartData'                => $chartData,
+            'companySettings'          => $companySettings,
+            'demoMode'                 => $demoMode,
+            'operationalStats'         => $operationalStats,
+            'funnelData'               => $funnelData,
+            'currencyInfo'             => $currencyInfo,
+            'productsNoCategoryCount'  => (int)$productsNoCategoryCount,
+            'brandMismatchCount'       => (int)$brandMismatchCount,
         ]);
     }
     

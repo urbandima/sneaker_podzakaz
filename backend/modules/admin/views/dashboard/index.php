@@ -116,6 +116,31 @@ $opStats = $operationalStats ?? ['unprocessed2h' => 0, 'delayed3d' => 0, 'awaiti
     </a>
 </div>
 
+<!-- X4/X9: Catalog health alerts -->
+<?php
+$noCat = $productsNoCategoryCount ?? 0;
+$badBrand = $brandMismatchCount ?? 0;
+if ($noCat > 0 || $badBrand > 0): ?>
+<div class="dash-catalog-alerts" style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+    <?php if ($noCat > 0): ?>
+    <a href="<?= Url::to(['/admin/catalog/product', 'category_id' => '']) ?>"
+       class="dash-op-widget" style="flex:1;min-width:220px;background:#fffbeb;border-color:#fde68a">
+        <div class="dash-op-widget-icon warning"><i class="bi bi-tag-fill"></i></div>
+        <div class="dash-op-widget-value warning"><?= $noCat ?></div>
+        <div class="dash-op-widget-label">Товаров без<br>категории</div>
+    </a>
+    <?php endif; ?>
+    <?php if ($badBrand > 0): ?>
+    <a href="<?= Url::to(['/admin/catalog/product']) ?>"
+       class="dash-op-widget" style="flex:1;min-width:220px;background:#fef2f2;border-color:#fecaca">
+        <div class="dash-op-widget-icon danger"><i class="bi bi-exclamation-circle-fill"></i></div>
+        <div class="dash-op-widget-value danger"><?= $badBrand ?></div>
+        <div class="dash-op-widget-label">Бренд не совпадает<br>с началом названия</div>
+    </a>
+    <?php endif; ?>
+</div>
+<?php endif; ?>
+
 <!-- B3.4 CNY Rate Widget -->
 <?php
 $cnyInfo = $currencyInfo ?? ['rate' => 0.45, 'updated_at' => null, 'source' => 'default'];
