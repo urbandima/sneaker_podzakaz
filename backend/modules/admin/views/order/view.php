@@ -132,7 +132,9 @@ $customer = $model->customer ?? null;
     border-bottom: 1px solid var(--admin-border, #e5e7eb);
 }
 .crm-items-table td { padding: 8px 10px; border-bottom: 1px solid var(--admin-border, #f3f4f6); vertical-align: middle; }
-.crm-items-table tr:last-child td { border-bottom: none; }
+.crm-items-table .crm-item-main-row:last-of-type td { border-bottom: none; }
+.crm-items-table .crm-item-detail-row td { border-bottom: 1px solid var(--admin-border, #e5e7eb); padding-top:0; }
+.crm-item-expand:hover { color: var(--admin-text-primary,#111) !important; background: var(--admin-surface-hover,#f3f4f6); }
 .crm-items-table .item-img {
     width: 36px; height: 36px; border-radius: 6px; object-fit: cover;
     background: var(--admin-surface-hover, #f3f4f6);
@@ -536,11 +538,16 @@ $customer = $model->customer ?? null;
                                 <th style="width:70px">Кол-во</th>
                                 <th style="width:90px;text-align:right">Цена</th>
                                 <th style="width:100px;text-align:right">Сумма</th>
+                                <th style="width:24px"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($model->orderItems as $idx => $item): ?>
-                            <tr>
+                            <?php foreach ($model->orderItems as $idx => $item):
+                                $hasDetails = !empty($item->product_id) || !empty($item->product_article) || !empty($item->color);
+                                $expandId = 'item-details-' . $item->id;
+                                $frontendBase = rtrim(Yii::$app->params['frontendBaseUrl'] ?? Yii::$app->params['frontendUrl'] ?? Yii::$app->request->hostInfo, '/');
+                            ?>
+                            <tr class="crm-item-main-row">
                                 <td>
                                     <?php if (!empty($item->product) && !empty($item->product->getMainImageUrl())): ?>
                                         <img src="<?= Html::encode($item->product->getMainImageUrl()) ?>" class="item-img" alt="">
@@ -580,6 +587,64 @@ $customer = $model->customer ?? null;
                                 <td style="color:var(--admin-text-secondary,#6b7280)"><?= $item->quantity ?> шт.</td>
                                 <td style="text-align:right"><?= Yii::$app->formatter->asDecimal($item->price, 2) ?> Br</td>
                                 <td style="text-align:right;font-weight:700"><?= Yii::$app->formatter->asDecimal($item->total, 2) ?> Br</td>
+                                <td style="text-align:center">
+                                    <button type="button" class="crm-item-expand" onclick="toggleItemDetails('<?= $expandId ?>', this)" title="Подробности" style="background:none;border:none;cursor:pointer;padding:2px 4px;color:var(--admin-text-secondary,#9ca3af);font-size:0.75rem;border-radius:4px;transition:color .15s">
+                                        <i class="bi bi-chevron-down"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr id="<?= $expandId ?>" class="crm-item-detail-row" style="display:none">
+                                <td colspan="6" style="padding:0 12px 10px 56px">
+                                    <div style="background:var(--admin-surface-hover,#f9fafb);border:1px solid var(--admin-border,#e5e7eb);border-radius:8px;padding:10px 14px;font-size:0.78rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px 16px">
+                                        <?php if (!empty($item->product_id)): ?>
+                                        <div>
+                                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:2px">Ссылки</div>
+                                            <a href="<?= Url::to(['/admin/product/view', 'id' => $item->product_id]) ?>" target="_blank" style="display:block;color:#2563eb;text-decoration:none;font-size:0.75rem"><i class="bi bi-box-arrow-up-right" style="font-size:0.65rem"></i> Админ</a>
+                                            <?php if (!empty($item->product->slug)): ?>
+                                            <a href="<?= Html::encode($frontendBase . '/catalog/product/' . $item->product->slug) ?>" target="_blank" style="display:block;color:#059669;text-decoration:none;font-size:0.75rem"><i class="bi bi-box-arrow-up-right" style="font-size:0.65rem"></i> Сайт</a>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php endif; ?>
+                                        <div>
+                                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:2px">Кол-во / таможня</div>
+                                            <span><?= $item->quantity ?> шт. / <?= $item->customs_qty ?? $item->quantity ?> шт.</span>
+                                        </div>
+                                        <?php if (!empty($item->product_article)): ?>
+                                        <div>
+                                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:2px">Артикул / SKU</div>
+                                            <span style="font-family:monospace"><?= Html::encode($item->product_article) ?></span>
+                                        </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($item->purchase_price) || !empty($item->product->purchase_price ?? '')): ?>
+                                        <div>
+                                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:2px">Цена закупки</div>
+                                            <span><?= Yii::$app->formatter->asDecimal($item->purchase_price ?? 0, 2) ?> Br</span>
+                                        </div>
+                                        <?php endif; ?>
+                                        <?php
+                                        $itemPurchase = (float)($item->purchase_price ?? 0);
+                                        $itemMarginPct = ($item->price > 0 && $itemPurchase > 0) ? round(($item->price - $itemPurchase) / $item->price * 100, 1) : null;
+                                        ?>
+                                        <?php if ($itemMarginPct !== null): ?>
+                                        <div>
+                                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:2px">Маржа</div>
+                                            <span style="color:<?= $itemMarginPct >= 0 ? '#059669' : '#dc2626' ?>;font-weight:700"><?= $itemMarginPct ?>%</span>
+                                        </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($item->poizon_track)): ?>
+                                        <div>
+                                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:2px">Трек Poizon</div>
+                                            <span style="font-family:monospace"><?= Html::encode($item->poizon_track) ?></span>
+                                        </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($item->buyout_status)): ?>
+                                        <div>
+                                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#9ca3af);margin-bottom:2px">Статус выкупа</div>
+                                            <span><?= Html::encode($item->buyout_status) ?></span>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -1830,6 +1895,17 @@ $_dpAutoFillUrl = Url::to(['/admin/order/auto-fill-dp', 'id' => $model->id]);
 $_itemCount   = count($model->orderItems);
 
 $this->registerJs(<<<JS
+// ── Expand product row details ────────────────────────────
+window.toggleItemDetails = function(id, btn) {
+    var row = document.getElementById(id);
+    if (!row) return;
+    var open = row.style.display === 'table-row';
+    row.style.display = open ? 'none' : 'table-row';
+    var icon = btn.querySelector('i');
+    if (icon) icon.className = open ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
+    btn.style.color = open ? '' : 'var(--admin-accent,#111)';
+};
+
 // ── Edit mode toggle ──────────────────────────────────────
 var editModeActive = false;
 var toggleBtn = document.getElementById('toggleEditMode');
