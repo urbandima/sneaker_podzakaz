@@ -1598,10 +1598,21 @@ $customer = $model->customer ?? null;
                     <?php endif; ?>
                 </div>
                 <div style="padding:8px 14px;display:flex;flex-direction:column;gap:5px;font-size:0.775rem">
-                    <div style="display:flex;justify-content:space-between;align-items:baseline">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
                         <span style="color:var(--admin-text-secondary,#6b7280)">Создан</span>
-                        <span style="font-weight:600"><?= $createdTs ? date('d.m.Y', $createdTs) : '—' ?>
-                        <?php if ($daysAgo !== null): ?><span style="color:var(--admin-text-secondary,#9ca3af);font-weight:400"> (<?= $daysAgo ?> дн.)</span><?php endif; ?></span>
+                        <span style="font-weight:600;display:flex;align-items:center;gap:5px">
+                            <?= $createdTs ? date('d.m.Y', $createdTs) : '—' ?>
+                            <?php if ($daysAgo !== null): ?>
+                                <?php if ($isOverdue): ?>
+                                <span title="Просрочено на <?= $overdueBy ?> дн."
+                                      style="display:inline-flex;align-items:center;gap:3px;background:#fee2e2;color:#991b1b;border-radius:5px;padding:1px 6px;font-size:0.7rem;font-weight:700;cursor:default">
+                                    <i class="bi bi-exclamation-triangle-fill" style="font-size:0.65rem"></i> <?= $daysAgo ?> дн.
+                                </span>
+                                <?php else: ?>
+                                <span style="color:var(--admin-text-secondary,#9ca3af);font-weight:400">(<?= $daysAgo ?> дн.)</span>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </span>
                     </div>
                     <div style="display:flex;justify-content:space-between;align-items:baseline">
                         <span style="color:var(--admin-text-secondary,#6b7280)">Ожид. доставка</span>
