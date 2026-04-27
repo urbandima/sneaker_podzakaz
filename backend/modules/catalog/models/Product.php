@@ -323,6 +323,13 @@ class Product extends ActiveRecord
             [['is_limited'], 'default', 'value' => 0],
             [['country_of_origin'], 'string', 'max' => 100],
             [['properties', 'sizes_data', 'keywords', 'variant_params'], 'safe'],
+
+            // MOYSKLAD INTEGRATION FIELDS
+            [['moysklad_id', 'ms_code', 'ms_external_code', 'ms_size_grid', 'ms_supplier_name'], 'string', 'max' => 100],
+            [['ms_path_name'], 'string', 'max' => 500],
+            [['ms_attributes_json', 'ms_images_json'], 'safe'],
+            [['ms_price_full', 'ms_price_rub', 'ms_price_sale'], 'number'],
+            [['ms_archived', 'ms_no_export'], 'boolean'],
             
             [['category_id'], 'exist', 'targetClass' => Category::class, 'targetAttribute' => 'id'],
             [['brand_id'], 'exist', 'targetClass' => Brand::class, 'targetAttribute' => 'id'],
@@ -387,6 +394,21 @@ class Product extends ActiveRecord
             'delivery_time_min' => 'Срок доставки (мин)',
             'delivery_time_max' => 'Срок доставки (макс)',
             'related_products_json' => 'Связанные товары',
+
+            // MOYSKLAD LABELS
+            'moysklad_id'       => 'МойСклад ID',
+            'ms_code'           => 'Код МС',
+            'ms_external_code'  => 'Внешний код МС',
+            'ms_path_name'      => 'Группа МС',
+            'ms_supplier_name'  => 'Поставщик МС',
+            'ms_size_grid'      => 'Размерная сетка МС',
+            'ms_attributes_json'=> 'Атрибуты МС',
+            'ms_images_json'    => 'Изображения МС',
+            'ms_price_full'     => 'Цена полная МС',
+            'ms_price_rub'      => 'Цена руб МС',
+            'ms_price_sale'     => 'Акционная цена МС',
+            'ms_archived'       => 'Архив МС',
+            'ms_no_export'      => 'Не экспортировать МС',
         ];
     }
 

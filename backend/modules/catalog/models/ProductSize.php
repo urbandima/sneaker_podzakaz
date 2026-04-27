@@ -120,7 +120,7 @@ class ProductSize extends ActiveRecord
             [['is_available'], 'default', 'value' => true],
             [['size', 'us_size', 'eu_size', 'uk_size', 'poizon_sku_id', 'color_variant'], 'string', 'max' => 50],
             [['color', 'color_variant'], 'string', 'max' => 100],
-            [['variant_vendor_code'], 'string', 'max' => 100],
+            [['variant_vendor_code', 'ms_variant_id', 'ms_barcode'], 'string', 'max' => 100],
             [['images_json'], 'string'],
             [['delivery_time_min', 'delivery_time_max'], 'integer'],
             [['cm_size', 'poizon_price_cny', 'price', 'price_cny', 'price_byn', 'price_client_byn'], 'number'],
@@ -167,7 +167,9 @@ class ProductSize extends ActiveRecord
             'delivery_time_min' => 'Доставка (мин)',
             'delivery_time_max' => 'Доставка (макс)',
             'variant_vendor_code' => 'Артикул варианта',
-            'images_json' => 'Изображения варианта (JSON)',
+            'images_json'    => 'Изображения варианта (JSON)',
+            'ms_variant_id'  => 'МойСклад вариант ID',
+            'ms_barcode'     => 'Штрихкод МС',
         ];
     }
 

@@ -85,13 +85,13 @@ $showingTo   = $totalCount ? $showingFrom + count($orders) - 1 : 0;
 $extraStatuses = [];
 foreach (($statusCounts ?? []) as $sk => $sc) {
     if ($sc > 0 && !isset($statuses[$sk])) {
-        $extraStatuses[$sk] = $sk; // use key as label fallback
+        $extraStatuses[$sk] = \app\backend\modules\checkout\models\Order::statusLabel($sk);
     }
 }
 
 // Funnel dot colors
 $funnelDots = [
-    'new'                    => '#6b7280',
+    'new'                    => '#3b82f6',
     'created'                => '#6b7280',
     'paid'                   => '#059669',
     'confirmed_and_paid'     => '#059669',
