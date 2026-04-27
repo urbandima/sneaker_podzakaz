@@ -151,6 +151,9 @@ class Order extends ActiveRecord
             [['purchase_currency', 'purchase_status', 'purchase_id'], 'string', 'max' => 50],
             [['purchase_receipt_url'], 'string', 'max' => 500],
             [['purchase_date', 'expected_delivery_at'], 'safe'],
+            // Delivery point / China status
+            [['pickup_point'], 'string', 'max' => 255],
+            [['china_delivery_status'], 'string', 'max' => 50],
         ];
     }
 
@@ -227,6 +230,8 @@ class Order extends ActiveRecord
             'passport_validated'      => 'Паспорт проверен',
             'estimated_delivery_date' => 'Ожидаемая дата доставки',
             'local_delivery_status'   => 'Статус местной доставки',
+            'pickup_point'            => 'Пункт выдачи (ПВЗ)',
+            'china_delivery_status'   => 'Статус доставки из Китая',
         ];
     }
 
