@@ -154,25 +154,28 @@ $company = Yii::$app->settings->getCompany();
 <!-- Main Content -->
 <main id="main-content">
     <?php if (Yii::$app->session->hasFlash('success')): ?>
+        <?php $flashSuccess = Yii::$app->session->getFlash('success'); ?>
         <div class="container" style="padding-top:1rem">
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <?= Html::encode(Yii::$app->session->getFlash('success')) ?>
+                <?= Html::encode(is_array($flashSuccess) ? implode(' ', $flashSuccess) : $flashSuccess) ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         </div>
     <?php endif; ?>
     <?php if (Yii::$app->session->hasFlash('error')): ?>
+        <?php $flashError = Yii::$app->session->getFlash('error'); ?>
         <div class="container" style="padding-top:1rem">
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <?= Html::encode(Yii::$app->session->getFlash('error')) ?>
+                <?= Html::encode(is_array($flashError) ? implode(' ', $flashError) : $flashError) ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         </div>
     <?php endif; ?>
     <?php if (Yii::$app->session->hasFlash('warning')): ?>
+        <?php $flashWarning = Yii::$app->session->getFlash('warning'); ?>
         <div class="container" style="padding-top:1rem">
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                <?= Html::encode(Yii::$app->session->getFlash('warning')) ?>
+                <?= Html::encode(is_array($flashWarning) ? implode(' ', $flashWarning) : $flashWarning) ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         </div>

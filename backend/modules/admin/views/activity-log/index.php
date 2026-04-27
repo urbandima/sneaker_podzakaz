@@ -119,7 +119,7 @@ $buildDescription = static function (array $row) use ($actionLabels, $targetType
 };
 
 /** Текущие параметры фильтра для передачи в CSV-ссылку */
-$csvParams = array_merge(['action' => '/admin/activity-log/export-csv'], array_filter($f, fn($v) => $v !== '' && $v !== 0 && $v !== '0'));
+$csvParams = array_merge(['/admin/activity-log/export-csv'], array_filter($f, fn($v) => $v !== '' && $v !== 0 && $v !== '0'));
 
 ?>
 

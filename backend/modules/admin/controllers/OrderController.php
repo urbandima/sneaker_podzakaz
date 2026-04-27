@@ -1554,7 +1554,7 @@ class OrderController extends BaseAdminController
         $id = (int)($data['id'] ?? 0);
         $field = $data['field'] ?? '';
         $value = $data['value'] ?? '';
-        $allowed = ['china_track_number','local_track_number','delivery_method','delivery_address',
+        $allowed = ['china_track_number','local_track_number','delivery_method','payment_method','delivery_address',
             'pickup_point','china_delivery_status','warehouse_arrival_date','delivery_date',
             'customer_id','client_name','client_phone','client_email','source',
             'comment','total_amount','delivery_cost'];

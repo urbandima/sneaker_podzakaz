@@ -626,7 +626,8 @@ $config = [
                 'admin/procurement/create'                => 'admin/procurement/create',
                 'admin/procurement/view/<id:\d+>'         => 'admin/procurement/view',
                 'admin/procurement/update-status'         => 'admin/procurement/update-status',
-                'admin/procurement/receiving'             => 'admin/procurement/receiving',
+                'admin/procurement/receiving'             => 'admin/receiving/index',
+                'admin/procurement/receiving/create'     => 'admin/receiving/create',
                 'admin/procurement/receive-items'                  => 'admin/procurement/receive-items',
                 // Receiving module (new full CRM)
                 'admin/receiving'                          => 'admin/receiving/index',
@@ -639,6 +640,7 @@ $config = [
                 'admin/receiving/update-expense'           => 'admin/receiving/update-expense',
                 'admin/receiving/remove-expense'           => 'admin/receiving/remove-expense',
                 'admin/receiving/redistribute'             => 'admin/receiving/redistribute',
+                'admin/receiving/save-field'               => 'admin/receiving/save-field',
                 'admin/receiving/set-status'               => 'admin/receiving/set-status',
                 'admin/receiving/accept'                   => 'admin/receiving/accept',
                 'admin/receiving/cancel'                   => 'admin/receiving/cancel',
