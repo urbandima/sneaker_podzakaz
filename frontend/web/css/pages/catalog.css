@@ -1471,3 +1471,123 @@
     padding: 0 1px;
     font-style: normal;
 }
+
+/* === QUICK VIEW MODAL === */
+/* Default: hidden. catalog-inline.css was referenced but never created — styles live here. */
+.quick-view-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    background: rgba(0, 0, 0, 0.55);
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4, 16px);
+}
+
+.quick-view-modal.active {
+    display: flex;
+}
+
+.qv-content {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 860px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    padding: var(--space-6, 24px);
+}
+
+.qv-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    line-height: 1;
+    padding: 4px;
+}
+
+.qv-close:hover { color: #111; }
+
+.qv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6, 24px);
+    margin-top: var(--space-4, 16px);
+}
+
+.qv-gallery img#qvMainImg {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.qv-thumbs {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.qv-thumbs img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.qv-thumbs img:hover { border-color: #111; }
+
+.qv-brand { font-size: .85rem; color: #6b7280; margin-bottom: 4px; }
+.qv-details h2 { font-size: 1.25rem; font-weight: 700; margin: 0 0 12px; }
+.qv-price { font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; }
+
+.qv-sizes { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.size-chip {
+    padding: 6px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    font-size: .85rem;
+    transition: all .15s;
+}
+.size-chip:hover, .size-chip.active { background: #111; color: #fff; border-color: #111; }
+
+.qv-details .btn-order {
+    width: 100%;
+    padding: 12px;
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    transition: background .15s;
+}
+.qv-details .btn-order:hover { background: #333; }
+
+.qv-full {
+    display: block;
+    text-align: center;
+    font-size: .875rem;
+}
+
+@media (max-width: 640px) {
+    .qv-grid { grid-template-columns: 1fr; }
+}
