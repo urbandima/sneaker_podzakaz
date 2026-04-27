@@ -1,7 +1,12 @@
 {
   "widget": {
-    "name": "SneakerHead — Orders",
-    "description": "Order data from SneakerHead store",
+    "name": "SNEAKERHEAD",
+    "description": "Create SneakerHead store orders directly from AmoCRM lead cards",
+    "short_description": "SneakerHead orders in AmoCRM",
+    "settings": {
+      "api_url": "Shop URL (without trailing slash)",
+      "api_key": "API key (from AmoCRM plugin settings)"
+    },
     "order_not_found": "No order linked to this lead",
     "loading": "Loading data...",
     "error_load": "Failed to load data",

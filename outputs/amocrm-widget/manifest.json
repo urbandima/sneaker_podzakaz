@@ -1,46 +1,30 @@
 {
   "widget": {
-    "name": {
-      "ru": "SneakerHead — Заказы",
-      "en": "SneakerHead — Orders"
-    },
-    "description": {
-      "ru": "Показывает данные заказа из магазина SneakerHead на карточке сделки AmoCRM. Позволяет синхронизировать статусы.",
-      "en": "Displays SneakerHead store order data on an AmoCRM lead card. Allows status synchronisation."
-    },
-    "short_description": {
-      "ru": "Данные заказа SneakerHead в карточке сделки",
-      "en": "SneakerHead order data in the lead card"
-    },
+    "name": "СНИКЕРХЭД",
+    "description": "Создание заказов магазина СНИКЕРХЭД прямо из карточки сделки AmoCRM",
+    "short_description": "Заказы СНИКЕРХЭД в AmoCRM",
     "version": "1.0.0",
-    "category": "integration",
-    "interface": {
-      "lead_card": {
-        "show_button": true
+    "interface_version": 2,
+    "init_once": true,
+    "locale": ["ru", "en"],
+    "installation": true,
+    "widget_locations": ["lead_card", "settings"],
+    "settings": {
+      "api_url": {
+        "name": "URL магазина (без слеша в конце)",
+        "type": "text",
+        "required": true,
+        "placeholder": "https://sneakerhead.by"
       },
-      "settings": {
-        "fields": [
-          {
-            "id": "shop_url",
-            "type": "text",
-            "name": "URL магазина",
-            "required": true,
-            "placeholder": "https://your-shop.com"
-          },
-          {
-            "id": "api_token",
-            "type": "text",
-            "name": "API токен (из настроек плагина AmoCRM)",
-            "required": true
-          }
-        ]
+      "api_key": {
+        "name": "API-ключ (из настроек плагина AmoCRM)",
+        "type": "pass",
+        "required": true
       }
     },
-    "scopes": [
-      "crm"
-    ],
-    "integrations": [
-      "leads"
-    ]
+    "support": {
+      "link": "https://sneakerhead.by/support",
+      "email": "support@sneakerhead.by"
+    }
   }
 }

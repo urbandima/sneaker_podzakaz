@@ -1,7 +1,12 @@
 {
   "widget": {
-    "name": "SneakerHead — Заказы",
-    "description": "Данные заказа из магазина SneakerHead",
+    "name": "СНИКЕРХЭД",
+    "description": "Создание заказов магазина СНИКЕРХЭД прямо из карточки сделки AmoCRM",
+    "short_description": "Заказы СНИКЕРХЭД в AmoCRM",
+    "settings": {
+      "api_url": "URL магазина (без слеша в конце)",
+      "api_key": "API-ключ (из настроек плагина AmoCRM)"
+    },
     "order_not_found": "Заказ не привязан к этой сделке",
     "loading": "Загрузка данных...",
     "error_load": "Ошибка загрузки данных",
