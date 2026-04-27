@@ -1,23 +1,23 @@
-{# Widget settings page template #}
+{# Widget settings page template — field names must match manifest.json settings keys #}
 <div class="sh-settings-wrap">
   <p style="color:#555;font-size:13px;margin-bottom:16px">
-    Виджет отображает данные заказа SneakerHead на карточке сделки AmoCRM.
+    Виджет отображает данные заказа СНИКЕРХЭД на карточке сделки AmoCRM.
   </p>
 
   <div class="sh-field">
     <label>URL магазина</label>
-    <input type="text" name="shop_url" class="text-input"
-           placeholder="https://your-shop.com"
-           value="{{ settings.shop_url }}">
-    <span class="sh-hint">Без слеша в конце. Должен совпадать с URL, по которому доступен API.</span>
+    <input type="text" name="api_url" class="text-input"
+           placeholder="https://sneakerhead.by"
+           value="{{ settings.api_url }}">
+    <span class="sh-hint">Без слеша в конце. Например: https://sneakerhead.by</span>
   </div>
 
   <div class="sh-field" style="margin-top:12px">
-    <label>API токен</label>
-    <input type="text" name="api_token" class="text-input"
-           placeholder="sneakerhead_api_xxxxxxxxxxxxxxxx"
-           value="{{ settings.api_token }}">
-    <span class="sh-hint">Получите токен в настройках плагина AmoCRM: <em>Настройки → Плагины → AmoCRM → Настройки → API токен</em></span>
+    <label>API-ключ</label>
+    <input type="password" name="api_key" class="text-input"
+           placeholder="••••••••••••••••••••••"
+           value="{{ settings.api_key }}">
+    <span class="sh-hint">Получите в настройках магазина: <em>Настройки → Плагины → AmoCRM → API-ключ виджета</em></span>
   </div>
 
   <style>
