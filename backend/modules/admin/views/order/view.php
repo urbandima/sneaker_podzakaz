@@ -760,15 +760,10 @@ $customer = $model->customer ?? null;
                         </label>
                     </div>
                     <div class="crm-info-grid" id="passport-grid-<?= $model->id ?>">
-                        <!-- BY: Серия (2 буквы) -->
-                        <div class="crm-field pf-by" data-citizenship="by">
-                            <div class="crm-field-label">Серия <span style="color:#6b7280;font-size:0.7rem">(РБ: 2 буквы)</span> <i class="bi bi-truck" style="font-size:0.7rem;color:#4338ca" title="ДП обязательно"></i></div>
-                            <div class="crm-editable" data-field="passport_series" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->passport_series) ? Html::encode($model->passport_series) : '<span class="crm-editable-empty">—</span>' ?></div>
-                        </div>
-                        <!-- BY: Номер (7 цифр) -->
-                        <div class="crm-field pf-by" data-citizenship="by">
-                            <div class="crm-field-label">Номер <span style="color:#6b7280;font-size:0.7rem">(РБ: 7 цифр)</span> <i class="bi bi-truck" style="font-size:0.7rem;color:#4338ca" title="ДП обязательно"></i></div>
-                            <div class="crm-editable" data-field="passport_number" data-id="<?= $model->id ?>" onclick="startEdit(this)" style="font-family:monospace"><?= !empty($model->passport_number) ? Html::encode($model->passport_number) : '<span class="crm-editable-empty">—</span>' ?></div>
+                        <!-- BY: Серия+Номер combined (2 латинские буквы + 7 цифр, например MP1234567) -->
+                        <div class="crm-field pf-by" data-citizenship="by" style="grid-column:span 2">
+                            <div class="crm-field-label">Серия+Номер <span style="color:#6b7280;font-size:0.7rem">(РБ: 2 буквы + 7 цифр)</span> <i class="bi bi-truck" style="font-size:0.7rem;color:#4338ca" title="ДП обязательно"></i></div>
+                            <div class="crm-editable" data-field="passport_series" data-id="<?= $model->id ?>" data-passport-by="1" onclick="startEdit(this)" style="font-family:monospace;letter-spacing:.04em"><?= !empty($model->passport_series) ? Html::encode($model->passport_series) : '<span class="crm-editable-empty">—</span>' ?></div>
                         </div>
                         <!-- RU: Серия (4 цифры) -->
                         <div class="crm-field pf-ru" data-citizenship="ru">
@@ -1931,10 +1926,24 @@ function openPrevEditable(currentEl) {
 }
 
 // ── Inline click-to-edit ──────────────────────────────────
+// BY passport auto-format: first 2 chars = uppercase A-Z, rest = digits only, max 9
+window.formatBYPassport = function(input) {
+    var pos = input.selectionStart;
+    var val = input.value.toUpperCase();
+    var letters = val.slice(0, 2).replace(/[^A-Z]/g, '');
+    var digits  = val.slice(2).replace(/[^0-9]/g, '').slice(0, 7);
+    var next = letters + digits;
+    if (input.value !== next) {
+        input.value = next;
+        try { input.setSelectionRange(Math.min(pos, next.length), Math.min(pos, next.length)); } catch(e) {}
+    }
+};
+
 window.startEdit = function(el) {
     if (el.querySelector('input,textarea')) return;
-    var field  = el.dataset.field;
-    var curVal = el.innerText.trim();
+    var field     = el.dataset.field;
+    var isByPass  = el.dataset.passportBy === '1';
+    var curVal    = el.innerText.trim();
     if (curVal === 'Не указано' || curVal === '—' || curVal === '-' || curVal.trim() === '') curVal = '';
     el.classList.remove('crm-editable-empty');
     el.classList.add('crm-editing');
@@ -1943,6 +1952,14 @@ window.startEdit = function(el) {
     input.className = 'crm-editable-input';
     input.value     = curVal;
     if (isArea) { input.rows = 3; input.style.resize = 'vertical'; }
+    if (isByPass) {
+        input.maxLength   = 9;
+        input.placeholder = 'MP1234567';
+        input.style.fontFamily  = 'monospace';
+        input.style.letterSpacing = '.06em';
+        input.setAttribute('autocomplete', 'off');
+        input.addEventListener('input', function() { formatBYPassport(this); });
+    }
     el.innerHTML = '';
     el.appendChild(input);
     input.focus();
@@ -1959,8 +1976,17 @@ window.startEdit = function(el) {
         }
     };
     var save = function() {
-        saveField(field, input.value);
-        commitAndClose(input.value);
+        var val = input.value;
+        if (isByPass && val !== '') {
+            if (!/^[A-Z]{2}[0-9]{7}$/.test(val)) {
+                input.style.outline = '2px solid #dc2626';
+                input.title = 'Формат: 2 латинские буквы + 7 цифр (например MP1234567)';
+                input.focus();
+                return;
+            }
+        }
+        saveField(field, val);
+        commitAndClose(val);
     };
     var cancel = function() {
         el.classList.remove('crm-editing');

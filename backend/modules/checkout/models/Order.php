@@ -135,6 +135,11 @@ class Order extends ActiveRecord
             [['product_link', 'sneakerhead_order_link'], 'string', 'max' => 500],
             [['passport_issue_date', 'birth_date'], 'safe'],
             ['citizenship', 'in', 'range' => ['by', 'ru'], 'skipOnEmpty' => true],
+            ['passport_series', 'match',
+                'pattern' => '/^[A-Z]{2}[0-9]{7}$/',
+                'when' => function ($model) { return strtolower($model->citizenship ?? 'by') === 'by'; },
+                'skipOnEmpty' => true,
+                'message' => 'Формат: 2 латинские буквы + 7 цифр (например MP1234567)'],
             ['passport_issued_by', 'string', 'max' => 255],
             ['passport_division_code', 'string', 'max' => 20],
             // DP fields
@@ -687,7 +692,11 @@ class Order extends ActiveRecord
         if (empty($this->postal_code))          $errors[] = 'Индекс';
 
         if ($citizenship === 'by') {
-            if (empty($this->passport_series)) $errors[] = 'Серия+Номер паспорта (формат MP1234567)';
+            if (empty($this->passport_series)) {
+                $errors[] = 'Серия+Номер паспорта (формат MP1234567)';
+            } elseif (!preg_match('/^[A-Z]{2}[0-9]{7}$/', $this->passport_series)) {
+                $errors[] = 'Серия+Номер паспорта: неверный формат (нужно MP1234567)';
+            }
         } else {
             if (empty($this->passport_series))  $errors[] = 'Серия паспорта (4 цифры)';
             if (empty($this->passport_number))  $errors[] = 'Номер паспорта (6 цифр)';
