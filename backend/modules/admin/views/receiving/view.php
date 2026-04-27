@@ -6,6 +6,7 @@
 /** @var app\backend\modules\procurement\models\ReceivingDocument[] $documents */
 /** @var app\backend\modules\procurement\models\ReceivingHistory[] $history */
 /** @var app\backend\modules\procurement\models\Supplier[] $suppliers */
+/** @var string $mode 'view'|'create' */
 
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -13,7 +14,10 @@ use app\backend\modules\procurement\models\Receiving;
 use app\backend\modules\procurement\models\ReceivingExpense;
 use app\backend\modules\procurement\models\ReceivingDocument;
 
-$this->title = $receiving->number;
+$mode     = $mode ?? 'view';
+$isCreate = $mode === 'create';
+
+$this->title = $isCreate ? 'Новая приёмка' : $receiving->number;
 $canEdit   = !$receiving->isFinal();
 $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
           || $receiving->canTransitionTo(Receiving::STATUS_PARTIAL);
@@ -67,21 +71,38 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
 .drop-zone{border:2px dashed #d1d5db;border-radius:10px;padding:20px;text-align:center;color:#9ca3af;font-size:.8125rem;cursor:pointer;transition:all .2s;margin-top:8px}
 .drop-zone:hover,.drop-zone.dragover{border-color:var(--admin-primary,#2563eb);background:#eff6ff;color:#2563eb}
 /* Inline editable */
-[contenteditable]{outline:none;border-bottom:1.5px dashed transparent;transition:border-color .15s;cursor:text}
-[contenteditable]:hover{border-bottom-color:#d1d5db}
-[contenteditable]:focus{border-bottom-color:var(--admin-primary,#2563eb)}
+.rcv-field-row{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}
+.rcv-field-label{font-size:.72rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.04em}
+.rcv-field-value{font-size:.8125rem;color:var(--admin-text-primary,#111);padding:5px 8px;border-radius:6px;border:1.5px solid transparent;transition:border-color .15s;background:#f9fafb;cursor:pointer}
+.rcv-field-value:hover{border-color:#d1d5db}
+.rcv-select{width:100%;padding:6px 8px;border-radius:6px;border:1.5px solid #d1d5db;font-size:.8125rem;background:#fff;outline:none}
+.rcv-select:focus{border-color:var(--admin-primary,#2563eb)}
+.rcv-date-input{width:100%;padding:5px 8px;border-radius:6px;border:1.5px solid #d1d5db;font-size:.8125rem;outline:none}
+.rcv-date-input:focus{border-color:var(--admin-primary,#2563eb)}
+.rcv-textarea{width:100%;padding:6px 8px;border-radius:6px;border:1.5px solid #d1d5db;font-size:.8125rem;resize:vertical;min-height:60px;outline:none}
+.rcv-textarea:focus{border-color:var(--admin-primary,#2563eb)}
 </style>
 
 <!-- Sticky Header -->
 <div class="rcv-sticky-header" id="rcvStickyHeader">
     <a href="<?= Url::to(['/admin/receiving']) ?>" class="btn btn-outline" style="padding:5px 10px;font-size:.78rem">
-        <i class="bi bi-arrow-left"></i> Назад
+        <i class="bi bi-arrow-left"></i> К списку
     </a>
-    <span class="rcv-number"><?= Html::encode($receiving->number) ?></span>
+    <span class="rcv-number">
+        <?= $isCreate ? 'Новая приёмка' : Html::encode($receiving->number) ?>
+    </span>
     <span class="status-pill" id="statusPill" style="background:<?= $receiving->getStatusColor() ?>">
         <?= $receiving->getStatusLabel() ?>
     </span>
     <div class="header-actions">
+        <?php if ($isCreate): ?>
+        <button class="btn btn-success" id="btnConfirmCreate" onclick="rcvConfirmCreate(<?= $receiving->id ?>)">
+            <i class="bi bi-check-lg"></i> Создать
+        </button>
+        <button class="btn btn-outline" style="color:#dc2626;border-color:#dc2626" onclick="rcvDeleteDraft(<?= $receiving->id ?>)">
+            <i class="bi bi-trash"></i> Отменить
+        </button>
+        <?php else: ?>
         <?php if ($canAccept): ?>
         <button class="btn btn-success" onclick="rcvAccept(<?= $receiving->id ?>)">
             <i class="bi bi-check-lg"></i> Принять на склад
@@ -92,12 +113,55 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
             <i class="bi bi-x-circle"></i> Отменить
         </button>
         <?php endif; ?>
+        <?php endif; ?>
     </div>
 </div>
 
 <div class="rcv-layout">
     <!-- Left column -->
     <div>
+        <!-- Supply card (editable) -->
+        <div class="rcv-card">
+            <div class="rcv-card-title"><i class="bi bi-building"></i> Поставка</div>
+            <div class="rcv-card-body">
+                <div class="rcv-field-row">
+                    <span class="rcv-field-label">Поставщик</span>
+                    <select class="rcv-select" id="fieldSupplier"
+                            onchange="saveField('supplier_id', this.value)"
+                            <?= !$canEdit ? 'disabled' : '' ?>>
+                        <option value="">— Без поставщика —</option>
+                        <?php foreach ($suppliers as $s): ?>
+                            <option value="<?= $s->id ?>" <?= $receiving->supplier_id == $s->id ? 'selected' : '' ?>>
+                                <?= Html::encode($s->name) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap">
+                    <div class="rcv-field-row" style="flex:1;min-width:140px">
+                        <span class="rcv-field-label">Дата поставки</span>
+                        <input type="date" class="rcv-date-input" id="fieldReceivingDate"
+                               value="<?= $receiving->receiving_date ? date('Y-m-d', strtotime($receiving->receiving_date)) : '' ?>"
+                               onchange="saveField('receiving_date', this.value)"
+                               <?= !$canEdit ? 'disabled' : '' ?>>
+                    </div>
+                    <div class="rcv-field-row" style="flex:1;min-width:140px">
+                        <span class="rcv-field-label">Ожидаемая дата</span>
+                        <input type="date" class="rcv-date-input" id="fieldExpectedDate"
+                               value="<?= $receiving->expected_date ? date('Y-m-d', strtotime($receiving->expected_date)) : '' ?>"
+                               onchange="saveField('expected_date', this.value)"
+                               <?= !$canEdit ? 'disabled' : '' ?>>
+                    </div>
+                </div>
+                <div class="rcv-field-row" style="margin-top:4px">
+                    <span class="rcv-field-label">Комментарий</span>
+                    <textarea class="rcv-textarea" id="fieldNotes"
+                              onblur="saveField('notes', this.value)"
+                              <?= !$canEdit ? 'disabled' : '' ?>><?= Html::encode($receiving->notes ?? '') ?></textarea>
+                </div>
+            </div>
+        </div>
+
         <!-- Items card -->
         <div class="rcv-card" id="itemsCard">
             <div class="rcv-card-title" style="display:flex;justify-content:space-between;align-items:center">
@@ -108,7 +172,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                 </span>
                 <?php if ($canEdit): ?>
                 <button class="btn btn-outline" style="padding:3px 10px;font-size:.78rem" onclick="rcvShowAddItem()">
-                    <i class="bi bi-plus"></i> Добавить
+                    <i class="bi bi-plus"></i> Добавить позицию
                 </button>
                 <?php endif; ?>
             </div>
@@ -181,12 +245,12 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
             </div>
         </div>
 
-        <!-- Add Item modal (inline) -->
+        <!-- Add Item panel (inline) -->
         <div id="addItemPanel" style="display:none" class="rcv-card">
             <div class="rcv-card-title"><i class="bi bi-plus-circle"></i> Добавить позицию</div>
             <div class="rcv-card-body">
                 <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
-                    <div style="flex:2;min-width:200px">
+                    <div style="flex:2;min-width:200px;position:relative">
                         <label style="font-size:.75rem;color:#6b7280;display:block;margin-bottom:4px">Товар</label>
                         <input type="text" id="itemSearch" class="compact-filter-input" style="width:100%"
                                placeholder="Поиск по названию или SKU…" oninput="rcvSearchProduct(this.value)">
@@ -300,114 +364,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
             </div>
         </div>
 
-        <!-- Timeline -->
-        <div class="rcv-card">
-            <div class="rcv-card-title"><i class="bi bi-clock-history"></i> История</div>
-            <div class="rcv-card-body" id="timelineBlock">
-                <?php foreach ($history as $h): ?>
-                <div class="timeline-item">
-                    <div class="timeline-dot" style="background:<?= Receiving::getStatusColors()[$h->to_status] ?? '#6b7280' ?>"></div>
-                    <div class="timeline-time"><?= date('d.m.Y H:i', $h->changed_at) ?></div>
-                    <div>
-                        <strong><?= $h->getStatusLabel() ?></strong>
-                        <?php if ($h->comment): ?>
-                            <div style="color:#6b7280;font-size:.75rem"><?= Html::encode($h->comment) ?></div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <?php endforeach; ?>
-                <?php if (!$history): ?>
-                    <div style="color:#9ca3af;font-size:.8125rem">Нет истории</div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-
-    <!-- Right column -->
-    <div>
-        <!-- Supply info -->
-        <div class="rcv-card">
-            <div class="rcv-card-title"><i class="bi bi-building"></i> Поставка</div>
-            <div class="rcv-card-body" style="font-size:.8125rem">
-                <div style="margin-bottom:8px">
-                    <div style="color:#6b7280;font-size:.72rem;margin-bottom:2px">Поставщик</div>
-                    <?php if ($receiving->supplier): ?>
-                        <div style="font-weight:600"><?= Html::encode($receiving->supplier->name) ?></div>
-                    <?php elseif ($receiving->buyout_id): ?>
-                        <div>
-                            <a href="<?= Url::to(['/admin/buyout/view', 'id' => $receiving->buyout_id]) ?>">
-                                Выкуп #<?= $receiving->buyout_id ?>
-                            </a>
-                        </div>
-                    <?php else: ?>
-                        <div style="color:#9ca3af">—</div>
-                    <?php endif; ?>
-                </div>
-                <div style="margin-bottom:8px">
-                    <div style="color:#6b7280;font-size:.72rem;margin-bottom:2px">Ожидалась</div>
-                    <div><?= $receiving->expected_date ? date('d.m.Y', strtotime($receiving->expected_date)) : '—' ?></div>
-                </div>
-                <div style="margin-bottom:8px">
-                    <div style="color:#6b7280;font-size:.72rem;margin-bottom:2px">Прибыла</div>
-                    <div><?= $receiving->arrived_date ? date('d.m.Y', strtotime($receiving->arrived_date)) : '—' ?></div>
-                </div>
-                <?php if ($receiving->accepted_date): ?>
-                <div style="margin-bottom:8px">
-                    <div style="color:#6b7280;font-size:.72rem;margin-bottom:2px">Принята</div>
-                    <div><?= date('d.m.Y H:i', strtotime($receiving->accepted_date)) ?></div>
-                </div>
-                <?php endif; ?>
-                <?php if ($receiving->notes): ?>
-                <div style="margin-top:8px;padding:8px;background:#f9fafb;border-radius:8px;font-size:.78rem;color:#374151">
-                    <?= Html::encode($receiving->notes) ?>
-                </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <!-- Status transitions -->
-        <?php if ($canEdit && !$receiving->isFinal()): ?>
-        <div class="rcv-card">
-            <div class="rcv-card-title"><i class="bi bi-arrow-right-circle"></i> Сменить статус</div>
-            <div class="rcv-card-body" style="display:flex;flex-wrap:wrap;gap:6px">
-                <?php foreach (Receiving::ALLOWED_TRANSITIONS[$receiving->status] as $ts): ?>
-                <?php if (in_array($ts, [Receiving::STATUS_ACCEPTED, Receiving::STATUS_PARTIAL])) continue; ?>
-                <button class="status-btn" style="background:<?= Receiving::getStatusColors()[$ts] ?>;color:#fff"
-                        onclick="rcvSetStatus(<?= $receiving->id ?>, '<?= $ts ?>')">
-                    <?= Receiving::getStatuses()[$ts] ?>
-                </button>
-                <?php endforeach; ?>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Totals -->
-        <div class="rcv-card">
-            <div class="rcv-card-title"><i class="bi bi-calculator"></i> Итоги</div>
-            <div class="rcv-card-body" id="totalsBlock">
-                <div class="totals-row">
-                    <span>Стоимость товаров</span>
-                    <span id="totalSubtotal"><?= number_format($receiving->subtotal_byn, 2) ?> BYN</span>
-                </div>
-                <div class="totals-row">
-                    <span>Расходы</span>
-                    <span id="totalExpenses"><?= number_format($receiving->expenses_total_byn, 2) ?> BYN</span>
-                </div>
-                <div class="totals-row" style="margin-top:6px;padding-top:6px;border-top:2px solid #e5e7eb">
-                    <span>Итого с расходами</span>
-                    <span id="totalFinal"><?= number_format($receiving->total_with_expenses_byn, 2) ?> BYN</span>
-                </div>
-                <div style="margin-top:10px;font-size:.75rem;color:#6b7280">
-                    <div>Позиций: <strong id="totalItems"><?= $receiving->total_items ?></strong></div>
-                    <div>Прибыло: <strong id="totalArrived"><?= $receiving->total_qty_arrived ?></strong> / <span id="totalExpected"><?= $receiving->total_qty_expected ?></span> ожидалось</div>
-                    <?php if ($receiving->total_qty_defected > 0): ?>
-                    <div style="color:#dc2626">Дефект: <strong><?= $receiving->total_qty_defected ?></strong></div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-
-        <!-- Documents -->
+        <!-- Documents card -->
         <div class="rcv-card">
             <div class="rcv-card-title"><i class="bi bi-paperclip"></i> Документы</div>
             <div class="rcv-card-body">
@@ -459,12 +416,131 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                 <?php endif; ?>
             </div>
         </div>
+
+        <?php if (!$isCreate): ?>
+        <!-- Timeline -->
+        <div class="rcv-card">
+            <div class="rcv-card-title"><i class="bi bi-clock-history"></i> История</div>
+            <div class="rcv-card-body" id="timelineBlock">
+                <?php foreach ($history as $h): ?>
+                <div class="timeline-item">
+                    <div class="timeline-dot" style="background:<?= Receiving::getStatusColors()[$h->to_status] ?? '#6b7280' ?>"></div>
+                    <div class="timeline-time"><?= date('d.m.Y H:i', $h->changed_at) ?></div>
+                    <div>
+                        <strong><?= $h->getStatusLabel() ?></strong>
+                        <?php if ($h->comment): ?>
+                            <div style="color:#6b7280;font-size:.75rem"><?= Html::encode($h->comment) ?></div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+                <?php if (!$history): ?>
+                    <div style="color:#9ca3af;font-size:.8125rem">Нет истории</div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- Right sidebar -->
+    <div>
+        <!-- Источник (выкуп) -->
+        <div class="rcv-card">
+            <div class="rcv-card-title"><i class="bi bi-link-45deg"></i> Источник</div>
+            <div class="rcv-card-body">
+                <div class="rcv-field-row">
+                    <span class="rcv-field-label">Связанный выкуп</span>
+                    <?php if ($receiving->buyout_id && $receiving->buyout): ?>
+                        <div style="font-size:.8125rem">
+                            <a href="<?= Url::to(['/admin/procurement/buyouts', 'id' => $receiving->buyout_id]) ?>"
+                               style="color:var(--admin-primary,#2563eb);font-weight:600">
+                                <?= Html::encode($receiving->buyout->number ?? ('Выкуп #' . $receiving->buyout_id)) ?>
+                            </a>
+                        </div>
+                    <?php else: ?>
+                        <div style="color:#9ca3af;font-size:.8125rem">—</div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ответственный -->
+        <div class="rcv-card">
+            <div class="rcv-card-title"><i class="bi bi-person-check"></i> Ответственный</div>
+            <div class="rcv-card-body">
+                <div class="rcv-field-row">
+                    <span class="rcv-field-label">Принял</span>
+                    <?php
+                    $adminUsers = \app\backend\modules\admin\models\User::find()
+                        ->select(['id', 'username'])
+                        ->orderBy('username')
+                        ->asArray()
+                        ->all();
+                    ?>
+                    <select class="rcv-select" id="fieldReceiverUser"
+                            onchange="saveField('receiver_user_id', this.value)"
+                            <?= !$canEdit ? 'disabled' : '' ?>>
+                        <option value="">— Не назначен —</option>
+                        <?php foreach ($adminUsers as $u): ?>
+                            <option value="<?= $u['id'] ?>" <?= $receiving->receiver_user_id == $u['id'] ? 'selected' : '' ?>>
+                                <?= Html::encode($u['username']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status transitions -->
+        <?php if (!$isCreate && $canEdit && !$receiving->isFinal()): ?>
+        <div class="rcv-card">
+            <div class="rcv-card-title"><i class="bi bi-arrow-right-circle"></i> Сменить статус</div>
+            <div class="rcv-card-body" style="display:flex;flex-wrap:wrap;gap:6px">
+                <?php foreach (Receiving::ALLOWED_TRANSITIONS[$receiving->status] as $ts): ?>
+                <?php if (in_array($ts, [Receiving::STATUS_ACCEPTED, Receiving::STATUS_PARTIAL])) continue; ?>
+                <button class="status-btn" style="background:<?= Receiving::getStatusColors()[$ts] ?>;color:#fff"
+                        onclick="rcvSetStatus(<?= $receiving->id ?>, '<?= $ts ?>')">
+                    <?= Receiving::getStatuses()[$ts] ?>
+                </button>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Totals (live-updating) -->
+        <div class="rcv-card">
+            <div class="rcv-card-title"><i class="bi bi-calculator"></i> Итоги</div>
+            <div class="rcv-card-body" id="totalsBlock">
+                <div class="totals-row">
+                    <span>Подытог</span>
+                    <span id="totalSubtotal"><?= number_format($receiving->subtotal_byn, 2) ?> BYN</span>
+                </div>
+                <div class="totals-row">
+                    <span>Расходы</span>
+                    <span id="totalExpenses"><?= number_format($receiving->expenses_total_byn, 2) ?> BYN</span>
+                </div>
+                <div class="totals-row" style="margin-top:6px;padding-top:6px;border-top:2px solid #e5e7eb">
+                    <span>Итого</span>
+                    <span id="totalFinal"><?= number_format($receiving->total_with_expenses_byn, 2) ?> BYN</span>
+                </div>
+                <div style="margin-top:10px;font-size:.75rem;color:#6b7280">
+                    <div>Позиций: <strong id="totalItems"><?= $receiving->total_items ?></strong></div>
+                    <div>Прибыло: <strong id="totalArrived"><?= $receiving->total_qty_arrived ?></strong> / <span id="totalExpected"><?= $receiving->total_qty_expected ?></span> ожидалось</div>
+                    <?php if ($receiving->total_qty_defected > 0): ?>
+                    <div style="color:#dc2626">Дефект: <strong><?= $receiving->total_qty_defected ?></strong></div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-const RCV_ID = <?= $receiving->id ?>;
-const API    = {
+const RCV_ID   = <?= $receiving->id ?>;
+const IS_CREATE = <?= $isCreate ? 'true' : 'false' ?>;
+const CSRF     = '<?= Yii::$app->request->csrfToken ?>';
+const API      = {
+    saveField:     '<?= Url::to(['/admin/receiving/save-field']) ?>',
     updateItem:    '<?= Url::to(['/admin/receiving/update-item']) ?>',
     removeItem:    '<?= Url::to(['/admin/receiving/remove-item']) ?>',
     addItem:       '<?= Url::to(['/admin/receiving/add-item']) ?>',
@@ -476,14 +552,25 @@ const API    = {
     products:      '<?= Url::to(['/admin/receiving/products']) ?>',
     uploadDoc:     '<?= Url::to(['/admin/receiving/upload-document']) ?>',
     deleteDoc:     '<?= Url::to(['/admin/receiving/delete-document']) ?>',
+    viewUrl:       '<?= Url::to(['/admin/receiving/view', 'id' => $receiving->id]) ?>',
 };
 
 function rcvPost(url, data) {
     return fetch(url, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json', 'X-CSRF-Token': '<?= Yii::$app->request->csrfToken ?>'},
+        headers: {'Content-Type': 'application/json', 'X-CSRF-Token': CSRF},
         body: JSON.stringify(data)
     }).then(r => r.json());
+}
+
+/** Save a single field via AJAX */
+function saveField(field, value) {
+    rcvPost(API.saveField, {id: RCV_ID, field, value})
+        .then(r => {
+            if (!r.success) {
+                console.warn('saveField failed:', r.errors || r.message);
+            }
+        });
 }
 
 function rcvUpdateTotals(t) {
@@ -493,9 +580,8 @@ function rcvUpdateTotals(t) {
     document.getElementById('totalFinal').textContent     = Number(t.total_with_expenses_byn).toFixed(2) + ' BYN';
     document.getElementById('totalArrived').textContent   = t.total_qty_arrived;
     document.getElementById('totalExpected').textContent  = t.total_qty_expected;
-    if (document.getElementById('totalItems')) {
-        document.getElementById('totalItems').textContent = t.total_items || '';
-    }
+    const ti = document.getElementById('totalItems');
+    if (ti) ti.textContent = t.total_items || '';
 }
 
 function rcvUpdateItem(itemId, field, value) {
@@ -503,7 +589,6 @@ function rcvUpdateItem(itemId, field, value) {
         .then(r => {
             if (r.success) {
                 rcvUpdateTotals(r.totals);
-                // refresh allocated/final for this row
                 if (r.item) {
                     const allocEl = document.getElementById('alloc-' + itemId);
                     const finalEl = document.getElementById('final-' + itemId);
@@ -518,8 +603,7 @@ function rcvRemoveItem(itemId) {
     if (!confirm('Удалить позицию?')) return;
     rcvPost(API.removeItem, {id: itemId}).then(r => {
         if (r.success) {
-            const row = document.getElementById('item-row-' + itemId);
-            if (row) row.remove();
+            document.getElementById('item-row-' + itemId)?.remove();
             rcvUpdateTotals(r.totals);
         }
     });
@@ -528,7 +612,7 @@ function rcvRemoveItem(itemId) {
 function rcvShowAddItem() {
     const p = document.getElementById('addItemPanel');
     p.style.display = p.style.display === 'none' ? 'block' : 'none';
-    document.getElementById('itemSearch').focus();
+    if (p.style.display !== 'none') document.getElementById('itemSearch').focus();
 }
 
 let _productTimeout = null;
@@ -543,7 +627,7 @@ function rcvSearchProduct(q) {
                 if (!list.length) { box.style.display = 'none'; return; }
                 box.innerHTML = list.map(p =>
                     `<div style="padding:8px 12px;cursor:pointer;font-size:.8125rem;border-bottom:1px solid #f0f0f0"
-                         onmousedown="rcvSelectProduct(${p.id},'${p.name.replace(/'/g,"\\'")}',${JSON.stringify(p.sizes)})"
+                         onmousedown="rcvSelectProduct(${p.id},'${p.name.replace(/'/g,"\\'")}',${JSON.stringify(p.sizes)},${p.price})"
                          onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background=''">
                         <strong>${p.name}</strong> ${p.sku ? '<span style=\'color:#9ca3af\'>' + p.sku + '</span>' : ''}
                      </div>`
@@ -553,10 +637,11 @@ function rcvSearchProduct(q) {
     }, 250);
 }
 
-function rcvSelectProduct(id, name, sizes) {
+function rcvSelectProduct(id, name, sizes, price) {
     document.getElementById('itemProductId').value = id;
     document.getElementById('itemSearch').value = name;
     document.getElementById('itemSearchResults').style.display = 'none';
+    document.getElementById('itemUnitCost').value = price || 0;
     const sizeEl = document.getElementById('itemSizeId');
     sizeEl.innerHTML = '<option value="">— Размер —</option>';
     if (sizes && sizes.length) {
@@ -564,7 +649,7 @@ function rcvSelectProduct(id, name, sizes) {
             sizeEl.innerHTML += `<option value="${s.id}">${s.size} (${s.price} BYN)</option>`;
         });
         sizeEl.style.display = 'block';
-        document.getElementById('itemUnitCost').value = sizes[0].price || 0;
+        document.getElementById('itemUnitCost').value = sizes[0].price || price || 0;
     } else {
         sizeEl.style.display = 'none';
     }
@@ -584,7 +669,7 @@ function rcvAddItem(rcvId) {
     };
     rcvPost(API.addItem, data).then(r => {
         if (r.success) {
-            location.reload(); // reload to show new item row properly
+            location.reload();
         } else {
             alert('Ошибка: ' + (r.message || 'неизвестная ошибка'));
         }
@@ -662,13 +747,31 @@ function rcvCancel(id) {
     });
 }
 
+/** Create mode: confirm the draft → transition to in_transit or just remove ?mode=create */
+function rcvConfirmCreate(id) {
+    const btn = document.getElementById('btnConfirmCreate');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Сохраняю…';
+
+    // Optionally transition to in_transit; for now just redirect to view without mode=create
+    window.location.href = API.viewUrl;
+}
+
+/** Create mode: delete draft and go back to list */
+function rcvDeleteDraft(id) {
+    if (!confirm('Отменить создание приёмки? Черновик будет удалён.')) return;
+    rcvPost(API.cancel, {id, comment: 'Черновик удалён при создании'}).then(r => {
+        window.location.href = '<?= Url::to(['/admin/receiving']) ?>';
+    });
+}
+
 function rcvUploadDocument(rcvId, file) {
     if (!file) return;
     const fd = new FormData();
     fd.append('file', file);
     fd.append('receiving_id', rcvId);
     fd.append('type', document.getElementById('uploadDocType').value);
-    fd.append('<?= Yii::$app->request->csrfParam ?>', '<?= Yii::$app->request->csrfToken ?>');
+    fd.append('<?= Yii::$app->request->csrfParam ?>', CSRF);
 
     fetch(API.uploadDoc, {method: 'POST', body: fd})
         .then(r => r.json())
@@ -701,7 +804,7 @@ function rcvDeleteDocument(docId) {
     });
 }
 
-// Drag-drop
+// Drag-drop for documents
 const dropZone = document.getElementById('dropZone');
 if (dropZone) {
     dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });

@@ -77,8 +77,11 @@ class ReceivingController extends BaseAdminController
         $receiving = $this->findReceiving($id);
         $receiving->refresh();
 
+        $mode = Yii::$app->request->get('mode', 'view');
+
         return $this->render('view', [
             'receiving' => $receiving,
+            'mode'      => $mode,
             'items'     => $receiving->items,
             'expenses'  => $receiving->expenses,
             'documents' => $receiving->documents,
@@ -89,41 +92,23 @@ class ReceivingController extends BaseAdminController
 
     // ── Create ─────────────────────────────────────────────────────────────────
 
+    /**
+     * Single-screen creation: immediately create a draft and redirect to view in create mode.
+     * All further editing is done via inline AJAX (same as /admin/receiving/<id>).
+     */
     public function actionCreate()
     {
         $receiving = new Receiving();
-        $receiving->status = Receiving::STATUS_DRAFT;
+        $receiving->status        = Receiving::STATUS_DRAFT;
+        $receiving->number        = Receiving::generateNumber();
+        $receiving->expected_date = date('Y-m-d', strtotime('+7 days'));
 
-        if (Yii::$app->request->isPost) {
-            $post = Yii::$app->request->post();
-            $receiving->supplier_id   = $post['supplier_id'] ?: null;
-            $receiving->expected_date = $post['expected_date'] ?: null;
-            $receiving->notes         = $post['notes'] ?? null;
-            $receiving->number        = Receiving::generateNumber();
-
-            if ($receiving->save()) {
-                // Add items from wizard step 2
-                foreach ($post['items'] ?? [] as $itemData) {
-                    if (!empty($itemData['product_id'])) {
-                        $receiving->addItem($itemData);
-                    }
-                }
-                // Add expenses from wizard step 3
-                foreach ($post['expenses'] ?? [] as $expData) {
-                    if (!empty($expData['amount'])) {
-                        $this->saveExpense($receiving->id, $expData);
-                    }
-                }
-
-                Yii::$app->session->setFlash('success', "Приёмка {$receiving->number} создана");
-                return $this->redirect(['/admin/receiving/view', 'id' => $receiving->id]);
-            }
+        if (!$receiving->save(false)) {
+            Yii::$app->session->setFlash('error', 'Не удалось создать черновик приёмки');
+            return $this->redirect(['/admin/receiving']);
         }
 
-        return $this->render('create', [
-            'receiving' => $receiving,
-            'suppliers' => Supplier::find()->where(['is_active' => 1])->orderBy('name')->all(),
-        ]);
+        return $this->redirect(['/admin/receiving/view', 'id' => $receiving->id, 'mode' => 'create']);
     }
 
     // ── Update basic fields ────────────────────────────────────────────────────
@@ -139,6 +124,33 @@ class ReceivingController extends BaseAdminController
         $receiving->notes         = $data['notes'] ?? $receiving->notes;
 
         if ($receiving->save()) {
+            return ['success' => true];
+        }
+        return ['success' => false, 'errors' => $receiving->errors];
+    }
+
+    // ── Save single field (inline-edit) ────────────────────────────────────────
+
+    public function actionSaveField()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $data      = json_decode(Yii::$app->request->rawBody, true) ?: Yii::$app->request->post();
+        $id        = (int)($data['id'] ?? 0);
+        $field     = $data['field'] ?? '';
+        $value     = $data['value'] ?? null;
+
+        $allowed = ['supplier_id', 'expected_date', 'receiving_date', 'notes', 'buyout_id', 'receiver_user_id'];
+        if (!in_array($field, $allowed, true)) {
+            return ['success' => false, 'message' => 'Недопустимое поле'];
+        }
+
+        $receiving = $this->findReceiving($id);
+        if ($field === 'supplier_id' || $field === 'buyout_id' || $field === 'receiver_user_id') {
+            $value = $value ? (int)$value : null;
+        }
+        $receiving->$field = $value;
+
+        if ($receiving->save(false)) {
             return ['success' => true];
         }
         return ['success' => false, 'errors' => $receiving->errors];
