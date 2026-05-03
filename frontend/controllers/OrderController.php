@@ -57,6 +57,9 @@ class OrderController extends Controller
                     $shippingMethods = array_values(array_filter($decoded, fn($m) => ($m['status'] ?? '') === 'active'));
                 }
             }
+            if (empty($shippingMethods)) {
+                $shippingMethods = self::defaultShippingMethods();
+            }
 
             $rawPoints = Yii::$app->settings->get('shipping', 'europochta_points', '');
             if ($rawPoints) {
@@ -77,6 +80,9 @@ class OrderController extends Controller
                     $paymentMethods = array_values(array_filter($decoded, fn($m) => ($m['status'] ?? '') === 'active'));
                 }
             }
+            if (empty($paymentMethods)) {
+                $paymentMethods = self::defaultPaymentMethods();
+            }
 
             $freeDeliveryThreshold = (float) Yii::$app->settings->get('checkout', 'free_delivery_threshold', 100);
         } catch (\Exception $e) {
@@ -95,6 +101,95 @@ class OrderController extends Controller
             'freeDeliveryThreshold' => $freeDeliveryThreshold ?? 100,
             'hasFavorites'          => $hasFavorites,
         ]);
+    }
+
+    /**
+     * Defaults shown when DB has no shipping methods configured.
+     * Keep parity with hardcoded JS price map in views/checkout/index.php
+     * (pickup_minsk=0, courier_minsk=10, europochta=5, belpochta=4).
+     */
+    private static function defaultShippingMethods(): array
+    {
+        return [
+            [
+                'id'            => 'pickup_minsk',
+                'country'       => 'belarus',
+                'name'          => 'Самовывоз из магазина',
+                'description'   => 'пр.Победителей 5, офис 9',
+                'delivery_time' => 'Сегодня после 16:00',
+                'price'         => 0.0,
+                'price_label'   => 'Бесплатно',
+                'icon'          => 'shop',
+                'status'        => 'active',
+            ],
+            [
+                'id'            => 'courier_minsk',
+                'country'       => 'belarus',
+                'name'          => 'Курьер по Минску',
+                'description'   => 'Доставка до двери',
+                'delivery_time' => '1 рабочий день',
+                'price'         => 10.0,
+                'price_label'   => '10 BYN',
+                'icon'          => 'truck',
+                'status'        => 'active',
+            ],
+            [
+                'id'            => 'europochta',
+                'country'       => 'belarus',
+                'name'          => 'Европочта',
+                'description'   => 'В пункт выдачи в любом городе',
+                'delivery_time' => '1–2 рабочих дня',
+                'price'         => 5.0,
+                'price_label'   => '5 BYN',
+                'icon'          => 'box-seam',
+                'status'        => 'active',
+            ],
+            [
+                'id'            => 'belpochta',
+                'country'       => 'belarus',
+                'name'          => 'Белпочта',
+                'description'   => 'В отделение по адресу',
+                'delivery_time' => '2–5 рабочих дней',
+                'price'         => 4.0,
+                'price_label'   => '4 BYN',
+                'icon'          => 'envelope',
+                'status'        => 'active',
+            ],
+            [
+                'id'            => 'sdek',
+                'country'       => 'russia',
+                'name'          => 'СДЭК (Россия)',
+                'description'   => 'Пункт выдачи или курьер',
+                'delivery_time' => '5–10 дней',
+                'price'         => 0.0,
+                'price_label'   => 'По тарифам СДЭК',
+                'icon'          => 'truck',
+                'status'        => 'active',
+            ],
+        ];
+    }
+
+    /**
+     * Defaults shown when DB has no payment methods configured.
+     */
+    private static function defaultPaymentMethods(): array
+    {
+        return [
+            [
+                'id'          => 'bank_details',
+                'name'        => 'Оплата по реквизитам',
+                'description' => 'Реквизиты пришлём после оформления',
+                'icon'        => 'bank',
+                'status'      => 'active',
+            ],
+            [
+                'id'          => 'pickup_cash',
+                'name'        => 'При получении (только самовывоз)',
+                'description' => 'Наличными или картой в магазине',
+                'icon'        => 'cash-coin',
+                'status'      => 'active',
+            ],
+        ];
     }
 
     /**
