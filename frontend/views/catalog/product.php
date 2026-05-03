@@ -153,6 +153,16 @@ $this->registerJs('window.schemaData = ' . Json::encode($schemaData), \yii\web\V
 $this->registerJsVar('productData', $priceData);
 $this->registerJsVar('schemaData', $schemaData);
 
+// Meta Pixel: ViewContent (no-op when fbq is not initialized — settings-gated in layout)
+$metaPixelPayload = Json::encode([
+    'content_ids'  => [(string)$productId],
+    'content_name' => $productTitle,
+    'content_type' => 'product',
+    'value'        => (float)($productPriceView['currentPrice'] ?? $product->price ?? 0),
+    'currency'     => 'BYN',
+], JSON_UNESCAPED_UNICODE);
+$this->registerJs("if(typeof fbq==='function'){fbq('track','ViewContent',{$metaPixelPayload});}", \yii\web\View::POS_END);
+
 // Подключение модальных окон
 $this->registerJsFile('/js/product-modals.js', [
     'depends' => [ProductAsset::class],

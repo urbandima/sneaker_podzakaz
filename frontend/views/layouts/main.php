@@ -62,9 +62,11 @@ $company = Yii::$app->settings->getCompany();
     $s = Yii::$app->settings;
     $ga4Id     = $s->get('analytics', 'ga4_id', '');
     $metrikaId = $s->get('analytics', 'metrika_id', '') ?: $s->get('seo', 'metrika_id', '');
+    $metaPixelId = $s->get('analytics', 'meta_pixel_id', '');
     // Skip placeholder / demo values
     $ga4Valid     = !empty($ga4Id) && $ga4Id !== 'G-XXXXXXXXXX' && strlen($ga4Id) > 5;
     $metrikaValid = !empty($metrikaId) && $metrikaId !== '12345678' && strlen($metrikaId) >= 6 && ctype_digit($metrikaId);
+    $metaPixelValid = !empty($metaPixelId) && $metaPixelId !== 'XXXXXXXXXXXXXXX' && ctype_digit($metaPixelId) && strlen($metaPixelId) >= 13 && strlen($metaPixelId) <= 16;
     ?>
     <?php if ($ga4Valid): ?>
     <script async src="https://www.googletagmanager.com/gtag/js?id=<?= htmlspecialchars($ga4Id) ?>"></script>
@@ -73,6 +75,11 @@ $company = Yii::$app->settings->getCompany();
     <?php if ($metrikaValid): ?>
     <script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");ym(<?= (int)$metrikaId ?>,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true});</script>
     <noscript><div><img src="https://mc.yandex.ru/watch/<?= (int)$metrikaId ?>" style="position:absolute;left:-9999px;" alt=""/></div></noscript>
+    <?php endif; ?>
+    <?php if ($metaPixelValid): ?>
+    <?php // Meta Pixel — base PageView. Standard events fire from product / cart / checkout views. ?>
+    <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','<?= htmlspecialchars($metaPixelId) ?>');fbq('track','PageView');</script>
+    <noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=<?= htmlspecialchars($metaPixelId) ?>&ev=PageView&noscript=1"/></noscript>
     <?php endif; ?>
 </head>
 <body data-is-guest="<?= Yii::$app->session->get('customer_id') ? '0' : '1' ?>">

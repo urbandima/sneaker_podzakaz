@@ -575,6 +575,17 @@ var selectedPvz       = '';
 var csrfToken         = <?= json_encode($csrfToken) ?>;
 var createUrl         = <?= json_encode($createUrl) ?>;
 
+// Meta Pixel: InitiateCheckout (no-op when fbq is not initialized — settings-gated in layout)
+if (typeof fbq === 'function') {
+    fbq('track', 'InitiateCheckout', {
+        value:        orderTotal,
+        currency:     'BYN',
+        num_items:    <?= (int)array_sum(array_map(fn($i) => (int)$i->quantity, $items)) ?>,
+        content_ids:  <?= json_encode(array_map(fn($i) => (string)($i->product->id ?? ''), $items)) ?>,
+        content_type: 'product'
+    });
+}
+
 // ===== Phone mask +375 =====
 (function() {
     var phoneInput = document.getElementById('field-phone');
@@ -896,6 +907,23 @@ function submitOrder() {
                             'quantity' => (int)$item->quantity,
                         ];
                     }, $items), JSON_UNESCAPED_UNICODE) ?>
+                });
+            }
+
+            // Meta Pixel: Purchase
+            if (typeof fbq === 'function') {
+                fbq('track', 'Purchase', {
+                    value:        orderTotal + orderDeliveryCost - orderDiscount,
+                    currency:     'BYN',
+                    content_ids:  <?= json_encode(array_map(fn($i) => (string)($i->product->id ?? ''), $items)) ?>,
+                    content_type: 'product',
+                    contents:     <?= json_encode(array_map(fn($i) => [
+                        'id'         => (string)($i->product->id ?? ''),
+                        'quantity'   => (int)$i->quantity,
+                        'item_price' => (float)$i->price,
+                    ], $items), JSON_UNESCAPED_UNICODE) ?>,
+                    num_items:    <?= (int)array_sum(array_map(fn($i) => (int)$i->quantity, $items)) ?>,
+                    order_id:     data.order_number || data.order_id
                 });
             }
         } else {

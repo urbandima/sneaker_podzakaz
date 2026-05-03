@@ -62,6 +62,21 @@ function addToCart(productId, quantity = 1, size = null, color = null) {
             if (data.success) {
                 updateCartCount(data.count, data.positions);
                 openCartDrawer();
+                if (typeof fbq === 'function') {
+                    var payload = {
+                        content_ids:  [String(productId)],
+                        content_type: 'product',
+                        currency:     'BYN',
+                    };
+                    var pd = window.productData;
+                    if (pd) {
+                        if (pd.productName) payload.content_name = pd.productName;
+                        var rawPrice = (pd.price || '').toString().replace(/[^\d.,-]/g, '').replace(',', '.');
+                        var num = parseFloat(rawPrice);
+                        if (!isNaN(num) && num > 0) payload.value = num * (parseInt(quantity, 10) || 1);
+                    }
+                    fbq('track', 'AddToCart', payload);
+                }
             } else {
                 SH.notify(data.message || 'Ошибка добавления', 'error');
             }

@@ -254,6 +254,15 @@ $this->params['headerActions'] = [];
                     Найдите в Яндекс.Метрика → Настройки → Код счётчика
                 </small>
             </div>
+            <div class="form-group">
+                <label>Meta Pixel — ID пикселя (Facebook / Instagram Ads)</label>
+                <input type="text" class="form-control" id="analytics_meta_pixel_id"
+                       value="<?= Html::encode(Yii::$app->settings->get('analytics', 'meta_pixel_id', '')) ?>"
+                       placeholder="XXXXXXXXXXXXXXX">
+                <small style="color:var(--admin-text-secondary);font-size:12px">
+                    Получите в Meta Events Manager → Источники данных → Пиксель → ID (15–16 цифр).
+                </small>
+            </div>
             <button class="admin-btn admin-btn-primary" onclick="saveAnalytics()">
                 <i class="bi bi-save"></i> Сохранить аналитику
             </button>
@@ -266,10 +275,11 @@ $this->params['headerActions'] = [];
 function saveAnalytics() {
     const ga4 = document.getElementById('analytics_ga4_id').value.trim();
     const metrika = document.getElementById('analytics_metrika_id').value.trim();
+    const metaPixel = document.getElementById('analytics_meta_pixel_id').value.trim();
     fetch('<?= \yii\helpers\Url::to(['/admin/settings/save']) ?>', {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content},
-        body: JSON.stringify({section: 'analytics', data: {ga4_id: ga4, metrika_id: metrika}})
+        body: JSON.stringify({section: 'analytics', data: {ga4_id: ga4, metrika_id: metrika, meta_pixel_id: metaPixel}})
     }).then(r => r.json()).then(d => {
         document.getElementById('analyticsResult').innerHTML = d.success
             ? '<span style="color:var(--admin-success)"><i class="bi bi-check-circle"></i> Сохранено</span>'
