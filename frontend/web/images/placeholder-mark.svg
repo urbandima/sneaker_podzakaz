@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" role="img" aria-label="СНИКЕРХЭД">
+  <rect width="240" height="180" fill="#F0F0F0"/>
+  <g fill="none" stroke="#0F0F0F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M48 108 L60 80 L82 76 L96 92 L122 96 L140 92 L162 100 L186 110 L196 120 L196 128 L48 128 Z"/>
+    <path d="M60 80 L72 70 L86 72"/>
+    <path d="M96 92 L108 86 L122 96"/>
+    <path d="M140 92 L152 100"/>
+    <line x1="48" y1="128" x2="196" y2="128"/>
+    <circle cx="68" cy="128" r="4" fill="#0F0F0F"/>
+    <circle cx="178" cy="128" r="4" fill="#0F0F0F"/>
+  </g>
+  <text x="120" y="158" text-anchor="middle"
+        font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700"
+        letter-spacing="2.5" fill="#0F0F0F">СНИКЕРХЭД</text>
+</svg>

@@ -122,14 +122,13 @@ $brands = $brands ?? [];
                         if ($fp) $catImg = $fp->main_image_url;
                     } catch (\Throwable $e) {}
                 }
-                $catInitial = mb_strtoupper(mb_substr($category->name, 0, 1));
             ?>
             <a href="<?= $category->getUrl() ?>" class="category-card">
                 <div class="category-image">
                     <?php if ($catImg): ?>
                         <img src="<?= Html::encode($catImg) ?>" alt="<?= Html::encode($category->name) ?>" loading="lazy">
                     <?php else: ?>
-                        <div class="category-placeholder" aria-label="<?= Html::encode($category->name) ?>"><?= Html::encode($catInitial) ?></div>
+                        <div class="category-placeholder" role="img" aria-label="<?= Html::encode($category->name) ?>"></div>
                     <?php endif; ?>
                 </div>
                 <div class="category-overlay">
@@ -334,6 +333,7 @@ $brands = $brands ?? [];
             <noscript>
                 <div class="instagram-grid">
                     <?php
+                    $webRoot = Yii::getAlias('@webroot');
                     $instagramImages = [
                         '/images/instagram/adidas-originals-samba-og-69073567c268b.jpg',
                         '/images/instagram/air-jordan-1-low-wolf-grey-6907356878f09.jpg',
@@ -342,9 +342,17 @@ $brands = $brands ?? [];
                         '/images/instagram/air-jordan-1-low-wolf-grey-69073581c7e1b.jpg',
                         '/images/instagram/jordan-1-retro-high.jpg',
                     ];
-                    foreach ($instagramImages as $i => $img): ?>
+                    foreach ($instagramImages as $i => $img):
+                        $exists = is_file($webRoot . $img);
+                    ?>
                     <a href="https://www.instagram.com/sneakerhead_belarus/" target="_blank" rel="noopener noreferrer" class="instagram-item">
-                        <img src="<?= $img ?>" alt="Sneakerhead Belarus в Instagram" class="instagram-image" loading="lazy">
+                        <?php if ($exists): ?>
+                            <img src="<?= $img ?>" alt="Sneakerhead Belarus в Instagram"
+                                 class="instagram-image" loading="lazy"
+                                 onerror="this.parentElement.classList.add('instagram-item--empty');this.remove()">
+                        <?php else: ?>
+                            <div class="instagram-item__placeholder" role="img" aria-label="Sneakerhead Belarus"></div>
+                        <?php endif; ?>
                         <div class="instagram-overlay"><i class="bi bi-instagram"></i></div>
                     </a>
                     <?php endforeach; ?>
