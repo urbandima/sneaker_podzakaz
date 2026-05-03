@@ -8,6 +8,7 @@
 /** @var array $europochtaPoints       Пункты выдачи Европочты из DB */
 /** @var string $pickupAddress         Адрес самовывоза из DB */
 /** @var float  $freeDeliveryThreshold Порог бесплатной доставки из DB */
+/** @var bool   $hasFavorites          Есть ли у вошедшего пользователя избранное */
 
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -19,6 +20,24 @@ $this->title = 'Оформление заказа';
 
 $createUrl = Url::to(['/order/create']);
 $csrfToken = Yii::$app->request->csrfToken;
+$hasFavorites = $hasFavorites ?? false;
+
+// Empty cart recovery state — gate before any checkout chrome.
+if (empty($items)) {
+    echo '<div class="checkout-page checkout-page--empty"><div class="container">';
+    echo $this->render('/partials/_empty_state', [
+        'icon'           => 'bi-bag-x',
+        'title'          => 'Корзина пуста',
+        'message'        => 'Похоже, вы попали сюда по устаревшей ссылке или удалили все товары. Вернитесь в каталог и подберите что-нибудь подходящее.',
+        'actionUrl'      => Url::to(['/catalog']),
+        'actionLabel'    => 'Перейти в каталог',
+        'secondaryUrl'   => $hasFavorites ? Url::to(['/catalog/favorites']) : '',
+        'secondaryLabel' => $hasFavorites ? 'Посмотреть избранное' : '',
+        'cssClass'       => 'empty-state--checkout',
+    ]);
+    echo '</div></div>';
+    return;
+}
 
 // Russian plural for "товар"
 $cnt = count($items);

@@ -36,19 +36,18 @@ class OrderController extends Controller
         $europochtaPoints      = [];
         $paymentMethods        = [];
         $freeDeliveryThreshold = 100;
+        $hasFavorites          = false;
 
         try {
             $items = Cart::getItems();
             $total = Cart::getTotal();
 
-            if (empty($items)) {
-                Yii::$app->session->setFlash('warning', 'Корзина пуста. Добавьте товары перед оформлением заказа.');
-                return $this->redirect(['/catalog']);
-            }
-
             $customerId = Yii::$app->session->get('customer_id');
             if ($customerId) {
                 $customer = \app\backend\modules\account\models\Customer::findOne($customerId);
+                if (empty($items)) {
+                    $hasFavorites = (int) \app\backend\modules\catalog\models\ProductFavorite::getCount($customerId) > 0;
+                }
             }
 
             $rawShipping = Yii::$app->settings->get('checkout', 'shipping_methods');
@@ -94,6 +93,7 @@ class OrderController extends Controller
             'pickupWorkTime'        => $pickupWorkTime ?? 'Пн-Вс: 10:00-22:00',
             'paymentMethods'        => $paymentMethods ?? [],
             'freeDeliveryThreshold' => $freeDeliveryThreshold ?? 100,
+            'hasFavorites'          => $hasFavorites,
         ]);
     }
 
