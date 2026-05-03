@@ -575,13 +575,56 @@ var selectedPvz       = '';
 var csrfToken         = <?= json_encode($csrfToken) ?>;
 var createUrl         = <?= json_encode($createUrl) ?>;
 
-// Meta Pixel: InitiateCheckout (no-op when fbq is not initialized — settings-gated in layout)
+// Analytics begin_checkout: GA4 + Y.Metrika ecommerce.checkout + Meta InitiateCheckout.
+// Все три тега settings-gated в layout — отсутствие конфигов делает emit no-op.
+<?php
+$ga4Items = array_map(function($i) {
+    $p = $i->product;
+    $row = [
+        'item_id'   => (string)($p->id ?? ''),
+        'item_name' => $p ? ($p->name ?? '') : '',
+        'price'     => (float)$i->price,
+        'quantity'  => (int)$i->quantity,
+    ];
+    if ($p && !empty($p->brand?->name))    { $row['item_brand']    = $p->brand->name; }
+    if ($p && !empty($p->category?->name)) { $row['item_category'] = $p->category->name; }
+    return $row;
+}, $items);
+$ymItems = array_map(function($i) {
+    $p = $i->product;
+    $row = [
+        'id'       => (string)($p->id ?? ''),
+        'name'     => $p ? ($p->name ?? '') : '',
+        'price'    => (float)$i->price,
+        'quantity' => (int)$i->quantity,
+    ];
+    if ($p && !empty($p->brand?->name))    { $row['brand']    = $p->brand->name; }
+    if ($p && !empty($p->category?->name)) { $row['category'] = $p->category->name; }
+    return $row;
+}, $items);
+$numItems = (int)array_sum(array_map(fn($i) => (int)$i->quantity, $items));
+$contentIds = array_map(fn($i) => (string)($i->product->id ?? ''), $items);
+?>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+    ecommerce: {
+        currencyCode: 'BYN',
+        checkout: { products: <?= json_encode($ymItems, JSON_UNESCAPED_UNICODE) ?> }
+    }
+});
+if (typeof gtag === 'function') {
+    gtag('event', 'begin_checkout', {
+        currency: 'BYN',
+        value:    orderTotal,
+        items:    <?= json_encode($ga4Items, JSON_UNESCAPED_UNICODE) ?>
+    });
+}
 if (typeof fbq === 'function') {
     fbq('track', 'InitiateCheckout', {
         value:        orderTotal,
         currency:     'BYN',
-        num_items:    <?= (int)array_sum(array_map(fn($i) => (int)$i->quantity, $items)) ?>,
-        content_ids:  <?= json_encode(array_map(fn($i) => (string)($i->product->id ?? ''), $items)) ?>,
+        num_items:    <?= $numItems ?>,
+        content_ids:  <?= json_encode($contentIds) ?>,
         content_type: 'product'
     });
 }
@@ -892,21 +935,27 @@ function submitOrder() {
             document.getElementById('successModal').classList.add('active');
             document.body.style.overflow = 'hidden';
 
-            // GA4 purchase event
+            // Analytics purchase: GA4 + Y.Metrika ecommerce.purchase. Y.Metrika ждёт
+            // dataLayer.push с actionField.id = transaction_id и products[].
+            var purchaseValue = orderTotal + orderDeliveryCost - orderDiscount;
+            var transactionId = data.order_number || data.order_id;
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                ecommerce: {
+                    currencyCode: 'BYN',
+                    purchase: {
+                        actionField: { id: String(transactionId), revenue: purchaseValue, shipping: orderDeliveryCost },
+                        products: <?= json_encode($ymItems, JSON_UNESCAPED_UNICODE) ?>
+                    }
+                }
+            });
             if (typeof gtag === 'function') {
                 gtag('event', 'purchase', {
-                    transaction_id: data.order_number || data.order_id,
-                    value: orderTotal + orderDeliveryCost - orderDiscount,
+                    transaction_id: transactionId,
+                    value: purchaseValue,
                     currency: 'BYN',
                     shipping: orderDeliveryCost,
-                    items: <?= json_encode(array_map(function($item) {
-                        return [
-                            'item_id' => $item->product ? $item->product->id : '',
-                            'item_name' => $item->product ? $item->product->name : '',
-                            'price' => (float)$item->price,
-                            'quantity' => (int)$item->quantity,
-                        ];
-                    }, $items), JSON_UNESCAPED_UNICODE) ?>
+                    items: <?= json_encode($ga4Items, JSON_UNESCAPED_UNICODE) ?>
                 });
             }
 

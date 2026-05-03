@@ -62,6 +62,15 @@ class CartController extends Controller
                 'message' => 'Товар добавлен в корзину',
                 'positions' => Cart::getPositionsCount(), 'count' => Cart::getItemsCount(),
                 'total' => Cart::getTotal(),
+                'product' => [
+                    'id'       => (string)$product->id,
+                    'name'     => $product->getDisplayTitle() ?: $product->name,
+                    'price'    => (float)$product->price,
+                    'currency' => 'BYN',
+                    'brand'    => $product->brand?->name ?? '',
+                    'category' => $product->category?->name ?? '',
+                    'quantity' => (int)$quantity,
+                ],
             ];
         }
 

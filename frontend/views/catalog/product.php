@@ -153,15 +153,38 @@ $this->registerJs('window.schemaData = ' . Json::encode($schemaData), \yii\web\V
 $this->registerJsVar('productData', $priceData);
 $this->registerJsVar('schemaData', $schemaData);
 
-// Meta Pixel: ViewContent (no-op when fbq is not initialized — settings-gated in layout)
-$metaPixelPayload = Json::encode([
+// Analytics: view_item (GA4 + Y.Metrika ecommerce.detail) и Meta Pixel ViewContent.
+// Все три тега settings-gated в layout — отсутствие конфигов делает emit no-op.
+$viewItemValue = (float)($productPriceView['currentPrice'] ?? $product->price ?? 0);
+$brandName     = $product->brand?->name ?? ($product->brand_name ?? '');
+$categoryName  = $product->category?->name ?? ($product->category_name ?? '');
+$ga4Item = [
+    'item_id'    => (string)$productId,
+    'item_name'  => $productTitle,
+    'price'      => $viewItemValue,
+    'quantity'   => 1,
+];
+if ($brandName !== '')    { $ga4Item['item_brand']    = $brandName; }
+if ($categoryName !== '') { $ga4Item['item_category'] = $categoryName; }
+$ga4Payload    = Json::encode(['currency' => 'BYN', 'value' => $viewItemValue, 'items' => [$ga4Item]], JSON_UNESCAPED_UNICODE);
+$ymProduct = ['id' => (string)$productId, 'name' => $productTitle, 'price' => $viewItemValue, 'quantity' => 1];
+if ($brandName !== '')    { $ymProduct['brand']    = $brandName; }
+if ($categoryName !== '') { $ymProduct['category'] = $categoryName; }
+$ymPayload     = Json::encode(['ecommerce' => ['currencyCode' => 'BYN', 'detail' => ['products' => [$ymProduct]]]], JSON_UNESCAPED_UNICODE);
+$metaPayload   = Json::encode([
     'content_ids'  => [(string)$productId],
     'content_name' => $productTitle,
     'content_type' => 'product',
-    'value'        => (float)($productPriceView['currentPrice'] ?? $product->price ?? 0),
+    'value'        => $viewItemValue,
     'currency'     => 'BYN',
 ], JSON_UNESCAPED_UNICODE);
-$this->registerJs("if(typeof fbq==='function'){fbq('track','ViewContent',{$metaPixelPayload});}", \yii\web\View::POS_END);
+$this->registerJs(
+    "window.dataLayer=window.dataLayer||[];"
+    . "window.dataLayer.push({$ymPayload});"
+    . "if(typeof gtag==='function'){gtag('event','view_item',{$ga4Payload});}"
+    . "if(typeof fbq==='function'){fbq('track','ViewContent',{$metaPayload});}",
+    \yii\web\View::POS_END
+);
 
 // Подключение модальных окон
 $this->registerJsFile('/js/product-modals.js', [

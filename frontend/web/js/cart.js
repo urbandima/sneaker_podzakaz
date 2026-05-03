@@ -2,7 +2,51 @@
  * Функционал корзины - Vanilla JS (без jQuery)
  * Использует SH.* утилиты из utils.js
  */
-/* global fbq */
+/* global fbq, gtag */
+
+// Аналитика add_to_cart: GA4 + Y.Metrika ecommerce + Meta Pixel.
+// Источник правды по name/price/brand/category — JSON-ответ /cart/add (поле product).
+// Fallback — window.productData (страница товара) на случай старого кэша.
+function emitAddToCart(productId, quantity, productInfo) {
+    var qty = parseInt(quantity, 10) || 1;
+    var pd = productInfo || null;
+    if (!pd && window.productData) {
+        var rawPrice = (window.productData.price || '').toString().replace(/[^\d.,-]/g, '').replace(',', '.');
+        var num = parseFloat(rawPrice);
+        pd = {
+            id:    String(productId),
+            name:  window.productData.productName || '',
+            price: !isNaN(num) ? num : 0,
+        };
+    }
+    var name  = (pd && pd.name)  || '';
+    var price = (pd && typeof pd.price === 'number') ? pd.price : 0;
+    var value = price * qty;
+
+    var ga4Item = { item_id: String(productId), item_name: name, price: price, quantity: qty };
+    if (pd && pd.brand)    ga4Item.item_brand    = pd.brand;
+    if (pd && pd.category) ga4Item.item_category = pd.category;
+    if (typeof gtag === 'function') {
+        gtag('event', 'add_to_cart', { currency: 'BYN', value: value, items: [ga4Item] });
+    }
+
+    var ymProduct = { id: String(productId), name: name, price: price, quantity: qty };
+    if (pd && pd.brand)    ymProduct.brand    = pd.brand;
+    if (pd && pd.category) ymProduct.category = pd.category;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ ecommerce: { currencyCode: 'BYN', add: { products: [ymProduct] } } });
+
+    if (typeof fbq === 'function') {
+        var fbPayload = {
+            content_ids:  [String(productId)],
+            content_type: 'product',
+            currency:     'BYN',
+        };
+        if (name)      fbPayload.content_name = name;
+        if (value > 0) fbPayload.value        = value;
+        fbq('track', 'AddToCart', fbPayload);
+    }
+}
 
 // Cart Drawer Functions
 function openCartDrawer() {
@@ -63,21 +107,7 @@ function addToCart(productId, quantity = 1, size = null, color = null) {
             if (data.success) {
                 updateCartCount(data.count, data.positions);
                 openCartDrawer();
-                if (typeof fbq === 'function') {
-                    var payload = {
-                        content_ids:  [String(productId)],
-                        content_type: 'product',
-                        currency:     'BYN',
-                    };
-                    var pd = window.productData;
-                    if (pd) {
-                        if (pd.productName) payload.content_name = pd.productName;
-                        var rawPrice = (pd.price || '').toString().replace(/[^\d.,-]/g, '').replace(',', '.');
-                        var num = parseFloat(rawPrice);
-                        if (!isNaN(num) && num > 0) payload.value = num * (parseInt(quantity, 10) || 1);
-                    }
-                    fbq('track', 'AddToCart', payload);
-                }
+                emitAddToCart(productId, quantity, data.product);
             } else {
                 SH.notify(data.message || 'Ошибка добавления', 'error');
             }
