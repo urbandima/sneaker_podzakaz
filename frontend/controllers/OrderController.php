@@ -119,6 +119,7 @@ class OrderController extends Controller
         $delivery = trim(Yii::$app->request->post('delivery', ''));
         $address  = trim(strip_tags(Yii::$app->request->post('address', '')));
         $comment  = trim(strip_tags(Yii::$app->request->post('comment', '')));
+        $payment  = trim(strip_tags(Yii::$app->request->post('payment', '')));
 
         // Список допустимых методов доставки
         $allowedDeliveryMethods = ['pickup_minsk', 'courier_minsk', 'europochta', 'belpochta', 'sdek'];
@@ -178,6 +179,7 @@ class OrderController extends Controller
             $order->client_email = $email;
             $order->delivery_country = $country;
             $order->delivery_method = $delivery;
+            $order->payment_method = $payment !== '' ? $payment : null;
             $order->delivery_address = $address ?? '';
             $order->comment = $comment;
             $order->status = 'new';

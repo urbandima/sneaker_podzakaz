@@ -111,6 +111,7 @@ class OrderController extends Controller
         $address = Yii::$app->request->post('address');
         $pickupPoint = Yii::$app->request->post('pickup_point'); // Europochta PVZ
         $comment = Yii::$app->request->post('comment');
+        $payment = Yii::$app->request->post('payment');
         
         // Купон и баллы лояльности
         $couponCode = Yii::$app->request->post('coupon_code');
@@ -168,6 +169,7 @@ class OrderController extends Controller
             $order->client_email = $email;
             $order->delivery_country = $country;
             $order->delivery_method = $delivery;
+            $order->payment_method = ($payment !== null && $payment !== '') ? $payment : null;
             $order->delivery_address = $address ?? '';
             // Save Europochta PVZ as pickup_point (if model has the field)
             if ($pickupPoint && $order->hasAttribute('pickup_point')) {
