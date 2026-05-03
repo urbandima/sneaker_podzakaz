@@ -19,7 +19,13 @@ use yii\helpers\Url;
     <form id="passport-form" class="passport-form" novalidate>
         <input type="hidden" name="_csrf" value="<?= Yii::$app->request->csrfToken ?>">
 
-        <div class="passport-section-title">ФИО получателя</div>
+        <!-- ── Step 1 — ФИО + дата рождения ── -->
+        <div class="form-step">
+            <span class="form-step__counter">1</span>
+            <span class="form-step__title">ФИО и дата рождения</span>
+            <span class="form-step__hint">Шаг 1 из 3</span>
+        </div>
+
         <div class="passport-row">
             <div class="passport-field">
                 <label>Фамилия <span class="req">*</span></label>
@@ -53,26 +59,26 @@ use yii\helpers\Url;
             </div>
         </div>
 
-        <div class="passport-section-title">Паспорт</div>
+        <!-- ── Step 2 — Паспорт ── -->
+        <div class="form-step">
+            <span class="form-step__counter">2</span>
+            <span class="form-step__title">Паспорт</span>
+            <span class="form-step__hint">Шаг 2 из 3</span>
+        </div>
+
         <div class="passport-row">
-            <div class="passport-field">
-                <label>Серия <span class="req">*</span></label>
-                <input type="text" id="pf_passport_series" name="passport_series"
-                       value="<?= Html::encode($order->passport_series ?? '') ?>"
-                       maxlength="4" required placeholder="AB"
-                       pattern="[A-Z]{2,4}" autocomplete="off" spellcheck="false"
-                       oninput="this.value=this.value.replace(/[^A-Za-z]/g,'').toUpperCase().slice(0,4)">
-                <small>2–4 лат. буквы</small>
-                <span class="field-error" id="err_passport_series"></span>
-            </div>
-            <div class="passport-field">
-                <label>Номер <span class="req">*</span></label>
-                <input type="text" id="pf_passport_number" name="passport_number"
-                       value="<?= Html::encode($order->passport_number ?? '') ?>"
-                       maxlength="7" required placeholder="1234567">
-                <small>6–7 цифр</small>
-                <span class="field-error" id="err_passport_number"></span>
-            </div>
+            <!-- BY combined Серия+Номер via canonical partial -->
+            <?= $this->render('../partials/_passport_field', [
+                'id'          => 'pf_passport_series',
+                'name'        => 'passport_series',
+                'value'       => $order->passport_series ?? '',
+                'errorId'     => 'err_passport_series',
+                'required'    => true,
+                'labelClass'  => 'passport-field passport-field--wide',
+                'inputClass'  => 'passport-input--mono',
+                'errorClass'  => 'field-error',
+                'hintClass'   => '',
+            ]) ?>
             <div class="passport-field">
                 <label>Дата выдачи <span class="req">*</span></label>
                 <input type="date" id="pf_passport_issue_date" name="passport_issue_date"
@@ -81,15 +87,22 @@ use yii\helpers\Url;
                 <span class="field-error" id="err_passport_issue_date"></span>
             </div>
             <div class="passport-field">
-                <label>ИНН (12 цифр) <span class="req">*</span></label>
+                <label>Идентификационный номер <span class="req">*</span></label>
                 <input type="text" id="pf_inn" name="inn"
                        value="<?= Html::encode($order->inn ?? '') ?>"
-                       maxlength="12" required placeholder="ИНН (только для РФ)">
+                       maxlength="14" required placeholder="14 символов">
+                <small>14 символов (буквы и цифры)</small>
                 <span class="field-error" id="err_inn"></span>
             </div>
         </div>
 
-        <div class="passport-section-title">Адрес доставки</div>
+        <!-- ── Step 3 — Адрес доставки ── -->
+        <div class="form-step">
+            <span class="form-step__counter">3</span>
+            <span class="form-step__title">Адрес доставки</span>
+            <span class="form-step__hint">Шаг 3 из 3</span>
+        </div>
+
         <div class="passport-row">
             <div class="passport-field passport-field--wide">
                 <label>Полный адрес <span class="req">*</span></label>
@@ -130,142 +143,9 @@ use yii\helpers\Url;
     </form>
 </div>
 
-<style>
-.passport-card {
-    border-left: 4px solid #4472C4;
-}
-
-.passport-hint {
-    font-size: 13px;
-    color: #6c757d;
-    background: #fff8e1;
-    padding: 10px 14px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.passport-section-title {
-    font-size: 11px;
-    font-weight: 700;
-    color: #9ca3af;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin: 20px 0 12px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.passport-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 14px;
-    margin-bottom: 4px;
-}
-
-.passport-field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.passport-field--wide {
-    grid-column: 1 / -1;
-}
-
-.passport-field label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #374151;
-}
-
-.passport-field .req {
-    color: #ef4444;
-}
-
-.passport-field input {
-    padding: 9px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 13px;
-    color: #111827;
-    background: #fff;
-    transition: border-color 0.15s;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.passport-field input:focus {
-    outline: none;
-    border-color: #4472C4;
-    box-shadow: 0 0 0 3px rgba(68, 114, 196, 0.12);
-}
-
-.passport-field input.is-invalid {
-    border-color: #ef4444;
-}
-
-.passport-field small {
-    font-size: 11px;
-    color: #9ca3af;
-}
-
-.field-error {
-    font-size: 11px;
-    color: #ef4444;
-    min-height: 14px;
-}
-
-.passport-actions {
-    margin-top: 20px;
-}
-
-.passport-actions button {
-    padding: 11px 24px;
-    background: #1a1a2e;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.2s;
-}
-
-.passport-actions button:hover {
-    background: #2d2d44;
-}
-
-.passport-actions button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.passport-msg {
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    margin-bottom: 14px;
-}
-
-.passport-msg-success {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.passport-msg-error {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-@media (max-width: 600px) {
-    .passport-row {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
+<?php
+// Styles live in frontend/web/css/components/passport-form.css (registered via AppAsset).
+?>
 
 <?php
 $saveUrl = \yii\helpers\Url::to(['/account/save-passport', 'id' => $order->id]);
@@ -291,6 +171,22 @@ $this->registerJs(<<<JS
         if (inEl) inEl.classList.add('is-invalid');
     }
 
+    // INN: alphanumeric, max 14, auto-uppercase.
+    var innInput = document.getElementById('pf_inn');
+    if (innInput) {
+        innInput.addEventListener('input', function() {
+            var v = this.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 14);
+            if (v !== this.value) this.value = v;
+        });
+    }
+    var postalInput = document.getElementById('pf_postal_code');
+    if (postalInput) {
+        postalInput.addEventListener('input', function() {
+            var v = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+            if (v !== this.value) this.value = v;
+        });
+    }
+
     function validate() {
         clearErrors();
         var ok = true;
@@ -298,25 +194,29 @@ $this->registerJs(<<<JS
             ['last_name', 'Фамилия'],
             ['first_name', 'Имя'],
             ['birth_date', 'Дата рождения'],
-            ['passport_series', 'Серия паспорта'],
-            ['passport_number', 'Номер паспорта'],
+            ['passport_series', 'Серия+Номер паспорта'],
             ['passport_issue_date', 'Дата выдачи'],
-            ['inn', 'ИНН'],
+            ['inn', 'Идентификационный номер'],
             ['full_address', 'Адрес'],
             ['city', 'Город'],
-            ['postal_code', 'Индекс'],
+            ['postal_code', 'Индекс']
         ].forEach(function(f) {
             var el = document.getElementById('pf_' + f[0]);
             if (el && !el.value.trim()) { fieldErr(f[0], f[1] + ' обязателен'); ok = false; }
         });
 
-        var inn = document.getElementById('pf_inn');
-        if (inn && inn.value && !/^[0-9]{12}$/.test(inn.value)) {
-            fieldErr('inn', 'ИНН — 12 цифр'); ok = false;
+        var seriesEl = document.getElementById('pf_passport_series');
+        if (seriesEl && seriesEl.value) {
+            var val = seriesEl.value.toUpperCase();
+            if (window.PassportFormat && !window.PassportFormat.validate(val)) {
+                fieldErr('passport_series', 'Формат: 2 латинские буквы + 7 цифр (например MP1234567)');
+                ok = false;
+            }
         }
-        var num = document.getElementById('pf_passport_number');
-        if (num && num.value && !/^[0-9]{6,7}$/.test(num.value)) {
-            fieldErr('passport_number', '6–7 цифр'); ok = false;
+
+        var inn = document.getElementById('pf_inn');
+        if (inn && inn.value && inn.value.length !== 14) {
+            fieldErr('inn', 'Идентификационный номер: ровно 14 символов'); ok = false;
         }
         return ok;
     }

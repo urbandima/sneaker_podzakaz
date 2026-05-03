@@ -1,0 +1,177 @@
+/* ==============================================
+   PASSPORT FORM — shared styles for /order, /account, /admin
+   Source of truth: this file. Inline <style> in
+   _passport_form.php has been removed (CMP-27).
+   Tokens: --color-{border,accent,danger,success,warning,info,*}-,
+           --space-{1..6}, --radius-{sm,md}, --shadow-sm, --font-mono.
+   ============================================== */
+
+/* ── Citizenship selector (order form only) ─────────────── */
+.citizenship-radios {
+    display: flex;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+    flex-wrap: wrap;
+}
+.citizenship-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    background: var(--color-bg-primary);
+    transition: border-color .15s ease, background .15s ease;
+    user-select: none;
+}
+.citizenship-option input[type=radio] { display: none; }
+.citizenship-option--active,
+.citizenship-option:has(input:checked) {
+    border-color: var(--color-accent);
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+}
+
+/* ── Top hint banner ───────────────────────────────────── */
+.passport-form-hint {
+    color: var(--color-text-secondary);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-5);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-warning-bg);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--color-warning);
+}
+
+/* ── Order-form grid layout ────────────────────────────── */
+.passport-form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-2);
+}
+.passport-form-group { display: flex; flex-direction: column; gap: var(--space-2); }
+.passport-form-group--full,
+.passport-form-group--wide { grid-column: 1 / -1; }
+.passport-form-group label { font-size: var(--text-sm); font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+.passport-form-group label .required { color: var(--color-danger); }
+
+.passport-form-input {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--color-text-primary);
+    background: var(--color-bg-primary);
+    transition: border-color .2s, box-shadow .2s;
+    width: 100%;
+    box-sizing: border-box;
+}
+.passport-form-input--mono {
+    font-family: var(--font-mono);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+.passport-form-input:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(0,0,0,.10); }
+.passport-form-input.is-invalid { border-color: var(--color-danger); }
+.passport-form-hint-field { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: calc(var(--space-1) * -1); }
+.passport-form-error { font-size: var(--text-xs); color: var(--color-danger); min-height: 1rem; }
+
+.passport-form-actions { display: flex; gap: var(--space-3); align-items: center; margin-top: var(--space-5); }
+.btn-passport-submit { padding: var(--space-3) var(--space-6); font-size: var(--text-base); font-weight: var(--font-weight-semibold); }
+.btn-passport-submit:disabled { opacity: .6; cursor: not-allowed; }
+
+.passport-alert {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-4);
+    font-size: var(--text-sm);
+}
+.passport-alert-success { background: var(--color-success-bg); color: var(--color-success); border: 1px solid var(--color-success); }
+.passport-alert-error   { background: var(--color-danger-bg);  color: var(--color-danger);  border: 1px solid var(--color-danger); }
+
+@media (max-width: 768px) {
+    .passport-form-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Account-form (compact card variant) ───────────────── */
+.passport-card {
+    border-left: 4px solid var(--color-accent);
+}
+.passport-hint {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    background: var(--color-warning-bg);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-5);
+}
+.passport-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-1);
+}
+.passport-field { display: flex; flex-direction: column; gap: var(--space-1); }
+.passport-field--wide { grid-column: 1 / -1; }
+.passport-field label { font-size: var(--text-xs); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); }
+.passport-field .req { color: var(--color-danger); }
+.passport-field input {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--color-text-primary);
+    background: var(--color-bg-primary);
+    transition: border-color .15s;
+    width: 100%;
+    box-sizing: border-box;
+}
+.passport-input--mono {
+    font-family: var(--font-mono);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+.passport-field input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(0,0,0,.08);
+}
+.passport-field input.is-invalid { border-color: var(--color-danger); }
+.passport-field small { font-size: var(--text-xs); color: var(--color-text-muted); }
+.field-error { font-size: var(--text-xs); color: var(--color-danger); min-height: 1rem; }
+
+.passport-actions { margin-top: var(--space-5); }
+.passport-actions button {
+    padding: var(--space-3) var(--space-6);
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    transition: background .2s;
+}
+.passport-actions button:hover { background: var(--color-accent-hover); }
+.passport-actions button:disabled { opacity: .6; cursor: not-allowed; }
+
+.passport-msg {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-4);
+}
+.passport-msg-success { background: var(--color-success-bg); color: var(--color-success); }
+.passport-msg-error   { background: var(--color-danger-bg);  color: var(--color-danger); }
+
+@media (max-width: 600px) {
+    .passport-row { grid-template-columns: 1fr; }
+}
