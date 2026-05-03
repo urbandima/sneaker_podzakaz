@@ -101,3 +101,6 @@ cookies.txt
 
 # Ad-hoc local test/debug scripts
 /test_*.php
+
+# Paperclip-managed worktrees and runtime data
+.paperclip/
