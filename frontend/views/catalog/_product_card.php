@@ -42,18 +42,22 @@ $hasPrice = ($priceView['showRange'] && $priceView['minPrice'] && $priceView['ma
             <img src="<?= Html::encode($galleryImages[0]) ?>"
                  class="product-image primary"
                  alt="<?= Html::encode($product->name) ?>"
+                 width="600" height="600"
                  loading="<?= $isCriticalCard ? 'eager' : 'lazy' ?>"
+                 decoding="<?= $isCriticalCard ? 'sync' : 'async' ?>"
                  <?= $isCriticalCard ? 'fetchpriority="high"' : '' ?>
                  onerror="this.src='/images/placeholder.png';this.onerror=null;">
             <?php if (isset($galleryImages[1])): ?>
             <img src="<?= Html::encode($galleryImages[1]) ?>"
                  class="product-image secondary"
                  alt="<?= Html::encode($product->name) ?> - вид 2"
+                 width="600" height="600"
                  loading="lazy"
+                 decoding="async"
                  onerror="this.src='/images/placeholder.png';this.onerror=null;">
             <?php endif; ?>
             <?php else: ?>
-            <img src="/images/placeholder.png" class="product-image primary" alt="<?= Html::encode($product->name) ?>">
+            <img src="/images/placeholder.png" class="product-image primary" alt="<?= Html::encode($product->name) ?>" width="600" height="600">
             <?php endif; ?>
         </a>
         

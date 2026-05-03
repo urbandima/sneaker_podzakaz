@@ -1,0 +1,446 @@
+
+<!DOCTYPE html>
+<html lang="ru-RU" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-param" content="_csrf">
+<meta name="csrf-token" content="_iImmjQ2EJctUkpm84g6eHAs5mbgEPQwDd9oLybRmHGKUETAVVJd80QwGy2KxQofIxjQFthVugB48h4XXLDUBA==">
+    <title>Оформление заказа</title>
+    <link href="/css/pages/checkout.css?v=1777785396" rel="stylesheet">
+<link href="/css/core/design-tokens.css?v=1776929535" rel="stylesheet">
+<link href="/css/core/design-system.css?v=1776929535" rel="stylesheet">
+<link href="/css/core/container-system.css?v=1776026686" rel="stylesheet">
+<link href="/css/layout/public-layout.css?v=1777202782" rel="stylesheet">
+<link href="/css/layout/responsive-fixes.css?v=1776026686" rel="stylesheet">
+<link href="/css/components/header.css?v=1776929535" rel="stylesheet">
+<link href="/css/components/sidebar-menu.css?v=1775904938" rel="stylesheet">
+<link href="/css/components/footer.css?v=1777229921" rel="stylesheet">
+<link href="/css/components/cart-drawer.css?v=1774897073" rel="stylesheet">
+<link href="/css/components/product-card.css?v=1776929535" rel="stylesheet">
+<link href="/css/components/modals.css?v=1777784696" rel="stylesheet">
+<link href="/css/components/micro-interactions.css?v=1775904938" rel="stylesheet">
+<link href="/css/components/choice-card.css?v=1777783428" rel="stylesheet">
+<link href="/css/components/form-step.css?v=1777783654" rel="stylesheet">
+<link href="/css/components/passport-form.css?v=1777784536" rel="stylesheet">    
+            
+        <link rel="alternate" hreflang="ru-BY" href="http://127.0.0.1:8765/checkout">
+    <link rel="alternate" hreflang="x-default" href="http://127.0.0.1:8765/checkout">
+    
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://images.unsplash.com">
+        <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>
+
+            </head>
+<body data-is-guest="1">
+
+<!-- Admin toolbar (X20: visible only to authenticated admins) -->
+
+<!-- Skip to main content (a11y) -->
+<a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
+
+<!-- Header -->
+<header class="main-header">
+    <div class="header-content">
+        <!-- Logo -->
+        <a href="/" class="logo">
+            <img src="/images/logo.png" alt="ООО &quot;СникерКультура&quot;">
+        </a>
+        
+        <!-- Navigation -->
+        <nav class="main-nav">
+            <!-- Burger — desktop opens mega-menu, mobile opens drawer -->
+            <button class="nav-burger" id="navBurger" onclick="toggleBurgerMenu(event)" aria-label="Навигационное меню" aria-expanded="false" aria-controls="megaMenu mobileMenu">
+                <span class="nav-burger-lines">
+                    <span></span><span></span><span></span>
+                </span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="/catalog">Каталог</a></li>
+                <li><a href="/brands">Бренды</a></li>
+                <li><a href="/sale" class="text-sale">Скидки</a></li>
+                <li><a href="/about">О нас</a></li>
+                <li><a href="/contacts">Контакты</a></li>
+            </ul>
+        </nav>
+
+        <!-- Actions -->
+        <div class="header-actions">
+            <button class="btn-search" onclick="openSearch()" aria-label="Поиск товаров" aria-haspopup="dialog">
+                <i class="bi bi-search" aria-hidden="true"></i>
+            </button>
+
+            <a href="/account/wishlist" class="btn-wishlist" aria-label="Избранное">
+                <i class="bi bi-heart" aria-hidden="true"></i>
+                <span class="wishlist-counter header-badge d-none" role="status" aria-live="polite">0</span>
+            </a>
+
+            <a href="/checkout" class="btn-cart" aria-label="Корзина" onclick="event.preventDefault(); openCartDrawer();">
+                <i class="bi bi-cart3" aria-hidden="true"></i>
+                <span id="cartCount" class="cart-counter header-badge d-none" role="status" aria-live="polite">0</span>
+            </a>
+
+            <a href="/account" class="btn-account" aria-label="Личный кабинет">
+                <i class="bi bi-person" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main id="main-content">
+                <div class="checkout-page checkout-page--empty"><div class="container"><div class="empty-state empty-state--checkout">
+    <i class="bi bi-bag-x"></i>
+            <h3>Корзина пуста</h3>
+                <p>Похоже, вы попали сюда по устаревшей ссылке или удалили все товары. Вернитесь в каталог и подберите что-нибудь подходящее.</p>
+                <a href="/catalog" class="btn btn-primary">Перейти в каталог</a>
+        </div>
+</div></div></main>
+
+<!-- Footer -->
+
+<footer class="main-footer site-footer">
+    <div class="footer-main">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- О компании -->
+                <div class="footer-column">
+                    <div class="footer-brand">
+                        <img src="/images/logo.png" alt="ООО &quot;СникерКультура&quot;" class="footer-logo">
+                        <p class="footer-tagline">Оригинальные кроссовки из США и Европы</p>
+                    </div>
+
+                </div>
+
+                <!-- О компании -->
+                <div class="footer-column">
+                    <h3 class="footer-title">О компании</h3>
+                    <ul class="footer-links">
+                        <li><a href="/about">О нас</a></li>
+                        <li><a href="/contacts">Контакты</a></li>
+                        <li><a href="/offer-agreement">Договор оферты</a></li>
+                        <li><a href="/payment-instruction">Инструкция по оплате</a></li>
+                        <li><a href="/privacy">Политика конфиденциальности</a></li>
+                        <li><a href="/about">Реквизиты</a></li>
+                        <li style="margin-top:0.5rem"><a class="footer-director-link" href="/feedback"><i class="bi bi-chat-heart"></i>&nbsp; Написать директору</a></li>
+                    </ul>
+                </div>
+
+                <!-- Помощь -->
+                <div class="footer-column">
+                    <h3 class="footer-title">Помощь</h3>
+                    <ul class="footer-links">
+                        <li><a href="/payment-instruction">Инструкция по оплате</a></li>
+                        <li><a href="/payment-terms">Условия оплаты</a></li>
+                        <li><a href="/delivery-terms">Условия доставки</a></li>
+                        <li><a href="/return-policy">Возврат и обмен</a></li>
+                        <li><a href="/contacts">Часто задаваемые вопросы</a></li>
+                        <li><a href="/account/orders">Отслеживание заказа</a></li>
+                    </ul>
+                </div>
+
+                <!-- Каталог -->
+                <div class="footer-column">
+                    <h3 class="footer-title">Каталог</h3>
+                    <ul class="footer-links">
+                        <li><a href="/catalog">Все товары</a></li>
+                        <li><a href="/brands">Бренды</a></li>
+                        <li><a href="/catalog?category=sneakers">Кроссовки</a></li>
+                        <li><a href="/catalog?category=boots">Ботинки</a></li>
+                        <li><a href="/catalog?sort=sale">Распродажа</a></li>
+                        <li><a href="/catalog?sort=new">Новинки</a></li>
+                    </ul>
+                </div>
+
+                <!-- Контакты -->
+                <div class="footer-column">
+                    <h3 class="footer-title">Контакты</h3>
+                    <ul class="footer-contacts">
+                                                <li>
+                            <i class="bi bi-telephone"></i>
+                            <a href="tel:+375291234567">
+                                +375 29 123-45-67                            </a>
+                        </li>
+                                                                        <li>
+                            <i class="bi bi-envelope"></i>
+                            <a href="mailto:info@sneakerculture.by">
+                                info@sneakerculture.by                            </a>
+                        </li>
+                                                                        <li>
+                            <i class="bi bi-geo-alt"></i>
+                            <span>г. Минск, ул. Тестовая, д. 1</span>
+                        </li>
+                                                                    </ul>
+
+                                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <div class="container">
+            <div class="footer-bottom-content">
+                <div class="payment-methods">
+                    <span class="payment-label">Принимаем к оплате:</span>
+                    <div class="payment-icons">
+
+                        <!-- Visa — official colours #1A1F71 wordmark -->
+                        <span class="payment-icon payment-icon--visa" title="Visa" role="img" aria-label="Visa">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#1A1F71"/>
+                                <text x="390" y="330" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="280" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="-10">VISA</text>
+                            </svg>
+                        </span>
+
+                        <!-- Mastercard — two overlapping circles -->
+                        <span class="payment-icon payment-icon--mc" title="Mastercard" role="img" aria-label="Mastercard">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#252525"/>
+                                <circle cx="290" cy="250" r="160" fill="#EB001B"/>
+                                <circle cx="490" cy="250" r="160" fill="#F79E1B"/>
+                                <path d="M390 121a160 160 0 0 1 0 258 160 160 0 0 1 0-258z" fill="#FF5F00"/>
+                            </svg>
+                        </span>
+
+                        <!-- Белкарт — blue/red stripes wordmark -->
+                        <span class="payment-icon payment-icon--belcard" title="Белкарт" role="img" aria-label="Белкарт">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#FFFFFF"/>
+                                <rect y="0" width="780" height="167" rx="0" fill="#005BAA"/>
+                                <rect y="167" width="780" height="167" fill="#FFFFFF"/>
+                                <rect y="334" width="780" height="166" rx="0" fill="#C8102E"/>
+                                <text x="390" y="295" font-family="'Arial',sans-serif" font-size="150" font-weight="800" fill="#005BAA" text-anchor="middle" letter-spacing="2">БЕЛКАРТ</text>
+                            </svg>
+                        </span>
+
+                        <!-- Халва (Беларусбанк) — purple card -->
+                        <span class="payment-icon payment-icon--halva" title="Халва" role="img" aria-label="Халва">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#5B2D8E"/>
+                                <text x="390" y="310" font-family="'Arial',sans-serif" font-size="200" font-weight="900" fill="#FFFFFF" text-anchor="middle">Халва</text>
+                            </svg>
+                        </span>
+
+                        <!-- ЕРИП — green -->
+                        <span class="payment-icon payment-icon--erip" title="ЕРИП" role="img" aria-label="ЕРИП">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#009A44"/>
+                                <text x="390" y="330" font-family="'Arial',sans-serif" font-size="260" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="10">ЕРИП</text>
+                            </svg>
+                        </span>
+
+                    </div>
+                </div>
+
+                <div class="copyright">
+                    © 2026 СНИКЕРХЭД. Все права защищены.
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Desktop Mega Menu -->
+<div class="mega-menu" id="megaMenu" role="dialog" aria-label="Меню навигации">
+    <div class="mega-menu-inner">
+        <div class="mega-container">
+            <div class="mega-grid">
+                <div class="mega-col">
+                    <p class="mega-col-title">Каталог</p>
+                    <ul>
+                        <li><a href="/catalog"><i class="bi bi-grid-3x3-gap"></i>Все товары</a></li>
+                        <li><a href="/catalog?sort=new"><i class="bi bi-stars"></i>Новинки</a></li>
+                        <li><a href="/sale"><i class="bi bi-tag-fill text-sale"></i>Скидки</a></li>
+                        <li><a href="/catalog?sort=popular"><i class="bi bi-fire"></i>Популярное</a></li>
+                    </ul>
+                </div>
+                <div class="mega-col">
+                    <p class="mega-col-title">Бренды</p>
+                    <ul>
+                        <li><a href="/brands/nike"><i class="bi bi-circle-fill mega-dot"></i>Nike</a></li>
+                        <li><a href="/brands/adidas"><i class="bi bi-circle-fill mega-dot"></i>Adidas</a></li>
+                        <li><a href="/brands/jordan"><i class="bi bi-circle-fill mega-dot"></i>Jordan</a></li>
+                        <li><a href="/brands/new-balance"><i class="bi bi-circle-fill mega-dot"></i>New Balance</a></li>
+                        <li><a href="/brands"><i class="bi bi-arrow-right-circle"></i>Все бренды</a></li>
+                    </ul>
+                </div>
+                <div class="mega-col">
+                    <p class="mega-col-title">Информация</p>
+                    <ul>
+                        <li><a href="/about"><i class="bi bi-building"></i>О компании</a></li>
+                        <li><a href="/contacts"><i class="bi bi-telephone"></i>Контакты</a></li>
+                        <li><a href="/account"><i class="bi bi-person-circle"></i>Личный кабинет</a></li>
+                        <li><a href="/account/orders"><i class="bi bi-box-seam"></i>Мои заказы</a></li>
+                    </ul>
+                </div>
+                <div class="mega-col mega-col-promo">
+                    <div class="mega-promo-card">
+                        <span class="mega-promo-badge">🔥 Горячее</span>
+                        <p class="mega-promo-title">Скидки до 50%</p>
+                        <p class="mega-promo-sub">Лимитированные предложения</p>
+                        <a href="/sale" class="mega-promo-btn">Смотреть акции</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mega-overlay" id="megaOverlay" onclick="closeBurgerMenu()"></div>
+
+<!-- Mobile Menu Backdrop -->
+<div class="menu-overlay" id="menuOverlay" onclick="closeBurgerMenu()"></div>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+        <a href="/" class="mobile-menu-logo">
+            <img src="/images/logo.png" alt="СНИКЕРХЭД">
+        </a>
+        <button class="mobile-menu-close" onclick="closeBurgerMenu()" aria-label="Закрыть меню">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <nav class="mobile-nav">
+        <a href="/catalog" class="mobile-nav-link" onclick="closeBurgerMenu()">
+            <i class="bi bi-grid-3x3-gap"></i><span>Каталог</span>
+            <i class="bi bi-chevron-right mobile-nav-arrow"></i>
+        </a>
+        <a href="/brands" class="mobile-nav-link" onclick="closeBurgerMenu()">
+            <i class="bi bi-award"></i><span>Бренды</span>
+            <i class="bi bi-chevron-right mobile-nav-arrow"></i>
+        </a>
+        <a href="/sale" class="mobile-nav-link text-sale" onclick="closeBurgerMenu()">
+            <i class="bi bi-tag-fill"></i><span>Скидки</span>
+            <i class="bi bi-chevron-right mobile-nav-arrow"></i>
+        </a>
+        <a href="/about" class="mobile-nav-link" onclick="closeBurgerMenu()">
+            <i class="bi bi-building"></i><span>О нас</span>
+            <i class="bi bi-chevron-right mobile-nav-arrow"></i>
+        </a>
+        <a href="/contacts" class="mobile-nav-link" onclick="closeBurgerMenu()">
+            <i class="bi bi-telephone"></i><span>Контакты</span>
+            <i class="bi bi-chevron-right mobile-nav-arrow"></i>
+        </a>
+        <a href="/account" class="mobile-nav-link" onclick="closeBurgerMenu()">
+            <i class="bi bi-person-circle"></i><span>Личный кабинет</span>
+            <i class="bi bi-chevron-right mobile-nav-arrow"></i>
+        </a>
+    </nav>
+    <div class="mobile-menu-footer">
+        <div class="mobile-menu-contacts">
+                        <a href="tel:+375291234567"><i class="bi bi-telephone"></i>+375 29 123-45-67</a>
+                                            </div>
+    </div>
+</div>
+
+<!-- Cart Drawer -->
+<div class="cart-drawer-overlay" id="cartDrawerOverlay" onclick="closeCartDrawer()"></div>
+<div class="cart-drawer" id="cartDrawer">
+    <div class="cart-drawer-header">
+        <h3><i class="bi bi-cart3"></i> Корзина</h3>
+        <button class="cart-drawer-close" onclick="closeCartDrawer()" aria-label="Закрыть">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <div class="cart-drawer-items" id="cartDrawerItems">
+        <div class="cart-loading"><i class="bi bi-arrow-repeat spinner"></i> Загрузка...</div>
+    </div>
+    <div class="cart-drawer-footer">
+        <div class="cart-drawer-total">
+            Итого: <strong class="cart-total">0 BYN</strong>
+        </div>
+        <a href="/checkout" class="btn btn-primary cart-drawer-checkout">
+            Оформить заказ <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</div>
+
+<!-- Search Modal -->
+<div class="search-modal" id="searchModal">
+    <div class="search-modal-content">
+        <div class="search-header">
+            <input type="text" placeholder="Поиск товаров..." id="searchInput" class="search-input"
+                   oninput="handleSearchInput(this.value)"
+                   onkeydown="handleSearchKey(event)"
+                   autocomplete="off" aria-label="Поиск товаров">
+            <button class="search-close close-search" onclick="closeSearch()">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+        <div class="search-results" id="searchResults"></div>
+    </div>
+</div>
+
+<script>
+(function() {
+    var _burgerOpen = false;
+
+    function isMobile() { return window.innerWidth < 1024; }
+
+    window.toggleBurgerMenu = function(e) {
+        if (e) e.stopPropagation();
+        _burgerOpen ? closeBurgerMenu() : openBurgerMenu();
+    };
+
+    function openBurgerMenu() {
+        _burgerOpen = true;
+        var btn = document.getElementById('navBurger');
+        if (btn) { btn.setAttribute('aria-expanded', 'true'); btn.classList.add('active'); }
+
+        if (isMobile()) {
+            var m = document.getElementById('mobileMenu');
+            var o = document.getElementById('menuOverlay');
+            if (m) m.classList.add('active');
+            if (o) o.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            var mm = document.getElementById('megaMenu');
+            var mo = document.getElementById('megaOverlay');
+            if (mm) mm.classList.add('open');
+            if (mo) mo.classList.add('active');
+        }
+    }
+
+    window.closeBurgerMenu = function() {
+        _burgerOpen = false;
+        var btn = document.getElementById('navBurger');
+        if (btn) { btn.setAttribute('aria-expanded', 'false'); btn.classList.remove('active'); }
+
+        var m = document.getElementById('mobileMenu');
+        var o = document.getElementById('menuOverlay');
+        var mm = document.getElementById('megaMenu');
+        var mo = document.getElementById('megaOverlay');
+        if (m) m.classList.remove('active');
+        if (o) o.classList.remove('active');
+        if (mm) mm.classList.remove('open');
+        if (mo) mo.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
+    // Keep legacy names working
+    window.toggleMobileMenu = window.toggleBurgerMenu;
+    window.closeMobileMenu = window.closeBurgerMenu;
+    window.openMobileMenu = openBurgerMenu;
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && _burgerOpen) window.closeBurgerMenu();
+    });
+
+    window.addEventListener('resize', function() {
+        if (_burgerOpen) window.closeBurgerMenu();
+    });
+})();
+</script>
+<script src="/assets/9da854d7/jquery.min.js?v=1693229950"></script>
+<script src="/assets/928a0bcb/yii.js?v=1751010173"></script>
+<script src="/js/utils.js?v=1776026686" defer></script>
+<script src="/js/notifications.js?v=1777213978" defer></script>
+<script src="/js/app.js?v=1777053742" defer></script>
+<script src="/js/global-helpers.js?v=1776929535" defer></script>
+<script src="/js/scroll-reveal.js?v=1775904938" defer></script>
+<script src="/js/favorites.js?v=1777213556" defer></script>
+<script src="/js/cart.js?v=1777202913" defer></script>
+<script src="/js/mobile-menu.js?v=1776929535" defer></script>
+<script src="/js/passport-format.js?v=1777783645" defer></script></body>
+</html>

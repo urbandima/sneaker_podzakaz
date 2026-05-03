@@ -14,9 +14,11 @@ $tabs = [
     'settings'  => ['label' => 'Settings',   'icon' => 'bi-gear'],
     'webhooks'  => ['label' => 'Webhooks',   'icon' => 'bi-link-45deg'],
     'fields'    => ['label' => 'Поля',       'icon' => 'bi-table'],
+    'statuses'  => ['label' => 'Статусы',    'icon' => 'bi-arrow-left-right'],
     'logs'      => ['label' => 'Logs',       'icon' => 'bi-journal-text'],
     'stats'     => ['label' => 'Stats',      'icon' => 'bi-bar-chart-line'],
 ];
+$widgetApiKey = Yii::$app->settings->get('amocrm', 'widget_api_key', '');
 ?>
 
 <?php $this->params['headerActions'] = [
@@ -114,14 +116,39 @@ $recentOrders = \app\backend\modules\checkout\models\Order::find()
      TAB: SETTINGS
      ════════════════════════════════════════════════════════════════════ -->
 
-<!-- API Key -->
+<!-- Widget API Key (for AmoCRM marketplace widget) -->
 <div class="admin-card" style="margin-bottom:20px">
     <div class="admin-card-header">
-        <h2 class="admin-card-title"><i class="bi bi-key"></i> API-ключ для виджета</h2>
+        <h2 class="admin-card-title"><i class="bi bi-puzzle"></i> Widget API Key (для виджета в AmoCRM)</h2>
     </div>
     <div class="admin-card-body">
         <p style="font-size:13px;color:var(--admin-text-secondary);margin:0 0 12px">
-            Ключ используется виджетом AmoCRM для авторизации запросов к вашему магазину. Передаётся в заголовке <code>X-Api-Key</code>.
+            Скопируйте этот ключ в поле <strong>api_key</strong> при установке виджета СНИКЕРХЭД в AmoCRM.
+            Скачайте zip: <a href="/admin/plugin/amocrm-widget" style="color:var(--admin-accent)">Виджет для AmoCRM →</a>
+        </p>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+            <input type="text" class="admin-form-input" id="widget-api-key-field" readonly
+                   value="<?= Html::encode($widgetApiKey ?: '(не сгенерирован)') ?>"
+                   style="font-family:monospace;font-size:12px;flex:1">
+            <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="copyWidgetKey()">
+                <i class="bi bi-clipboard"></i> Скопировать
+            </button>
+            <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="regenWidgetKey()">
+                <i class="bi bi-arrow-repeat"></i> Перегенерировать
+            </button>
+        </div>
+        <div id="widget-key-msg" style="font-size:13px;margin-top:4px"></div>
+    </div>
+</div>
+
+<!-- API Key -->
+<div class="admin-card" style="margin-bottom:20px">
+    <div class="admin-card-header">
+        <h2 class="admin-card-title"><i class="bi bi-key"></i> API-ключ (webhook)</h2>
+    </div>
+    <div class="admin-card-body">
+        <p style="font-size:13px;color:var(--admin-text-secondary);margin:0 0 12px">
+            Ключ для webhook-запросов AmoCRM. Передаётся в заголовке <code>X-Api-Key</code>.
         </p>
         <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:12px">
             <div style="flex:1">
@@ -299,6 +326,87 @@ window.SNEAKERHEAD_API_KEY = '<?= Html::encode($apiKey) ?>';
         </div>
     </div>
 </div>
+
+<?php elseif ($tab === 'statuses'): ?>
+<!-- ══════════════════════════════════════════════════════════════════════
+     TAB: STATUSES — bidirectional mapping AmoCRM ↔ our statuses
+     ════════════════════════════════════════════════════════════════════ -->
+
+<?php
+$existingMappings = [];
+foreach (\app\backend\modules\admin\services\AmocrmStatusMapper::getAllMappings() as $m) {
+    $existingMappings[$m['our_track'] . ':' . $m['our_status']] = $m;
+}
+$ourStatusList = \app\backend\modules\admin\services\AmocrmStatusMapper::ourStatusList();
+$trackLabels = ['order' => 'Статус заказа', 'payment' => 'Трек оплаты', 'logistics' => 'Трек логистики', 'delivery' => 'Трек доставки'];
+?>
+
+<div class="admin-card" style="margin-bottom:16px">
+    <div class="admin-card-header">
+        <h2 class="admin-card-title"><i class="bi bi-arrow-left-right"></i> Маппинг статусов AmoCRM ↔ Магазин</h2>
+        <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="amoLoadPipelines()" id="load-pipelines-btn">
+            <i class="bi bi-cloud-download"></i> Загрузить воронки из AmoCRM
+        </button>
+    </div>
+    <div class="admin-card-body">
+        <p style="font-size:13px;color:var(--admin-text-secondary);margin:0 0 12px">
+            Для каждого нашего статуса выберите соответствующий статус в AmoCRM.
+            Сначала загрузите воронки, затем назначьте маппинг и сохраните.
+        </p>
+        <div id="amo-pipelines-wrap" style="margin-bottom:16px"></div>
+
+        <table class="admin-table" id="amo-status-map-table" style="font-size:.8125rem">
+            <thead>
+                <tr>
+                    <th>Наш статус</th>
+                    <th>Трек</th>
+                    <th>AmoCRM Воронка</th>
+                    <th>AmoCRM Статус</th>
+                    <th>Направление</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($ourStatusList as $track => $statuses): ?>
+                <?php foreach ($statuses as $st): ?>
+                <?php $saved = $existingMappings[$track . ':' . $st] ?? null; ?>
+                <tr data-our-status="<?= Html::encode($st) ?>" data-our-track="<?= Html::encode($track) ?>"
+                    data-saved-pipeline="<?= $saved ? (int)$saved['amocrm_pipeline_id'] : '' ?>"
+                    data-saved-status="<?= $saved ? (int)$saved['amocrm_status_id'] : '' ?>">
+                    <td style="font-family:monospace;font-size:.75rem"><?= Html::encode($st) ?></td>
+                    <td><span class="admin-badge"><?= Html::encode($trackLabels[$track] ?? $track) ?></span></td>
+                    <td>
+                        <select class="admin-form-input sm-inp pipeline-sel" style="width:170px" disabled>
+                            <option value="">— загрузите воронки —</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="admin-form-input sm-inp status-sel" style="width:200px" disabled>
+                            <option value="">—</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="admin-form-input sm-inp direction-sel" style="width:140px">
+                            <option value="both"        <?= ($saved['direction'] ?? 'both') === 'both'        ? 'selected' : '' ?>>В обе стороны</option>
+                            <option value="to_amocrm"   <?= ($saved['direction'] ?? '') === 'to_amocrm'   ? 'selected' : '' ?>>→ AmoCRM</option>
+                            <option value="from_amocrm" <?= ($saved['direction'] ?? '') === 'from_amocrm' ? 'selected' : '' ?>>← Из AmoCRM</option>
+                        </select>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+
+        <div style="display:flex;gap:8px;margin-top:16px;align-items:center">
+            <button class="admin-btn admin-btn-primary" onclick="amoSaveStatusMap()">
+                <i class="bi bi-save"></i> Сохранить маппинг
+            </button>
+            <span id="amo-status-map-msg" style="font-size:13px"></span>
+        </div>
+    </div>
+</div>
+
+<?php $this->registerCss('.sm-inp{height:30px;padding:3px 8px;font-size:.75rem}'); ?>
 
 <?php elseif ($tab === 'logs'): ?>
 <!-- ══════════════════════════════════════════════════════════════════════
@@ -730,6 +838,143 @@ var curTab = '<?= $tab ?>';
 if (curTab === 'logs')   amoLoadLogs(1);
 if (curTab === 'stats')  loadStats();
 if (curTab === 'fields') amoLoadFields();
+
+/* ── Widget API key ─────────────────────────────────────────── */
+window.copyWidgetKey = function() {
+    var el = document.getElementById('widget-api-key-field');
+    if (!el) return;
+    navigator.clipboard.writeText(el.value).then(function() {
+        var m = document.getElementById('widget-key-msg');
+        if (m) { m.style.color='#065f46'; m.textContent='✓ Ключ скопирован'; }
+    });
+};
+
+window.regenWidgetKey = function() {
+    post('<?= Url::to(['/admin/plugin/amocrm-widget-key']) ?>', {action:'generate'}, function(d) {
+        var m = document.getElementById('widget-key-msg');
+        var el = document.getElementById('widget-api-key-field');
+        if (d.success && el) {
+            el.value = d.key;
+            if (m) { m.style.color='#065f46'; m.textContent='✓ Ключ перегенерирован'; }
+        } else {
+            if (m) { m.style.color='#991b1b'; m.textContent='✗ ' + (d.message || 'Ошибка'); }
+        }
+    });
+};
+
+/* ── Status mapping ─────────────────────────────────────────── */
+var _pipelines = [];
+
+function _renderPipelineSelects() {
+    document.querySelectorAll('#amo-status-map-table tbody tr').forEach(function(tr) {
+        var pipeSel   = tr.querySelector('.pipeline-sel');
+        var statusSel = tr.querySelector('.status-sel');
+        if (!pipeSel || !statusSel) return;
+
+        var savedPipe   = parseInt(tr.dataset.savedPipeline || '0', 10);
+        var savedStatus = parseInt(tr.dataset.savedStatus   || '0', 10);
+
+        pipeSel.innerHTML = '<option value="">— не задано —</option>' + _pipelines.map(function(p) {
+            var sel = (p.id === savedPipe) ? ' selected' : '';
+            return '<option value="' + p.id + '"' + sel + '>' + _escape(p.name) + ' (#' + p.id + ')</option>';
+        }).join('');
+        pipeSel.disabled = false;
+
+        function refreshStatusOptions() {
+            var pid = parseInt(pipeSel.value || '0', 10);
+            var pipe = _pipelines.find(function(p) { return p.id === pid; });
+            var statuses = pipe ? pipe.statuses : [];
+            statusSel.innerHTML = '<option value="">— не задано —</option>' + statuses.map(function(s) {
+                var sel = (s.id === savedStatus && pid === savedPipe) ? ' selected' : '';
+                return '<option value="' + s.id + '" data-name="' + _escape(s.name) + '"' + sel + '>' +
+                    _escape(s.name) + ' (#' + s.id + ')</option>';
+            }).join('');
+            statusSel.disabled = !pipe;
+        }
+        refreshStatusOptions();
+        pipeSel.onchange = function() {
+            // Once the user changes the pipeline, the saved status is no longer "remembered"
+            // for this row — drop it so refreshStatusOptions doesn't reselect a stale id.
+            savedStatus = 0;
+            refreshStatusOptions();
+        };
+    });
+}
+
+function _escape(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+window.amoLoadPipelines = function() {
+    var btn = document.getElementById('load-pipelines-btn');
+    if (btn) btn.disabled = true;
+    post('<?= Url::to(['/admin/plugin/amocrm/pipelines']) ?>', {}, function(d) {
+        if (btn) btn.disabled = false;
+        var wrap = document.getElementById('amo-pipelines-wrap');
+        if (!d || !d.success || !Array.isArray(d.pipelines)) {
+            if (wrap) wrap.innerHTML = '<p style="color:#991b1b;font-size:13px">✗ ' + _escape((d && d.message) || 'Ошибка загрузки воронок') + '</p>';
+            return;
+        }
+        _pipelines = d.pipelines;
+        var cachedTag = d.cached ? ' <em style="opacity:.7">(из кэша, 5 мин)</em>' : '';
+        var html = '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;font-size:13px">' +
+            '<strong>Загружено воронок: ' + _pipelines.length + '</strong>' + cachedTag + '</div>';
+        if (wrap) wrap.innerHTML = html;
+        _renderPipelineSelects();
+    });
+};
+
+window.amoSaveStatusMap = function() {
+    var rows = [];
+    document.querySelectorAll('#amo-status-map-table tbody tr').forEach(function(tr) {
+        var pipeSel   = tr.querySelector('.pipeline-sel');
+        var statusSel = tr.querySelector('.status-sel');
+        var dirSel    = tr.querySelector('.direction-sel');
+        if (!pipeSel || !statusSel || !dirSel) return;
+
+        var pipelineId = parseInt(pipeSel.value || '0', 10);
+        var statusId   = parseInt(statusSel.value || '0', 10);
+        var nameOpt    = statusSel.options[statusSel.selectedIndex];
+        var statusName = nameOpt ? (nameOpt.getAttribute('data-name') || '') : '';
+
+        if (pipelineId > 0 && statusId > 0) {
+            rows.push({
+                our_status:  tr.dataset.ourStatus,
+                our_track:   tr.dataset.ourTrack,
+                pipeline_id: pipelineId,
+                status_id:   statusId,
+                status_name: statusName,
+                direction:   dirSel.value,
+            });
+        }
+    });
+
+    var m = document.getElementById('amo-status-map-msg');
+
+    if (rows.length === 0) {
+        if (m) { m.style.color = '#991b1b'; m.textContent = '✗ Заполните хотя бы один маппинг'; }
+        return;
+    }
+
+    if (m) { m.style.color = ''; m.textContent = 'Сохраняем...'; }
+    post('<?= Url::to(['/admin/plugin/amocrm/status-map-save']) ?>', {mappings: rows}, function(d) {
+        if (!m) return;
+        if (d && d.success) {
+            m.style.color = '#065f46';
+            m.textContent = '✓ Маппинг сохранён (' + (d.count || rows.length) + ' записей)';
+        } else {
+            m.style.color = '#991b1b';
+            m.textContent = '✗ ' + ((d && d.message) || 'Ошибка');
+        }
+    });
+};
+
+// Auto-load pipelines when the statuses tab opens, so the selects are usable immediately.
+if (curTab === 'statuses') {
+    setTimeout(window.amoLoadPipelines, 50);
+}
 
 })();
 </script>

@@ -1,0 +1,162 @@
+{
+  "desktop_blocked": {
+    "computed": {
+      "wrap": {
+        "rect": {
+          "x": 32,
+          "y": 3505.28125,
+          "width": 1376,
+          "height": 540,
+          "top": 3505.28125,
+          "right": 1408,
+          "bottom": 4045.28125,
+          "left": 32
+        },
+        "backgroundSize": "340px",
+        "backgroundPosition": "50% 50%",
+        "backgroundImage": "url(\"http://127.0.0.1:8765/images/placeholder-mark.svg\")"
+      },
+      "categoryCount": 2,
+      "category": {
+        "rect": {
+          "x": 32,
+          "y": 1926.8125,
+          "width": 448,
+          "height": 336,
+          "top": 1926.8125,
+          "right": 480,
+          "bottom": 2262.8125,
+          "left": 32
+        },
+        "backgroundSize": "60%",
+        "backgroundPosition": "50% 30%",
+        "backgroundImage": "url(\"http://127.0.0.1:8765/images/placeholder-mark.svg\")"
+      }
+    },
+    "full": "desktop-blocked-full.png",
+    "crops": {
+      "wrap": "desktop-blocked-wrap.png",
+      "category": "desktop-blocked-category.png"
+    }
+  },
+  "desktop_live": {
+    "computed": {
+      "wrap": {
+        "rect": {
+          "x": 32,
+          "y": 3505.28125,
+          "width": 1376,
+          "height": 540,
+          "top": 3505.28125,
+          "right": 1408,
+          "bottom": 4045.28125,
+          "left": 32
+        },
+        "backgroundSize": "340px",
+        "backgroundPosition": "50% 50%",
+        "backgroundImage": "url(\"http://127.0.0.1:8765/images/placeholder-mark.svg\")"
+      },
+      "categoryCount": 2,
+      "category": {
+        "rect": {
+          "x": 32,
+          "y": 1926.8125,
+          "width": 448,
+          "height": 336,
+          "top": 1926.8125,
+          "right": 480,
+          "bottom": 2262.8125,
+          "left": 32
+        },
+        "backgroundSize": "60%",
+        "backgroundPosition": "50% 30%",
+        "backgroundImage": "url(\"http://127.0.0.1:8765/images/placeholder-mark.svg\")"
+      }
+    },
+    "full": "desktop-live-full.png",
+    "crops": {
+      "wrap": "desktop-live-wrap.png",
+      "category": "desktop-live-category.png"
+    }
+  },
+  "mobile_blocked": {
+    "computed": {
+      "wrap": {
+        "rect": {
+          "x": 12,
+          "y": 5096.109375,
+          "width": 366,
+          "height": 480,
+          "top": 5096.109375,
+          "right": 378,
+          "bottom": 5576.109375,
+          "left": 12
+        },
+        "backgroundSize": "220px",
+        "backgroundPosition": "50% 50%",
+        "backgroundImage": "url(\"http://127.0.0.1:8765/images/placeholder-mark.svg\")"
+      },
+      "categoryCount": 2,
+      "category": {
+        "rect": {
+          "x": 12,
+          "y": 2350.09375,
+          "width": 366,
+          "height": 274.5,
+          "top": 2350.09375,
+          "right": 378,
+          "bottom": 2624.59375,
+          "left": 12
+        },
+        "backgroundSize": "60%",
+        "backgroundPosition": "50% 30%",
+        "backgroundImage": "url(\"http://127.0.0.1:8765/images/placeholder-mark.svg\")"
+      }
+    },
+    "full": "mobile-blocked-full.png",
+    "crops": {
+      "wrap": "mobile-blocked-wrap.png",
+      "category": "mobile-blocked-category.png"
+    }
+  },
+  "mobile_live": {
+    "computed": {
+      "wrap": {
+        "rect": {
+          "x": 12,
+          "y": 5096.109375,
+          "width": 366,
+          "height": 480,
+          "top": 5096.109375,
+          "right": 378,
+          "bottom": 5576.109375,
+          "left": 12
+        },
+        "backgroundSize": "220px",
+        "backgroundPosition": "50% 50%",
+        "backgroundImage": "url(\"http://127.0.0.1:8765/images/placeholder-mark.svg\")"
+      },
+      "categoryCount": 2,
+      "category": {
+        "rect": {
+          "x": 12,
+          "y": 2350.09375,
+          "width": 366,
+          "height": 274.5,
+          "top": 2350.09375,
+          "right": 378,
+          "bottom": 2624.59375,
+          "left": 12
+        },
+        "backgroundSize": "60%",
+        "backgroundPosition": "50% 30%",
+        "backgroundImage": "url(\"http://127.0.0.1:8765/images/placeholder-mark.svg\")"
+      }
+    },
+    "full": "mobile-live-full.png",
+    "crops": {
+      "wrap": "mobile-live-wrap.png",
+      "category": "mobile-live-category.png"
+    }
+  }
+}

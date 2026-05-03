@@ -12,27 +12,37 @@ class m260427_100000_migrate_orders_to_three_tracks extends Migration
 {
     public function safeUp()
     {
-        $schema = $this->db->getTableSchema('order');
-        $cols   = $schema ? $schema->columnNames : [];
+        $schema = $this->db->getTableSchema('{{%order}}', true);
+        if ($schema === null) {
+            echo "    > skip: {{%order}} table does not exist yet\n";
+            return;
+        }
+        $cols = $schema->columnNames;
 
-        if (!in_array('payment_status', $cols)) {
+        if (!in_array('payment_status', $cols, true)) {
             $this->addColumn('order', 'payment_status',
                 $this->string(32)->null()->after('status'));
         }
-        if (!in_array('logistics_status', $cols)) {
+        if (!in_array('logistics_status', $cols, true)) {
             $this->addColumn('order', 'logistics_status',
                 $this->string(32)->null()->after('payment_status'));
         }
-        if (!in_array('delivery_status', $cols)) {
+        if (!in_array('delivery_status', $cols, true)) {
             $this->addColumn('order', 'delivery_status',
                 $this->string(32)->null()->after('logistics_status'));
         }
 
-        $this->createIndex('idx_order_payment_status',   'order', 'payment_status');
-        $this->createIndex('idx_order_logistics_status', 'order', 'logistics_status');
-        $this->createIndex('idx_order_delivery_status',  'order', 'delivery_status');
+        if (!$this->indexExists('order', 'idx_order_payment_status')) {
+            $this->createIndex('idx_order_payment_status',   'order', 'payment_status');
+        }
+        if (!$this->indexExists('order', 'idx_order_logistics_status')) {
+            $this->createIndex('idx_order_logistics_status', 'order', 'logistics_status');
+        }
+        if (!$this->indexExists('order', 'idx_order_delivery_status')) {
+            $this->createIndex('idx_order_delivery_status',  'order', 'delivery_status');
+        }
 
-        // Backfill from legacy status column
+        // Backfill from legacy status column. Idempotent: only touches rows with NULL track values.
         $this->execute("
             UPDATE `order` SET
                 payment_status = CASE `status`
@@ -79,9 +89,9 @@ class m260427_100000_migrate_orders_to_three_tracks extends Migration
                     WHEN 'delivered'       THEN 'delivered'
                     ELSE NULL
                 END
+            WHERE payment_status IS NULL OR logistics_status IS NULL
         ");
 
-        // Verify: should be 0 nulls after backfill
         $nullCount = $this->db->createCommand(
             'SELECT COUNT(*) FROM `order` WHERE payment_status IS NULL OR logistics_status IS NULL'
         )->queryScalar();
@@ -93,11 +103,35 @@ class m260427_100000_migrate_orders_to_three_tracks extends Migration
 
     public function safeDown()
     {
-        $this->dropIndex('idx_order_delivery_status',  'order');
-        $this->dropIndex('idx_order_logistics_status', 'order');
-        $this->dropIndex('idx_order_payment_status',   'order');
-        $this->dropColumn('order', 'delivery_status');
-        $this->dropColumn('order', 'logistics_status');
-        $this->dropColumn('order', 'payment_status');
+        if ($this->indexExists('order', 'idx_order_delivery_status')) {
+            $this->dropIndex('idx_order_delivery_status',  'order');
+        }
+        if ($this->indexExists('order', 'idx_order_logistics_status')) {
+            $this->dropIndex('idx_order_logistics_status', 'order');
+        }
+        if ($this->indexExists('order', 'idx_order_payment_status')) {
+            $this->dropIndex('idx_order_payment_status',   'order');
+        }
+        $schema = $this->db->getTableSchema('{{%order}}', true);
+        $cols = $schema ? $schema->columnNames : [];
+
+        if (in_array('delivery_status', $cols, true)) {
+            $this->dropColumn('order', 'delivery_status');
+        }
+        if (in_array('logistics_status', $cols, true)) {
+            $this->dropColumn('order', 'logistics_status');
+        }
+        if (in_array('payment_status', $cols, true)) {
+            $this->dropColumn('order', 'payment_status');
+        }
+    }
+
+    private function indexExists(string $table, string $indexName): bool
+    {
+        $row = $this->db->createCommand(
+            "SHOW INDEX FROM `{$table}` WHERE Key_name = :name",
+            [':name' => $indexName]
+        )->queryOne();
+        return $row !== false;
     }
 }

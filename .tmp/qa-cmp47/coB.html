@@ -1,0 +1,1195 @@
+
+<!DOCTYPE html>
+<html lang="ru-RU" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-param" content="_csrf">
+<meta name="csrf-token" content="D12_XFrJ87WrGTGM7uqU969zm0zLdQv4PEYmYx8UUe9nCvgRbOSm19FRc_-i2vuT4jryHZIDYsFpc2EsZ3g_2A==">
+    <title>Оформление заказа</title>
+    <link href="/css/pages/checkout.css?v=1777783283" rel="stylesheet">
+<link href="/css/core/design-tokens.css?v=1776929535" rel="stylesheet">
+<link href="/css/core/design-system.css?v=1776929535" rel="stylesheet">
+<link href="/css/core/container-system.css?v=1776026686" rel="stylesheet">
+<link href="/css/layout/public-layout.css?v=1777202782" rel="stylesheet">
+<link href="/css/layout/responsive-fixes.css?v=1776026686" rel="stylesheet">
+<link href="/css/components/header.css?v=1776929535" rel="stylesheet">
+<link href="/css/components/sidebar-menu.css?v=1775904938" rel="stylesheet">
+<link href="/css/components/footer.css?v=1777229921" rel="stylesheet">
+<link href="/css/components/cart-drawer.css?v=1774897073" rel="stylesheet">
+<link href="/css/components/product-card.css?v=1776929535" rel="stylesheet">
+<link href="/css/components/modals.css?v=1777784696" rel="stylesheet">
+<link href="/css/components/micro-interactions.css?v=1775904938" rel="stylesheet">
+<link href="/css/components/choice-card.css?v=1777783428" rel="stylesheet">
+<link href="/css/components/form-step.css?v=1777783654" rel="stylesheet">
+<link href="/css/components/passport-form.css?v=1777784536" rel="stylesheet">    
+            
+        <link rel="alternate" hreflang="ru-BY" href="http://localhost:8765/checkout">
+    <link rel="alternate" hreflang="x-default" href="http://localhost:8765/checkout">
+    
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://images.unsplash.com">
+        <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>
+
+            </head>
+<body data-is-guest="1">
+
+<!-- Admin toolbar (X20: visible only to authenticated admins) -->
+
+<!-- Skip to main content (a11y) -->
+<a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
+
+<!-- Header -->
+<header class="main-header">
+    <div class="header-content">
+        <!-- Logo -->
+        <a href="/" class="logo">
+            <img src="/images/logo.png" alt="ООО &quot;СникерКультура&quot;">
+        </a>
+        
+        <!-- Navigation -->
+        <nav class="main-nav">
+            <!-- Burger — desktop opens mega-menu, mobile opens drawer -->
+            <button class="nav-burger" id="navBurger" onclick="toggleBurgerMenu(event)" aria-label="Навигационное меню" aria-expanded="false" aria-controls="megaMenu mobileMenu">
+                <span class="nav-burger-lines">
+                    <span></span><span></span><span></span>
+                </span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="/catalog">Каталог</a></li>
+                <li><a href="/brands">Бренды</a></li>
+                <li><a href="/sale" class="text-sale">Скидки</a></li>
+                <li><a href="/about">О нас</a></li>
+                <li><a href="/contacts">Контакты</a></li>
+            </ul>
+        </nav>
+
+        <!-- Actions -->
+        <div class="header-actions">
+            <button class="btn-search" onclick="openSearch()" aria-label="Поиск товаров" aria-haspopup="dialog">
+                <i class="bi bi-search" aria-hidden="true"></i>
+            </button>
+
+            <a href="/account/wishlist" class="btn-wishlist" aria-label="Избранное">
+                <i class="bi bi-heart" aria-hidden="true"></i>
+                <span class="wishlist-counter header-badge d-none" role="status" aria-live="polite">0</span>
+            </a>
+
+            <a href="/checkout" class="btn-cart" aria-label="Корзина" onclick="event.preventDefault(); openCartDrawer();">
+                <i class="bi bi-cart3" aria-hidden="true"></i>
+                <span id="cartCount" class="cart-counter header-badge d-none" role="status" aria-live="polite">0</span>
+            </a>
+
+            <a href="/account" class="btn-account" aria-label="Личный кабинет">
+                <i class="bi bi-person" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main id="main-content">
+                
+<div class="checkout-page cart-blur-surface">
+    <div class="container">
+        <h1><i class="bi bi-bag-check"></i> Оформление заказа</h1>
+
+        <!-- Mobile: collapsible order summary (hidden on desktop) -->
+        <div class="mobile-summary-toggle" id="mobileSummaryToggle">
+            <div class="mobile-summary-header" onclick="toggleMobileSummary()">
+                <div class="mobile-summary-header-left">
+                    <i class="bi bi-bag"></i>
+                    Ваш заказ (1 товар)
+                </div>
+                <div class="mobile-summary-header-right">
+                    <span class="mobile-summary-price" id="mobileFinalTotal">599.00 BYN</span>
+                    <i class="bi bi-chevron-down mobile-toggle-icon"></i>
+                </div>
+            </div>
+            <div class="mobile-summary-body">
+                                                        <div class="summary-item">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;400&quot; height=&quot;400&quot; viewBox=&quot;0 0 400 400&quot;%3E%3Crect width=&quot;400&quot; height=&quot;400&quot; fill=&quot;%23f3f4f6&quot;/%3E%3Cg transform=&quot;translate(200,180)&quot;%3E%3Cpath d=&quot;M-30,-20 L-20,-30 L20,-30 L30,-20 L30,10 L20,20 L-20,20 L-30,10 Z&quot; fill=&quot;%23d1d5db&quot; stroke=&quot;%23a0a0a0&quot; stroke-width=&quot;2&quot;/%3E%3Cellipse cx=&quot;0&quot; cy=&quot;0&quot; rx=&quot;15&quot; ry=&quot;10&quot; fill=&quot;%23e5e7eb&quot;/%3E%3C/g%3E%3Ctext x=&quot;200&quot; y=&quot;260&quot; text-anchor=&quot;middle&quot; font-family=&quot;system-ui,-apple-system,sans-serif&quot; font-size=&quot;14&quot; fill=&quot;%239ca3af&quot;%3EИзображение скоро появится%3C/text%3E%3C/svg%3E"
+                             alt="Adidas Yeezy Boost 350 V2 Zebra"
+                             class="summary-item-img">
+                        <div class="summary-item-info">
+                            <span class="summary-item-title">Adidas Yeezy Boost 350 V2 Zebra</span>
+                                                            <span class="summary-item-meta">Размер: 42</span>
+                                                        <span class="summary-item-meta">1 × 599.00 BYN</span>
+                        </div>
+                        <span class="summary-item-price">599.00 BYN</span>
+                    </div>
+                                <div class="summary-totals" style="margin-top:8px">
+                    <div class="summary-row">
+                        <span>Доставка:</span>
+                        <span id="mobileDeliveryCost" class="delivery-cost">Бесплатно</span>
+                    </div>
+                    <div class="summary-total">
+                        <span>Итого:</span>
+                        <span id="mobileFinalTotal2">599.00 BYN</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="checkout-layout">
+            <!-- Левая колонка: контакты + доставка + оплата + комментарий -->
+            <div class="checkout-left">
+
+                <!-- Контактные данные — 3 колонки на одной строке -->
+                <div class="checkout-section">
+                    <h2><i class="bi bi-person"></i> Контактные данные</h2>
+                    <div class="checkout-contact-grid">
+                        <div class="form-group">
+                            <label for="field-name">ФИО <span class="text-danger">*</span></label>
+                            <input type="text" id="field-name" name="name" class="form-control"
+                                   placeholder="Иванов Иван Иванович"
+                                   value=""
+                                   required maxlength="100">
+                        </div>
+                        <div class="form-group">
+                            <label for="field-phone">Телефон <span class="text-danger">*</span></label>
+                            <input type="tel" id="field-phone" name="phone" class="form-control"
+                                   placeholder="+375 (__) ___-__-__"
+                                   value=""
+                                   required maxlength="50">
+                        </div>
+                        <div class="form-group">
+                            <label for="field-email">Email</label>
+                            <input type="email" id="field-email" name="email" class="form-control"
+                                   placeholder="email@example.com"
+                                   value=""
+                                   maxlength="255">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Доставка -->
+                <div class="checkout-section">
+                    <h2><i class="bi bi-truck"></i> Доставка</h2>
+
+                    
+                    <input type="hidden" name="country" id="selectedCountry" value="belarus">
+
+                    <div class="choice-card-list shipping-options" id="deliveryMethods">
+                                                                        <label class="choice-card shipping-option">
+                            <input type="radio" name="delivery" value="pickup_minsk"
+                                   data-price="0"
+                                   data-country="belarus"
+                                   data-price-label="Бесплатно"
+                                   checked                                   onchange="updateDelivery(0, 'pickup_minsk')">
+                            <div class="choice-card-body">
+                                <div class="choice-card-icon"><i class="bi bi-shop"></i></div>
+                                <div class="choice-card-text">
+                                    <span class="choice-card-title">Самовывоз из магазина</span>
+                                    <span class="choice-card-desc">пр.Победителей 5, офис 9</span>                                    <span class="choice-card-eta">Сегодня после 16:00</span>                                </div>
+                                <span class="badge badge-success">Бесплатно</span>
+                                <span class="choice-card-radio"></span>
+                            </div>
+                        </label>
+                                                                        <label class="choice-card shipping-option">
+                            <input type="radio" name="delivery" value="courier_minsk"
+                                   data-price="10"
+                                   data-country="belarus"
+                                   data-price-label="10 BYN"
+                                                                      onchange="updateDelivery(10, 'courier_minsk')">
+                            <div class="choice-card-body">
+                                <div class="choice-card-icon"><i class="bi bi-truck"></i></div>
+                                <div class="choice-card-text">
+                                    <span class="choice-card-title">Курьер по Минску</span>
+                                    <span class="choice-card-desc">Доставка до двери</span>                                    <span class="choice-card-eta">1 рабочий день</span>                                </div>
+                                <span class="badge badge-light">10 BYN</span>
+                                <span class="choice-card-radio"></span>
+                            </div>
+                        </label>
+                                                                        <label class="choice-card shipping-option">
+                            <input type="radio" name="delivery" value="europochta"
+                                   data-price="5"
+                                   data-country="belarus"
+                                   data-price-label="5 BYN"
+                                                                      onchange="updateDelivery(5, 'europochta')">
+                            <div class="choice-card-body">
+                                <div class="choice-card-icon"><i class="bi bi-box-seam"></i></div>
+                                <div class="choice-card-text">
+                                    <span class="choice-card-title">Европочта</span>
+                                    <span class="choice-card-desc">В пункт выдачи в любом городе</span>                                    <span class="choice-card-eta">1–2 рабочих дня</span>                                </div>
+                                <span class="badge badge-light">5 BYN</span>
+                                <span class="choice-card-radio"></span>
+                            </div>
+                        </label>
+                                                                        <label class="choice-card shipping-option">
+                            <input type="radio" name="delivery" value="belpochta"
+                                   data-price="4"
+                                   data-country="belarus"
+                                   data-price-label="4 BYN"
+                                                                      onchange="updateDelivery(4, 'belpochta')">
+                            <div class="choice-card-body">
+                                <div class="choice-card-icon"><i class="bi bi-envelope"></i></div>
+                                <div class="choice-card-text">
+                                    <span class="choice-card-title">Белпочта</span>
+                                    <span class="choice-card-desc">В отделение по адресу</span>                                    <span class="choice-card-eta">2–5 рабочих дней</span>                                </div>
+                                <span class="badge badge-light">4 BYN</span>
+                                <span class="choice-card-radio"></span>
+                            </div>
+                        </label>
+                                                                        <label class="choice-card shipping-option">
+                            <input type="radio" name="delivery" value="sdek"
+                                   data-price="0"
+                                   data-country="russia"
+                                   data-price-label="По тарифам СДЭК"
+                                                                      onchange="updateDelivery(0, 'sdek')">
+                            <div class="choice-card-body">
+                                <div class="choice-card-icon"><i class="bi bi-truck"></i></div>
+                                <div class="choice-card-text">
+                                    <span class="choice-card-title">СДЭК (Россия)</span>
+                                    <span class="choice-card-desc">Пункт выдачи или курьер</span>                                    <span class="choice-card-eta">5–10 дней</span>                                </div>
+                                <span class="badge badge-light">По тарифам СДЭК</span>
+                                <span class="choice-card-radio"></span>
+                            </div>
+                        </label>
+                                            </div>
+
+                    <!-- Европочта ПВЗ — показывается при выборе europochta -->
+                    <style>
+                    .pvz-option{padding:9px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f3f4f6;line-height:1.4}
+                    .pvz-option:last-child{border-bottom:none}
+                    .pvz-option:hover,.pvz-option:active{background:#f0f9ff;color:#0369a1}
+                    .pvz-option strong{color:#1d4ed8}
+                    </style>
+                    <div class="pvz-select-wrap" id="europochtaPvz" style="display:none">
+                        <label for="pvzSearch"><i class="bi bi-geo-alt-fill"></i> Пункт выдачи Европочты</label>
+                        <div class="pvz-autocomplete-wrap" style="position:relative">
+                            <input type="text" id="pvzSearch" class="pvz-search-input form-control"
+                                   placeholder="Начните вводить город или адрес..." autocomplete="off"
+                                   oninput="filterPvz(this.value)" onfocus="showPvzDropdown()" onblur="hidePvzDropdown()">
+                            <div id="pvzDropdown" class="pvz-dropdown" style="display:none;position:absolute;left:0;right:0;top:100%;z-index:100;background:#fff;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);max-height:240px;overflow-y:auto;"></div>
+                        </div>
+                        <div id="pvzSelected" style="display:none;margin-top:6px;padding:8px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;font-size:13px;color:#166534">
+                            <i class="bi bi-check-circle-fill"></i> <span id="pvzSelectedText"></span>
+                            <button type="button" onclick="clearPvz()" style="float:right;background:none;border:none;color:#dc2626;cursor:pointer;font-size:12px">✕ Изменить</button>
+                        </div>
+                        <!-- Hidden field sent to server -->
+                        <input type="hidden" id="pvzHidden" name="pvz_address" value="">
+                                                <script>
+                        var _pvzPoints = [];
+
+                        function _renderPvzDropdown(filtered, query) {
+                            var dropdown = document.getElementById('pvzDropdown');
+                            if (!filtered.length) {
+                                dropdown.innerHTML = '<div style="padding:10px 14px;color:#9ca3af;font-size:13px">Ничего не найдено</div>';
+                            } else {
+                                var esc = query ? query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') : '';
+                                dropdown.innerHTML = filtered.slice(0, 50).map(function(p){
+                                    var display = p.label;
+                                    if (esc) display = display.replace(new RegExp('(' + esc + ')', 'gi'), '<strong>$1</strong>');
+                                    return '<div class="pvz-option" onmousedown="selectPvzItem(\'' + p.value.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\',\'' + p.label.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\')">' + display + '</div>';
+                                }).join('');
+                            }
+                            dropdown.style.display = 'block';
+                        }
+
+                        function filterPvz(q) {
+                            var query = q.trim().toLowerCase();
+                            var filtered = query
+                                ? _pvzPoints.filter(function(p){ return p.label.toLowerCase().indexOf(query) !== -1; })
+                                : _pvzPoints;
+                            _renderPvzDropdown(filtered, query);
+                        }
+
+                        function selectPvzItem(value, label) {
+                            document.getElementById('pvzHidden').value = value;
+                            document.getElementById('pvzSearch').value = '';
+                            document.getElementById('pvzSearch').style.display = 'none';
+                            document.getElementById('pvzSelectedText').textContent = label;
+                            document.getElementById('pvzSelected').style.display = 'block';
+                            document.getElementById('pvzDropdown').style.display = 'none';
+                            selectedPvz = value;
+                        }
+
+                        function clearPvz() {
+                            document.getElementById('pvzHidden').value = '';
+                            document.getElementById('pvzSearch').value = '';
+                            document.getElementById('pvzSearch').style.display = '';
+                            document.getElementById('pvzSelected').style.display = 'none';
+                            selectedPvz = '';
+                        }
+
+                        function showPvzDropdown() {
+                            filterPvz(document.getElementById('pvzSearch').value);
+                        }
+
+                        function hidePvzDropdown() {
+                            setTimeout(function(){ document.getElementById('pvzDropdown').style.display = 'none'; }, 200);
+                        }
+                        </script>
+                                                <p style="color:#9ca3af;font-size:12px;margin-top:4px">Пункты выдачи не загружены — настройте в плагине Европочта</p>
+                                            </div>
+
+                    <!-- Самовывоз: адрес из настроек (read-only) -->
+                                        <div id="pickupInfo" style="display:none;margin-top:10px;padding:10px 14px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;font-size:13px;color:#166534">
+                        <i class="bi bi-shop" style="margin-right:6px"></i>
+                        <strong>Адрес самовывоза:</strong> г. Минск, ул. Тестовая, д. 1                        <span style="margin-left:8px;color:#6b7280" title="Время работы: Пн-Вс: 10:00-22:00">
+                            <i class="bi bi-clock"></i> Пн-Вс: 10:00-22:00                        </span>
+                        <input type="hidden" id="pickupAddressHidden" value="г. Минск, ул. Тестовая, д. 1">
+                    </div>
+
+                    <!-- Адрес: город + индекс на одной строке, затем улица -->
+                    <div id="addressGroup" style="display:none">
+                        <div class="address-row">
+                            <div class="form-group">
+                                <label for="field-city">Город <span class="text-danger">*</span></label>
+                                <input type="text" id="field-city" name="city" class="form-control"
+                                       placeholder="Минск" maxlength="100">
+                            </div>
+                            <div class="form-group">
+                                <label for="field-postal">Индекс</label>
+                                <input type="text" id="field-postal" name="postal_code" class="form-control"
+                                       placeholder="220000" maxlength="20">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="field-address" id="addressLabel">Улица, дом, квартира <span class="text-danger">*</span></label>
+                            <textarea id="field-address" name="address" class="form-control"
+                                      rows="2" placeholder="Улица, дом, квартира"
+                                      maxlength="500"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Оплата — динамически из DB (с дефолтами из контроллера) -->
+                                <div class="checkout-section">
+                    <h2><i class="bi bi-credit-card"></i> Оплата</h2>
+                    <div class="choice-card-list payment-options">
+                                                <label class="choice-card payment-option">
+                            <input type="radio" name="payment"
+                                   value="bank_details"
+                                   checked                                   onchange="selectPayment("bank_details")">
+                            <div class="choice-card-body">
+                                <div class="choice-card-icon"><i class="bi bi-bank"></i></div>
+                                <div class="choice-card-text">
+                                    <span class="choice-card-title">Оплата по реквизитам</span>
+                                                                        <span class="choice-card-desc">Реквизиты пришлём после оформления</span>
+                                                                    </div>
+                                <span class="choice-card-radio"></span>
+                            </div>
+                        </label>
+                                                <label class="choice-card payment-option">
+                            <input type="radio" name="payment"
+                                   value="pickup_cash"
+                                                                      onchange="selectPayment("pickup_cash")">
+                            <div class="choice-card-body">
+                                <div class="choice-card-icon"><i class="bi bi-cash-coin"></i></div>
+                                <div class="choice-card-text">
+                                    <span class="choice-card-title">При получении (только самовывоз)</span>
+                                                                        <span class="choice-card-desc">Наличными или картой в магазине</span>
+                                                                    </div>
+                                <span class="choice-card-radio"></span>
+                            </div>
+                        </label>
+                                            </div>
+                </div>
+
+                <!-- Комментарий -->
+                <div class="checkout-section">
+                    <h2><i class="bi bi-chat-left-text"></i> Комментарий</h2>
+                    <div class="form-group">
+                        <textarea id="field-comment" name="comment" class="form-control"
+                                  rows="2" placeholder="Дополнительные пожелания к заказу"
+                                  maxlength="1000"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая колонка: Итого (sticky) — только на desktop/tablet -->
+            <div class="checkout-right">
+                <div class="order-summary">
+                    <h3>Ваш заказ</h3>
+
+                    <div class="summary-items">
+                                                                                <div class="summary-item">
+                                <img src="data:image/svg+xml,%3Csvg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;400&quot; height=&quot;400&quot; viewBox=&quot;0 0 400 400&quot;%3E%3Crect width=&quot;400&quot; height=&quot;400&quot; fill=&quot;%23f3f4f6&quot;/%3E%3Cg transform=&quot;translate(200,180)&quot;%3E%3Cpath d=&quot;M-30,-20 L-20,-30 L20,-30 L30,-20 L30,10 L20,20 L-20,20 L-30,10 Z&quot; fill=&quot;%23d1d5db&quot; stroke=&quot;%23a0a0a0&quot; stroke-width=&quot;2&quot;/%3E%3Cellipse cx=&quot;0&quot; cy=&quot;0&quot; rx=&quot;15&quot; ry=&quot;10&quot; fill=&quot;%23e5e7eb&quot;/%3E%3C/g%3E%3Ctext x=&quot;200&quot; y=&quot;260&quot; text-anchor=&quot;middle&quot; font-family=&quot;system-ui,-apple-system,sans-serif&quot; font-size=&quot;14&quot; fill=&quot;%239ca3af&quot;%3EИзображение скоро появится%3C/text%3E%3C/svg%3E"
+                                     alt="Adidas Yeezy Boost 350 V2 Zebra"
+                                     class="summary-item-img">
+                                <div class="summary-item-info">
+                                    <span class="summary-item-title">Adidas Yeezy Boost 350 V2 Zebra</span>
+                                                                            <span class="summary-item-meta">Размер: 42</span>
+                                                                        <span class="summary-item-meta">1 × 599.00 BYN</span>
+                                </div>
+                                <span class="summary-item-price">599.00 BYN</span>
+                            </div>
+                                            </div>
+
+                    <div class="summary-totals">
+                        <div class="summary-row">
+                            <span>Товары (1):</span>
+                            <span id="productsTotal">599.00 BYN</span>
+                        </div>
+                        <div class="summary-row" id="deliveryCostRow">
+                            <span>Доставка:</span>
+                            <span id="deliveryCost" class="delivery-cost">Бесплатно</span>
+                        </div>
+
+                        <div class="coupon-section" id="couponSection">
+                            <div class="coupon-input-row">
+                                <input type="text" id="couponCode" class="coupon-input" placeholder="Промокод" maxlength="20">
+                                <button type="button" class="coupon-btn" onclick="applyCoupon()">Применить</button>
+                            </div>
+                            <div class="coupon-message" id="couponMessage"></div>
+                        </div>
+                        <div class="summary-row coupon-discount-row" id="couponDiscountRow" style="display:none">
+                            <span>Скидка:</span>
+                            <span id="couponDiscount">0 BYN</span>
+                        </div>
+
+                        <div class="summary-total">
+                            <span>Итого:</span>
+                            <span id="finalTotal">599.00 BYN</span>
+                        </div>
+                    </div>
+
+                    
+                    <p class="checkout-passport-note">
+                        <i class="bi bi-info-circle"></i>
+                        Для отправки заказа в РБ через Таможня:ДП мы попросим паспортные данные на следующем шаге. Это занимает ~2 минуты.
+                    </p>
+
+                    <button class="btn-place-order" onclick="submitOrder()">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Оформить заказ — <span id="orderBtnTotal">599</span> BYN
+                    </button>
+
+                    <a href="/catalog" class="btn-continue">Продолжить покупки</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile: sticky bottom CTA -->
+<div class="mobile-cta-bar">
+    <button class="btn-place-order" onclick="submitOrder()">
+        <i class="bi bi-check-circle-fill"></i>
+        Оформить заказ — <span id="mobileBtnTotal">599</span> BYN
+    </button>
+</div>
+
+<!-- Модал успеха -->
+<div class="checkout-success-modal" id="successModal">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+        <div class="success-icon"><i class="bi bi-check-lg"></i></div>
+        <h2>Заказ оформлен!</h2>
+        <p>Ваш заказ <strong>#<span id="orderNumber">—</span></strong> успешно создан</p>
+        <p class="text-muted">Мы свяжемся с вами для подтверждения</p>
+        <div class="success-actions">
+            <a href="/account/orders" class="btn-success-primary">
+                <i class="bi bi-box-seam"></i> Мои заказы
+            </a>
+            <a href="/catalog" class="btn-success-secondary">
+                <i class="bi bi-grid"></i> Продолжить покупки
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.field-error { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,.1) !important; }
+.field-valid { border-color: #22c55e !important; }
+.field-error-msg { color: #ef4444; font-size: 12px; margin-top: 4px; animation: fadeIn .2s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* CMP-21: upfront expectation note before primary CTA */
+.checkout-passport-note {
+    margin: 12px 0;
+    padding: 10px 14px;
+    background: var(--color-info-bg, #E0F2FE);
+    border-left: 3px solid var(--color-info, #0369A1);
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--color-text-secondary, #374151);
+}
+.checkout-passport-note .bi { color: var(--color-info, #0369A1); margin-right: 4px; }
+</style>
+
+<script>
+var orderTotal        = 599;
+var orderDeliveryCost = 0;
+var orderDiscount     = 0;
+var selectedDelivery  = "pickup_minsk";
+var selectedCountry   = "belarus";
+var selectedPayment   = "bank_details";
+var selectedPvz       = '';
+var csrfToken         = "D12_XFrJ87WrGTGM7uqU969zm0zLdQv4PEYmYx8UUe9nCvgRbOSm19FRc_-i2vuT4jryHZIDYsFpc2EsZ3g_2A==";
+var createUrl         = "\/order\/create";
+// id → country mapping (auto-syncs hidden country field on delivery change)
+var deliveryCountryMap = {"pickup_minsk":"belarus","courier_minsk":"belarus","europochta":"belarus","belpochta":"belarus","sdek":"russia"};
+
+// ===== Phone mask +375 =====
+(function() {
+    var phoneInput = document.getElementById('field-phone');
+    if (!phoneInput) return;
+
+    phoneInput.addEventListener('focus', function() {
+        if (!this.value) this.value = '+375 (';
+    });
+
+    phoneInput.addEventListener('input', function(e) {
+        var digits = this.value.replace(/\D/g, '');
+        // Ensure starts with 375
+        if (digits.length < 3 || digits.substring(0, 3) !== '375') {
+            digits = '375' + digits.replace(/^375/, '');
+        }
+        // Format: +375 (XX) XXX-XX-XX
+        var formatted = '+375';
+        if (digits.length > 3) formatted += ' (' + digits.substring(3, 5);
+        if (digits.length >= 5) formatted += ') ';
+        if (digits.length > 5) formatted += digits.substring(5, 8);
+        if (digits.length > 8) formatted += '-' + digits.substring(8, 10);
+        if (digits.length > 10) formatted += '-' + digits.substring(10, 12);
+        this.value = formatted;
+    });
+
+    phoneInput.addEventListener('keydown', function(e) {
+        // Allow backspace, delete, tab, arrows
+        if ([8, 46, 9, 37, 39].indexOf(e.keyCode) !== -1) return;
+        // Block non-digit
+        if (e.key && e.key.length === 1 && !/\d/.test(e.key)) e.preventDefault();
+    });
+})();
+
+// ===== Inline validation =====
+(function() {
+    function showError(el, msg) {
+        clearError(el);
+        el.classList.add('field-error');
+        var err = document.createElement('div');
+        err.className = 'field-error-msg';
+        err.textContent = msg;
+        err.style.cssText = 'color:#ef4444;font-size:12px;margin-top:4px;';
+        el.parentNode.appendChild(err);
+    }
+    function clearError(el) {
+        el.classList.remove('field-error');
+        var prev = el.parentNode.querySelector('.field-error-msg');
+        if (prev) prev.remove();
+    }
+    function validateField(el) {
+        var val = el.value.trim();
+        var name = el.getAttribute('name');
+        clearError(el);
+        if (name === 'name') {
+            if (!val) { showError(el, 'Укажите ФИО'); return false; }
+            if (val.length < 3) { showError(el, 'ФИО слишком короткое'); return false; }
+        }
+        if (name === 'phone') {
+            var digits = val.replace(/\D/g, '');
+            if (digits.length < 12) { showError(el, 'Введите полный номер телефона'); return false; }
+        }
+        if (name === 'email' && val) {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { showError(el, 'Некорректный email'); return false; }
+        }
+        el.classList.add('field-valid');
+        return true;
+    }
+
+    ['field-name', 'field-phone', 'field-email'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('blur', function() { validateField(this); });
+            el.addEventListener('input', function() {
+                if (this.classList.contains('field-error')) validateField(this);
+            });
+        }
+    });
+
+    // Expose for use in submitOrder
+    window.validateCheckoutFields = function() {
+        var valid = true;
+        ['field-name', 'field-phone'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el && !validateField(el)) { valid = false; if (!document.querySelector('.field-error:focus')) el.focus(); }
+        });
+        var emailEl = document.getElementById('field-email');
+        if (emailEl && emailEl.value.trim() && !validateField(emailEl)) valid = false;
+        return valid;
+    };
+})();
+
+function selectPvz(val) {
+    selectedPvz = val;
+}
+
+// Init delivery state on page load — read price from data-price set by controller defaults / DB
+document.addEventListener('DOMContentLoaded', function() {
+    var checked = document.querySelector('input[name="delivery"]:checked');
+    if (checked) {
+        var cost = parseFloat(checked.getAttribute('data-price') || '0') || 0;
+        updateDelivery(cost, checked.value);
+    }
+});
+
+// Mobile summary toggle
+function toggleMobileSummary() {
+    document.getElementById('mobileSummaryToggle').classList.toggle('expanded');
+}
+
+// Выбор метода оплаты
+function selectPayment(method) {
+    selectedPayment = method;
+}
+
+// Обновление стоимости доставки. Source of truth: data-* attributes on the
+// checked radio (set server-side by OrderController defaults / DB settings).
+function updateDelivery(cost, method) {
+    orderDeliveryCost = cost;
+    selectedDelivery  = method;
+
+    var checked = document.querySelector('input[name="delivery"]:checked');
+
+    // Sync country hidden field from selected method
+    var country = (checked && checked.getAttribute('data-country')) || deliveryCountryMap[method] || 'belarus';
+    selectedCountry = country;
+    var countryHidden = document.getElementById('selectedCountry');
+    if (countryHidden) countryHidden.value = country;
+
+    // Prefer server-rendered chip text; fall back to derived label
+    var label = checked && checked.getAttribute('data-price-label');
+    if (!label) {
+        if (method === 'pickup' || method === 'pickup_minsk') label = 'Бесплатно';
+        else if (method === 'sdek' || method === 'cdek')      label = 'По тарифам СДЭК';
+        else                                                  label = cost.toFixed(2) + ' BYN';
+    }
+
+    ['deliveryCost', 'mobileDeliveryCost'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = label;
+    });
+
+    // Address-region label cue when shipping to Russia
+    var addressLabel = document.getElementById('addressLabel');
+    if (addressLabel) {
+        addressLabel.innerHTML = (country === 'russia')
+            ? 'Адрес пункта выдачи СДЭК <span class="text-danger">*</span>'
+            : 'Улица, дом, квартира <span class="text-danger">*</span>';
+    }
+
+    // Show Europochta ПВЗ dropdown
+    var pvzWrap = document.getElementById('europochtaPvz');
+    if (pvzWrap) pvzWrap.style.display = (method === 'europochta') ? 'block' : 'none';
+
+    var isPickup = (method === 'pickup' || method === 'pickup_minsk' || method === 'local_pickup');
+    var pickupInfoEl = document.getElementById('pickupInfo');
+    if (pickupInfoEl) pickupInfoEl.style.display = isPickup ? 'block' : 'none';
+
+    var needAddress = (!isPickup && method !== 'europochta');
+    var addressGroup = document.getElementById('addressGroup');
+    if (addressGroup) addressGroup.style.display = needAddress ? 'block' : 'none';
+    var addressInput = document.getElementById('field-address');
+    if (addressInput) addressInput.required = needAddress;
+
+    updateTotal();
+}
+
+function updateTotal() {
+    var total = orderTotal + orderDeliveryCost - orderDiscount;
+    var fmt = total.toFixed(2) + ' BYN';
+    ['finalTotal', 'mobileFinalTotal', 'mobileFinalTotal2', 'stickyTotal'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = fmt;
+    });
+    var fmtShort = Math.round(total);
+    ['orderBtnTotal', 'mobileBtnTotal'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = fmtShort;
+    });
+}
+
+// Промокод
+function applyCoupon() {
+    var code = document.getElementById('couponCode').value.trim().toUpperCase();
+    if (!code) { showCouponMessage('Введите промокод', 'error'); return; }
+
+    var testCoupons = {
+        'SALE10':  { type: 'percent',  value: 10, name: 'Скидка 10%' },
+        'SALE20':  { type: 'percent',  value: 20, name: 'Скидка 20%' },
+        'WELCOME': { type: 'fixed',    value: 50, name: 'Скидка 50 BYN' },
+        'FREESHIP':{ type: 'shipping', value: 0,  name: 'Бесплатная доставка' }
+    };
+    var coupon = testCoupons[code];
+    if (!coupon) { showCouponMessage('Промокод не найден', 'error'); return; }
+
+    if (coupon.type === 'percent')       orderDiscount = orderTotal * (coupon.value / 100);
+    else if (coupon.type === 'fixed')    orderDiscount = Math.min(coupon.value, orderTotal);
+    else if (coupon.type === 'shipping') orderDiscount = orderDeliveryCost;
+
+    document.getElementById('couponDiscount').textContent = orderDiscount.toFixed(2) + ' BYN';
+    document.getElementById('couponDiscountRow').style.display = 'flex';
+    updateTotal();
+    showCouponMessage(coupon.name + ' применена!', 'success');
+}
+
+function showCouponMessage(text, type) {
+    var el = document.getElementById('couponMessage');
+    el.textContent = text;
+    el.className = 'coupon-message ' + (type === 'success' ? 'coupon-success' : 'coupon-error');
+    setTimeout(function() { el.textContent = ''; el.className = 'coupon-message'; }, 5000);
+}
+
+// Отправка заказа
+function submitOrder() {
+    var name   = document.getElementById('field-name').value.trim();
+    var phone  = document.getElementById('field-phone').value.trim();
+    var email  = document.getElementById('field-email').value.trim();
+    var comment = document.getElementById('field-comment').value.trim();
+    var city   = document.getElementById('field-city') ? document.getElementById('field-city').value.trim() : '';
+    var postal = document.getElementById('field-postal') ? document.getElementById('field-postal').value.trim() : '';
+    var street = document.getElementById('field-address').value.trim();
+    var delivery = document.querySelector('input[name="delivery"]:checked');
+
+    // Combine address parts
+    var address = [city, postal, street].filter(Boolean).join(', ');
+
+    // Inline validation
+    if (typeof window.validateCheckoutFields === 'function' && !window.validateCheckoutFields()) return;
+    if (!name)  { alert('Укажите ФИО'); document.getElementById('field-name').focus(); return; }
+    if (!phone) { alert('Укажите телефон'); document.getElementById('field-phone').focus(); return; }
+    if (!delivery) { alert('Выберите способ доставки'); return; }
+
+    // For Europochta: use selected ПВЗ as pickup_point and address
+    if (delivery.value === 'europochta') {
+        var pvzVal = document.getElementById('pvzHidden') ? document.getElementById('pvzHidden').value : selectedPvz;
+        if (!pvzVal) {
+            alert('Выберите пункт выдачи Европочты');
+            var pvzSearchEl = document.getElementById('pvzSearch');
+            if (pvzSearchEl) pvzSearchEl.focus();
+            return;
+        }
+        address = pvzVal;
+        selectedPvz = pvzVal;
+    }
+
+    // For pickup: use stored pickup address
+    var isPickupMethod = (delivery.value === 'pickup' || delivery.value === 'pickup_minsk' || delivery.value === 'local_pickup');
+    if (isPickupMethod) {
+        var pickupHidden = document.getElementById('pickupAddressHidden');
+        address = pickupHidden ? pickupHidden.value : 'Самовывоз';
+    }
+
+    if (!isPickupMethod && delivery.value !== 'europochta' && !address) {
+        alert('Укажите адрес доставки');
+        var cityEl = document.getElementById('field-city');
+        if (cityEl) cityEl.focus(); else document.getElementById('field-address').focus();
+        return;
+    }
+
+    document.querySelectorAll('.btn-place-order').forEach(function(btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Оформляем...';
+    });
+
+    var params = new URLSearchParams();
+    params.append('name',     name);
+    params.append('phone',    phone);
+    params.append('email',    email);
+    params.append('comment',  comment);
+    params.append('delivery', delivery.value);
+    params.append('address',  address);
+    params.append('country',  selectedCountry);
+    params.append('payment',  selectedPayment);
+    // Send pickup_point separately for Europochta
+    if (delivery.value === 'europochta' && selectedPvz) {
+        params.append('pickup_point', selectedPvz);
+    }
+
+    fetch(createUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRF-Token': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: params.toString()
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            document.getElementById('orderNumber').textContent = data.order_number || data.order_id;
+            document.getElementById('successModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // GA4 purchase event
+            if (typeof gtag === 'function') {
+                gtag('event', 'purchase', {
+                    transaction_id: data.order_number || data.order_id,
+                    value: orderTotal + orderDeliveryCost - orderDiscount,
+                    currency: 'BYN',
+                    shipping: orderDeliveryCost,
+                    items: [{"item_id":16,"item_name":"Adidas Yeezy Boost 350 V2 Zebra","price":599,"quantity":1}]                });
+            }
+        } else {
+            document.querySelectorAll('.btn-place-order').forEach(function(btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Оформить заказ';
+            });
+            alert(data.message || 'Ошибка оформления заказа');
+        }
+    })
+    .catch(function() {
+        document.querySelectorAll('.btn-place-order').forEach(function(btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Оформить заказ';
+        });
+        alert('Ошибка соединения. Попробуйте позже.');
+    });
+}
+
+</script>
+</main>
+
+<!-- Footer -->
+
+<footer class="main-footer site-footer">
+    <div class="footer-main">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- О компании -->
+                <div class="footer-column">
+                    <div class="footer-brand">
+                        <img src="/images/logo.png" alt="ООО &quot;СникерКультура&quot;" class="footer-logo">
+                        <p class="footer-tagline">Оригинальные кроссовки из США и Европы</p>
+                    </div>
+
+                </div>
+
+                <!-- О компании -->
+                <div class="footer-column">
+                    <h3 class="footer-title">О компании</h3>
+                    <ul class="footer-links">
+                        <li><a href="/about">О нас</a></li>
+                        <li><a href="/contacts">Контакты</a></li>
+                        <li><a href="/offer-agreement">Договор оферты</a></li>
+                        <li><a href="/payment-instruction">Инструкция по оплате</a></li>
+                        <li><a href="/privacy">Политика конфиденциальности</a></li>
+                        <li><a href="/about">Реквизиты</a></li>
+                        <li style="margin-top:0.5rem"><a class="footer-director-link" href="/feedback"><i class="bi bi-chat-heart"></i>&nbsp; Написать директору</a></li>
+                    </ul>
+                </div>
+
+                <!-- Помощь -->
+                <div class="footer-column">
+                    <h3 class="footer-title">Помощь</h3>
+                    <ul class="footer-links">
+                        <li><a href="/payment-instruction">Инструкция по оплате</a></li>
+                        <li><a href="/payment-terms">Условия оплаты</a></li>
+                        <li><a href="/delivery-terms">Условия доставки</a></li>
+                        <li><a href="/return-policy">Возврат и обмен</a></li>
+                        <li><a href="/contacts">Часто задаваемые вопросы</a></li>
+                        <li><a href="/account/orders">Отслеживание заказа</a></li>
+                    </ul>
+                </div>
+
+                <!-- Каталог -->
+                <div class="footer-column">
+                    <h3 class="footer-title">Каталог</h3>
+                    <ul class="footer-links">
+                        <li><a href="/catalog">Все товары</a></li>
+                        <li><a href="/brands">Бренды</a></li>
+                        <li><a href="/catalog?category=sneakers">Кроссовки</a></li>
+                        <li><a href="/catalog?category=boots">Ботинки</a></li>
+                        <li><a href="/catalog?sort=sale">Распродажа</a></li>
+                        <li><a href="/catalog?sort=new">Новинки</a></li>
+                    </ul>
+                </div>
+
+                <!-- Контакты -->
+                <div class="footer-column">
+                    <h3 class="footer-title">Контакты</h3>
+                    <ul class="footer-contacts">
+                                                <li>
+                            <i class="bi bi-telephone"></i>
+                            <a href="tel:+375291234567">
+                                +375 29 123-45-67                            </a>
+                        </li>
+                                                                        <li>
+                            <i class="bi bi-envelope"></i>
+                            <a href="mailto:info@sneakerculture.by">
+                                info@sneakerculture.by                            </a>
+                        </li>
+                                                                        <li>
+                            <i class="bi bi-geo-alt"></i>
+                            <span>г. Минск, ул. Тестовая, д. 1</span>
+                        </li>
+                                                                    </ul>
+
+                                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <div class="container">
+            <div class="footer-bottom-content">
+                <div class="payment-methods">
+                    <span class="payment-label">Принимаем к оплате:</span>
+                    <div class="payment-icons">
+
+                        <!-- Visa — official colours #1A1F71 wordmark -->
+                        <span class="payment-icon payment-icon--visa" title="Visa" role="img" aria-label="Visa">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#1A1F71"/>
+                                <text x="390" y="330" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="280" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="-10">VISA</text>
+                            </svg>
+                        </span>
+
+                        <!-- Mastercard — two overlapping circles -->
+                        <span class="payment-icon payment-icon--mc" title="Mastercard" role="img" aria-label="Mastercard">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#252525"/>
+                                <circle cx="290" cy="250" r="160" fill="#EB001B"/>
+                                <circle cx="490" cy="250" r="160" fill="#F79E1B"/>
+                                <path d="M390 121a160 160 0 0 1 0 258 160 160 0 0 1 0-258z" fill="#FF5F00"/>
+                            </svg>
+                        </span>
+
+                        <!-- Белкарт — blue/red stripes wordmark -->
+                        <span class="payment-icon payment-icon--belcard" title="Белкарт" role="img" aria-label="Белкарт">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#FFFFFF"/>
+                                <rect y="0" width="780" height="167" rx="0" fill="#005BAA"/>
+                                <rect y="167" width="780" height="167" fill="#FFFFFF"/>
+                                <rect y="334" width="780" height="166" rx="0" fill="#C8102E"/>
+                                <text x="390" y="295" font-family="'Arial',sans-serif" font-size="150" font-weight="800" fill="#005BAA" text-anchor="middle" letter-spacing="2">БЕЛКАРТ</text>
+                            </svg>
+                        </span>
+
+                        <!-- Халва (Беларусбанк) — purple card -->
+                        <span class="payment-icon payment-icon--halva" title="Халва" role="img" aria-label="Халва">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#5B2D8E"/>
+                                <text x="390" y="310" font-family="'Arial',sans-serif" font-size="200" font-weight="900" fill="#FFFFFF" text-anchor="middle">Халва</text>
+                            </svg>
+                        </span>
+
+                        <!-- ЕРИП — green -->
+                        <span class="payment-icon payment-icon--erip" title="ЕРИП" role="img" aria-label="ЕРИП">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 500" width="48" height="30">
+                                <rect width="780" height="500" rx="40" fill="#009A44"/>
+                                <text x="390" y="330" font-family="'Arial',sans-serif" font-size="260" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="10">ЕРИП</text>
+                            </svg>
+                        </span>
+
+                    </div>
+                </div>
+
+                <div class="copyright">
+                    © 2026 СНИКЕРХЭД. Все права защищены.
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Desktop Mega Menu -->
+<div class="mega-menu" id="megaMenu" role="dialog" aria-label="Меню навигации">
+    <div class="mega-menu-inner">
+        <div class="mega-container">
+            <div class="mega-grid">
+                <div class="mega-col">
+                    <p class="mega-col-title">Каталог</p>
+                    <ul>
+                        <li><a href="/catalog"><i class="bi bi-grid-3x3-gap"></i>Все товары</a></li>
+                        <li><a href="/catalog?sort=new"><i class="bi bi-stars"></i>Новинки</a></li>
+                        <li><a href="/sale"><i class="bi bi-tag-fill text-sale"></i>Скидки</a></li>
+                        <li><a href="/catalog?sort=popular"><i class="bi bi-fire"></i>Популярное</a></li>
+                    </ul>
+                </div>
+                <div class="mega-col">
+                    <p class="mega-col-title">Бренды</p>
+                    <ul>
+                        <li><a href="/brands/nike"><i class="bi bi-circle-fill mega-dot"></i>Nike</a></li>
+                        <li><a href="/brands/adidas"><i class="bi bi-circle-fill mega-dot"></i>Adidas</a></li>
+                        <li><a href="/brands/jordan"><i class="bi bi-circle-fill mega-dot"></i>Jordan</a></li>
+                        <li><a href="/brands/new-balance"><i class="bi bi-circle-fill mega-dot"></i>New Balance</a></li>
+                        <li><a href="/brands"><i class="bi bi-arrow-right-circle"></i>Все бренды</a></li>
+                    </ul>
+                </div>
+                <div class="mega-col">
+                    <p class="mega-col-title">Информация</p>
+                    <ul>
+                        <li><a href="/about"><i class="bi bi-building"></i>О компании</a></li>
+                        <li><a href="/contacts"><i class="bi bi-telephone"></i>Контакты</a></li>
+                        <li><a href="/account"><i class="bi bi-person-circle"></i>Личный кабинет</a></li>
+                        <li><a href="/account/orders"><i class="bi bi-box-seam"></i>Мои заказы</a></li>
+                    </ul>
+                </div>
+                <div class="mega-col mega-col-promo">
+                    <div class="mega-promo-card">
+                        <span class="mega-promo-badge">🔥 Горячее</span>
+                        <p class="mega-promo-title">Скидки до 50%</p>
+                        <p class="mega-promo-sub">Лимитированные предложения</p>
+                        <a href="/sale" class="mega-promo-btn">Смотреть акции</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mega-overlay" id="megaOverlay" onclick="closeBurgerMenu()"></div>
+
+<!-- Mobile Menu Backdrop -->
+<div class="menu-overlay" id="menuOverlay" onclick="closeBurgerMenu()"></div>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+        <a href="/" class="mobile-menu-logo">
+            <img src="/images/logo.png" alt="СНИКЕРХЭД">
+        </a>
+        <button class="mobile-menu-close" onclick="closeBurgerMenu()" aria-label="Закрыть меню">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <nav class="mobile-nav">
+        <a href="/catalog" class="mobile-nav-link" onclick="closeBurgerMenu()">
+            <i class="bi bi-grid-3x3-gap"></i><span>Каталог</span>
+            <i class="bi bi-chevron-right mobile-nav-arrow"></i>
+        </a>
+        <a href="/brands" class="mobile-nav-link" onclick="closeBurgerMenu()">
+            <i class="bi bi-award"></i><span>Бренды</span>
+            <i class="bi bi-chevron-right mobile-nav-arrow"></i>
+        </a>
+        <a href="/sale" class="mobile-nav-link text-sale" onclick="closeBurgerMenu()">
+            <i class="bi bi-tag-fill"></i><span>Скидки</span>
+            <i class="bi bi-chevron-right mobile-nav-arrow"></i>
+        </a>
+        <a href="/about" class="mobile-nav-link" onclick="closeBurgerMenu()">
+            <i class="bi bi-building"></i><span>О нас</span>
+            <i class="bi bi-chevron-right mobile-nav-arrow"></i>
+        </a>
+        <a href="/contacts" class="mobile-nav-link" onclick="closeBurgerMenu()">
+            <i class="bi bi-telephone"></i><span>Контакты</span>
+            <i class="bi bi-chevron-right mobile-nav-arrow"></i>
+        </a>
+        <a href="/account" class="mobile-nav-link" onclick="closeBurgerMenu()">
+            <i class="bi bi-person-circle"></i><span>Личный кабинет</span>
+            <i class="bi bi-chevron-right mobile-nav-arrow"></i>
+        </a>
+    </nav>
+    <div class="mobile-menu-footer">
+        <div class="mobile-menu-contacts">
+                        <a href="tel:+375291234567"><i class="bi bi-telephone"></i>+375 29 123-45-67</a>
+                                            </div>
+    </div>
+</div>
+
+<!-- Cart Drawer -->
+<div class="cart-drawer-overlay" id="cartDrawerOverlay" onclick="closeCartDrawer()"></div>
+<div class="cart-drawer" id="cartDrawer">
+    <div class="cart-drawer-header">
+        <h3><i class="bi bi-cart3"></i> Корзина</h3>
+        <button class="cart-drawer-close" onclick="closeCartDrawer()" aria-label="Закрыть">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <div class="cart-drawer-items" id="cartDrawerItems">
+        <div class="cart-loading"><i class="bi bi-arrow-repeat spinner"></i> Загрузка...</div>
+    </div>
+    <div class="cart-drawer-footer">
+        <div class="cart-drawer-total">
+            Итого: <strong class="cart-total">0 BYN</strong>
+        </div>
+        <a href="/checkout" class="btn btn-primary cart-drawer-checkout">
+            Оформить заказ <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</div>
+
+<!-- Search Modal -->
+<div class="search-modal" id="searchModal">
+    <div class="search-modal-content">
+        <div class="search-header">
+            <input type="text" placeholder="Поиск товаров..." id="searchInput" class="search-input"
+                   oninput="handleSearchInput(this.value)"
+                   onkeydown="handleSearchKey(event)"
+                   autocomplete="off" aria-label="Поиск товаров">
+            <button class="search-close close-search" onclick="closeSearch()">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+        <div class="search-results" id="searchResults"></div>
+    </div>
+</div>
+
+<script>
+(function() {
+    var _burgerOpen = false;
+
+    function isMobile() { return window.innerWidth < 1024; }
+
+    window.toggleBurgerMenu = function(e) {
+        if (e) e.stopPropagation();
+        _burgerOpen ? closeBurgerMenu() : openBurgerMenu();
+    };
+
+    function openBurgerMenu() {
+        _burgerOpen = true;
+        var btn = document.getElementById('navBurger');
+        if (btn) { btn.setAttribute('aria-expanded', 'true'); btn.classList.add('active'); }
+
+        if (isMobile()) {
+            var m = document.getElementById('mobileMenu');
+            var o = document.getElementById('menuOverlay');
+            if (m) m.classList.add('active');
+            if (o) o.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            var mm = document.getElementById('megaMenu');
+            var mo = document.getElementById('megaOverlay');
+            if (mm) mm.classList.add('open');
+            if (mo) mo.classList.add('active');
+        }
+    }
+
+    window.closeBurgerMenu = function() {
+        _burgerOpen = false;
+        var btn = document.getElementById('navBurger');
+        if (btn) { btn.setAttribute('aria-expanded', 'false'); btn.classList.remove('active'); }
+
+        var m = document.getElementById('mobileMenu');
+        var o = document.getElementById('menuOverlay');
+        var mm = document.getElementById('megaMenu');
+        var mo = document.getElementById('megaOverlay');
+        if (m) m.classList.remove('active');
+        if (o) o.classList.remove('active');
+        if (mm) mm.classList.remove('open');
+        if (mo) mo.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
+    // Keep legacy names working
+    window.toggleMobileMenu = window.toggleBurgerMenu;
+    window.closeMobileMenu = window.closeBurgerMenu;
+    window.openMobileMenu = openBurgerMenu;
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && _burgerOpen) window.closeBurgerMenu();
+    });
+
+    window.addEventListener('resize', function() {
+        if (_burgerOpen) window.closeBurgerMenu();
+    });
+})();
+</script>
+<script src="/assets/9da854d7/jquery.min.js?v=1693229950"></script>
+<script src="/assets/928a0bcb/yii.js?v=1751010173"></script>
+<script src="/js/utils.js?v=1776026686" defer></script>
+<script src="/js/notifications.js?v=1777213978" defer></script>
+<script src="/js/app.js?v=1777053742" defer></script>
+<script src="/js/global-helpers.js?v=1776929535" defer></script>
+<script src="/js/scroll-reveal.js?v=1775904938" defer></script>
+<script src="/js/favorites.js?v=1777213556" defer></script>
+<script src="/js/cart.js?v=1777202913" defer></script>
+<script src="/js/mobile-menu.js?v=1776929535" defer></script>
+<script src="/js/passport-format.js?v=1777783645" defer></script></body>
+</html>

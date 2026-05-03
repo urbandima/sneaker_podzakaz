@@ -112,6 +112,34 @@ class AmocrmClient extends Component
         return $result['_embedded']['statuses'] ?? [];
     }
 
+    /**
+     * Pipelines with their statuses, flattened into a stable shape for UI/admin tools.
+     *
+     * Returns null when AmoCRM is not configured (no domain/access_token), distinguishing
+     * "not set up" from "set up but empty list".
+     *
+     * @return array<int,array{id:int,name:string,statuses:array<int,array{id:int,name:string}>}>|null
+     */
+    public function getPipelinesWithStatuses(): ?array
+    {
+        $raw = $this->request('GET', '/api/v4/leads/pipelines', ['limit' => 50]);
+        if ($raw === null) return null;
+
+        $out = [];
+        foreach ($raw['_embedded']['pipelines'] ?? [] as $p) {
+            $statuses = [];
+            foreach ($p['_embedded']['statuses'] ?? [] as $s) {
+                $statuses[] = ['id' => (int)$s['id'], 'name' => (string)$s['name']];
+            }
+            $out[] = [
+                'id'       => (int)$p['id'],
+                'name'     => (string)$p['name'],
+                'statuses' => $statuses,
+            ];
+        }
+        return $out;
+    }
+
     // ── Custom Fields ──────────────────────────────────────────────────
 
     /**

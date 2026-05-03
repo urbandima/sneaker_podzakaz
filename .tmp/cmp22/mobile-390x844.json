@@ -1,0 +1,56 @@
+{
+  "viewport": {
+    "w": 390,
+    "h": 844
+  },
+  "documentScrollWidth": 390,
+  "bodyScrollWidth": 690,
+  "catalogPageScrollWidth": 390,
+  "productGridGridTemplateColumns": "175px 175px",
+  "productGridGap": "16px",
+  "cardCount": 24,
+  "cardRects": [
+    {
+      "left": 12,
+      "right": 187,
+      "top": 376,
+      "w": 175,
+      "h": 331
+    },
+    {
+      "left": 203,
+      "right": 378,
+      "top": 376,
+      "w": 175,
+      "h": 331
+    },
+    {
+      "left": 12,
+      "right": 187,
+      "top": 723,
+      "w": 175,
+      "h": 331
+    },
+    {
+      "left": 203,
+      "right": 378,
+      "top": 723,
+      "w": 175,
+      "h": 331
+    }
+  ],
+  "h1Count": 1,
+  "h1Texts": [
+    "Каталог товаров (40)"
+  ],
+  "sizeNavBtnCount": 0,
+  "emptyButtonsInFilterBar": 0,
+  "brandRailOverflowX": "auto",
+  "brandRailMaskImage": "linear-gradient(90deg, rgba(0, 0, 0, 0) 0px, rgb(0, 0, 0) 24px, rgb(0, 0, 0) calc(100% - 24px), rgba(0, 0, 0, 0) 100%)",
+  "brandRailScrollWidth": 623,
+  "brandRailClientWidth": 366,
+  "sizeRailOverflowX": "auto",
+  "sizeRailMaskImage": "linear-gradient(90deg, rgba(0, 0, 0, 0) 0px, rgb(0, 0, 0) 24px, rgb(0, 0, 0) calc(100% - 24px), rgba(0, 0, 0, 0) 100%)",
+  "sizeRailScrollWidth": 580,
+  "sizeRailClientWidth": 171
+}

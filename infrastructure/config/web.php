@@ -570,6 +570,11 @@ $config = [
                 'admin/plugin/amocrm/fields-delete'     => 'admin/plugin/amocrm-fields-delete',
                 'admin/plugin/amocrm/pipelines'         => 'admin/plugin/amocrm-pipelines',
                 'admin/plugin/amocrm/status-map-save'   => 'admin/plugin/amocrm-status-map-save',
+                'admin/plugin/amocrm/sync'              => 'admin/plugin/amocrm-sync',
+                'admin/plugin/amocrm/logs'              => 'admin/plugin/amocrm-logs',
+                'admin/plugin/amocrm/stats'             => 'admin/plugin/amocrm-stats',
+                'admin/plugin/amocrm/authorize'         => 'admin/plugin/amocrm-authorize',
+                'admin/plugin/amocrm/callback'          => 'admin/plugin/amocrm-callback',
                 'admin/plugin/amocrm-widget'            => 'admin/plugin/amocrm-widget',
                 'admin/plugin/amocrm-widget/key'        => 'admin/plugin/amocrm-widget-key',
                 // Lamoda Parser plugin pages

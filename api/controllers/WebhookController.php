@@ -194,8 +194,9 @@ class WebhookController extends Controller
 
     private function handleLeadStatus(array $lead, OrderFromLeadService $service): void
     {
-        $leadId    = (int)($lead['id'] ?? 0);
-        $statusId  = (int)($lead['status_id'] ?? 0);
+        $leadId     = (int)($lead['id'] ?? 0);
+        $statusId   = (int)($lead['status_id'] ?? 0);
+        $pipelineId = (int)($lead['pipeline_id'] ?? 0);
         $statusName = $lead['status_name'] ?? null;
         if (!$leadId) return;
 
@@ -214,8 +215,9 @@ class WebhookController extends Controller
 
         if (!$order) return;
 
-        // Map AmoCRM status → our order status
-        $newOrderStatus = AmocrmStatusMapper::fromAmocrmStatusId($statusId, $statusName);
+        // Map AmoCRM status → our order status (pipeline-aware: same status_id can mean
+        // different things across pipelines, so always pass pipeline_id when available).
+        $newOrderStatus = AmocrmStatusMapper::fromAmocrm($pipelineId, $statusId, $statusName);
 
         if ($newOrderStatus && $newOrderStatus !== $order->status) {
             $oldStatus = $order->status;
@@ -225,7 +227,7 @@ class WebhookController extends Controller
             \app\backend\modules\checkout\models\OrderHistory::log(
                 $order->id, 'status_changed', null,
                 $oldStatus, $newOrderStatus,
-                'AmoCRM webhook: status_id=' . $statusId
+                'AmoCRM webhook: pipeline=' . $pipelineId . ' status_id=' . $statusId
             );
             Yii::info('[Webhook AMO] Order #' . $order->id . ' status: ' . $oldStatus . ' → ' . $newOrderStatus, 'amocrm');
         }

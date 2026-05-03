@@ -1,6 +1,6 @@
 /**
  * SneakerHead widget — settings page script.
- * Validates shop_url and api_token before save.
+ * Validates api_url and api_key before save.
  */
 define(['jquery'], function ($) {
   'use strict';
@@ -8,19 +8,18 @@ define(['jquery'], function ($) {
   return {
     callbacks: {
       settings: function () {
-        // Nothing special — standard AmoCRM settings form handles the fields
         return this;
       },
       onSave: function () {
-        var shopUrl  = $.trim($('input[name="shop_url"]').val());
-        var apiToken = $.trim($('input[name="api_token"]').val());
+        var apiUrl = $.trim($('input[name="api_url"]').val() || $('input[name="shop_url"]').val());
+        var apiKey = $.trim($('input[name="api_key"]').val() || $('input[name="api_token"]').val());
 
-        if (!shopUrl || !shopUrl.match(/^https?:\/\//)) {
-          alert('Укажите корректный URL магазина (с https://)');
+        if (!apiUrl || !apiUrl.match(/^https?:\/\//)) {
+          alert('Укажите корректный URL магазина (с http:// или https://)');
           return false;
         }
-        if (!apiToken) {
-          alert('Укажите API токен из настроек плагина AmoCRM');
+        if (!apiKey) {
+          alert('Укажите API ключ из настроек плагина AmoCRM');
           return false;
         }
         return true;

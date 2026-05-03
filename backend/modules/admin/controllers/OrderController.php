@@ -1418,9 +1418,23 @@ class OrderController extends BaseAdminController
             $value = $value ? (int)$value : null;
         }
         
+        // CMP-50: defense-in-depth для серии паспорта BY (save(false) ниже пропускает валидаторы Order::rules()).
+        if ($field === 'passport_series' && $value !== null && trim((string)$value) !== '') {
+            $value = mb_strtoupper(trim((string)$value));
+            $citizenship = strtolower($model->citizenship ?? 'by');
+            if ($citizenship === 'by' && !preg_match('/^[A-Z]{2}[0-9]{7}$/', $value)) {
+                $msg = 'Формат: 2 латинские буквы + 7 цифр (например MP1234567)';
+                return [
+                    'success' => false,
+                    'message' => $msg,
+                    'errors'  => ['passport_series' => [$msg]],
+                ];
+            }
+        }
+
         $oldValue = $model->$field;
         $model->$field = $value;
-        
+
         if ($model->save(false)) {
             // Логируем изменение статуса
             if ($field === 'status' && $oldValue !== $value) {
@@ -1565,6 +1579,20 @@ class OrderController extends BaseAdminController
         if (!in_array($field, $allowed)) return ['success' => false, 'message' => 'Недопустимое поле'];
         $order = Order::findOne($id);
         if (!$order) return ['success' => false, 'message' => 'Не найден'];
+        // CMP-50: та же защита для actionSaveField (save(false) ниже пропускает валидаторы).
+        if ($field === 'passport_series' && $value !== null && trim((string)$value) !== '') {
+            $value = mb_strtoupper(trim((string)$value));
+            $citizenship = strtolower($order->citizenship ?? 'by');
+            if ($citizenship === 'by' && !preg_match('/^[A-Z]{2}[0-9]{7}$/', $value)) {
+                $msg = 'Формат: 2 латинские буквы + 7 цифр (например MP1234567)';
+                return [
+                    'success' => false,
+                    'message' => $msg,
+                    'errors'  => ['passport_series' => [$msg]],
+                ];
+            }
+        }
+
         $oldValue = $order->getAttribute($field);
         $order->$field = $value;
         $order->save(false);

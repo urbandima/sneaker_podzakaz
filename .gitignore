@@ -88,3 +88,16 @@ cookies.txt
 
 # Claude/Windsurf
 .claude/
+.mcp.json
+
+# Lighthouse CI artifacts (generated, no need to commit)
+.lighthouseci/
+
+# Build artifacts (widget zips are reproducible from sources)
+/outputs/widget.zip
+/outputs/amocrm-widget/*.zip
+/backend/web/amocrm-widget.zip
+/frontend/web/amocrm-widget.zip
+
+# Ad-hoc local test/debug scripts
+/test_*.php

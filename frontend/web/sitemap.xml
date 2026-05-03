@@ -61,11 +61,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sneakerhead.by/catalog/mojsklad</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://sneakerhead.by/catalog/shorty-velosipedki</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -389,6 +384,12 @@
     <loc>https://sneakerhead.by/brand/hugo-boss</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sneakerhead.by/product/krossovki-muzhskie-adidas-fusion-storm-wtr-ee9709</loc>
+    <lastmod>1970-01-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://sneakerhead.by/product/krossovki-uniseks-puma-suede-xl-395205-53</loc>
@@ -9758,12 +9759,6 @@
   </url>
   <url>
     <loc>https://sneakerhead.by/product/krossovki-muzhskie-nike-air-force-1-fresh-dm0211-002</loc>
-    <lastmod>1970-01-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sneakerhead.by/product/krossovki-muzhskie-adidas-fusion-storm-wtr-ee9709</loc>
     <lastmod>1970-01-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
