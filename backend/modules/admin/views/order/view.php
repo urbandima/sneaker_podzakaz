@@ -1926,18 +1926,9 @@ function openPrevEditable(currentEl) {
 }
 
 // ── Inline click-to-edit ──────────────────────────────────
-// BY passport auto-format: first 2 chars = uppercase A-Z, rest = digits only, max 9
-window.formatBYPassport = function(input) {
-    var pos = input.selectionStart;
-    var val = input.value.toUpperCase();
-    var letters = val.slice(0, 2).replace(/[^A-Z]/g, '');
-    var digits  = val.slice(2).replace(/[^0-9]/g, '').slice(0, 7);
-    var next = letters + digits;
-    if (input.value !== next) {
-        input.value = next;
-        try { input.setSelectionRange(Math.min(pos, next.length), Math.min(pos, next.length)); } catch(e) {}
-    }
-};
+// BY passport auto-format lives in frontend/web/js/passport-format.js
+// (registered via AppAsset). window.formatBYPassport / window.PassportFormat
+// are exposed there as the single source of truth.
 
 window.startEdit = function(el) {
     if (el.querySelector('input,textarea')) return;

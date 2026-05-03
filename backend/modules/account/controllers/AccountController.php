@@ -469,14 +469,14 @@ class AccountController extends Controller
         $post = Yii::$app->request->post();
         $errors = [];
 
+        // Account form is BY-only: passport_series carries combined Серия+Номер (MP1234567).
         $required = [
             'recipient_last_name'  => 'Фамилия',
             'recipient_first_name' => 'Имя',
             'birth_date'           => 'Дата рождения',
-            'passport_series'      => 'Серия паспорта',
-            'passport_number'      => 'Номер паспорта',
+            'passport_series'      => 'Серия+Номер паспорта',
             'passport_issue_date'  => 'Дата выдачи паспорта',
-            'inn'                  => 'ИНН',
+            'inn'                  => 'Идентификационный номер',
             'full_address'         => 'Адрес',
             'city'                 => 'Город',
             'postal_code'          => 'Почтовый индекс',
@@ -489,14 +489,14 @@ class AccountController extends Controller
             }
         }
 
-        $inn = trim($post['inn'] ?? '');
-        if (!empty($inn) && !preg_match('/^[0-9]{12}$/', $inn)) {
-            $errors['inn'] = 'ИНН должен содержать ровно 12 цифр';
+        $series = trim(strtoupper($post['passport_series'] ?? ''));
+        if (!empty($series) && !preg_match('/^[A-Z]{2}[0-9]{7}$/', $series)) {
+            $errors['passport_series'] = 'Формат: 2 латинские буквы + 7 цифр (например MP1234567)';
         }
 
-        $passNum = trim($post['passport_number'] ?? '');
-        if (!empty($passNum) && !preg_match('/^[0-9]{6,7}$/', $passNum)) {
-            $errors['passport_number'] = 'Номер паспорта должен содержать 6–7 цифр';
+        $inn = trim($post['inn'] ?? '');
+        if (!empty($inn) && mb_strlen($inn) !== 14) {
+            $errors['inn'] = 'Идентификационный номер: ровно 14 символов';
         }
 
         if (!empty($errors)) {
@@ -508,6 +508,16 @@ class AccountController extends Controller
             if ($order->hasAttribute($field)) {
                 $order->$field = trim(strip_tags($post[$field] ?? ''));
             }
+        }
+        if ($order->hasAttribute('passport_series')) {
+            $order->passport_series = strtoupper($order->passport_series);
+        }
+        // BY combined: clear passport_number to avoid stale data.
+        if ($order->hasAttribute('passport_number')) {
+            $order->passport_number = '';
+        }
+        if ($order->hasAttribute('citizenship') && empty($order->citizenship)) {
+            $order->citizenship = 'by';
         }
         if ($order->hasAttribute('passport_submitted_at')) {
             $order->passport_submitted_at = time();

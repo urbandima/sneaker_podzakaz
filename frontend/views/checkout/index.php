@@ -390,6 +390,11 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                         </div>
                     <?php endif; ?>
 
+                    <p class="checkout-passport-note">
+                        <i class="bi bi-info-circle"></i>
+                        Для отправки заказа в РБ через Таможня:ДП мы попросим паспортные данные на следующем шаге. Это занимает ~2 минуты.
+                    </p>
+
                     <button class="btn-place-order" onclick="submitOrder()">
                         <i class="bi bi-check-circle-fill"></i>
                         Оформить заказ — <span id="orderBtnTotal"><?= number_format($total, 0) ?></span> BYN
@@ -434,6 +439,19 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
 .field-valid { border-color: #22c55e !important; }
 .field-error-msg { color: #ef4444; font-size: 12px; margin-top: 4px; animation: fadeIn .2s; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* CMP-21: upfront expectation note before primary CTA */
+.checkout-passport-note {
+    margin: 12px 0;
+    padding: 10px 14px;
+    background: var(--color-info-bg, #E0F2FE);
+    border-left: 3px solid var(--color-info, #0369A1);
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--color-text-secondary, #374151);
+}
+.checkout-passport-note .bi { color: var(--color-info, #0369A1); margin-right: 4px; }
 </style>
 
 <script>
