@@ -2,6 +2,7 @@
  * Функционал корзины - Vanilla JS (без jQuery)
  * Использует SH.* утилиты из utils.js
  */
+/* global fbq */
 
 // Cart Drawer Functions
 function openCartDrawer() {
