@@ -100,6 +100,12 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
             <!-- Левая колонка: контакты + доставка + оплата + комментарий -->
             <div class="checkout-left">
 
+                <!-- Mobile-only upfront passport expectation (desktop shows the same note in .checkout-right) -->
+                <p class="checkout-passport-note checkout-passport-note--mobile">
+                    <i class="bi bi-info-circle"></i>
+                    Для отправки заказа в РБ через Таможня:ДП мы попросим паспортные данные на следующем шаге. Это занимает ~2 минуты.
+                </p>
+
                 <!-- Контактные данные — 3 колонки на одной строке -->
                 <div class="checkout-section">
                     <h2><i class="bi bi-person"></i> Контактные данные</h2>
@@ -552,6 +558,10 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
     color: var(--color-text-secondary, #374151);
 }
 .checkout-passport-note .bi { color: var(--color-info, #0369A1); margin-right: 4px; }
+.checkout-passport-note--mobile { display: none; }
+@media (max-width: 767px) {
+    .checkout-passport-note--mobile { display: block; margin: 0 0 var(--space-3); }
+}
 </style>
 
 <script>
