@@ -1,0 +1,25 @@
+/* ==============================================
+   PRODUCT GRID — utility
+   2 cols ≤480 / 3 cols 481–1279 / 4 cols ≥1280
+   minmax(0, 1fr) кладёт overflow на лопатки
+   ============================================== */
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    align-items: stretch;
+    width: 100%;
+}
+
+@media (min-width: 481px) {
+    .product-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1280px) {
+    .product-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}

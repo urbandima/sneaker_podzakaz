@@ -462,16 +462,16 @@ setTimeout(function() {
                     <?php endif; ?>
                 </div>
                 
-                <!-- Quick Filters: Бренды -->
-                <div class="quick-filters-bar">
-                    <?php 
+                <!-- Quick Filters: Бренды (scroll-rail с edge-fade) -->
+                <div class="quick-filters-bar scroll-rail" role="group" aria-label="Быстрый фильтр по бренду">
+                    <?php
                     // Топ-6 популярных брендов для быстрого доступа
                     $topBrands = !empty($filters['brands']) ? array_slice($filters['brands'], 0, 6) : [];
-                    foreach ($topBrands as $brand): 
-                        if ($brand['count'] > 0): 
+                    foreach ($topBrands as $brand):
+                        if ($brand['count'] > 0):
                             $isActive = in_array($brand['id'], $currentFilters['brands'] ?? []); ?>
-                        <button type="button" class="quick-chip brand-chip <?= $isActive ? 'active' : '' ?>" 
-                                data-brand="<?= $brand['id'] ?>" 
+                        <button type="button" class="quick-chip brand-chip <?= $isActive ? 'active' : '' ?>"
+                                data-brand="<?= $brand['id'] ?>"
                                 onclick="toggleBrandFilter(<?= $brand['id'] ?>, '<?= Html::encode($brand['slug']) ?>')">
                             <span><?= Html::encode($brand['name']) ?></span>
                             <span class="chip-count"><?= $brand['count'] ?></span>
@@ -488,46 +488,32 @@ setTimeout(function() {
                         <button type="button" class="size-system-btn" data-system="cm" onclick="switchSizeSystem('cm')">CM</button>
                     </div>
                     
-                    <!-- Wrapper для размеров и стрелок -->
-                    <div class="sizes-with-nav">
-                        <!-- Кнопка прокрутки влево -->
-                        <button type="button" class="size-nav-btn size-nav-left" onclick="scrollSizes('left')" aria-label="Прокрутить размеры влево">
-                            <i class="bi bi-chevron-left" aria-hidden="true"></i>
-                        </button>
-                        
-                        <div class="sizes-scroll-container" id="sizesScrollContainer">
-                            <?php
-                            $quickSizes = [
-                                'eu' => ['36','37','38','39','40','41','42','43','44','45','46'],
-                                'us' => ['4','5','6','7','8','9','10','11','12','13'],
-                                'uk' => ['3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11','11.5','12'],
-                                'cm' => ['22','23','24','25','26','27','28','29','30'],
-                            ];
-                            foreach ($quickSizes as $system => $sizes): ?>
-                                <div class="size-group" data-system="<?= $system ?>">
-                                    <?php foreach ($sizes as $size): ?>
-                                        <button type="button" class="quick-chip size-chip"
-                                                data-size="<?= Html::encode($size) ?>"
-                                                data-system="<?= $system ?>"
-                                                onclick="toggleSizeFilter('<?= Html::encode($size) ?>', '<?= $system ?>')">
-                                            <span><?= Html::encode($size) ?></span>
-                                        </button>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                        
-                        <!-- Кнопка прокрутки вправо -->
-                        <button type="button" class="size-nav-btn size-nav-right" onclick="scrollSizes('right')" aria-label="Прокрутить размеры вправо">
-                            <i class="bi bi-chevron-right" aria-hidden="true"></i>
-                        </button>
+                    <!-- Размеры в горизонтальном scroll-rail (edge-fade вместо стрелок) -->
+                    <div class="sizes-scroll-container scroll-rail" id="sizesScrollContainer">
+                        <?php
+                        $quickSizes = [
+                            'eu' => ['36','37','38','39','40','41','42','43','44','45','46'],
+                            'us' => ['4','5','6','7','8','9','10','11','12','13'],
+                            'uk' => ['3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11','11.5','12'],
+                            'cm' => ['22','23','24','25','26','27','28','29','30'],
+                        ];
+                        foreach ($quickSizes as $system => $sizes): ?>
+                            <div class="size-group" data-system="<?= $system ?>">
+                                <?php foreach ($sizes as $size): ?>
+                                    <button type="button" class="quick-chip size-chip"
+                                            data-size="<?= Html::encode($size) ?>"
+                                            data-system="<?= $system ?>"
+                                            onclick="toggleSizeFilter('<?= Html::encode($size) ?>', '<?= $system ?>')">
+                                        <span><?= Html::encode($size) ?></span>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
                 
                 <!-- Toolbar -->
                 <div class="catalog-toolbar">
-                    <h1 class="toolbar-title"><?= isset($h1) ? Html::encode($h1) : 'Каталог' ?> <span class="filter-count">(<?= $pagination->totalCount ?>)</span></h1>
-                    
                     <div class="toolbar-actions">
                         <label for="sortSelect" class="sr-only">Сортировка</label>
                         <select class="sort-select" id="sortSelect" onchange="applySort(this.value)">
@@ -570,7 +556,7 @@ setTimeout(function() {
                 <?php endif; ?>
 
                 <h2 class="sr-only">Список товаров</h2>
-                <div class="products-grid" id="products">
+                <div class="product-grid products-grid" id="products">
                     <?= $this->render('_products', ['products' => $products]) ?>
                 </div>
 
@@ -1104,16 +1090,16 @@ document.querySelectorAll('.view-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
+
     const view = btn.getAttribute('data-view');
     const products = document.getElementById('products');
-    
+
     if (view === 'list') {
-        products.classList.remove('products-grid');
+        products.classList.remove('products-grid', 'product-grid');
         products.classList.add('products-list');
     } else {
         products.classList.remove('products-list');
-        products.classList.add('products-grid');
+        products.classList.add('products-grid', 'product-grid');
     }
     localStorage.setItem('catalogView', view);
   });
@@ -1149,14 +1135,14 @@ window.applyPerPage = applyPerPage;
 function switchView(view) {
   document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
   document.querySelector(`.view-btn[data-view="${view}"]`).classList.add('active');
-  
+
   const products = document.getElementById('products');
   if (view === 'list') {
-    products.classList.remove('products-grid');
+    products.classList.remove('products-grid', 'product-grid');
     products.classList.add('products-list');
   } else {
     products.classList.remove('products-list');
-    products.classList.add('products-grid');
+    products.classList.add('products-grid', 'product-grid');
   }
   localStorage.setItem('catalogView', view);
 }

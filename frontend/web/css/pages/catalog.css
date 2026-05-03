@@ -425,11 +425,10 @@
     font-weight: var(--font-weight-medium);
 }
 
-/* === QUICK FILTERS BAR (Бренды) === */
+/* === QUICK FILTERS BAR (Бренды) ===
+   Внешний вид: .scroll-rail utility (см. components/scroll-rail.css).
+   Здесь только spacing — overflow / mask / snap живут в утилите. */
 .quick-filters-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
     margin-bottom: var(--space-3);
 }
 
@@ -529,49 +528,12 @@
     color: var(--color-text-primary);
 }
 
-.sizes-with-nav {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    min-width: 0;
-    flex: 1;
-}
-
-.size-nav-btn {
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-full);
-    background: var(--color-bg-primary);
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: border-color var(--duration-fast), color var(--duration-fast);
-    color: var(--color-text-muted);
-    font-size: var(--text-sm);
-    font-family: inherit;
-}
-
-.size-nav-btn:hover {
-    border-color: var(--c-black);
-    color: var(--color-text-primary);
-}
-
+/* Размеры в .sizes-scroll-container используют .scroll-rail (см. components/scroll-rail.css).
+   Здесь только локальные тюнинги: flex-сжатие и вертикальный padding под фокусные кольца. */
 .sizes-scroll-container {
-    display: flex;
-    gap: var(--space-2);
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
     flex: 1;
     min-width: 0;
-    padding: 2px 0;
-}
-
-.sizes-scroll-container::-webkit-scrollbar {
-    display: none;
+    padding-block: 2px;
 }
 
 .size-group {
@@ -591,18 +553,14 @@
     padding: 0 var(--space-2);
 }
 
-/* === TOOLBAR === */
+/* === TOOLBAR ===
+   Дублирующий H1 удалён — toolbar держит только sort/per-page/view-toggle.
+   Actions выровнены по правому краю. */
 .catalog-toolbar {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     margin-bottom: var(--space-4);
-}
-
-.toolbar-title {
-    font-size: var(--text-2xl);
-    font-weight: var(--font-weight-bold);
-    margin: 0;
 }
 
 .toolbar-actions {
@@ -657,26 +615,30 @@
     box-shadow: var(--shadow-sm);
 }
 
-/* === PRODUCTS GRID - 4 в строку === */
+/* === PRODUCTS GRID ===
+   Сетка вынесена в frontend/web/css/components/product-grid.css (.product-grid utility).
+   Ниже оставлен alias для обратной совместимости — view-toggle, JS и кэшированный HTML
+   ещё используют .products-grid. */
 .catalog-page .products-grid,
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-4);
     align-items: stretch;
     width: 100%;
 }
 
-@media (max-width: 1200px) {
+@media (min-width: 481px) {
+    .catalog-page .products-grid,
     .products-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 768px) {
+@media (min-width: 1280px) {
+    .catalog-page .products-grid,
     .products-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-4);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }
 
@@ -730,13 +692,6 @@
 @media (max-width: 480px) {
     .products-list .product-card {
         grid-template-columns: 100px 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .products-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-3);
     }
 }
 
@@ -1254,17 +1209,7 @@
         display: none;
     }
 
-    /* Quick filters: horizontal scroll, no wrap */
-    .quick-filters-bar {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        padding-bottom: var(--space-1);
-    }
-    .quick-filters-bar::-webkit-scrollbar {
-        display: none;
-    }
+    /* .quick-filters-bar overflow управляется .scroll-rail utility */
 
     /* Filter toggle button visible */
     .filter-toggle-btn {
@@ -1288,10 +1233,6 @@
         gap: var(--space-3);
         margin-bottom: var(--space-4);
     }
-    .toolbar-title {
-        font-size: var(--text-lg);
-        flex: 1;
-    }
     .sort-select {
         height: 40px;
         font-size: var(--text-sm);
@@ -1301,12 +1242,7 @@
         display: none; /* hide list/grid toggle on mobile */
     }
 
-    /* Products grid: 2 columns on mobile */
-    .catalog-page .products-grid,
-    .products-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-3);
-    }
+    /* Products grid: 2 columns on mobile (см. .product-grid utility) */
 
     /* Size chips row: horizontal scroll */
     .quick-filters-sizes {
@@ -1353,12 +1289,7 @@
 
 /* === SMALL MOBILE (≤480px) === */
 @media (max-width: 480px) {
-    /* 1 column on very small screens */
-    .catalog-page .products-grid,
-    .products-grid {
-        grid-template-columns: 1fr;
-        gap: var(--space-3);
-    }
+    /* Сетка управляется .product-grid utility — здесь только product-card overrides */
 
     /* Smaller product card images */
     .product-image {
@@ -1370,30 +1301,8 @@
         display: none;
     }
 
-    /* Product card in single col: horizontal layout */
-    .products-grid .product-card {
-        display: flex;
-        flex-direction: row;
-        height: auto;
-    }
-    .products-grid .product-card .product-image-wrapper {
-        width: 130px;
-        min-width: 130px;
-        aspect-ratio: 1;
-    }
-    .products-grid .product-card .product-info {
-        flex: 1;
-        padding: var(--space-3);
-        min-width: 0;
-    }
-    .products-grid .product-card .product-price {
-        margin-top: auto;
-        padding-top: var(--space-2);
-    }
-    /* Hide add-to-cart button in single col to keep it compact */
-    .products-grid .product-card .btn-add-to-cart-card {
-        display: none;
-    }
+    /* Сетка теперь 2 колонки на ≤480 (см. .product-grid utility) — карточка остаётся вертикальной.
+       Старый горизонтальный single-col layout удалён вместе с переходом на 2 колонки. */
 }
 
 /* === FAVORITES GUEST BANNER === */

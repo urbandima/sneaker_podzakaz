@@ -17,6 +17,8 @@ class CatalogAsset extends VersionedAssetBundle
     public $baseUrl = '@web';
     
     public $css = [
+        'css/components/product-grid.css',  // Утилита: 2/3/4 колонки + minmax(0, 1fr)
+        'css/components/scroll-rail.css',   // Утилита: горизонтальный scroll-snap + edge-fade
         'css/pages/catalog.css',  // Новые B&W стили каталога
         'css/components/product-card.css',  // Стили карточки товара
     ];
