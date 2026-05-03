@@ -480,7 +480,13 @@ $this->registerJsVar('productVideo', $productVideo);
     <div class="sticky-purchase-bar" id="stickyBar">
         <div class="sticky-content">
             <div class="sticky-product-info">
-                <img src="<?= $galleryImages[0]['url'] ?>" class="sticky-thumb" alt="<?= Html::encode($productTitle) ?>" onerror="this.style.display='none';this.onerror=null;">
+                <?php if (!$isPlaceholder): ?>
+                    <!-- CMP-23 Issue 1: omit thumb entirely when product has no real image.
+                         Rendering the SVG-data-URI gallery placeholder as a 40px <img> shows
+                         a "broken-image" icon (UX feedback). Letting .sticky-details take the
+                         full width keeps brand+name+price legible. -->
+                    <img src="<?= Html::encode($galleryImages[0]['url']) ?>" class="sticky-thumb" alt="<?= Html::encode($productTitle) ?>" onerror="this.style.display='none';this.onerror=null;">
+                <?php endif; ?>
                 <div class="sticky-details">
                     <?php if ($product->brand): ?>
                     <div class="sticky-brand"><?= Html::encode($product->brand->name) ?></div>

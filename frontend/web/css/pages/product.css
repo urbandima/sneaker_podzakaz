@@ -5571,8 +5571,12 @@ select.form-control {
  */
 @media (max-width: 768px) {
     /* Hide price in the sticky bar on mobile — it's already shown above the
-       fold via the CMP-23 reorder, and there is not enough horizontal room. */
-    .sticky-purchase-bar .sticky-price { display: none; }
+       fold via the CMP-23 reorder, and there is not enough horizontal room.
+       !important guards against legacy inline styles (product-page.js sets
+       .style.transform for the price-pulse animation without touching display)
+       and against any cascade order with the bare `.sticky-price` rules above. */
+    .sticky-purchase-bar .sticky-price,
+    .sticky-purchase-bar .sticky-price * { display: none !important; }
 
     /* Constrain the product info side so it doesn't push the actions off-screen */
     .sticky-purchase-bar .sticky-product-info {
