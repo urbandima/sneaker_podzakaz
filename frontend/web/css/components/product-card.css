@@ -64,6 +64,47 @@
     opacity: 0;
 }
 
+/* === [CMP-34] EMPTY-IMAGE PLACEHOLDER ===
+ * Когда у товара нет фото или фото не загрузилось, рендерим B&W-иконку
+ * вместо broken-image иконки браузера + alt-текста. Паритет со стилем
+ * .gallery-empty-placeholder на PDP (см. pages/product.css).
+ * Заглушка позиционируется поверх .product-link, который остаётся кликабельным
+ * через pointer-events: none на самой заглушке.
+ */
+.product-card-empty-placeholder {
+    display: none;
+}
+
+.product-image-wrapper.is-placeholder {
+    background: var(--color-bg-secondary);
+}
+
+.product-image-wrapper.is-placeholder .product-image {
+    display: none;
+}
+
+.product-image-wrapper.is-placeholder .product-card-empty-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    inset: 0;
+    color: var(--color-border);
+    pointer-events: none;
+}
+
+.product-card-empty-placeholder__icon {
+    width: 56px;
+    height: 56px;
+}
+
+@media (max-width: 480px) {
+    .product-card-empty-placeholder__icon {
+        width: 40px;
+        height: 40px;
+    }
+}
+
 /* === BADGES === */
 .product-badges {
     position: absolute;
