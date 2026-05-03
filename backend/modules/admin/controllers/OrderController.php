@@ -1557,7 +1557,11 @@ class OrderController extends BaseAdminController
         $allowed = ['china_track_number','local_track_number','delivery_method','payment_method','delivery_address',
             'pickup_point','china_delivery_status','warehouse_arrival_date','delivery_date',
             'customer_id','client_name','client_phone','client_email','source',
-            'comment','total_amount','delivery_cost'];
+            'comment','total_amount','delivery_cost',
+            'recipient_last_name','recipient_first_name','recipient_middle_name',
+            'citizenship','birth_date','inn',
+            'passport_series','passport_number','passport_issue_date',
+            'passport_issued_by','passport_unp','passport_division_code'];
         if (!in_array($field, $allowed)) return ['success' => false, 'message' => 'Недопустимое поле'];
         $order = Order::findOne($id);
         if (!$order) return ['success' => false, 'message' => 'Не найден'];

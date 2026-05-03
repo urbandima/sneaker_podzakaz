@@ -92,6 +92,9 @@ class OrderHistory extends ActiveRecord
         if ($action === 'status_changed') {
             $h->old_status = (string)$oldValue;
             $h->new_status = (string)$newValue;
+        } else {
+            $h->old_status = '';
+            $h->new_status = '';
         }
 
         $h->save(false);

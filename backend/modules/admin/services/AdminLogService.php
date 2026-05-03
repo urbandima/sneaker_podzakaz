@@ -28,22 +28,21 @@ class AdminLogService
             return;
         }
 
-        $log = new AdminLog();
-        $log->user_id = $user->id;
-        $log->username = $user->identity->username ?? 'unknown';
-        $log->action = $action;
-        $log->entity_type = $entityType;
-        $log->entity_id = $entityId;
-        $log->entity_name = $entityName;
-        $log->description = $description;
-        $log->old_values = $oldValues ? json_encode($oldValues, JSON_UNESCAPED_UNICODE) : null;
-        $log->new_values = $newValues ? json_encode($newValues, JSON_UNESCAPED_UNICODE) : null;
-        $log->ip_address = Yii::$app->request->userIP;
-        $log->user_agent = substr(Yii::$app->request->userAgent ?? '', 0, 500);
-        
         try {
+            $log = new AdminLog();
+            $log->user_id = $user->id;
+            $log->username = $user->identity->username ?? 'unknown';
+            $log->action = $action;
+            $log->entity_type = $entityType;
+            $log->entity_id = $entityId;
+            $log->entity_name = $entityName;
+            $log->description = $description;
+            $log->old_values = $oldValues ? json_encode($oldValues, JSON_UNESCAPED_UNICODE) : null;
+            $log->new_values = $newValues ? json_encode($newValues, JSON_UNESCAPED_UNICODE) : null;
+            $log->ip_address = Yii::$app->request->userIP;
+            $log->user_agent = substr(Yii::$app->request->userAgent ?? '', 0, 500);
             $log->save(false);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Yii::error('Failed to save admin log: ' . $e->getMessage());
         }
     }

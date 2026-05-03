@@ -187,11 +187,17 @@ $customer = $model->customer ?? null;
 
 /* Inline save indicator */
 .crm-save-flash {
+    position: fixed; bottom: 20px; right: 20px;
     display: inline-block; opacity: 0;
-    color: var(--admin-accent, #059669); font-size: 11px; margin-left: 4px;
+    background: #059669; color: #fff;
+    padding: 6px 14px; border-radius: 8px;
+    font-size: 12px; font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
     transition: opacity .2s;
+    z-index: 9999; pointer-events: none;
 }
 .crm-save-flash.show { opacity: 1; }
+.crm-save-flash.error { background: #dc2626; }
 
 /* Track number inline */
 .crm-track-wrap { display: flex; gap: 6px; align-items: center; }
@@ -2033,14 +2039,25 @@ window.saveField = function(field, value) {
         headers: {'Content-Type':'application/json','X-CSRF-Token':'$_csrfToken'},
         body: JSON.stringify({id: $_modelId, field: field, value: value})
     }).then(function(r){ return r.json(); }).then(function(d) {
-        if (d.success) {
-            var flash = document.createElement('span');
-            flash.className = 'crm-save-flash';
+        var flash = document.createElement('span');
+        flash.className = 'crm-save-flash';
+        if (d && d.success) {
             flash.textContent = '✓ Сохранено';
-            document.body.appendChild(flash);
-            setTimeout(function() { flash.classList.add('show'); }, 10);
-            setTimeout(function() { flash.classList.remove('show'); setTimeout(function(){ flash.remove(); }, 300); }, 1500);
+        } else {
+            flash.classList.add('error');
+            flash.textContent = '✗ ' + ((d && d.message) ? d.message : 'Ошибка сохранения');
         }
+        document.body.appendChild(flash);
+        setTimeout(function() { flash.classList.add('show'); }, 10);
+        var hideAfter = (d && d.success) ? 1500 : 3000;
+        setTimeout(function() { flash.classList.remove('show'); setTimeout(function(){ flash.remove(); }, 300); }, hideAfter);
+    }).catch(function() {
+        var flash = document.createElement('span');
+        flash.className = 'crm-save-flash error';
+        flash.textContent = '✗ Сетевая ошибка';
+        document.body.appendChild(flash);
+        setTimeout(function() { flash.classList.add('show'); }, 10);
+        setTimeout(function() { flash.classList.remove('show'); setTimeout(function(){ flash.remove(); }, 300); }, 3000);
     });
 };
 
