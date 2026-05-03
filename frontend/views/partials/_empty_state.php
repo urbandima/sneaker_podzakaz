@@ -1,21 +1,15 @@
 <?php
 /**
  * Общий компонент «пустое состояние».
- * Использование:
- *   echo $this->render('/partials/_empty_state', [
- *       'icon'    => 'bi-bag-x',
- *       'title'   => 'Заказов пока нет',
- *       'message' => 'Перейдите в каталог…',
- *       'actionUrl'   => '/catalog',
- *       'actionLabel' => 'Перейти в каталог',
- *   ]);
  *
- * @var string $icon        — Bootstrap-icon класс (например 'bi-bag-x')
- * @var string $title       — Заголовок
- * @var string $message     — Описание (optional)
- * @var string $actionUrl   — URL кнопки (optional)
- * @var string $actionLabel — Текст кнопки (optional)
- * @var string $cssClass    — Дополнительный CSS-класс (optional)
+ * @var string $icon           — Bootstrap-icon класс (например 'bi-bag-x')
+ * @var string $title          — Заголовок
+ * @var string $message        — Описание (optional)
+ * @var string $actionUrl      — URL основной кнопки (optional)
+ * @var string $actionLabel    — Текст основной кнопки (optional)
+ * @var string $secondaryUrl   — URL вторичной ссылки (optional)
+ * @var string $secondaryLabel — Текст вторичной ссылки (optional)
+ * @var string $cssClass       — Дополнительный CSS-класс (optional)
  */
 
 $icon = $icon ?? 'bi-emoji-frown';
@@ -23,6 +17,8 @@ $title = $title ?? '';
 $message = $message ?? '';
 $actionUrl = $actionUrl ?? '';
 $actionLabel = $actionLabel ?? '';
+$secondaryUrl = $secondaryUrl ?? '';
+$secondaryLabel = $secondaryLabel ?? '';
 $cssClass = $cssClass ?? '';
 ?>
 <div class="empty-state <?= $cssClass ?>">
@@ -35,5 +31,8 @@ $cssClass = $cssClass ?? '';
     <?php endif; ?>
     <?php if ($actionUrl && $actionLabel): ?>
         <a href="<?= $actionUrl ?>" class="btn btn-primary"><?= $actionLabel ?></a>
+    <?php endif; ?>
+    <?php if ($secondaryUrl && $secondaryLabel): ?>
+        <a href="<?= $secondaryUrl ?>" class="empty-state__secondary"><?= $secondaryLabel ?></a>
     <?php endif; ?>
 </div>
