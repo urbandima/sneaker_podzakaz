@@ -3,6 +3,7 @@
 namespace app\backend\modules\admin\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
 /**
@@ -53,6 +54,17 @@ class AdminLog extends ActiveRecord
     public static function tableName()
     {
         return '{{%admin_log}}';
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => false,
+            ],
+        ];
     }
 
     /**
