@@ -22,7 +22,7 @@
 .cart-drawer {
     position: fixed;
     top: 0;
-    right: -100%;
+    right: 0;
     width: 400px;
     max-width: 100vw;
     height: 100vh;
@@ -31,11 +31,18 @@
     display: flex;
     flex-direction: column;
     box-shadow: -4px 0 24px rgba(0,0,0,0.1);
-    transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Hide via transform (not `right: -100%`) so the closed drawer never
+       contributes to body scrollWidth on mobile and never bleeds into
+       fullPage screenshots as a phantom right-rail panel. */
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.3s;
 }
 
 .cart-drawer.open {
-    right: 0;
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s;
 }
 
 .cart-drawer-header {
