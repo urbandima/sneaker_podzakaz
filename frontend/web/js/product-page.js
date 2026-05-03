@@ -369,12 +369,10 @@ function addToCartFromSticky() {
     const size = window.selectedStickySize;
 
     if (!size) {
-        notify('Пожалуйста, выберите размер', 'warning');
-        // Открываем dropdown размеров
-        const dropdown = document.getElementById('stickySizeDropdown');
-        const btn = document.getElementById('stickySizeBtn');
-        if (dropdown && !dropdown.classList.contains('show')) {
-            toggleStickySizeDropdown();
+        SH.notify('Пожалуйста, выберите размер', 'warning');
+        // CMP-23: открываем bottom-sheet вместо устаревшего dropdown
+        if (typeof openSizeSheet === 'function') {
+            openSizeSheet();
         }
         return;
     }
@@ -408,7 +406,7 @@ function addToCartFromSticky() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    notify('✓ Товар добавлен в корзину', 'success');
+                    SH.notify('✓ Товар добавлен в корзину', 'success');
                     // Показываем индикатор
                     setTimeout(() => showProductInCartIndicator(), 500);
                     // Обновляем счетчик корзины
@@ -422,21 +420,23 @@ function addToCartFromSticky() {
                         }
                     }
                 } else {
-                    notify(data.message || 'Ошибка добавления в корзину', 'error');
+                    SH.notify(data.message || 'Ошибка добавления в корзину', 'error');
                 }
             })
             .catch(error => {
-                notify('Ошибка соединения', 'error');
+                SH.notify('Ошибка соединения', 'error');
             });
     }
 }
 
-// Закрытие dropdown при клике вне его
+// Закрытие dropdown при клике вне его. CMP-23: dropdown заменён на
+// bottom-sheet, поэтому проверяем элемент перед обращением к нему.
 document.addEventListener('click', function (e) {
     const dropdown = document.getElementById('stickySizeDropdown');
     const btn = document.getElementById('stickySizeBtn');
+    if (!dropdown || !btn) return;
 
-    if (dropdown && btn && dropdown.classList.contains('show')) {
+    if (dropdown.classList.contains('show')) {
         if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
             toggleStickySizeDropdown();
         }
@@ -475,14 +475,15 @@ function toggleMainSpecs() {
 function toggleReviews() {
     const content = document.getElementById('reviewsContent');
     const icon = document.getElementById('reviewsToggleIcon');
-    const header = icon.closest('.reviews-header');
+    const header = icon ? icon.closest('.reviews-header') : null;
 
+    if (!content) return;
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'block';
-        header.classList.add('open');
+        if (header) header.classList.add('open');
     } else {
         content.style.display = 'none';
-        header.classList.remove('open');
+        if (header) header.classList.remove('open');
     }
 }
 
@@ -511,14 +512,15 @@ function scrollRelatedCarousel(direction) {
 function toggleQA() {
     const content = document.getElementById('qaContent');
     const icon = document.getElementById('qaToggleIcon');
-    const header = icon.closest('.qa-header');
+    const header = icon ? icon.closest('.qa-header') : null;
 
+    if (!content) return;
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'flex';
-        header.classList.add('open');
+        if (header) header.classList.add('open');
     } else {
         content.style.display = 'none';
-        header.classList.remove('open');
+        if (header) header.classList.remove('open');
     }
 }
 
@@ -592,7 +594,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let startX = 0;
     let currentX = 0;
     let isDragging = false;
-    let currentImageIndex = 0;
+    let currentIndex = 0;
 
     track.addEventListener('touchstart', (e) => {
         startX = e.touches[0].clientX;
@@ -862,8 +864,17 @@ function selectSize(size) {
         display.textContent = size;
     }
 
-    // Store for createOrder()
+    // Pre-fill 1-click modal size field
+    const oneClickEl = document.getElementById('oneClickSize');
+    if (oneClickEl) oneClickEl.value = size + ' EU';
+
+    // Update sticky size display
+    const stickyEl = document.getElementById('stickySizeDisplay');
+    if (stickyEl) stickyEl.textContent = size + ' EU';
+
+    // Store for createOrder() and productData
     window.selectedProductSize = String(size);
+    if (window.productData) window.productData.selectedSize = String(size);
 }
 
 function selectSizeFinderSize(size) {

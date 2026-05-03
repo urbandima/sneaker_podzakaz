@@ -5461,3 +5461,255 @@ select.form-control {
         font-size: var(--text-xl);
     }
 }
+
+/* === [CMP-23] PDP gallery empty placeholder ===
+ * Parity with catalog .product-card placeholder (Product::getMainImageUrl SVG).
+ * The .gallery-empty-placeholder element is always rendered; .is-placeholder
+ * on the wrapper toggles its visibility (set by PHP for no-image products or
+ * by the <img onerror> handler when a stored image fails to load).
+ */
+.main-image-wrapper .gallery-empty-placeholder {
+    display: none;
+}
+
+.main-image-wrapper.is-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-secondary, #f3f4f6);
+}
+
+/* Use descendant selectors so a JS-wrapped <a> around the <img> doesn't break the rule */
+.main-image-wrapper.is-placeholder img,
+.main-image-wrapper.is-placeholder .video-preview,
+.main-image-wrapper.is-placeholder a:has(img) {
+    display: none;
+}
+
+.main-image-wrapper.is-placeholder .gallery-empty-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3, 12px);
+    padding: var(--space-6, 24px);
+    color: var(--color-text-muted, #9ca3af);
+    text-align: center;
+    width: 100%;
+    height: 100%;
+}
+
+.gallery-empty-placeholder__icon {
+    width: 72px;
+    height: 72px;
+    color: var(--color-border, #d1d5db);
+}
+
+.gallery-empty-placeholder__text {
+    font-size: var(--text-sm, 0.875rem);
+    font-weight: var(--font-weight-medium, 500);
+    color: var(--color-text-muted, #9ca3af);
+}
+
+/* === [CMP-23] Mobile PDP reorder: brand + name + price above image ===
+ * Uses display: contents on .product-info-section so its children can be
+ * ordered alongside .product-gallery-section in the .product-content grid/flex.
+ */
+@media (max-width: 640px) {
+    .product-content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4, 16px);
+    }
+
+    .product-content > .product-info-section {
+        display: contents;
+    }
+
+    .product-content .product-meta { order: -3; }
+    .product-content .product-title { order: -2; }
+    .product-content .product-price-section { order: -1; }
+    .product-content .product-gallery-section { order: 0; }
+    .product-content .product-tags--inline { order: 1; }
+    .product-content .product-rating-section { order: 2; }
+    .product-content .size-selector-section { order: 3; }
+    .product-content .purchase-actions { order: 4; }
+
+    /* Visual rhythm: tighten gaps between the elevated info block + image */
+    .product-content .product-meta {
+        margin-bottom: 0;
+        gap: var(--space-3, 12px);
+        flex-wrap: wrap;
+    }
+    .product-content .product-title {
+        margin-bottom: 0;
+        font-size: var(--text-2xl, 1.5rem);
+        line-height: 1.2;
+    }
+    .product-content .product-price-section {
+        margin-bottom: var(--space-2, 8px);
+    }
+
+    /* Ensure gallery does not steal the entire fold; cap height so above-the-fold
+       stays under ~844 px tall when combined with header + breadcrumbs. */
+    .product-content .main-image-container {
+        max-height: 360px;
+        aspect-ratio: 4 / 3;
+    }
+
+    .product-content .gallery-empty-placeholder__icon {
+        width: 56px;
+        height: 56px;
+    }
+}
+
+/* === [CMP-23] Sticky purchase bar fixes (mobile) ===
+ * - Show full "В корзину" label (no clip-out, no icon-only)
+ * - Brand + name with ellipsis (no clip without ellipsis)
+ * - Surface "Купить в 1 клик" as secondary action
+ * - Size trigger renders as a tap-zone (bottom-sheet target), not a <select>
+ */
+@media (max-width: 768px) {
+    /* Hide price in the sticky bar on mobile — it's already shown above the
+       fold via the CMP-23 reorder, and there is not enough horizontal room. */
+    .sticky-purchase-bar .sticky-price { display: none; }
+
+    /* Constrain the product info side so it doesn't push the actions off-screen */
+    .sticky-purchase-bar .sticky-product-info {
+        flex: 1 1 0;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .sticky-purchase-bar .sticky-details {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .sticky-purchase-bar .sticky-add-cart {
+        min-width: 0;
+        flex: 2;
+    }
+
+    /* Restore the label that the previous icon-only mobile rule hid */
+    .sticky-purchase-bar .sticky-add-cart span {
+        display: inline-block;
+        max-width: none;
+        overflow: visible;
+        text-overflow: clip;
+        white-space: nowrap;
+    }
+
+    .sticky-purchase-bar .sticky-add-cart i {
+        font-size: var(--text-base, 1rem);
+        margin-right: 4px;
+    }
+
+    /* Surface the 1-click secondary action on mobile.
+       On <=480 we show only the icon to keep room for the full "В корзину". */
+    .sticky-purchase-bar .sticky-quick-buy {
+        display: inline-flex;
+        flex: 0 0 auto;
+        height: 44px;
+        min-width: 44px;
+        padding: var(--space-2, 8px) var(--space-3, 12px);
+        font-size: var(--text-xs, 0.75rem);
+        white-space: nowrap;
+    }
+
+    .sticky-purchase-bar .sticky-quick-buy span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Size trigger as full-width tap-zone */
+    .sticky-purchase-bar .sticky-size-btn {
+        width: 100%;
+        min-width: 0;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Keep the label even on very small screens — no clipping to "В корзи…" */
+    .sticky-purchase-bar .sticky-add-cart {
+        font-size: var(--text-sm, 0.875rem);
+        padding: var(--space-2, 8px) var(--space-3, 12px);
+    }
+
+    .sticky-purchase-bar .sticky-add-cart span {
+        display: inline-block;
+    }
+
+    /* Brand + name need real ellipsis, not raw clip */
+    .sticky-purchase-bar .sticky-name,
+    .sticky-purchase-bar .sticky-title,
+    .sticky-purchase-bar .sticky-brand {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    /* Re-show .sticky-name on small screens (default rule hid it) */
+    .sticky-purchase-bar .sticky-name {
+        display: block;
+    }
+
+    /* Icon-only quick-buy on the smallest viewports to keep "В корзину"
+       label on the primary CTA fully visible. */
+    .sticky-purchase-bar .sticky-quick-buy {
+        padding: var(--space-2, 8px);
+    }
+
+    .sticky-purchase-bar .sticky-quick-buy span {
+        display: none;
+    }
+
+    .sticky-purchase-bar .sticky-quick-buy i {
+        font-size: var(--text-lg, 1.125rem);
+    }
+}
+
+/* === [CMP-23] Bottom-sheet size picker contents === */
+.size-sheet__list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-2, 8px);
+}
+
+.size-sheet__option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    background: var(--color-bg-primary, #fff);
+    border: 1.5px solid var(--color-border, #e5e7eb);
+    border-radius: var(--radius-md, 8px);
+    font-size: var(--text-sm, 0.875rem);
+    font-weight: var(--font-weight-semibold, 600);
+    color: var(--color-text-primary, #111);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.size-sheet__option:hover:not(:disabled),
+.size-sheet__option:focus-visible {
+    border-color: var(--color-text-primary, #111);
+    outline: none;
+}
+
+.size-sheet__option.selected {
+    background: var(--color-text-primary, #111);
+    border-color: var(--color-text-primary, #111);
+    color: var(--color-bg-primary, #fff);
+}
+
+.size-sheet__option:disabled,
+.size-sheet__option.unavailable {
+    opacity: 0.35;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}

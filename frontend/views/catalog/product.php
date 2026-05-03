@@ -72,10 +72,16 @@ if (!empty($product->images)) {
 
 if (empty($galleryImages)) {
     $fallbackUrl = $product->getMainImageUrl();
+    // CMP-23: Product::getMainImageUrl() returns an SVG data URI when no real
+    // image exists; treat that case as a placeholder so the styled empty state
+    // renders (parity with catalog _product_card.php).
+    $isFallbackPlaceholder = !$fallbackUrl
+        || strpos((string) $fallbackUrl, 'data:image/svg') === 0
+        || strpos((string) $fallbackUrl, '/images/placeholder') !== false;
     $galleryImages[] = [
         'url' => $fallbackUrl ? ImageHelper::getWebpUrl($fallbackUrl) : $galleryPlaceholderDataUri,
         'alt' => $product->name,
-        'placeholder' => $fallbackUrl ? false : true,
+        'placeholder' => $isFallbackPlaceholder,
     ];
 }
 
@@ -273,12 +279,13 @@ $this->registerJsVar('productVideo', $productVideo);
             <?php endif; ?>
 
             <!-- Основное изображение -->
+            <?php $isPlaceholder = !empty($galleryImages[0]['placeholder']); ?>
             <div class="main-image-container">
-                <div class="main-image-wrapper">
+                <div class="main-image-wrapper<?= $isPlaceholder ? ' is-placeholder' : '' ?>">
                     <?php if ($productVideo): ?>
                         <!-- Видео превью -->
                         <div class="video-preview" onclick="openVideoModal()">
-                            <img src="<?= $galleryImages[0]['url'] ?>" 
+                            <img src="<?= $galleryImages[0]['url'] ?>"
                                  alt="<?= Html::encode($productTitle) ?>"
                                  id="mainImage">
                             <div class="video-play-button">
@@ -292,8 +299,21 @@ $this->registerJsVar('productVideo', $productVideo);
                              alt="<?= Html::encode($productTitle) ?>"
                              id="mainImage"
                              loading="eager"
-                             fetchpriority="high">
+                             fetchpriority="high"
+                             onerror="this.closest('.main-image-wrapper').classList.add('is-placeholder');this.onerror=null;">
                     <?php endif; ?>
+                    <!-- Стилизованный placeholder, виден через .is-placeholder
+                         (паритет с catalog _product_card.php). Рендерится
+                         всегда и активируется либо PHP (нет картинки), либо
+                         JS (onerror загрузки картинки). -->
+                    <div class="gallery-empty-placeholder" aria-hidden="true">
+                        <svg class="gallery-empty-placeholder__icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="6" y="14" width="52" height="36" rx="4" stroke="currentColor" stroke-width="2.5"/>
+                            <circle cx="22" cy="26" r="4" fill="currentColor"/>
+                            <path d="M10 46l14-16 12 12 8-8 10 12" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" fill="none"/>
+                        </svg>
+                        <span class="gallery-empty-placeholder__text">Изображение скоро появится</span>
+                    </div>
                     
                     <!-- Бейджи -->
                     <div class="image-badges">
@@ -460,26 +480,71 @@ $this->registerJsVar('productVideo', $productVideo);
     <div class="sticky-purchase-bar" id="stickyBar">
         <div class="sticky-content">
             <div class="sticky-product-info">
-                <img src="<?= $galleryImages[0]['url'] ?>" alt="<?= Html::encode($productTitle) ?>">
+                <img src="<?= $galleryImages[0]['url'] ?>" class="sticky-thumb" alt="<?= Html::encode($productTitle) ?>" onerror="this.style.display='none';this.onerror=null;">
                 <div class="sticky-details">
-                    <div class="sticky-title"><?= Html::encode($productTitle) ?></div>
+                    <?php if ($product->brand): ?>
+                    <div class="sticky-brand"><?= Html::encode($product->brand->name) ?></div>
+                    <?php endif; ?>
+                    <div class="sticky-title sticky-name"><?= Html::encode($productTitle) ?></div>
                     <div class="sticky-price"><?= $productPriceView['currentPrice'] ? number_format($productPriceView['currentPrice'], 0, '.', ' ') . ' BYN' : number_format($product->price, 0, '.', ' ') . ' BYN' ?></div>
                 </div>
             </div>
 
             <div class="sticky-size-selector">
-                <button type="button" 
+                <!-- Тап-зона: открывает bottom-sheet (см. #sizeSheet) -->
+                <button type="button"
                         class="sticky-size-btn"
                         id="stickySizeBtn"
-                        onclick="toggleStickySizeDropdown()">
+                        aria-haspopup="dialog"
+                        aria-controls="sizeSheet"
+                        onclick="openSizeSheet()">
                     <span id="stickySizeDisplay">Размер</span>
-                    <i class="bi bi-chevron-down"></i>
+                    <i class="bi bi-chevron-up" aria-hidden="true"></i>
                 </button>
-                
-                <div class="sticky-size-dropdown" id="stickySizeDropdown">
+            </div>
+
+            <div class="sticky-actions">
+                <?php if ($product->price > 0): ?>
+                <button type="button"
+                        class="btn btn-outline sticky-quick-buy"
+                        onclick="openOneClickModal()">
+                    <i class="bi bi-lightning" aria-hidden="true"></i>
+                    <span>1 клик</span>
+                </button>
+                <?php endif; ?>
+                <button type="button"
+                        class="btn btn-primary sticky-add-cart"
+                        onclick="addToCartFromSticky()">
+                    <i class="bi bi-cart-plus" aria-hidden="true"></i>
+                    <span>В корзину</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom-sheet: Size picker (replaces sticky-bar <select>) -->
+    <div class="modal--sheet"
+         id="sizeSheet"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="sizeSheetTitle"
+         hidden>
+        <div class="modal--sheet__panel" role="document">
+            <span class="modal--sheet__handle" aria-hidden="true"></span>
+            <div class="modal--sheet__header">
+                <h2 class="modal--sheet__title" id="sizeSheetTitle">Выберите размер</h2>
+                <button type="button"
+                        class="modal--sheet__close"
+                        aria-label="Закрыть"
+                        onclick="closeSizeSheet()">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="modal--sheet__body">
+                <div class="size-sheet__list" id="sizeSheetList">
                     <?php foreach ($availableSizes as $size => $available): ?>
-                        <button type="button" 
-                                class="sticky-size-option <?= !$available ? 'unavailable' : '' ?>"
+                        <button type="button"
+                                class="size-sheet__option <?= !$available ? 'unavailable' : '' ?>"
                                 data-size="<?= $size ?>"
                                 onclick="selectStickySize('<?= $size ?>')"
                                 <?= !$available ? 'disabled' : '' ?>>
@@ -487,14 +552,6 @@ $this->registerJsVar('productVideo', $productVideo);
                         </button>
                     <?php endforeach; ?>
                 </div>
-            </div>
-
-            <div class="sticky-actions">
-                <button type="button"
-                        class="btn btn-primary sticky-add-cart"
-                        onclick="addToCartFromSticky()">
-                    В корзину
-                </button>
             </div>
         </div>
     </div>
@@ -1078,6 +1135,13 @@ function selectSize(size) {
 
     // Sync with createOrder() in product-page.js
     window.selectedProductSize = size;
+    // Sync with addToCartFromSticky() in product-page.js (CMP-23)
+    window.selectedStickySize = size;
+
+    // Update selected state in size sheet (CMP-23)
+    document.querySelectorAll('.size-sheet__option').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.size === size);
+    });
 
     // Обновляем данные товара
     if (window.productData) {
@@ -1085,16 +1149,80 @@ function selectSize(size) {
     }
 }
 
-// Sticky размер
+// Sticky размер — bottom-sheet (CMP-23)
+// `toggleStickySizeDropdown` сохранён как no-op для обратной совместимости с
+// обработчиками из product-page.js, которые могут вызвать его при клике вне.
 function toggleStickySizeDropdown() {
-    const dropdown = document.getElementById('stickySizeDropdown');
-    dropdown.classList.toggle('show');
+    // legacy dropdown заменён на bottom-sheet; вызовы безопасны
+    closeSizeSheet();
+}
+
+let _sizeSheetLastFocus = null;
+function openSizeSheet() {
+    const sheet = document.getElementById('sizeSheet');
+    if (!sheet) return;
+    _sizeSheetLastFocus = document.activeElement;
+    sheet.hidden = false;
+    // Force reflow so the .open transition fires
+    void sheet.offsetWidth;
+    sheet.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    // Focus first enabled option
+    const first = sheet.querySelector('.size-sheet__option:not([disabled])');
+    if (first) first.focus();
+}
+
+function closeSizeSheet() {
+    const sheet = document.getElementById('sizeSheet');
+    if (!sheet || !sheet.classList.contains('open')) return;
+    sheet.classList.remove('open');
+    document.body.style.overflow = '';
+    // Wait for transition to finish before hiding from a11y tree
+    setTimeout(() => { if (!sheet.classList.contains('open')) sheet.hidden = true; }, 250);
+    if (_sizeSheetLastFocus && typeof _sizeSheetLastFocus.focus === 'function') {
+        _sizeSheetLastFocus.focus();
+    }
 }
 
 function selectStickySize(size) {
     selectSize(size);
-    toggleStickySizeDropdown();
+    closeSizeSheet();
 }
+
+// A11y: focus trap + escape + backdrop click for the size sheet
+document.addEventListener('DOMContentLoaded', function () {
+    const sheet = document.getElementById('sizeSheet');
+    if (!sheet) return;
+
+    sheet.addEventListener('click', function (e) {
+        // Click on backdrop (the .modal--sheet itself) closes
+        if (e.target === sheet) closeSizeSheet();
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (!sheet.classList.contains('open')) return;
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closeSizeSheet();
+            return;
+        }
+        if (e.key !== 'Tab') return;
+        // Focus trap inside the dialog
+        const focusable = sheet.querySelectorAll(
+            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+        }
+    });
+});
 
 // Добавление в корзину
 function addToCart() {
@@ -1449,11 +1577,13 @@ document.addEventListener('DOMContentLoaded', function() {
     initStickyPurchaseBar();
 });
 
-// Закрытие dropdown при клике вне
+// Закрытие старого dropdown при клике вне — устарело: dropdown заменён на
+// bottom-sheet (#sizeSheet) в CMP-23. Слушатель оставлен для совместимости и
+// no-op'ит, если элементов нет.
 document.addEventListener('click', function(event) {
     const dropdown = document.getElementById('stickySizeDropdown');
     const btn = document.getElementById('stickySizeBtn');
-    
+    if (!dropdown || !btn) return;
     if (!btn.contains(event.target) && !dropdown.contains(event.target)) {
         dropdown.classList.remove('show');
     }
