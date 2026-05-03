@@ -258,7 +258,7 @@
     background-color: var(--color-bg-secondary);
     background-image: url('/images/placeholder-mark.svg');
     background-repeat: no-repeat;
-    background-position: center;
+    background-position: center 30%;
     background-size: 60% auto;
     border-radius: inherit;
     user-select: none;
@@ -441,7 +441,7 @@
     background-image: url('/images/placeholder-mark.svg');
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 200px auto;
+    background-size: clamp(220px, 24vw, 340px) auto;
     min-height: 540px;
     display: flex;
     align-items: stretch;
