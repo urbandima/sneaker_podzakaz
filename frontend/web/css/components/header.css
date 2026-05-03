@@ -500,6 +500,7 @@
     gap: var(--space-2);
 }
 
+.btn-categories,
 .btn-search,
 .btn-wishlist,
 .btn-cart,
@@ -520,6 +521,7 @@
     text-decoration: none;
 }
 
+.btn-categories:hover,
 .btn-search:hover,
 .btn-wishlist:hover,
 .btn-cart:hover,
@@ -529,6 +531,12 @@
     color: var(--color-text-primary);
 }
 
+.btn-categories[aria-expanded="true"] {
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+}
+
+.btn-categories i,
 .btn-search i,
 .btn-wishlist i,
 .btn-cart i,
@@ -559,67 +567,8 @@
     display: none;
 }
 
-/* === NAV BURGER (inside nav, always visible) === */
-.nav-burger {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
-    background: transparent;
-    border: 1.5px solid var(--c-black);
-    cursor: pointer;
-    color: var(--color-text-primary);
-    transition: background var(--duration-fast), border-color var(--duration-fast), transform var(--duration-fast);
-    flex-shrink: 0;
-}
-
-.nav-burger:hover {
-    background: var(--color-bg-secondary);
-    border-color: var(--c-black);
-}
-
-.nav-burger.active {
-    background: var(--c-black);
-    border-color: var(--c-black);
-}
-
-.nav-burger.active .nav-burger-lines span {
-    background: var(--c-white);
-}
-
-.nav-burger-lines {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    width: 18px;
-}
-
-.nav-burger-lines span {
-    display: block;
-    height: 1.5px;
-    background: var(--color-text-primary);
-    border-radius: 2px;
-    transition: all var(--duration-base) var(--ease-out);
-    transform-origin: center;
-}
-
-.nav-burger.active .nav-burger-lines span:nth-child(1) {
-    transform: translateY(5.5px) rotate(45deg);
-}
-
-.nav-burger.active .nav-burger-lines span:nth-child(2) {
-    opacity: 0;
-    transform: scaleX(0);
-}
-
-.nav-burger.active .nav-burger-lines span:nth-child(3) {
-    transform: translateY(-5.5px) rotate(-45deg);
-}
-
-/* On mobile/tablet: hide nav-menu (desktop links), keep burger visible.
-   Higher specificity than `.main-nav ul` (0,1,1) so the cascade hides it. */
+/* On mobile/tablet: hide inline nav-menu (desktop links). Categories hub
+   lives in .header-actions and stays visible across viewports. */
 @media (max-width: 1024px) {
     .nav-menu,
     .main-nav .nav-menu,
@@ -632,14 +581,6 @@
 /* mobile-menu-toggle: shown on mobile, hidden on desktop */
 .mobile-menu-toggle {
     display: none;
-}
-
-.nav-burger,
-.burger-btn,
-[class*="burger"] {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
 }
 
 /* === MENU BURGER (кнопка в public.php layout) === */
@@ -1399,17 +1340,15 @@
         height: 32px;
     }
 
-    /* Keep burger accessible: nav-burger is the ONLY thing visible in .main-nav on mobile */
+    /* Inline nav is hidden on mobile (see .nav-menu rule above);
+       collapse the empty .main-nav so it doesn't claim layout space. */
     .main-header > .header-content .main-nav {
         gap: 0;
         flex-shrink: 0;
     }
-    .nav-burger {
-        width: 44px;
-        height: 44px;
-    }
 
     /* Shrink action icons but keep 44px touch targets */
+    .btn-categories,
     .btn-search,
     .btn-wishlist,
     .btn-cart,
@@ -1417,6 +1356,7 @@
         width: 44px;
         height: 44px;
     }
+    .btn-categories i,
     .btn-search i,
     .btn-wishlist i,
     .btn-cart i,
