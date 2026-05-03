@@ -618,10 +618,14 @@
     transform: translateY(-5.5px) rotate(-45deg);
 }
 
-/* On mobile: hide nav-menu, keep burger visible */
+/* On mobile/tablet: hide nav-menu (desktop links), keep burger visible.
+   Higher specificity than `.main-nav ul` (0,1,1) so the cascade hides it. */
 @media (max-width: 1024px) {
-    .nav-menu {
-        display: none;
+    .nav-menu,
+    .main-nav .nav-menu,
+    .main-header .nav-menu,
+    .main-nav ul.nav-menu {
+        display: none !important;
     }
 }
 
