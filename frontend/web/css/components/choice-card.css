@@ -1,0 +1,242 @@
+/* ============================================================
+   CHOICE-CARD COMPONENT
+   ============================================================
+   Single-choice radio-tile primitive used by checkout (shipping
+   and payment method pickers), passport citizenship selector,
+   and any future single-choice picker.
+
+   Markup contract:
+
+     <div class="choice-card-list">
+       <label class="choice-card">
+         <input type="radio" name="..." value="...">
+         <div class="choice-card-body">
+           <div class="choice-card-icon"><i class="bi bi-..."></i></div>
+           <div class="choice-card-text">
+             <span class="choice-card-title">Title</span>
+             <span class="choice-card-desc">Optional description</span>
+             <span class="choice-card-eta">Optional ETA copy</span>
+           </div>
+           <span class="badge badge-light">Optional trailing chip — price / ETA</span>
+           <span class="choice-card-radio"></span>
+         </div>
+       </label>
+     </div>
+
+   States: idle / hover / focus-visible / selected / disabled.
+   Tokens only — no raw hex. See css/core/design-tokens.css.
+
+   Trailing chip uses the existing .badge component (badge-light /
+   badge-dark / badge-success). The chip slot is purely structural —
+   any inline element will sit at the end of the row, before the radio.
+
+   Back-compat aliases (do not introduce in new markup):
+     .radio-tile, .shipping-option,
+       .payment-option, .citizenship-option           → .choice-card
+     .radio-tile-list, .shipping-options,
+       .payment-options, .citizenship-radios          → .choice-card-list
+     .option-content                                   → .choice-card-body
+     .option-icon                                      → .choice-card-icon
+     .option-info                                      → .choice-card-text
+     .option-name                                      → .choice-card-title
+     .option-desc                                      → .choice-card-desc
+     .option-time, .option-price                       → .choice-card-eta / chip slot
+     .option-radio                                     → .choice-card-radio
+   ============================================================ */
+
+/* ---- list wrapper ---- */
+.choice-card-list,
+.radio-tile-list,
+.shipping-options,
+.payment-options,
+.citizenship-radios {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.shipping-options { margin-bottom: var(--space-3); }
+
+/* ---- card root (label) ---- */
+.choice-card,
+.radio-tile,
+.shipping-option,
+.payment-option,
+.citizenship-option {
+    display: block;
+    cursor: pointer;
+}
+
+.choice-card input[type="radio"],
+.radio-tile input[type="radio"],
+.shipping-option input[type="radio"],
+.payment-option input[type="radio"],
+.citizenship-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+}
+
+/* ---- body / row container ---- */
+.choice-card .choice-card-body,
+.choice-card .option-content,
+.radio-tile .option-content,
+.shipping-option .option-content,
+.payment-option .option-content {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-primary);
+    transition: border-color var(--duration-fast),
+                background var(--duration-fast),
+                box-shadow var(--duration-fast);
+}
+
+.choice-card:hover .choice-card-body,
+.choice-card:hover .option-content,
+.radio-tile:hover .option-content,
+.shipping-option:hover .option-content,
+.payment-option:hover .option-content {
+    border-color: var(--c-gray-400);
+    background: var(--color-bg-secondary);
+}
+
+.choice-card input[type="radio"]:focus-visible + .choice-card-body,
+.choice-card input[type="radio"]:focus-visible + .option-content,
+.radio-tile input[type="radio"]:focus-visible + .option-content,
+.shipping-option input[type="radio"]:focus-visible + .option-content,
+.payment-option input[type="radio"]:focus-visible + .option-content {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.choice-card input[type="radio"]:checked + .choice-card-body,
+.choice-card input[type="radio"]:checked + .option-content,
+.radio-tile input[type="radio"]:checked + .option-content,
+.shipping-option input[type="radio"]:checked + .option-content,
+.payment-option input[type="radio"]:checked + .option-content {
+    border-color: var(--color-accent);
+    background: var(--color-bg-secondary);
+    box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .choice-card input[type="radio"]:checked + .choice-card-body,
+[data-theme="dark"] .choice-card input[type="radio"]:checked + .option-content,
+[data-theme="dark"] .radio-tile input[type="radio"]:checked + .option-content,
+[data-theme="dark"] .shipping-option input[type="radio"]:checked + .option-content,
+[data-theme="dark"] .payment-option input[type="radio"]:checked + .option-content {
+    border-color: var(--c-white);
+}
+
+.choice-card.is-disabled,
+.choice-card input[type="radio"]:disabled + .choice-card-body,
+.choice-card input[type="radio"]:disabled + .option-content,
+.radio-tile.is-disabled,
+.radio-tile input[type="radio"]:disabled + .option-content {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* ---- icon ---- */
+.choice-card-icon,
+.option-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    flex-shrink: 0;
+    transition: background var(--duration-fast), color var(--duration-fast);
+}
+
+.choice-card input[type="radio"]:checked + .choice-card-body .choice-card-icon,
+.choice-card input[type="radio"]:checked + .choice-card-body .option-icon,
+.choice-card input[type="radio"]:checked + .option-content .option-icon,
+.radio-tile input[type="radio"]:checked + .option-content .option-icon,
+.shipping-option input[type="radio"]:checked + .option-content .option-icon,
+.payment-option input[type="radio"]:checked + .option-content .option-icon {
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+}
+
+/* ---- text body ---- */
+.choice-card-text,
+.option-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.choice-card-title,
+.option-name {
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--text-sm);
+    color: var(--color-text-primary);
+}
+
+.choice-card-desc,
+.option-desc {
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+}
+
+.choice-card-eta,
+.option-time {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+}
+
+/* ---- legacy trailing price/label (use .badge in new markup) ---- */
+.option-price {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ---- radio dot ---- */
+.choice-card-radio,
+.option-radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-full);
+    position: relative;
+    flex-shrink: 0;
+    transition: border-color var(--duration-fast), background var(--duration-fast);
+}
+
+.choice-card input[type="radio"]:checked + .choice-card-body .choice-card-radio,
+.choice-card input[type="radio"]:checked + .choice-card-body .option-radio,
+.choice-card input[type="radio"]:checked + .option-content .option-radio,
+.radio-tile input[type="radio"]:checked + .option-content .option-radio,
+.shipping-option input[type="radio"]:checked + .option-content .option-radio,
+.payment-option input[type="radio"]:checked + .option-content .option-radio {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+}
+
+.choice-card input[type="radio"]:checked + .choice-card-body .choice-card-radio::after,
+.choice-card input[type="radio"]:checked + .choice-card-body .option-radio::after,
+.choice-card input[type="radio"]:checked + .option-content .option-radio::after,
+.radio-tile input[type="radio"]:checked + .option-content .option-radio::after,
+.shipping-option input[type="radio"]:checked + .option-content .option-radio::after,
+.payment-option input[type="radio"]:checked + .option-content .option-radio::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    background: var(--color-text-inverse);
+    border-radius: var(--radius-full);
+}

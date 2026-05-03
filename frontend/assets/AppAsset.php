@@ -25,6 +25,7 @@ class AppAsset extends AssetBundle
         'css/components/product-card.css',
         'css/components/modals.css',
         'css/components/micro-interactions.css',
+        'css/components/choice-card.css',
         // Page-specific CSS (landing, catalog, product, cart, checkout, account)
         // is loaded per-controller in frontend/views/layouts/main.php to avoid
         // sending e.g. product.css (650 KB) on every page.

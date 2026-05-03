@@ -58,6 +58,9 @@ class OrderController extends Controller
                     $shippingMethods = array_values(array_filter($decoded, fn($m) => ($m['status'] ?? '') === 'active'));
                 }
             }
+            if (empty($shippingMethods)) {
+                $shippingMethods = self::defaultShippingMethods();
+            }
 
             $rawPoints = Yii::$app->settings->get('shipping', 'europochta_points', '');
             if ($rawPoints) {
@@ -78,6 +81,9 @@ class OrderController extends Controller
                     $paymentMethods = array_values(array_filter($decoded, fn($m) => ($m['status'] ?? '') === 'active'));
                 }
             }
+            if (empty($paymentMethods)) {
+                $paymentMethods = self::defaultPaymentMethods();
+            }
 
             $freeDeliveryThreshold = (float) Yii::$app->settings->get('checkout', 'free_delivery_threshold', 100);
         } catch (\Exception $e) {
@@ -95,6 +101,95 @@ class OrderController extends Controller
             'paymentMethods'        => $paymentMethods ?? [],
             'freeDeliveryThreshold' => $freeDeliveryThreshold ?? 100,
         ]);
+    }
+
+    /**
+     * Defaults shown when DB has no shipping methods configured.
+     * Keep parity with hardcoded JS price map in views/checkout/index.php
+     * (pickup_minsk=0, courier_minsk=10, europochta=5, belpochta=4).
+     */
+    private static function defaultShippingMethods(): array
+    {
+        return [
+            [
+                'id'            => 'pickup_minsk',
+                'country'       => 'belarus',
+                'name'          => 'Самовывоз из магазина',
+                'description'   => 'пр.Победителей 5, офис 9',
+                'delivery_time' => 'Сегодня после 16:00',
+                'price'         => 0.0,
+                'price_label'   => 'Бесплатно',
+                'icon'          => 'shop',
+                'status'        => 'active',
+            ],
+            [
+                'id'            => 'courier_minsk',
+                'country'       => 'belarus',
+                'name'          => 'Курьер по Минску',
+                'description'   => 'Доставка до двери',
+                'delivery_time' => '1 рабочий день',
+                'price'         => 10.0,
+                'price_label'   => '10 BYN',
+                'icon'          => 'truck',
+                'status'        => 'active',
+            ],
+            [
+                'id'            => 'europochta',
+                'country'       => 'belarus',
+                'name'          => 'Европочта',
+                'description'   => 'В пункт выдачи в любом городе',
+                'delivery_time' => '1–2 рабочих дня',
+                'price'         => 5.0,
+                'price_label'   => '5 BYN',
+                'icon'          => 'box-seam',
+                'status'        => 'active',
+            ],
+            [
+                'id'            => 'belpochta',
+                'country'       => 'belarus',
+                'name'          => 'Белпочта',
+                'description'   => 'В отделение по адресу',
+                'delivery_time' => '2–5 рабочих дней',
+                'price'         => 4.0,
+                'price_label'   => '4 BYN',
+                'icon'          => 'envelope',
+                'status'        => 'active',
+            ],
+            [
+                'id'            => 'sdek',
+                'country'       => 'russia',
+                'name'          => 'СДЭК (Россия)',
+                'description'   => 'Пункт выдачи или курьер',
+                'delivery_time' => '5–10 дней',
+                'price'         => 0.0,
+                'price_label'   => 'По тарифам СДЭК',
+                'icon'          => 'truck',
+                'status'        => 'active',
+            ],
+        ];
+    }
+
+    /**
+     * Defaults shown when DB has no payment methods configured.
+     */
+    private static function defaultPaymentMethods(): array
+    {
+        return [
+            [
+                'id'          => 'bank_details',
+                'name'        => 'Оплата по реквизитам',
+                'description' => 'Реквизиты пришлём после оформления',
+                'icon'        => 'bank',
+                'status'      => 'active',
+            ],
+            [
+                'id'          => 'pickup_cash',
+                'name'        => 'При получении (только самовывоз)',
+                'description' => 'Наличными или картой в магазине',
+                'icon'        => 'cash-coin',
+                'status'      => 'active',
+            ],
+        ];
     }
 
     /**
@@ -628,12 +723,13 @@ class OrderController extends Controller
         $citizenship = in_array($post['citizenship'] ?? '', ['by', 'ru'], true) ? $post['citizenship'] : 'by';
         $errors = [];
 
+        // BY uses one combined Серия+Номер in passport_series (MP1234567).
+        // RU keeps Серия (4 digits) + Номер (6 digits) separate.
         $required = [
             'recipient_last_name'  => 'Фамилия',
             'recipient_first_name' => 'Имя',
             'birth_date'           => 'Дата рождения',
-            'passport_series'      => 'Серия паспорта',
-            'passport_number'      => 'Номер паспорта',
+            'passport_series'      => $citizenship === 'ru' ? 'Серия паспорта' : 'Серия+Номер паспорта',
             'passport_issue_date'  => 'Дата выдачи паспорта',
             'passport_issued_by'   => 'Кем выдан',
             'inn'                  => $citizenship === 'ru' ? 'ИНН' : 'Идентификационный номер',
@@ -641,6 +737,9 @@ class OrderController extends Controller
             'city'                 => 'Город',
             'postal_code'          => 'Почтовый индекс',
         ];
+        if ($citizenship === 'ru') {
+            $required['passport_number'] = 'Номер паспорта';
+        }
 
         foreach ($required as $field => $label) {
             $val = trim(strip_tags($post[$field] ?? ''));
@@ -656,16 +755,17 @@ class OrderController extends Controller
                     $errors['passport_series'] = 'Серия РФ: ровно 4 цифры';
                 }
             } else {
-                if (!preg_match('/^[A-Z]{2,4}$/', $series)) {
-                    $errors['passport_series'] = 'Серия РБ: 2–4 латинские заглавные буквы';
+                if (!preg_match('/^[A-Z]{2}[0-9]{7}$/', $series)) {
+                    $errors['passport_series'] = 'Формат: 2 латинские буквы + 7 цифр (например MP1234567)';
                 }
             }
         }
 
-        $passNum = trim($post['passport_number'] ?? '');
-        $expectedLen = $citizenship === 'ru' ? 6 : 7;
-        if (!empty($passNum) && !preg_match('/^[0-9]{' . $expectedLen . '}$/', $passNum)) {
-            $errors['passport_number'] = 'Номер паспорта: ровно ' . $expectedLen . ' цифр';
+        if ($citizenship === 'ru') {
+            $passNum = trim($post['passport_number'] ?? '');
+            if (!empty($passNum) && !preg_match('/^[0-9]{6}$/', $passNum)) {
+                $errors['passport_number'] = 'Номер паспорта: ровно 6 цифр';
+            }
         }
 
         $inn = trim($post['inn'] ?? '');
@@ -697,6 +797,10 @@ class OrderController extends Controller
         // Force uppercase on series
         if ($model->hasAttribute('passport_series')) {
             $model->passport_series = strtoupper($model->passport_series);
+        }
+        // BY stores Серия+Номер in passport_series; clear passport_number to avoid stale RU data.
+        if ($citizenship === 'by' && $model->hasAttribute('passport_number')) {
+            $model->passport_number = '';
         }
         if ($model->hasAttribute('passport_submitted_at')) {
             $model->passport_submitted_at = time();
