@@ -120,6 +120,10 @@ $company = Yii::$app->settings->getCompany();
         
         <!-- Navigation -->
         <nav class="main-nav">
+            <!-- Mobile left-slot: categories hub (opens drawer); desktop: before nav-links -->
+            <button class="btn-categories" id="navBurger" onclick="toggleBurgerMenu(event)" aria-label="Все категории и бренды" aria-expanded="false" aria-controls="megaMenu mobileMenu">
+                <i class="bi bi-grid-3x3-gap" aria-hidden="true"></i>
+            </button>
             <ul class="nav-menu">
                 <li><a href="/catalog">Каталог</a></li>
                 <li><a href="/brands">Бренды</a></li>
@@ -131,11 +135,6 @@ $company = Yii::$app->settings->getCompany();
 
         <!-- Actions -->
         <div class="header-actions">
-            <!-- Categories hub — desktop opens mega-menu, mobile opens drawer -->
-            <button class="btn-categories" id="navBurger" onclick="toggleBurgerMenu(event)" aria-label="Все категории и бренды" aria-expanded="false" aria-controls="megaMenu mobileMenu">
-                <i class="bi bi-grid-3x3-gap" aria-hidden="true"></i>
-            </button>
-
             <button class="btn-search" onclick="openSearch()" aria-label="Поиск товаров" aria-haspopup="dialog">
                 <i class="bi bi-search" aria-hidden="true"></i>
             </button>

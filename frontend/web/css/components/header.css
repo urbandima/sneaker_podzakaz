@@ -568,7 +568,7 @@
 }
 
 /* On mobile/tablet: hide inline nav-menu (desktop links). Categories hub
-   lives in .header-actions and stays visible across viewports. */
+   lives in .main-nav and stays visible across viewports (mobile: left grid slot). */
 @media (max-width: 1024px) {
     .nav-menu,
     .main-nav .nav-menu,
@@ -1340,11 +1340,29 @@
         height: 32px;
     }
 
-    /* Inline nav is hidden on mobile (see .nav-menu rule above);
-       collapse the empty .main-nav so it doesn't claim layout space. */
-    .main-header > .header-content .main-nav {
+    /* 3-column mobile header: [btn-categories | logo | actions]
+       DOM order is logo / main-nav / header-actions; use explicit grid-column to
+       reflow: main-nav (with btn-categories) → col 1, logo → col 2 (center), actions → col 3. */
+    .main-header > .header-content {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        padding: 0 var(--space-3);
         gap: 0;
+    }
+    .main-header > .header-content .main-nav {
+        grid-column: 1;
+        gap: 0; /* btn-categories + hidden ul — no gap needed */
         flex-shrink: 0;
+    }
+    .main-header > .header-content .logo {
+        grid-column: 2;
+        justify-self: center;
+        min-width: 0;
+    }
+    .main-header > .header-content .header-actions {
+        grid-column: 3;
+        justify-self: end;
     }
 
     /* Shrink action icons but keep 44px touch targets */
