@@ -33,6 +33,7 @@ use app\backend\modules\checkout\models\Order;
 use app\backend\modules\catalog\models\Product;
 use app\backend\modules\admin\models\User;
 use app\backend\shared\services\RevenueService;
+use app\infrastructure\plugins\analytics\LiveDunePlugin;
 
 class AnalyticsController extends BaseAdminController
 {
@@ -202,6 +203,56 @@ class AnalyticsController extends BaseAdminController
             'topProducts' => $topProducts,
             'topCategories' => $topCategories,
             'avgOrderValue' => $avgOrderValue,
+        ]);
+    }
+
+    /**
+     * Instagram-метрики через LiveDune API
+     */
+    public function actionInstagram()
+    {
+        $plugin = new LiveDunePlugin();
+        $error = null;
+
+        $thisWeekFrom = date('Y-m-d', strtotime('monday this week'));
+        $thisWeekTo   = date('Y-m-d');
+        $prevWeekFrom = date('Y-m-d', strtotime('monday last week'));
+        $prevWeekTo   = date('Y-m-d', strtotime('sunday last week'));
+
+        $thisHistory = $plugin->getHistory($thisWeekFrom, $thisWeekTo);
+        $prevHistory = $plugin->getHistory($prevWeekFrom, $prevWeekTo);
+        $posts       = $plugin->getPosts($prevWeekFrom, $thisWeekTo);
+
+        if ($thisHistory === null) {
+            $token = $plugin->getToken();
+            if (empty($token)) {
+                $error = 'Токен LiveDune не настроен. Добавьте `livedune_api_token` в разделе настроек интеграций.';
+            } else {
+                $error = 'Не удалось получить данные от LiveDune API. Показаны кешированные данные (если есть).';
+                $thisHistory = Yii::$app->cache->get("livedune_history_{$thisWeekFrom}_{$thisWeekTo}") ?: [];
+                $prevHistory = Yii::$app->cache->get("livedune_history_{$prevWeekFrom}_{$prevWeekTo}") ?: [];
+                $posts = Yii::$app->cache->get("livedune_posts_{$prevWeekFrom}_{$thisWeekTo}") ?: [];
+            }
+        }
+
+        $thisMetrics = $thisHistory ? $plugin->aggregateMetrics($thisHistory) : null;
+        $prevMetrics = $prevHistory ? $plugin->aggregateMetrics($prevHistory) : null;
+
+        $topPosts = [];
+        if (is_array($posts)) {
+            usort($posts, fn($a, $b) => (int)($b['reach'] ?? 0) <=> (int)($a['reach'] ?? 0));
+            $topPosts = array_slice($posts, 0, 3);
+        }
+
+        return $this->render('instagram', [
+            'error'       => $error,
+            'thisMetrics' => $thisMetrics,
+            'prevMetrics' => $prevMetrics,
+            'topPosts'    => $topPosts,
+            'thisWeekFrom' => $thisWeekFrom,
+            'thisWeekTo'   => $thisWeekTo,
+            'prevWeekFrom' => $prevWeekFrom,
+            'prevWeekTo'   => $prevWeekTo,
         ]);
     }
 

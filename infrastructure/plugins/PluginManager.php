@@ -6,6 +6,7 @@ use Yii;
 use app\infrastructure\plugins\interfaces\PluginInterface;
 use app\infrastructure\plugins\interfaces\PaymentGatewayInterface;
 use app\infrastructure\plugins\interfaces\ShippingProviderInterface;
+use app\infrastructure\plugins\analytics\LiveDunePlugin;
 
 class PluginManager
 {
@@ -39,6 +40,9 @@ class PluginManager
             
             // Shipping plugins
             'app\infrastructure\plugins\shipping\BelpostShippingPlugin',
+
+            // Analytics plugins
+            'app\infrastructure\plugins\analytics\LiveDunePlugin',
         ];
         
         foreach ($pluginClasses as $class) {

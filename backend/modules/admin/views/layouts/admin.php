@@ -181,7 +181,8 @@ $controllerId = Yii::$app->controller->id;
                     'icon' => 'bi-bar-chart-line-fill',
                     'items' => [
                         ['label' => 'Аналитика и отчеты', 'url' => '/admin/analytics', 'ids' => ['analytics']],
-                        ['label' => 'RFM сегменты', 'url' => '/admin/analytics/rfm', 'ids' => ['rfm']]
+                        ['label' => 'RFM сегменты', 'url' => '/admin/analytics/rfm', 'ids' => ['rfm']],
+                        ['label' => 'Instagram', 'url' => '/admin/analytics/instagram', 'ids' => ['analytics'], 'icon' => 'bi-instagram']
                     ]
                 ],
                 
