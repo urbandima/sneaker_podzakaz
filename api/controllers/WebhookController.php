@@ -58,19 +58,22 @@ class WebhookController extends Controller
             return ['error' => 'Method Not Allowed'];
         }
 
-        // Опциональная проверка HMAC-подписи
         $secret = env('DP_WEBHOOK_SECRET', '');
         $rawBody = Yii::$app->request->getRawBody();
 
-        if ($secret) {
-            $signature = Yii::$app->request->headers->get('X-DP-Signature', '');
-            $expected  = hash_hmac('sha256', $rawBody, $secret);
+        if (!$secret) {
+            Yii::error('[Webhook DP] DP_WEBHOOK_SECRET не задан — входящие вебхуки отклонены. IP: ' . Yii::$app->request->userIP, 'dp-webhook');
+            Yii::$app->response->statusCode = 503;
+            return ['error' => 'Webhook endpoint not configured'];
+        }
 
-            if (!hash_equals($expected, $signature)) {
-                Yii::warning('[Webhook DP] Неверная подпись. IP: ' . Yii::$app->request->userIP, 'dp-webhook');
-                Yii::$app->response->statusCode = 401;
-                return ['error' => 'Invalid signature'];
-            }
+        $signature = Yii::$app->request->headers->get('X-DP-Signature', '');
+        $expected  = hash_hmac('sha256', $rawBody, $secret);
+
+        if (!hash_equals($expected, $signature)) {
+            Yii::warning('[Webhook DP] Неверная подпись. IP: ' . Yii::$app->request->userIP, 'dp-webhook');
+            Yii::$app->response->statusCode = 401;
+            return ['error' => 'Invalid signature'];
         }
 
         $data = json_decode($rawBody, true);

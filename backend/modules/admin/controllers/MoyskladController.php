@@ -536,7 +536,7 @@ class MoyskladController extends BaseAdminController
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_MAXREDIRS      => 5,
                 CURLOPT_HTTPHEADER     => ['Authorization: ' . $authHeader, 'Accept-Encoding: gzip'],
-                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYPEER => true,
                 CURLOPT_ENCODING       => 'gzip',
             ]);
             $body = curl_exec($ch);

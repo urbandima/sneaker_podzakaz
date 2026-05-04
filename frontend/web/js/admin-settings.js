@@ -1568,51 +1568,63 @@ document.addEventListener('DOMContentLoaded', function () {
 
 /* -- settings/integrations.php -- */
 document.addEventListener('DOMContentLoaded', function () {
+    var _csrf = document.querySelector('meta[name="csrf-token"]');
+    var csrfVal = _csrf ? _csrf.content : '';
+
+    function intPost(url, data, resultElId) {
+        var el = document.getElementById(resultElId);
+        if (el) { el.textContent = 'Отправляем...'; el.style.color = '#6b7280'; }
+        return fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfVal },
+            body: JSON.stringify(data)
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (el) {
+                el.textContent = (d.success ? '✓ ' : '✗ ') + (d.message || (d.success ? 'OK' : 'Ошибка'));
+                el.style.color = d.success ? '#065f46' : '#991b1b';
+            }
+            return d;
+        })
+        .catch(function() {
+            if (el) { el.textContent = '✗ Ошибка сети'; el.style.color = '#991b1b'; }
+        });
+    }
+
     function testAmoCRM() {
-        alert('Тестирование подключения к AmoCRM...');
-        // TODO: AJAX запрос к /admin/amo-crm/test
+        intPost('/admin/settings/test-amocrm', {}, 'amo-int-result');
     }
 
     function saveAmoCRM() {
-        alert('Сохранение настроек AmoCRM...');
-        // TODO: AJAX запрос к /admin/amo-crm/save
+        intPost('/admin/settings/save', {amocrm: {
+            domain:    (document.getElementById('amocrm-domain')    || {}).value || '',
+            client_id: (document.getElementById('amocrm-client-id') || {}).value || '',
+            api_token: (document.getElementById('amocrm-token')     || {}).value || '',
+        }}, 'amo-int-result');
     }
 
     function testMoySklad() {
-        alert('Тестирование подключения к МойСклад...');
-        // TODO: AJAX запрос к /admin/moy-sklad/test
+        intPost('/admin/settings/test-moysklad', {}, 'ms-int-result');
     }
 
     function saveMoySklad() {
-        alert('Сохранение настроек МойСклад...');
-        // TODO: AJAX запрос к /admin/moy-sklad/save
+        intPost('/admin/settings/save', {moysklad: {
+            api_key:      (document.getElementById('moysklad-token')     || {}).value || '',
+            warehouse_id: (document.getElementById('moysklad-warehouse') || {}).value || '',
+        }}, 'ms-int-result');
     }
 
     function testTelegram() {
-        const token = document.getElementById('telegram-token').value;
-        if (!token) {
-            alert('Введите Bot Token');
-            return;
-        }
-
-        fetch('/admin/telegram-bot/test', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token })
-        })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    alert('✅ Тестовое сообщение отправлено!');
-                } else {
-                    alert('❌ Ошибка: ' + data.message);
-                }
-            });
+        intPost('/admin/settings/test-telegram', {}, 'tg-int-result');
     }
 
     function saveTelegram() {
-        alert('Сохранение настроек Telegram...');
-        // TODO: AJAX запрос к /admin/telegram-bot/save
+        var chatIds = (document.getElementById('telegram-chat-ids') || {}).value || '';
+        intPost('/admin/settings/save', {telegram: {
+            bot_token: (document.getElementById('telegram-token') || {}).value || '',
+            chat_ids:  chatIds,
+        }}, 'tg-int-result');
     }
 
     function updateCNYRate() {

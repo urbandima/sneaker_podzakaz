@@ -81,7 +81,7 @@ class MoySkladService extends Component
             CURLOPT_MAXREDIRS      => 5,
             CURLOPT_CUSTOMREQUEST  => strtoupper($method),
             CURLOPT_HTTPHEADER     => $headers,
-            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_ENCODING       => 'gzip',
         ]);
         if ($body !== null) {

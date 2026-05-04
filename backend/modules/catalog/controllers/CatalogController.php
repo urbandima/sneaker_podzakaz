@@ -269,12 +269,18 @@ class CatalogController extends Controller
             ->orderBy(['name' => SORT_ASC])
             ->all();
         
-        // Подсчитываем товары для каждого бренда
+        // Подсчёт товаров по брендам одним запросом вместо N+1
+        $brandIds = array_map(fn($b) => $b->id, $brands);
+        $countRows = Product::find()
+            ->select('brand_id, COUNT(*) AS cnt')
+            ->where(['brand_id' => $brandIds, 'is_active' => true])
+            ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK])
+            ->groupBy('brand_id')
+            ->asArray()
+            ->all();
+        $countMap = array_column($countRows, 'cnt', 'brand_id');
         foreach ($brands as $brand) {
-            $brand->products_count = Product::find()
-                ->where(['brand_id' => $brand->id, 'is_active' => true])
-                ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK])
-                ->count();
+            $brand->products_count = (int)($countMap[$brand->id] ?? 0);
         }
         
         return $this->render('brands', [

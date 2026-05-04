@@ -45,9 +45,10 @@ $this->params['headerActions'] = [];
                     <i class="bi bi-save"></i> Сохранить
                 </button>
             </div>
+            <div id="amo-int-result" style="margin-top:8px;font-size:13px"></div>
         </div>
     </div>
-    
+
     <!-- МойСклад -->
     <div class="admin-card">
         <div class="admin-card-header">
@@ -98,9 +99,10 @@ $this->params['headerActions'] = [];
                     <i class="bi bi-save"></i> Сохранить
                 </button>
             </div>
+            <div id="ms-int-result" style="margin-top:8px;font-size:13px"></div>
         </div>
     </div>
-    
+
     <!-- Telegram Bot -->
     <div class="admin-card">
         <div class="admin-card-header">
@@ -143,6 +145,7 @@ $this->params['headerActions'] = [];
                     <i class="bi bi-save"></i> Сохранить
                 </button>
             </div>
+            <div id="tg-int-result" style="margin-top:8px;font-size:13px"></div>
         </div>
     </div>
     
