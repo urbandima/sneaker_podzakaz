@@ -187,6 +187,83 @@ $categoryLabels   = $categoryLabels   ?? [];
     </div>
 </div>
 
+<!-- Phase 4: AI monitoring section (reads from ai_chat_log) -->
+<?php
+$aiStats = [];
+try {
+    $aiStats = Yii::$app->db->createCommand("
+        SELECT
+            COUNT(*)                                           AS total_interactions,
+            SUM(CASE WHEN success=1 THEN 1 ELSE 0 END)        AS successful,
+            SUM(CASE WHEN escalated=1 THEN 1 ELSE 0 END)      AS escalated_count,
+            ROUND(AVG(response_ms),0)                          AS avg_response_ms,
+            MAX(response_ms)                                   AS max_response_ms,
+            ROUND(100.0 * SUM(CASE WHEN escalated=1 THEN 1 ELSE 0 END) / NULLIF(COUNT(*),0), 1) AS escalation_pct,
+            ROUND(100.0 * SUM(CASE WHEN escalated=0 AND success=1 THEN 1 ELSE 0 END) / NULLIF(COUNT(*),0), 1) AS ai_handled_pct
+        FROM {{%ai_chat_log}}
+        WHERE created_at >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))
+    ")->queryOne();
+} catch (\Throwable $e) {
+    // Table not yet created or empty — show empty state
+}
+$totalInteractions = (int)($aiStats['total_interactions'] ?? 0);
+?>
+<div class="admin-card" style="margin-bottom:1.5rem;<?= $totalInteractions === 0 ? 'opacity:0.75;' : '' ?>">
+    <h2 class="admin-card-title">
+        <i class="bi bi-robot"></i>
+        Мониторинг ИИ-ассистента
+        <span style="font-size:0.75rem;font-weight:400;color:var(--admin-text-secondary);margin-left:0.5rem;">
+            За 30 дней · цели: ответ &lt;30с, эскалации &lt;35%, ИИ-обработка &gt;65%
+        </span>
+    </h2>
+    <?php if ($totalInteractions === 0): ?>
+    <div style="padding:1.5rem;text-align:center;color:var(--admin-text-secondary);">
+        <i class="bi bi-info-circle" style="font-size:1.5rem;opacity:0.5;"></i>
+        <p style="margin-top:0.5rem;font-size:0.9rem;">
+            ИИ-ассистент ещё не обработал ни одного чата.<br>
+            <strong>Для активации:</strong> задайте <code>ANTHROPIC_API_KEY</code> в .env и зарегистрируйте webhook в AmoCRM → Настройки → Уведомления → URL: <code>/webhook/amocrm/ai-chat</code>
+        </p>
+        <a href="<?= Url::to(['/webhook/amocrm/ai-chat/status'], true) ?>" target="_blank"
+           style="display:inline-block;margin-top:0.5rem;font-size:0.8rem;padding:0.35rem 0.75rem;border:1px solid #e2e8f0;border-radius:0.375rem;color:#1d4ed8;">
+            <i class="bi bi-shield-check"></i> Проверить health-check
+        </a>
+    </div>
+    <?php else: ?>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;margin-bottom:1rem;">
+        <?php
+        $avgMs  = (int)($aiStats['avg_response_ms'] ?? 0);
+        $msOk   = $avgMs > 0 && $avgMs < 30000;
+        $escPct = (float)($aiStats['escalation_pct'] ?? 0);
+        $escOk  = $escPct <= 35;
+        $aiPct  = (float)($aiStats['ai_handled_pct'] ?? 0);
+        $aiOk   = $aiPct >= 65;
+        ?>
+        <div style="background:var(--admin-bg-secondary,#f8fafc);border-radius:0.5rem;padding:0.75rem;text-align:center;">
+            <div style="font-size:1.4rem;font-weight:700;"><?= $totalInteractions ?></div>
+            <div style="font-size:0.75rem;color:var(--admin-text-secondary);">Взаимодействий</div>
+        </div>
+        <div style="background:<?= $msOk ? '#f0fdf4' : '#fef2f2' ?>;border-radius:0.5rem;padding:0.75rem;text-align:center;border:1px solid <?= $msOk ? '#bbf7d0' : '#fecaca' ?>;">
+            <div style="font-size:1.4rem;font-weight:700;color:<?= $msOk ? '#15803d' : '#b91c1c' ?>;">
+                <?= $avgMs > 0 ? round($avgMs / 1000, 1) . 'с' : '—' ?>
+            </div>
+            <div style="font-size:0.75rem;color:var(--admin-text-secondary);">Ср. ответ (цель &lt;30с)</div>
+        </div>
+        <div style="background:<?= $escOk ? '#f0fdf4' : '#fef2f2' ?>;border-radius:0.5rem;padding:0.75rem;text-align:center;border:1px solid <?= $escOk ? '#bbf7d0' : '#fecaca' ?>;">
+            <div style="font-size:1.4rem;font-weight:700;color:<?= $escOk ? '#15803d' : '#b91c1c' ?>"><?= $escPct ?>%</div>
+            <div style="font-size:0.75rem;color:var(--admin-text-secondary);">Эскалаций (цель &lt;35%)</div>
+        </div>
+        <div style="background:<?= $aiOk ? '#f0fdf4' : '#fef2f2' ?>;border-radius:0.5rem;padding:0.75rem;text-align:center;border:1px solid <?= $aiOk ? '#bbf7d0' : '#fecaca' ?>;">
+            <div style="font-size:1.4rem;font-weight:700;color:<?= $aiOk ? '#15803d' : '#b91c1c' ?>"><?= $aiPct ?>%</div>
+            <div style="font-size:0.75rem;color:var(--admin-text-secondary);">ИИ обработал (цель &gt;65%)</div>
+        </div>
+        <div style="background:var(--admin-bg-secondary,#f8fafc);border-radius:0.5rem;padding:0.75rem;text-align:center;">
+            <div style="font-size:1.4rem;font-weight:700;"><?= (int)($aiStats['escalated_count'] ?? 0) ?></div>
+            <div style="font-size:0.75rem;color:var(--admin-text-secondary);">Передано менеджеру</div>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
+
 <!-- Phase roadmap notice -->
 <div class="admin-card" style="background:#f0fdf4;border:1px solid #bbf7d0;">
     <h2 class="admin-card-title" style="color:#15803d;"><i class="bi bi-rocket"></i> Дорожная карта чатов</h2>

@@ -116,6 +116,18 @@ PROMPT;
         $ms = (int)((microtime(true) - $t0) * 1000);
         Yii::info(sprintf('[AiChat] done lead=%s ms=%d escalated=%s', $leadId, $ms, $escalated ? 'yes' : 'no'), 'ai_chat');
 
+        // Phase 4: write structured monitoring log to DB
+        $this->writeDbLog([
+            'lead_id'       => $leadId,
+            'pipeline_id'   => $this->extractPipelineId($payload),
+            'client_phone'  => $clientPhone,
+            'message_text'  => $messageText,
+            'response_text' => $responseText,
+            'escalated'     => $escalated,
+            'response_ms'   => $ms,
+            'success'       => true,
+        ]);
+
         return [
             'success'       => true,
             'response_text' => $responseText,
@@ -386,6 +398,51 @@ PROMPT;
         }
 
         return [$leadId, $message, $phone];
+    }
+
+    // ── Phase 4 monitoring helpers ─────────────────────────────────────────────
+
+    /**
+     * Write a structured row to ai_chat_log for monitoring dashboards.
+     */
+    private function writeDbLog(array $data): void
+    {
+        try {
+            Yii::$app->db->createCommand()->insert('{{%ai_chat_log}}', array_merge([
+                'lead_id'      => null,
+                'pipeline_id'  => null,
+                'client_phone' => null,
+                'message_text' => null,
+                'response_text'=> null,
+                'tools_used'   => null,
+                'tool_loops'   => 0,
+                'escalated'    => false,
+                'response_ms'  => null,
+                'model'        => self::MODEL,
+                'success'      => true,
+                'error_message'=> null,
+                'created_at'   => time(),
+            ], $data))->execute();
+        } catch (\Throwable $e) {
+            // Don't fail the request over logging — table may not exist yet
+            Yii::warning('[AiChat] writeDbLog: ' . $e->getMessage(), 'ai_chat');
+        }
+    }
+
+    /**
+     * Extract pipeline_id from raw webhook payload.
+     */
+    private function extractPipelineId(array $payload): ?int
+    {
+        $unsorted = $payload['_embedded']['unsorted'] ?? $payload['unsorted'] ?? [];
+        if (!empty($unsorted[0]['pipeline_id'])) {
+            return (int)$unsorted[0]['pipeline_id'];
+        }
+        $leads = $payload['leads']['status'] ?? [];
+        if (!empty($leads[0]['pipeline_id'])) {
+            return (int)$leads[0]['pipeline_id'];
+        }
+        return null;
     }
 
     // ── HTTP helper ─────────────────────────────────────────────────────────────
