@@ -54,7 +54,7 @@ class AiChatController extends Controller
         }
 
         // Validate optional hook secret
-        $secret = getenv('AMOCRM_HOOK_SECRET') ?: '';
+        $secret = env('AMOCRM_HOOK_SECRET') ?: '';
         if ($secret) {
             $incoming = Yii::$app->request->headers->get('X-Amocrm-Hook-Secret', '')
                      ?: Yii::$app->request->get('secret', '');
@@ -93,7 +93,7 @@ class AiChatController extends Controller
      */
     public function actionStatus()
     {
-        $anthropicKey = getenv('ANTHROPIC_API_KEY') ?: '';
+        $anthropicKey = env('ANTHROPIC_API_KEY') ?: '';
         $amoOk        = Yii::$app->amocrm->isConfigured();
         $msOk         = Yii::$app->moyskladClient->isConfigured();
 

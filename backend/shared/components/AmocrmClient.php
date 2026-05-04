@@ -27,9 +27,9 @@ class AmocrmClient extends Component
     {
         parent::init();
 
-        // Prefer env-based long token (valid until 2029, no refresh needed)
-        $longToken = getenv('AMOCRM_LONG_TOKEN') ?: null;
-        $envDomain = getenv('AMOCRM_API_DOMAIN') ?: null;
+        // Use env() helper (reads $_ENV set by Dotenv) with getenv() fallback
+        $longToken = env('AMOCRM_LONG_TOKEN') ?: null;
+        $envDomain = env('AMOCRM_API_DOMAIN') ?: null;
 
         if ($longToken) {
             $this->accessToken    = $longToken;
@@ -38,8 +38,8 @@ class AmocrmClient extends Component
         } else {
             $s = Yii::$app->settings;
             $this->domain         = $envDomain ?: $s->get('amocrm', 'domain', '');
-            $this->clientId       = getenv('AMOCRM_INTEGRATION_ID') ?: $s->get('amocrm', 'client_id', '');
-            $this->clientSecret   = getenv('AMOCRM_SECRET_KEY') ?: $s->get('amocrm', 'client_secret', '');
+            $this->clientId       = env('AMOCRM_INTEGRATION_ID') ?: $s->get('amocrm', 'client_id', '');
+            $this->clientSecret   = env('AMOCRM_SECRET_KEY') ?: $s->get('amocrm', 'client_secret', '');
             $this->accessToken    = $s->get('amocrm', 'access_token', '');
             $this->refreshToken   = $s->get('amocrm', 'refresh_token', '');
         }

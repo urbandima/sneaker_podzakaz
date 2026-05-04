@@ -145,7 +145,7 @@ PROMPT;
      */
     private function callClaude(string $userMessage, ?string $phone, ?int $leadId): array
     {
-        $apiKey = getenv('ANTHROPIC_API_KEY') ?: '';
+        $apiKey = env('ANTHROPIC_API_KEY') ?: '';
         if (!$apiKey) {
             throw new \RuntimeException('ANTHROPIC_API_KEY not set');
         }

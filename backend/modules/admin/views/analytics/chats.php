@@ -205,7 +205,7 @@ $customFieldDefs   = $customFieldDefs   ?? [];
         ?>
         <tr style="background:<?= $rowBg ?>;border-bottom:1px solid #f1f5f9;">
             <td style="padding:0.45rem 0.75rem;color:#94a3b8;">
-                <a href="https://<?= Html::encode(getenv('AMOCRM_DOMAIN') ?: 'app.amocrm.ru') ?>/leads/detail/<?= (int)$lead['id'] ?>"
+                <a href="https://<?= Html::encode(env('AMOCRM_API_DOMAIN') ?: env('AMOCRM_SUBDOMAIN', 'app') . '.amocrm.ru') ?>/leads/detail/<?= (int)$lead['id'] ?>"
                    target="_blank" rel="noopener" style="color:#3b82f6;text-decoration:none;">#<?= (int)$lead['id'] ?></a>
             </td>
             <td style="padding:0.45rem 0.75rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"

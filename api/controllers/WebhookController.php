@@ -131,7 +131,7 @@ class WebhookController extends Controller
         }
 
         // HMAC verification (optional — only if secret is set in env)
-        $secret = getenv('AMOCRM_SECRET_KEY') ?: '';
+        $secret = env('AMOCRM_SECRET_KEY') ?: '';
         if ($secret) {
             $sig = Yii::$app->request->headers->get('X-Signature', '');
             if ($sig && !hash_equals(hash_hmac('sha256', $raw, $secret), $sig)) {
