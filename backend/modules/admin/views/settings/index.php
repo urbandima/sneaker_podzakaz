@@ -279,7 +279,7 @@ function saveAnalytics() {
     fetch('<?= \yii\helpers\Url::to(['/admin/settings/save']) ?>', {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content},
-        body: JSON.stringify({section: 'analytics', data: {ga4_id: ga4, metrika_id: metrika, meta_pixel_id: metaPixel}})
+        body: JSON.stringify({analytics: {ga4_id: ga4, metrika_id: metrika, meta_pixel_id: metaPixel}})
     }).then(r => r.json()).then(d => {
         document.getElementById('analyticsResult').innerHTML = d.success
             ? '<span style="color:var(--admin-success)"><i class="bi bi-check-circle"></i> Сохранено</span>'

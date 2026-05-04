@@ -174,7 +174,7 @@ class SettingsController extends BaseAdminController
         // при fetch(..., { body: JSON.stringify(...) }) без явной передачи заголовка.
         // Безопасность обеспечивается авторизацией на уровне BaseAdminController (только admin).
         // TODO: передавать X-CSRF-Token в заголовках fetch-запросов и убрать это исключение.
-        if (in_array($action->id, ['save-statuses', 'save-payment', 'save-shipping'])) {
+        if (in_array($action->id, ['save', 'save-statuses', 'save-payment', 'save-shipping', 'save-loyalty'])) {
             $this->enableCsrfValidation = false;
         }
         return parent::beforeAction($action);
