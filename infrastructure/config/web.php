@@ -355,6 +355,9 @@ $config = [
                 'api/webhook/amocrm' => 'api/webhook/amocrm',
                 'webhook/amocrm/event' => 'api/webhook/amocrm',
                 'webhook/amocrm/lead-status-changed' => 'api/webhook/lead-status-changed',
+                // Phase 3 AI chat webhook (CMP-159)
+                'webhook/amocrm/ai-chat' => 'api/ai-chat/incoming',
+                'webhook/amocrm/ai-chat/status' => 'api/ai-chat/status',
                 'api/amocrm/order' => 'api/amocrm/order',
                 'api/amocrm/sync' => 'api/amocrm/sync',
 
