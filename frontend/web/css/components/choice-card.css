@@ -268,7 +268,11 @@
     .option-content > .option-price {
         order: 2;
         flex-basis: 100%;
-        margin-left: calc(36px + var(--space-3));
+        /* padding-left instead of margin-left: aligns text under icon-column
+           without creating a margin-box that overflows the flex container.
+           margin-left:48px + flex-basis:100% → margin-box > container → +19px
+           scrollWidth overflow. padding-left stays inside the box. CMP-134. */
+        padding-left: calc(36px + var(--space-3));
         font-size: var(--text-xs);
         font-weight: var(--font-weight-medium);
     }

@@ -250,9 +250,13 @@ img, video, canvas, svg {
         order: 0;
     }
 
-    /* Shipping options: larger touch targets */
+    /* Shipping options: vertical touch target only.
+       Horizontal padding was removed — it squeezed option-content below the
+       threshold where Европочта's description wraps to an extra line (+19px),
+       and combined with flex-basis:100%+margin-left on the price chip it caused
+       scrollWidth=+19px overflow. See CMP-134. */
     .shipping-option {
-        padding: var(--space-4, 16px);
+        padding: var(--space-2, 8px) 0;
     }
     .shipping-options {
         gap: var(--space-3, 12px);
