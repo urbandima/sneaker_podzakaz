@@ -1244,6 +1244,106 @@ class AnalyticsController extends BaseAdminController
     // ─── CSV Exports ──────────────────────────────────────────────────────────
 
     /**
+     * GET /admin/analytics/export-chats — CSV dataset of chat pipeline leads (CMP-160).
+     * Fetches all leads from pipelines 7426646 (сайт) and 8054662 (Яндекс карты),
+     * classifies by categories A-H from playbook, saves to exports/ and streams download.
+     */
+    public function actionExportChats()
+    {
+        $amoCrm = Yii::$app->amocrm;
+
+        $pipelines = [
+            7426646 => 'Чаты с сайта',
+            8054662 => 'Чаты с Яндекс карт',
+        ];
+
+        $categoryPatterns = [
+            'A' => ['наличи', 'ищу', 'хочу купить', 'есть ли', 'в наличии', 'подбор'],
+            'B' => ['цена', 'стоимост', 'сколько стоит', 'почём'],
+            'C' => ['статус', 'где заказ', 'когда придёт', 'трек', 'не получил'],
+            'D' => ['оригинал', 'настоящий', 'подделка', 'реплика', 'аутентич'],
+            'E' => ['размер', ' eu ', ' us ', 'таблиц размер', 'подобрать размер'],
+            'F' => ['доставк', 'сдэк', 'почта', 'европочт', 'как оплатит', 'предоплата'],
+            'G' => ['предзаказ', 'зарезервир', 'когда появится', 'ожидает'],
+            'H' => ['возврат', 'брак', 'проблем', 'жалоб', 'не то', 'ошибк'],
+        ];
+
+        $rows = [];
+
+        try {
+            foreach ($pipelines as $pid => $pname) {
+                $statuses = [];
+                foreach ($amoCrm->getPipelineStatuses($pid) as $s) {
+                    $statuses[$s['id']] = $s['name'];
+                }
+
+                $page = 1;
+                do {
+                    $raw   = $amoCrm->getLeads([
+                        'filter[pipeline_id]' => $pid,
+                        'limit'               => 250,
+                        'page'                => $page,
+                        'with'                => 'tags',
+                    ]);
+                    $leads = $raw['_embedded']['leads'] ?? [];
+
+                    foreach ($leads as $lead) {
+                        $tags = implode(', ', array_column($lead['_embedded']['tags'] ?? [], 'name'));
+                        $text = mb_strtolower(($lead['name'] ?? '') . ' ' . $tags);
+                        $cat  = '?';
+                        foreach ($categoryPatterns as $c => $kws) {
+                            foreach ($kws as $kw) {
+                                if (mb_strpos($text, $kw) !== false) {
+                                    $cat = $c;
+                                    break 2;
+                                }
+                            }
+                        }
+
+                        $rows[] = [
+                            'lead_id'     => $lead['id'],
+                            'pipeline'    => $pname,
+                            'status'      => $statuses[$lead['status_id']] ?? (string)$lead['status_id'],
+                            'created_at'  => $lead['created_at'] ? date('Y-m-d H:i:s', $lead['created_at']) : '',
+                            'closed_at'   => $lead['closed_at']  ? date('Y-m-d H:i:s', $lead['closed_at'])  : '',
+                            'tags'        => $tags,
+                            'category'    => $cat,
+                            'notes_count' => 0,
+                        ];
+                    }
+
+                    $page++;
+                    $hasNext = !empty($raw['_links']['next']);
+                } while ($hasNext && count($leads) === 250);
+            }
+        } catch (\Throwable $e) {
+            Yii::warning('[export-chats] ' . $e->getMessage(), 'amocrm');
+            $rows = [['Ошибка' => 'AmoCRM недоступен: ' . $e->getMessage()]];
+        }
+
+        // Persist dataset to disk
+        $dir = dirname(__DIR__) . '/exports';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        $filename = 'chat_dataset_' . date('Y-m-d');
+        $filepath = $dir . '/' . $filename . '.csv';
+
+        $tmp = fopen('php://temp', 'r+');
+        if (!empty($rows)) {
+            fputcsv($tmp, array_keys($rows[0]));
+            foreach ($rows as $row) {
+                fputcsv($tmp, $row);
+            }
+        }
+        rewind($tmp);
+        file_put_contents($filepath, "\xEF\xBB\xBF" . stream_get_contents($tmp));
+        fclose($tmp);
+
+        return $this->exportCsv($rows, $filename);
+    }
+
+    /**
      * GET /admin/analytics/export-orders — CSV of all orders with key fields.
      */
     public function actionExportOrders()
