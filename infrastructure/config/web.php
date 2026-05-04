@@ -234,6 +234,9 @@ $config = [
         'moysklad' => [
             'class' => 'app\backend\shared\services\MoySkladService',
         ],
+        'moyskladClient' => [
+            'class' => 'app\backend\shared\components\MoyskladClient',
+        ],
         'sms' => [
             'class'      => 'app\backend\modules\notification\services\SmsService',
             'provider'   => env('SMS_PROVIDER', 'rocketsms'),

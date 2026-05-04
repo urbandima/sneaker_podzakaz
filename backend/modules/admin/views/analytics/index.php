@@ -51,6 +51,19 @@ $this->params['headerActions'] = [
        style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;<?= $activeTab === 'team' ? 'background:var(--admin-primary,#2563eb);color:#fff;border-color:var(--admin-primary,#2563eb);' : 'color:var(--admin-text-secondary,#64748b);' ?>">
         <i class="bi bi-person-badge"></i> Команда
     </a>
+    <div style="flex:1;"></div>
+    <a href="<?= Url::to(['/admin/analytics/amocrm']) ?>"
+       style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;color:var(--admin-text-secondary,#64748b);">
+        <i class="bi bi-funnel"></i> AmoCRM
+    </a>
+    <a href="<?= Url::to(['/admin/analytics/moysklad']) ?>"
+       style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;color:var(--admin-text-secondary,#64748b);">
+        <i class="bi bi-box-seam"></i> МойСклад
+    </a>
+    <a href="<?= Url::to(['/admin/analytics/summary']) ?>"
+       style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;color:var(--admin-text-secondary,#64748b);">
+        <i class="bi bi-diagram-3"></i> Сводная
+    </a>
 </div>
 
 <!-- ===================== TAB: АНАЛИТИКА ===================== -->
