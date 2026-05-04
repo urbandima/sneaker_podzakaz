@@ -52,6 +52,10 @@ $this->params['headerActions'] = [
         <i class="bi bi-person-badge"></i> Команда
     </a>
     <div style="flex:1;"></div>
+    <a href="<?= Url::to(['/admin/analytics/chats']) ?>"
+       style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;color:var(--admin-text-secondary,#64748b);">
+        <i class="bi bi-chat-dots"></i> Чаты
+    </a>
     <a href="<?= Url::to(['/admin/analytics/amocrm']) ?>"
        style="padding:0.6rem 1.2rem;border-radius:0.5rem 0.5rem 0 0;font-weight:600;font-size:0.9rem;text-decoration:none;border:2px solid transparent;border-bottom:none;color:var(--admin-text-secondary,#64748b);">
         <i class="bi bi-funnel"></i> AmoCRM
