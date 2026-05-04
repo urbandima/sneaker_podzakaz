@@ -787,140 +787,21 @@ class AnalyticsController extends BaseAdminController
     // ─── Chat analytics (Phase 0) ─────────────────────────────────────────────
 
     /**
-     * Chat pipeline analytics — pipelines 7426646 (Чаты с сайта) and 8054662 (Чаты с Яндекс карт).
-     * Phase 0 of CMP-159: aggregate metrics from lead data without message bodies.
-     * Message bodies require Phase 3 webhook capture (/api/v4/talks or incoming webhook).
+     * Chat analytics — fetches ALL AmoCRM pipelines dynamically with full lead data
+     * (contacts, custom_fields_values, tags, notes count) and full pagination.
      */
     public function actionChats()
     {
         $amoCrm      = Yii::$app->amocrm;
         $tokenStatus = 'ok';
 
-        $pipelines = [
-            7426646 => ['name' => 'Чаты с сайта',        'leads' => [], 'statuses' => [], 'won_status' => 142, 'lost_status' => 143],
-            8054662 => ['name' => 'Чаты с Яндекс карт',  'leads' => [], 'statuses' => [], 'won_status' => null, 'lost_status' => null],
-        ];
-
-        $allLeads    = [];
-        $totalChats  = 0;
-        $wonLeads    = 0;
-        $allTags     = [];
-        $tagCounts   = [];
+        $allLeads        = [];
+        $totalChats      = 0;
+        $wonLeads        = 0;
+        $tagCounts       = [];
         $pipelineMetrics = [];
+        $customFieldDefs = [];
 
-        try {
-            $account = $amoCrm->getAccount();
-            if ($account === null) {
-                $tokenStatus = 'error';
-            } else {
-                foreach ($pipelines as $pid => &$pData) {
-                    // Fetch statuses
-                    $rawStatuses = $amoCrm->getPipelineStatuses($pid);
-                    foreach ($rawStatuses as $s) {
-                        $pData['statuses'][$s['id']] = $s['name'];
-                    }
-                    if ($pData['won_status'] === null && !empty($pData['statuses'])) {
-                        // find status named "Успешно реализовано" or id 142
-                        foreach ($pData['statuses'] as $sid => $sname) {
-                            if (mb_stripos($sname, 'успех') !== false || $sid === 142) {
-                                $pData['won_status'] = $sid;
-                                break;
-                            }
-                        }
-                    }
-
-                    // Fetch leads (up to 250)
-                    $raw   = $amoCrm->getLeads([
-                        'filter[pipeline_id]' => $pid,
-                        'limit'               => 250,
-                        'with'                => 'contacts,tags',
-                    ]);
-                    $leads = $raw['_embedded']['leads'] ?? [];
-                    $pData['leads'] = $leads;
-                    $allLeads       = array_merge($allLeads, $leads);
-
-                    // Per-pipeline metrics
-                    $pTotal   = count($leads);
-                    $pWon     = 0;
-                    $pLost    = 0;
-                    $pResTime = [];
-                    $statusCounts = [];
-
-                    foreach ($leads as $lead) {
-                        $sid  = (int)($lead['status_id'] ?? 0);
-                        $name = $pData['statuses'][$sid] ?? 'Неизвестен';
-                        $statusCounts[$name] = ($statusCounts[$name] ?? 0) + 1;
-
-                        // Won / Lost
-                        if ($pData['won_status'] && $sid === $pData['won_status']) {
-                            $pWon++;
-                        }
-                        if ($pData['lost_status'] && $sid === $pData['lost_status']) {
-                            $pLost++;
-                        }
-                        if ($sid === 142) $wonLeads++;
-
-                        // Resolution time (created_at → closed_at)
-                        if (!empty($lead['closed_at']) && !empty($lead['created_at'])) {
-                            $diff = (int)$lead['closed_at'] - (int)$lead['created_at'];
-                            if ($diff > 0) {
-                                $pResTime[] = $diff;
-                            }
-                        }
-
-                        // Tags
-                        foreach ($lead['_embedded']['tags'] ?? [] as $tag) {
-                            $tname = $tag['name'] ?? '';
-                            if ($tname) {
-                                $tagCounts[$tname] = ($tagCounts[$tname] ?? 0) + 1;
-                            }
-                        }
-                    }
-
-                    arsort($statusCounts);
-                    $avgResSeconds = !empty($pResTime) ? (int)(array_sum($pResTime) / count($pResTime)) : null;
-
-                    $pipelineMetrics[$pid] = [
-                        'name'           => $pData['name'],
-                        'total'          => $pTotal,
-                        'won'            => $pWon,
-                        'lost'           => $pLost,
-                        'open'           => $pTotal - $pWon - $pLost,
-                        'conversion_pct' => $pTotal > 0 ? round($pWon / $pTotal * 100, 1) : 0,
-                        'statusCounts'   => $statusCounts,
-                        'avgResSeconds'  => $avgResSeconds,
-                        'avgResHuman'    => $avgResSeconds !== null ? $this->secondsToHuman($avgResSeconds) : '—',
-                    ];
-
-                    $totalChats += $pTotal;
-                }
-                unset($pData);
-
-                arsort($tagCounts);
-                $tagCounts = array_slice($tagCounts, 0, 20, true);
-            }
-        } catch (\Throwable $e) {
-            $tokenStatus = 'error';
-            Yii::warning('[analytics/chats] ' . $e->getMessage(), 'amocrm');
-        }
-
-        // Overall conversion
-        $overallConversion = $totalChats > 0 ? round($wonLeads / $totalChats * 100, 1) : 0;
-
-        // Overall avg response time across all pipelines
-        $allResSeconds = [];
-        foreach ($allLeads as $l) {
-            if (!empty($l['closed_at']) && !empty($l['created_at'])) {
-                $d = (int)$l['closed_at'] - (int)$l['created_at'];
-                if ($d > 0) $allResSeconds[] = $d;
-            }
-        }
-        $overallAvgRes = !empty($allResSeconds)
-            ? $this->secondsToHuman((int)(array_sum($allResSeconds) / count($allResSeconds)))
-            : '—';
-
-        // Classify leads into A-H categories from playbook (keyword heuristic on lead name/tags)
-        $categoryCounts = ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0, 'F' => 0, 'G' => 0, 'H' => 0, '?' => 0];
         $categoryLabels = [
             'A' => 'Наличие и подбор',
             'B' => 'Вопрос о цене',
@@ -942,21 +823,172 @@ class AnalyticsController extends BaseAdminController
             'G' => ['предзаказ', 'зарезервир', 'когда появится', 'ожидает'],
             'H' => ['возврат', 'брак', 'проблем', 'жалоб', 'не то', 'ошибк'],
         ];
-        foreach ($allLeads as $lead) {
-            $text = mb_strtolower(($lead['name'] ?? '') . ' ' . implode(' ', array_column($lead['_embedded']['tags'] ?? [], 'name')));
-            $matched = false;
-            foreach ($categoryPatterns as $cat => $kw) {
-                foreach ($kw as $k) {
-                    if (mb_strpos($text, $k) !== false) {
-                        $categoryCounts[$cat]++;
-                        $matched = true;
-                        break 2;
-                    }
+        $categoryCounts = array_fill_keys(array_merge(array_keys($categoryLabels)), 0);
+
+        try {
+            $account = $amoCrm->getAccount();
+            if ($account === null) {
+                $tokenStatus = 'error';
+            } else {
+                // Load custom field definitions for label mapping
+                foreach ($amoCrm->getCustomFields('leads') as $cf) {
+                    $customFieldDefs[(int)$cf['id']] = $cf['name'] ?? ('field_' . $cf['id']);
                 }
+
+                // Fetch ALL pipelines dynamically
+                $allPipelines = $amoCrm->getPipelinesWithStatuses() ?? [];
+
+                foreach ($allPipelines as $pipeline) {
+                    $pid  = (int)$pipeline['id'];
+                    $name = $pipeline['name'];
+
+                    // Build status map [id => name] for this pipeline
+                    $statusMap  = [];
+                    $wonStatus  = null;
+                    $lostStatus = null;
+                    foreach ($pipeline['statuses'] as $s) {
+                        $statusMap[$s['id']] = $s['name'];
+                        if ($wonStatus === null && (mb_stripos($s['name'], 'успех') !== false || (int)$s['id'] === 142)) {
+                            $wonStatus = (int)$s['id'];
+                        }
+                        if ($lostStatus === null && (mb_stripos($s['name'], 'отказ') !== false || mb_stripos($s['name'], 'закрыт') !== false || (int)$s['id'] === 143)) {
+                            $lostStatus = (int)$s['id'];
+                        }
+                    }
+
+                    // Paginate through ALL leads in this pipeline
+                    $pLeads = [];
+                    $page   = 1;
+                    do {
+                        $raw   = $amoCrm->getLeads([
+                            'filter[pipeline_id]' => $pid,
+                            'limit'               => 250,
+                            'page'                => $page,
+                            'with'                => 'contacts,tags,custom_fields_values',
+                        ]);
+                        $batch = $raw['_embedded']['leads'] ?? [];
+                        $pLeads = array_merge($pLeads, $batch);
+                        $hasNext = !empty($raw['_links']['next']);
+                        $page++;
+                    } while ($hasNext && count($batch) === 250);
+
+                    $allLeads = array_merge($allLeads, $pLeads);
+
+                    // Aggregate per-pipeline metrics
+                    $pTotal       = count($pLeads);
+                    $pWon         = 0;
+                    $pLost        = 0;
+                    $pResTime     = [];
+                    $statusCounts = [];
+                    $pTagCounts   = [];
+                    $pPrice       = 0;
+
+                    foreach ($pLeads as $lead) {
+                        $sid       = (int)($lead['status_id'] ?? 0);
+                        $sname     = $statusMap[$sid] ?? ('Статус ' . $sid);
+                        $statusCounts[$sname] = ($statusCounts[$sname] ?? 0) + 1;
+
+                        if ($wonStatus && $sid === $wonStatus) {
+                            $pWon++;
+                            $wonLeads++;
+                        }
+                        if ($lostStatus && $sid === $lostStatus) {
+                            $pLost++;
+                        }
+
+                        // Price sum
+                        $pPrice += (float)($lead['price'] ?? 0);
+
+                        // Resolution time
+                        if (!empty($lead['closed_at']) && !empty($lead['created_at'])) {
+                            $diff = (int)$lead['closed_at'] - (int)$lead['created_at'];
+                            if ($diff > 0) {
+                                $pResTime[] = $diff;
+                            }
+                        }
+
+                        // Tags (global + per-pipeline)
+                        foreach ($lead['_embedded']['tags'] ?? [] as $tag) {
+                            $tname = $tag['name'] ?? '';
+                            if ($tname) {
+                                $tagCounts[$tname]  = ($tagCounts[$tname] ?? 0) + 1;
+                                $pTagCounts[$tname] = ($pTagCounts[$tname] ?? 0) + 1;
+                            }
+                        }
+
+                        // Category classification
+                        $text = mb_strtolower(
+                            ($lead['name'] ?? '') . ' ' .
+                            implode(' ', array_column($lead['_embedded']['tags'] ?? [], 'name')) . ' ' .
+                            implode(' ', array_map(fn($cf) => implode(' ', array_column($cf['values'] ?? [], 'value')), $lead['custom_fields_values'] ?? []))
+                        );
+                        $matched = false;
+                        foreach ($categoryPatterns as $cat => $kws) {
+                            foreach ($kws as $kw) {
+                                if (mb_strpos($text, $kw) !== false) {
+                                    $categoryCounts[$cat]++;
+                                    $matched = true;
+                                    break 2;
+                                }
+                            }
+                        }
+                        if (!$matched) {
+                            $categoryCounts['?']++;
+                        }
+                    }
+
+                    arsort($statusCounts);
+                    arsort($pTagCounts);
+                    $avgResSeconds = !empty($pResTime) ? (int)(array_sum($pResTime) / count($pResTime)) : null;
+
+                    $pipelineMetrics[$pid] = [
+                        'name'           => $name,
+                        'total'          => $pTotal,
+                        'won'            => $pWon,
+                        'lost'           => $pLost,
+                        'open'           => $pTotal - $pWon - $pLost,
+                        'conversion_pct' => $pTotal > 0 ? round($pWon / $pTotal * 100, 1) : 0,
+                        'price_sum'      => $pPrice,
+                        'avg_price'      => $pTotal > 0 ? round($pPrice / $pTotal, 0) : 0,
+                        'statusCounts'   => $statusCounts,
+                        'tagCounts'      => array_slice($pTagCounts, 0, 10, true),
+                        'avgResSeconds'  => $avgResSeconds,
+                        'avgResHuman'    => $avgResSeconds !== null ? $this->secondsToHuman($avgResSeconds) : '—',
+                    ];
+
+                    $totalChats += $pTotal;
+                }
+
+                arsort($tagCounts);
+                $tagCounts = array_slice($tagCounts, 0, 30, true);
             }
-            if (!$matched) {
-                $categoryCounts['?']++;
+        } catch (\Throwable $e) {
+            $tokenStatus = 'error';
+            Yii::warning('[analytics/chats] ' . $e->getMessage(), 'amocrm');
+        }
+
+        // Overall stats
+        $overallConversion = $totalChats > 0 ? round($wonLeads / $totalChats * 100, 1) : 0;
+
+        $allResSeconds = [];
+        foreach ($allLeads as $l) {
+            if (!empty($l['closed_at']) && !empty($l['created_at'])) {
+                $d = (int)$l['closed_at'] - (int)$l['created_at'];
+                if ($d > 0) $allResSeconds[] = $d;
             }
+        }
+        $overallAvgRes = !empty($allResSeconds)
+            ? $this->secondsToHuman((int)(array_sum($allResSeconds) / count($allResSeconds)))
+            : '—';
+
+        // Recent leads table (last 50 across all pipelines, sorted by created_at desc)
+        usort($allLeads, fn($a, $b) => (int)($b['created_at'] ?? 0) <=> (int)($a['created_at'] ?? 0));
+        $recentLeads = array_slice($allLeads, 0, 50);
+
+        // Build per-pipeline status map index for view rendering
+        $pipelineStatusMaps = [];
+        foreach ($pipelineMetrics as $pid => $pm) {
+            $pipelineStatusMaps[$pid] = [];
         }
 
         return $this->render('chats', [
@@ -969,6 +1001,8 @@ class AnalyticsController extends BaseAdminController
             'tagCounts'          => $tagCounts,
             'categoryCounts'     => $categoryCounts,
             'categoryLabels'     => $categoryLabels,
+            'recentLeads'        => $recentLeads,
+            'customFieldDefs'    => $customFieldDefs,
         ]);
     }
 

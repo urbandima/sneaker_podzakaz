@@ -182,6 +182,7 @@ $controllerId = Yii::$app->controller->id;
                     'items' => [
                         ['label' => 'Аналитика и отчеты', 'url' => '/admin/analytics', 'ids' => ['analytics']],
                         ['label' => 'RFM сегменты', 'url' => '/admin/analytics/rfm', 'ids' => ['rfm']],
+                        ['label' => 'Чаты AmoCRM', 'url' => '/admin/analytics/chats', 'ids' => ['chats'], 'icon' => 'bi-chat-dots-fill'],
                         ['label' => 'Instagram', 'url' => '/admin/analytics/instagram', 'ids' => ['analytics'], 'icon' => 'bi-instagram']
                     ]
                 ],
