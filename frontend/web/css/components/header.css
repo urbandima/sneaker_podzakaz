@@ -1341,28 +1341,37 @@
     }
 
     /* 3-column mobile header: [btn-categories | logo | actions]
-       DOM order is logo / main-nav / header-actions; use explicit grid-column to
-       reflow: main-nav (with btn-categories) → col 1, logo → col 2 (center), actions → col 3. */
+       DOM order is logo / main-nav / header-actions; use explicit grid-column + grid-row: 1
+       to reflow all items into a single row: main-nav→col1, logo→col2, actions→col3.
+       Without grid-row: 1, DOM-order mismatch causes logo to land in row 1 and the other
+       two items to wrap into row 2. */
     .main-header > .header-content {
         display: grid;
         grid-template-columns: auto 1fr auto;
+        grid-template-rows: 1fr;
         align-items: center;
         padding: 0 var(--space-3);
         gap: 0;
     }
     .main-header > .header-content .main-nav {
         grid-column: 1;
+        grid-row: 1;
         gap: 0; /* btn-categories + hidden ul — no gap needed */
         flex-shrink: 0;
+        align-self: center;
     }
     .main-header > .header-content .logo {
         grid-column: 2;
+        grid-row: 1;
         justify-self: center;
+        align-self: center;
         min-width: 0;
     }
     .main-header > .header-content .header-actions {
         grid-column: 3;
+        grid-row: 1;
         justify-self: end;
+        align-self: center;
     }
 
     /* Shrink action icons but keep 44px touch targets */
