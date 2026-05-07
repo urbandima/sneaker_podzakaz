@@ -89,16 +89,16 @@ class SiteController extends Controller
     public function actionIndex()
     {
         // SEO метаданные для главной страницы
-        $this->view->title = 'Купить оригинальные кроссовки в Беларуси — СНИКЕРХЭД';
-        
+        $this->view->title = 'Оригинальные кроссовки в Беларуси — СНИКЕРХЭД';
+
         // Meta description
         $this->view->registerMetaTag([
             'name' => 'description',
             'content' => 'Оригинальные кроссовки Nike, Adidas, Jordan с доставкой по Беларуси. 100% подлинность, гарантия качества, лучшие цены. Заказывайте онлайн с быстрой доставкой!'
         ]);
-        
+
         // Open Graph теги
-        $this->view->registerMetaTag(['property' => 'og:title', 'content' => 'Купить оригинальные кроссовки в Беларуси — СНИКЕРХЭД']);
+        $this->view->registerMetaTag(['property' => 'og:title', 'content' => 'Оригинальные кроссовки в Беларуси — СНИКЕРХЭД']);
         $this->view->registerMetaTag(['property' => 'og:description', 'content' => 'Оригинальные кроссовки Nike, Adidas, Jordan с доставкой по Беларуси. 100% подлинность, гарантия качества.']);
         $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
         $this->view->registerMetaTag(['property' => 'og:url', 'content' => Yii::$app->request->hostInfo]);
