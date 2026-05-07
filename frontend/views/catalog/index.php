@@ -14,7 +14,6 @@ use app\frontend\assets\CatalogAsset;
 CatalogAsset::register($this);
 
 $this->title = isset($h1) ? $h1 : 'Каталог товаров';
-$this->registerMetaTag(['name' => 'description', 'content' => 'Оригинальные товары из США и Европы']);
 
 // Измерение производительности (только в dev режиме)
 if (YII_ENV_DEV) {

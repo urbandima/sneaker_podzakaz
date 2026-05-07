@@ -235,7 +235,7 @@ class CatalogController extends Controller
         // SEO
         $this->registerMetaTags([
             'title' => $h1 . ' | СНИКЕРХЭД',
-            'description' => 'Оригинальные кроссовки из США и Европы',
+            'description' => 'Оригинальные кроссовки Nike, Adidas, Jordan с доставкой по Беларуси. 100% подлинность, гарантия качества.',
             'keywords' => 'кроссовки, бренды, оригинал',
         ]);
 
