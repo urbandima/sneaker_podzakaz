@@ -94,7 +94,7 @@ class SiteController extends Controller
         // Meta description
         $this->view->registerMetaTag([
             'name' => 'description',
-            'content' => 'Оригинальные кроссовки Nike, Adidas, Jordan с доставкой по Беларуси. 100% подлинность, гарантия качества, лучшие цены. Заказывайте онлайн с быстрой доставкой!'
+            'content' => 'Оригинальные кроссовки Nike, Adidas, Jordan с доставкой по Беларуси. 100% подлинность, гарантия качества, лучшие цены. Заказывайте онлайн!'
         ]);
 
         // Open Graph теги
