@@ -313,12 +313,17 @@ class SearchController extends Controller
 
     /**
      * Try FULLTEXT MATCH AGAINST. Returns true if query was applied, false if index unavailable.
+     * Probes the index with a dummy query so the exception is caught here, not at count() time.
      */
     private function tryFulltext(\yii\db\ActiveQuery $query, string $q, string $sort): bool
     {
         try {
             $escaped = Yii::$app->db->quoteValue('+' . implode('* +', preg_split('/\s+/', trim($q))) . '*');
             $relevanceExpr = "MATCH(`name`, `description`, `brand_name`, `model_name`) AGAINST({$escaped} IN BOOLEAN MODE)";
+            // Probe the FULLTEXT index before modifying the caller's query; catches error 1191 here.
+            Yii::$app->db->createCommand(
+                "SELECT {$relevanceExpr} FROM {{%product}} LIMIT 1"
+            )->queryScalar();
             $query->addSelect(['product.*', new \yii\db\Expression("{$relevanceExpr} AS relevance_score")]);
             $query->andWhere(new \yii\db\Expression("{$relevanceExpr} > 0"));
             if ($sort === 'relevance') {
@@ -326,6 +331,7 @@ class SearchController extends Controller
             }
             return true;
         } catch (\Exception $e) {
+            Yii::warning('FULLTEXT search unavailable, falling back to LIKE: ' . $e->getMessage(), __METHOD__);
             return false;
         }
     }
@@ -399,14 +405,14 @@ class SearchController extends Controller
         // Brand facets
         $brandRows = (clone $base)
             ->select(['brand_id', 'brand_name', 'COUNT(*) AS cnt'])
-            ->groupBy(['brand_id'])
+            ->groupBy(['brand_id', 'brand_name'])
             ->asArray()
             ->all();
 
         // Category facets
         $catRows = (clone $base)
             ->select(['category_id', 'category_name', 'COUNT(*) AS cnt'])
-            ->groupBy(['category_id'])
+            ->groupBy(['category_id', 'category_name'])
             ->asArray()
             ->all();
 

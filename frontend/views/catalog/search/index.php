@@ -274,7 +274,7 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
                             // For highlighting, we overlay a custom title in the card area below.
                         ?>
                             <div class="search-result-card">
-                                <?= $this->render('//_product_card', ['product' => $product]) ?>
+                                <?= $this->render('//catalog/_product_card', ['product' => $product]) ?>
                                 <?php if (!empty($highlightedNames[$product->id])): ?>
                                 <div class="search-highlighted-name" aria-hidden="true">
                                     <?= $highlightedNames[$product->id] ?>
