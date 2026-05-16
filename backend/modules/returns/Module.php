@@ -23,9 +23,8 @@
 namespace app\backend\modules\returns;
 
 use Yii;
-use yii\base\Module;
 
-class ReturnModule extends Module
+class Module extends \yii\base\Module
 {
     public $controllerNamespace = 'app\backend\modules\returns\controllers';
 

@@ -83,7 +83,7 @@ $config = [
             'class' => 'app\backend\modules\loyalty\LoyaltyModule',
         ],
         'returns' => [
-            'class' => 'app\backend\modules\returns\ReturnModule',
+            'class' => 'app\backend\modules\returns\Module',
         ],
         'compare' => [
             'class' => 'app\backend\modules\compare\Module',
