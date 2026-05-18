@@ -28,6 +28,13 @@ AppAsset::register($this);
 })($this);
 
 $company = Yii::$app->settings->getCompany();
+
+if (!empty($this->params['description'])) {
+    $this->registerMetaTag([
+        'name'    => 'description',
+        'content' => $this->params['description'],
+    ]);
+}
 ?>
 
 <?php $this->beginPage() ?>
