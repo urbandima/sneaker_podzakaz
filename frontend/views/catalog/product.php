@@ -105,6 +105,14 @@ $this->params['keywords'] = implode(', ', array_filter([
 $this->params['image'] = $product->getMainImageUrl();
 $this->params['og:type'] = 'product';
 
+// Open Graph теги для соцсетей (VK, Telegram, Instagram)
+if (!empty($this->params['description'])) {
+    $this->registerMetaTag(['property' => 'og:title',       'content' => $productTitle]);
+    $this->registerMetaTag(['property' => 'og:description', 'content' => $this->params['description']]);
+    $this->registerMetaTag(['property' => 'og:image',       'content' => $galleryImages[0]['url'] ?? $this->params['image']]);
+    $this->registerMetaTag(['property' => 'og:type',        'content' => 'product']);
+}
+
 // ============================================
 // РАЗМЕРЫ И ЦЕНЫ
 // ============================================
