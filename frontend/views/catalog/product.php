@@ -162,6 +162,17 @@ if (empty($this->params['jsonLdSchemas'])) {
 }
 $this->params['jsonLdSchemas'][] = Json::encode($schemaData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
+$breadcrumbSchema = [
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => [
+        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Главная', 'item' => Url::to(['/'], true)],
+        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Каталог', 'item' => Url::to(['/catalog'], true)],
+        ['@type' => 'ListItem', 'position' => 3, 'name' => $productTitle, 'item' => Url::current([], true)],
+    ],
+];
+$this->params['jsonLdSchemas'][] = Json::encode($breadcrumbSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
 // Данные для JavaScript
 $this->registerJsVar('productData', $priceData);
 
