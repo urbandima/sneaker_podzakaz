@@ -147,11 +147,15 @@ $schemaData = [
 ];
 
 $this->registerJs('window.productData = ' . Json::encode($priceData), \yii\web\View::POS_END);
-$this->registerJs('window.schemaData = ' . Json::encode($schemaData), \yii\web\View::POS_END);
+
+// JSON-LD schema в <head> через layout
+if (empty($this->params['jsonLdSchemas'])) {
+    $this->params['jsonLdSchemas'] = [];
+}
+$this->params['jsonLdSchemas'][] = Json::encode($schemaData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
 // Данные для JavaScript
 $this->registerJsVar('productData', $priceData);
-$this->registerJsVar('schemaData', $schemaData);
 
 // Analytics: view_item (GA4 + Y.Metrika ecommerce.detail) и Meta Pixel ViewContent.
 // Все три тега settings-gated в layout — отсутствие конфигов делает emit no-op.
@@ -274,9 +278,6 @@ $this->registerJsVar('productVideo', $productVideo);
 ?>
 
 <div class="product-page-optimized">
-    <!-- Schema.org микроразметка для SEO -->
-    <script type="application/ld+json"><?= Json::encode($schemaData) ?></script>
-
     <!-- Хлебные крошки -->
     <nav class="breadcrumb">
         <a href="<?= Url::to(['/']) ?>">Главная</a>
