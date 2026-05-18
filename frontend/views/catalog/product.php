@@ -34,7 +34,9 @@ function getProductMethod($product, $method, $default = null) {
 $productTitle = getProductMethod($product, 'getDisplayTitle') ?? ($product->title ?? $product->name ?? 'Товар');
 $productId = getProductMethod($product, 'getId') ?? ($product->id ?? 0);
 
-$this->title = $productTitle . ' | СНИКЕРХЭД';
+$brandName = $product->brand?->name ?? ($product->brand_name ?? '');
+$titleBase = trim($brandName . ' ' . $productTitle);
+$this->title = $titleBase . ' купить — СНИКЕРХЭД';
 $this->registerMetaTag(['name' => 'product-id', 'content' => $productId]);
 
 // ============================================
@@ -89,9 +91,10 @@ $galleryImagesJson = Json::encode(array_column($galleryImages, 'url'), JSON_UNES
 $this->registerJsVar('productGalleryImages', array_column($galleryImages, 'url'));
 
 // SEO параметры
-$this->params['description'] = $product->description 
-    ? Html::encode(mb_substr(strip_tags($product->description), 0, 160)) 
-    : Html::encode($product->getDisplayTitle() . ' - купить оригинальные кроссовки в Минске. Цена: ' . Yii::$app->formatter->asCurrency($product->price, 'BYN'));
+$_seoCategory = mb_strtolower($product->category?->name ?? ($product->category_name ?? 'кроссовки'));
+$this->params['description'] = $product->description
+    ? Html::encode(mb_substr(strip_tags($product->description), 0, 160))
+    : Html::encode($titleBase . ' — оригинальные ' . $_seoCategory . ' в Минске. Цена: ' . Yii::$app->formatter->asCurrency($product->price, 'BYN') . '. Доставка по Беларуси.');
 $this->params['keywords'] = implode(', ', array_filter([
     $product->brand?->name ?? ($product->brand_name ?? ''),
     $product->name,
