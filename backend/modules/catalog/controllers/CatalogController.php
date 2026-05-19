@@ -873,10 +873,8 @@ class CatalogController extends Controller
         // SEO
         $this->view->title = $product->getMetaTitle();
         
-        // Формируем продающий заголовок для соцсетей: "Бренд Модель"
-        $socialTitle = $product->brand_name 
-            ? $product->brand_name . ' ' . $product->name 
-            : $product->name;
+        // $product->name already contains the brand; no need to prepend brand_name
+        $socialTitle = $product->name;
         
         // Формируем УТП-описание для соцсетей
         $socialDescription = $this->generateProductUTP($product);
@@ -887,15 +885,12 @@ class CatalogController extends Controller
             $imageUrl = Yii::$app->request->hostInfo . $imageUrl;
         }
         
+        // og:title, og:description, og:image, og:type и description регистрируются
+        // в product.php + main.php layout; здесь только дополнительные теги.
         $this->registerMetaTags([
-            'description' => $product->getMetaDescription(),
             'keywords' => $product->name . ', ' . ($product->brand_name ?? ($product->brand->name ?? '')) . ', купить, оригинал',
-            // Open Graph для Facebook, VK, LinkedIn
-            'og:title' => $socialTitle,
-            'og:description' => $socialDescription,
-            'og:type' => 'product',
+            // Open Graph — расширенные атрибуты (базовые og:title/description/image/type — в view)
             'og:url' => Yii::$app->request->absoluteUrl,
-            'og:image' => $imageUrl,
             'og:image:width' => '1200',
             'og:image:height' => '630',
             'og:image:alt' => $product->name,

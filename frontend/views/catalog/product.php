@@ -35,7 +35,7 @@ $productTitle = getProductMethod($product, 'getDisplayTitle') ?? ($product->titl
 $productId = getProductMethod($product, 'getId') ?? ($product->id ?? 0);
 
 $brandName = $product->brand?->name ?? ($product->brand_name ?? '');
-$titleBase = trim($brandName . ' ' . $productTitle);
+$titleBase = $productTitle; // getDisplayTitle() already includes the brand
 $this->title = $titleBase . ' купить — СНИКЕРХЭД';
 $this->registerMetaTag(['name' => 'product-id', 'content' => $productId]);
 
