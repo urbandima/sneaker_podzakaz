@@ -54,18 +54,28 @@ Sitemap: https://sneakerhead.by/sitemap.xml
 # Crawl-delay
 Crawl-delay: 1
 
-# Allow specific crawlers
+# Allow specific crawlers — с явными Disallow для функциональных endpoint'ов
 User-agent: Googlebot
 Allow: /catalog/
 Allow: /site/
+Disallow: /catalog/filter
+Disallow: /catalog/add-favorite
+Disallow: /catalog/remove-favorite
+Disallow: /catalog/create-inquiry
+Disallow: /catalog/notify-availability
+Disallow: /catalog/quick-order
+Disallow: /catalog/submit-review
+Disallow: /catalog/submit-question
 
 User-agent: Yandex
 Allow: /catalog/
 Allow: /site/
+Disallow: /catalog/filter
+Disallow: /catalog/add-favorite
+Disallow: /catalog/remove-favorite
+Disallow: /catalog/create-inquiry
+Disallow: /catalog/notify-availability
+Disallow: /catalog/quick-order
+Disallow: /catalog/submit-review
+Disallow: /catalog/submit-question
 Crawl-delay: 2
-
-# Каталог товаров
-Allow: /catalog
-Allow: /catalog/brand/*
-Allow: /catalog/category/*
-Allow: /catalog/product/*
