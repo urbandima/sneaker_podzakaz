@@ -6,7 +6,7 @@ use Yii;
 use yii\console\Controller;
 use yii\console\ExitCode;
 use yii\helpers\Console;
-use app\services\Sitemap\SitemapGenerator;
+use app\backend\services\Sitemap\SitemapGenerator;
 use app\backend\shared\components\SitemapNotifier;
 
 /**

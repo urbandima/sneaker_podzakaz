@@ -227,8 +227,12 @@ class SitemapGenerator
         
         if ($lastmod) {
             $lastmodEl = $this->dom->createElement('lastmod');
-            $lastmodEl->appendChild($this->dom->createTextNode(date('Y-m-d', strtotime($lastmod))));
-            $url->appendChild($lastmodEl);
+            // updated_at хранится как Unix timestamp (int) через TimestampBehavior
+            $ts = is_numeric($lastmod) ? (int)$lastmod : strtotime($lastmod);
+            if ($ts > 0) {
+                $lastmodEl->appendChild($this->dom->createTextNode(date('Y-m-d', $ts)));
+                $url->appendChild($lastmodEl);
+            }
         }
         
         $changefreqEl = $this->dom->createElement('changefreq');
