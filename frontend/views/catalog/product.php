@@ -38,6 +38,7 @@ $brandName = $product->brand?->name ?? ($product->brand_name ?? '');
 $titleBase = $productTitle; // getDisplayTitle() already includes the brand
 $this->title = $titleBase . ' купить — СНИКЕРХЭД';
 $this->registerMetaTag(['name' => 'product-id', 'content' => $productId]);
+$this->registerLinkTag(['rel' => 'canonical', 'href' => Url::to(['/catalog/catalog/product', 'slug' => $product->slug], true)], 'canonical');
 
 // ============================================
 // ОПТИМИЗАЦИЯ ЗАГРУЗКИ РЕСУРСОВ

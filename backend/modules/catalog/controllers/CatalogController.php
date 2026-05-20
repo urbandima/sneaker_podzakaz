@@ -155,7 +155,7 @@ class CatalogController extends Controller
             }
         }
         
-        $this->view->registerLinkTag(['rel' => 'canonical', 'href' => $canonicalUrl]);
+        $this->view->registerLinkTag(['rel' => 'canonical', 'href' => $canonicalUrl], 'canonical');
     }
 
     /**
