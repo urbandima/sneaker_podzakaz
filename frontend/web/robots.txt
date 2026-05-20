@@ -26,7 +26,6 @@ Disallow: /favorite/
 
 # Block filter/sort query params (Googlebot understands this)
 Disallow: /*?sort=
-Disallow: /*?page=
 Disallow: /*?per-page=
 Disallow: /*?price_from=
 Disallow: /*?price_to=
@@ -36,7 +35,6 @@ Disallow: /*?material=
 Disallow: /*?gender=
 Disallow: /*?season=
 Disallow: /*&sort=
-Disallow: /*&page=
 Disallow: /*&price_from=
 Disallow: /*&price_to=
 Disallow: /*&size=
