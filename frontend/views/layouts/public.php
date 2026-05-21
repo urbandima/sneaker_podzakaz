@@ -28,7 +28,15 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
     <link rel="dns-prefetch" href="https://cdn.poizon.com">
     <link rel="dns-prefetch" href="https://cdn.dewu.com">
     <link rel="dns-prefetch" href="https://du.hupucdn.com">
-    
+    <!-- Preconnect CDN for icons and analytics -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+    <link rel="preconnect" href="https://mc.yandex.ru" crossorigin>
+    <!-- Bootstrap Icons — async to avoid render-blocking -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>
+
     <?php $this->head() ?>
     
     <!-- 
