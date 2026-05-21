@@ -353,7 +353,9 @@ $this->registerJsVar('productVideo', $productVideo);
                         <div class="video-preview" onclick="openVideoModal()">
                             <img src="<?= $galleryImages[0]['url'] ?>"
                                  alt="<?= Html::encode($productTitle) ?>"
-                                 id="mainImage">
+                                 id="mainImage"
+                                 loading="eager"
+                                 fetchpriority="high">
                             <div class="video-play-button">
                                 <i class="bi bi-play-circle"></i>
                                 <span>Смотреть видео-обзор</span>
@@ -417,6 +419,8 @@ $this->registerJsVar('productVideo', $productVideo);
                         <img src="<?= Html::encode($product->brand->logo_url) ?>"
                              alt="<?= Html::encode($product->brand->name) ?>"
                              class="brand-logo"
+                             loading="lazy"
+                             decoding="async"
                              onerror="this.style.display='none'">
                         <?php endif; ?>
                         <span class="brand-name"><?= Html::encode($product->brand->name) ?></span>
@@ -551,7 +555,7 @@ $this->registerJsVar('productVideo', $productVideo);
                          Rendering the SVG-data-URI gallery placeholder as a 40px <img> shows
                          a "broken-image" icon (UX feedback). Letting .sticky-details take the
                          full width keeps brand+name+price legible. -->
-                    <img src="<?= Html::encode($galleryImages[0]['url']) ?>" class="sticky-thumb" alt="<?= Html::encode($productTitle) ?>" onerror="this.style.display='none';this.onerror=null;">
+                    <img src="<?= Html::encode($galleryImages[0]['url']) ?>" class="sticky-thumb" alt="<?= Html::encode($productTitle) ?>" loading="lazy" decoding="async" onerror="this.style.display='none';this.onerror=null;">
                 <?php endif; ?>
                 <div class="sticky-details">
                     <?php if ($product->brand): ?>
