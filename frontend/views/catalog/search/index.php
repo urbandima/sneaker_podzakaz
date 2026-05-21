@@ -25,13 +25,8 @@ use app\frontend\assets\CatalogAsset;
 
 CatalogAsset::register($this);
 
-$this->title = $query
-    ? 'Поиск: ' . Html::encode($query)
-    : ($currentTag ? $currentTag->name : 'Поиск товаров');
 $this->params['breadcrumbs'][] = ['label' => 'Каталог', 'url' => ['/catalog']];
 $this->params['breadcrumbs'][] = $this->title;
-
-$this->registerMetaTag(['name' => 'description', 'content' => 'Поиск по запросу: ' . Html::encode($query)]);
 
 // Build canonical filter URL helper
 $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, $currentCatIds, $priceFrom, $priceTo, $currentTag) {

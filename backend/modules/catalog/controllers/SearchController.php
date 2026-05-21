@@ -137,6 +137,32 @@ class SearchController extends Controller
         // Popular searches from search_log
         $popularSearches = $this->getPopularSearches();
 
+        // SEO — canonical исключает sort и page, OG для шаринга
+        $searchTitle = $q
+            ? ('Поиск: ' . $q . ' | СНИКЕРХЭД')
+            : ($currentTag ? $currentTag->name . ' | СНИКЕРХЭД' : 'Поиск товаров | СНИКЕРХЭД');
+        $searchDescription = $q
+            ? ('Результаты поиска по запросу "' . $q . '". Оригинальные кроссовки с доставкой по Беларуси.')
+            : 'Поиск оригинальных кроссовок Nike, Adidas, Jordan. Доставка по Беларуси.';
+
+        $this->view->title = $searchTitle;
+        $this->view->registerMetaTag(['name' => 'description', 'content' => $searchDescription], 'description');
+
+        // Canonical — только q и tag, без sort/page/brand/price (дублирование)
+        $canonicalParams = array_filter(['q' => $q ?: null, 'tag' => $tagSlug ?: null]);
+        $canonicalUrl = Yii::$app->request->hostInfo . '/catalog/search'
+            . ($canonicalParams ? ('?' . http_build_query($canonicalParams)) : '');
+        $this->view->registerLinkTag(['rel' => 'canonical', 'href' => $canonicalUrl], 'canonical');
+
+        $ogImage = Yii::$app->request->hostInfo . '/images/og-default.jpg';
+        $this->view->registerMetaTag(['property' => 'og:title',       'content' => $searchTitle],       'og:title');
+        $this->view->registerMetaTag(['property' => 'og:description', 'content' => $searchDescription], 'og:description');
+        $this->view->registerMetaTag(['property' => 'og:image',       'content' => $ogImage],            'og:image');
+        $this->view->registerMetaTag(['property' => 'og:url',         'content' => $canonicalUrl],       'og:url');
+        $this->view->registerMetaTag(['property' => 'og:type',        'content' => 'website'],            'og:type');
+        $this->view->registerMetaTag(['property' => 'og:site_name',   'content' => 'СНИКЕРХЭД'],          'og:site_name');
+        $this->view->registerMetaTag(['property' => 'og:locale',      'content' => 'ru_RU'],              'og:locale');
+
         return $this->render('search/index', [
             'products'         => $products,
             'pagination'       => $pagination,

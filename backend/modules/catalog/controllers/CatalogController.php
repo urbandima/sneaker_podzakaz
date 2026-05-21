@@ -126,39 +126,6 @@ class CatalogController extends Controller
     }
 
     /**
-     * Регистрация мета-тегов
-     */
-    protected function registerMetaTags($tags)
-    {
-        foreach ($tags as $name => $content) {
-            if (strpos($name, 'og:') === 0 || strpos($name, 'product:') === 0 || strpos($name, 'twitter:') === 0) {
-                $this->view->registerMetaTag(['property' => $name, 'content' => $content], $name);
-            } else {
-                $this->view->registerMetaTag(['name' => $name, 'content' => $content], $name);
-            }
-        }
-        
-        // Canonical URL - всегда без trailing slash (SEO best practice)
-        $canonicalUrl = Yii::$app->request->absoluteUrl;
-        $parsedUrl = parse_url($canonicalUrl);
-        $path = $parsedUrl['path'] ?? '/';
-        
-        // ИСПРАВЛЕНО: Убираем trailing slash из пути, сохраняя query параметры
-        if ($path !== '/' && substr($path, -1) === '/') {
-            // Убираем слеш только из пути
-            $cleanPath = rtrim($path, '/');
-            $canonicalUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . $cleanPath;
-            
-            // Добавляем query параметры обратно
-            if (!empty($parsedUrl['query'])) {
-                $canonicalUrl .= '?' . $parsedUrl['query'];
-            }
-        }
-        
-        $this->view->registerLinkTag(['rel' => 'canonical', 'href' => $canonicalUrl], 'canonical');
-    }
-
-    /**
      * Главная страница каталога
      */
     public function actionIndex()
@@ -233,10 +200,26 @@ class CatalogController extends Controller
         }
 
         // SEO
+        $catalogDescription = 'Оригинальные кроссовки Nike, Adidas, Jordan с доставкой по Беларуси. 100% подлинность, гарантия качества.';
+        $catalogTitle = $h1 . ' | СНИКЕРХЭД';
+        $ogImage = Yii::$app->request->hostInfo . '/images/og-default.jpg';
         $this->registerMetaTags([
-            'title' => $h1 . ' | СНИКЕРХЭД',
-            'description' => 'Оригинальные кроссовки Nike, Adidas, Jordan с доставкой по Беларуси. 100% подлинность, гарантия качества.',
+            'title' => $catalogTitle,
+            'description' => $catalogDescription,
             'keywords' => 'кроссовки, бренды, оригинал',
+            'og:title' => $catalogTitle,
+            'og:description' => $catalogDescription,
+            'og:image' => $ogImage,
+            'og:image:width' => '1200',
+            'og:image:height' => '630',
+            'og:url' => Yii::$app->request->absoluteUrl,
+            'og:type' => 'website',
+            'og:site_name' => 'СНИКЕРХЭД',
+            'og:locale' => 'ru_RU',
+            'twitter:card' => 'summary_large_image',
+            'twitter:title' => $catalogTitle,
+            'twitter:description' => $catalogDescription,
+            'twitter:image' => $ogImage,
         ]);
 
         if (YII_ENV_PROD) {
@@ -283,6 +266,28 @@ class CatalogController extends Controller
             $brand->products_count = (int)($countMap[$brand->id] ?? 0);
         }
         
+        $brandsTitle = 'Все бренды кроссовок | СНИКЕРХЭД';
+        $brandsDescription = 'Полный каталог брендов оригинальных кроссовок: Nike, Adidas, Jordan, New Balance и другие. Доставка по Беларуси.';
+        $ogImage = Yii::$app->request->hostInfo . '/images/og-default.jpg';
+        $this->registerMetaTags([
+            'title' => $brandsTitle,
+            'description' => $brandsDescription,
+            'keywords' => 'бренды кроссовок, Nike, Adidas, Jordan, New Balance, оригинал',
+            'og:title' => $brandsTitle,
+            'og:description' => $brandsDescription,
+            'og:image' => $ogImage,
+            'og:image:width' => '1200',
+            'og:image:height' => '630',
+            'og:url' => Yii::$app->request->absoluteUrl,
+            'og:type' => 'website',
+            'og:site_name' => 'СНИКЕРХЭД',
+            'og:locale' => 'ru_RU',
+            'twitter:card' => 'summary_large_image',
+            'twitter:title' => $brandsTitle,
+            'twitter:description' => $brandsDescription,
+            'twitter:image' => $ogImage,
+        ]);
+
         return $this->render('brands', [
             'brands' => $brands,
         ]);
@@ -744,9 +749,13 @@ class CatalogController extends Controller
             'og:title' => $title,
             'og:description' => $description,
             'og:image' => $ogImage,
+            'og:image:width' => '1200',
+            'og:image:height' => '630',
+            'og:image:alt' => $brand->name . ' — оригинальные кроссовки',
             'og:url' => Yii::$app->request->absoluteUrl,
             'og:type' => 'product.group',
             'og:site_name' => 'СНИКЕРХЭД',
+            'og:locale' => 'ru_RU',
             'twitter:card' => 'summary_large_image',
             'twitter:title' => $title,
             'twitter:description' => $description,
@@ -820,9 +829,13 @@ class CatalogController extends Controller
                 'og:title' => $title,
                 'og:description' => $description,
                 'og:image' => $ogImage,
+                'og:image:width' => '1200',
+                'og:image:height' => '630',
+                'og:image:alt' => $category->name . ' — оригинальные кроссовки',
                 'og:url' => Yii::$app->request->absoluteUrl,
                 'og:type' => 'product.group',
                 'og:site_name' => 'СНИКЕРХЭД',
+                'og:locale' => 'ru_RU',
                 'twitter:card' => 'summary_large_image',
                 'twitter:title' => $title,
                 'twitter:description' => $description,
