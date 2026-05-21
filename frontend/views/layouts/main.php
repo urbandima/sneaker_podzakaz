@@ -22,9 +22,15 @@ AppAsset::register($this);
     elseif ($mId === 'account' || (!$mId && $cId === 'account'))                   $css = 'account';
     else return;
 
-    $file = Yii::getAlias('@webroot') . '/css/pages/' . $css . '.css';
-    $v    = file_exists($file) ? filemtime($file) : '1';
-    $view->registerCssFile(Yii::$app->request->baseUrl . '/css/pages/' . $css . '.css?v=' . $v);
+    $file    = Yii::getAlias('@webroot') . '/css/pages/' . $css . '.css';
+    $v       = file_exists($file) ? filemtime($file) : '1';
+    $cssUrl  = Yii::$app->request->baseUrl . '/css/pages/' . $css . '.css?v=' . $v;
+
+    // CMP-252: page-specific CSS (product.css ~650KB, catalog.css ~250KB) загружается
+    // как non-blocking через media="print" + onload. Первый кадр рисуется по AppAsset CSS;
+    // страничные стили применяются сразу после загрузки без задержки рендера.
+    $view->registerCssFile($cssUrl, ['media' => 'print', 'onload' => "this.media='all'"]);
+    $view->params['deferredPageCss'] = $cssUrl;
 })($this);
 
 $company = Yii::$app->settings->getCompany();
@@ -58,9 +64,26 @@ if (!empty($this->params['description'])) {
     <link rel="alternate" hreflang="ru-BY" href="<?= Yii::$app->request->absoluteUrl ?>">
     <link rel="alternate" hreflang="x-default" href="<?= Yii::$app->request->absoluteUrl ?>">
     
+    <?php // CMP-252: LCP image preload — ставим как можно выше в <head>.
+    // product.php и _products.php передают URL первой картинки через params['lcpImageUrl'].
+    // Браузер начинает скачивать её на этапе парсинга head, до встречи с <img>. ?>
+    <?php if (!empty($this->params['lcpImageUrl'])): ?>
+    <link rel="preload" as="image" href="<?= Html::encode($this->params['lcpImageUrl']) ?>" fetchpriority="high">
+    <?php endif; ?>
+
+    <?php // noscript fallback для deferred page CSS (users without JS получат стили) ?>
+    <?php if (!empty($this->params['deferredPageCss'])): ?>
+    <noscript><link rel="stylesheet" href="<?= Html::encode($this->params['deferredPageCss']) ?>"></noscript>
+    <?php endif; ?>
+
     <?php // Preconnect CDN origins — must precede any resource from those domains ?>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://images.unsplash.com">
+    <?php // Analytics preconnects — must precede GA4 / Metrika / Meta Pixel scripts ?>
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+    <link rel="preconnect" href="https://mc.yandex.ru" crossorigin>
+    <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
     <?php // Bootstrap Icons — async to avoid render-blocking (icons are non-critical) ?>
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>

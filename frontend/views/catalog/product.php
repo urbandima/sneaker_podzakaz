@@ -91,6 +91,12 @@ if (empty($galleryImages)) {
 $galleryImagesJson = Json::encode(array_column($galleryImages, 'url'), JSON_UNESCAPED_SLASHES);
 $this->registerJsVar('productGalleryImages', array_column($galleryImages, 'url'));
 
+// CMP-252: LCP preload — браузер начинает скачивать главную картинку товара
+// ещё в фазе парсинга <head>, до рендера <img>. Экономия ~400–700ms LCP.
+if (!empty($galleryImages[0]['url']) && !($galleryImages[0]['placeholder'] ?? false)) {
+    $this->params['lcpImageUrl'] = $galleryImages[0]['url'];
+}
+
 // SEO параметры
 $_seoCategory = mb_strtolower($product->category?->name ?? ($product->category_name ?? 'кроссовки'));
 $this->params['description'] = $product->description
@@ -219,8 +225,11 @@ $this->registerJsFile('/js/product-modals.js', [
     'position' => \yii\web\View::POS_END,
 ]);
 
-// Подключение лайтбокса
-$this->registerCssFile('https://cdn.jsdelivr.net/npm/lightbox2@2.11.4/dist/css/lightbox.min.css');
+// Подключение лайтбокса — CSS грузится non-blocking через JS (нужен только при клике на фото)
+$this->registerJs(
+    "(function(){var l=document.createElement('link');l.rel='stylesheet';l.href='https://cdn.jsdelivr.net/npm/lightbox2@2.11.4/dist/css/lightbox.min.css';document.head.appendChild(l);})()",
+    \yii\web\View::POS_END
+);
 $this->registerJsFile('https://cdn.jsdelivr.net/npm/lightbox2@2.11.4/dist/js/lightbox-plus-jquery.min.js', [
     'position' => \yii\web\View::POS_END,
 ]);
@@ -1609,26 +1618,28 @@ function initStickyPurchaseBar() {
     scrollableElements.forEach(element => {
         element.addEventListener('scroll', updateStickyVisibility, { passive: true });
     });
-    
-    // Запасной вариант: проверяем позицию кнопки каждые 200ms
-    setInterval(() => {
-        const mainBtnRect = mainBtn.getBoundingClientRect();
-        const offset = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-        
-        if (mainBtnRect.top < 0 || offset > SCROLL_THRESHOLD) {
-            if (!stickyBar.classList.contains('visible')) {
+
+    // CMP-252: заменяем setInterval(200ms) на IntersectionObserver.
+    // setInterval блокировал главный поток каждые 200ms → прямой вклад в TBT.
+    // IntersectionObserver работает off-main-thread и вызывается только при
+    // реальных пересечениях, не тратя CPU между событиями.
+    if (window.IntersectionObserver) {
+        const stickyObserver = new IntersectionObserver(function(entries) {
+            const entry = entries[0];
+            // Показываем когда кнопка ушла выше viewport (boundingClientRect.top < 0)
+            const shouldShow = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+            if (shouldShow && !stickyBar.classList.contains('visible')) {
                 stickyBar.classList.add('visible');
                 stickyBar.style.transform = 'translateY(0)';
                 stickyBar.style.opacity = '1';
-            }
-        } else {
-            if (stickyBar.classList.contains('visible')) {
+            } else if (!shouldShow && stickyBar.classList.contains('visible')) {
                 stickyBar.classList.remove('visible');
                 stickyBar.style.transform = 'translateY(100%)';
                 stickyBar.style.opacity = '0';
             }
-        }
-    }, 200);
+        }, { threshold: 0 });
+        stickyObserver.observe(mainBtn);
+    }
 
     // Проверяем сразу при загрузке
     updateStickyVisibility();

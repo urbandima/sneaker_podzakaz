@@ -34,6 +34,16 @@ $searchQuery = isset($searchQuery) ? $searchQuery : trim(Yii::$app->request->get
         <?php
             $isCriticalCard = $index < ProductCardHelper::CRITICAL_CARD_THRESHOLD;
 
+            // CMP-252: preload первой картинки каталога для LCP.
+            // Отправляется в <head> через params['lcpImageUrl'], которые подхватывает layout.
+            if ($index === 0 && empty($this->params['lcpImageUrl'])) {
+                $firstImages = ProductCardHelper::buildGalleryImages($product, $lazyPlaceholder);
+                $firstUrl    = $firstImages[0] ?? null;
+                if ($firstUrl && !str_starts_with($firstUrl, 'data:')) {
+                    $this->params['lcpImageUrl'] = $firstUrl;
+                }
+            }
+
             // Передаём вычисленные параметры, чтобы карточка не повторяла запросы к Yii::$app->request.
             echo $this->render('_product_card', [
                 'product' => $product,
