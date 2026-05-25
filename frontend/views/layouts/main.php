@@ -123,7 +123,7 @@ if (!empty($this->params['description'])) {
     <?php
     $editUrl = null;
     $pathInfo = Yii::$app->request->pathInfo;
-    if (str_starts_with($pathInfo, 'catalog/')) {
+    if (strncmp($pathInfo, 'catalog/', 8) === 0) {
         preg_match('/catalog\/[^\/]+\/([^\/]+)$/', $pathInfo, $m);
         $slug = $m[1] ?? null;
         if ($slug) {

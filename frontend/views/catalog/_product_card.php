@@ -39,7 +39,7 @@ $hasPrice = ($priceView['showRange'] && $priceView['minPrice'] && $priceView['ma
 // При сбое загрузки JS-onerror переключает класс — карточка получает иконку
 // вместо broken-image иконки браузера.
 $mainImage = $galleryImages[0] ?? null;
-$isPlaceholder = empty($mainImage) || str_starts_with($mainImage, 'data:');
+$isPlaceholder = empty($mainImage) || strncmp($mainImage, 'data:', 5) === 0;
 ?>
 
 <article class="product-card" data-product-id="<?= $product->id ?>">

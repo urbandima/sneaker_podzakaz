@@ -618,12 +618,8 @@ class FilterBuilder
         // Размеры
         if (!in_array('sizes', $exclude) && !in_array('size_system', $exclude) && !empty($currentFilters['sizes'])) {
             $sizeSystem = $currentFilters['size_system'] ?? 'eu';
-            $sizeField = match($sizeSystem) {
-                'us' => 'us_size',
-                'uk' => 'uk_size',
-                'cm' => 'cm_size',
-                default => 'eu_size'
-            };
+            $sizeMap = ['us' => 'us_size', 'uk' => 'uk_size', 'cm' => 'cm_size'];
+            $sizeField = $sizeMap[$sizeSystem] ?? 'eu_size';
             
             $query->andWhere([
                 'product.id' => ProductSize::find()
@@ -812,12 +808,8 @@ class FilterBuilder
                 if (empty($params['discount_range'])) {
                     unset($params['discount_range']);
                 }
-                $label = match($range) {
-                    '0-30' => 'Скидка до 30%',
-                    '30-50' => 'Скидка 30-50%',
-                    '50-100' => 'Скидка более 50%',
-                    default => 'Скидка'
-                };
+                $rangeLabels = ['0-30' => 'Скидка до 30%', '30-50' => 'Скидка 30-50%', '50-100' => 'Скидка более 50%'];
+                $label = $rangeLabels[$range] ?? 'Скидка';
                 $active[] = [
                     'type' => 'discount_range',
                     'label' => $label,
@@ -846,12 +838,8 @@ class FilterBuilder
                 if (empty($params['conditions'])) {
                     unset($params['conditions']);
                 }
-                $label = match($condition) {
-                    'new' => 'Новинки',
-                    'hit' => 'Хиты продаж',
-                    'in_stock' => 'В наличии',
-                    default => ucfirst($condition)
-                };
+                $condLabels = ['new' => 'Новинки', 'hit' => 'Хиты продаж', 'in_stock' => 'В наличии'];
+                $label = $condLabels[$condition] ?? ucfirst($condition);
                 $active[] = [
                     'type' => 'condition',
                     'label' => $label,

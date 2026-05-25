@@ -39,7 +39,7 @@ $searchQuery = isset($searchQuery) ? $searchQuery : trim(Yii::$app->request->get
             if ($index === 0 && empty($this->params['lcpImageUrl'])) {
                 $firstImages = ProductCardHelper::buildGalleryImages($product, $lazyPlaceholder);
                 $firstUrl    = $firstImages[0] ?? null;
-                if ($firstUrl && !str_starts_with($firstUrl, 'data:')) {
+                if ($firstUrl && strncmp($firstUrl, 'data:', 5) !== 0) {
                     $this->params['lcpImageUrl'] = $firstUrl;
                 }
             }

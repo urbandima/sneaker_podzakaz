@@ -61,12 +61,8 @@ class ProductCardHelper
 
     public static function resolveSizeField(string $sizeSystem): string
     {
-        return match ($sizeSystem) {
-            'us' => 'us_size',
-            'uk' => 'uk_size',
-            'cm' => 'cm_size',
-            default => 'eu_size',
-        };
+        $map = ['us' => 'us_size', 'uk' => 'uk_size', 'cm' => 'cm_size'];
+        return $map[$sizeSystem] ?? 'eu_size';
     }
 
     /**
@@ -105,7 +101,7 @@ class ProductCardHelper
 
     private static function imageExists(string $url): bool
     {
-        if (str_starts_with($url, 'http') || str_starts_with($url, 'data:')) {
+        if (strncmp($url, 'http', 4) === 0 || strncmp($url, 'data:', 5) === 0) {
             return true;
         }
         $webroot = \Yii::getAlias('@webroot');
