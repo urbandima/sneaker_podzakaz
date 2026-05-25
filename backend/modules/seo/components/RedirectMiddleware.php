@@ -45,25 +45,31 @@ class RedirectMiddleware extends BaseObject
      */
     private function findRedirect(string $path, string $fullUrl): ?array
     {
-        // Пробуем найти по полному URL
-        $result = Redirect::findAndApply($fullUrl);
-        if ($result) {
+        try {
+            // Пробуем найти по полному URL
+            $result = Redirect::findAndApply($fullUrl);
+            if ($result) {
+                return $result;
+            }
+
+            // Пробуем найти по пути без query string
+            $result = Redirect::findAndApply($path);
+            if ($result) {
+                return $result;
+            }
+
+            // Пробуем найти с/без слеша
+            if (substr($path, -1) === '/') {
+                $result = Redirect::findAndApply(rtrim($path, '/'));
+            } else {
+                $result = Redirect::findAndApply($path . '/');
+            }
+
             return $result;
+        } catch (\yii\db\Exception $e) {
+            // Таблица redirect может не существовать (миграция не применена)
+            Yii::error('RedirectMiddleware: ' . $e->getMessage(), __METHOD__);
+            return null;
         }
-
-        // Пробуем найти по пути без query string
-        $result = Redirect::findAndApply($path);
-        if ($result) {
-            return $result;
-        }
-
-        // Пробуем найти с/без слеша
-        if (substr($path, -1) === '/') {
-            $result = Redirect::findAndApply(rtrim($path, '/'));
-        } else {
-            $result = Redirect::findAndApply($path . '/');
-        }
-
-        return $result;
     }
 }
