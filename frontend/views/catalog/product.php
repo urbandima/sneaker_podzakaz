@@ -1329,6 +1329,32 @@ function addToCart() {
                 }, 1500);
                 showNotification('Товар добавлен в корзину!', 'success');
                 if (typeof openCartDrawer === 'function') openCartDrawer();
+                // Analytics: AddToCart — GA4 + Meta Pixel. Settings-gated in layout.
+                if (data.product) {
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'add_to_cart', {
+                            currency: 'BYN',
+                            value: data.product.price,
+                            items: [{
+                                item_id: data.product.id,
+                                item_name: data.product.name,
+                                item_brand: data.product.brand || '',
+                                item_category: data.product.category || '',
+                                price: data.product.price,
+                                quantity: data.product.quantity
+                            }]
+                        });
+                    }
+                    if (typeof fbq === 'function') {
+                        fbq('track', 'AddToCart', {
+                            content_ids: [data.product.id],
+                            content_name: data.product.name,
+                            content_type: 'product',
+                            value: data.product.price,
+                            currency: 'BYN'
+                        });
+                    }
+                }
             } else {
                 btn.innerHTML = originalText;
                 btn.disabled = false;

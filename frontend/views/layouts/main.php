@@ -96,7 +96,8 @@ if (!empty($this->params['description'])) {
     // Skip placeholder / demo values
     $ga4Valid     = !empty($ga4Id) && $ga4Id !== 'G-XXXXXXXXXX' && strlen($ga4Id) > 5;
     $metrikaValid = !empty($metrikaId) && $metrikaId !== '12345678' && strlen($metrikaId) >= 6 && ctype_digit($metrikaId);
-    $metaPixelValid = !empty($metaPixelId) && $metaPixelId !== 'XXXXXXXXXXXXXXX' && ctype_digit($metaPixelId) && strlen($metaPixelId) >= 13 && strlen($metaPixelId) <= 16;
+    // Replace META_PIXEL_ID_PLACEHOLDER with the real 13–16-digit Pixel ID to activate.
+    $metaPixelValid = !empty($metaPixelId) && $metaPixelId !== 'META_PIXEL_ID_PLACEHOLDER' && $metaPixelId !== 'XXXXXXXXXXXXXXX' && ctype_digit($metaPixelId) && strlen($metaPixelId) >= 13 && strlen($metaPixelId) <= 16;
     ?>
     <?php if ($ga4Valid): ?>
     <script async src="https://www.googletagmanager.com/gtag/js?id=<?= htmlspecialchars($ga4Id) ?>"></script>
