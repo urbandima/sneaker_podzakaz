@@ -1722,6 +1722,82 @@ function addAllToCartFBT() {
     });
 }
 
+// CMP-302: Touch swipe for gallery (mobile) + double-tap zoom + pagination dots
+(function () {
+    var _startX = 0;
+    var _startY = 0;
+    var _lastTap = 0;
+
+    function getCurrentIndex() {
+        var active = document.querySelector('.thumbnail-item.active');
+        return active ? parseInt(active.dataset.index) : 0;
+    }
+
+    function updateDots(idx) {
+        document.querySelectorAll('.gallery-dot').forEach(function (dot, i) {
+            dot.classList.toggle('active', i === idx);
+        });
+    }
+
+    function changeAndSync(idx) {
+        changeMainImage(idx);
+        updateDots(idx);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var container = document.querySelector('.main-image-container');
+        var images = window.productGalleryImages;
+        if (!container || !images || images.length <= 1) return;
+
+        // Inject pagination dots below the image container
+        var dotsEl = document.createElement('div');
+        dotsEl.className = 'gallery-dots';
+        images.forEach(function (_, i) {
+            var dot = document.createElement('div');
+            dot.className = 'gallery-dot' + (i === 0 ? ' active' : '');
+            dotsEl.appendChild(dot);
+        });
+        container.parentNode.insertBefore(dotsEl, container.nextSibling);
+
+        container.addEventListener('touchstart', function (e) {
+            _startX = e.touches[0].clientX;
+            _startY = e.touches[0].clientY;
+        }, { passive: true });
+
+        container.addEventListener('touchend', function (e) {
+            var endX = e.changedTouches[0].clientX;
+            var endY = e.changedTouches[0].clientY;
+            var dx = _startX - endX;
+            var dy = _startY - endY;
+
+            // Double-tap zoom (tap with no significant movement)
+            var now = Date.now();
+            if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && now - _lastTap < 300) {
+                var img = document.getElementById('mainImage');
+                if (img) {
+                    var isZoomed = img.dataset.zoomed === '1';
+                    img.style.transform = isZoomed ? 'scale(1)' : 'scale(2)';
+                    img.dataset.zoomed = isZoomed ? '0' : '1';
+                }
+                _lastTap = 0;
+                return;
+            }
+            _lastTap = now;
+
+            // Swipe: horizontal dominance + 40px minimum travel
+            if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+
+            var idx = getCurrentIndex();
+            var total = images.length;
+            if (dx > 0) {
+                changeAndSync((idx + 1) % total);
+            } else {
+                changeAndSync((idx - 1 + total) % total);
+            }
+        }, { passive: true });
+    });
+})();
+
 // Helper function to show notifications
 function showNotification(message, type = 'info') {
     // Check if notification container exists

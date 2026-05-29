@@ -5717,3 +5717,149 @@ select.form-control {
     cursor: not-allowed;
     text-decoration: line-through;
 }
+
+/* ==============================================
+   CMP-302: MOBILE UX OPTIMIZATION
+   Touch targets, swipe gallery, horizontal sizes
+   320–768px focus
+   ============================================== */
+
+/* --- SIZE GRID: horizontal scroll chips on mobile --- */
+@media (max-width: 768px) {
+    .size-grid {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: var(--space-2);
+        padding-bottom: var(--space-2);
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        grid-template-columns: unset;
+    }
+
+    .size-grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    .size-btn {
+        flex: 0 0 auto;
+        min-width: 52px;
+        min-height: 44px; /* Fitts's Law: WCAG 2.5.5 ≥44×44px */
+        scroll-snap-align: start;
+        font-size: var(--text-sm);
+    }
+
+    /* --- GALLERY THUMBNAILS: move below main image, horizontal strip --- */
+    .product-gallery-section {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .main-image-container {
+        order: 1;
+    }
+
+    .gallery-thumbnails {
+        order: 2;
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: var(--space-2);
+        padding: var(--space-2) 0;
+        margin-top: var(--space-2);
+        margin-bottom: 0;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        /* override desktop grid */
+        grid-template-columns: unset;
+    }
+
+    .gallery-thumbnails::-webkit-scrollbar {
+        display: none;
+    }
+
+    .thumbnail-item {
+        flex: 0 0 64px;
+        min-width: 64px;
+        height: 64px;
+        min-height: 64px;
+        scroll-snap-align: start;
+        border-radius: var(--radius-md);
+    }
+
+    /* --- SWIPE CURSOR on main image --- */
+    .main-image-wrapper {
+        cursor: grab;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .main-image-wrapper:active {
+        cursor: grabbing;
+    }
+
+    /* --- GALLERY PAGINATION DOTS (injected by JS) --- */
+    .gallery-dots {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        margin-top: var(--space-2);
+        min-height: 16px;
+    }
+
+    .gallery-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--color-border);
+        border-radius: var(--radius-full);
+        transition: background var(--duration-fast), width var(--duration-fast);
+        flex-shrink: 0;
+    }
+
+    .gallery-dot.active {
+        background: var(--c-black);
+        width: 18px;
+    }
+
+    /* --- GALLERY ZOOM (double-tap, via JS transform) --- */
+    .main-image-wrapper img {
+        transform-origin: center center;
+        transition: transform 0.25s ease;
+    }
+
+    /* --- TAB BUTTONS: 44px min-height --- */
+    .tab-btn {
+        min-height: 44px;
+        padding: var(--space-3) var(--space-4);
+    }
+
+    /* --- ACTION BUTTONS on gallery (favorite, share) --- */
+    .action-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 480px) {
+    .thumbnail-item {
+        flex: 0 0 56px;
+        min-width: 56px;
+        height: 56px;
+        min-height: 56px;
+    }
+
+    .size-btn {
+        min-width: 48px;
+    }
+
+    .gallery-dot {
+        width: 5px;
+        height: 5px;
+    }
+
+    .gallery-dot.active {
+        width: 14px;
+    }
+}
