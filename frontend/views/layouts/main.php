@@ -170,9 +170,9 @@ if (!empty($this->params['description'])) {
                 <i class="bi bi-search" aria-hidden="true"></i>
             </button>
 
-            <a href="/account/wishlist" class="btn-wishlist" aria-label="Избранное">
+            <a href="<?= Yii::$app->session->get('customer_id') ? '/account/wishlist' : '/catalog/favorites' ?>" class="btn-wishlist" aria-label="Избранное">
                 <i class="bi bi-heart" aria-hidden="true"></i>
-                <span class="wishlist-counter header-badge d-none" role="status" aria-live="polite">0</span>
+                <span id="favCount" class="wishlist-counter header-badge d-none" role="status" aria-live="polite">0</span>
             </a>
 
             <a href="/checkout" class="btn-cart" aria-label="Корзина" onclick="event.preventDefault(); openCartDrawer();">

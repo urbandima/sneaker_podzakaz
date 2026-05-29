@@ -70,7 +70,6 @@ function toggleFavorite(button, productId) {
     }
 
     var isActive = button.classList.contains('active');
-    var url = isActive ? '/favorite/remove' : '/favorite/add';
 
     button.disabled = true;
     button.classList.add('loading');
@@ -89,6 +88,7 @@ function toggleFavorite(button, productId) {
                 if (icon) {
                     icon.className = isActive ? 'bi bi-heart' : 'bi bi-heart-fill';
                 }
+                if (!isActive) { animateHeart(button); }
                 updateFavoritesCount();
                 SH.notify(data.message, 'success');
             } else {
@@ -102,6 +102,17 @@ function toggleFavorite(button, productId) {
         });
 }
 
+function animateHeart(button) {
+    if (!button) return;
+    button.classList.remove('beat');
+    void button.offsetWidth; // reflow to restart animation
+    button.classList.add('beat');
+    button.addEventListener('animationend', function handler() {
+        button.classList.remove('beat');
+        button.removeEventListener('animationend', handler);
+    });
+}
+
 function toggleGuestFavorite(button, productId) {
     var list = getGuestList();
     var idx = list.indexOf(productId);
@@ -111,6 +122,7 @@ function toggleGuestFavorite(button, productId) {
         button.classList.add('active');
         var icon = button.querySelector('i');
         if (icon) icon.className = 'bi bi-heart-fill';
+        animateHeart(button);
         SH.notify('Добавлено в избранное. <a href="/account/login" style="color:inherit;text-decoration:underline">Войдите чтобы сохранить →</a>', 'info');
     } else {
         list.splice(idx, 1);
@@ -118,6 +130,33 @@ function toggleGuestFavorite(button, productId) {
         button.classList.remove('active');
         var icon2 = button.querySelector('i');
         if (icon2) icon2.className = 'bi bi-heart';
+        // На странице избранного — убрать карточку из DOM
+        if (window.location.pathname === '/catalog/favorites') {
+            var card = button.closest('.product-card');
+            if (card) {
+                card.style.transition = 'opacity 0.3s, transform 0.3s';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.9)';
+                setTimeout(function() {
+                    card.remove();
+                    if (typeof window.reloadGuestFavorites === 'function') {
+                        var remaining = document.querySelectorAll('#products .product-card').length;
+                        var countEl = document.getElementById('guestFavCount');
+                        var wordEl  = document.getElementById('guestFavWord');
+                        var cntEl   = document.getElementById('productsCount');
+                        if (countEl) countEl.textContent = remaining;
+                        if (wordEl)  wordEl.textContent  = remaining === 1 ? 'товар' : remaining < 5 ? 'товара' : 'товаров';
+                        if (cntEl)   cntEl.textContent   = remaining;
+                        if (remaining === 0) {
+                            var listEl  = document.getElementById('guestFavProducts');
+                            var emptyEl = document.getElementById('guestFavEmpty');
+                            if (listEl)  listEl.style.display  = 'none';
+                            if (emptyEl) emptyEl.style.display = '';
+                        }
+                    }
+                }, 300);
+            }
+        }
     }
     updateFavoritesCount();
 }
@@ -162,3 +201,4 @@ function updateFavoritesCount() {
 
 window.toggleFavorite = toggleFavorite;
 window.updateFavoritesCount = updateFavoritesCount;
+window.animateHeart = animateHeart;

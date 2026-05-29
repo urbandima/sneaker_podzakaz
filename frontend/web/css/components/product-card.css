@@ -181,6 +181,25 @@
     color: var(--color-danger);
 }
 
+@keyframes heartbeat {
+    0%   { transform: scale(1); }
+    25%  { transform: scale(1.4); }
+    50%  { transform: scale(1); }
+    75%  { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
+.action-btn.favorite.beat i {
+    animation: heartbeat 0.45s ease-in-out;
+}
+
+/* Постоянно видна на мобильных (не только при hover) */
+@media (max-width: 767px) {
+    .action-btn.favorite {
+        opacity: 1;
+    }
+}
+
 /* === PRODUCT INFO === */
 .product-info {
     padding: var(--space-4);
