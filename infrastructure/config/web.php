@@ -279,6 +279,10 @@ $config = [
                 '' => 'site/index',
                 'login' => 'site/login',
                 'logout' => 'site/logout',
+
+                // Блог
+                'blog' => 'blog/index',
+                'blog/<slug:[a-z0-9-]+>' => 'blog/view',
                 
                 // Статические страницы (соответствие законодательству РБ)
                 'payment-terms' => 'page/payment-terms',
