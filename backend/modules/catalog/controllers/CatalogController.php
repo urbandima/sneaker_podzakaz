@@ -133,15 +133,27 @@ class CatalogController extends Controller
         // Полный функционал каталога
         $request = Yii::$app->request;
         $pageSize = $this->module->pageSize ?? 24;
-        
-        // Получаем параметры фильтрации
-        $filters = $request->get('filters', []);
+
         $currentSizeSystem = $request->get('size_system', 'eu');
-        
-        // Нормализуем фильтры
-        $currentFilters = $this->normalizeFilterList($filters);
-        
         $searchQuery = trim($request->get('q', ''));
+
+        // Читаем GET-параметры фильтров (поддержка bookmarkable URL: /catalog?brands=1,2&sizes=42)
+        $currentFilters = [
+            'brands'      => $this->normalizeFilterList($request->get('brands')),
+            'categories'  => $this->normalizeFilterList($request->get('categories')),
+            'sizes'       => $this->normalizeFilterList($request->get('sizes')),
+            'size_system' => $currentSizeSystem,
+            'price_from'  => $request->get('price_from'),
+            'price_to'    => $request->get('price_to'),
+            'colors'      => $this->normalizeFilterList($request->get('colors')),
+            'sort'        => $request->get('sort', 'popular'),
+        ];
+        // Динамические характеристики
+        foreach ($request->queryParams as $key => $value) {
+            if (strpos($key, 'char_') === 0 && $value !== null && $value !== '') {
+                $currentFilters[$key] = $this->normalizeFilterList($value);
+            }
+        }
 
         // Строим запрос
         $query = Product::find()
@@ -152,14 +164,11 @@ class CatalogController extends Controller
             $query->andWhere(['like', 'name', $searchQuery]);
         }
 
-        // ИСПРАВЛЕНО: Передаём фильтры напрямую вместо мутации $_GET
-        $query = $this->applyFilters($query, [
-            'filters' => $filters,
-            'size_system' => $currentSizeSystem,
-        ]);
-        
+        // Применяем фильтры из GET-параметров
+        $query = $this->applyFilters($query, $currentFilters);
+
         // Получаем данные для фильтров
-        $filters = $this->getFiltersData();
+        $filters = $this->getFiltersData($currentFilters);
         
         // Пагинация
         $pagination = new Pagination([
@@ -226,6 +235,9 @@ class CatalogController extends Controller
             $this->registerSchemaWebSite();
         }
 
+        // Активные фильтры для отображения тегов
+        $activeFilters = FilterBuilder::formatActiveFilters($currentFilters);
+
         // Рендерим view
         return $this->render('index', [
             'products'          => $products,
@@ -233,7 +245,7 @@ class CatalogController extends Controller
             'h1'                => $h1,
             'filters'           => $filters,
             'currentFilters'    => $currentFilters,
-            'activeFilters'     => $currentFilters,
+            'activeFilters'     => $activeFilters,
             'currentSizeSystem' => $currentSizeSystem,
             'searchQuery'       => $searchQuery,
         ]);

@@ -296,41 +296,41 @@ setTimeout(function() {
                     <?php endif; ?>
                 <?php endforeach; endif; ?>
 
-                <!-- ADVANCED FILTERS (скрыты по умолчанию) -->
-                <div class="advanced-filters-wrapper d-none" id="advancedFiltersWrapper">
-                
-                <!-- Цвет -->
+                <!-- Цвет (основной фильтр) -->
                 <?php if (!empty($filters['colors'])): ?>
-                <div class="filter-group">
+                <div class="filter-group" id="filter-colors">
                     <button type="button" class="filter-title" onclick="toggleFilterGroup(this)" aria-expanded="false">
-                        <span><i class="bi bi-palette"></i> Цвет</span>
-                        <i class="bi bi-chevron-down"></i>
+                        <span>Цвет</span>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
                     </button>
                     <div class="filter-content">
                         <div class="color-filter-grid">
                             <?php foreach ($filters['colors'] as $color): ?>
-                                <?php 
+                                <?php
                                 $count = $color['count'] ?? 0;
                                 $hex = $color['hex'] ?? '#cccccc';
                                 $name = $color['name'] ?? 'Неизвестный';
                                 $isChecked = in_array($name, $currentFilters['colors'] ?? []);
                                 ?>
-                                <label class="color-filter-item <?= $count == 0 ? 'disabled' : '' ?>">
-                                    <input type="checkbox" 
-                                           name="colors[]" 
+                                <label class="color-filter-item <?= $count == 0 ? 'disabled' : '' ?>" title="<?= Html::encode($name) ?> (<?= $count ?>)">
+                                    <input type="checkbox"
+                                           name="colors[]"
                                            value="<?= Html::encode($name) ?>"
                                            data-hex="<?= Html::encode($hex) ?>"
                                            <?= $isChecked ? 'checked' : '' ?>
                                            <?= $count == 0 ? 'disabled' : '' ?>>
-                                    <div class="color-circle" style="background: <?= Html::encode($hex) ?>"></div>
+                                    <div class="color-circle" style="background: <?= Html::encode($hex) ?>" aria-hidden="true"></div>
                                     <span class="color-name"><?= Html::encode($name) ?></span>
-                                    <span class="count">(<?= $count ?>)</span>
+                                    <span class="filter-count"><?= $count ?></span>
                                 </label>
                             <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
                 <?php endif; ?>
+
+                <!-- ADVANCED FILTERS (скрыты по умолчанию) -->
+                <div class="advanced-filters-wrapper d-none" id="advancedFiltersWrapper">
                 
                 <!-- Скидка (как на OZON/Wildberries) -->
                 <div class="filter-group">
@@ -448,8 +448,14 @@ setTimeout(function() {
             <main class="content">
                 <!-- Кнопка открытия фильтра (Desktop) -->
                 <button type="button" class="filter-toggle-btn" onclick="toggleFilters()">
-                    <i class="bi bi-sliders"></i>
+                    <i class="bi bi-sliders" aria-hidden="true"></i>
                     <span>Фильтры</span>
+                    <?php $activeFilterCount = count($activeFilters ?? []); ?>
+                    <?php if ($activeFilterCount > 0): ?>
+                        <span class="filters-badge" id="filtersCountBadge"><?= $activeFilterCount ?></span>
+                    <?php else: ?>
+                        <span class="filters-badge" id="filtersCountBadge" style="display:none">0</span>
+                    <?php endif; ?>
                 </button>
 
                 <div class="content-header">

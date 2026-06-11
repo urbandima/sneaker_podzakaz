@@ -700,36 +700,53 @@ $this->registerJsVar('productVideo', $productVideo);
 
         <div class="tabs-content">
             <!-- Описание -->
-            <div class="tab-pane active" id="description-tab">
-                <div class="tab-content-inner">
-                    <?php if (!empty($product->description)): ?>
-                        <?= $product->description ?>
-                    <?php else: ?>
-                        <p>Подробное описание товара появится в ближайшее время.</p>
-                    <?php endif; ?>
+            <details class="product-accordion tab-pane active" id="description-tab" open>
+                <summary class="product-accordion__trigger">
+                    Описание
+                    <i class="bi bi-chevron-down product-accordion__icon"></i>
+                </summary>
+                <div class="product-accordion__body">
+                    <div class="tab-content-inner">
+                        <?php if (!empty($product->description)): ?>
+                            <?= $product->description ?>
+                        <?php else: ?>
+                            <p>Подробное описание товара появится в ближайшее время.</p>
+                        <?php endif; ?>
+                    </div>
                 </div>
-            </div>
+            </details>
 
             <!-- Характеристики -->
-            <div class="tab-pane" id="features-tab">
-                <div class="tab-content-inner">
-                    <?php if (!empty($productSpecs)): ?>
-                        <div class="features-table">
-                            <?php foreach ($productSpecs as $label => $value): ?>
-                                <div class="feature-row">
-                                    <div class="feature-name"><?= Html::encode($label) ?></div>
-                                    <div class="feature-value"><?= Html::encode($value) ?></div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php else: ?>
-                        <p>Характеристики товара будут добавлены в ближайшее время.</p>
-                    <?php endif; ?>
+            <details class="product-accordion tab-pane" id="features-tab">
+                <summary class="product-accordion__trigger">
+                    Характеристики
+                    <i class="bi bi-chevron-down product-accordion__icon"></i>
+                </summary>
+                <div class="product-accordion__body">
+                    <div class="tab-content-inner">
+                        <?php if (!empty($productSpecs)): ?>
+                            <div class="features-table">
+                                <?php foreach ($productSpecs as $label => $value): ?>
+                                    <div class="feature-row">
+                                        <div class="feature-name"><?= Html::encode($label) ?></div>
+                                        <div class="feature-value"><?= Html::encode($value) ?></div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <p>Характеристики товара будут добавлены в ближайшее время.</p>
+                        <?php endif; ?>
+                    </div>
                 </div>
-            </div>
+            </details>
 
             <!-- Отзывы -->
-            <div class="tab-pane" id="reviews-tab">
+            <details class="product-accordion tab-pane" id="reviews-tab">
+                <summary class="product-accordion__trigger">
+                    Отзывы (<?= count($reviews) ?>)
+                    <i class="bi bi-chevron-down product-accordion__icon"></i>
+                </summary>
+                <div class="product-accordion__body">
                 <div class="tab-content-inner">
                     <?php if (!empty($reviews)): ?>
                         <div class="reviews-summary">

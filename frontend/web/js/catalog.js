@@ -661,86 +661,40 @@
     }
 
     /**
-     * Генерация SEF URL на клиенте (аналог SmartFilter::generateSefUrl)
-     */
-    function generateSefUrl() {
-        if (filterState.brands.length === 0 &&
-            filterState.categories.length === 0 &&
-            !filterState.priceFrom &&
-            !filterState.priceTo) {
-            return '/catalog/';
-        }
-
-        const parts = [];
-
-        // Бренды - получаем slug из DOM
-        if (filterState.brands.length > 0) {
-            const slugs = [];
-            filterState.brands.forEach(brandId => {
-                const checkbox = document.querySelector(`input[name="brands[]"][value="${brandId}"]`);
-                if (checkbox && checkbox.dataset.slug) {
-                    slugs.push(checkbox.dataset.slug);
-                }
-            });
-            if (slugs.length > 0) {
-                parts.push('brand-' + slugs.sort().join('-'));
-            }
-        }
-
-        // Категории
-        if (filterState.categories.length > 0) {
-            const slugs = [];
-            filterState.categories.forEach(catId => {
-                const checkbox = document.querySelector(`input[name="categories[]"][value="${catId}"]`);
-                if (checkbox && checkbox.dataset.slug) {
-                    slugs.push(checkbox.dataset.slug);
-                }
-            });
-            if (slugs.length > 0) {
-                parts.push('category-' + slugs.sort().join('-'));
-            }
-        }
-
-        // Цена
-        if (filterState.priceFrom || filterState.priceTo) {
-            const from = filterState.priceFrom || 'min';
-            const to = filterState.priceTo || 'max';
-            parts.push(`price-${from}-${to}`);
-        }
-
-        // Размеры (добавляем в SEF URL с системой измерения)
-        if (filterState.sizes && filterState.sizes.length > 0) {
-            const sizeSystem = (filterState.sizeSystem || 'eu').toLowerCase();
-            parts.push('size-' + sizeSystem + '-' + filterState.sizes.join('-'));
-        }
-
-        return parts.length > 0 ? '/catalog/filter/' + parts.join('/') + '/' : '/catalog/';
-    }
-
-    /**
-     * Обновление URL без перезагрузки страницы (с SEF)
+     * Обновление URL без перезагрузки страницы (GET-параметры для bookmark-совместимости)
      */
     function updateURL() {
-        const sefUrl = generateSefUrl();
         const params = new URLSearchParams();
 
-        if (filterState.page > 1) {
-            params.set('page', filterState.page);
+        if (filterState.brands.length > 0) {
+            params.set('brands', filterState.brands.join(','));
         }
-        if (filterState.sortBy !== 'popular') {
-            params.set('sort', filterState.sortBy);
+        if (filterState.categories.length > 0) {
+            params.set('categories', filterState.categories.join(','));
         }
-
-        // Размеры теперь в SEF URL, не дублируем в query параметрах
-        // Оставляем только если нет SEF части с размерами
-        if (filterState.sizes && filterState.sizes.length > 0 && sefUrl === '/catalog/') {
+        if (filterState.priceFrom !== null && filterState.priceFrom !== undefined && filterState.priceFrom !== '') {
+            params.set('price_from', filterState.priceFrom);
+        }
+        if (filterState.priceTo !== null && filterState.priceTo !== undefined && filterState.priceTo !== '') {
+            params.set('price_to', filterState.priceTo);
+        }
+        if (filterState.sizes && filterState.sizes.length > 0) {
             params.set('sizes', filterState.sizes.join(','));
             if (filterState.sizeSystem && filterState.sizeSystem !== 'eu') {
                 params.set('size_system', filterState.sizeSystem);
             }
         }
+        if (filterState.colors && filterState.colors.length > 0) {
+            params.set('colors', filterState.colors.join(','));
+        }
+        if (filterState.sortBy !== 'popular') {
+            params.set('sort', filterState.sortBy);
+        }
+        if (filterState.page > 1) {
+            params.set('page', filterState.page);
+        }
 
-        const newUrl = sefUrl + (params.toString() ? '?' + params.toString() : '');
+        const newUrl = '/catalog' + (params.toString() ? '?' + params.toString() : '');
         window.history.pushState({ filters: filterState }, '', newUrl);
     }
 

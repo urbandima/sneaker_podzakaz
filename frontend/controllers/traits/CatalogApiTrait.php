@@ -27,19 +27,21 @@ trait CatalogApiTrait
         $brands = $this->decodeJsonParam($request->post('brands'));
         $categories = $this->decodeJsonParam($request->post('categories'));
         $sizes = $this->decodeJsonParam($request->post('sizes'));
+        $colors = $this->decodeJsonParam($request->post('colors'));
         $sizeSystem = $request->post('sizeSystem', 'eu');
         $priceFrom = $request->post('price_from');
         $priceTo = $request->post('price_to');
         $sort = $request->post('sort', 'popular');
         $page = (int)$request->post('page', 1);
         $perPage = (int)$request->post('perPage', 24);
-        
+
         // Передаём POST-параметры через GET для совместимости с applyFilters().
         // Используем setQueryParams() вместо прямой модификации $_GET (безопаснее).
         $queryParams = Yii::$app->request->getQueryParams();
         $queryParams['brands'] = $brands;
         $queryParams['categories'] = $categories;
         $queryParams['sizes'] = $sizes;
+        $queryParams['colors'] = $colors;
         $queryParams['size_system'] = $sizeSystem;
         $queryParams['price_from'] = $priceFrom;
         $queryParams['price_to'] = $priceTo;

@@ -59,12 +59,15 @@ trait CatalogFiltersTrait
                   ->andWhere(["ps_filter.{$sizeColumn}" => $sizeValues]);
         }
         
-        // Цвета
+        // Цвета (product_color.name — текстовые значения, не ID)
         $colors = $request->get('colors');
         if ($colors) {
-            $colorIds = is_array($colors) ? $colors : explode(',', $colors);
-            $query->innerJoin('product_color pc_filter', 'pc_filter.product_id = product.id')
-                  ->andWhere(['pc_filter.color_id' => $colorIds]);
+            $colorNames = is_array($colors) ? $colors : explode(',', $colors);
+            $colorNames = array_filter(array_map('trim', $colorNames));
+            if (!empty($colorNames)) {
+                $query->innerJoin('product_color pc_filter', 'pc_filter.product_id = product.id')
+                      ->andWhere(['pc_filter.name' => $colorNames]);
+            }
         }
         
         // Динамические характеристики (char_*)
