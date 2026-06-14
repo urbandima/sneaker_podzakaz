@@ -15,8 +15,9 @@ $this->title = 'Все бренды - СНИКЕРХЭД';
                 <?php foreach ($brands as $brand): ?>
                     <a href="/brands/<?= $brand->slug ?>" class="brand-card-link">
                         <div class="brand-card">
-                            <?php if ($brand->logo): ?>
-                                <img src="<?= $brand->logo ?>" alt="<?= Html::encode($brand->name) ?>" class="brand-card__logo" loading="lazy" decoding="async">
+                            <?php $logoUrl = $brand->getLogoUrl(); ?>
+                            <?php if ($logoUrl && strpos($logoUrl, 'no-brand-logo') === false): ?>
+                                <img src="<?= Html::encode($logoUrl) ?>" alt="<?= Html::encode($brand->name) ?>" class="brand-card__logo" loading="lazy" decoding="async">
                             <?php else: ?>
                                 <div class="brand-card__icon"><i class="bi bi-circle"></i></div>
                             <?php endif; ?>

@@ -177,7 +177,7 @@ class SitemapGenerator
                 
             foreach ($brands as $brand) {
                 $this->addUrl(
-                    'brand/' . $brand['slug'],
+                    'brands/' . $brand['slug'],
                     'weekly',
                     '0.7',
                     $brand['updated_at'] ?? null

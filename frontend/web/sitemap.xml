@@ -66,42 +66,42 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sneakerhead.by/brand/nike</loc>
+    <loc>https://sneakerhead.by/brands/nike</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sneakerhead.by/brand/adidas</loc>
+    <loc>https://sneakerhead.by/brands/adidas</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sneakerhead.by/brand/new-balance</loc>
+    <loc>https://sneakerhead.by/brands/new-balance</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sneakerhead.by/brand/puma</loc>
+    <loc>https://sneakerhead.by/brands/puma</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sneakerhead.by/brand/converse</loc>
+    <loc>https://sneakerhead.by/brands/converse</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sneakerhead.by/brand/vans</loc>
+    <loc>https://sneakerhead.by/brands/vans</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sneakerhead.by/brand/reebok</loc>
+    <loc>https://sneakerhead.by/brands/reebok</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sneakerhead.by/brand/asics</loc>
+    <loc>https://sneakerhead.by/brands/asics</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

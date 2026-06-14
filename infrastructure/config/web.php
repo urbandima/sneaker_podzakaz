@@ -306,6 +306,8 @@ $config = [
                 'loyalty' => 'page/about',
 
                 // Алиасы для брендов (короткий URL → каталог бренда)
+                // brand/{slug} — обратная совместимость (старые URLs в Google Index)
+                'brand/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
                 'brands/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
                 
                 // Checkout — страница оформления (GET) и создание заказа (AJAX POST)
