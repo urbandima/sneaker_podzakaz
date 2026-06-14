@@ -60,7 +60,7 @@ class SitemapGenerator
 
         foreach ($brands as $brand) {
             $urls[] = $this->createUrlEntry(
-                '/catalog/brand/' . $brand->slug,
+                '/brands/' . $brand->slug,
                 '0.7',
                 'weekly',
                 $this->formatDate($brand->updated_at)
