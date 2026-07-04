@@ -65,6 +65,8 @@ class ReturnRequest extends ActiveRecord
     const STATUS_REJECTED = 'rejected';
     const STATUS_PROCESSING = 'processing';
     const STATUS_COMPLETED = 'completed';
+    // Средства ещё не возвращены реальным платёжным шлюзом — требуется ручная обработка бухгалтерией/менеджером
+    const STATUS_REFUND_PENDING_MANUAL = 'refund_pending_manual';
     
     // Причины возврата
     const REASON_DEFECT = 'defect';
@@ -230,6 +232,26 @@ class ReturnRequest extends ActiveRecord
     }
 
     /**
+     * Пометить возврат как ожидающий ручной обработки платежа
+     *
+     * Используется, когда фактический возврат денег клиенту ещё не подтверждён
+     * платёжным шлюзом (см. ReturnService::refundPayment) — статус "completed"
+     * в этом случае ставить нельзя, чтобы не создавать у клиента ложное
+     * впечатление, что деньги уже возвращены.
+     *
+     * @param string|null $reference Служебный идентификатор для аудита (не подтверждён шлюзом)
+     * @return bool
+     */
+    public function markRefundPendingManual(?string $reference = null): bool
+    {
+        $this->status = self::STATUS_REFUND_PENDING_MANUAL;
+        $this->refund_transaction = $reference;
+        $this->processed_at = date('Y-m-d H:i:s');
+
+        return $this->save(false);
+    }
+
+    /**
      * Получить товары заявки
      * 
      * @return array
@@ -260,6 +282,7 @@ class ReturnRequest extends ActiveRecord
             self::STATUS_APPROVED => 'Одобрено',
             self::STATUS_REJECTED => 'Отклонено',
             self::STATUS_PROCESSING => 'В обработке',
+            self::STATUS_REFUND_PENDING_MANUAL => 'Ожидает ручного возврата средств',
             self::STATUS_COMPLETED => 'Завершено',
         ];
     }
@@ -282,6 +305,7 @@ class ReturnRequest extends ActiveRecord
             self::STATUS_APPROVED => 'success',
             self::STATUS_REJECTED => 'danger',
             self::STATUS_PROCESSING => 'info',
+            self::STATUS_REFUND_PENDING_MANUAL => 'warning',
             self::STATUS_COMPLETED => 'primary',
         ];
         return $classes[$this->status] ?? 'secondary';

@@ -165,30 +165,32 @@ class ReturnService extends Component
         }
         
         $transaction = Yii::$app->db->beginTransaction();
-        
+
         try {
-            // Возврат средств
-            $transactionId = $this->refundPayment($request);
-            if (!$transactionId) {
+            // Возврат средств: refundPayment() — заглушка без интеграции с платёжным
+            // шлюзом, поэтому реальный перевод денег клиенту НЕ подтверждён на этом шаге
+            $referenceId = $this->refundPayment($request);
+            if (!$referenceId) {
                 throw new \Exception($this->errorMessage ?? 'Ошибка возврата средств');
             }
-            
+
             // Обновляем остатки товаров
             $this->updateInventory($request);
-            
-            // Завершаем заявку
-            if (!$request->complete($transactionId)) {
-                throw new \Exception('Ошибка при завершении заявки');
+
+            // Заявка помечается как "ожидает ручного возврата средств", а не как
+            // завершённая — деньги клиенту фактически ещё не переведены (см. refundPayment)
+            if (!$request->markRefundPendingManual($referenceId)) {
+                throw new \Exception('Ошибка при обновлении статуса заявки');
             }
-            
+
             // Отправляем email клиенту
             $this->sendCompletionEmail($request);
-            
+
             $transaction->commit();
-            
-            Yii::info("Возврат #{$request->id} завершён, транзакция: {$transactionId}", 'return');
+
+            Yii::info("Возврат #{$request->id} переведён в статус ожидания ручного возврата средств, ссылка: {$referenceId}", 'return');
             return true;
-            
+
         } catch (\Exception $e) {
             $transaction->rollBack();
             $this->errorMessage = $e->getMessage();
@@ -199,20 +201,20 @@ class ReturnService extends Component
 
     /**
      * Возврат средств
-     * 
+     *
      * @param ReturnRequest $request
-     * @return string|null ID транзакции возврата
+     * @return string|null Служебная ссылка для аудита (НЕ ID реальной транзакции платёжного шлюза)
      */
     protected function refundPayment(ReturnRequest $request): ?string
     {
-        // Архитектурная заглушка: интеграция с платёжной системой будет добавлена при подключении платёжного шлюза
-        // Текущая реализация: генерация ID транзакции для аудита
-        
-        $transactionId = 'REFUND-' . date('Ymd') . '-' . strtoupper(Yii::$app->security->generateRandomString(8));
-        
-        Yii::info("Возврат средств: {$request->refund_amount} BYN, транзакция: {$transactionId}", 'return');
-        
-        return $transactionId;
+        // ЗАГЛУШКА: реальный вызов платёжного шлюза не реализован — деньги клиенту НЕ переводятся,
+        // ниже лишь генерируется служебный идентификатор для аудита; вызывающий код обязан
+        // выставлять статус "ожидает ручного возврата", а не "завершено"
+        $referenceId = 'REFUND-' . date('Ymd') . '-' . strtoupper(Yii::$app->security->generateRandomString(8));
+
+        Yii::info("Возврат средств (не подтверждён шлюзом): {$request->refund_amount} BYN, ссылка: {$referenceId}", 'return');
+
+        return $referenceId;
     }
 
     /**
