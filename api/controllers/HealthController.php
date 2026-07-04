@@ -7,9 +7,13 @@
  * Kubernetes/Docker health checks, мониторинг доступности сервисов.
  * 
  * ENDPOINTS:
- * - /health/live - Liveness probe (приложение живо)
- * - /health/ready - Readiness probe (приложение готово к работе)
- * - /health/status - Полный статус сервисов
+ * - /health/live - Liveness probe (приложение живо), публичный, без авторизации
+ * - /health/ready - Readiness probe (приложение готово к работе), публичный, без авторизации
+ * - /health/status - Полный статус сервисов, раскрывает версии PHP/MySQL,
+ *   YII_ENV/YII_DEBUG, memory_limit и загруженные расширения — требует
+ *   заголовок X-Health-Token, совпадающий с ENV HEALTH_STATUS_TOKEN
+ *   (timing-safe сравнение через hash_equals). Без настроенного токена
+ *   эндпоинт отвечает 403 (fail-closed).
  */
 namespace app\api\controllers;
 
@@ -64,11 +68,21 @@ class HealthController extends Controller
     
     /**
      * Полный статус системы
+     *
+     * Раскрывает чувствительные детали конфигурации (версии PHP/MySQL,
+     * YII_ENV/YII_DEBUG, memory_limit, загруженные расширения) — доступ
+     * ограничен токеном в заголовке X-Health-Token (см. checkStatusAccess()).
      */
     public function actionStatus()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
+        if (!$this->checkStatusAccess()) {
+            Yii::warning('[Health] Unauthorized /health/status access from ' . Yii::$app->request->userIP, 'health');
+            Yii::$app->response->statusCode = 403;
+            return ['status' => 'forbidden'];
+        }
+
         $checks = [
             'database' => $this->checkDatabaseDetails(),
             'cache' => $this->checkCacheDetails(),
@@ -87,6 +101,23 @@ class HealthController extends Controller
         ];
     }
     
+    /**
+     * Доступ к /health/status — mandatory shared token via X-Health-Token
+     * header (set HEALTH_STATUS_TOKEN in .env). Без сконфигурированного
+     * токена доступ отклоняется (fail-closed), а не открывается по умолчанию.
+     */
+    private function checkStatusAccess(): bool
+    {
+        $expected = env('HEALTH_STATUS_TOKEN') ?: '';
+        if ($expected === '') {
+            Yii::error('[Health] HEALTH_STATUS_TOKEN is not configured; rejecting /health/status request', 'health');
+            return false;
+        }
+
+        $provided = Yii::$app->request->headers->get('X-Health-Token', '');
+        return $provided !== '' && hash_equals($expected, (string) $provided);
+    }
+
     /**
      * Проверка подключения к БД
      */
