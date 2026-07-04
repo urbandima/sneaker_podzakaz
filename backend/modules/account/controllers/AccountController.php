@@ -33,8 +33,8 @@ use app\backend\modules\checkout\models\Order;
 use app\backend\modules\account\models\Customer;
 use app\backend\modules\account\models\CustomerLoginForm;
 use app\backend\modules\account\models\CustomerRegisterForm;
-use app\backend\modules\catalog\models\ProductFavorite;
 use app\backend\shared\components\RateLimiter;
+use app\backend\modules\catalog\models\ProductFavorite;
 
 class AccountController extends Controller
 {
@@ -350,6 +350,8 @@ class AccountController extends Controller
 
         Yii::$app->response->format = Response::FORMAT_JSON;
 
+        RateLimiter::check('find-orders', $request->userIP, 10, 600);
+
         $bodyRaw = $request->rawBody;
         $body = $request->bodyParams;
         if (empty($body) && $bodyRaw && str_contains((string)$request->contentType, 'application/json')) {
@@ -384,13 +386,39 @@ class AccountController extends Controller
 
         $orders = $query->all();
 
+        // Ссылки на заказ (token) не отдаём в API-ответе — иначе злоумышленник,
+        // зная чужой email/телефон, получает прямой доступ к деталям заказа (PII).
+        // Вместо этого отправляем ссылки на email, указанный в самом заказе
+        // (а не на email/телефон из запроса — иначе атакующий мог бы получить
+        // письмо с чужой ссылкой на свой собственный ящик).
+        $ordersByEmail = [];
+        foreach ($orders as $order) {
+            if ($order->client_email) {
+                $ordersByEmail[$order->client_email][] = $order;
+            }
+        }
+        foreach ($ordersByEmail as $recipientEmail => $recipientOrders) {
+            try {
+                Yii::$app->mailer->compose('order-tracking-link', ['orders' => $recipientOrders])
+                    ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
+                    ->setTo($recipientEmail)
+                    ->setSubject('Ссылка на отслеживание заказа')
+                    ->send();
+            } catch (\Throwable $e) {
+                Yii::warning('find-orders: не удалось отправить письмо со ссылкой на заказ: ' . $e->getMessage(), __METHOD__);
+            }
+        }
+
         return [
             'success' => true,
             'count' => count($orders),
+            'message' => count($orders) > 0
+                ? 'Ссылка на отслеживание заказа отправлена на email, указанный при оформлении.'
+                : 'Заказы не найдены.',
             'orders' => array_map(function($order) {
                 return [
                     'id' => $order->id,
-                    'token' => $order->token,
+                    'order_number' => $order->order_number,
                     'status' => $order->status,
                     'statusLabel' => $order->getStatusLabel(),
                     'total' => Yii::$app->formatter->asCurrency($order->total_amount, 'BYN'),

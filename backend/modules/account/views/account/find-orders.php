@@ -67,16 +67,14 @@ document.getElementById('findOrdersForm').addEventListener('submit', function(e)
             return;
         }
         const rows = data.orders.map(o => `
-            <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px">
-                <div>
-                    <div style="font-weight:600">Заказ #${o.id}</div>
-                    <div style="font-size:.875rem;color:#6b7280">${o.created_at} · ${o.total}</div>
-                    <div style="font-size:.875rem;margin-top:4px">${o.statusLabel}</div>
-                </div>
-                ${o.token ? `<a href="/order/${o.token}" class="btn btn-sm btn-outline-secondary">Подробнее</a>` : ''}
+            <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px 20px;margin-bottom:12px">
+                <div style="font-weight:600">Заказ №${o.order_number ?? o.id}</div>
+                <div style="font-size:.875rem;color:#6b7280">${o.created_at} · ${o.total}</div>
+                <div style="font-size:.875rem;margin-top:4px">${o.statusLabel}</div>
             </div>`).join('');
         document.getElementById('trackingResults').innerHTML =
-            `<h2 style="font-size:1rem;font-weight:600;margin-bottom:16px">Найдено заказов: ${data.count}</h2>${rows}`;
+            `<h2 style="font-size:1rem;font-weight:600;margin-bottom:16px">Найдено заказов: ${data.count}</h2>`
+            + `<p style="color:#6b7280;margin-bottom:16px">${data.message ?? ''}</p>${rows}`;
         document.getElementById('trackingResults').style.display = '';
     })
     .catch(() => {
