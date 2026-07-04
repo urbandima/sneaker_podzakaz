@@ -45,7 +45,9 @@ class ActivityLogService
                 $userRole = $identity->role ?? null;
             }
         } catch (\Throwable $e) {
-            // CLI / cron — пропускаем
+            // CLI / cron — компонент user может отсутствовать, это ожидаемо;
+            // тем не менее логируем, чтобы неожиданные сбои не терялись молча
+            Yii::error('Failed to resolve current user context for activity log: ' . $e->getMessage(), static::class);
         }
 
         $meta = self::currentRequestMeta();
