@@ -752,23 +752,6 @@ $config = [
                 'admin/<controller:\w+>/<action:\w+>' => 'admin/<controller>/<action>',
                 'admin/<controller:\w+>' => 'admin/<controller>/index',
 
-                // REST API
-                [
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => ['api/characteristic'],
-                    'pluralize' => true,
-                    'tokens' => [
-                        '{id}' => '<id:\d+>',
-                        '{valueId}' => '<valueId:\d+>',
-                    ],
-                    'extraPatterns' => [
-                        'GET {id}/values' => 'values',
-                        'POST {id}/values' => 'create-value',
-                        'PUT {id}/values/{valueId}' => 'update-value',
-                        'PATCH {id}/values/{valueId}' => 'update-value',
-                        'DELETE {id}/values/{valueId}' => 'delete-value',
-                    ],
-                ],
             ],
         ],
         'authManager' => [
