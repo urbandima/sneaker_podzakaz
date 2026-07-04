@@ -204,9 +204,13 @@ class AccountController extends Controller
         }
 
         // Получаем последние заказы
-        $orders = Order::find()
-            ->where(['customer_id' => $customer->id])
-            ->orWhere(['client_email' => $customer->email])
+        $orderQuery = Order::find()->where(['customer_id' => $customer->id]);
+        if (!empty($customer->email)) {
+            // orWhere с пустым/NULL email превратился бы в "client_email IS NULL",
+            // что матчит ВСЕ гостевые заказы — добавляем ветку только при непустом email
+            $orderQuery->orWhere(['client_email' => $customer->email]);
+        }
+        $orders = $orderQuery
             ->orderBy(['created_at' => SORT_DESC])
             ->limit(5)
             ->all();
@@ -227,9 +231,13 @@ class AccountController extends Controller
             return $this->redirect(['account/login']);
         }
 
-        $orders = Order::find()
-            ->where(['customer_id' => $customer->id])
-            ->orWhere(['client_email' => $customer->email])
+        $orderQuery = Order::find()->where(['customer_id' => $customer->id]);
+        if (!empty($customer->email)) {
+            // См. actionProfile(): не добавляем ветку по client_email при пустом email,
+            // иначе orWhere превращается в "client_email IS NULL" и матчит чужие гостевые заказы
+            $orderQuery->orWhere(['client_email' => $customer->email]);
+        }
+        $orders = $orderQuery
             ->orderBy(['created_at' => SORT_DESC])
             ->all();
 
@@ -318,17 +326,15 @@ class AccountController extends Controller
         $sent = false;
 
         if ($email) {
+            // Единый ответ для предотвращения перечисления email-адресов (email enumeration):
+            // сообщение и флаг $sent не должны зависеть от того, существует ли аккаунт с этим email.
             $customer = Customer::findByEmail($email);
             if ($customer) {
                 $customer->generatePasswordResetToken();
-                if ($customer->save(false)) {
-                    // Здесь можно добавить отправку email
-                    $sent = true;
-                    Yii::$app->session->setFlash('success', 'Инструкции по восстановлению пароля отправлены на вашу почту');
-                }
-            } else {
-                Yii::$app->session->setFlash('error', 'Пользователь с таким email не найден');
+                $customer->save(false);
             }
+            $sent = true;
+            Yii::$app->session->setFlash('success', 'Если аккаунт с таким email существует, инструкции по восстановлению пароля отправлены на вашу почту');
         }
 
         return $this->render('forgot-password', [
