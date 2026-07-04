@@ -243,6 +243,35 @@ class Customer extends ActiveRecord implements IdentityInterface
             ->one();
     }
 
+    /**
+     * Единый резолвер id текущего покупателя (AUDIT-35).
+     *
+     * Авторизация покупателей на витрине идёт через session['customer_id']
+     * (см. CustomerLoginForm::login(), CustomerRegisterForm::register()),
+     * а не через компонент Yii::$app->user — тот используется для
+     * сотрудников (админ/менеджер/логист) в бэк-офисе. Поэтому все места,
+     * которым нужно узнать "кто сейчас покупатель" (корзина, избранное,
+     * баланс лояльности и т.п.), должны сначала проверять сессию покупателя
+     * и только затем — Yii::$app->user, а не наоборот и не по отдельности,
+     * иначе корзина/избранное покупателя перестают привязываться к его
+     * аккаунту (Yii::$app->user->isGuest всегда true для этой авторизации).
+     *
+     * @return int|null
+     */
+    public static function getCurrentCustomerId()
+    {
+        $sessionCustomerId = Yii::$app->session->get('customer_id');
+        if ($sessionCustomerId) {
+            return (int) $sessionCustomerId;
+        }
+
+        if (Yii::$app->has('user') && !Yii::$app->user->isGuest) {
+            return (int) Yii::$app->user->id;
+        }
+
+        return null;
+    }
+
     public function validatePassword($password)
     {
         return Yii::$app->security->validatePassword($password, $this->password_hash);

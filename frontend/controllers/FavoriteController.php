@@ -7,6 +7,7 @@ use yii\web\Controller;
 use yii\web\Response;
 use app\backend\modules\catalog\models\ProductFavorite;
 use app\backend\modules\catalog\models\Product;
+use app\backend\modules\account\models\Customer;
 
 /**
  * Контроллер избранного
@@ -41,7 +42,7 @@ class FavoriteController extends Controller
             return ['success' => false, 'message' => 'Товар не найден'];
         }
 
-        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $userId = Customer::getCurrentCustomerId();
         $sessionId = Yii::$app->session->id;
 
         if (ProductFavorite::add($productId, $userId, $sessionId)) {
@@ -68,7 +69,7 @@ class FavoriteController extends Controller
             return ['success' => false, 'message' => 'Товар не указан'];
         }
 
-        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $userId = Customer::getCurrentCustomerId();
         $sessionId = Yii::$app->session->id;
 
         if (ProductFavorite::remove($productId, $userId, $sessionId)) {
@@ -95,7 +96,7 @@ class FavoriteController extends Controller
             return ['success' => false, 'message' => 'Товар не указан'];
         }
 
-        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $userId = Customer::getCurrentCustomerId();
         $sessionId = Yii::$app->session->id;
 
         // Проверяем - есть ли в избранном
@@ -135,7 +136,7 @@ class FavoriteController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $userId    = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $userId    = Customer::getCurrentCustomerId();
         $sessionId = Yii::$app->session->id;
 
         return ['count' => ProductFavorite::getCount($userId, $sessionId)];
@@ -148,7 +149,7 @@ class FavoriteController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $userId    = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $userId    = Customer::getCurrentCustomerId();
         $sessionId = Yii::$app->session->id;
 
         $query = ProductFavorite::find()->select('product_id');
@@ -168,7 +169,7 @@ class FavoriteController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $userId = Yii::$app->session->get('customer_id');
+        $userId = Customer::getCurrentCustomerId();
         if (!$userId) {
             return ['success' => false, 'message' => 'Not authenticated'];
         }
@@ -196,7 +197,7 @@ class FavoriteController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $userId    = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $userId    = Customer::getCurrentCustomerId();
         $sessionId = Yii::$app->session->id;
 
         if ($userId) {

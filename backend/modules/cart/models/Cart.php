@@ -33,6 +33,7 @@ use Yii;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 use app\backend\modules\catalog\models\Product;
+use app\backend\modules\account\models\Customer;
 
 /**
  * Модель корзины
@@ -90,7 +91,7 @@ class Cart extends ActiveRecord
      */
     public static function add($productId, $quantity = 1, $size = null, $color = null)
     {
-        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $userId = Customer::getCurrentCustomerId();
         
         // Гарантируем наличие сессии
         if (Yii::$app->session->getIsActive() === false) {
@@ -179,7 +180,7 @@ class Cart extends ActiveRecord
             Yii::$app->session->open();
         }
         
-        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $userId = Customer::getCurrentCustomerId();
         $sessionId = Yii::$app->session->id;
 
         $query = self::find()->with('product');
@@ -198,7 +199,7 @@ class Cart extends ActiveRecord
      */
     public static function getPositionsCount()
     {
-        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $userId = Customer::getCurrentCustomerId();
         $sessionId = Yii::$app->session->id;
         $query = self::find();
         if ($userId) {
@@ -214,7 +215,7 @@ class Cart extends ActiveRecord
      */
     public static function getItemsCount()
     {
-        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $userId = Customer::getCurrentCustomerId();
         $sessionId = Yii::$app->session->id;
 
         $query = self::find();
@@ -234,7 +235,7 @@ class Cart extends ActiveRecord
      */
     public static function getTotal()
     {
-        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $userId = Customer::getCurrentCustomerId();
         $sessionId = Yii::$app->session->id;
 
         $query = self::find();
@@ -259,7 +260,7 @@ class Cart extends ActiveRecord
             Yii::$app->session->open();
         }
         
-        $userId = Yii::$app->user->isGuest ? null : Yii::$app->user->id;
+        $userId = Customer::getCurrentCustomerId();
         $sessionId = Yii::$app->session->id;
 
         if ($userId) {

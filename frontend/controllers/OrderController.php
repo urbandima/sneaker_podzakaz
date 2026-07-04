@@ -285,7 +285,69 @@ class OrderController extends Controller
             Yii::warning('Попытка создания заказа с пустой корзиной', 'order');
             return ['success' => false, 'message' => 'Корзина пуста'];
         }
-        
+
+        // Ревалидация цены и наличия перед оформлением заказа (AUDIT-38).
+        // Cart::add() фиксирует price в момент добавления товара в корзину и
+        // никогда не обновляет её сам — если к моменту оформления заказа цена
+        // в каталоге изменилась (или товар закончился), нельзя молча создать
+        // заказ по устаревшей цене. Пересчитываем актуальные price/наличие из
+        // Product/ProductSize, поправляем позицию корзины и просим покупателя
+        // повторить оформление — тем же паттерном ошибок, что и валидации выше.
+        $staleItems = [];
+        foreach ($cartItems as $cartItem) {
+            $product = $cartItem->product;
+            if (!$product) {
+                // Отсутствие товара — уже обрабатывается ниже, при создании позиций заказа
+                continue;
+            }
+
+            if ($product->stock_status === \app\backend\modules\catalog\models\Product::STOCK_OUT_OF_STOCK) {
+                return [
+                    'success' => false,
+                    'message' => 'Товар "' . $product->name . '" закончился и недоступен для заказа. Обновите корзину.',
+                ];
+            }
+
+            $actualPrice = (float) $product->price;
+
+            if ($cartItem->size !== null) {
+                $sizeModel = \app\backend\modules\catalog\models\ProductSize::find()
+                    ->where(['product_id' => $product->id])
+                    ->andWhere(['OR',
+                        ['eu_size' => $cartItem->size],
+                        ['size' => $cartItem->size],
+                        new \yii\db\Expression('`size` LIKE :sizePrefix', [':sizePrefix' => $cartItem->size . ' %']),
+                    ])
+                    ->one();
+
+                if ($sizeModel) {
+                    if (!$sizeModel->inStock()) {
+                        return [
+                            'success' => false,
+                            'message' => 'Размер ' . $cartItem->size . ' товара "' . $product->name . '" закончился. Обновите корзину.',
+                        ];
+                    }
+                    if ($sizeModel->price !== null && (float) $sizeModel->price > 0) {
+                        $actualPrice = (float) $sizeModel->price;
+                    }
+                }
+            }
+
+            if (abs($actualPrice - (float) $cartItem->price) > 0.001) {
+                $cartItem->price = $actualPrice;
+                $cartItem->save(false, ['price']);
+                $staleItems[] = $product->name;
+            }
+        }
+
+        if (!empty($staleItems)) {
+            Yii::warning('Цена изменилась при оформлении заказа для товаров: ' . implode(', ', $staleItems), 'order');
+            return [
+                'success' => false,
+                'message' => 'Цена товара(ов) изменилась: ' . implode(', ', $staleItems) . '. Мы обновили корзину актуальными ценами — проверьте итог и повторите оформление заказа.',
+            ];
+        }
+
         // Начинаем транзакцию
         $transaction = Yii::$app->db->beginTransaction();
         

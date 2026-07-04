@@ -14,6 +14,7 @@ namespace app\frontend\widgets;
 use Yii;
 use yii\base\Widget;
 use app\backend\modules\loyalty\services\LoyaltyService;
+use app\backend\modules\account\models\Customer;
 
 class LoyaltyBalanceWidget extends Widget
 {
@@ -29,12 +30,12 @@ class LoyaltyBalanceWidget extends Widget
 
     public function run()
     {
-        // Проверяем авторизацию
-        if (Yii::$app->user->isGuest) {
+        // Проверяем авторизацию (единый резолвер — session['customer_id'] в приоритете)
+        $customerId = Customer::getCurrentCustomerId();
+        if (!$customerId) {
             return '';
         }
 
-        $customerId = Yii::$app->user->id;
         $loyaltyService = new LoyaltyService();
         
         try {
