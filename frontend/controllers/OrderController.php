@@ -547,6 +547,12 @@ class OrderController extends Controller
             return $this->redirect(['view', 'token' => $token]);
         }
 
+        // Загрузка подтверждения оплаты допустима только для заказов, ожидающих оплаты
+        if ($model->status !== 'new') {
+            Yii::$app->session->setFlash('error', 'Загрузка подтверждения оплаты недоступна для текущего статуса заказа.');
+            return $this->redirect(['view', 'token' => $token]);
+        }
+
         // Rate limiting: проверка количества попыток
         $this->checkRateLimit($token);
 
@@ -585,7 +591,7 @@ class OrderController extends Controller
                         // ИСПРАВЛЕНО: Сохраняем только имя файла (не путь)
                         $model->payment_proof = $fileName;
                         $model->payment_uploaded_at = time();
-                        $model->status = 'paid';
+                        $model->status = 'payment_review';
                         $model->offer_accepted = true;
                         $model->offer_accepted_at = time();
 
@@ -594,8 +600,8 @@ class OrderController extends Controller
                             $history = new OrderHistory();
                             $history->order_id = $model->id;
                             $history->old_status = $oldStatus;
-                            $history->new_status = 'paid';
-                            $history->comment = 'Загружено подтверждение оплаты покупателем';
+                            $history->new_status = 'payment_review';
+                            $history->comment = 'Загружено подтверждение оплаты покупателем, ожидает проверки менеджером';
                             if (!$history->save()) {
                                 throw new \Exception('Ошибка сохранения истории');
                             }

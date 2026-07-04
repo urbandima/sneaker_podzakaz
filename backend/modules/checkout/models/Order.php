@@ -67,6 +67,7 @@ class Order extends ActiveRecord
     // ── Status → tracks map ───────────────────────────────────
     private static $statusToTracks = [
         'new'                    => ['not_paid',  'awaiting_buyout',  null],
+        'payment_review'         => ['not_paid',  'awaiting_buyout',  null],
         'created'                => ['not_paid',  'awaiting_buyout',  null],
         'paid'                   => ['paid',      'awaiting_buyout',  null],
         'confirmed_and_paid'     => ['paid',      'awaiting_buyout',  null],
@@ -375,6 +376,7 @@ class Order extends ActiveRecord
 
         static $fallbackMap = [
             'new'                    => 'Новый',
+            'payment_review'         => 'На проверке оплаты',
             'created'                => 'Составлен',
             'paid'                   => 'Оплачен',
             'confirmed'              => 'Подтверждён',
@@ -410,6 +412,7 @@ class Order extends ActiveRecord
     {
         $map = [
             'new'                  => '#6b7280',
+            'payment_review'       => '#f59e0b',
             'paid'                 => '#2563eb',
             'confirmed_and_paid'   => '#2563eb',
             'ordered'              => '#d97706',
