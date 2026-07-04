@@ -34,6 +34,7 @@ use app\backend\modules\checkout\models\OrderStatus;
 use app\backend\modules\account\models\ChangePasswordForm;
 use app\backend\modules\checkout\models\Order;
 use app\backend\modules\catalog\models\Product;
+use app\backend\modules\catalog\repositories\ProductRepository;
 use app\backend\modules\admin\models\User;
 use app\backend\shared\services\RevenueService;
 
@@ -220,9 +221,12 @@ class DashboardController extends BaseAdminController
      */
     private function getProductStats()
     {
+        // AUDIT-62: 'active' дублирует ProductRepository::countActive()
+        $productRepository = new ProductRepository();
+
         return [
             'total' => (int)Product::find()->count(),
-            'active' => (int)Product::find()->where(['is_active' => true])->count(),
+            'active' => (int)$productRepository->countActive(),
             'inStock' => (int)Product::find()->where(['!=', 'stock_status', 'out_of_stock'])->count(),
             'outOfStock' => (int)Product::find()->where(['stock_status' => 'out_of_stock'])->count(),
         ];

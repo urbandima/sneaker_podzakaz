@@ -382,15 +382,15 @@ class CatalogController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         
-        $product = Product::find()
-            ->with(['brand', 'category', 'sizes', 'colors', 'images'])
-            ->where(['id' => $id, 'is_active' => true])
-            ->one();
-        
+        // AUDIT-62: используем ProductRepository::findById() вместо прямого
+        // Product::find() — тот же набор relations (brand, category, sizes, colors, images)
+        // и то же условие id + is_active, что уже даёт репозиторий.
+        $product = $this->productRepository->findById($id);
+
         if (!$product) {
             return ['success' => false, 'message' => 'Товар не найден'];
         }
-        
+
         return [
             'success' => true,
             'html' => $this->renderAjax('_quick_view', ['product' => $product]),

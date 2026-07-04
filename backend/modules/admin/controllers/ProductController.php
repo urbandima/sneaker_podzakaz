@@ -170,7 +170,8 @@ class ProductController extends BaseAdminController
         // Статистика
         $stats = [
             'total'      => Product::find()->count(),
-            'active'     => Product::find()->where(['is_active' => true])->count(),
+            // AUDIT-62: ProductRepository::countActive() дублирует то же условие
+            'active'     => $this->productRepository->countActive(),
             'inactive'   => Product::find()->where(['is_active' => false])->count(),
             'inStock'    => Product::find()->where(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK])->count(),
             'outOfStock' => Product::find()->where(['stock_status' => 'out_of_stock'])->count(),
@@ -926,7 +927,10 @@ class ProductController extends BaseAdminController
         $brandId    = Yii::$app->request->get('brand');
         $categoryId = Yii::$app->request->get('category');
 
-        $query = Product::find()->where(['is_active' => true]);
+        // AUDIT-62: базовое условие ['is_active' => true] дублирует
+        // ProductRepository::createQuery() — переиспользуем его (без relations,
+        // они добавляются ниже явным ->with()).
+        $query = $this->productRepository->createQuery(false);
 
         if ($brandId) {
             $query->andWhere(['brand_id' => (int)$brandId]);

@@ -7,6 +7,7 @@ use yii\web\Response;
 use app\backend\modules\marketing\services\AbandonedCartService;
 use app\backend\modules\marketing\services\UpsellService;
 use app\backend\modules\catalog\models\Product;
+use app\backend\modules\catalog\repositories\ProductRepository;
 
 class MarketingController extends BaseAdminController
 {
@@ -99,11 +100,8 @@ class MarketingController extends BaseAdminController
         $stats = $service->getRecommendationStats();
         
         // Примеры рекомендаций для популярных товаров
-        $products = Product::find()
-            ->where(['is_active' => true])
-            ->orderBy(['views_count' => SORT_DESC])
-            ->limit(5)
-            ->all();
+        // AUDIT-62: дублирует ProductRepository::findPopular()
+        $products = (new ProductRepository())->findPopular(5);
         
         $recommendations = [];
         foreach ($products as $product) {

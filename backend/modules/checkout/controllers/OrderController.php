@@ -503,14 +503,13 @@ class OrderController extends Controller
      */
     private function getRecommendedProducts($order, $limit = 8)
     {
+        $productRepository = new \app\backend\modules\catalog\repositories\ProductRepository();
+
         $orderItems = $order->orderItems;
         if (empty($orderItems)) {
             // Если по какой-то причине товаров нет, показываем популярные
-            return \app\backend\modules\catalog\models\Product::find()
-                ->where(['is_active' => true])
-                ->orderBy(['created_at' => SORT_DESC])
-                ->limit($limit)
-                ->all();
+            // AUDIT-62: дублирует ProductRepository::findNew()
+            return $productRepository->findNew($limit);
         }
 
         // Собираем ID брендов из заказа
@@ -526,8 +525,8 @@ class OrderController extends Controller
         }
 
         $brandIds = array_unique($brandIds);
-        $query = \app\backend\modules\catalog\models\Product::find()
-            ->where(['is_active' => true]);
+        // AUDIT-62: базовое условие ['is_active' => true] дублирует ProductRepository::createQuery()
+        $query = $productRepository->createQuery(false);
 
         // Если есть бренды, показываем товары из тех же брендов
         if (!empty($brandIds)) {
@@ -548,9 +547,8 @@ class OrderController extends Controller
         if (count($products) < $limit) {
             $need = $limit - count($products);
             $existingIds = array_merge($excludeProductIds, array_map(fn($p) => $p->id, $products));
-            
-            $popularProducts = \app\backend\modules\catalog\models\Product::find()
-                ->where(['is_active' => true])
+
+            $popularProducts = $productRepository->createQuery(false)
                 ->andWhere(['not in', 'id', $existingIds])
                 ->orderBy(['created_at' => SORT_DESC])
                 ->limit($need)
