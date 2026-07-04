@@ -81,8 +81,7 @@ project/
 │   │   ├── redis.php
 │   │   └── rabbitmq.php
 │   ├── jobs/                  # Задачи для очередей
-│   │   ├── SendEmailJob.php
-│   │   └── ProcessPaymentJob.php
+│   │   └── SendEmailJob.php
 │   ├── monitoring/            # Мониторинг
 │   │   ├── metrics.php        # Prometheus метрики
 │   │   └── health.php         # Health checks
@@ -122,7 +121,6 @@ project/
 | `app\backend\modules\admin` | `backend/modules/admin/` |
 | `app\backend\cache` | `backend/cache/` |
 | `app\backend\search` | `backend/search/` |
-| `app\backend\payment` | `backend/payment/` |
 | `app\backend\security` | `backend/security/` |
 | `app\backend\shared` | `backend/shared/` |
 | `app\infrastructure` | `infrastructure/` |
@@ -142,7 +140,6 @@ REST API для мобильных приложений, интеграций, h
 ### Queue System
 Асинхронная обработка задач через Redis/RabbitMQ.
 - `SendEmailJob` — отправка email
-- `ProcessPaymentJob` — обработка платежей
 
 ### Cache Layer
 Многоуровневый кэш с Redis.
