@@ -211,15 +211,25 @@ trait CatalogFiltersTrait
 
     /**
      * Кэшированный COUNT для пагинации (оптимизация)
-     * 
+     *
+     * AUDIT-64: Ключ кэша ранее строился только из Yii::$app->request->queryParams —
+     * этого недостаточно, т.к. часть значимых условий $query (brand_id/category_id
+     * из URL-сегмента в actionBrand/actionCategory, фильтры, приходящие через POST
+     * в actionFilter, и т.п.) НЕ попадают в query string. В результате разные
+     * выборки (например /catalog/brand/nike и /catalog/brand/adidas без доп.
+     * query-параметров) получали ОДИНАКОВЫЙ ключ кэша и отдавали чужой COUNT.
+     * Чтобы ключ отражал все реально применённые условия независимо от источника
+     * (GET/POST/route), строим его из скомпилированного SQL самого $query —
+     * это единственный источник истины для того, что будет реально посчитано.
+     *
      * @param \yii\db\ActiveQuery $query
      * @return int
      */
     protected function getCachedCount($query)
     {
-        $filterParams = Yii::$app->request->queryParams;
-        
-        return CacheManager::getCatalogCount($filterParams, function() use ($query) {
+        $rawSql = $query->createCommand()->getRawSql();
+
+        return CacheManager::getCatalogCount(['sql' => $rawSql], function() use ($query) {
             return $query->count();
         });
     }

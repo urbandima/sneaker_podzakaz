@@ -419,34 +419,62 @@ class SearchController extends Controller
     {
         $base = Product::find()->select(['brand_id', 'category_id'])->where(['is_active' => true]);
         if (!empty($q)) {
+            // AUDIT-63: сборка WHERE-условия (andWhere) сама по себе никогда не бросает
+            // исключение — SQL реально выполняется только ниже, в ->all()/->one(). Поэтому
+            // try/catch вокруг одного andWhere() не защищал от ошибки 1191 (нет FULLTEXT-
+            // индекса, например на свежей БД без применённых миграций). Сначала пробуем
+            // выполнить MATCH(...) AGAINST(...) отдельным пробным запросом — так же, как
+            // это уже делает tryFulltext() — и только при успехе используем его в фасетах.
+            $escaped = Yii::$app->db->quoteValue('+' . implode('* +', preg_split('/\s+/', trim($q))) . '*');
+            $expr    = "MATCH(`name`, `description`, `brand_name`, `model_name`) AGAINST({$escaped} IN BOOLEAN MODE)";
+            $fulltextOk = false;
             try {
-                $escaped = Yii::$app->db->quoteValue('+' . implode('* +', preg_split('/\s+/', trim($q))) . '*');
-                $expr    = "MATCH(`name`, `description`, `brand_name`, `model_name`) AGAINST({$escaped} IN BOOLEAN MODE)";
-                $base->andWhere(new \yii\db\Expression("{$expr} > 0"));
+                Yii::$app->db->createCommand("SELECT {$expr} FROM {{%product}} LIMIT 1")->queryScalar();
+                $fulltextOk = true;
             } catch (\Exception $e) {
+                Yii::warning('FULLTEXT facets unavailable, falling back to LIKE: ' . $e->getMessage(), __METHOD__);
+            }
+
+            if ($fulltextOk) {
+                $base->andWhere(new \yii\db\Expression("{$expr} > 0"));
+            } else {
                 $base->andWhere(['or', ['like', 'name', $q], ['like', 'brand_name', $q]]);
             }
         }
 
-        // Brand facets
-        $brandRows = (clone $base)
-            ->select(['brand_id', 'brand_name', 'COUNT(*) AS cnt'])
-            ->groupBy(['brand_id', 'brand_name'])
-            ->asArray()
-            ->all();
+        // AUDIT-63: защитная сетка на случай сбоя самих агрегатных запросов ниже
+        // (например, гонка с миграцией индекса между пробным запросом и этим блоком) —
+        // не даём странице фасетов упасть с 500, возвращаем безопасный fallback.
+        try {
+            // Brand facets
+            $brandRows = (clone $base)
+                ->select(['brand_id', 'brand_name', 'COUNT(*) AS cnt'])
+                ->groupBy(['brand_id', 'brand_name'])
+                ->asArray()
+                ->all();
 
-        // Category facets
-        $catRows = (clone $base)
-            ->select(['category_id', 'category_name', 'COUNT(*) AS cnt'])
-            ->groupBy(['category_id', 'category_name'])
-            ->asArray()
-            ->all();
+            // Category facets
+            $catRows = (clone $base)
+                ->select(['category_id', 'category_name', 'COUNT(*) AS cnt'])
+                ->groupBy(['category_id', 'category_name'])
+                ->asArray()
+                ->all();
 
-        // Price range
-        $priceRow = (clone $base)
-            ->select(['MIN(price) AS min_price', 'MAX(price) AS max_price'])
-            ->asArray()
-            ->one();
+            // Price range
+            $priceRow = (clone $base)
+                ->select(['MIN(price) AS min_price', 'MAX(price) AS max_price'])
+                ->asArray()
+                ->one();
+        } catch (\Exception $e) {
+            Yii::warning('buildFacets query failed, returning empty facets: ' . $e->getMessage(), __METHOD__);
+
+            return [
+                'brands'     => [],
+                'categories' => [],
+                'priceMin'   => 0.0,
+                'priceMax'   => 100000.0,
+            ];
+        }
 
         return [
             'brands'     => $brandRows,
