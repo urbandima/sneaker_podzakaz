@@ -1067,32 +1067,17 @@ class CatalogController extends Controller
             ->andWhere(['!=', 'product.stock_status', Product::STOCK_OUT_OF_STOCK]);
         
         // ИСПРАВЛЕНО: Передаём фильтры напрямую вместо мутации $_GET
+        // AUDIT: applyFilters() (CatalogFiltersTrait) уже применяет сортировку через
+        // applySorting() — единственный канонический источник истины для сортировки
+        // каталога (MIN/MAX(product_size.price_byn) для price_asc/price_desc, т.к.
+        // product.price — независимо редактируемое поле, которое расходится с ценами
+        // конкретных доступных размеров, см. CatalogFiltersTrait::applySorting).
+        // Ранее здесь был дублирующий switch, сортировавший по product.price и
+        // МОЛЧА ПЕРЕЗАТИРАВШИЙ корректную сортировку, выставленную applyFilters()
+        // на предыдущей строке — отсюда расхождение порядка товаров с actionIndex/
+        // actionBrand/actionCategory и с CatalogApiController::actionFilter.
         $query = $this->applyFilters($query, $filters);
-        
-        // Применяем сортировку
-        switch ($sort) {
-            case 'price_asc':
-                $query->orderBy(['price' => SORT_ASC]);
-                break;
-            case 'price_desc':
-                $query->orderBy(['price' => SORT_DESC]);
-                break;
-            case 'new':
-                $query->orderBy(['created_at' => SORT_DESC]);
-                break;
-            case 'rating':
-                $query->orderBy(['rating' => SORT_DESC]);
-                break;
-            case 'discount':
-                $query->andWhere(['>', 'old_price', 0])
-                      ->orderBy(['(old_price - price) / old_price' => SORT_DESC]);
-                break;
-            case 'popular':
-            default:
-                $query->orderBy(['views_count' => SORT_DESC]);
-                break;
-        }
-        
+
         // Пагинация (ОПТИМИЗИРОВАНО: count без лишних данных)
         $countQuery = clone $query;
         $totalCount = $countQuery->count();

@@ -18,9 +18,16 @@ use yii\filters\ContentNegotiator;
 use app\backend\modules\catalog\models\Product;
 use app\backend\modules\catalog\models\Brand;
 use app\backend\modules\catalog\services\Catalog\FilterBuilder;
+use app\backend\shared\traits\CatalogFiltersTrait;
 
 class CatalogApiController extends Controller
 {
+    // AUDIT: используем тот же трейт, что и CatalogController, как единый
+    // источник истины для сортировки (applySorting) — раньше здесь была
+    // собственная копия сортировки по product.price, расходившаяся с
+    // MIN/MAX(product_size.price_byn), которую использует основной каталог.
+    use CatalogFiltersTrait;
+
     public $enableCsrfValidation = false;
 
     public function behaviors()
@@ -265,31 +272,8 @@ class CatalogApiController extends Controller
         return is_array($value) ? $value : [];
     }
 
-    /**
-     * Применить сортировку
-     */
-    private function applySorting($query, string $sortBy)
-    {
-        switch ($sortBy) {
-            case 'price_asc':
-                $query->orderBy(['price' => SORT_ASC]);
-                break;
-            case 'price_desc':
-                $query->orderBy(['price' => SORT_DESC]);
-                break;
-            case 'new':
-                $query->orderBy(['created_at' => SORT_DESC]);
-                break;
-            case 'rating':
-                $query->orderBy(['rating' => SORT_DESC]);
-                break;
-            case 'discount':
-                $query->andWhere(['>', 'old_price', 0])
-                      ->orderBy(['(old_price - price) / old_price' => SORT_DESC]);
-                break;
-            case 'popular':
-            default:
-                $query->orderBy(['views_count' => SORT_DESC]);
-        }
-    }
+    // AUDIT: приватный applySorting() удалён — дублировал (и расходился с)
+    // CatalogFiltersTrait::applySorting(). Вызов $this->applySorting(...) в
+    // actionFilter() теперь резолвится в метод трейта (canonical: MIN/MAX
+    // product_size.price_byn для price_asc/price_desc), единый с CatalogController.
 }
