@@ -42,6 +42,7 @@ use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\SluggableBehavior;
 use app\backend\shared\components\SitemapNotifier;
+use app\backend\shared\components\CacheManager;
 use app\backend\modules\catalog\models\ProductFavorite;
 use app\backend\modules\catalog\models\ProductReview;
 use app\backend\modules\admin\behaviors\LogBehavior;
@@ -238,6 +239,13 @@ class Product extends ActiveRecord
 
     /**
      * Инвалидация кэша каталога (универсальная для FileCache и Redis)
+     *
+     * ИСПРАВЛЕНО (AUDIT-21): раньше инвалидация дёргала «сырые» теги
+     * 'catalog' / 'catalog-filters' / 'catalog-products', которые НЕ совпадали
+     * с тегом CacheManager::TAG_FILTERS ('filters'), которым FilterBuilder
+     * реально помечает свой кэш (см. FilterBuilder::buildFilters()).
+     * Из-за рассинхрона кэш фильтров никогда не очищался.
+     * Теперь используем единые константы/методы CacheManager.
      */
     protected function invalidateCatalogCache()
     {
@@ -245,20 +253,19 @@ class Product extends ActiveRecord
         if (!$cache) {
             return;
         }
-        
-        // Используем tagged cache (работает и с FileCache, и с Redis)
-        \yii\caching\TagDependency::invalidate($cache, [
-            'catalog',           // Все данные каталога
-            'catalog-filters',   // Фильтры
-            'catalog-products',  // Товары
-        ]);
-        
+
+        // CacheManager::invalidateProducts() внутри уже инвалидирует
+        // TAG_CATALOG и TAG_FILTERS (тем самым тегом, которым кэшируется
+        // FilterBuilder::buildFilters()) — единая точка правды по тегам.
+        CacheManager::invalidateProducts($this->id ?? null);
+        CacheManager::invalidateFilters();
+
         // Дополнительно для FileCache: очищаем известные ключи
         if ($cache instanceof \yii\caching\FileCache) {
             $cache->delete('filters_data_v2');
             $cache->delete('catalog_count');
         }
-        
+
         Yii::info('Cache invalidated: catalog, filters, products', 'cache');
     }
 
