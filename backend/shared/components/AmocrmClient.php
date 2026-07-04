@@ -280,6 +280,15 @@ class AmocrmClient extends Component
             return null;
         }
 
+        if ($httpCode >= 400) {
+            Yii::error(
+                '[AmoCRM] Request failed with HTTP ' . $httpCode . ' for ' . $method . ' ' . $path
+                . ': ' . mb_substr((string)$responseBody, 0, 500),
+                'amocrm'
+            );
+            return null;
+        }
+
         return json_decode($responseBody, true);
     }
 
