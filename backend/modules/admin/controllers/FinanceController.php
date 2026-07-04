@@ -32,8 +32,9 @@ class FinanceController extends BaseAdminController
 
         if ($filterStatus) $query->andWhere(['status' => $filterStatus]);
         if ($filterMethod) $query->andWhere(['payment_method' => $filterMethod]);
-        if ($filterFrom)   $query->andWhere(['>=', 'created_at', $filterFrom . ' 00:00:00']);
-        if ($filterTo)     $query->andWhere(['<=', 'created_at', $filterTo   . ' 23:59:59']);
+        // AUDIT-51: payment.created_at хранится как UNIX_TIMESTAMP (integer), а не TIMESTAMP/DATETIME
+        if ($filterFrom)   $query->andWhere(['>=', 'created_at', strtotime($filterFrom . ' 00:00:00')]);
+        if ($filterTo)     $query->andWhere(['<=', 'created_at', strtotime($filterTo   . ' 23:59:59')]);
 
         $payments = $query->with(['order'])->limit(200)->all();
 
@@ -114,8 +115,9 @@ class FinanceController extends BaseAdminController
 
         $query = Expense::find()->orderBy(['created_at' => SORT_DESC]);
         if ($filterCat)  $query->andWhere(['category' => $filterCat]);
-        if ($filterFrom) $query->andWhere(['>=', 'created_at', $filterFrom . ' 00:00:00']);
-        if ($filterTo)   $query->andWhere(['<=', 'created_at', $filterTo   . ' 23:59:59']);
+        // AUDIT-51: expense.created_at хранится как UNIX_TIMESTAMP (integer), а не TIMESTAMP/DATETIME
+        if ($filterFrom) $query->andWhere(['>=', 'created_at', strtotime($filterFrom . ' 00:00:00')]);
+        if ($filterTo)   $query->andWhere(['<=', 'created_at', strtotime($filterTo   . ' 23:59:59')]);
 
         $expenses = $query->limit(500)->all();
 
@@ -180,20 +182,21 @@ class FinanceController extends BaseAdminController
         }
 
         // Confirmed payments by month
+        // AUDIT-51: payment/expense.created_at — UNIX_TIMESTAMP (integer), нужен FROM_UNIXTIME() как для order
         $paymentRows = (new Query())
-            ->select(['MONTH(created_at) as month', 'SUM(amount) as total'])
+            ->select(['MONTH(FROM_UNIXTIME(created_at)) as month', 'SUM(amount) as total'])
             ->from('payment')
             ->where(['status' => Payment::STATUS_CONFIRMED])
-            ->andWhere(['YEAR(created_at)' => $year])
+            ->andWhere(['YEAR(FROM_UNIXTIME(created_at))' => $year])
             ->groupBy('month')
             ->indexBy('month')
             ->all();
 
         // Expenses by category and month
         $expenseRows = (new Query())
-            ->select(['MONTH(created_at) as month', 'category', 'SUM(amount) as total'])
+            ->select(['MONTH(FROM_UNIXTIME(created_at)) as month', 'category', 'SUM(amount) as total'])
             ->from('expense')
-            ->where(['YEAR(created_at)' => $year])
+            ->where(['YEAR(FROM_UNIXTIME(created_at))' => $year])
             ->groupBy(['month', 'category'])
             ->all();
 
