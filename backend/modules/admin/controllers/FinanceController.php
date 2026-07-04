@@ -203,11 +203,21 @@ class FinanceController extends BaseAdminController
             $expMap[$row['month']][$row['category']] = (float)$row['total'];
         }
 
-        // Delivery cost from orders (delivery_cost field) — same status filter
+        // AUDIT: Delivery cost — single source of truth is order.delivery_cost.
+        // It's computed automatically for every order at checkout (ShippingService /
+        // OrderTotalCalculator, see backend/modules/checkout/controllers/OrderController.php
+        // and frontend/controllers/OrderController.php), so it's populated reliably for
+        // the whole order population and already shares the same status filter as revenue
+        // above. Expense::CAT_DELIVERY_LOCAL ("Доставка по РБ") is a manual bookkeeping
+        // category entered ad hoc via actionCreateExpense() with no automatic link to
+        // orders — summing it here on top of order.delivery_cost double-counted the same
+        // real-world delivery cost whenever an accountant also logged it as an expense.
+        // It is intentionally excluded from this line (it stays visible on the raw
+        // Expenses report) to avoid double counting.
         $deliveryRows = (new Query())
             ->select(['MONTH(FROM_UNIXTIME(created_at)) as month', 'SUM(delivery_cost) as total'])
             ->from('`order`')
-            ->where(['NOT IN', 'status', self::REVENUE_EXCLUDED_STATUSES])
+            ->where(['NOT IN', 'status', RevenueService::EXCLUDED_STATUSES])
             ->andWhere(['YEAR(FROM_UNIXTIME(created_at))' => $year])
             ->groupBy('month')
             ->indexBy('month')
@@ -219,8 +229,7 @@ class FinanceController extends BaseAdminController
             $cogs     = (float)($expMap[$m][Expense::CAT_PURCHASE] ?? 0);
             $delChina = (float)($expMap[$m][Expense::CAT_DELIVERY_CHINA] ?? 0);
             $customs  = (float)($expMap[$m][Expense::CAT_CUSTOMS] ?? 0);
-            $delLocal = (float)(($expMap[$m][Expense::CAT_DELIVERY_LOCAL] ?? 0)
-                             + ($deliveryRows[$m]['total'] ?? 0));
+            $delLocal = (float)($deliveryRows[$m]['total'] ?? 0);
             $rent     = (float)($expMap[$m][Expense::CAT_RENT]   ?? 0);
             $salary   = (float)($expMap[$m][Expense::CAT_SALARY] ?? 0);
             $other    = (float)($expMap[$m][Expense::CAT_OTHER]  ?? 0);
@@ -259,9 +268,6 @@ class FinanceController extends BaseAdminController
         return $this->render('margin', compact('tab', 'from', 'to', 'data'));
     }
 
-    /** Shared excluded statuses — matches dashboard totalAmount filter */
-    private const REVENUE_EXCLUDED_STATUSES = ['cancelled', 'canceled', 'trash', 'return', 'imported', 'imported_invalid'];
-
     private function getMarginByProduct(int $from, int $to): array
     {
         $rows = (new Query())
@@ -273,7 +279,7 @@ class FinanceController extends BaseAdminController
             ])
             ->from('order_item oi')
             ->innerJoin('`order` o', 'o.id = oi.order_id')
-            ->where(['NOT IN', 'o.status', self::REVENUE_EXCLUDED_STATUSES])
+            ->where(['NOT IN', 'o.status', RevenueService::EXCLUDED_STATUSES])
             ->andWhere(['BETWEEN', 'o.created_at', $from, $to])
             ->groupBy('oi.product_name')
             ->orderBy(['revenue' => SORT_DESC])
@@ -313,7 +319,7 @@ class FinanceController extends BaseAdminController
             ])
             ->from('`order` o')
             ->leftJoin('user u', 'u.id = o.created_by')
-            ->where(['NOT IN', 'o.status', self::REVENUE_EXCLUDED_STATUSES])
+            ->where(['NOT IN', 'o.status', RevenueService::EXCLUDED_STATUSES])
             ->andWhere(['BETWEEN', 'o.created_at', $from, $to])
             ->groupBy('o.created_by')
             ->orderBy(['revenue' => SORT_DESC])
