@@ -37,6 +37,18 @@ use yii\db\Exception as DbException;
 
 class DevToolsController extends BaseAdminController
 {
+    // AUDIT-53: диагностика/сброс кэша и логов — только для admin, не для логиста/менеджера
+    protected bool $adminOnly = true;
+
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['verbs']['actions']['clear-cache'] = ['POST'];
+        $behaviors['verbs']['actions']['clear-logs']  = ['POST'];
+
+        return $behaviors;
+    }
+
     /**
      * Главная страница dev-панели
      */
