@@ -144,21 +144,9 @@ class User extends ActiveRecord implements IdentityInterface
     // IdentityInterface methods
     public static function findIdentity($id)
     {
-        // Демо-режим при отсутствии БД
         try {
             return static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
         } catch (\yii\db\Exception $e) {
-            // Возвращаем демо-пользователя
-            if ($id == 1) {
-                return new static([
-                    'id' => 1,
-                    'username' => 'admin',
-                    'email' => 'admin@example.com',
-                    'role' => self::ROLE_ADMIN,
-                    'status' => self::STATUS_ACTIVE,
-                    'auth_key' => 'demo-key',
-                ]);
-            }
             return null;
         }
     }
