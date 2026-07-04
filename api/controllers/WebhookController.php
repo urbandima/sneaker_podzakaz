@@ -119,6 +119,27 @@ class WebhookController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
         Yii::$app->response->statusCode = 200;
 
+        // Shared-secret проверка (fail-closed). AmoCRM обычные webhooks не поддерживают
+        // кастомные HMAC-подписи, поэтому используем отдельный shared-secret
+        // (AMOCRM_WEBHOOK_SECRET, НЕ OAuth AMOCRM_SECRET_KEY), который прописывается
+        // в URL вебхука как ?token=... в настройках AmoCRM, либо передаётся заголовком
+        // X-Webhook-Secret.
+        $webhookSecret = env('AMOCRM_WEBHOOK_SECRET', '');
+        if (!$webhookSecret) {
+            Yii::error('[Webhook AMO] AMOCRM_WEBHOOK_SECRET не задан — входящие вебхуки отклонены. IP: ' . Yii::$app->request->userIP, 'amocrm');
+            Yii::$app->response->statusCode = 503;
+            return ['error' => 'Webhook endpoint not configured'];
+        }
+
+        $provided = Yii::$app->request->headers->get('X-Webhook-Secret', '')
+            ?: (string)Yii::$app->request->get('token', '');
+
+        if (!$provided || !hash_equals($webhookSecret, $provided)) {
+            Yii::warning('[Webhook AMO] Неверный или отсутствующий shared-secret. IP: ' . Yii::$app->request->userIP, 'amocrm');
+            Yii::$app->response->statusCode = 403;
+            return ['error' => 'Forbidden'];
+        }
+
         $raw  = Yii::$app->request->getRawBody();
 
         // AmoCRM sends form-encoded webhooks; try to parse both
@@ -131,16 +152,6 @@ class WebhookController extends Controller
         // Test probe
         if (!empty($data['_test'])) {
             return ['ok' => true, 'message' => 'webhook endpoint is reachable'];
-        }
-
-        // HMAC verification (optional — only if secret is set in env)
-        $secret = env('AMOCRM_SECRET_KEY') ?: '';
-        if ($secret) {
-            $sig = Yii::$app->request->headers->get('X-Signature', '');
-            if ($sig && !hash_equals(hash_hmac('sha256', $raw, $secret), $sig)) {
-                Yii::warning('[Webhook AMO] Invalid HMAC signature', 'amocrm');
-                // Don't reject — AmoCRM doesn't always send signature; just log
-            }
         }
 
         try {
