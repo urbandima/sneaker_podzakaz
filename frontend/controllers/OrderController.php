@@ -354,6 +354,13 @@ class OrderController extends Controller
         try {
             // Создаем заказ
             $order = new Order();
+            // Привязка к покупателю через единый резолвер (AUDIT-35/AUDIT-68):
+            // session['customer_id'] для покупателей витрины, иначе — сотрудник
+            // бэк-офиса из Yii::$app->user (если залогинен), иначе null (гость
+            // без customer-сессии). Тот же резолвер уже используют Cart/Favorite/
+            // LoyaltyBalanceWidget — здесь он не был применён, из-за чего заказы
+            // авторизованных покупателей сохранялись без customer_id.
+            $order->customer_id = \app\backend\modules\account\models\Customer::getCurrentCustomerId();
             $order->client_name = $name;
             $order->client_phone = $phone;
             $order->client_email = $email;
@@ -508,14 +515,13 @@ class OrderController extends Controller
      */
     private function getRecommendedProducts($order, $limit = 8)
     {
+        $productRepository = new \app\backend\modules\catalog\repositories\ProductRepository();
+
         $orderItems = $order->orderItems;
         if (empty($orderItems)) {
             // Если по какой-то причине товаров нет, показываем популярные
-            return \app\backend\modules\catalog\models\Product::find()
-                ->where(['is_active' => true])
-                ->orderBy(['created_at' => SORT_DESC])
-                ->limit($limit)
-                ->all();
+            // AUDIT-62: дублирует ProductRepository::findNew()
+            return $productRepository->findNew($limit);
         }
 
         // Собираем ID брендов из заказа
@@ -531,8 +537,8 @@ class OrderController extends Controller
         }
 
         $brandIds = array_unique($brandIds);
-        $query = \app\backend\modules\catalog\models\Product::find()
-            ->where(['is_active' => true]);
+        // AUDIT-62: базовое условие ['is_active' => true] дублирует ProductRepository::createQuery()
+        $query = $productRepository->createQuery(false);
 
         // Если есть бренды, показываем товары из тех же брендов
         if (!empty($brandIds)) {
@@ -553,9 +559,8 @@ class OrderController extends Controller
         if (count($products) < $limit) {
             $need = $limit - count($products);
             $existingIds = array_merge($excludeProductIds, array_map(fn($p) => $p->id, $products));
-            
-            $popularProducts = \app\backend\modules\catalog\models\Product::find()
-                ->where(['is_active' => true])
+
+            $popularProducts = $productRepository->createQuery(false)
                 ->andWhere(['not in', 'id', $existingIds])
                 ->orderBy(['created_at' => SORT_DESC])
                 ->limit($need)
