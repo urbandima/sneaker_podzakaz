@@ -7,8 +7,10 @@
  *   Receives AmoCRM chat events, delegates to AiChatService,
  *   returns 200 always (AmoCRM retries on any non-200).
  *
- * Auth: optional shared secret via X-Amocrm-Hook-Secret header
+ * Auth: mandatory shared secret via X-Amocrm-Hook-Secret header
  *       or ?secret=xxx query param (set AMOCRM_HOOK_SECRET in .env).
+ *       Requests are rejected with 503 if the secret is not configured
+ *       server-side, and with a skipped response if the secret doesn't match.
  */
 
 namespace app\api\controllers;
@@ -53,16 +55,22 @@ class AiChatController extends Controller
             return ['ok' => true, 'skipped' => 'not_post'];
         }
 
-        // Validate optional hook secret
+        // Validate hook secret — mandatory. Without a configured secret, any
+        // unauthenticated POST would trigger a paid external API call
+        // (callClaude()), so refuse to process rather than defaulting to open.
         $secret = env('AMOCRM_HOOK_SECRET') ?: '';
-        if ($secret) {
-            $incoming = Yii::$app->request->headers->get('X-Amocrm-Hook-Secret', '')
-                     ?: Yii::$app->request->get('secret', '');
-            if (!hash_equals($secret, $incoming)) {
-                Yii::warning('[AiChat webhook] Invalid hook secret from ' . Yii::$app->request->userIP, 'ai_chat');
-                // Still return 200 to silence AmoCRM retries, but skip processing
-                return ['ok' => true, 'skipped' => 'invalid_secret'];
-            }
+        if ($secret === '') {
+            Yii::error('[AiChat webhook] AMOCRM_HOOK_SECRET is not configured; rejecting request', 'ai_chat');
+            Yii::$app->response->statusCode = 503;
+            return ['ok' => false, 'error' => 'service_unavailable'];
+        }
+
+        $incoming = Yii::$app->request->headers->get('X-Amocrm-Hook-Secret', '')
+                 ?: Yii::$app->request->get('secret', '');
+        if (!hash_equals($secret, (string) $incoming)) {
+            Yii::warning('[AiChat webhook] Invalid hook secret from ' . Yii::$app->request->userIP, 'ai_chat');
+            // Still return 200 to silence AmoCRM retries, but skip processing
+            return ['ok' => true, 'skipped' => 'invalid_secret'];
         }
 
         // Parse payload — AmoCRM sends form-encoded; also handle JSON (testing)
@@ -80,8 +88,8 @@ class AiChatController extends Controller
             $service = new AiChatService();
             $result  = $service->handleWebhook($payload);
         } catch (\Throwable $e) {
-            Yii::error('[AiChat webhook] unhandled: ' . $e->getMessage(), 'ai_chat');
-            $result = ['success' => false, 'error' => $e->getMessage()];
+            Yii::error('[AiChat webhook] unhandled: ' . $e->getMessage() . "\n" . $e->getTraceAsString(), 'ai_chat');
+            $result = ['success' => false, 'error' => 'internal_error'];
         }
 
         return array_merge(['ok' => true], $result);
