@@ -206,7 +206,7 @@ class ProductSize extends ActiveRecord
         
         // Приоритет 2: расчет из price_cny через CurrencySetting
         if ($this->price_cny) {
-            return \app\backend\modules\catalog\models\CurrencySetting::convertFromCny($this->price_cny, 'BYN');
+            return \app\backend\modules\admin\models\CurrencySetting::convertFromCny($this->price_cny, 'BYN');
         }
         
         // Приоритет 3: цена товара (с округлением)
