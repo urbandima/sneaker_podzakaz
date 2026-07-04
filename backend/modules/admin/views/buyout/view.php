@@ -7,6 +7,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Выкуп #' . $buyout->id;
 $snap = is_array($buyout->product_snapshot) ? $buyout->product_snapshot : (array)json_decode((string)$buyout->product_snapshot, true);
@@ -91,17 +92,17 @@ $allowed = $buyout->getAllowedTransitions();
                 <div class="crm-field-row"><span class="crm-field-label">Курс</span>
                     <span class="crm-field-val"><?= $buyout->exchange_rate ? number_format((float)$buyout->exchange_rate, 4) : '—' ?></span></div>
                 <div class="crm-field-row"><span class="crm-field-label">Цена ед. (BYN)</span>
-                    <span class="crm-field-val"><?= $buyout->unit_cost_byn ? number_format((float)$buyout->unit_cost_byn, 2) . ' BYN' : '—' ?></span></div>
+                    <span class="crm-field-val"><?= $buyout->unit_cost_byn ? PriceHelper::format((float)$buyout->unit_cost_byn) : '—' ?></span></div>
                 <div class="crm-field-row"><span class="crm-field-label">Кол-во</span>
                     <span class="crm-field-val"><?= (int)$buyout->qty ?></span></div>
                 <div class="crm-field-row"><span class="crm-field-label">Доставка</span>
-                    <span class="crm-field-val"><?= number_format((float)$buyout->shipping_cost, 2) ?> BYN</span></div>
+                    <span class="crm-field-val"><?= PriceHelper::format((float)$buyout->shipping_cost) ?></span></div>
                 <div class="crm-field-row"><span class="crm-field-label">Комиссии/пошлины</span>
-                    <span class="crm-field-val"><?= number_format((float)$buyout->fees, 2) ?> BYN</span></div>
+                    <span class="crm-field-val"><?= PriceHelper::format((float)$buyout->fees) ?></span></div>
                 <div class="crm-field-row" style="grid-column:1/-1;border-top:1px solid #e5e7eb;padding-top:8px;margin-top:4px">
                     <span class="crm-field-label" style="font-weight:700">Итого</span>
                     <span class="crm-field-val" style="font-size:1.1rem;font-weight:800;color:var(--admin-accent,#2563eb)">
-                        <?= number_format((float)$buyout->total_cost_byn, 2) ?> BYN
+                        <?= PriceHelper::format((float)$buyout->total_cost_byn) ?>
                     </span>
                 </div>
             </div>

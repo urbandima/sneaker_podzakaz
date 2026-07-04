@@ -20,6 +20,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Панель управления';
 
@@ -290,7 +291,7 @@ $cnyUpdated = $cnyInfo['updated_at'] ?? null;
                     <span class="dash-top-meta"><?= (int)($p['order_count'] ?? 0) ?> заказов · <?= (int)($p['total_quantity'] ?? 0) ?> шт</span>
                 </div>
                 <?php if (isset($p['avg_price']) && $p['avg_price'] > 0): ?>
-                <span class="dash-top-price"><?= number_format($p['avg_price'], 0, '.', ' ') ?> BYN</span>
+                <span class="dash-top-price"><?= PriceHelper::formatInt($p['avg_price']) ?></span>
                 <?php else: ?>
                 <span class="dash-top-price" style="background:#fef3c7;color:#b45309;font-size:.7rem;padding:2px 7px;border-radius:10px">Цена не указана</span>
                 <?php endif; ?>

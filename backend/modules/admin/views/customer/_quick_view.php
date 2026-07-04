@@ -8,6 +8,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $fullName = trim(($customer->last_name ?? '') . ' ' . ($customer->first_name ?? '') . ' ' . ($customer->middle_name ?? ''));
 if (!$fullName) $fullName = $customer->email;
@@ -65,7 +66,7 @@ try {
         <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#6b7280)">Заказов</div>
     </div>
     <div style="background:var(--admin-surface-hover,#f9fafb);border-radius:10px;padding:10px;text-align:center">
-        <div style="font-size:1.125rem;font-weight:800;color:var(--admin-text-primary,#111)"><?= $customer->total_spent ? number_format($customer->total_spent, 0, '.', ' ') : '—' ?></div>
+        <div style="font-size:1.125rem;font-weight:800;color:var(--admin-text-primary,#111)"><?= $customer->total_spent ? PriceHelper::formatInt($customer->total_spent) : '—' ?></div>
         <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:.04em;color:var(--admin-text-secondary,#6b7280)">Потрачено Br</div>
     </div>
     <div style="background:<?= $loyaltyBalance > 0 ? '#fef3c7' : 'var(--admin-surface-hover,#f9fafb)' ?>;border-radius:10px;padding:10px;text-align:center">

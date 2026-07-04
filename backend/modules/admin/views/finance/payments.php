@@ -7,6 +7,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Платежи';
 
@@ -37,11 +38,11 @@ $storageKey = 'paymentsColumns';
 <div class="atu-kpi-bar">
     <div class="atu-kpi-card atu-kpi-card--green">
         <div class="atu-kpi-label">Подтверждено</div>
-        <div class="atu-kpi-value"><?= number_format($totals['confirmed'], 2) ?> <span style="font-size:.875rem;font-weight:400">BYN</span></div>
+        <div class="atu-kpi-value"><?= PriceHelper::format($totals['confirmed']) ?></div>
     </div>
     <div class="atu-kpi-card atu-kpi-card--yellow">
         <div class="atu-kpi-label">Ожидает</div>
-        <div class="atu-kpi-value"><?= number_format($totals['pending'], 2) ?> <span style="font-size:.875rem;font-weight:400">BYN</span></div>
+        <div class="atu-kpi-value"><?= PriceHelper::format($totals['pending']) ?></div>
     </div>
 </div>
 

@@ -2,6 +2,9 @@
 /** @var yii\web\View $this */
 /** @var string $tab, $from, $to */
 /** @var array $data */
+
+use app\backend\shared\helpers\PriceHelper;
+
 $this->title = 'Маржинальность';
 
 $currentSort = Yii::$app->request->get('sort', '');
@@ -74,8 +77,8 @@ $sortIcon = function(string $col) use ($currentSort): string {
                     </td>
                     <td style="text-align:right"><?= (int)$row['order_count'] ?></td>
                     <td style="text-align:right"><?= (int)$row['qty'] ?></td>
-                    <td style="text-align:right;font-weight:700"><?= number_format($row['revenue'], 2) ?></td>
-                    <td style="text-align:right;color:var(--admin-text-secondary,#6d7175)"><?= $cogs > 0 ? number_format($cogs, 2) : '—' ?></td>
+                    <td style="text-align:right;font-weight:700"><?= PriceHelper::format($row['revenue']) ?></td>
+                    <td style="text-align:right;color:var(--admin-text-secondary,#6d7175)"><?= $cogs > 0 ? PriceHelper::format($cogs) : '—' ?></td>
                     <td style="text-align:right;color:<?= $row['margin'] >= 0 ? 'var(--admin-success,#008060)' : 'var(--admin-danger,#d72c0d)' ?>;font-weight:700">
                         <?= $cogs > 0 ? number_format($row['margin'], 2) : '—' ?>
                     </td>
@@ -117,8 +120,8 @@ $sortIcon = function(string $col) use ($currentSort): string {
                 <tr>
                     <td><strong><?= htmlspecialchars($row['manager']) ?></strong></td>
                     <td style="text-align:right"><?= (int)$row['orders'] ?></td>
-                    <td style="text-align:right"><?= number_format($row['revenue'], 2) ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delivery_cost'] > 0 ? '−'.number_format($row['delivery_cost'], 2) : '—' ?></td>
+                    <td style="text-align:right"><?= PriceHelper::format($row['revenue']) ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delivery_cost'] > 0 ? '−'.PriceHelper::format($row['delivery_cost']) : '—' ?></td>
                     <td style="text-align:right;font-weight:700;color:<?= $row['margin'] >= 0 ? 'var(--admin-success,#008060)' : 'var(--admin-danger,#d72c0d)' ?>">
                         <?= number_format($row['margin'], 2) ?>
                     </td>

@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Аналитика и отчёты';
 $dateFrom = $dateFrom ?? date('Y-m-d', strtotime('-7 days'));
@@ -76,7 +77,7 @@ $this->params['headerActions'] = [
 <!-- Statistics Cards -->
 <div class="admin-stats">
     <div class="admin-stat-card">
-        <p class="admin-stat-number"><?= number_format($revenueStats['total_revenue'] ?? 0, 0, ',', ' ') ?></p>
+        <p class="admin-stat-number"><?= PriceHelper::formatInt((float)($revenueStats['total_revenue'] ?? 0)) ?></p>
         <p class="admin-stat-label">Общая выручка, BYN</p>
         <span class="admin-badge <?= $revChangeCls ?>"><?= Html::encode($revChangeBadge) ?> vs пред. период</span>
     </div>
@@ -86,7 +87,7 @@ $this->params['headerActions'] = [
         <span class="admin-badge admin-badge-info">За период</span>
     </div>
     <div class="admin-stat-card" style="border-left-color: var(--admin-warning);">
-        <p class="admin-stat-number"><?= number_format($revenueStats['avg_order_value'] ?? 0, 0, ',', ' ') ?></p>
+        <p class="admin-stat-number"><?= PriceHelper::formatInt((float)($revenueStats['avg_order_value'] ?? 0)) ?></p>
         <p class="admin-stat-label">Средний чек, BYN</p>
         <span class="admin-badge admin-badge-warning">AVG</span>
     </div>
@@ -120,8 +121,8 @@ $this->params['headerActions'] = [
                 <tr>
                     <td><?= $day['date'] ?? '—' ?></td>
                     <td style="text-align: right; font-weight: 600;"><?= $day['orders_count'] ?? $day['count'] ?? 0 ?></td>
-                    <td style="text-align: right; font-weight: 600;"><?= number_format($day['revenue'] ?? 0, 0, ',', ' ') ?> BYN</td>
-                    <td style="text-align: right;"><?= number_format($day['avg_order'] ?? $day['avg_order_value'] ?? 0, 0, ',', ' ') ?> BYN</td>
+                    <td style="text-align: right; font-weight: 600;"><?= PriceHelper::formatInt((float)($day['revenue'] ?? 0)) ?></td>
+                    <td style="text-align: right;"><?= PriceHelper::formatInt((float)($day['avg_order'] ?? $day['avg_order_value'] ?? 0)) ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -155,7 +156,7 @@ $this->params['headerActions'] = [
                 <tr>
                     <td><?= Html::encode($product['product_name']) ?></td>
                     <td class="text-right fw-600"><?= $product['views'] ?? 0 ?></td>
-                    <td class="text-right fw-600"><?= number_format($product['total_revenue'] ?? 0, 0, ',', ' ') ?> BYN</td>
+                    <td class="text-right fw-600"><?= PriceHelper::formatInt((float)($product['total_revenue'] ?? 0)) ?></td>
                     <td class="text-right"><?= $product['orders'] ?? 0 ?></td>
                 </tr>
                 <?php endforeach; ?>
@@ -264,7 +265,7 @@ $this->params['headerActions'] = [
                     <strong><?= Html::encode($seg['segment']) ?></strong>
                 </td>
                 <td style="text-align:right;font-weight:700;"><?= (int)$seg['count'] ?></td>
-                <td class="text-right"><?= number_format((float)$seg['avg_monetary'], 2, ',', ' ') ?></td>
+                <td class="text-right"><?= PriceHelper::format((float)$seg['avg_monetary']) ?></td>
                 <td class="text-center">
                     <a href="<?= Url::to(['/admin/analytics/export-rfm', 'segment' => $seg['segment']]) ?>"
                        class="admin-btn admin-btn-secondary" style="font-size:0.75rem;padding:0.3rem 0.7rem;">
@@ -305,8 +306,8 @@ $this->params['headerActions'] = [
                 <tr>
                     <td><?= Html::encode($row['manager'] ?? 'Не назначен') ?></td>
                     <td style="text-align:right;font-weight:700;"><?= (int)$row['order_count'] ?></td>
-                    <td class="text-right"><?= number_format((float)$row['revenue'], 0, ',', ' ') ?></td>
-                    <td class="text-right"><?= number_format((float)$row['avg_check'], 0, ',', ' ') ?></td>
+                    <td class="text-right"><?= PriceHelper::formatInt((float)$row['revenue']) ?></td>
+                    <td class="text-right"><?= PriceHelper::formatInt((float)$row['avg_check']) ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

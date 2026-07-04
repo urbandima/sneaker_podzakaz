@@ -5,6 +5,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Аналитика чатов AmoCRM';
 
@@ -106,11 +107,11 @@ $customFieldDefs   = $customFieldDefs   ?? [];
         </div>
         <?php if ($pm['price_sum'] > 0): ?>
         <div style="background:#f5f3ff;border-radius:0.5rem;padding:0.75rem;text-align:center;">
-            <div style="font-size:1.1rem;font-weight:700;color:#7c3aed;"><?= number_format($pm['price_sum'], 0, '.', ' ') ?></div>
+            <div style="font-size:1.1rem;font-weight:700;color:#7c3aed;"><?= PriceHelper::formatInt((float)$pm['price_sum']) ?></div>
             <div style="font-size:0.75rem;color:var(--admin-text-secondary);">Сумма (BYN)</div>
         </div>
         <div style="background:#f5f3ff;border-radius:0.5rem;padding:0.75rem;text-align:center;">
-            <div style="font-size:1.1rem;font-weight:700;color:#7c3aed;"><?= number_format($pm['avg_price'], 0, '.', ' ') ?></div>
+            <div style="font-size:1.1rem;font-weight:700;color:#7c3aed;"><?= PriceHelper::formatInt((float)$pm['avg_price']) ?></div>
             <div style="font-size:0.75rem;color:var(--admin-text-secondary);">Ср. чек</div>
         </div>
         <?php endif; ?>
@@ -222,7 +223,7 @@ $customFieldDefs   = $customFieldDefs   ?? [];
                 </span>
             </td>
             <td style="padding:0.45rem 0.75rem;white-space:nowrap;font-weight:600;">
-                <?= ($lead['price'] ?? 0) > 0 ? number_format((float)$lead['price'], 0, '.', ' ') : '—' ?>
+                <?= ($lead['price'] ?? 0) > 0 ? PriceHelper::formatInt((float)$lead['price']) : '—' ?>
             </td>
             <td style="padding:0.45rem 0.75rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#64748b;font-size:0.78rem;"
                 title="<?= Html::encode($tags) ?>">

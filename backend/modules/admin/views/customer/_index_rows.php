@@ -3,6 +3,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $statusPills = [
     10 => ['bg' => '#ecfdf5', 'color' => '#059669', 'label' => 'Активен'],
@@ -33,7 +34,7 @@ foreach ($customers as $customer):
         <?= (int)$customer->orders_count ?>
     </td>
     <td data-col="total_spent" style="font-weight:700;white-space:nowrap">
-        <?= number_format((float)$customer->total_spent, 2) ?> <span style="font-size:.7rem;color:var(--admin-text-secondary,#9ca3af);font-weight:400">Br</span>
+        <?= PriceHelper::format((float)$customer->total_spent) ?>
     </td>
     <td data-col="last_order" style="white-space:nowrap;color:var(--admin-text-secondary,#6b7280);font-size:.8rem">
         <?= $customer->last_order_at ? date('d.m.Y', $customer->last_order_at) : '—' ?>

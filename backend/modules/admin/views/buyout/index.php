@@ -8,6 +8,7 @@
 /** @var string $filterSource */
 
 use yii\helpers\Html;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Выкупы товаров';
 ?>
@@ -56,7 +57,7 @@ $this->title = 'Выкупы товаров';
         <div class="buyout-kpi-label">Отменено</div>
     </div>
     <div class="buyout-kpi-card">
-        <div class="buyout-kpi-val"><?= number_format($kpi['total_cost'], 2) ?> BYN</div>
+        <div class="buyout-kpi-val"><?= PriceHelper::format((float)$kpi['total_cost']) ?></div>
         <div class="buyout-kpi-label">Итого затрат</div>
     </div>
 </div>
@@ -135,8 +136,8 @@ $this->title = 'Выкупы товаров';
     <td><span class="source-badge"><?= Html::encode($b->getSourceLabel()) ?></span></td>
     <td><?= Html::encode($b->size ?? '—') ?></td>
     <td><?= (int)$b->qty ?></td>
-    <td><?= $b->unit_cost_byn ? number_format((float)$b->unit_cost_byn, 2) . ' BYN' : '—' ?></td>
-    <td style="font-weight:700"><?= $b->total_cost_byn ? number_format((float)$b->total_cost_byn, 2) . ' BYN' : '—' ?></td>
+    <td><?= $b->unit_cost_byn ? PriceHelper::format((float)$b->unit_cost_byn) : '—' ?></td>
+    <td style="font-weight:700"><?= $b->total_cost_byn ? PriceHelper::format((float)$b->total_cost_byn) : '—' ?></td>
     <td>
         <span class="status-pill" style="background:<?= $b->getStatusBg() ?>;color:<?= $b->getStatusColor() ?>">
             <?= Html::encode($b->getStatusLabel()) ?>

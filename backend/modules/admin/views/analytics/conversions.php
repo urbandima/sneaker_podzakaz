@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Конверсионная аналитика';
 $period = $period ?? '30';
@@ -129,7 +130,7 @@ $orderFromCartPct = $fCarts > 0 ? round($fOrders / $fCarts * 100, 1) : 0;
                         <span class="admin-badge <?= $cvrClass ?>"><?= $pCvr ?>%</span>
                     </td>
                     <?php if (!empty($products[0]['total_revenue'])): ?>
-                    <td style="text-align:right"><?= !empty($p['total_revenue']) ? number_format((float)$p['total_revenue'], 0, ',', ' ') . ' BYN' : '—' ?></td>
+                    <td style="text-align:right"><?= !empty($p['total_revenue']) ? PriceHelper::formatInt((float)$p['total_revenue']) : '—' ?></td>
                     <?php endif; ?>
                 </tr>
                 <?php endforeach; ?>

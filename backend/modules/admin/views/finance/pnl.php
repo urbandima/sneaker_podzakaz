@@ -3,6 +3,9 @@
 /** @var array $months */
 /** @var int $year */
 /** @var int[] $years */
+
+use app\backend\shared\helpers\PriceHelper;
+
 $this->title = 'P&L — ' . $year;
 
 $monthNames = ['','Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
@@ -18,7 +21,7 @@ $totalMargin  = $totalRevenue > 0 ? round($totalNet / $totalRevenue * 100, 1) : 
 <div class="atu-kpi-bar">
     <div class="atu-kpi-card atu-kpi-card--blue">
         <div class="atu-kpi-label">Выручка за год</div>
-        <div class="atu-kpi-value"><?= number_format($totalRevenue, 0) ?> <span style="font-size:.875rem;font-weight:400">BYN</span></div>
+        <div class="atu-kpi-value"><?= PriceHelper::formatInt($totalRevenue) ?></div>
     </div>
     <div class="atu-kpi-card">
         <div class="atu-kpi-label">Валовая прибыль</div>
@@ -79,15 +82,15 @@ $totalMargin  = $totalRevenue > 0 ? round($totalNet / $totalRevenue * 100, 1) : 
                 ?>
                 <tr style="<?= $row['revenue'] == 0 ? 'opacity:.45' : '' ?>">
                     <td><strong><?= $monthNames[$m] ?></strong></td>
-                    <td style="text-align:right"><?= number_format($row['revenue'], 0) ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['cogs'] > 0 ? '−'.number_format($row['cogs'], 0) : '—' ?></td>
+                    <td style="text-align:right"><?= PriceHelper::formatInt($row['revenue']) ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['cogs'] > 0 ? '−'.PriceHelper::formatInt($row['cogs']) : '—' ?></td>
                     <td style="text-align:right"><strong><?= number_format($row['gross'], 0) ?></strong></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delChina'] > 0 ? '−'.number_format($row['delChina'], 0) : '—' ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['customs'] > 0 ? '−'.number_format($row['customs'], 0) : '—' ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delLocal'] > 0 ? '−'.number_format($row['delLocal'], 0) : '—' ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['rent'] > 0 ? '−'.number_format($row['rent'], 0) : '—' ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['salary'] > 0 ? '−'.number_format($row['salary'], 0) : '—' ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['other'] > 0 ? '−'.number_format($row['other'], 0) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delChina'] > 0 ? '−'.PriceHelper::formatInt($row['delChina']) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['customs'] > 0 ? '−'.PriceHelper::formatInt($row['customs']) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delLocal'] > 0 ? '−'.PriceHelper::formatInt($row['delLocal']) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['rent'] > 0 ? '−'.PriceHelper::formatInt($row['rent']) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['salary'] > 0 ? '−'.PriceHelper::formatInt($row['salary']) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['other'] > 0 ? '−'.PriceHelper::formatInt($row['other']) : '—' ?></td>
                     <td style="text-align:right">
                         <strong style="color:<?= $row['net'] >= 0 ? 'var(--admin-success,#008060)' : 'var(--admin-danger,#d72c0d)' ?>">
                             <?= number_format($row['net'], 0) ?>

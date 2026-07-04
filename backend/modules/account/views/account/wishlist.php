@@ -7,6 +7,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\frontend\assets\CatalogAsset;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Избранное';
 $this->params['breadcrumbs'][] = ['label' => 'Личный кабинет', 'url' => ['/account']];
@@ -93,8 +94,8 @@ $csrfToken = Yii::$app->request->csrfToken;
                         $p = $fav->product;
                         if (!$p) continue;
                         $imgUrl   = $p->getMainImageUrl() ?: '/images/placeholder.png';
-                        $price    = number_format((float)$p->price, 2, '.', ' ');
-                        $oldPrice = $p->old_price ? number_format((float)$p->old_price, 2, '.', ' ') : null;
+                        $price    = PriceHelper::format((float)$p->price);
+                        $oldPrice = $p->old_price ? PriceHelper::format((float)$p->old_price) : null;
                         $brand    = $p->brand ? Html::encode($p->brand->name) : '';
                     ?>
                     <div class="wishlist-card"
@@ -124,9 +125,9 @@ $csrfToken = Yii::$app->request->csrfToken;
                             </div>
                             <div class="wishlist-card-footer">
                                 <div>
-                                    <div class="wishlist-card-price"><?= $price ?> BYN</div>
+                                    <div class="wishlist-card-price"><?= $price ?></div>
                                     <?php if ($oldPrice): ?>
-                                    <div class="wishlist-card-price-old"><?= $oldPrice ?> BYN</div>
+                                    <div class="wishlist-card-price-old"><?= $oldPrice ?></div>
                                     <?php endif; ?>
                                 </div>
                                 <button class="wishlist-cart-btn"

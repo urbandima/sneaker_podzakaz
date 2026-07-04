@@ -11,6 +11,7 @@
  */
 
 use yii\helpers\Html;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'RFM Аналитика';
 $this->params['headerActions'] = [];
@@ -135,8 +136,8 @@ foreach ($rfmSegments as $s) {
                         <p style="margin:0 0 8px;font-size:13px;color:var(--admin-text-secondary)"><?= $segment['desc'] ?></p>
                         <div style="display:flex;gap:16px;font-size:14px">
                             <span><strong><?= $segment['count'] ?></strong> клиентов (<?= $percent ?>%)</span>
-                            <span><strong><?= number_format($segment['revenue'], 0, '.', ' ') ?></strong> BYN</span>
-                            <span><strong><?= number_format($segment['avg_check'] ?? 0, 0, '.', ' ') ?></strong> BYN средний чек</span>
+                            <span><strong><?= PriceHelper::formatInt($segment['revenue']) ?></strong></span>
+                            <span><strong><?= PriceHelper::formatInt($segment['avg_check'] ?? 0) ?></strong> средний чек</span>
                         </div>
                     </div>
                     <div style="flex:0 0 auto">
@@ -159,7 +160,7 @@ $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'monetary'));
 <div class="admin-card mt-5">
     <div class="admin-card-header flex-between">
         <h2 class="admin-card-title"><i class="bi bi-cash-stack"></i> LTV Сегментация</h2>
-        <span class="admin-badge admin-badge-info"><?= number_format($totalRevenue / $totalCustomers, 0) ?> BYN средний LTV</span>
+        <span class="admin-badge admin-badge-info"><?= PriceHelper::formatInt($totalRevenue / $totalCustomers) ?> средний LTV</span>
     </div>
     <div class="admin-card-body">
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
@@ -183,7 +184,7 @@ $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'monetary'));
         <h2 class="admin-card-title"><i class="bi bi-exclamation-triangle-fill"></i> Покупатели в статусе риска</h2>
         <div style="display:flex;gap:8px;align-items:center">
             <span class="admin-badge admin-badge-danger"><?= $totalAtRisk ?> клиентов</span>
-            <span class="admin-badge admin-badge-warning"><?= number_format($totalAtRiskLTV, 0) ?> BYN LTV</span>
+            <span class="admin-badge admin-badge-warning"><?= PriceHelper::formatInt($totalAtRiskLTV) ?> LTV</span>
             <button class="admin-btn admin-btn-sm admin-btn-primary" onclick="exportAtRisk()">
                 <i class="bi bi-download"></i> Экспорт
             </button>
@@ -217,7 +218,7 @@ $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'monetary'));
                         <div style="font-size:0.75rem;color:var(--admin-text-secondary)"><?= Html::encode($customer['email'] ?? '') ?></div>
                     </td>
                     <td style="padding:12px 16px;text-align:center;font-weight:700;color:var(--admin-text)">
-                        <?= number_format($ltv, 0) ?> BYN
+                        <?= PriceHelper::formatInt($ltv) ?>
                     </td>
                     <td style="padding:12px 16px;text-align:center">
                         <span style="padding:2px 8px;background:<?= $ltvColor ?>20;color:<?= $ltvColor ?>;border-radius:4px;font-size:0.75rem;font-weight:600"><?= $ltvClass ?></span>

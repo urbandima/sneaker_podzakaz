@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 use app\backend\modules\coupon\models\Coupon;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Купоны';
 ?>
@@ -104,7 +105,7 @@ $this->params['headerActions'] = [
                                 </span>
                             </td>
                             <td><?= $model->getDiscountDescription() ?></td>
-                            <td><?= $model->min_order_amount ? number_format($model->min_order_amount, 2) . ' BYN' : '—' ?></td>
+                            <td><?= $model->min_order_amount ? PriceHelper::format((float)$model->min_order_amount) : '—' ?></td>
                             <td>
                                 <?php
                                 $usedCount = $model->current_uses ?? $model->used_count ?? 0;

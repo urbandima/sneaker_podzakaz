@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'МойСклад — Аналитика';
 
@@ -37,7 +38,7 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
 <!-- KPI cards -->
 <div class="admin-stats" style="margin-bottom:1.5rem;">
     <div class="admin-stat-card">
-        <p class="admin-stat-number"><?= number_format($thisTotal, 0, ',', ' ') ?></p>
+        <p class="admin-stat-number"><?= PriceHelper::formatInt($thisTotal) ?></p>
         <p class="admin-stat-label">Выручка тек. месяц, BYN</p>
         <?php if ($changePct !== null): ?>
         <span class="admin-badge <?= $changePct >= 0 ? 'admin-badge-success' : 'admin-badge-danger' ?>">
@@ -53,12 +54,12 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
         <span class="admin-badge admin-badge-info">Из локальной БД</span>
     </div>
     <div class="admin-stat-card" style="border-left-color:var(--admin-warning);">
-        <p class="admin-stat-number"><?= number_format($avgCheck, 0, ',', ' ') ?></p>
+        <p class="admin-stat-number"><?= PriceHelper::formatInt($avgCheck) ?></p>
         <p class="admin-stat-label">Средний чек, BYN</p>
         <span class="admin-badge admin-badge-warning">AVG</span>
     </div>
     <div class="admin-stat-card" style="border-left-color:var(--admin-info);">
-        <p class="admin-stat-number"><?= number_format($prevTotal, 0, ',', ' ') ?></p>
+        <p class="admin-stat-number"><?= PriceHelper::formatInt($prevTotal) ?></p>
         <p class="admin-stat-label">Выручка пред. месяц, BYN</p>
         <span class="admin-badge admin-badge-secondary">Сравнение</span>
     </div>
@@ -94,7 +95,7 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
                     </td>
                     <td style="text-align:right;font-weight:600;"><?= $p['orders_count'] ?></td>
                     <td style="text-align:right;font-weight:600;">
-                        <?= number_format((float)$p['total_revenue'], 0, ',', ' ') ?> BYN
+                        <?= PriceHelper::formatInt((float)$p['total_revenue']) ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -181,7 +182,7 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
                         </span>
                     </td>
                     <td style="text-align:right;font-weight:600;">
-                        <?= number_format((float)($ord['total_amount'] ?? 0), 0, ',', ' ') ?> BYN
+                        <?= PriceHelper::formatInt((float)($ord['total_amount'] ?? 0)) ?>
                     </td>
                     <td style="font-size:0.8rem;color:var(--admin-text-secondary);">
                         <?= Html::encode(substr($ord['created_at'] ?? '', 0, 10)) ?>

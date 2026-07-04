@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Сводная аналитика';
 $views       = (int)($funnel['views'] ?? 0);
@@ -66,12 +67,12 @@ $funnelOrders = (int)($funnel['orders'] ?? 0);
 <!-- Revenue + Margin KPI -->
 <div class="admin-stats" style="margin-bottom:1.5rem;">
     <div class="admin-stat-card">
-        <p class="admin-stat-number"><?= number_format($totalRevenue, 0, ',', ' ') ?></p>
+        <p class="admin-stat-number"><?= PriceHelper::formatInt($totalRevenue) ?></p>
         <p class="admin-stat-label">Выручка тек. месяц, BYN</p>
         <span class="admin-badge admin-badge-info">МойСклад</span>
     </div>
     <div class="admin-stat-card" style="border-left-color:var(--admin-success);">
-        <p class="admin-stat-number"><?= number_format($marginEst, 0, ',', ' ') ?></p>
+        <p class="admin-stat-number"><?= PriceHelper::formatInt($marginEst) ?></p>
         <p class="admin-stat-label">Оценка маржи, BYN</p>
         <span class="admin-badge admin-badge-success">30% базовая</span>
     </div>
@@ -114,10 +115,10 @@ $funnelOrders = (int)($funnel['orders'] ?? 0);
                 <tr>
                     <td style="font-weight:600;"><?= Html::encode($m['month']) ?></td>
                     <td style="text-align:right;font-weight:700;">
-                        <?= number_format($m['revenue'], 0, ',', ' ') ?>
+                        <?= PriceHelper::formatInt($m['revenue']) ?>
                     </td>
                     <td style="text-align:right;font-weight:700;color:var(--admin-success);">
-                        <?= number_format($m['margin'], 0, ',', ' ') ?>
+                        <?= PriceHelper::formatInt($m['margin']) ?>
                     </td>
                     <td>
                         <div style="display:flex;gap:2px;align-items:center;">

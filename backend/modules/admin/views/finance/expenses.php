@@ -4,6 +4,9 @@
 /** @var array $byCategory */
 /** @var string $filterCat, $filterFrom, $filterTo */
 /** @var array $categories */
+
+use app\backend\shared\helpers\PriceHelper;
+
 $this->title = 'Расходы';
 
 $currentSort = Yii::$app->request->get('sort', '');
@@ -39,7 +42,7 @@ $storageKey = 'expensesColumns';
     ?>
     <div class="atu-kpi-card" style="border-color:<?= $color['color'] ?>22">
         <div class="atu-kpi-label"><?= htmlspecialchars($label) ?></div>
-        <div class="atu-kpi-value" style="font-size:1.125rem;color:<?= $color['color'] ?>"><?= number_format((float)($byCategory[$k] ?? 0), 0) ?> <span style="font-size:.75rem;font-weight:400">BYN</span></div>
+        <div class="atu-kpi-value" style="font-size:1.125rem;color:<?= $color['color'] ?>"><?= PriceHelper::formatInt((float)($byCategory[$k] ?? 0)) ?></div>
     </div>
     <?php endforeach; ?>
 </div>

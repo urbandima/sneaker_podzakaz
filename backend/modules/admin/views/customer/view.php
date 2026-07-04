@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 /** @var yii\web\View $this */
 /** @var app\backend\modules\catalog\models\Customer $customer */
@@ -839,7 +840,7 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                                     <span class="co-status-pill" style="background:<?= $sp['bg'] ?>;color:<?= $sp['color'] ?>"><?= Html::encode($statusLabel) ?></span>
                                 </td>
                                 <td style="font-weight:700;white-space:nowrap;text-align:right">
-                                    <?= number_format($order->total_amount, 2) ?> <span style="font-size:.7rem;color:var(--admin-text-secondary,#9ca3af);font-weight:400">Br</span>
+                                    <?= PriceHelper::format($order->total_amount) ?>
                                 </td>
                                 <td style="white-space:nowrap;color:var(--admin-text-secondary,#6b7280);font-size:.75rem">
                                     <?= Html::encode($order->payment_method ?: '—') ?>

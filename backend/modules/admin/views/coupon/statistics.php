@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Статистика купонов';
 $this->params['breadcrumbs'][] = ['label' => 'Купоны', 'url' => ['/admin/coupon']];
@@ -54,7 +55,7 @@ $statsByType = [
     <div class="admin-stat-card">
         <div class="admin-stat-icon info"><i class="bi bi-currency-dollar"></i></div>
         <div class="admin-stat-content">
-            <div class="admin-stat-value"><?= number_format($stats['total_discount'], 2) ?> <small>BYN</small></div>
+            <div class="admin-stat-value"><?= PriceHelper::format((float)$stats['total_discount']) ?></div>
             <div class="admin-stat-label">Общая скидка</div>
         </div>
     </div>
@@ -79,7 +80,7 @@ $statsByType = [
                 <tr>
                     <td><?= Html::encode($coupon['code']) ?></td>
                     <td><?= $coupon['uses'] ?></td>
-                    <td><?= number_format($coupon['discount'], 2) ?></td>
+                    <td><?= PriceHelper::format((float)$coupon['discount']) ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
