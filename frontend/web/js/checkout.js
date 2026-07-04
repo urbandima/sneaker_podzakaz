@@ -66,37 +66,6 @@ function updateTotal() {
     document.getElementById('finalTotal').textContent = total.toFixed(2) + ' BYN';
 }
 
-// Промокод
-function applyCoupon() {
-    var code = document.getElementById('couponCode').value.trim().toUpperCase();
-    if (!code) { showCouponMessage('Введите промокод', 'error'); return; }
-
-    var testCoupons = {
-        'SALE10': { type: 'percent', value: 10, name: 'Скидка 10%' },
-        'SALE20': { type: 'percent', value: 20, name: 'Скидка 20%' },
-        'WELCOME': { type: 'fixed', value: 50, name: 'Скидка 50 BYN' },
-        'FREESHIP': { type: 'shipping', value: 0, name: 'Бесплатная доставка' }
-    };
-    var coupon = testCoupons[code];
-    if (!coupon) { showCouponMessage('Промокод не найден', 'error'); return; }
-
-    if (coupon.type === 'percent') orderDiscount = orderTotal * (coupon.value / 100);
-    else if (coupon.type === 'fixed') orderDiscount = Math.min(coupon.value, orderTotal);
-    else if (coupon.type === 'shipping') orderDiscount = orderDeliveryCost;
-
-    document.getElementById('couponDiscount').textContent = orderDiscount.toFixed(2) + ' BYN';
-    document.getElementById('couponDiscountRow').style.display = 'flex';
-    updateTotal();
-    showCouponMessage(coupon.name + ' применена!', 'success');
-}
-
-function showCouponMessage(text, type) {
-    var el = document.getElementById('couponMessage');
-    el.textContent = text;
-    el.className = 'coupon-message ' + (type === 'success' ? 'coupon-success' : 'coupon-error');
-    setTimeout(function () { el.textContent = ''; el.className = 'coupon-message'; }, 5000);
-}
-
 // Отправка заказа
 function submitOrder() {
     var name = document.getElementById('field-name').value.trim();

@@ -458,18 +458,6 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                             <span id="deliveryCost" class="delivery-cost">Бесплатно</span>
                         </div>
 
-                        <div class="coupon-section" id="couponSection">
-                            <div class="coupon-input-row">
-                                <input type="text" id="couponCode" class="coupon-input" placeholder="Промокод" maxlength="20">
-                                <button type="button" class="coupon-btn" onclick="applyCoupon()">Применить</button>
-                            </div>
-                            <div class="coupon-message" id="couponMessage"></div>
-                        </div>
-                        <div class="summary-row coupon-discount-row" id="couponDiscountRow" style="display:none">
-                            <span>Скидка:</span>
-                            <span id="couponDiscount">0 BYN</span>
-                        </div>
-
                         <div class="summary-total">
                             <span>Итого:</span>
                             <span id="finalTotal"><?= number_format($total, 2) ?> BYN</span>
@@ -820,37 +808,6 @@ function updateTotal() {
         var el = document.getElementById(id);
         if (el) el.textContent = fmtShort;
     });
-}
-
-// Промокод
-function applyCoupon() {
-    var code = document.getElementById('couponCode').value.trim().toUpperCase();
-    if (!code) { showCouponMessage('Введите промокод', 'error'); return; }
-
-    var testCoupons = {
-        'SALE10':  { type: 'percent',  value: 10, name: 'Скидка 10%' },
-        'SALE20':  { type: 'percent',  value: 20, name: 'Скидка 20%' },
-        'WELCOME': { type: 'fixed',    value: 50, name: 'Скидка 50 BYN' },
-        'FREESHIP':{ type: 'shipping', value: 0,  name: 'Бесплатная доставка' }
-    };
-    var coupon = testCoupons[code];
-    if (!coupon) { showCouponMessage('Промокод не найден', 'error'); return; }
-
-    if (coupon.type === 'percent')       orderDiscount = orderTotal * (coupon.value / 100);
-    else if (coupon.type === 'fixed')    orderDiscount = Math.min(coupon.value, orderTotal);
-    else if (coupon.type === 'shipping') orderDiscount = orderDeliveryCost;
-
-    document.getElementById('couponDiscount').textContent = orderDiscount.toFixed(2) + ' BYN';
-    document.getElementById('couponDiscountRow').style.display = 'flex';
-    updateTotal();
-    showCouponMessage(coupon.name + ' применена!', 'success');
-}
-
-function showCouponMessage(text, type) {
-    var el = document.getElementById('couponMessage');
-    el.textContent = text;
-    el.className = 'coupon-message ' + (type === 'success' ? 'coupon-success' : 'coupon-error');
-    setTimeout(function() { el.textContent = ''; el.className = 'coupon-message'; }, 5000);
 }
 
 // Отправка заказа
