@@ -304,17 +304,37 @@ class WebhookController extends Controller
         $trackNum   = $data['DPTrackNumber'] ?? null;
         $statusDate = $data['statusDate']    ?? null;
 
+        if ($trackNum && empty($order->dp_track_number)) {
+            $order->dp_track_number = $trackNum;
+        }
+
+        // Защита от out-of-order доставки вебхуков: сеть может доставить более
+        // старое событие после более нового. Сравниваем дату входящего статуса
+        // с уже сохранённой датой статуса заказа и игнорируем обновление статуса,
+        // если входящее событие не новее уже применённого.
+        $incomingTs = $statusDate ? strtotime($statusDate) : false;
+        $storedTs   = $order->dp_status_date ? strtotime($order->dp_status_date) : false;
+
+        if ($newStatus !== '' && $incomingTs !== false && $storedTs !== false && $incomingTs <= $storedTs) {
+            Yii::info(
+                sprintf(
+                    '[Webhook DP] Статус заказа #%d: устаревшее обновление проигнорировано (входящая дата "%s" <= сохранённой "%s")',
+                    $order->id,
+                    $statusDate,
+                    $order->dp_status_date
+                ),
+                'dp-webhook'
+            );
+            // Сохраняем только независимые от порядка событий изменения (например, трек-номер).
+            $order->save(false);
+            return ['ok' => true, 'order_id' => $order->id, 'status' => $oldStatus, 'note' => 'Stale status update ignored'];
+        }
+
         if ($newStatus !== '') {
             $order->dp_status = $newStatus;
         }
-        if ($statusDate) {
-            $ts = strtotime($statusDate);
-            if ($ts) {
-                $order->dp_status_date = date('Y-m-d H:i:s', $ts);
-            }
-        }
-        if ($trackNum && empty($order->dp_track_number)) {
-            $order->dp_track_number = $trackNum;
+        if ($incomingTs !== false) {
+            $order->dp_status_date = date('Y-m-d H:i:s', $incomingTs);
         }
 
         // Рассчитываем estimated_delivery_date через таблицу маппинга статусов
