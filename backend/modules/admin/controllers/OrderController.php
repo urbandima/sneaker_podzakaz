@@ -1961,24 +1961,77 @@ class OrderController extends BaseAdminController
             return ['success' => false, 'error' => 'Файлы не были загружены'];
         }
 
+        // Белый список разрешённых расширений и соответствующих им MIME-типов.
+        // Загрузка любого файла, не прошедшего обе проверки, блокируется.
+        $allowedExtensions = [
+            'jpg'  => ['image/jpeg'],
+            'jpeg' => ['image/jpeg'],
+            'png'  => ['image/png'],
+            'webp' => ['image/webp'],
+            'pdf'  => ['application/pdf'],
+            'doc'  => ['application/msword'],
+            'docx' => [
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/zip',
+            ],
+            'xls'  => ['application/vnd.ms-excel'],
+            'xlsx' => [
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/zip',
+            ],
+        ];
+
         $savedFiles = [];
+        $errors = [];
         $firstImagePath = null;
 
         foreach ($uploadedFiles as $file) {
-            $safeName = time() . '_' . preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $file->name);
+            // basename() отсекает любые попытки directory traversal в исходном имени файла.
+            $originalName = basename($file->name);
+            $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+            if ($extension === '' || !isset($allowedExtensions[$extension])) {
+                $errors[] = $originalName . ': недопустимое расширение файла';
+                continue;
+            }
+
+            // Определяем реальный MIME-тип по содержимому файла (finfo),
+            // а не только по заголовку, присланному клиентом.
+            $detectedMime = null;
+            if (is_readable($file->tempName)) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                if ($finfo !== false) {
+                    $detectedMime = finfo_file($finfo, $file->tempName) ?: null;
+                    finfo_close($finfo);
+                }
+            }
+            if ($detectedMime === null) {
+                $detectedMime = $file->type;
+            }
+
+            if (!in_array($detectedMime, $allowedExtensions[$extension], true)) {
+                $errors[] = $originalName . ': тип файла не соответствует разрешённым (' . $detectedMime . ')';
+                continue;
+            }
+
+            // Генерируем новое безопасное имя файла — оригинальное имя нигде
+            // не используется для формирования пути на диске.
+            $safeName = time() . '_' . bin2hex(random_bytes(8)) . '.' . $extension;
             $filePath = $uploadDir . '/' . $safeName;
 
             if ($file->saveAs($filePath)) {
                 $url = '/uploads/orders/' . $order->id . '/' . $safeName;
                 $savedFiles[] = [
-                    'name' => $file->name,
+                    'name' => $originalName,
                     'url'  => $url,
                 ];
 
                 // Track first image for payment_proof
-                if ($firstImagePath === null && in_array($file->type, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], true)) {
+                if ($firstImagePath === null && in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)) {
                     $firstImagePath = $url;
                 }
+            } else {
+                $errors[] = $originalName . ': не удалось сохранить файл';
             }
         }
 
@@ -1988,9 +2041,14 @@ class OrderController extends BaseAdminController
             $order->save(false, ['payment_proof']);
         }
 
+        if (empty($savedFiles) && !empty($errors)) {
+            return ['success' => false, 'error' => implode('; ', $errors)];
+        }
+
         return [
             'success' => true,
             'files'   => $savedFiles,
+            'errors'  => $errors,
         ];
     }
 
