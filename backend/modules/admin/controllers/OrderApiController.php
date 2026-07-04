@@ -42,6 +42,14 @@ class OrderApiController extends BaseAdminController
             return ['success' => false, 'message' => 'Заказ не найден'];
         }
 
+        // Проверка прав доступа: логист может редактировать только назначенные ему заказы
+        $user = $this->getCurrentUser();
+        if ($this->isLogist() && $order->assigned_logist != $user->id) {
+            Yii::warning('Попытка доступа к чужому заказу: пользователь #' . ($user->id ?? '?') . ' к заказу #' . $id, 'security');
+            Yii::$app->response->statusCode = 403;
+            return ['success' => false, 'message' => 'Доступ запрещен'];
+        }
+
         $field = Yii::$app->request->post('field');
         $value = Yii::$app->request->post('value');
 
@@ -53,7 +61,7 @@ class OrderApiController extends BaseAdminController
         $oldValue = $order->$field;
         $order->$field = $value;
 
-        if ($order->save(false)) {
+        if ($order->save()) {
             // Логируем изменение
             $this->logChange($order->id, $field, $oldValue, $value);
 
@@ -64,7 +72,7 @@ class OrderApiController extends BaseAdminController
             ];
         }
 
-        return ['success' => false, 'message' => 'Ошибка сохранения'];
+        return ['success' => false, 'message' => 'Ошибка сохранения', 'errors' => $order->errors];
     }
 
     /**
@@ -144,6 +152,14 @@ class OrderApiController extends BaseAdminController
             return ['success' => false, 'message' => 'Заказ не найден'];
         }
 
+        // Проверка прав доступа: логист может менять только назначенные ему заказы
+        $user = $this->getCurrentUser();
+        if ($this->isLogist() && $order->assigned_logist != $user->id) {
+            Yii::warning('Попытка доступа к чужому заказу: пользователь #' . ($user->id ?? '?') . ' к заказу #' . $id, 'security');
+            Yii::$app->response->statusCode = 403;
+            return ['success' => false, 'message' => 'Доступ запрещен'];
+        }
+
         $newStatus = Yii::$app->request->post('status');
         $comment = Yii::$app->request->post('comment', '');
 
@@ -152,10 +168,17 @@ class OrderApiController extends BaseAdminController
             return ['success' => false, 'message' => 'Недопустимый статус'];
         }
 
+        // Бизнес-правило: разрешены ли пользователю такие переходы статуса
+        if (!$order->canChangeStatus($newStatus)) {
+            Yii::warning('Попытка изменить статус без прав: пользователь #' . ($user->id ?? '?') . ', заказ #' . $id . ', статус: ' . $newStatus, 'security');
+            Yii::$app->response->statusCode = 403;
+            return ['success' => false, 'message' => 'Нет прав на изменение этого статуса'];
+        }
+
         $oldStatus = $order->status;
         $order->status = $newStatus;
 
-        if ($order->save(false)) {
+        if ($order->save()) {
             // Логируем изменение статуса
             $history = new OrderHistory();
             $history->order_id = $order->id;
@@ -177,7 +200,7 @@ class OrderApiController extends BaseAdminController
             ];
         }
 
-        return ['success' => false, 'message' => 'Ошибка сохранения'];
+        return ['success' => false, 'message' => 'Ошибка сохранения', 'errors' => $order->errors];
     }
 
     /**
