@@ -103,6 +103,8 @@ cookies.txt
 
 # Ad-hoc local test/debug scripts
 /test_*.php
+/import_dobropost.php
+/fix_orphan_orders.php
 
 # Paperclip-managed worktrees and runtime data
 .paperclip/
