@@ -24,9 +24,10 @@ class WebhookController extends Controller
     {
         $secret = Yii::$app->settings->get('webhook', 'secret', '');
         if (empty($secret)) {
-            // Если секрет не настроен — логируем предупреждение, но пропускаем
-            Yii::warning('Webhook secret not configured — signature check skipped', 'webhook');
-            return true;
+            // Секрет не настроен — это ошибка конфигурации, а не повод пропускать проверку.
+            // Fail-closed: отклоняем запрос, чтобы избежать приёма неподписанных вебхуков.
+            Yii::error('Webhook secret not configured — rejecting request (fail-closed)', 'webhook');
+            return false;
         }
         $provided = Yii::$app->request->headers->get($headerName, '');
         $expected = 'sha256=' . hash_hmac('sha256', $payload, $secret);
