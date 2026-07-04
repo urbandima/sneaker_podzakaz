@@ -187,6 +187,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                         ?>
                         <label class="shipping-option">
                             <input type="radio" name="delivery" value="<?= $smId ?>"
+                                   data-price="<?= $smPrice ?>"
                                    <?= $smIdx === 0 ? 'checked' : '' ?>
                                    onchange="updateDelivery(<?= $smPrice ?>, '<?= Html::encode($sm['id']) ?>')">
                             <div class="option-content">
@@ -320,6 +321,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                         ?>
                         <label class="shipping-option">
                             <input type="radio" name="delivery" value="<?= $smId ?>"
+                                   data-price="<?= $smPrice ?>"
                                    <?= $smIdx === 0 ? 'checked' : '' ?>
                                    onchange="updateDelivery(<?= $smPrice ?>, '<?= Html::encode($sm['id']) ?>')">
                             <div class="option-content">
@@ -713,13 +715,13 @@ function selectPvz(val) {
 }
 
 // Init delivery state on page load (ensure address hidden for pickup by default)
+// Price comes from the radio's data-price attribute (rendered server-side from
+// the same delivery settings used by OrderController::actionCreate) — no local
+// price constants here, this is only a JS preview of the server-calculated cost.
 document.addEventListener('DOMContentLoaded', function() {
     var checked = document.querySelector('input[name="delivery"]:checked');
     if (checked) {
-        var cost = 0;
-        if (checked.value === 'courier_minsk') cost = 10;
-        else if (checked.value === 'europochta') cost = 5;
-        else if (checked.value === 'belpochta') cost = 4;
+        var cost = parseFloat(checked.dataset.price || 0) || 0;
         updateDelivery(cost, checked.value);
     }
 });
@@ -750,13 +752,13 @@ function selectCountry(country, event) {
         belarusDelivery.style.display = '';
         russiaDelivery.style.display  = 'none';
         var first = belarusDelivery.querySelector('input[type="radio"]');
-        if (first) { first.checked = true; updateDelivery(0, first.value); }
+        if (first) { first.checked = true; updateDelivery(parseFloat(first.dataset.price || 0) || 0, first.value); }
         if (addressLabel) addressLabel.innerHTML = 'Улица, дом, квартира <span class="text-danger">*</span>';
     } else {
         belarusDelivery.style.display = 'none';
         russiaDelivery.style.display  = '';
         var sdek = russiaDelivery.querySelector('input[type="radio"]');
-        if (sdek) { sdek.checked = true; updateDelivery(0, sdek.value); }
+        if (sdek) { sdek.checked = true; updateDelivery(parseFloat(sdek.dataset.price || 0) || 0, sdek.value); }
         if (addressLabel) addressLabel.innerHTML = 'Адрес пункта выдачи СДЭК <span class="text-danger">*</span>';
     }
 }

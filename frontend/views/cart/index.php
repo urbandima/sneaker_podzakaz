@@ -645,7 +645,7 @@ function submitOrder(e) {
         if (data.success) {
             closeCheckoutModal();
             alert('Заказ успешно оформлен! Наш менеджер свяжется с вами в ближайшее время.');
-            window.location.href = '/order/success?token=' + encodeURIComponent(data.token);
+            window.location.href = '/order/success/' + encodeURIComponent(data.token);
         } else {
             alert('Ошибка: ' + (data.message || 'Попробуйте позже'));
             btn.innerHTML = originalText;

@@ -50,16 +50,7 @@ class OrderController extends Controller
                 }
             }
 
-            $rawShipping = Yii::$app->settings->get('checkout', 'shipping_methods');
-            if ($rawShipping) {
-                $decoded = json_decode($rawShipping, true);
-                if (is_array($decoded)) {
-                    $shippingMethods = array_values(array_filter($decoded, fn($m) => ($m['status'] ?? '') === 'active'));
-                }
-            }
-            if (empty($shippingMethods)) {
-                $shippingMethods = self::defaultShippingMethods();
-            }
+            $shippingMethods = self::getActiveShippingMethods();
 
             $rawPoints = Yii::$app->settings->get('shipping', 'europochta_points', '');
             if ($rawPoints) {
@@ -84,7 +75,7 @@ class OrderController extends Controller
                 $paymentMethods = self::defaultPaymentMethods();
             }
 
-            $freeDeliveryThreshold = (float) Yii::$app->settings->get('checkout', 'free_delivery_threshold', 100);
+            $freeDeliveryThreshold = self::getFreeDeliveryThreshold();
         } catch (\Exception $e) {
             Yii::warning('Checkout page error: ' . $e->getMessage(), 'checkout');
         }
@@ -104,9 +95,41 @@ class OrderController extends Controller
     }
 
     /**
+     * Единственный источник данных о способах доставки и их стоимости.
+     * Читает из настроек (Settings: checkout/shipping_methods), с fallback на
+     * defaultShippingMethods(). Используется и на странице оформления заказа
+     * (actionIndex — для отображения), и при создании заказа (actionCreate —
+     * для расчёта итоговой суммы), чтобы цена доставки никогда не расходилась
+     * между тем, что видит покупатель, и тем, что сохраняется в заказе.
+     */
+    private static function getActiveShippingMethods(): array
+    {
+        $shippingMethods = [];
+
+        $rawShipping = Yii::$app->settings->get('checkout', 'shipping_methods');
+        if ($rawShipping) {
+            $decoded = json_decode($rawShipping, true);
+            if (is_array($decoded)) {
+                $shippingMethods = array_values(array_filter($decoded, fn($m) => ($m['status'] ?? '') === 'active'));
+            }
+        }
+        if (empty($shippingMethods)) {
+            $shippingMethods = self::defaultShippingMethods();
+        }
+
+        return $shippingMethods;
+    }
+
+    /**
+     * Порог бесплатной доставки из настроек (checkout/free_delivery_threshold).
+     */
+    private static function getFreeDeliveryThreshold(): float
+    {
+        return (float) Yii::$app->settings->get('checkout', 'free_delivery_threshold', 100);
+    }
+
+    /**
      * Defaults shown when DB has no shipping methods configured.
-     * Keep parity with hardcoded JS price map in views/checkout/index.php
-     * (pickup_minsk=0, courier_minsk=10, europochta=5, belpochta=4).
      */
     private static function defaultShippingMethods(): array
     {
@@ -285,29 +308,27 @@ class OrderController extends Controller
                 Yii::warning('Поле source отсутствует в таблице order, пропускаем установку источника.', 'order');
             }
             
-            // Рассчитываем стоимость доставки
+            // Рассчитываем стоимость доставки — единственный источник истины: настройки
+            // доставки (Settings), те же самые, что показываются на странице оформления
+            // заказа (actionIndex). Никаких захардкоженных значений здесь и в JS быть не должно.
             $deliveryCost = 0;
-            switch ($delivery) {
-                case 'courier_minsk':
-                    $deliveryCost = 10;
+            foreach (self::getActiveShippingMethods() as $method) {
+                if (($method['id'] ?? null) === $delivery) {
+                    $deliveryCost = (float) ($method['price'] ?? 0);
                     break;
-                case 'europochta':
-                    $deliveryCost = 5;
-                    break;
-                case 'belpochta':
-                    $deliveryCost = 4;
-                    break;
-                case 'sdek':
-                    $deliveryCost = 0; // Рассчитывается отдельно
-                    break;
-                default:
-                    $deliveryCost = 0;
+                }
             }
-            
-            $order->delivery_cost = $deliveryCost;
-            
+
             // Рассчитываем итоговую сумму
             $totalAmount = Cart::getTotal();
+
+            // Применяем порог бесплатной доставки из настроек
+            $freeDeliveryThreshold = self::getFreeDeliveryThreshold();
+            if ($freeDeliveryThreshold > 0 && $totalAmount >= $freeDeliveryThreshold) {
+                $deliveryCost = 0;
+            }
+
+            $order->delivery_cost = $deliveryCost;
             $order->total_amount = $totalAmount + $deliveryCost;
             
             // Генерируем номер заказа и токен
@@ -413,7 +434,7 @@ class OrderController extends Controller
         // Получаем рекомендованные товары для upsell
         $recommendedProducts = $this->getRecommendedProducts($model);
 
-        return $this->render('success', [
+        return $this->render('//checkout/success', [
             'model' => $model,
             'recommendedProducts' => $recommendedProducts,
         ]);
