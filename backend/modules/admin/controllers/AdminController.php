@@ -90,39 +90,30 @@ class AdminController extends BaseAdminController
         $model = new LoginForm();
 
         if ($model->load(Yii::$app->request->post())) {
-            // Проверка на bruteforce - ограничение попыток
-            $session = Yii::$app->session;
+            // AUDIT-70: anti-bruteforce - ограничение попыток входа по IP через кэш
+            // (не через session — сессию атакующий может просто не отправлять/пересоздавать)
+            $cache = Yii::$app->cache;
             $attemptsKey = 'login_attempts_' . md5(Yii::$app->request->getUserIP());
-            $attempts = $session->get($attemptsKey, 0);
+            $attempts = (int) $cache->get($attemptsKey);
 
             if ($attempts >= 5) {
-                $blockTime = $session->get($attemptsKey . '_blocked_until', 0);
-                if ($blockTime > time()) {
-                    $remainingTime = $blockTime - time();
-                    $model->addError('password', "Слишком много попыток входа. Попробуйте снова через {$remainingTime} секунд.");
-                    return $this->render('login', ['model' => $model]);
-                } else {
-                    $session->remove($attemptsKey);
-                    $session->remove($attemptsKey . '_blocked_until');
-                    $attempts = 0;
-                }
+                $model->addError('password', 'Слишком много попыток входа. Попробуйте снова через 15 минут.');
+                return $this->render('login', ['model' => $model]);
             }
 
             if ($model->login()) {
                 Yii::info("Admin login successful: {$model->username}", 'admin');
-                $session->remove($attemptsKey);
-                $session->remove($attemptsKey . '_blocked_until');
+                $cache->delete($attemptsKey);
                 return $this->redirect(['/admin']);
             } else {
                 Yii::warning("Failed login attempt: {$model->username}", 'admin');
                 $attempts++;
-                $session->set($attemptsKey, $attempts);
+                $cache->set($attemptsKey, $attempts, 900); // TTL 15 минут
                 if ($attempts >= 5) {
-                    $session->set($attemptsKey . '_blocked_until', time() + 900);
                     $model->addError('password', 'Слишком много попыток входа. Попробуйте снова через 15 минут.');
                 } else {
                     $remainingAttempts = 5 - $attempts;
-                    $model->addError('password', "Неверное имя пользователя или пароля. Осталось попыток: {$remainingAttempts}");
+                    $model->addError('password', "Неверное имя пользователя или пароль. Осталось попыток: {$remainingAttempts}");
                 }
             }
         }

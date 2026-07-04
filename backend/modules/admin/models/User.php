@@ -116,7 +116,7 @@ class User extends ActiveRecord implements IdentityInterface
             
             // Для создания пользователя
             ['password', 'required', 'on' => 'create'],
-            ['password', 'string', 'min' => 6, 'on' => 'create'],
+            ['password', 'string', 'min' => 8, 'on' => 'create'], // AUDIT-70: минимальная длина пароля 8 символов
         ];
     }
 
