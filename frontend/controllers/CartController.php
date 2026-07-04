@@ -97,7 +97,8 @@ class CartController extends Controller
             return ['success' => false, 'message' => 'Некорректное количество'];
         }
 
-        $cart = Cart::findOne($id);
+        $sessionId = Yii::$app->session->id;
+        $cart = Cart::findOne(['id' => $id, 'session_id' => $sessionId]);
         if (!$cart) {
             return ['success' => false, 'message' => 'Товар не найден'];
         }
@@ -121,7 +122,8 @@ class CartController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $cart = Cart::findOne($id);
+        $sessionId = Yii::$app->session->id;
+        $cart = Cart::findOne(['id' => $id, 'session_id' => $sessionId]);
         if (!$cart) {
             return ['success' => false, 'message' => 'Товар не найден'];
         }
