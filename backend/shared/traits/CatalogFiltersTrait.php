@@ -128,10 +128,11 @@ trait CatalogFiltersTrait
                 $query->addSelect([
                     'min_price' => '(SELECT MIN(price_byn) FROM product_size WHERE product_size.product_id = product.id AND product_size.is_available = true AND product_size.price_byn > 0)'
                 ]);
-                $query->andWhere([
-                    'product.id' => new \yii\db\Expression(
-                        'SELECT DISTINCT product_id FROM product_size WHERE is_available = true AND price_byn > 0'
-                    )
+                $query->andWhere(['in', 'product.id',
+                    \app\backend\modules\catalog\models\ProductSize::find()
+                        ->select('product_id')
+                        ->where(['is_available' => true])
+                        ->andWhere(['>', 'price_byn', 0])
                 ]);
                 $query->orderBy(['min_price' => SORT_ASC]);
                 break;
@@ -139,10 +140,11 @@ trait CatalogFiltersTrait
                 $query->addSelect([
                     'max_price' => '(SELECT MAX(price_byn) FROM product_size WHERE product_size.product_id = product.id AND product_size.is_available = true AND product_size.price_byn > 0)'
                 ]);
-                $query->andWhere([
-                    'product.id' => new \yii\db\Expression(
-                        'SELECT DISTINCT product_id FROM product_size WHERE is_available = true AND price_byn > 0'
-                    )
+                $query->andWhere(['in', 'product.id',
+                    \app\backend\modules\catalog\models\ProductSize::find()
+                        ->select('product_id')
+                        ->where(['is_available' => true])
+                        ->andWhere(['>', 'price_byn', 0])
                 ]);
                 $query->orderBy(['max_price' => SORT_DESC]);
                 break;
