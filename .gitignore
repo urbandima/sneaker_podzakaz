@@ -41,6 +41,8 @@ composer.lock
 /config/db-local.php
 /config/db-production.php
 /config/params-local.php
+/infrastructure/config/db-production.php
+/infrastructure/config/db-local.php
 .env
 
 # SECURITY: Файлы с паролями и секретами
