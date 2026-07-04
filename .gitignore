@@ -12,7 +12,6 @@ Thumbs.db
 # Composer
 /vendor
 composer.phar
-composer.lock
 
 # Runtime
 /runtime/*
