@@ -111,3 +111,8 @@ cookies.txt
 # SECURITY: PII/секреты, случайно попавшие в рабочую копию (AUDIT-09)
 .cmp37_backup.json
 /audit-results/
+
+# Agent scratch space / dev artifacts — не деплоим, не коммитим (AUDIT-58)
+.tmp/
+.claire/
+/splitwise.db
