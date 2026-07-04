@@ -2,7 +2,11 @@
 
 use yii\db\Migration;
 
-class m260426_100200_add_missing_order_status_labels extends Migration
+/**
+ * AUDIT-05: восстановлено из осиротевшей console/migrations/m260426_100200_add_missing_order_status_labels.php.
+ * Статусы 'imported', 'return', 'trash' не были покрыты ни одной миграцией в infrastructure/migrations.
+ */
+class m260704_100000_add_missing_order_status_labels extends Migration
 {
     private $statuses = [
         'created'              => ['Создан', '#6b7280', 0],
@@ -19,25 +23,28 @@ class m260426_100200_add_missing_order_status_labels extends Migration
 
     public function safeUp()
     {
-        $existing = $this->db->createCommand('SELECT `key` FROM {{%order_status}}')->queryColumn();
+        try {
+            $existing = $this->db->createCommand('SELECT `key` FROM {{%order_status}}')->queryColumn();
+        } catch (\Exception $e) {
+            return;
+        }
 
         foreach ($this->statuses as $key => [$label, $color, $active]) {
-            if (in_array($key, $existing)) {
-                $this->update('{{%order_status}}', ['label' => $label], ['key' => $key]);
-            } else {
-                $this->insert('{{%order_status}}', [
-                    'key'       => $key,
-                    'label'     => $label,
-                    'color'     => $color,
-                    'is_active' => $active,
-                    'sort'      => 99,
-                ]);
+            if (in_array($key, $existing, true)) {
+                continue;
             }
+            $this->insert('{{%order_status}}', [
+                'key'       => $key,
+                'label'     => $label,
+                'color'     => $color,
+                'is_active' => $active,
+                'sort'      => 99,
+            ]);
         }
     }
 
     public function safeDown()
     {
-        // Labels are non-destructive to revert
+        $this->delete('{{%order_status}}', ['key' => ['imported', 'return', 'trash']]);
     }
 }
