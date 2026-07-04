@@ -79,8 +79,21 @@ class OrderFromLeadService
             $order->comment .= "\nОтветственный AmoCRM ID: " . $lead['responsible_user_id'];
         }
 
-        if (!$order->save()) {
-            throw new \RuntimeException('Order save failed: ' . json_encode($order->errors));
+        try {
+            if (!$order->save()) {
+                throw new \RuntimeException('Order save failed: ' . json_encode($order->errors));
+            }
+        } catch (\yii\db\IntegrityException $e) {
+            // Race condition: another concurrent webhook for the same lead
+            // won the race and inserted its order first (amocrm_lead_id is
+            // enforced UNIQUE at the DB level). Fall back to the record it
+            // created instead of failing the request.
+            $existing = Order::findOne(['amocrm_lead_id' => $leadId]);
+            if ($existing) {
+                $this->updateOrderFromLead($existing, $lead);
+                return $existing;
+            }
+            throw $e;
         }
 
         // Create order item if product info available
