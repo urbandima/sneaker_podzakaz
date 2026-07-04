@@ -494,12 +494,16 @@ function setupSchema(PDO $pdo): void
     logLine('Проверка и обновление схемы БД...');
 
     // moysklad_id for legacy tables
-    foreach (['customer', 'product', 'purchase_order', 'payment'] as $t) {
+    // ИСПРАВЛЕНО (AUDIT-22): 'product' убран отсюда — теперь колонка версионируется
+    // миграцией m260704_210000_add_moysklad_fields_to_product_and_product_size.
+    foreach (['customer', 'purchase_order', 'payment'] as $t) {
         ensureMoyskladId($pdo, $t);
     }
 
     // moysklad_extra catch-all JSON column on every imported table
-    foreach (['customer', 'product', 'product_size', 'order', 'purchase_order', 'payment'] as $t) {
+    // ИСПРАВЛЕНО (AUDIT-22): 'product' и 'product_size' убраны отсюда — теперь
+    // эта колонка для них версионируется той же миграцией.
+    foreach (['customer', 'order', 'purchase_order', 'payment'] as $t) {
         ensureMoyskladExtra($pdo, $t);
     }
 
@@ -519,44 +523,13 @@ function setupSchema(PDO $pdo): void
     ensureColumn($pdo, 'customer', 'ogrnip',                'VARCHAR(50) NULL DEFAULT NULL');
     ensureColumn($pdo, 'customer', 'okpo',                  'VARCHAR(20) NULL DEFAULT NULL');
 
-    // ── product ─────────────────────────────────────────────────────────────
-    ensureColumn($pdo, 'product', 'ms_code',                 'VARCHAR(100) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_external_code',        'VARCHAR(100) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'barcode',                 'VARCHAR(255) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'barcodes_json',           'JSON NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'vat',                     'SMALLINT NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_volume',               'DECIMAL(10,4) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'uom_name',                'VARCHAR(50) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_images_json',          'JSON NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_attributes_json',      'JSON NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_characteristics_json', 'JSON NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_min_price',            'DECIMAL(10,2) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_supplier_name',        'VARCHAR(255) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_archived',             'TINYINT(1) NULL DEFAULT 0');
-    // custom attribute columns (дополнительные поля МС)
-    ensureColumn($pdo, 'product', 'ms_no_export',            'TINYINT(1) NULL DEFAULT 0');
-    ensureColumn($pdo, 'product', 'is_sale',                 'TINYINT(1) NULL DEFAULT 0');
-    ensureColumn($pdo, 'product', 'ms_size_grid',            'VARCHAR(100) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_purpose',              'VARCHAR(100) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_sole_height',          'VARCHAR(100) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_sole_color',           'VARCHAR(255) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_inner_material',       'VARCHAR(255) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_site_link',            'VARCHAR(500) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_price_full',           'DECIMAL(10,2) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_price_rub',            'DECIMAL(10,2) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_price_sale',           'DECIMAL(10,2) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_price_competitor',     'DECIMAL(10,2) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product', 'ms_path_name',            'VARCHAR(255) NULL DEFAULT NULL');
-
-    // ── product_size ─────────────────────────────────────────────────────────
-    ensureColumn($pdo, 'product_size', 'ms_variant_id',       'VARCHAR(36) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product_size', 'ms_barcode',          'VARCHAR(255) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product_size', 'ms_code',             'VARCHAR(100) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product_size', 'ms_external_code',    'VARCHAR(100) NULL DEFAULT NULL');
-    ensureColumn($pdo, 'product_size', 'characteristics_json','JSON NULL DEFAULT NULL');
-    try {
-        $pdo->exec("ALTER TABLE product_size ADD INDEX idx_ms_variant (ms_variant_id)");
-    } catch (Throwable) {}
+    // ── product / product_size ──────────────────────────────────────────────
+    // ИСПРАВЛЕНО (AUDIT-22): весь ALTER TABLE для 'product' и 'product_size'
+    // убран отсюда. Колонки moysklad_id, ms_code, ms_external_code, ms_price_*,
+    // ms_variant_id и остальные MoySklad-поля теперь версионированы штатной
+    // Yii2-миграцией:
+    // infrastructure/migrations/m260704_210000_add_moysklad_fields_to_product_and_product_size.php
+    // Перед запуском этого скрипта нужно применить миграции (`yii migrate`).
 
     // ── order ────────────────────────────────────────────────────────────────
     ensureColumn($pdo, 'order', 'ms_external_code',         'VARCHAR(100) NULL DEFAULT NULL');
