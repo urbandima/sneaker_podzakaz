@@ -283,9 +283,10 @@ class PluginController extends BaseAdminController
     {
         try {
             $s = Yii::$app->settings;
+            $recipientName = trim(($order->recipient_first_name ?? '') . ' ' . ($order->recipient_last_name ?? ''));
             $leadData = [
-                'name'  => 'Заказ #' . $order->id . ($order->recipient_name ? ' — ' . $order->recipient_name : ''),
-                'price' => (int)($order->total ?? 0),
+                'name'  => 'Заказ #' . $order->id . ($recipientName ? ' — ' . $recipientName : ''),
+                'price' => (int)($order->total_amount ?? 0),
             ];
             if ($pid = (int)$s->get('amocrm', 'pipeline_id', 0)) $leadData['pipeline_id'] = $pid;
             if ($sid = (int)$s->get('amocrm', 'new_order_status_id', 0)) $leadData['status_id'] = $sid;
@@ -298,20 +299,20 @@ class PluginController extends BaseAdminController
             $order->amocrm_last_sync_at = time();
             $order->save(false);
 
-            if (!empty($order->recipient_phone)) {
-                $contact = $amo->findContactByPhone($order->recipient_phone);
+            if (!empty($order->client_phone)) {
+                $contact = $amo->findContactByPhone($order->client_phone);
                 if (!$contact) {
                     $amo->createContact([
-                        'name'                 => $order->recipient_name ?? 'Покупатель',
+                        'name'                 => $recipientName !== '' ? $recipientName : 'Покупатель',
                         'custom_fields_values' => [[
                             'field_code' => 'PHONE',
-                            'values'     => [['value' => $order->recipient_phone]],
+                            'values'     => [['value' => $order->client_phone]],
                         ]],
                     ]);
                 }
             }
 
-            $amo->addNote($lead['id'], 'Заказ из магазина. Сумма: ' . $order->total . ' BYN. Статус: ' . ($order->status ?? ''));
+            $amo->addNote($lead['id'], 'Заказ из магазина. Сумма: ' . $order->total_amount . ' BYN. Статус: ' . ($order->status ?? ''));
             return true;
         } catch (\Exception $e) {
             Yii::error('AmoCRM sync: ' . $e->getMessage(), 'amocrm');
