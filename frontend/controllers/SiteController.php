@@ -9,13 +9,12 @@
  * 
  * ФУНКЦИИ:
  * - actionIndex(): главная страница
- * - actionError(): обработка ошибок
- * - actions(): внешние действия (captcha, etc.)
- * 
+ * - actions(): внешние действия (error, captcha, etc.)
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * Автоматически обрабатывает маршруты:
  * - / → actionIndex()
- * - /site/error → actionError()
+ * - /site/error → actions()['error'] (yii\web\ErrorAction)
  */
 namespace app\frontend\controllers;
 
@@ -353,41 +352,4 @@ class SiteController extends Controller
         return $this->goHome();
     }
     
-    /**
-     * Отображение страницы ошибки
-     *
-     * @return string
-     */
-    public function actionError()
-    {
-        $exception = Yii::$app->errorHandler->exception;
-        
-        if ($exception !== null) {
-            $statusCode = $exception->statusCode;
-            $name = $exception->getName();
-            $message = $exception->getMessage();
-            
-            // Если AJAX запрос, возвращаем JSON
-            if (Yii::$app->request->isAjax) {
-                Yii::$app->response->format = Response::FORMAT_JSON;
-                return [
-                    'error' => [
-                        'code' => $statusCode,
-                        'name' => $name,
-                        'message' => $message,
-                    ],
-                ];
-            }
-            
-            // Иначе показываем страницу ошибки
-            return $this->render('error', [
-                'exception' => $exception,
-                'statusCode' => $statusCode ?? 500,
-                'name' => $name,
-                'message' => $message,
-            ]);
-        }
-        
-        return $this->render('error');
-    }
 }
