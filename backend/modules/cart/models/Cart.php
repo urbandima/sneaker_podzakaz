@@ -147,7 +147,7 @@ class Cart extends ActiveRecord
                 return false;
             }
             return (bool) self::updateAll(
-                ['quantity' => new \yii\db\Expression('LEAST(quantity + :q, 99)', [':q' => $quantity])],
+                ['quantity' => new \yii\db\Expression('GREATEST(LEAST(quantity + :q, 99), 1)', [':q' => $quantity])],
                 ['id' => $cart->id]
             );
         } else {

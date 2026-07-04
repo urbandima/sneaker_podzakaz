@@ -31,12 +31,17 @@ class CartController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $productId = Yii::$app->request->post('product_id');
-        $quantity = Yii::$app->request->post('quantity', 1);
+        $quantity = (int) Yii::$app->request->post('quantity', 1);
         $size = Yii::$app->request->post('size');
         $color = Yii::$app->request->post('color');
 
         if (!$productId) {
             return ['success' => false, 'message' => 'Товар не указан'];
+        }
+
+        if ($quantity < 1) {
+            Yii::$app->response->statusCode = 422;
+            return ['success' => false, 'message' => 'Некорректное количество'];
         }
 
         $product = Product::findOne($productId);
@@ -85,7 +90,12 @@ class CartController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $id = Yii::$app->request->post('id');
-        $quantity = Yii::$app->request->post('quantity');
+        $quantity = (int) Yii::$app->request->post('quantity');
+
+        if ($quantity < 1) {
+            Yii::$app->response->statusCode = 422;
+            return ['success' => false, 'message' => 'Некорректное количество'];
+        }
 
         $cart = Cart::findOne($id);
         if (!$cart) {
