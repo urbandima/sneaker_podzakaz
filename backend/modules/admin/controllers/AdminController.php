@@ -21,7 +21,6 @@ use yii\web\Response;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use app\backend\modules\admin\models\LoginForm;
-use app\backend\modules\admin\models\TemporaryAdminIdentity;
 
 class AdminController extends BaseAdminController
 {
