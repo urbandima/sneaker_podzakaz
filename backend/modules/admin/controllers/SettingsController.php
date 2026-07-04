@@ -9,6 +9,16 @@ use app\backend\modules\checkout\models\OrderStatus;
 
 class SettingsController extends BaseAdminController
 {
+    // AUDIT-26: только для роли admin — настройки системы (включая интеграции/webhook/платежи)
+    // не должны быть доступны рядовым сотрудникам
+    protected bool $adminOnly = true;
+
+    /**
+     * Разрешённые section для actionSave — whitelist против записи произвольных
+     * ключей в таблицу settings через эту форму (AUDIT-26)
+     */
+    private const ALLOWED_SAVE_SECTIONS = ['webhook', 'delivery', 'payment', 'notifications', 'moysklad', 'amocrm'];
+
     /**
      * Настройки системы
      */
@@ -46,6 +56,15 @@ class SettingsController extends BaseAdminController
 
         if (empty($data)) {
             return ['success' => false, 'message' => 'Нет данных для сохранения'];
+        }
+
+        // AUDIT-26: whitelist разрешённых section — запрещаем запись произвольных
+        // section/key (в т.ч. потенциально системных) через этот эндпоинт
+        foreach (array_keys($data) as $section) {
+            if (!in_array($section, self::ALLOWED_SAVE_SECTIONS, true)) {
+                Yii::$app->response->statusCode = 400;
+                return ['success' => false, 'message' => 'Недопустимая секция настроек: ' . $section];
+            }
         }
 
         try {
