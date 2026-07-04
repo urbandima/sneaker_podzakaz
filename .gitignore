@@ -108,3 +108,7 @@ cookies.txt
 
 # Paperclip-managed worktrees and runtime data
 .paperclip/
+
+# SECURITY: PII/секреты, случайно попавшие в рабочую копию (AUDIT-09)
+.cmp37_backup.json
+/audit-results/
