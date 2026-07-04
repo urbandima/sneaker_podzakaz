@@ -1,0 +1,32 @@
+-- Исправление: добавление колонок, которые определены в модели Product, но отсутствуют в таблице БД
+-- Это результат вайбкодинга — модель была написана без миграции
+
+ALTER TABLE product
+ADD COLUMN sku VARCHAR(100) DEFAULT NULL,
+ADD COLUMN vendor_code VARCHAR(100) DEFAULT NULL,
+ADD COLUMN style_code VARCHAR(100) DEFAULT NULL,
+ADD COLUMN poizon_id VARCHAR(100) DEFAULT NULL,
+ADD COLUMN poizon_spu_id VARCHAR(100) DEFAULT NULL,
+ADD COLUMN poizon_variant_id VARCHAR(100) DEFAULT NULL,
+ADD COLUMN poizon_url VARCHAR(500) DEFAULT NULL,
+ADD COLUMN poizon_price_cny DECIMAL(10, 2) DEFAULT NULL,
+ADD COLUMN purchase_price DECIMAL(10, 2) DEFAULT NULL,
+ADD COLUMN last_sync_at DATETIME DEFAULT NULL,
+ADD COLUMN upper_material VARCHAR(255) DEFAULT NULL,
+ADD COLUMN sole_material VARCHAR(255) DEFAULT NULL,
+ADD COLUMN color_description VARCHAR(255) DEFAULT NULL,
+ADD COLUMN series_name VARCHAR(255) DEFAULT NULL,
+ADD COLUMN release_year INT DEFAULT NULL,
+ADD COLUMN weight INT DEFAULT NULL,
+ADD COLUMN favorite_count INT DEFAULT 0,
+ADD COLUMN stock_count INT DEFAULT 0,
+ADD COLUMN delivery_time_min INT DEFAULT NULL,
+ADD COLUMN delivery_time_max INT DEFAULT NULL,
+ADD COLUMN parent_product_id INT DEFAULT NULL,
+ADD COLUMN related_products_json TEXT DEFAULT NULL,
+ADD COLUMN is_limited TINYINT(1) DEFAULT 0,
+ADD COLUMN country_of_origin VARCHAR(100) DEFAULT NULL,
+ADD COLUMN properties JSON DEFAULT NULL,
+ADD COLUMN sizes_data JSON DEFAULT NULL,
+ADD COLUMN keywords TEXT DEFAULT NULL,
+ADD COLUMN variant_params JSON DEFAULT NULL;
