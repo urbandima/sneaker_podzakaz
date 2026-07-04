@@ -699,14 +699,29 @@ class OrderController extends BaseAdminController
         if (isset($post['purchase_user_id']))  { $model->purchase_user_id  = (int)$post['purchase_user_id']; }
         if (!empty($post['china_track_number'])) { $model->china_track_number = $post['china_track_number']; }
 
-        // File upload for receipt
+        // File upload for receipt — whitelist by extension + real MIME type (RCE prevention)
         $receipt = \yii\web\UploadedFile::getInstanceByName('purchase_receipt');
         if ($receipt) {
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf'];
+            $allowedMimeTypes = [
+                'image/jpeg', 'image/png', 'image/webp', 'application/pdf',
+            ];
+            $extension = strtolower($receipt->extension);
+            $mimeType = mime_content_type($receipt->tempName);
+
+            if (!in_array($extension, $allowedExtensions, true) || !in_array($mimeType, $allowedMimeTypes, true)) {
+                Yii::$app->response->statusCode = 422;
+                return ['success' => false, 'message' => 'Недопустимый формат файла. Разрешены: jpg, png, webp, pdf'];
+            }
+
             $uploadDir = Yii::getAlias('@webroot') . '/uploads/receipts/';
             if (!is_dir($uploadDir)) {
                 @mkdir($uploadDir, 0755, true);
             }
-            $filename = 'receipt_' . $model->id . '_' . time() . '.' . $receipt->extension;
+            if (!file_exists($uploadDir . '.htaccess')) {
+                @file_put_contents($uploadDir . '.htaccess', "php_flag engine off\n<FilesMatch \"\\.(php|php\\d?|phtml|phar)$\">\nRequire all denied\n</FilesMatch>\n");
+            }
+            $filename = 'receipt_' . $model->id . '_' . time() . '.' . $extension;
             if ($receipt->saveAs($uploadDir . $filename)) {
                 $model->purchase_receipt_url = '/uploads/receipts/' . $filename;
             }
