@@ -12,8 +12,8 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 $company = $company ?? (Yii::$app->settings->getCompany() ?? []);
-$trackerUrl = $order->track_number
-    ? Url::to(['/order/track', 'track' => $order->track_number], true)
+$trackerUrl = ($order->track_number && $order->token)
+    ? Url::to(['/order/track', 'token' => $order->token], true)
     : null;
 ?>
 <!DOCTYPE html>

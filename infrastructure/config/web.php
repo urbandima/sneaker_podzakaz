@@ -316,6 +316,7 @@ $config = [
                 'order/save-passport' => 'order/save-passport',
 
                 // Публичный просмотр заказа (wildcard должен быть ПОСЛЕ явных order/* правил)
+                'order/track/<token:[a-zA-Z0-9_-]+>' => 'order/track',
                 'order/success/<token:[a-zA-Z0-9_-]+>' => 'order/success',
                 'order/<token:[a-zA-Z0-9_-]+>/upload' => 'order/upload-payment',
                 'order/<token:[a-zA-Z0-9_-]+>/download-payment' => 'order/download-payment',

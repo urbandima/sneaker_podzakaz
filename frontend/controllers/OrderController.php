@@ -510,16 +510,12 @@ class OrderController extends Controller
      */
     public function actionTrack($token)
     {
-        $order = Order::findOne(['tracking_token' => $token]);
-        if ($order === null) {
-            // Fallback: try token field
-            $order = Order::findOne(['token' => $token]);
-        }
+        $order = Order::findOne(['token' => $token]);
         if ($order === null) {
             throw new NotFoundHttpException('Заказ не найден.');
         }
 
-        return $this->render('order/track', [
+        return $this->render('track', [
             'order' => $order,
         ]);
     }
