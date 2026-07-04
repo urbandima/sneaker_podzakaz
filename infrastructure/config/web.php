@@ -574,8 +574,11 @@ $config = [
                 'admin/moysklad/ms-images'               => 'admin/moysklad/ms-images',
                 'admin/moysklad/ms-image'                => 'admin/moysklad/ms-image',
                 // AmoCRM Widget API (CSRF disabled in controller)
-                'api/amocrm/create-order' => 'api/amocrm-order/create-order',
-                'api/amocrm/products'     => 'api/amocrm-order/products',
+                // AUDIT-343: create-order/products слиты в единый AmocrmController
+                // (был AmocrmOrderController, удалён); маршруты указывают сюда же явно,
+                // рядом с api/amocrm/order и api/amocrm/sync ниже.
+                'api/amocrm/create-order' => 'api/amocrm/create-order',
+                'api/amocrm/products'     => 'api/amocrm/products',
                 // AmoCRM plugin pages
                 'admin/plugin/amocrm'                   => 'admin/plugin/amocrm',
                 'admin/plugin/amocrm/fields'            => 'admin/plugin/amocrm-fields',

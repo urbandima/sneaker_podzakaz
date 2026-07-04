@@ -162,7 +162,7 @@ lang('loading')              // → "Загрузка данных..." (из ru.
 ✅ **AmocrmStatusMapper** — двусторонний маппинг статусов  
 ✅ **OrderFromLeadService** — создание заказа из лида: fetch → parse → Customer → Order  
 ✅ **WebhookController::actionAmocrm** — обрабатывает `leads[status]` (с созданием заказа по триггер-статусу), `leads[add]`, `leads[delete]`  
-✅ **AmocrmOrderController::actionCreateOrder** — режим `lead_id` (fetch from AMO) + legacy режим  
+✅ **AmocrmController::actionCreateOrder** — режим `lead_id` (fetch from AMO) + legacy режим (AUDIT-343: слит из AmocrmOrderController, дубликат удалён)  
 ✅ **OrderController::actionChangeStatus** — push статуса в AmoCRM при смене в нашей системе  
 ✅ **migration: amocrm_field_mapping** — таблица маппинга полей  
 ✅ **Admin plugin UI** — 5 вкладок (dashboard, settings, webhooks, logs, stats)  
@@ -277,8 +277,8 @@ AMOCRM_ACCOUNT_ID=29176798
 
 | Метод | URL | Обработчик | Статус |
 |-------|-----|-----------|--------|
-| POST | `/api/amocrm/create-order` | `AmocrmOrderController::actionCreateOrder` | ✅ готов (режимы: lead_id + legacy) |
-| GET | `/api/amocrm/products` | `AmocrmOrderController::actionProducts` | ✅ готов |
+| POST | `/api/amocrm/create-order` | `AmocrmController::actionCreateOrder` | ✅ готов (режимы: lead_id + legacy) |
+| GET | `/api/amocrm/products` | `AmocrmController::actionProducts` | ✅ готов |
 | GET | `/api/amocrm/order` | — | ❌ нет endpoint |
 | POST | `/api/amocrm/sync` | — | ❌ нет endpoint |
 | POST | `/webhook/amocrm/event` | `WebhookController::actionAmocrm` | ✅ готов |
