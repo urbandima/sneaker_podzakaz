@@ -418,11 +418,15 @@ class CatalogController extends Controller
                 'colors' => function($query) {
                     $query->select(['id', 'product_id', 'name', 'hex']);
                 },
-                // ОПТИМИЗАЦИЯ: Загружаем первые 2 изображения для hover-эффекта (устраняет N+1)
+                // ОПТИМИЗАЦИЯ: Загружаем изображения для hover-эффекта (устраняет N+1)
+                // ВАЖНО: limit() здесь не используем — в Yii2 ActiveQuery::with() limit()
+                // внутри relation-callback применяется к общему JOIN-результату всей
+                // страницы, а не "N штук на каждый товар". Ограничение количества
+                // картинок на карточку товара делает ProductCardHelper::buildGalleryImages()
+                // (MAX_GALLERY_IMAGES) уже после загрузки всех связанных images.
                 'images' => function($query) {
                     $query->select(['id', 'product_id', 'image', 'is_main', 'sort_order'])
-                          ->orderBy(['is_main' => SORT_DESC, 'sort_order' => SORT_ASC])
-                          ->limit(2);
+                          ->orderBy(['is_main' => SORT_DESC, 'sort_order' => SORT_ASC]);
                 }
             ])
             ->select([
@@ -585,7 +589,7 @@ class CatalogController extends Controller
         }
         
         $pagination = new Pagination([
-            'defaultPageSize' => 4,
+            'defaultPageSize' => $this->module->pageSize ?? 24,
             'totalCount' => $totalCount,
         ]);
         
