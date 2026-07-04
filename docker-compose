@@ -2,4 +2,4 @@
 
 # Запуск Docker Compose из новой директории
 cd "$(dirname "$0")"
-docker-compose -f config/docker/docker-compose.yml "$@"
+docker-compose -f config/docker/docker-compose.yml --project-directory "$(pwd)" "$@"
