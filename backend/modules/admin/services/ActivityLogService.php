@@ -10,9 +10,16 @@ use yii\db\ActiveRecord;
  *
  * Пишет напрямую через createCommand()->insert() — без AR-модели,
  * чтобы избежать рекурсии при вызове из поведений моделей.
+ *
+ * Низкоуровневая часть записи (получение IP/UA, безопасное выполнение
+ * с перехватом исключений) вынесена в LogContextTrait — общую точку
+ * с AdminLogService (см. docblock трейта; полное объединение таблиц
+ * admin_log/activity_log — вопрос отдельного решения по CMP-79/CMP-81).
  */
 class ActivityLogService
 {
+    use LogContextTrait;
+
     /**
      * Записать произвольное событие в activity_log.
      */
@@ -24,28 +31,37 @@ class ActivityLogService
         array  $changes = [],
         string $source  = 'web'
     ): void {
+        $userId   = null;
+        $userName = null;
+        $userRole = null;
+
+        // Безопасное получение данных пользователя (нет в CLI/cron)
         try {
-            $userId   = null;
-            $userName = null;
-            $userRole = null;
-            $ip       = null;
-            $ua       = null;
-
-            // Безопасное получение данных пользователя (нет в CLI/cron)
-            try {
-                $app = Yii::$app;
-                if (!$app->user->isGuest) {
-                    $userId   = $app->user->id;
-                    $identity = $app->user->identity;
-                    $userName = $identity->username ?? ($identity->email ?? null);
-                    $userRole = $identity->role ?? null;
-                }
-                $ip = $app->request->userIp;
-                $ua = mb_substr((string)($app->request->userAgent ?? ''), 0, 255);
-            } catch (\Throwable $e) {
-                // CLI / cron — пропускаем
+            $app = Yii::$app;
+            if (!$app->user->isGuest) {
+                $userId   = $app->user->id;
+                $identity = $app->user->identity;
+                $userName = $identity->username ?? ($identity->email ?? null);
+                $userRole = $identity->role ?? null;
             }
+        } catch (\Throwable $e) {
+            // CLI / cron — пропускаем
+        }
 
+        $meta = self::currentRequestMeta();
+
+        self::safeLogWrite(function () use (
+            $userId,
+            $userName,
+            $userRole,
+            $action,
+            $targetType,
+            $targetId,
+            $targetLabel,
+            $changes,
+            $source,
+            $meta
+        ) {
             Yii::$app->db->createCommand()->insert('activity_log', [
                 'user_id'      => $userId,
                 'user_name'    => $userName,
@@ -56,13 +72,11 @@ class ActivityLogService
                 'target_label' => $targetLabel ?: null,
                 'changes'      => !empty($changes) ? json_encode($changes, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : null,
                 'source'       => $source,
-                'ip'           => $ip,
-                'user_agent'   => $ua,
+                'ip'           => $meta['ip'],
+                'user_agent'   => $meta['userAgent'] !== null ? mb_substr($meta['userAgent'], 0, 255) : null,
                 'created_at'   => time(),
             ])->execute();
-        } catch (\Throwable $e) {
-            Yii::error('ActivityLogService::log failed: ' . $e->getMessage(), __CLASS__);
-        }
+        }, 'ActivityLogService::log failed');
     }
 
     /**

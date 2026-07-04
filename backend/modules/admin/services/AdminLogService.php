@@ -6,10 +6,17 @@ use Yii;
 use app\backend\modules\admin\models\AdminLog;
 
 /**
- * Сервис логирования операций администратора
+ * Сервис логирования операций администратора.
+ *
+ * Низкоуровневая часть записи (получение IP/UA, безопасное выполнение
+ * с перехватом исключений) вынесена в LogContextTrait — общую точку
+ * с ActivityLogService (см. docblock трейта; полное объединение таблиц
+ * admin_log/activity_log — вопрос отдельного решения по CMP-79/CMP-81).
  */
 class AdminLogService
 {
+    use LogContextTrait;
+
     /**
      * Записать действие в лог
      */
@@ -23,12 +30,24 @@ class AdminLogService
         ?array $newValues = null
     ): void {
         $user = Yii::$app->user;
-        
+
         if ($user->isGuest) {
             return;
         }
 
-        try {
+        $meta = self::currentRequestMeta();
+
+        self::safeLogWrite(function () use (
+            $user,
+            $action,
+            $entityType,
+            $entityId,
+            $entityName,
+            $description,
+            $oldValues,
+            $newValues,
+            $meta
+        ) {
             $log = new AdminLog();
             $log->user_id = $user->id;
             $log->username = $user->identity->username ?? 'unknown';
@@ -39,12 +58,10 @@ class AdminLogService
             $log->description = $description;
             $log->old_values = $oldValues ? json_encode($oldValues, JSON_UNESCAPED_UNICODE) : null;
             $log->new_values = $newValues ? json_encode($newValues, JSON_UNESCAPED_UNICODE) : null;
-            $log->ip_address = Yii::$app->request->userIP;
-            $log->user_agent = substr(Yii::$app->request->userAgent ?? '', 0, 500);
+            $log->ip_address = $meta['ip'];
+            $log->user_agent = $meta['userAgent'] !== null ? substr($meta['userAgent'], 0, 500) : null;
             $log->save(false);
-        } catch (\Throwable $e) {
-            Yii::error('Failed to save admin log: ' . $e->getMessage());
-        }
+        }, 'Failed to save admin log');
     }
 
     /**
