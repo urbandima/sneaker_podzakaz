@@ -27,7 +27,8 @@ $config = [
     'username' => env('DB_USER', env('DB_USERNAME', 'root')),
     'password' => env('DB_PASSWORD', ''),
     'charset' => env('DB_CHARSET', 'utf8mb4'),
-    'enableSchemaCache' => false,
+    // Компонент 'cache' сконфигурирован в web.php/console.php — schema cache пишет туда же
+    'enableSchemaCache' => filter_var(env('DB_SCHEMA_CACHE', false), FILTER_VALIDATE_BOOLEAN),
     'schemaCacheDuration' => (int) env('DB_SCHEMA_CACHE_DURATION', 3600),
     'attributes' => array_filter([
         \PDO::ATTR_TIMEOUT => env('DB_TIMEOUT') ? (int) env('DB_TIMEOUT') : null,
