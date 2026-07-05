@@ -2083,13 +2083,7 @@ class OrderController extends BaseAdminController
         //    но если пустые, пробуем из профиля клиента
         // (city, region, postal_code уже хранятся в самом заказе, заполнять нечего)
 
-        // 4. Устанавливаем package_type по умолчанию
-        if (empty($order->package_type)) {
-            $order->package_type = 'parcel';
-            $filled[] = 'package_type';
-        }
-
-        // 5. Копируем паспортные данные из профиля клиента (если есть)
+        // 4. Копируем паспортные данные из профиля клиента (если есть)
         if ($order->customer_id) {
             $customer = \app\backend\modules\account\models\Customer::findOne($order->customer_id);
             if ($customer) {
