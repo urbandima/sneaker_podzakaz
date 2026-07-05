@@ -37,6 +37,10 @@ class SentryErrorHandler extends ErrorHandler
                 'release' => $this->getAppVersion(),
                 'traces_sample_rate' => (float) env('SENTRY_TRACES_SAMPLE_RATE', 0.1),
                 'send_default_pii' => false,
+                // send_default_pii=false не отключает захват тела запроса — это отдельная
+                // опция. Чекаут и ЛК принимают серию/номер паспорта (BY) в POST-теле, поэтому
+                // тело запроса не должно попадать в Sentry ни при каких обстоятельствах.
+                'max_request_body_size' => 'none',
                 'before_send' => function (\Sentry\Event $event): ?\Sentry\Event {
                     // Фильтруем некритичные ошибки
                     $exceptions = $event->getExceptions();
