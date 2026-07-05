@@ -362,6 +362,28 @@ class DobroPostService extends Component
     }
 
     /**
+     * Маскирует в произвольном тексте (например, в теле error-ответа DP API) значения,
+     * совпадающие с PII-полями, которые были отправлены в исходящем payload — на случай,
+     * если API эхует присланные паспортные данные обратно в теле ошибки.
+     */
+    private function redactSensitiveValuesInText(string $text, array $sentBody): string
+    {
+        foreach (self::SENSITIVE_PAYLOAD_FIELDS as $field) {
+            if (!array_key_exists($field, $sentBody) || $sentBody[$field] === null || $sentBody[$field] === '') {
+                continue;
+            }
+            $value = (string) $sentBody[$field];
+            if (mb_strlen($value) < 3) {
+                continue;
+            }
+            $redacted = sprintf('[REDACTED:len=%d,last2=%s]', mb_strlen($value), mb_substr($value, -2));
+            $text = str_replace($value, $redacted, $text);
+        }
+
+        return $text;
+    }
+
+    /**
      * Выполняет запрос с Bearer-токеном, с повтором при ошибке 401.
      */
     private function authorizedRequest(string $method, string $path, array $body = []): array
@@ -451,16 +473,20 @@ class DobroPostService extends Component
                 );
 
                 if ($httpCode === 401) {
-                    throw new \RuntimeException('Таможня:ДП 401 Unauthorized: ' . $responseBody);
+                    throw new \RuntimeException(
+                        'Таможня:ДП 401 Unauthorized: ' . $this->redactSensitiveValuesInText($responseBody, $body)
+                    );
                 }
 
                 if ($httpCode >= 400) {
-                    $errorMsg = $decoded['message'] ?? $decoded['error'] ?? $responseBody;
+                    $safeResponseBody = $this->redactSensitiveValuesInText($responseBody, $body);
+                    $errorMsg = $decoded['message'] ?? $decoded['error'] ?? $safeResponseBody;
+                    $errorMsg = $this->redactSensitiveValuesInText((string) $errorMsg, $body);
                     Yii::error(
                         sprintf('Таможня:ДП HTTP %d для %s %s. Payload: %s. Ответ: %s',
                             $httpCode, $method, $path,
                             json_encode($this->redactSensitivePayload($body), JSON_UNESCAPED_UNICODE),
-                            $responseBody
+                            $safeResponseBody
                         ),
                         'dp-api'
                     );
