@@ -268,10 +268,16 @@ class WebhookController extends Controller
     public function actionAmocrm()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $payload = file_get_contents('php://input');
+
+        if (!$this->verifySignature($payload)) {
+            Yii::$app->response->statusCode = 403;
+            return ['success' => false, 'error' => 'Invalid signature'];
+        }
+
         $data = json_decode($payload, true);
-        
+
         Yii::info('AmoCRM webhook: ' . $payload, 'amocrm');
         
         // Обработка события AmoCRM
