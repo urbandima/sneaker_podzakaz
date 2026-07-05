@@ -56,18 +56,6 @@ class SentryErrorHandler extends ErrorHandler
             ]);
             
             $this->sentryEnabled = true;
-            
-            // Добавляем контекст пользователя
-            if (!Yii::$app->user->isGuest) {
-                \Sentry\configureScope(function (\Sentry\State\Scope $scope): void {
-                    $user = Yii::$app->user->identity;
-                    $scope->setUser([
-                        'id' => $user->id,
-                        'username' => $user->username,
-                        'email' => $user->email ?? null,
-                    ]);
-                });
-            }
         }
     }
 
@@ -80,10 +68,37 @@ class SentryErrorHandler extends ErrorHandler
         $this->maskSensitiveGlobals();
 
         if ($this->sentryEnabled) {
+            // User context can only be resolved here, not in init(): the 'user' component
+            // isn't registered yet when errorHandler is constructed during app bootstrap
+            // (registerErrorHandler() runs before Component::__construct() applies components
+            // config), so Yii::$app->user in init() throws "Unknown component ID: user".
+            $this->attachUserContext();
             \Sentry\captureException($exception);
         }
 
         parent::handleException($exception);
+    }
+
+    /**
+     * Best-effort attach current user to the Sentry scope; never let this break error handling.
+     */
+    private function attachUserContext(): void
+    {
+        try {
+            if (Yii::$app === null || !Yii::$app->has('user', true) || Yii::$app->user->isGuest) {
+                return;
+            }
+            $user = Yii::$app->user->identity;
+            \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($user): void {
+                $scope->setUser([
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'email' => $user->email ?? null,
+                ]);
+            });
+        } catch (\Throwable $e) {
+            // Ignore — user context is a nice-to-have, not worth failing error reporting over.
+        }
     }
 
     /**
