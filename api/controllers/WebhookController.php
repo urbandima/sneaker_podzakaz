@@ -22,14 +22,15 @@ class WebhookController extends Controller
 
     public function beforeAction($action)
     {
-        // Логируем все входящие запросы
+        // Логируем факт входящего запроса без query string (там может быть ?token=...
+        // для AmoCRM-вебхука) и без тела (может содержать паспортные данные из DP).
+        // Подробное логирование — в самих экшенах, уже после проверки подписи.
         Yii::info(
             sprintf(
-                '[Webhook] %s %s | IP: %s | Body: %s',
+                '[Webhook] %s %s | IP: %s',
                 Yii::$app->request->method,
-                Yii::$app->request->url,
-                Yii::$app->request->userIP,
-                Yii::$app->request->getRawBody()
+                Yii::$app->request->pathInfo,
+                Yii::$app->request->userIP
             ),
             'webhook'
         );
