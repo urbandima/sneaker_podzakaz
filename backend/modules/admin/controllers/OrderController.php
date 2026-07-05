@@ -61,18 +61,6 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 class OrderController extends BaseAdminController
 {
     /**
-     * Disable CSRF validation for specific actions (e.g. file upload via fetch).
-     */
-    public function beforeAction($action): bool
-    {
-        $csrfFreeActions = ['upload-file', 'auto-fill-dp'];
-        if (in_array($action->id, $csrfFreeActions, true)) {
-            $this->enableCsrfValidation = false;
-        }
-        return parent::beforeAction($action);
-    }
-
-    /**
      * Список заказов с фильтрацией и статистикой
      */
     public function actionIndex()

@@ -2117,7 +2117,7 @@ window.retryDP = function(id) {
 // ── Auto-fill DP fields ──────────────────────────────────
 window.autoFillDp = function(id) {
     if (!confirm('Заполнить пустые поля ДП из данных заказа и профиля клиента?')) return;
-    fetch('$_dpAutoFillUrl', {method:'POST',headers:{'Content-Type':'application/json'}})
+    fetch('$_dpAutoFillUrl', {method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':'$_csrfToken'}})
     .then(function(r){return r.json();}).then(function(d){
         if (d.success) {
             var msg = d.message;
