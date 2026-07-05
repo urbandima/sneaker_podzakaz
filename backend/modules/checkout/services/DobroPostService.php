@@ -335,6 +335,32 @@ class DobroPostService extends Component
     // HTTP layer
     // -------------------------------------------------------------------------
 
+    /** @var string[] Поля payload, которые нельзя логировать в открытом виде (PII) */
+    private const SENSITIVE_PAYLOAD_FIELDS = [
+        'consigneePassportNumber',
+        'consigneePassportSerial',
+        'vatIdentificationNumber',
+        'passportDepartmentCode',
+        'consigneeBirthDate',
+    ];
+
+    /**
+     * Возвращает копию payload с редактированными PII-полями (паспорт, ИНН, дата рождения)
+     * — только для логирования. Сам $body, уходящий в API-запрос, не меняется.
+     */
+    private function redactSensitivePayload(array $body): array
+    {
+        foreach (self::SENSITIVE_PAYLOAD_FIELDS as $field) {
+            if (!array_key_exists($field, $body) || $body[$field] === null || $body[$field] === '') {
+                continue;
+            }
+            $value = (string) $body[$field];
+            $body[$field] = sprintf('[REDACTED:len=%d,last2=%s]', mb_strlen($value), mb_substr($value, -2));
+        }
+
+        return $body;
+    }
+
     /**
      * Выполняет запрос с Bearer-токеном, с повтором при ошибке 401.
      */
@@ -403,7 +429,7 @@ class DobroPostService extends Component
 
                 if ($method === 'POST' || $method === 'PUT') {
                     Yii::info(
-                        sprintf('Таможня:ДП %s %s payload: %s', $method, $path, json_encode($body, JSON_UNESCAPED_UNICODE)),
+                        sprintf('Таможня:ДП %s %s payload: %s', $method, $path, json_encode($this->redactSensitivePayload($body), JSON_UNESCAPED_UNICODE)),
                         'dp-api'
                     );
                 }
@@ -433,7 +459,7 @@ class DobroPostService extends Component
                     Yii::error(
                         sprintf('Таможня:ДП HTTP %d для %s %s. Payload: %s. Ответ: %s',
                             $httpCode, $method, $path,
-                            json_encode($body, JSON_UNESCAPED_UNICODE),
+                            json_encode($this->redactSensitivePayload($body), JSON_UNESCAPED_UNICODE),
                             $responseBody
                         ),
                         'dp-api'
