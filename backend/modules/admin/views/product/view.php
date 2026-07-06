@@ -521,12 +521,12 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                         </td>
                         <td>
                             <span class="inline-editable-size" data-id="<?= $size->id ?>" data-field="price_byn" data-type="number" title="Редактировать">
-                                <?= $size->price_byn ? number_format($size->price_byn, 2) . ' BYN' : '<span style="color:var(--admin-text-secondary)">—</span>' ?>
+                                <?= $size->price_byn ? PriceHelper::format($size->price_byn) : '<span style="color:var(--admin-text-secondary)">—</span>' ?>
                             </span>
                         </td>
                         <td>
                             <?= $size->price_client_byn
-                                ? '<strong style="color:var(--admin-success,#059669)">' . number_format($size->price_client_byn, 2) . ' BYN</strong>'
+                                ? '<strong style="color:var(--admin-success,#059669)">' . PriceHelper::format($size->price_client_byn) . '</strong>'
                                 : '<span style="color:var(--admin-text-secondary)">—</span>' ?>
                         </td>
                         <td>
@@ -613,7 +613,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                 <?php endif; ?>
                 <div style="padding:7px 8px">
                     <div style="font-size:.72rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="<?= Html::encode($sp->name) ?>"><?= Html::encode($sp->name) ?></div>
-                    <div style="font-size:.68rem;color:var(--admin-text-secondary);margin:2px 0"><?= number_format($sp->price, 2) ?> BYN</div>
+                    <div style="font-size:.68rem;color:var(--admin-text-secondary);margin:2px 0"><?= PriceHelper::format($sp->price) ?></div>
                     <div style="display:flex;gap:3px;margin-top:5px">
                         <a href="<?= Url::to(['/admin/product/view', 'id' => $sp->id]) ?>"
                            class="admin-btn admin-btn-secondary admin-btn-xs" style="flex:1;justify-content:center;display:inline-flex" title="Просмотр">
@@ -743,20 +743,20 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
             <div class="crm-field">
                 <div class="crm-field-label">Цена продажи</div>
                 <div style="font-size:1.25rem;font-weight:800">
-                    <?= ($product->price ?? 0) ? number_format($product->price, 2) . ' BYN' : '<span style="color:var(--admin-danger,#dc2626)">Не задана</span>' ?>
+                    <?= ($product->price ?? 0) ? PriceHelper::format($product->price) : '<span style="color:var(--admin-danger,#dc2626)">Не задана</span>' ?>
                 </div>
             </div>
             <?php if (($product->purchase_price ?? 0) > 0): ?>
             <div class="crm-field">
                 <div class="crm-field-label">Закупка</div>
                 <div class="crm-editable" data-field="purchase_price" data-id="<?= $product->id ?>"
-                     onclick="startEdit(this)"><?= number_format($product->purchase_price, 2) ?> BYN</div>
+                     onclick="startEdit(this)"><?= PriceHelper::format($product->purchase_price) ?></div>
             </div>
             <?php if ($marginPct != 0): ?>
             <div class="crm-field">
                 <div class="crm-field-label">Маржа</div>
                 <div style="font-weight:700;color:<?= $marginColor ?>"><?= $marginPct ?>%
-                    <span style="font-weight:400;font-size:.75rem;color:var(--admin-text-secondary)">(<?= number_format($product->price - $product->purchase_price, 2) ?> BYN)</span>
+                    <span style="font-weight:400;font-size:.75rem;color:var(--admin-text-secondary)">(<?= PriceHelper::format($product->price - $product->purchase_price) ?>)</span>
                 </div>
             </div>
             <?php endif; ?>
@@ -819,7 +819,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                     <div style="color:var(--admin-text-secondary,#6b7280);margin-top:1px;font-size:.72rem">
                         <?= Html::encode($oi->order->client_name ?: '—') ?>
                         &middot; <?= date('d.m.Y', $oi->order->created_at) ?>
-                        &middot; <?= number_format($oi->price, 0) ?> BYN
+                        &middot; <?= PriceHelper::formatInt($oi->price) ?>
                     </div>
                 </div>
             </div>
@@ -853,9 +853,9 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
             <?php if ($product->ms_supplier_name): ?><div><span style="color:var(--admin-text-secondary)">Поставщик:</span> <strong><?= Html::encode($product->ms_supplier_name) ?></strong></div><?php endif; ?>
             <?php if ($product->ms_price_full || $product->ms_price_rub): ?>
             <div style="border-top:1px solid var(--admin-border,#e5e7eb);padding-top:6px;margin-top:2px;display:flex;flex-wrap:wrap;gap:8px">
-                <?php if ($product->ms_price_full): ?><span><span style="color:var(--admin-text-secondary)">Полная:</span> <strong><?= number_format($product->ms_price_full, 2) ?></strong></span><?php endif; ?>
+                <?php if ($product->ms_price_full): ?><span><span style="color:var(--admin-text-secondary)">Полная:</span> <strong><?= PriceHelper::format($product->ms_price_full) ?></strong></span><?php endif; ?>
                 <?php if ($product->ms_price_rub): ?><span><span style="color:var(--admin-text-secondary)">₽:</span> <strong><?= number_format($product->ms_price_rub, 2) ?></strong></span><?php endif; ?>
-                <?php if ($product->ms_price_sale): ?><span><span style="color:var(--admin-text-secondary)">Акц.:</span> <strong style="color:#059669"><?= number_format($product->ms_price_sale, 2) ?></strong></span><?php endif; ?>
+                <?php if ($product->ms_price_sale): ?><span><span style="color:var(--admin-text-secondary)">Акц.:</span> <strong style="color:#059669"><?= PriceHelper::format($product->ms_price_sale) ?></strong></span><?php endif; ?>
             </div>
             <?php endif; ?>
             <?php

@@ -5,6 +5,7 @@
  */
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $imageUrl = $product->getMainImageUrl();
 $sizesCount = count($product->sizes ?? []);
@@ -48,7 +49,7 @@ if ($isActive && !$isOutOfStock) {
         ?>
     </td>
     <td data-col="price" style="font-weight:700;white-space:nowrap">
-        <?= number_format($product->price ?? 0, 2) ?> <span style="font-size:.7rem;color:var(--admin-text-secondary,#9ca3af);font-weight:400">Br</span>
+        <?= PriceHelper::format($product->price ?? 0) ?>
     </td>
     <td data-col="sizes" style="text-align:center;font-weight:600">
         <?= $sizesCount ?>

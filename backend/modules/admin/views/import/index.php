@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
+use app\backend\shared\helpers\PriceHelper;
 
 /** @var yii\web\View $this */
 /** @var app\backend\modules\admin\models\import\ImportSource[] $sources */
@@ -155,7 +156,7 @@ $this->params['headerActions'] = [
                     <td>
                         <span class="admin-badge admin-badge-secondary"><?= Html::encode($source->currency_code) ?></span>
                         <?php if (isset($rates[$source->currency_code])): ?>
-                        <br><small><?= number_format($rates[$source->currency_code], 4) ?> BYN</small>
+                        <br><small><?= PriceHelper::format($rates[$source->currency_code], 4) ?></small>
                         <?php endif; ?>
                     </td>
                     <td>

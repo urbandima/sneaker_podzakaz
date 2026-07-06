@@ -5,6 +5,7 @@
  */
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $imageUrl = $product->getMainImageUrl();
 $sizesCount = count($product->sizes ?? []);
@@ -34,7 +35,7 @@ if ($isActive && !$isOutOfStock) {
         <div class="product-card__name"><?= Html::encode($product->name) ?></div>
         <div class="product-card__meta"><?= Html::encode($product->brand->name ?? '') ?></div>
         <div class="product-card__bottom">
-            <span class="product-card__price"><?= number_format($product->price ?? 0, 2) ?> Br</span>
+            <span class="product-card__price"><?= PriceHelper::format($product->price ?? 0) ?></span>
             <span class="product-card__sizes"><?= $sizesCount ?> разм.</span>
         </div>
     </div>

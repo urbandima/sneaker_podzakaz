@@ -1,4 +1,7 @@
 <?php
+
+use app\backend\shared\helpers\PriceHelper;
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\PurchaseOrder $po */
 $this->title = $po->purchase_number;
@@ -66,7 +69,7 @@ $this->title = $po->purchase_number;
           </div>
           <div class="d-flex justify-content-between">
             <span>Сумма BYN:</span>
-            <strong><?= $po->total_amount_byn ? number_format($po->total_amount_byn, 2) . ' BYN' : '—' ?></strong>
+            <strong><?= $po->total_amount_byn ? PriceHelper::format($po->total_amount_byn) : '—' ?></strong>
           </div>
         </div>
       </div>
@@ -122,8 +125,8 @@ $this->title = $po->purchase_number;
                   <td class="text-end"><?= $item->quantity ?></td>
                   <td class="text-end"><?= $item->price_cny ? number_format($item->price_cny, 2) : '—' ?></td>
                   <td class="text-end"><?= $item->price_cny ? number_format($item->getTotalCny(), 2) : '—' ?></td>
-                  <td class="text-end"><?= $item->price_byn ? number_format($item->price_byn, 2) : '—' ?></td>
-                  <td class="text-end"><?= $item->price_byn ? number_format($item->getTotalByn(), 2) : '—' ?></td>
+                  <td class="text-end"><?= $item->price_byn ? PriceHelper::format($item->price_byn) : '—' ?></td>
+                  <td class="text-end"><?= $item->price_byn ? PriceHelper::format($item->getTotalByn()) : '—' ?></td>
                   <td class="text-end">
                     <?php $ok = $item->received_quantity >= $item->quantity; ?>
                     <span style="color:<?= $ok ? '#059669' : '#6b7280' ?>"><?= $item->received_quantity ?>/<?= $item->quantity ?></span>

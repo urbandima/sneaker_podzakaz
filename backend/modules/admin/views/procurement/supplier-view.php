@@ -4,6 +4,7 @@
 /** @var app\backend\modules\catalog\models\Brand[] $allBrands */
 
 use app\backend\modules\procurement\models\Supplier;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Поставщик: ' . $supplier->name;
 
@@ -246,14 +247,14 @@ $flagEmoji     = $supplier->country ? Supplier::getCountryFlagEmoji($supplier->c
     <div class="sv-stat">
         <div class="sv-stat-icon money"><i class="bi bi-cash-stack"></i></div>
         <div>
-            <div class="sv-stat-val"><?= number_format($stats['total'], 2, '.', ' ') ?> BYN</div>
+            <div class="sv-stat-val"><?= PriceHelper::format($stats['total']) ?></div>
             <div class="sv-stat-lbl">Сумма закупок</div>
         </div>
     </div>
     <div class="sv-stat">
         <div class="sv-stat-icon avg"><i class="bi bi-graph-up"></i></div>
         <div>
-            <div class="sv-stat-val"><?= number_format($stats['avg'], 2, '.', ' ') ?> BYN</div>
+            <div class="sv-stat-val"><?= PriceHelper::format($stats['avg']) ?></div>
             <div class="sv-stat-lbl">Средняя закупка</div>
         </div>
     </div>
@@ -392,7 +393,7 @@ $flagEmoji     = $supplier->country ? Supplier::getCountryFlagEmoji($supplier->c
                             </a></td>
                             <td style="color:#6d7175"><?= htmlspecialchars($o->order_type ?? '—') ?></td>
                             <td><?= htmlspecialchars($o->status ?? '—') ?></td>
-                            <td><?= $o->total_byn ? number_format($o->total_byn, 2, '.', ' ') : '—' ?></td>
+                            <td><?= $o->total_byn ? PriceHelper::format($o->total_byn) : '—' ?></td>
                             <td style="color:#6d7175;font-size:12px"><?= $o->ordered_at ? date('d.m.Y', strtotime($o->ordered_at)) : '—' ?></td>
                         </tr>
                         <?php endforeach; ?>

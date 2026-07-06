@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 /** @var yii\web\View $this */
 /** @var app\backend\modules\returns\models\ReturnRequest $model */
@@ -86,7 +87,7 @@ $this->params['headerActions'] = $actions;
                 <div class="return-info-row">
                     <span class="return-info-label">Сумма возврата</span>
                     <span class="return-info-value" style="font-weight: 700; font-size: 1.1rem;">
-                        <?= number_format($model->refund_amount, 2) ?> BYN
+                        <?= PriceHelper::format($model->refund_amount) ?>
                     </span>
                 </div>
                 <?php endif; ?>

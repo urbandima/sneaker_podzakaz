@@ -22,6 +22,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Управление заказами';
 
@@ -594,7 +595,7 @@ $pillBgFromHex = function(string $hex): string {
                             <td data-col="amount" style="font-weight:700;white-space:nowrap"
                                 class="tbl-editable" onclick="tblEdit(this,'total_amount',<?= $order->id ?>)"
                                 data-val="<?= $order->total_amount ?>">
-                                <?= number_format($order->total_amount, 2) ?> <span style="font-size:.7rem;color:var(--admin-text-secondary,#9ca3af);font-weight:400">Br</span>
+                                <?= PriceHelper::format($order->total_amount) ?>
                             </td>
                             <td data-col="payment" style="white-space:nowrap;color:var(--admin-text-secondary,#6b7280)">
                                 <?= Html::encode($pmLabels[$order->payment_method ?? ''] ?? ($order->payment_method ?: '—')) ?>
@@ -706,7 +707,7 @@ $pillBgFromHex = function(string $hex): string {
                                     <div class="kc-product" title="<?= Html::encode($firstItem->product_name) ?>"><?= Html::encode($firstItem->product_name) ?></div>
                                 <?php endif; ?>
                                 <div class="kc-meta">
-                                    <span class="kc-amount"><?= number_format($ord->total_amount, 2) ?> Br</span>
+                                    <span class="kc-amount"><?= PriceHelper::format($ord->total_amount) ?></span>
                                     <span><?= $daysSince > 0 ? $daysSince.' дн.' : 'сегодня' ?></span>
                                 </div>
                                 <div style="margin-top:.35rem;display:flex;align-items:center;gap:5px;flex-wrap:wrap">

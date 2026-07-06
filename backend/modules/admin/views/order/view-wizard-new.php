@@ -2,6 +2,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\backend\modules\admin\models\User as AdminUser;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Заказ №' . ($model->order_number ?: $model->id);
 
@@ -87,10 +88,10 @@ try {
     <div class="metrics-cards">
         <div class="metric-card">
             <div class="metric-icon">💰</div>
-            <div class="metric-value"><?= number_format($model->total_amount ?? 0, 2, ',', ' ') ?></div>
+            <div class="metric-value"><?= PriceHelper::format($model->total_amount ?? 0) ?></div>
             <div class="metric-label">Сумма заказа</div>
             <?php if ($model->delivery_cost > 0): ?>
-                <div class="metric-subtitle">+<?= number_format($model->delivery_cost ?? 0, 2, ',', ' ') ?> доставка</div>
+                <div class="metric-subtitle">+<?= PriceHelper::format($model->delivery_cost ?? 0) ?> доставка</div>
             <?php endif; ?>
         </div>
         
@@ -209,7 +210,7 @@ try {
             <section class="section">
                 <div class="section-header">
                     <span style="font-size: 1.5rem;">🛍️</span>
-                    <h2 class="section-title">Состав заказа (<?= $itemCount ?> товар<?= $itemCount > 1 ? 'ов' : '' ?>, <?= number_format($model->total_amount ?? 0, 2, ',', ' ') ?> BYN)</h2>
+                    <h2 class="section-title">Состав заказа (<?= $itemCount ?> товар<?= $itemCount > 1 ? 'ов' : '' ?>, <?= PriceHelper::format($model->total_amount ?? 0) ?>)</h2>
                 </div>
                 <div class="section-content">
                     <table class="products-table">
@@ -226,21 +227,21 @@ try {
                             <tr>
                                 <td><?= Html::encode($item->product_name) ?></td>
                                 <td class="text-center"><?= $item->quantity ?></td>
-                                <td class="text-right"><?= number_format($item->price ?? 0, 2, ',', ' ') ?></td>
-                                <td class="text-right"><?= number_format($item->total ?? 0, 2, ',', ' ') ?></td>
+                                <td class="text-right"><?= PriceHelper::format($item->price ?? 0) ?></td>
+                                <td class="text-right"><?= PriceHelper::format($item->total ?? 0) ?></td>
                             </tr>
                             <?php endforeach; ?>
                             
                             <?php if ($model->delivery_cost > 0): ?>
                             <tr class="products-summary">
                                 <td colspan="3">Доставка</td>
-                                <td class="text-right">+<?= number_format($model->delivery_cost ?? 0, 2, ',', ' ') ?></td>
+                                <td class="text-right">+<?= PriceHelper::format($model->delivery_cost ?? 0) ?></td>
                             </tr>
                             <?php endif; ?>
-                            
+
                             <tr class="products-summary">
                                 <td colspan="3" class="fw-600">ВСЕГО К ОПЛАТЕ</td>
-                                <td class="products-total"><?= number_format(($model->total_amount ?? 0) + ($model->delivery_cost ?? 0), 2, ',', ' ') ?></td>
+                                <td class="products-total"><?= PriceHelper::format(($model->total_amount ?? 0) + ($model->delivery_cost ?? 0)) ?></td>
                             </tr>
                         </tbody>
                     </table>
@@ -518,25 +519,25 @@ try {
                     <table class="finance-table">
                         <tr>
                             <td>Товары:</td>
-                            <td><?= number_format($model->product_price ?? 0, 2, ',', ' ') ?> BYN</td>
+                            <td><?= PriceHelper::format($model->product_price ?? 0) ?></td>
                         </tr>
                         <tr>
                             <td>Логистика:</td>
-                            <td><?= number_format($model->logistics_price ?? 0, 2, ',', ' ') ?> BYN</td>
+                            <td><?= PriceHelper::format($model->logistics_price ?? 0) ?></td>
                         </tr>
                         <tr>
                             <td>Комиссия:</td>
-                            <td><?= number_format($model->commission_price ?? 0, 2, ',', ' ') ?> BYN</td>
+                            <td><?= PriceHelper::format($model->commission_price ?? 0) ?></td>
                         </tr>
                         <?php if ($model->delivery_cost > 0): ?>
                         <tr>
                             <td>Доставка:</td>
-                            <td><?= number_format($model->delivery_cost, 2, ',', ' ') ?> BYN</td>
+                            <td><?= PriceHelper::format($model->delivery_cost) ?></td>
                         </tr>
                         <?php endif; ?>
                         <tr class="finance-total">
                             <td>ИТОГО:</td>
-                            <td><?= number_format(($model->total_amount ?? 0) + ($model->delivery_cost ?? 0), 2, ',', ' ') ?> BYN</td>
+                            <td><?= PriceHelper::format(($model->total_amount ?? 0) + ($model->delivery_cost ?? 0)) ?></td>
                         </tr>
                     </table>
                 </div>

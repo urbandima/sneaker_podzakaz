@@ -10,6 +10,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Массовое изменение цен';
 $this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['/admin/product/index']];
@@ -115,7 +116,7 @@ $this->params['headerActions'] = [
                     </td>
                     <td><?= Html::encode($product->brand->name ?? '—') ?></td>
                     <td style="text-align:right;font-weight:600;">
-                        <?= number_format((float)($product->price ?? 0), 2, ',', ' ') ?>
+                        <?= PriceHelper::format((float)($product->price ?? 0)) ?>
                     </td>
                     <td>
                         <input type="number" class="form-control markup-input" min="-100" max="10000" step="0.1"

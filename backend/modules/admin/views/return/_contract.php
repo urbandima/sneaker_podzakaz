@@ -4,6 +4,7 @@
 /** @var app\backend\modules\returns\models\ReturnRequest $model */
 
 use yii\helpers\Html;
+use app\backend\shared\helpers\PriceHelper;
 
 $company = Yii::$app->settings->getCompany() ?? [];
 
@@ -155,7 +156,7 @@ $contractNumber = 'КД-' . $model->return_number;
                 <td><?= Html::encode($item->product_name) ?></td>
                 <td><?= Html::encode(implode(' / ', array_filter([$item->size, $item->color]))) ?: '—' ?></td>
                 <td><?= Html::encode($item->quantity) ?></td>
-                <td><?= number_format($item->price, 2) ?></td>
+                <td><?= PriceHelper::format($item->price) ?></td>
             </tr>
             <?php endforeach; ?>
         <?php else: ?>

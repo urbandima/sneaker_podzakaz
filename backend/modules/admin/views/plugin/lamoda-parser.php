@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Lamoda Parser';
 
@@ -145,9 +146,9 @@ $this->params['headerActions'] = [
                             </td>
                             <td style="font-weight:500"><?= Html::encode($p->name) ?></td>
                             <td style="color:var(--admin-text-secondary)"><?= Html::encode($p->brand_name ?? '') ?></td>
-                            <td><?= number_format($p->price, 2) ?> BYN</td>
+                            <td><?= PriceHelper::format($p->price) ?></td>
                             <td style="color:var(--admin-text-secondary);text-decoration:line-through">
-                                <?= $p->old_price ? number_format($p->old_price, 2) . ' BYN' : '—' ?>
+                                <?= $p->old_price ? PriceHelper::format($p->old_price) : '—' ?>
                             </td>
                             <td>
                                 <?php if ($p->source_url): ?>

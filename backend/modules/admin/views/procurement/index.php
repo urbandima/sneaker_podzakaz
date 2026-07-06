@@ -4,6 +4,9 @@
 /** @var app\backend\modules\procurement\models\Supplier[] $suppliers */
 /** @var string $filterStatus, $filterType */
 /** @var array $statuses, $types */
+
+use app\backend\shared\helpers\PriceHelper;
+
 $this->title = 'Закупки';
 
 $currentSort = Yii::$app->request->get('sort', '');
@@ -132,7 +135,7 @@ foreach ($orders as $_o) {
                     </td>
                     <?php endif; ?>
                     <td data-col="amount_byn" style="text-align:right;font-weight:700;white-space:nowrap">
-                        <?= $po->total_amount_byn ? number_format($po->total_amount_byn, 2) . ' <span style="font-size:.7rem;color:var(--admin-text-secondary,#6d7175);font-weight:400">BYN</span>' : '—' ?>
+                        <?= $po->total_amount_byn ? PriceHelper::format($po->total_amount_byn) : '—' ?>
                     </td>
                     <td data-col="items" style="text-align:center"><?= count($po->items) ?></td>
                     <td data-col="ordered_at" style="white-space:nowrap;color:var(--admin-text-secondary,#6d7175)">

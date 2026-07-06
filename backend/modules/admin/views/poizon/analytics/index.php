@@ -1,5 +1,6 @@
 <?php
 
+use app\backend\shared\helpers\PriceHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -47,7 +48,7 @@ $this->title = '📊 Аналитика и отчеты';
         </div>
         <div class="stat-card">
             <div class="stat-icon">💰</div>
-            <div class="stat-value"><?= number_format($revenueStats['total_revenue'] ?? 0, 0, '.', ' ') ?></div>
+            <div class="stat-value"><?= PriceHelper::formatInt($revenueStats['total_revenue'] ?? 0) ?></div>
             <div class="stat-label">Выручка (BYN)</div>
         </div>
     </div>
@@ -178,7 +179,7 @@ $this->title = '📊 Аналитика и отчеты';
                     <tr>
                         <td><?= Yii::$app->formatter->asDate($day['date']) ?></td>
                         <td><strong><?= $day['count'] ?></strong></td>
-                        <td><?= number_format($day['revenue'] ?? 0, 2) ?></td>
+                        <td><?= PriceHelper::format($day['revenue'] ?? 0) ?></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>

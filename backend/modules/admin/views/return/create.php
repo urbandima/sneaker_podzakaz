@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
+use app\backend\shared\helpers\PriceHelper;
 
 /** @var yii\web\View $this */
 /** @var app\backend\modules\returns\models\ReturnRequest $model */
@@ -32,7 +33,7 @@ $this->params['headerActions'] = [
                     array_combine(
                         array_column($orders, 'id'),
                         array_map(function($o) {
-                            return ($o['order_number'] ?: '#' . $o['id']) . ' — ' . ($o['client_name'] ?: 'Клиент') . ' — ' . number_format($o['total_amount'], 2) . ' BYN';
+                            return ($o['order_number'] ?: '#' . $o['id']) . ' — ' . ($o['client_name'] ?: 'Клиент') . ' — ' . PriceHelper::format($o['total_amount']);
                         }, $orders)
                     ),
                     ['prompt' => '— Выберите заказ —', 'class' => 'form-select', 'required' => true]

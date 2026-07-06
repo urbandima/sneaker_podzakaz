@@ -8,6 +8,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\frontend\assets\CheckoutAsset;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Заказ принят';
 $this->registerMetaTag([
@@ -35,7 +36,7 @@ CheckoutAsset::register($this);
                 <h3>Следующий шаг: Оплата</h3>
                 <p>Ваш заказ ожидает оплаты. Вы можете оплатить его через ЕРИП или картой онлайн.</p>
                 <div class="payment-details">
-                    <p>Сумма: <strong><?= number_format($model->total_amount, 2, '.', ' ') ?> BYN</strong></p>
+                    <p>Сумма: <strong><?= PriceHelper::format($model->total_amount) ?></strong></p>
                     <p>Номер заказа: <strong id="copyData"><?= Html::encode($model->order_number) ?></strong></p>
                 </div>
                 <button class="btn btn-secondary" onclick="copyToClipboard('<?= Html::encode($model->order_number) ?>')">

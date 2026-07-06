@@ -1,5 +1,6 @@
 <?php
 
+use app\backend\shared\helpers\PriceHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -151,7 +152,7 @@ $calculationHistory = $calculationHistory ?? [];
                                     <td><strong><?= number_format($calc->total_cny, 2) ?> ¥</strong></td>
                                     <td><?= $calc->exchange_rate ?></td>
                                     <td style="color: var(--admin-success, #10b981); font-weight: 700;">
-                                        <?= number_format($calc->total_local, 2) ?> BYN
+                                        <?= PriceHelper::format($calc->total_local) ?>
                                     </td>
                                     <td>
                                         <?php if ($calc->note): ?>

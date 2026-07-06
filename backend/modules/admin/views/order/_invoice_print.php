@@ -6,6 +6,7 @@
  * @var array $statuses
  */
 use yii\helpers\Html;
+use app\backend\shared\helpers\PriceHelper;
 $company = Yii::$app->settings->getCompany() ?? [];
 ?>
 <html lang="ru"><head><meta charset="UTF-8"><title>Заказ №<?= Html::encode($model->order_number ?: $model->id) ?></title>
@@ -61,12 +62,12 @@ tfoot td{font-weight:700;border-top:2px solid #000;font-size:13px}
     <td><?= Html::encode($item->product_name ?? '') ?></td>
     <td><?= Html::encode($item->size ?? '—') ?></td>
     <td><?= (int)($item->quantity ?? 1) ?></td>
-    <td><?= number_format($item->price ?? 0, 2) ?> BYN</td>
-    <td><?= number_format(($item->price ?? 0) * ($item->quantity ?? 1), 2) ?> BYN</td>
+    <td><?= PriceHelper::format($item->price ?? 0) ?></td>
+    <td><?= PriceHelper::format(($item->price ?? 0) * ($item->quantity ?? 1)) ?></td>
 </tr>
 <?php endforeach ?>
 </tbody>
-<tfoot><tr><td colspan="5" class="text-right">ИТОГО:</td><td><?= number_format($model->total_amount ?? 0, 2) ?> BYN</td></tr></tfoot>
+<tfoot><tr><td colspan="5" class="text-right">ИТОГО:</td><td><?= PriceHelper::format($model->total_amount ?? 0) ?></td></tr></tfoot>
 </table>
 <?php if (!empty($company['bank_details'])): ?>
 <div style="margin-top:20px;font-size:11px;color:#555">

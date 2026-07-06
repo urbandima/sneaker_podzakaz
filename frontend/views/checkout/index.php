@@ -13,6 +13,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\frontend\assets\AppAsset;
+use app\backend\shared\helpers\PriceHelper;
 
 AppAsset::register($this);
 
@@ -62,7 +63,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                     Ваш заказ (<?= $cnt ?> <?= $itemWord ?>)
                 </div>
                 <div class="mobile-summary-header-right">
-                    <span class="mobile-summary-price" id="mobileFinalTotal"><?= number_format($total, 2) ?> BYN</span>
+                    <span class="mobile-summary-price" id="mobileFinalTotal"><?= PriceHelper::format($total) ?></span>
                     <i class="bi bi-chevron-down mobile-toggle-icon"></i>
                 </div>
             </div>
@@ -78,9 +79,9 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                             <?php if ($item->size): ?>
                                 <span class="summary-item-meta">Размер: <?= Html::encode($item->size) ?></span>
                             <?php endif; ?>
-                            <span class="summary-item-meta"><?= (int)$item->quantity ?> × <?= number_format($item->price, 2) ?> BYN</span>
+                            <span class="summary-item-meta"><?= (int)$item->quantity ?> × <?= PriceHelper::format($item->price) ?></span>
                         </div>
-                        <span class="summary-item-price"><?= number_format($item->price * $item->quantity, 2) ?> BYN</span>
+                        <span class="summary-item-price"><?= PriceHelper::format($item->price * $item->quantity) ?></span>
                     </div>
                 <?php endforeach; ?>
                 <div class="summary-totals" style="margin-top:8px">
@@ -90,7 +91,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                     </div>
                     <div class="summary-total">
                         <span>Итого:</span>
-                        <span id="mobileFinalTotal2"><?= number_format($total, 2) ?> BYN</span>
+                        <span id="mobileFinalTotal2"><?= PriceHelper::format($total) ?></span>
                     </div>
                 </div>
             </div>
@@ -443,9 +444,9 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                                     <?php if ($item->size): ?>
                                         <span class="summary-item-meta">Размер: <?= Html::encode($item->size) ?></span>
                                     <?php endif; ?>
-                                    <span class="summary-item-meta"><?= (int)$item->quantity ?> × <?= number_format($item->price, 2) ?> BYN</span>
+                                    <span class="summary-item-meta"><?= (int)$item->quantity ?> × <?= PriceHelper::format($item->price) ?></span>
                                 </div>
-                                <span class="summary-item-price"><?= number_format($item->price * $item->quantity, 2) ?> BYN</span>
+                                <span class="summary-item-price"><?= PriceHelper::format($item->price * $item->quantity) ?></span>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -453,7 +454,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                     <div class="summary-totals">
                         <div class="summary-row">
                             <span>Товары (<?= count($items) ?>):</span>
-                            <span id="productsTotal"><?= number_format($total, 2) ?> BYN</span>
+                            <span id="productsTotal"><?= PriceHelper::format($total) ?></span>
                         </div>
                         <div class="summary-row" id="deliveryCostRow">
                             <span>Доставка:</span>
@@ -462,14 +463,14 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
 
                         <div class="summary-total">
                             <span>Итого:</span>
-                            <span id="finalTotal"><?= number_format($total, 2) ?> BYN</span>
+                            <span id="finalTotal"><?= PriceHelper::format($total) ?></span>
                         </div>
                     </div>
 
                     <?php if ($total < $freeDeliveryThreshold): ?>
                         <div class="delivery-info">
                             <i class="bi bi-truck"></i>
-                            До бесплатной доставки: <?= number_format($freeDeliveryThreshold - $total, 2) ?> BYN
+                            До бесплатной доставки: <?= PriceHelper::format($freeDeliveryThreshold - $total) ?>
                         </div>
                     <?php endif; ?>
 
@@ -480,7 +481,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
 
                     <button class="btn-place-order" onclick="submitOrder()">
                         <i class="bi bi-check-circle-fill"></i>
-                        Оформить заказ — <span id="orderBtnTotal"><?= number_format($total, 0) ?></span> BYN
+                        Оформить заказ — <span id="orderBtnTotal"><?= PriceHelper::formatInt($total) ?></span>
                     </button>
 
                     <a href="<?= Url::to(['/catalog']) ?>" class="btn-continue">Продолжить покупки</a>
@@ -494,7 +495,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
 <div class="mobile-cta-bar">
     <button class="btn-place-order" onclick="submitOrder()">
         <i class="bi bi-check-circle-fill"></i>
-        Оформить заказ — <span id="mobileBtnTotal"><?= number_format($total, 0) ?></span> BYN
+        Оформить заказ — <span id="mobileBtnTotal"><?= PriceHelper::formatInt($total) ?></span>
     </button>
 </div>
 
@@ -503,7 +504,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
     <div class="checkout-sticky-inner">
         <div class="checkout-sticky-total">
             <span class="checkout-sticky-label">Итого:</span>
-            <span class="checkout-sticky-amount" id="stickyTotal"><?= number_format($total, 2) ?> BYN</span>
+            <span class="checkout-sticky-amount" id="stickyTotal"><?= PriceHelper::format($total) ?></span>
         </div>
         <button class="checkout-sticky-btn" onclick="submitOrder()">
             <i class="bi bi-check-circle-fill"></i>

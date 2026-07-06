@@ -6,6 +6,7 @@
  * @var array $company
  */
 use yii\helpers\Html;
+use app\backend\shared\helpers\PriceHelper;
 
 $statuses = Yii::$app->settings->getStatuses();
 $company  = is_array($company) ? $company : [];
@@ -118,8 +119,8 @@ tfoot td{padding:8px 10px;font-weight:700;border-top:2px solid #1a1a1a;font-size
             <td><?= Html::encode($item->product_name) ?></td>
             <td style="color:#6b7280"><?= Html::encode($item->size ?: '—') ?></td>
             <td class="text-right"><?= $item->quantity ?></td>
-            <td class="text-right"><?= number_format((float)$item->price, 2, '.', ' ') ?></td>
-            <td class="text-right" style="font-weight:600"><?= number_format($lineTotal, 2, '.', ' ') ?></td>
+            <td class="text-right"><?= PriceHelper::format((float)$item->price) ?></td>
+            <td class="text-right" style="font-weight:600"><?= PriceHelper::format($lineTotal) ?></td>
         </tr>
         <?php endforeach; ?>
     </tbody>
@@ -127,7 +128,7 @@ tfoot td{padding:8px 10px;font-weight:700;border-top:2px solid #1a1a1a;font-size
         <tr>
             <td colspan="4"></td>
             <td class="text-right" style="font-size:12px;font-weight:500;color:#555">Итого:</td>
-            <td class="text-right"><?= number_format((float)$order->total_amount, 2, '.', ' ') ?> Br</td>
+            <td class="text-right"><?= PriceHelper::format((float)$order->total_amount) ?></td>
         </tr>
     </tfoot>
 </table>

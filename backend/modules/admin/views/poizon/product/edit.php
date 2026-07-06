@@ -1,5 +1,6 @@
 <?php
 
+use app\backend\shared\helpers\PriceHelper;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -999,7 +1000,7 @@ $characteristicsFromRegistry = !$product->isNewRecord
                             <p class="size-metric-label">Диапазон цен (BYN)</p>
                             <div class="size-metric-value">
                                 <?php if ($priceRangeMin !== null): ?>
-                                    <?= number_format($priceRangeMin, 2) ?> — <?= number_format($priceRangeMax, 2) ?>
+                                    <?= PriceHelper::format($priceRangeMin) ?> — <?= PriceHelper::format($priceRangeMax) ?>
                                 <?php else: ?>
                                     —
                                 <?php endif; ?>
@@ -1083,15 +1084,15 @@ $characteristicsFromRegistry = !$product->isNewRecord
                                     <td>
                                         <?php if ($size->price_byn): ?>
                                             <span class="size-price-pill size-price-pill--custom">
-                                                <?= number_format($size->price_byn, 2) ?> ₽
+                                                <?= PriceHelper::format($size->price_byn) ?>
                                             </span>
                                         <?php elseif ($size->price): ?>
                                             <span class="size-price-pill size-price-pill--custom">
-                                                <?= number_format($size->price, 2) ?> ₽
+                                                <?= PriceHelper::format($size->price) ?>
                                             </span>
                                         <?php else: ?>
                                             <span class="size-price-pill size-price-pill--default">
-                                                Общая (<?= number_format($product->price, 2) ?> ₽)
+                                                Общая (<?= PriceHelper::format($product->price) ?>)
                                             </span>
                                         <?php endif; ?>
                                     </td>

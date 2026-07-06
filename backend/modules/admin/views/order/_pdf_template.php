@@ -10,6 +10,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $company = $company ?? (Yii::$app->settings->getCompany() ?? []);
 $trackerUrl = ($order->track_number && $order->token)
@@ -155,8 +156,8 @@ $trackerUrl = ($order->track_number && $order->token)
                 <?php endif; ?>
             </td>
             <td class="text-center"><?= (int)$item->quantity ?></td>
-            <td class="text-right"><?= number_format($item->price, 2, '.', ' ') ?></td>
-            <td class="text-right"><?= number_format($item->price * $item->quantity, 2, '.', ' ') ?></td>
+            <td class="text-right"><?= PriceHelper::format($item->price) ?></td>
+            <td class="text-right"><?= PriceHelper::format($item->price * $item->quantity) ?></td>
         </tr>
         <?php endforeach; ?>
     </tbody>
@@ -164,18 +165,18 @@ $trackerUrl = ($order->track_number && $order->token)
         <?php if (!empty($order->discount_amount) && $order->discount_amount > 0): ?>
         <tr>
             <td colspan="4" style="text-align:right;font-weight:400;font-size:11px;">Скидка:</td>
-            <td style="text-align:right;font-weight:400;color:#e53e3e;">-<?= number_format($order->discount_amount, 2, '.', ' ') ?></td>
+            <td style="text-align:right;font-weight:400;color:#e53e3e;">-<?= PriceHelper::format($order->discount_amount) ?></td>
         </tr>
         <?php endif; ?>
         <?php if (!empty($order->delivery_cost) && $order->delivery_cost > 0): ?>
         <tr>
             <td colspan="4" style="text-align:right;font-weight:400;font-size:11px;">Доставка:</td>
-            <td style="text-align:right;font-weight:400;"><?= number_format($order->delivery_cost, 2, '.', ' ') ?></td>
+            <td style="text-align:right;font-weight:400;"><?= PriceHelper::format($order->delivery_cost) ?></td>
         </tr>
         <?php endif; ?>
         <tr>
             <td colspan="4" class="text-right">ИТОГО:</td>
-            <td class="text-right"><?= number_format($order->total_amount, 2, '.', ' ') ?> BYN</td>
+            <td class="text-right"><?= PriceHelper::format($order->total_amount) ?></td>
         </tr>
     </tfoot>
 </table>

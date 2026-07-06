@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Lamoda Parser';
 
@@ -158,9 +159,9 @@ $this->params['headerActions'] = [
                             </td>
                             <td><?= Html::encode($product->brand_name ?? '-') ?></td>
                             <td>
-                                <?= number_format($product->price, 2) ?> BYN
+                                <?= PriceHelper::format($product->price) ?>
                                 <?php if ($product->old_price): ?>
-                                    <br><small style="text-decoration:line-through;color:var(--admin-text-secondary)"><?= number_format($product->old_price, 2) ?></small>
+                                    <br><small style="text-decoration:line-through;color:var(--admin-text-secondary)"><?= PriceHelper::format($product->old_price) ?></small>
                                 <?php endif; ?>
                             </td>
                             <td><?= count($product->sizes) ?></td>

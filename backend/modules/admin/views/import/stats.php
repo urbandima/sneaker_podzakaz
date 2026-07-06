@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
+use app\backend\shared\helpers\PriceHelper;
 
 /** @var yii\web\View $this */
 /** @var array $overallStats */
@@ -152,7 +153,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             </span>
                         </td>
                         <td>
-                            <strong><?= number_format($price->price_byn, 2) ?> BYN</strong>
+                            <strong><?= PriceHelper::format($price->price_byn) ?></strong>
                             <?php if ($price->currency_code !== 'BYN'): ?>
                             <br><small class="text-muted">
                                 <?= number_format($price->price_original, 2) ?> <?= $price->currency_code ?>

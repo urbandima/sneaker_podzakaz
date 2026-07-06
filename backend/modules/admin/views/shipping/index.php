@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 /** @var yii\web\View $this */
 /** @var yii\data\ActiveDataProvider $dataProvider */
@@ -83,7 +84,7 @@ $inTransitCount = $dataProvider->getCount();
                     'label' => 'Сумма',
                     'format' => 'raw',
                     'value' => function ($model) {
-                        return number_format((float)$model->total_amount, 2) . ' BYN';
+                        return PriceHelper::format((float)$model->total_amount);
                     },
                 ],
                 [

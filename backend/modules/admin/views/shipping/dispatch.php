@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 /** @var yii\web\View $this */
 /** @var array $orders */
@@ -200,7 +201,7 @@ $carrierColors = [
                         <?php endif; ?>
                     </td>
                     <td style="text-align:right;font-weight:600">
-                        <?= number_format((float)($order->total_amount ?? 0), 2, ',', ' ') ?> BYN
+                        <?= PriceHelper::format((float)($order->total_amount ?? 0)) ?>
                     </td>
                     <td>
                         <span class="admin-badge admin-badge-<?= $statusColor ?>"><?= Html::encode($statusLabel) ?></span>
@@ -234,7 +235,7 @@ $carrierColors = [
 <div class="dispatch-summary">
     Итого заказов к отправке: <strong><?= count($orders) ?></strong>
     &nbsp;·&nbsp;
-    Сумма: <strong><?= number_format(array_sum(array_column(array_map(fn($o) => ['a' => (float)($o->total_amount ?? 0)], $orders), 'a')), 2, ',', ' ') ?> BYN</strong>
+    Сумма: <strong><?= PriceHelper::format(array_sum(array_column(array_map(fn($o) => ['a' => (float)($o->total_amount ?? 0)], $orders), 'a'))) ?></strong>
 </div>
 
 <?php endif; ?>

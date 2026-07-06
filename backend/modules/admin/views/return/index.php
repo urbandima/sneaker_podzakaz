@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\backend\modules\returns\models\ReturnRequest;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Возвраты';
 
@@ -91,7 +92,7 @@ $this->params['headerActions'] = [
                                     <div style="font-size: 0.75rem; color: var(--admin-text-secondary);"><?= Html::encode($model->order->client_email ?? $model->client_email) ?></div>
                                 <?php endif; ?>
                             </td>
-                            <td style="white-space:nowrap"><?= number_format($model->refund_amount ?? 0, 2) ?> BYN</td>
+                            <td style="white-space:nowrap"><?= PriceHelper::format($model->refund_amount ?? 0) ?></td>
                             <td>
                                 <?php $rtype = $model->return_type ?? 'refund'; ?>
                                 <span class="admin-badge admin-badge-<?= $rtype === 'commission' ? 'info' : 'warning' ?>">

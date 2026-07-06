@@ -25,11 +25,11 @@ $totalMargin  = $totalRevenue > 0 ? round($totalNet / $totalRevenue * 100, 1) : 
     </div>
     <div class="atu-kpi-card">
         <div class="atu-kpi-label">Валовая прибыль</div>
-        <div class="atu-kpi-value"><?= number_format($totalGross, 0) ?> <span style="font-size:.875rem;font-weight:400">BYN</span></div>
+        <div class="atu-kpi-value"><?= PriceHelper::formatInt($totalGross) ?></div>
     </div>
     <div class="atu-kpi-card <?= $totalNet >= 0 ? 'atu-kpi-card--green' : 'atu-kpi-card--red' ?>">
         <div class="atu-kpi-label">Чистая прибыль</div>
-        <div class="atu-kpi-value"><?= number_format($totalNet, 0) ?> <span style="font-size:.875rem;font-weight:400">BYN</span></div>
+        <div class="atu-kpi-value"><?= PriceHelper::formatInt($totalNet) ?></div>
     </div>
     <div class="atu-kpi-card">
         <div class="atu-kpi-label">Маржа</div>
@@ -84,7 +84,7 @@ $totalMargin  = $totalRevenue > 0 ? round($totalNet / $totalRevenue * 100, 1) : 
                     <td><strong><?= $monthNames[$m] ?></strong></td>
                     <td style="text-align:right"><?= PriceHelper::formatInt($row['revenue']) ?></td>
                     <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['cogs'] > 0 ? '−'.PriceHelper::formatInt($row['cogs']) : '—' ?></td>
-                    <td style="text-align:right"><strong><?= number_format($row['gross'], 0) ?></strong></td>
+                    <td style="text-align:right"><strong><?= PriceHelper::formatInt($row['gross']) ?></strong></td>
                     <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delChina'] > 0 ? '−'.PriceHelper::formatInt($row['delChina']) : '—' ?></td>
                     <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['customs'] > 0 ? '−'.PriceHelper::formatInt($row['customs']) : '—' ?></td>
                     <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delLocal'] > 0 ? '−'.PriceHelper::formatInt($row['delLocal']) : '—' ?></td>
@@ -93,7 +93,7 @@ $totalMargin  = $totalRevenue > 0 ? round($totalNet / $totalRevenue * 100, 1) : 
                     <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['other'] > 0 ? '−'.PriceHelper::formatInt($row['other']) : '—' ?></td>
                     <td style="text-align:right">
                         <strong style="color:<?= $row['net'] >= 0 ? 'var(--admin-success,#008060)' : 'var(--admin-danger,#d72c0d)' ?>">
-                            <?= number_format($row['net'], 0) ?>
+                            <?= PriceHelper::formatInt($row['net']) ?>
                         </strong>
                     </td>
                     <td style="text-align:right">
@@ -113,12 +113,12 @@ $totalMargin  = $totalRevenue > 0 ? round($totalNet / $totalRevenue * 100, 1) : 
             <tfoot>
                 <tr style="font-weight:700;background:var(--admin-surface-hover,#fafbfc)">
                     <td>ИТОГО</td>
-                    <td style="text-align:right"><?= number_format($totalRevenue, 0) ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $totalCogs > 0 ? '−'.number_format($totalCogs, 0) : '—' ?></td>
-                    <td style="text-align:right"><?= number_format($totalGross, 0) ?></td>
+                    <td style="text-align:right"><?= PriceHelper::formatInt($totalRevenue) ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $totalCogs > 0 ? '−'.PriceHelper::formatInt($totalCogs) : '—' ?></td>
+                    <td style="text-align:right"><?= PriceHelper::formatInt($totalGross) ?></td>
                     <td colspan="6"></td>
                     <td style="text-align:right;color:<?= $totalNet >= 0 ? 'var(--admin-success,#008060)' : 'var(--admin-danger,#d72c0d)' ?>">
-                        <?= number_format($totalNet, 0) ?>
+                        <?= PriceHelper::formatInt($totalNet) ?>
                     </td>
                     <td style="text-align:right">
                         <span class="status-pill" style="background:<?= $totalMargin >= 15 ? '#d1f7e5;color:#008060' : ($totalMargin >= 0 ? '#fff4e5;color:#ffa500' : '#fbeae5;color:#d72c0d') ?>">

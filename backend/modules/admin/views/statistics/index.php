@@ -17,6 +17,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Аналитика';
 
@@ -47,14 +48,14 @@ $this->params['headerActions'] = [
     <div class="admin-stat-card">
         <div class="admin-stat-icon success"><i class="bi bi-currency-exchange"></i></div>
         <div class="admin-stat-content">
-            <div class="admin-stat-value"><?= number_format($totalAmount, 0, '.', ' ') ?> <small>BYN</small></div>
+            <div class="admin-stat-value"><?= PriceHelper::formatInt($totalAmount) ?></div>
             <div class="admin-stat-label">Выручка</div>
         </div>
     </div>
     <div class="admin-stat-card">
         <div class="admin-stat-icon warning"><i class="bi bi-calculator"></i></div>
         <div class="admin-stat-content">
-            <div class="admin-stat-value"><?= number_format($avgOrderAmount, 0, '.', ' ') ?> <small>BYN</small></div>
+            <div class="admin-stat-value"><?= PriceHelper::formatInt($avgOrderAmount) ?></div>
             <div class="admin-stat-label">Средний чек</div>
         </div>
     </div>
@@ -118,8 +119,8 @@ $this->params['headerActions'] = [
                         <td><span class="stat-rank"><?= $i + 1 ?></span></td>
                         <td><?= Html::encode($p['product_name'] ?? '—') ?></td>
                         <td class="text-right"><?= $p['orders_count'] ?? 0 ?></td>
-                        <td class="text-right"><?= number_format($p['avg_price'] ?? 0, 0, '.', ' ') ?></td>
-                        <td style="text-align:right;font-weight:700"><?= number_format($p['total_revenue'] ?? 0, 0, '.', ' ') ?> BYN</td>
+                        <td class="text-right"><?= PriceHelper::formatInt($p['avg_price'] ?? 0) ?></td>
+                        <td style="text-align:right;font-weight:700"><?= PriceHelper::formatInt($p['total_revenue'] ?? 0) ?></td>
                     </tr>
                     <?php endforeach ?>
                 </tbody>
@@ -151,7 +152,7 @@ $this->params['headerActions'] = [
                     <tr>
                         <td><?= Html::encode($m->username) ?></td>
                         <td><span class="admin-badge admin-badge-info text-right"><?= count($m->createdOrders) ?></span></td>
-                        <td style="text-align:right;font-weight:600"><?= number_format($mSum, 0, '.', ' ') ?> BYN</td>
+                        <td style="text-align:right;font-weight:600"><?= PriceHelper::formatInt($mSum) ?></td>
                     </tr>
                     <?php endforeach ?>
                 </tbody>

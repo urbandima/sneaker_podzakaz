@@ -80,7 +80,7 @@ $sortIcon = function(string $col) use ($currentSort): string {
                     <td style="text-align:right;font-weight:700"><?= PriceHelper::format($row['revenue']) ?></td>
                     <td style="text-align:right;color:var(--admin-text-secondary,#6d7175)"><?= $cogs > 0 ? PriceHelper::format($cogs) : '—' ?></td>
                     <td style="text-align:right;color:<?= $row['margin'] >= 0 ? 'var(--admin-success,#008060)' : 'var(--admin-danger,#d72c0d)' ?>;font-weight:700">
-                        <?= $cogs > 0 ? number_format($row['margin'], 2) : '—' ?>
+                        <?= $cogs > 0 ? PriceHelper::format($row['margin']) : '—' ?>
                     </td>
                     <td style="text-align:right">
                         <?php if ($cogs == 0): ?>
@@ -123,7 +123,7 @@ $sortIcon = function(string $col) use ($currentSort): string {
                     <td style="text-align:right"><?= PriceHelper::format($row['revenue']) ?></td>
                     <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delivery_cost'] > 0 ? '−'.PriceHelper::format($row['delivery_cost']) : '—' ?></td>
                     <td style="text-align:right;font-weight:700;color:<?= $row['margin'] >= 0 ? 'var(--admin-success,#008060)' : 'var(--admin-danger,#d72c0d)' ?>">
-                        <?= number_format($row['margin'], 2) ?>
+                        <?= PriceHelper::format($row['margin']) ?>
                     </td>
                     <td style="text-align:right">
                         <span class="status-pill" style="background:<?= $pctBg ?>;color:<?= $pctColor ?>"><?= $pct ?>%</span>

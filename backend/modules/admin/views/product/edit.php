@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use app\backend\shared\helpers\PriceHelper;
 
 /** @var yii\web\View $this */
 /** @var app\backend\modules\catalog\models\Product $product */
@@ -731,7 +732,7 @@ if (!$product->isNewRecord) {
                             <p class="size-metric-label">Диапазон цен (BYN)</p>
                             <div class="size-metric-value">
                                 <?php if ($priceRangeMin !== null): ?>
-                                    <?= number_format($priceRangeMin, 2) ?> — <?= number_format($priceRangeMax, 2) ?>
+                                    <?= PriceHelper::format($priceRangeMin) ?> — <?= PriceHelper::format($priceRangeMax) ?>
                                 <?php else: ?>
                                     —
                                 <?php endif; ?>
@@ -816,15 +817,15 @@ if (!$product->isNewRecord) {
                                         <?php
                                         $sizePriceByn = $size->price_byn ?: ($size->price ?: null);
                                         $sizePriceDisplay = $sizePriceByn
-                                            ? number_format($sizePriceByn, 2)
-                                            : number_format($product->price, 2);
+                                            ? PriceHelper::format($sizePriceByn)
+                                            : PriceHelper::format($product->price);
                                         $sizePriceIsCustom = (bool)$sizePriceByn;
                                         ?>
                                         <div class="size-price-display" id="sp-display-<?= $size->id ?>">
                                             <span class="size-price-pill <?= $sizePriceIsCustom ? 'size-price-pill--custom' : 'size-price-pill--default' ?>"
                                                   style="cursor:pointer;" title="Нажмите для редактирования"
                                                   onclick="editSizePrice(<?= $size->id ?>)">
-                                                <?= $sizePriceDisplay ?> BYN
+                                                <?= $sizePriceDisplay ?>
                                                 <i class="bi bi-pencil ms-1" style="font-size:0.7em;opacity:0.5;"></i>
                                             </span>
                                             <?php if (!$sizePriceIsCustom): ?>
@@ -837,7 +838,7 @@ if (!$product->isNewRecord) {
                                                        class="form-control form-control-sm"
                                                        id="sp-input-<?= $size->id ?>"
                                                        value="<?= $sizePriceByn ?: '' ?>"
-                                                       placeholder="<?= number_format($product->price, 2) ?>">
+                                                       placeholder="<?= PriceHelper::format($product->price) ?>">
                                                 <button class="btn btn-success btn-sm px-1" type="button"
                                                         onclick="saveSizePrice(<?= $size->id ?>)" title="Сохранить">
                                                     <i class="bi bi-check"></i>
@@ -1625,7 +1626,7 @@ function saveSizePrice(sizeId) {
             const pill = display.querySelector('.size-price-pill');
             const formatted = priceByn > 0
                 ? priceByn.toFixed(2) + ' BYN'
-                : '<?= number_format($product->price, 2) ?> BYN';
+                : '<?= PriceHelper::format($product->price) ?>';
             pill.textContent = formatted;
             pill.className = 'size-price-pill ' + (priceByn > 0 ? 'size-price-pill--custom' : 'size-price-pill--default');
             const note = display.querySelector('small');

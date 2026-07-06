@@ -1,5 +1,6 @@
 <?php
 
+use app\backend\shared\helpers\PriceHelper;
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 use yii\helpers\Url;
@@ -212,7 +213,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         [
                             'attribute' => 'price',
                             'format' => 'raw',
-                            'value' => '<strong>' . ($product->price ? number_format($product->price, 2) : '0.00') . ' BYN</strong>',
+                            'value' => '<strong>' . PriceHelper::format($product->price) . '</strong>',
                         ],
                     ]);
                     
@@ -220,7 +221,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         $attributes[] = [
                             'attribute' => 'purchase_price',
                             'format' => 'raw',
-                            'value' => ($product->purchase_price ? number_format($product->purchase_price, 2) : '0.00') . ' BYN',
+                            'value' => PriceHelper::format($product->purchase_price),
                         ];
                     }
                     
@@ -518,14 +519,14 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                         </td>
                                         <td>
                                             <?php if ($size->price_byn): ?>
-                                                <?= number_format($size->price_byn, 2) ?> ₽
+                                                <?= PriceHelper::format($size->price_byn) ?>
                                             <?php else: ?>
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
                                             <?php if ($size->price_client_byn): ?>
-                                                <strong class="text-success"><?= number_format($size->price_client_byn, 2) ?> ₽</strong>
+                                                <strong class="text-success"><?= PriceHelper::format($size->price_client_byn) ?></strong>
                                             <?php else: ?>
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>

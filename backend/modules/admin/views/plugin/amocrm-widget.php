@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'AmoCRM Widget — настройки';
 $widgetApiKey = Yii::$app->settings->get('amocrm', 'widget_api_key', '');
@@ -117,7 +118,7 @@ $this->params['headerActions'] = [
                             <td><?= Html::encode($o->order_number) ?></td>
                             <td><?= Html::encode($o->client_name) ?></td>
                             <td><?= Html::encode($o->client_phone) ?></td>
-                            <td><?= number_format($o->total_amount, 2) ?> BYN</td>
+                            <td><?= PriceHelper::format($o->total_amount) ?></td>
                             <td>
                                 <?php if ($o->ms_deal_link): ?>
                                     <a href="<?= Html::encode($o->ms_deal_link) ?>" target="_blank" rel="noopener"

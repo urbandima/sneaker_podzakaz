@@ -22,6 +22,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\LinkPager;
 use app\frontend\assets\CatalogAsset;
+use app\backend\shared\helpers\PriceHelper;
 
 CatalogAsset::register($this);
 
@@ -163,7 +164,7 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
                             <button type="submit" class="btn btn-sm btn-primary">OK</button>
                         </div>
                         <div class="price-hint">
-                            <?= number_format($facets['priceMin']) ?> — <?= number_format($facets['priceMax']) ?> BYN
+                            <?= str_replace(' ' . \app\backend\shared\helpers\PriceHelper::CURRENCY, '', PriceHelper::formatInt($facets['priceMin'])) ?> — <?= PriceHelper::formatInt($facets['priceMax']) ?>
                         </div>
                     </form>
                 </div>

@@ -9,6 +9,7 @@
  */
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $statusPills = [
     'new'                    => ['bg' => '#eff6ff', 'color' => '#2563eb'],
@@ -70,7 +71,7 @@ foreach ($orders as $order):
         </span>
     </td>
     <td data-col="amount" style="font-weight:700;white-space:nowrap">
-        <?= number_format($order->total_amount, 2) ?> <span style="font-size:.7rem;color:var(--admin-text-secondary,#9ca3af);font-weight:400">Br</span>
+        <?= PriceHelper::format($order->total_amount) ?>
     </td>
     <td data-col="payment" style="white-space:nowrap;color:var(--admin-text-secondary,#6b7280)">
         <?= Html::encode($pmLabels[$order->payment_method ?? ''] ?? ($order->payment_method ?: '—')) ?>

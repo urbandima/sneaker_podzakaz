@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
+use app\backend\shared\helpers\PriceHelper;
 
 /** @var yii\web\View $this */
 /** @var array $settings */
@@ -107,7 +108,7 @@ $this->params['headerActions'] = [
                         <?php if ($code !== 'BYN'): ?>
                         <tr>
                             <td><strong><?= Html::encode($code) ?></strong></td>
-                            <td class="text-right"><?= number_format($rate, 4) ?> BYN</td>
+                            <td class="text-right"><?= PriceHelper::format($rate, 4) ?></td>
                         </tr>
                         <?php endif; ?>
                         <?php endforeach; ?>

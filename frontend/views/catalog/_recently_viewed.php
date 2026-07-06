@@ -5,6 +5,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\backend\shared\helpers\ProductCardHelper;
+use app\backend\shared\helpers\PriceHelper;
 
 if (empty($products)) return;
 
@@ -36,11 +37,11 @@ $defaultSizeField = 'eu_size';
                     <h3 class="product-name"><?= Html::encode($product->name) ?></h3>
                     <div class="product-price">
                         <?php if ($priceView['showRange']): ?>
-                            <span class="current-price">от <?= number_format($priceView['minPrice'], 0, '.', ' ') ?> BYN</span>
+                            <span class="current-price">от <?= PriceHelper::formatInt($priceView['minPrice']) ?></span>
                         <?php else: ?>
-                            <span class="current-price"><?= number_format($priceView['currentPrice'] ?? $product->price, 0, '.', ' ') ?> BYN</span>
+                            <span class="current-price"><?= PriceHelper::formatInt($priceView['currentPrice'] ?? $product->price) ?></span>
                             <?php if (!empty($priceView['oldPrice'])): ?>
-                                <span class="old-price"><?= number_format($priceView['oldPrice'], 0, '.', ' ') ?> BYN</span>
+                                <span class="old-price"><?= PriceHelper::formatInt($priceView['oldPrice']) ?></span>
                             <?php endif; ?>
                         <?php endif; ?>
                     </div>

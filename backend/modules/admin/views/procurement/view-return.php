@@ -1,4 +1,7 @@
 <?php
+
+use app\backend\shared\helpers\PriceHelper;
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\SupplierReturn $return */
 $this->title = $return->return_number;
@@ -51,7 +54,7 @@ $this->title = $return->return_number;
               </td>
             </tr>
             <tr><th>Общая причина</th><td><?= $return->getReasonLabel() ?></td></tr>
-            <tr><th>Сумма</th><td><strong><?= $return->total_amount ? number_format($return->total_amount, 2) . ' BYN' : '—' ?></strong></td></tr>
+            <tr><th>Сумма</th><td><strong><?= $return->total_amount ? PriceHelper::format($return->total_amount) : '—' ?></strong></td></tr>
             <tr><th>Создан</th><td><?= $return->created_at ? date('d.m.Y H:i', strtotime($return->created_at)) : '—' ?></td></tr>
           </table>
         </div>
@@ -97,8 +100,8 @@ $this->title = $return->return_number;
                   <td><?= htmlspecialchars($item->product_name) ?></td>
                   <td><?= htmlspecialchars($item->size ?? '—') ?></td>
                   <td class="text-end"><?= $item->quantity ?></td>
-                  <td class="text-end"><?= $item->price_byn ? number_format($item->price_byn, 2) : '—' ?></td>
-                  <td class="text-end"><?= $item->price_byn ? number_format($rowTotal, 2) : '—' ?></td>
+                  <td class="text-end"><?= $item->price_byn ? PriceHelper::format($item->price_byn) : '—' ?></td>
+                  <td class="text-end"><?= $item->price_byn ? PriceHelper::format($rowTotal) : '—' ?></td>
                   <td><?= htmlspecialchars($item->reason ?? '—') ?></td>
                 </tr>
                 <?php endforeach; ?>
@@ -106,7 +109,7 @@ $this->title = $return->return_number;
               <tfoot>
                 <tr class="fw-bold">
                   <td colspan="4" class="text-end">Итого:</td>
-                  <td class="text-end"><?= number_format($total, 2) ?> BYN</td>
+                  <td class="text-end"><?= PriceHelper::format($total) ?></td>
                   <td></td>
                 </tr>
               </tfoot>

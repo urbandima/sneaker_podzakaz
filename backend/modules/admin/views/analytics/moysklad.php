@@ -207,7 +207,7 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
             Дебиторская задолженность
         </h3>
         <span style="font-weight:700;color:var(--admin-warning);">
-            Итого: <?= number_format($msDebtTotal, 0, ',', ' ') ?> руб.
+            Итого: <?= PriceHelper::formatInt($msDebtTotal) ?>
         </span>
     </div>
     <div class="admin-card-body" style="padding:0;overflow-x:auto;">
@@ -227,10 +227,10 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
                 <tr>
                     <td><?= Html::encode($d['name']) ?></td>
                     <td><?= Html::encode($d['agent']) ?></td>
-                    <td style="text-align:right;"><?= number_format($d['sum'], 0, ',', ' ') ?></td>
-                    <td style="text-align:right;"><?= number_format($d['paid'], 0, ',', ' ') ?></td>
+                    <td style="text-align:right;"><?= PriceHelper::formatInt($d['sum']) ?></td>
+                    <td style="text-align:right;"><?= PriceHelper::formatInt($d['paid']) ?></td>
                     <td style="text-align:right;font-weight:700;color:var(--admin-warning);">
-                        <?= number_format($d['debt'], 0, ',', ' ') ?>
+                        <?= PriceHelper::formatInt($d['debt']) ?>
                     </td>
                     <td style="font-size:0.8rem;"><?= Html::encode(substr($d['moment'] ?? '', 0, 10)) ?></td>
                 </tr>

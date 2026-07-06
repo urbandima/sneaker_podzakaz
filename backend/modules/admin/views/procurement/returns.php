@@ -1,4 +1,7 @@
 <?php
+
+use app\backend\shared\helpers\PriceHelper;
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\SupplierReturn[] $returns */
 /** @var string $filterStatus */
@@ -87,8 +90,7 @@ $statusPills = [
             </div>
             <?php if ($r->total_amount): ?>
             <div class="return-card-amount">
-                <?= number_format($r->total_amount, 2) ?>
-                <span style="font-size:.75rem;font-weight:400;color:var(--admin-text-secondary,#6b7280)">BYN</span>
+                <?= PriceHelper::format($r->total_amount) ?>
             </div>
             <?php endif; ?>
         </div>

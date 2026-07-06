@@ -5,6 +5,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $mode = $mode ?? 'view';
 $isCreate = $mode === 'create';
@@ -1137,7 +1138,7 @@ JS, \yii\web\View::POS_END); ?>
                             <div style="font-size:0.65rem;color:var(--admin-text-secondary,#6b7280);text-transform:uppercase;letter-spacing:.04em">Заказов</div>
                         </div>
                         <div style="background:var(--admin-surface-hover,#f9fafb);border-radius:8px;padding:8px 10px;text-align:center">
-                            <div style="font-size:1.125rem;font-weight:800;color:var(--admin-text-primary,#111)"><?= $customer->total_spent ? number_format($customer->total_spent, 0, '.', ' ') . ' Br' : '—' ?></div>
+                            <div style="font-size:1.125rem;font-weight:800;color:var(--admin-text-primary,#111)"><?= $customer->total_spent ? PriceHelper::formatInt($customer->total_spent) : '—' ?></div>
                             <div style="font-size:0.65rem;color:var(--admin-text-secondary,#6b7280);text-transform:uppercase;letter-spacing:.04em">Потрачено</div>
                         </div>
                     </div>

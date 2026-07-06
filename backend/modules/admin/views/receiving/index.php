@@ -5,6 +5,7 @@
 /** @var array $kpi */
 /** @var app\backend\modules\procurement\models\Supplier[] $suppliers */
 
+use app\backend\shared\helpers\PriceHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\LinkPager;
@@ -62,7 +63,7 @@ $this->title = 'Приёмки товаров';
         <div class="rcv-kpi-lbl"><i class="bi bi-check-circle"></i> Принято в <?= date('F') ?></div>
     </div>
     <div class="rcv-kpi">
-        <div class="rcv-kpi-val"><?= number_format($kpi['total_month_byn'], 2) ?></div>
+        <div class="rcv-kpi-val"><?= PriceHelper::format($kpi['total_month_byn']) ?></div>
         <div class="rcv-kpi-lbl"><i class="bi bi-currency-exchange"></i> BYN за месяц</div>
     </div>
 </div>
@@ -138,7 +139,7 @@ $this->title = 'Приёмки товаров';
                 <span class="rcv-progress-mini-bar" style="width:<?= $pct ?>%"></span>
             </span>
         </td>
-        <td style="font-weight:600"><?= number_format($r->total_with_expenses_byn, 2) ?></td>
+        <td style="font-weight:600"><?= PriceHelper::format($r->total_with_expenses_byn) ?></td>
         <td style="color:#6b7280;font-size:.78rem">
             <?= $r->expected_date ? date('d.m.Y', strtotime($r->expected_date)) : '—' ?>
         </td>

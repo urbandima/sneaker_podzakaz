@@ -13,6 +13,7 @@ use yii\helpers\Url;
 use app\backend\modules\procurement\models\Receiving;
 use app\backend\modules\procurement\models\ReceivingExpense;
 use app\backend\modules\procurement\models\ReceivingDocument;
+use app\backend\shared\helpers\PriceHelper;
 
 $mode     = $mode ?? 'view';
 $isCreate = $mode === 'create';
@@ -220,9 +221,9 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                             <?= $item->qty_defected ?>
                         <?php endif; ?>
                     </td>
-                    <td style="text-align:right"><?= number_format($item->unit_cost_byn, 2) ?></td>
-                    <td style="text-align:right;color:#059669" id="alloc-<?= $item->id ?>"><?= number_format($item->allocated_expenses_byn, 2) ?></td>
-                    <td style="text-align:right;font-weight:700" id="final-<?= $item->id ?>"><?= number_format($item->final_cost_byn, 2) ?></td>
+                    <td style="text-align:right"><?= PriceHelper::format($item->unit_cost_byn) ?></td>
+                    <td style="text-align:right;color:#059669" id="alloc-<?= $item->id ?>"><?= PriceHelper::format($item->allocated_expenses_byn) ?></td>
+                    <td style="text-align:right;font-weight:700" id="final-<?= $item->id ?>"><?= PriceHelper::format($item->final_cost_byn) ?></td>
                     <?php if ($canEdit): ?>
                     <td>
                         <button class="btn btn-outline" style="padding:2px 7px;font-size:.72rem;color:#dc2626;border-color:#dc2626"
@@ -317,7 +318,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                     <td><?= $exp->getTypeLabel() ?></td>
                     <td style="text-align:right"><?= number_format($exp->amount, 2) ?></td>
                     <td><?= Html::encode($exp->currency) ?></td>
-                    <td style="text-align:right;font-weight:600"><?= number_format($exp->amount_byn, 2) ?></td>
+                    <td style="text-align:right;font-weight:600"><?= PriceHelper::format($exp->amount_byn) ?></td>
                     <td><span style="font-size:.75rem;color:#059669"><?= $exp->getDistributionLabel() ?></span></td>
                     <td style="color:#6b7280;font-size:.75rem"><?= Html::encode($exp->notes ?? '') ?></td>
                     <?php if ($canEdit): ?>
@@ -513,15 +514,15 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
             <div class="rcv-card-body" id="totalsBlock">
                 <div class="totals-row">
                     <span>Подытог</span>
-                    <span id="totalSubtotal"><?= number_format($receiving->subtotal_byn, 2) ?> BYN</span>
+                    <span id="totalSubtotal"><?= PriceHelper::format($receiving->subtotal_byn) ?></span>
                 </div>
                 <div class="totals-row">
                     <span>Расходы</span>
-                    <span id="totalExpenses"><?= number_format($receiving->expenses_total_byn, 2) ?> BYN</span>
+                    <span id="totalExpenses"><?= PriceHelper::format($receiving->expenses_total_byn) ?></span>
                 </div>
                 <div class="totals-row" style="margin-top:6px;padding-top:6px;border-top:2px solid #e5e7eb">
                     <span>Итого</span>
-                    <span id="totalFinal"><?= number_format($receiving->total_with_expenses_byn, 2) ?> BYN</span>
+                    <span id="totalFinal"><?= PriceHelper::format($receiving->total_with_expenses_byn) ?></span>
                 </div>
                 <div style="margin-top:10px;font-size:.75rem;color:#6b7280">
                     <div>Позиций: <strong id="totalItems"><?= $receiving->total_items ?></strong></div>

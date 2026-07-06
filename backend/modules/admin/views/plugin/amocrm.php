@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'AmoCRM — интеграция';
 
@@ -95,7 +96,7 @@ $recentOrders = \app\backend\modules\checkout\models\Order::find()
                             <td><strong>#<?= Html::encode($order->order_number) ?></strong></td>
                             <td><?= Html::encode($order->client_name) ?></td>
                             <td><?= Html::encode($order->client_phone) ?></td>
-                            <td><?= number_format($order->total_amount, 2) ?> BYN</td>
+                            <td><?= PriceHelper::format($order->total_amount) ?></td>
                             <td><span class="admin-badge admin-badge-secondary"><?= Html::encode($order->getStatusLabel()) ?></span></td>
                             <td style="font-size:12px;color:var(--admin-text-secondary)"><?= Yii::$app->formatter->asRelativeTime($order->created_at) ?></td>
                             <td>

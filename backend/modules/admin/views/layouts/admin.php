@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\backend\modules\admin\assets\AdminAsset;
+use app\backend\shared\helpers\PriceHelper;
 
 AdminAsset::register($this);
 
@@ -410,7 +411,7 @@ $controllerId = Yii::$app->controller->id;
                                         </div>
                                         <div class="admin-notif-content">
                                             <div class="admin-notif-title">Новый заказ #<?= $order->order_number ?></div>
-                                            <div class="admin-notif-text"><?= $order->client_name ?> • <?= number_format($order->total_amount, 2) ?> BYN</div>
+                                            <div class="admin-notif-text"><?= $order->client_name ?> • <?= PriceHelper::format($order->total_amount) ?></div>
                                             <div class="admin-notif-time"><?= \Yii::$app->formatter->asRelativeTime($order->created_at) ?></div>
                                         </div>
                                     </a>
