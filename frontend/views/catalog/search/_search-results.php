@@ -8,6 +8,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\backend\shared\helpers\PriceHelper;
 
 if (empty($products)): ?>
     <div class="search-results-empty">
@@ -23,7 +24,7 @@ if (empty($products)): ?>
                 <div class="search-result-info">
                     <div class="search-result-brand"><?= Html::encode($product->brand_name) ?></div>
                     <div class="search-result-name"><?= Html::encode($product->name) ?></div>
-                    <div class="search-result-price"><?= number_format($product->price, 0, '.', ' ') ?> BYN</div>
+                    <div class="search-result-price"><?= PriceHelper::formatInt($product->price) ?></div>
                 </div>
             </a>
         <?php endforeach; ?>

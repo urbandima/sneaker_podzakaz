@@ -7,6 +7,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use app\frontend\assets\AppAsset;
 use app\backend\modules\admin\models\CompanySettings;
+use app\backend\shared\helpers\PriceHelper;
 
 AppAsset::register($this);
 
@@ -133,7 +134,7 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                     $reqBank      = $companySettings['bank']     ?? '';
                     $reqBic       = $companySettings['bic']      ?? '';
                     $reqUnp       = $companySettings['unp']      ?? '';
-                    $reqAmount    = number_format((float)$model->total_amount, 2, '.', ' ') . ' BYN';
+                    $reqAmount    = PriceHelper::format((float)$model->total_amount);
                     $reqPurpose   = 'Оплата по договору оферты №' . $model->order_number;
                     $reqAllText   = implode("\n", array_filter([
                         'Получатель: '           . $reqRecipient,

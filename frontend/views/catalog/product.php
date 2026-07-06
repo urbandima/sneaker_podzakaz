@@ -12,6 +12,7 @@ use app\backend\shared\helpers\ProductCardHelper;
 use app\backend\shared\helpers\ImageHelper;
 use app\backend\shared\helpers\TextHelper;
 use app\backend\shared\components\SchemaOrgGenerator;
+use app\backend\shared\helpers\PriceHelper;
 
 // Регистрируем AssetBundle для страницы товара (все стили автоматически)
 ProductAsset::register($this);
@@ -134,8 +135,8 @@ $selectedSizeLabel = $sizeLabelMap[$selectedSize] ?? strtoupper(str_replace('_si
 
 // Данные для sticky bar
 $priceData = [
-    'price' => $productPriceView['currentPrice'] ? number_format($productPriceView['currentPrice'], 0, '.', ' ') . ' BYN' : number_format($product->price, 0, '.', ' ') . ' BYN',
-    'oldPrice' => $productPriceView['oldPrice'] ? number_format($productPriceView['oldPrice'], 0, '.', ' ') . ' BYN' : null,
+    'price' => $productPriceView['currentPrice'] ? PriceHelper::formatInt($productPriceView['currentPrice']) : PriceHelper::formatInt($product->price),
+    'oldPrice' => $productPriceView['oldPrice'] ? PriceHelper::formatInt($productPriceView['oldPrice']) : null,
     'discount' => $productPriceView['discountPercent'] ?? 0,
     'selectedSize' => $selectedSize,
     'availableSizes' => $availableSizes,
@@ -258,8 +259,8 @@ if (!empty($similarProducts)) {
         $similarProductsData[] = [
             'id' => $similar->id,
             'name' => $similar->name,
-            'price' => $similarPrice['currentPrice'] ? number_format($similarPrice['currentPrice'], 0, '.', ' ') . ' BYN' : number_format($similar->price, 0, '.', ' ') . ' BYN',
-            'oldPrice' => $similarPrice['oldPrice'] ? number_format($similarPrice['oldPrice'], 0, '.', ' ') . ' BYN' : null,
+            'price' => $similarPrice['currentPrice'] ? PriceHelper::formatInt($similarPrice['currentPrice']) : PriceHelper::formatInt($similar->price),
+            'oldPrice' => $similarPrice['oldPrice'] ? PriceHelper::formatInt($similarPrice['oldPrice']) : null,
             'discount' => $similarPrice['discountPercent'] ?? 0,
             'image' => $similar->getMainImageUrl(),
             'url' => Url::to(['/catalog/product', 'slug' => $similar->slug ?? $similar->id]),
@@ -467,9 +468,9 @@ $this->registerJsVar('productVideo', $productVideo);
             <!-- Цена -->
             <div class="product-price-section">
                 <div class="price-main">
-                    <span class="current-price"><?= $productPriceView['currentPrice'] ? number_format($productPriceView['currentPrice'], 0, '.', ' ') . ' BYN' : number_format($product->price, 0, '.', ' ') . ' BYN' ?></span>
+                    <span class="current-price"><?= $productPriceView['currentPrice'] ? PriceHelper::formatInt($productPriceView['currentPrice']) : PriceHelper::formatInt($product->price) ?></span>
                     <?php if (!empty($productPriceView['oldPrice'])): ?>
-                        <span class="old-price"><?= number_format($productPriceView['oldPrice'], 0, '.', ' ') . ' BYN' ?></span>
+                        <span class="old-price"><?= PriceHelper::formatInt($productPriceView['oldPrice']) ?></span>
                     <?php endif; ?>
                 </div>
                 
@@ -562,7 +563,7 @@ $this->registerJsVar('productVideo', $productVideo);
                     <div class="sticky-brand"><?= Html::encode($product->brand->name) ?></div>
                     <?php endif; ?>
                     <div class="sticky-title sticky-name"><?= Html::encode($productTitle) ?></div>
-                    <div class="sticky-price"><?= $productPriceView['currentPrice'] ? number_format($productPriceView['currentPrice'], 0, '.', ' ') . ' BYN' : number_format($product->price, 0, '.', ' ') . ' BYN' ?></div>
+                    <div class="sticky-price"><?= $productPriceView['currentPrice'] ? PriceHelper::formatInt($productPriceView['currentPrice']) : PriceHelper::formatInt($product->price) ?></div>
                 </div>
             </div>
 
@@ -868,9 +869,9 @@ $this->registerJsVar('productVideo', $productVideo);
                             <div class="product-brand"><?= Html::encode($similar->brand?->name ?? '') ?></div>
                             <h3 class="product-name"><?= Html::encode($similar->name) ?></h3>
                             <div class="product-price">
-                                <span class="current-price"><?= $similarPrice['currentPrice'] ? number_format($similarPrice['currentPrice'], 0, '.', ' ') . ' BYN' : number_format($similar->price, 0, '.', ' ') . ' BYN' ?></span>
+                                <span class="current-price"><?= $similarPrice['currentPrice'] ? PriceHelper::formatInt($similarPrice['currentPrice']) : PriceHelper::formatInt($similar->price) ?></span>
                                 <?php if (!empty($similarPrice['oldPrice'])): ?>
-                                    <span class="old-price"><?= number_format($similarPrice['oldPrice'], 0, '.', ' ') . ' BYN' ?></span>
+                                    <span class="old-price"><?= PriceHelper::formatInt($similarPrice['oldPrice']) ?></span>
                                 <?php endif; ?>
                             </div>
                         </div>

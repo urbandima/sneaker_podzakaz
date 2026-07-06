@@ -1,5 +1,6 @@
 <?php
 use yii\helpers\Html;
+use app\backend\shared\helpers\PriceHelper;
 
 $this->title = 'Статус заказа #' . Html::encode($order->order_number ?? '');
 $this->registerCssFile('@web/css/pages/order-track.css');
@@ -42,10 +43,10 @@ if ($currentIdx === false) $currentIdx = -1;
         <?php foreach ($order->orderItems as $item): ?>
         <div class="order-item-row">
             <span><?= Html::encode($item->product_name ?? '') ?><?= $item->size ? ' (EU ' . Html::encode($item->size) . ')' : '' ?></span>
-            <span class="order-item-price"><?= number_format($item->price ?? 0, 2) ?> BYN</span>
+            <span class="order-item-price"><?= PriceHelper::format((float)($item->price ?? 0)) ?></span>
         </div>
         <?php endforeach ?>
-        <div class="order-total">Итого: <?= number_format($order->total_amount ?? 0, 2) ?> BYN</div>
+        <div class="order-total">Итого: <?= PriceHelper::format((float)($order->total_amount ?? 0)) ?></div>
     </div>
     <?php endif ?>
 
