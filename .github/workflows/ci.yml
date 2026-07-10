@@ -184,6 +184,11 @@ jobs:
 
   # ============================================
   # DEPLOY TO PRODUCTION
+  # Requires GitHub Secrets:
+  #   SSH_HOST        — IP или hostname прод-сервера
+  #   SSH_USER        — пользователь SSH
+  #   SSH_PRIVATE_KEY — приватный ключ (~/.ssh/id_rsa)
+  #   SSH_PATH        — путь к проекту на сервере (напр. /var/www/sneaker-head)
   # ============================================
   deploy-production:
     name: Deploy to Production
@@ -193,26 +198,23 @@ jobs:
     environment: production
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: build-assets
-
-      - name: Deploy to production
+      - name: Setup SSH
         run: |
-          echo "Deploying to production server..."
-          # Add your production deployment commands here
-          # Example:
-          # ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'ENDSSH'
-          #   cd /var/www/sneaker-head
-          #   git pull origin main
-          #   composer install --no-dev --optimize-autoloader
-          #   php yii migrate --interactive=0
-          #   php yii cache/flush-all
-          # ENDSSH
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy to production via SSH
+        run: |
+          ssh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "
+            set -e
+            cd ${{ secrets.SSH_PATH }}
+            git pull origin main
+            composer install --no-dev --optimize-autoloader
+            php yii migrate --interactive=0
+            php yii cache/flush-all
+          "
 
       - name: Notify Sentry of deployment
         run: |
