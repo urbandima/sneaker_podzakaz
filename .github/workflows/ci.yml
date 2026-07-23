@@ -180,15 +180,15 @@ jobs:
         run: |
           echo "Deploying to staging server..."
           # Add your staging deployment commands here
-          # Example: rsync -avz --delete ./ user@staging:/var/www/sneaker-head/
 
   # ============================================
   # DEPLOY TO PRODUCTION
-  # Requires GitHub Secrets:
-  #   SSH_HOST        — IP или hostname прод-сервера
-  #   SSH_USER        — пользователь SSH
-  #   SSH_PRIVATE_KEY — приватный ключ (~/.ssh/id_rsa)
-  #   SSH_PATH        — путь к проекту на сервере (напр. /var/www/sneaker-head)
+  # Requires GitHub Secrets (Settings → Secrets → Actions):
+  #   SSH_HOST        — IP или hostname сервера (например: sneaker-head.by)
+  #   SSH_USER        — пользователь SSH (root / ubuntu / deploy)
+  #   SSH_PRIVATE_KEY — содержимое ~/.ssh/id_rsa (-----BEGIN ... PRIVATE KEY-----)
+  # Опционально:
+  #   SSH_PATH        — путь к проекту (по умолчанию: /var/www/sneaker-head)
   # ============================================
   deploy-production:
     name: Deploy to Production
@@ -206,10 +206,12 @@ jobs:
           ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Deploy to production via SSH
+        env:
+          DEPLOY_PATH: ${{ secrets.SSH_PATH || '/var/www/sneaker-head' }}
         run: |
           ssh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "
             set -e
-            cd ${{ secrets.SSH_PATH }}
+            cd $DEPLOY_PATH
             git pull origin main
             composer install --no-dev --optimize-autoloader
             php yii migrate --interactive=0
