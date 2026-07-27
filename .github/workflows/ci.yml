@@ -95,6 +95,13 @@ jobs:
           echo "YII_ENV=test" >> .env
           echo "YII_DEBUG=true" >> .env
 
+      - name: Run database migrations
+        run: php yii migrate --interactive=0
+        env:
+          DB_DSN: mysql:host=127.0.0.1;dbname=sneaker_test
+          DB_USERNAME: root
+          DB_PASSWORD: root
+
       - name: Run PHPUnit tests
         run: vendor/bin/phpunit --coverage-text --colors=always
         env:
