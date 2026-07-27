@@ -88,26 +88,21 @@ jobs:
       - name: Create test .env
         run: |
           cp .env.example .env
-          echo "COOKIE_VALIDATION_KEY=$(openssl rand -hex 32)" >> .env
-          echo "DB_DSN=mysql:host=127.0.0.1;dbname=sneaker_test" >> .env
-          echo "DB_USERNAME=root" >> .env
-          echo "DB_PASSWORD=root" >> .env
-          echo "YII_ENV=test" >> .env
-          echo "YII_DEBUG=true" >> .env
+          # Replace placeholder values in-place (phpdotenv uses first value; appending doesn't help)
+          sed -i "s|^DB_DSN=.*|DB_DSN=mysql:host=127.0.0.1;dbname=sneaker_test;charset=utf8mb4|" .env
+          sed -i "s|^DB_HOST=.*|DB_HOST=127.0.0.1|" .env
+          sed -i "s|^DB_NAME=.*|DB_NAME=sneaker_test|" .env
+          sed -i "s|^DB_USER=.*|DB_USER=root|" .env
+          sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env
+          sed -i "s|^YII_ENV=.*|YII_ENV=test|" .env
+          sed -i "s|^YII_DEBUG=.*|YII_DEBUG=true|" .env
+          sed -i "s|^COOKIE_VALIDATION_KEY=.*|COOKIE_VALIDATION_KEY=$(openssl rand -hex 32)|" .env
 
       - name: Run database migrations
         run: php yii migrate --interactive=0
-        env:
-          DB_DSN: mysql:host=127.0.0.1;dbname=sneaker_test
-          DB_USERNAME: root
-          DB_PASSWORD: root
 
       - name: Run PHPUnit tests
         run: vendor/bin/phpunit --coverage-text --colors=always
-        env:
-          DB_DSN: mysql:host=127.0.0.1;dbname=sneaker_test
-          DB_USERNAME: root
-          DB_PASSWORD: root
 
   # ============================================
   # BUILD ASSETS
@@ -190,12 +185,12 @@ jobs:
 
   # ============================================
   # DEPLOY TO PRODUCTION
-  # Requires GitHub Secrets (Settings → Secrets → Actions):
-  #   SSH_HOST        — IP или hostname сервера (например: sneaker-head.by)
-  #   SSH_USER        — пользователь SSH (root / ubuntu / deploy)
-  #   SSH_PRIVATE_KEY — содержимое ~/.ssh/id_rsa (-----BEGIN ... PRIVATE KEY-----)
-  # Опционально:
-  #   SSH_PATH        — путь к проекту (по умолчанию: /var/www/sneaker-head)
+  # Requires GitHub Secrets (Settings -> Secrets -> Actions):
+  #   SSH_HOST        - IP or hostname (e.g. sneaker-head.by)
+  #   SSH_USER        - SSH user (root / ubuntu / deploy)
+  #   SSH_PRIVATE_KEY - private key content (-----BEGIN ... PRIVATE KEY-----)
+  # Optional:
+  #   SSH_PATH        - project path (default: /var/www/sneaker-head)
   # ============================================
   deploy-production:
     name: Deploy to Production
