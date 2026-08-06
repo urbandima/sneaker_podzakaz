@@ -9,8 +9,13 @@ class m260318_100000_create_demo_customers extends Migration
 {
     public function safeUp()
     {
+        if (YII_ENV_PROD) {
+            echo "    > skipped: демо-аккаунты (demo123/vip123/admin123) не создаются на production\n";
+            return true;
+        }
+
         $time = time();
-        
+
         // Хеши паролей
         $demoHash = '$2y$12$zQo1DZMj3eLLVtpT4KZVz.k3gr.9AQK8R/EbQc7U128M83p4a1RJS'; // demo123
         $vipHash = '$2y$12$nmHVEfbybt2iJxwIjT0AwOFNBMlxx7UERokWfd0xwI0J2GUiq2eYK'; // vip123
