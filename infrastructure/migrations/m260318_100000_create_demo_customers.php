@@ -23,10 +23,10 @@ class m260318_100000_create_demo_customers extends Migration
             'password_hash' => $demoHash,
             'first_name' => 'Демо',
             'last_name' => 'Пользователь',
-            'address' => 'г. Минск, ул. Независимости, 1',
-            'is_active' => 1,
-            'created_at' => new \yii\db\Expression('NOW()'),
-            'updated_at' => new \yii\db\Expression('NOW()'),
+            'default_address' => 'г. Минск, ул. Независимости, 1',
+            'status' => 10,
+            'created_at' => $time,
+            'updated_at' => $time,
         ]);
         
         // VIP пользователь
@@ -36,10 +36,10 @@ class m260318_100000_create_demo_customers extends Migration
             'password_hash' => $vipHash,
             'first_name' => 'VIP',
             'last_name' => 'Клиент',
-            'address' => 'г. Минск, пр. Независимости, 100',
-            'is_active' => 1,
-            'created_at' => new \yii\db\Expression('NOW()'),
-            'updated_at' => new \yii\db\Expression('NOW()'),
+            'default_address' => 'г. Минск, пр. Независимости, 100',
+            'status' => 10,
+            'created_at' => $time,
+            'updated_at' => $time,
         ]);
         
         // Администратор
@@ -49,10 +49,10 @@ class m260318_100000_create_demo_customers extends Migration
             'password_hash' => $adminHash,
             'first_name' => 'Админ',
             'last_name' => 'Системы',
-            'address' => 'г. Минск, ул. Интернациональная, 50',
-            'is_active' => 1,
-            'created_at' => new \yii\db\Expression('NOW()'),
-            'updated_at' => new \yii\db\Expression('NOW()'),
+            'default_address' => 'г. Минск, ул. Интернациональная, 50',
+            'status' => 10,
+            'created_at' => $time,
+            'updated_at' => $time,
         ]);
     }
 
