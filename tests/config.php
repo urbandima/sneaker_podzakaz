@@ -25,7 +25,7 @@ return [
         'db' => [
             'class' => 'yii\db\Connection',
             'dsn' => env('DB_DSN', 'mysql:host=127.0.0.1;dbname=sneaker_test'),
-            'username' => env('DB_USERNAME', 'root'),
+            'username' => env('DB_USER', env('DB_USERNAME', 'root')),
             'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8mb4',
         ],

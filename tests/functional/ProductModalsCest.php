@@ -3,8 +3,8 @@
 namespace tests\functional;
 
 use tests\FunctionalTester;
-use app\modules\catalog\models\Product;
-use app\modules\catalog\models\Brand;
+use app\backend\modules\catalog\models\Product;
+use app\backend\modules\catalog\models\Brand;
 
 /**
  * Функциональные тесты для модальных окон на странице товара

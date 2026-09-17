@@ -1,0 +1,10 @@
+actor: FunctionalTester
+modules:
+    enabled:
+        - Yii2:
+            configFile: 'tests/config.php'
+            entryScript: 'index-test.php'
+            entryUrl: 'http://localhost/index-test.php'
+            cleanup: true
+            transaction: true
+        - Asserts

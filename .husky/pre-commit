@@ -1,7 +1,7 @@
 #!/bin/sh
 # Run ESLint on staged .js files before commit
 
-STAGED_JS=$(git diff --cached --name-only --diff-filter=ACM | grep '\.js$' | grep -v 'node_modules\|vendor\|min\.js')
+STAGED_JS=$(git diff --cached --name-only --diff-filter=ACM | grep '\.js$' | grep -v 'node_modules\|vendor\|min\.js' || true)
 
 if [ -z "$STAGED_JS" ]; then
     exit 0

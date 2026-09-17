@@ -116,3 +116,7 @@ cookies.txt
 .tmp/
 .claire/
 /splitwise.db
+
+# Codeception generated actors/output — regenerate via `vendor/bin/codecept build`
+tests/_output/
+tests/_support/_generated/
