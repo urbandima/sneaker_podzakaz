@@ -11,6 +11,7 @@ use yii\web\Response;
 use app\backend\modules\checkout\models\Order;
 use app\backend\modules\checkout\models\OrderItem;
 use app\backend\modules\checkout\models\OrderHistory;
+use app\backend\modules\checkout\viewmodels\CheckoutViewModel;
 use app\backend\modules\cart\models\Cart;
 
 class OrderController extends Controller
@@ -597,6 +598,7 @@ class OrderController extends Controller
 
         return $this->render('view', [
             'model' => $model,
+            'viewModel' => new CheckoutViewModel($model),
         ]);
     }
 

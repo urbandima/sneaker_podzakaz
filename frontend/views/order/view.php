@@ -2,25 +2,16 @@
 
 /** @var yii\web\View $this */
 /** @var app\backend\modules\checkout\models\Order $model */
+/** @var app\backend\modules\checkout\viewmodels\CheckoutViewModel $viewModel */
 
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\frontend\assets\AppAsset;
-use app\backend\modules\admin\models\CompanySettings;
-use app\backend\shared\helpers\PriceHelper;
 
 AppAsset::register($this);
 
-$this->title = 'Заказ #' . $model->order_number;
+$this->title = 'Заказ #' . $viewModel->orderNumber;
 $this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
-
-$companySettings = CompanySettings::getSettings();
-$_doneStatuses   = ['delivered','canceled','cancelled','returned','refunded'];
-$awaitingPayment = !$model->payment_proof && !in_array($model->status, $_doneStatuses);
-// Если заказ оплачен (или импортирован с заполненным чеком) и нужен паспорт — показываем форму
-$passportNeeded  = !in_array($model->status, $_doneStatuses)
-    && ($model->payment_proof || in_array($model->status, ['paid','imported','ordered','awaiting_warehouse','at_warehouse','processing']))
-    && $model->hasMethod('isPassportComplete') && !$model->isPassportComplete();
 ?>
 
 <div class="order-view-page">
@@ -28,8 +19,8 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
         <div class="order-view-header">
             <h1><?= Html::encode($this->title) ?></h1>
             <div class="order-status">
-                <span class="order-status-badge order-status-<?= $model->status ?>">
-                    <?= Html::encode($model->getStatusLabel()) ?>
+                <span class="order-status-badge order-status-<?= Html::encode($viewModel->status) ?>">
+                    <?= Html::encode($viewModel->statusLabel) ?>
                 </span>
             </div>
         </div>
@@ -42,21 +33,21 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                     <div class="order-info-grid">
                         <div class="order-info-item">
                             <span class="order-info-label">Номер заказа:</span>
-                            <span class="order-info-value"><?= Html::encode($model->order_number) ?></span>
+                            <span class="order-info-value"><?= Html::encode($viewModel->orderNumber) ?></span>
                         </div>
                         <div class="order-info-item">
                             <span class="order-info-label">Дата создания:</span>
-                            <span class="order-info-value"><?= date('d.m.Y H:i', $model->created_at) ?></span>
+                            <span class="order-info-value"><?= date('d.m.Y H:i', $viewModel->createdAt) ?></span>
                         </div>
                         <div class="order-info-item">
                             <span class="order-info-label">Сумма:</span>
                             <span class="order-info-value order-info-value--highlight">
-                                <?= Yii::$app->formatter->asCurrency($model->total_amount, 'BYN') ?>
+                                <?= Yii::$app->formatter->asCurrency($viewModel->totalAmount, 'BYN') ?>
                             </span>
                         </div>
                         <div class="order-info-item">
                             <span class="order-info-label">Статус:</span>
-                            <span class="order-info-value"><?= Html::encode($model->getStatusLabel()) ?></span>
+                            <span class="order-info-value"><?= Html::encode($viewModel->statusLabel) ?></span>
                         </div>
                     </div>
                 </div>
@@ -67,20 +58,20 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                     <div class="order-client-info">
                         <div class="order-client-item">
                             <span class="order-client-label">Имя:</span>
-                            <span class="order-client-value"><?= Html::encode($model->client_name) ?></span>
+                            <span class="order-client-value"><?= Html::encode($viewModel->clientName) ?></span>
                         </div>
                         <div class="order-client-item">
                             <span class="order-client-label">Телефон:</span>
-                            <span class="order-client-value"><?= Html::encode($model->client_phone) ?></span>
+                            <span class="order-client-value"><?= Html::encode($viewModel->clientPhone) ?></span>
                         </div>
                         <div class="order-client-item">
                             <span class="order-client-label">Email:</span>
-                            <span class="order-client-value"><?= Html::encode($model->client_email) ?></span>
+                            <span class="order-client-value"><?= Html::encode($viewModel->clientEmail) ?></span>
                         </div>
-                        <?php if ($model->delivery_address): ?>
+                        <?php if ($viewModel->deliveryAddress): ?>
                         <div class="order-client-item">
                             <span class="order-client-label">Адрес:</span>
-                            <span class="order-client-value"><?= Html::encode($model->delivery_address) ?></span>
+                            <span class="order-client-value"><?= Html::encode($viewModel->deliveryAddress) ?></span>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -90,11 +81,11 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                 <div class="order-view-section order-view-section--full">
                     <h2>Товары в заказе</h2>
                     <div class="order-items">
-                        <?php foreach ($model->orderItems as $item): ?>
+                        <?php foreach ($viewModel->items as $item): ?>
                         <div class="order-item">
                             <div class="order-item-info">
                                 <div class="order-item-name">
-                                    <?= Html::encode($item->product_name) ?>
+                                    <?= Html::encode($item->productName) ?>
                                 </div>
                                 <div class="order-item-details">
                                     <?php if ($item->size): ?>
@@ -112,13 +103,13 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                     <div class="order-total">
                         <span class="order-total-label">Итого:</span>
                         <span class="order-total-value">
-                            <?= Yii::$app->formatter->asCurrency($model->total_amount, 'BYN') ?>
+                            <?= Yii::$app->formatter->asCurrency($viewModel->totalAmount, 'BYN') ?>
                         </span>
                     </div>
                 </div>
 
                 <!-- ═══ ШАГ 1: Реквизиты для оплаты ═══ -->
-                <?php if ($awaitingPayment): ?>
+                <?php if ($viewModel->isAwaitingPayment): ?>
                 <div class="order-view-section order-view-section--full order-payment-step" data-step="1">
                     <div class="order-step-head">
                         <span class="order-step-num">1</span>
@@ -129,22 +120,15 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                     </div>
                     <p class="order-step-sub">Переведите указанную сумму по реквизитам ниже и приложите квитанцию на шаге 2.</p>
                     <?php
-                    $reqRecipient = !empty($companySettings['name'])    ? $companySettings['name']    : 'ИП Коляда С.С.';
-                    $reqAccount   = $companySettings['account']  ?? '';
-                    $reqBank      = $companySettings['bank']     ?? '';
-                    $reqBic       = $companySettings['bic']      ?? '';
-                    $reqUnp       = $companySettings['unp']      ?? '';
-                    $reqAmount    = PriceHelper::format((float)$model->total_amount);
-                    $reqPurpose   = 'Оплата по договору оферты №' . $model->order_number;
-                    $reqAllText   = implode("\n", array_filter([
-                        'Получатель: '           . $reqRecipient,
-                        $reqAccount ? 'Расчётный счёт: ' . $reqAccount : '',
-                        $reqBank    ? 'Банк: '            . $reqBank    : '',
-                        $reqBic     ? 'БИК: '             . $reqBic     : '',
-                        $reqUnp     ? 'УНП: '             . $reqUnp     : '',
-                        'Сумма: '                . $reqAmount,
-                        'Назначение: '           . $reqPurpose,
-                    ]));
+                    $requisites   = $viewModel->paymentRequisites;
+                    $reqRecipient = $requisites['recipient'];
+                    $reqAccount   = $requisites['account'];
+                    $reqBank      = $requisites['bank'];
+                    $reqBic       = $requisites['bic'];
+                    $reqUnp       = $requisites['unp'];
+                    $reqAmount    = $requisites['amount'];
+                    $reqPurpose   = $requisites['purpose'];
+                    $reqAllText   = $requisites['allText'];
                     ?>
                     <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
                         <button type="button" class="order-req-copy order-req-copy-all"
@@ -219,7 +203,7 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                 <?php endif; ?>
 
                 <!-- ═══ ШАГ 2: Загрузка чека оплаты ═══ -->
-                <?php if ($awaitingPayment): ?>
+                <?php if ($viewModel->isAwaitingPayment): ?>
                 <div class="order-view-section order-view-section--full order-payment-step" data-step="2">
                     <div class="order-step-head">
                         <span class="order-step-num">2</span>
@@ -227,7 +211,7 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                     </div>
                     <p class="order-step-sub">Приложите квитанцию или платёжное поручение (JPG, PNG или PDF, до 10 МБ).</p>
                     <div class="order-upload-payment">
-                        <form action="<?= Url::to(['order/upload-payment', 'token' => $model->token]) ?>" method="post" enctype="multipart/form-data">
+                        <form action="<?= Url::to(['order/upload-payment', 'token' => $viewModel->token]) ?>" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="_csrf" value="<?= Yii::$app->request->csrfToken ?>">
                             <div class="form-group">
                                 <label for="payment_proof">Файл чека / квитанции</label>
@@ -249,11 +233,11 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                 <?php endif; ?>
 
                 <!-- ═══ Подтверждение уже загруженной оплаты ═══ -->
-                <?php if ($model->payment_proof): ?>
+                <?php if ($viewModel->hasPaymentProof): ?>
                 <div class="order-view-section order-view-section--full order-payment-confirmed">
                     <h2><i class="bi bi-check-circle-fill" style="color:#16a34a"></i> Чек оплаты получен</h2>
                     <div class="order-payment-proof">
-                        <a href="<?= Html::encode(Url::to(['/order/' . $model->token . '/download-payment'])) ?>" target="_blank" class="btn btn-secondary">
+                        <a href="<?= Html::encode(Url::to(['/order/' . $viewModel->token . '/download-payment'])) ?>" target="_blank" class="btn btn-secondary">
                             <i class="bi bi-download"></i>
                             Скачать загруженный чек
                         </a>
@@ -262,7 +246,7 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                 <?php endif; ?>
 
                 <!-- ═══ ШАГ 3: Паспортные данные для ДоброПост ═══ -->
-                <?php if ($passportNeeded): ?>
+                <?php if ($viewModel->isPassportNeeded): ?>
                 <div class="order-view-section order-view-section--full order-payment-step" data-step="3">
                     <div class="order-step-head">
                         <span class="order-step-num">3</span>
@@ -271,7 +255,7 @@ $passportNeeded  = !in_array($model->status, $_doneStatuses)
                     <p class="order-step-sub">После получения оплаты необходимо заполнить паспортные данные для прохождения таможенного оформления.</p>
                     <?= $this->render('_passport_form', ['model' => $model]) ?>
                 </div>
-                <?php elseif ($model->hasMethod('isPassportComplete') && $model->isPassportComplete() && $model->payment_proof): ?>
+                <?php elseif ($viewModel->isPassportComplete && $viewModel->hasPaymentProof): ?>
                 <div class="order-view-section order-view-section--full order-payment-confirmed">
                     <h2><i class="bi bi-check-circle-fill" style="color:#16a34a"></i> Паспортные данные заполнены</h2>
                     <p style="margin:0;color:#6b7280">Спасибо! Мы получили все необходимые данные для оформления доставки.</p>
