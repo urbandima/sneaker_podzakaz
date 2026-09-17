@@ -224,18 +224,26 @@ class AmocrmClient extends Component
 
     // ── Internal HTTP ──────────────────────────────────────────────────
 
-    private function request(string $method, string $path, array $query = [], $body = null, bool $retry = true): ?array
+    /**
+     * Test seam: inject credentials directly, bypassing init()'s env/settings lookup.
+     * Lets a test subclass exercise request()/transport() without a Yii app DB/settings component.
+     */
+    protected function setCredentialsForTesting(string $domain, string $accessToken, bool $usingLongToken = true): void
     {
-        if (!$this->domain) return null;
-        $url = 'https://' . $this->domain . $path;
-        if ($query) $url .= '?' . http_build_query($query);
+        $this->domain         = $domain;
+        $this->accessToken    = $accessToken;
+        $this->usingLongToken = $usingLongToken;
+    }
 
-        $t0 = microtime(true);
+    /**
+     * Test seam: the only method that touches curl. A test subclass overrides this to
+     * return canned responses instead of hitting the real AmoCRM API.
+     *
+     * @return array{httpCode:int,body:?string,curlErrno:int}
+     */
+    protected function transport(string $method, string $url, array $headers, ?string $payload): array
+    {
         $ch = curl_init($url);
-        $headers = [
-            'Authorization: Bearer ' . $this->accessToken,
-            'Content-Type: application/json',
-        ];
         curl_setopt_array($ch, [
             CURLOPT_CUSTOMREQUEST  => $method,
             CURLOPT_HTTPHEADER     => $headers,
@@ -244,14 +252,35 @@ class AmocrmClient extends Component
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_SSL_VERIFYHOST => 2,
         ]);
-        if ($body !== null) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+        if ($payload !== null) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         }
         $responseBody = curl_exec($ch);
         $curlErrno = curl_errno($ch);
         $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $ms        = (int)((microtime(true) - $t0) * 1000);
         curl_close($ch);
+
+        return ['httpCode' => $httpCode, 'body' => $responseBody, 'curlErrno' => $curlErrno];
+    }
+
+    private function request(string $method, string $path, array $query = [], $body = null, bool $retry = true): ?array
+    {
+        if (!$this->domain) return null;
+        $url = 'https://' . $this->domain . $path;
+        if ($query) $url .= '?' . http_build_query($query);
+
+        $t0 = microtime(true);
+        $headers = [
+            'Authorization: Bearer ' . $this->accessToken,
+            'Content-Type: application/json',
+        ];
+        $payload = $body !== null ? json_encode($body) : null;
+
+        $result       = $this->transport($method, $url, $headers, $payload);
+        $httpCode     = $result['httpCode'];
+        $responseBody = $result['body'];
+        $curlErrno    = $result['curlErrno'];
+        $ms           = (int)((microtime(true) - $t0) * 1000);
 
         if ($curlErrno) {
             Yii::warning('[AmoCRM] curl error ' . $curlErrno . ' for ' . $method . ' ' . $path, 'amocrm');

@@ -144,6 +144,33 @@ class Settings extends Component
     }
 
     /**
+     * Все настройки секции как key => value.
+     * @param string $section Секция настроек
+     * @return array<string,mixed>
+     */
+    public function getSection(string $section): array
+    {
+        $result = self::$storage[$section] ?? [];
+
+        try {
+            $rows = Yii::$app->db->createCommand(
+                'SELECT `key`, value FROM {{%app_setting}} WHERE section = :s',
+                [':s' => $section]
+            )->queryAll();
+
+            foreach ($rows as $row) {
+                if (!array_key_exists($row['key'], $result)) {
+                    $result[$row['key']] = $row['value'];
+                }
+            }
+        } catch (\Exception $e) {
+            // Таблица ещё не создана — возвращаем то, что есть в кеше
+        }
+
+        return $result;
+    }
+
+    /**
      * Установка настройки (сохраняет в БД)
      * @param string $section Секция настроек
      * @param string $key Ключ настройки
