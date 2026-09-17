@@ -116,11 +116,15 @@ class AmocrmStatusMapper
         }
 
         // Legacy settings fallback
-        $all = Yii::$app->settings->getSection('amocrm') ?? [];
-        foreach ($all as $key => $val) {
-            if (str_starts_with($key, 'status_id_') && (int)$val === $statusId) {
-                return substr($key, strlen('status_id_'));
+        try {
+            $all = Yii::$app->settings->getSection('amocrm') ?? [];
+            foreach ($all as $key => $val) {
+                if (str_starts_with($key, 'status_id_') && (int)$val === $statusId) {
+                    return substr($key, strlen('status_id_'));
+                }
             }
+        } catch (\Throwable $e) {
+            Yii::warning('[AmocrmStatusMapper] fromAmocrm settings fallback error: ' . $e->getMessage(), 'amocrm');
         }
 
         // Name-based heuristic

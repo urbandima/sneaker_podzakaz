@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Конфигурация тестового окружения СНИКЕРХЭД
  */
@@ -47,6 +48,9 @@ return [
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
+        ],
+        'settings' => [
+            'class' => 'app\backend\shared\components\Settings',
         ],
     ],
     'params' => $params,
