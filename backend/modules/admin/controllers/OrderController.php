@@ -49,6 +49,7 @@ use yii\helpers\ArrayHelper;
 use app\backend\modules\checkout\models\Order;
 use app\backend\modules\checkout\models\OrderItem;
 use app\backend\modules\checkout\models\OrderHistory;
+use app\backend\modules\checkout\services\OrderStateMachine;
 use app\backend\modules\admin\models\User;
 use app\backend\modules\admin\models\AdminLog;
 use app\backend\modules\admin\services\AdminLogService;
@@ -580,16 +581,18 @@ class OrderController extends BaseAdminController
             $newStatus = Yii::$app->request->post('status');
             $comment = Yii::$app->request->post('comment', '');
 
-            // Buyout guard: confirmed_and_paid → ordered requires buyout to be filled
-            if ($model->status === 'confirmed_and_paid' && $newStatus === 'ordered') {
-                if (!$model->isBuyoutFilled()) {
-                    if (Yii::$app->request->isAjax) {
-                        Yii::$app->response->format = Response::FORMAT_JSON;
-                        return ['success' => false, 'message' => 'Необходимо заполнить блок «Выкуп» перед переводом в статус «Заказано»', 'buyout_required' => true];
+            $transitionError = OrderStateMachine::getTransitionError($model, $newStatus);
+            if ($transitionError !== null) {
+                if (Yii::$app->request->isAjax) {
+                    Yii::$app->response->format = Response::FORMAT_JSON;
+                    $response = ['success' => false, 'message' => $transitionError];
+                    if (OrderStateMachine::requiresBuyout($model->status, $newStatus)) {
+                        $response['buyout_required'] = true;
                     }
-                    $this->flashError('Заполните блок «Выкуп» перед переводом заказа в статус «Заказано».');
-                    return $this->redirect(['/admin/order/view', 'id' => $model->id]);
+                    return $response;
                 }
+                $this->flashError($transitionError);
+                return $this->redirect(['/admin/order/view', 'id' => $model->id]);
             }
 
             if (!$model->canChangeStatus($newStatus)) {
