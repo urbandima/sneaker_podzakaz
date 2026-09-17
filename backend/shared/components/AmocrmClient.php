@@ -318,7 +318,9 @@ class AmocrmClient extends Component
             return null;
         }
 
-        return json_decode($responseBody, true);
+        // AmoCRM returns 200/204 with an empty body for some endpoints (e.g. notes);
+        // json_decode(null) is a deprecation in PHP 8.1+ and fatal under strict error handling.
+        return $responseBody !== null && $responseBody !== '' ? json_decode($responseBody, true) : null;
     }
 
     private function logRequest(string $event, string $status, ?string $payload, ?string $response, int $ms): void
