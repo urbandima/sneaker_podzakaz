@@ -15,6 +15,7 @@ use app\backend\modules\checkout\models\Order;
 use app\backend\modules\checkout\models\DeliveryProvider;
 use app\backend\modules\admin\services\OrderFromLeadService;
 use app\backend\modules\admin\services\AmocrmStatusMapper;
+use app\backend\shared\services\AmocrmOrchestrator;
 
 class WebhookController extends Controller
 {
@@ -214,6 +215,15 @@ class WebhookController extends Controller
         $pipelineId = (int)($lead['pipeline_id'] ?? 0);
         $statusName = $lead['status_name'] ?? null;
         if (!$leadId) return;
+
+        if (AmocrmOrchestrator::enabled()) {
+            try {
+                (new AmocrmOrchestrator())->handleIncomingLeadStatus($leadId, $statusId, $pipelineId, $statusName);
+            } catch (\Throwable $e) {
+                Yii::error('[Webhook AMO] handleLeadStatus (orchestrator): ' . $e->getMessage(), 'amocrm');
+            }
+            return;
+        }
 
         $order = Order::findOne(['amocrm_lead_id' => $leadId]);
 

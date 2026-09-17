@@ -5,6 +5,7 @@ namespace app\backend\modules\admin\controllers;
 use Yii;
 use yii\web\Response;
 use app\infrastructure\plugins\PluginManager;
+use app\backend\shared\services\AmocrmOrchestrator;
 
 class PluginController extends BaseAdminController
 {
@@ -281,6 +282,15 @@ class PluginController extends BaseAdminController
 
     private function syncOrderToAmo(\app\backend\shared\components\AmocrmClient $amo, $order): bool
     {
+        if (AmocrmOrchestrator::enabled()) {
+            try {
+                return (new AmocrmOrchestrator($amo))->createDealForOrder($order) !== null;
+            } catch (\Exception $e) {
+                Yii::error('AmoCRM sync (orchestrator): ' . $e->getMessage(), 'amocrm');
+                return false;
+            }
+        }
+
         try {
             $s = Yii::$app->settings;
             $recipientName = trim(($order->recipient_first_name ?? '') . ' ' . ($order->recipient_last_name ?? ''));
