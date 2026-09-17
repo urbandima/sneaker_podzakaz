@@ -586,7 +586,7 @@ document.addEventListener('click', function(e) {
 
 .order-view-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-6);
 }
 
@@ -1162,7 +1162,7 @@ document.addEventListener('click', function(e) {
     }
 
     .order-view-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .order-view-header h1 {
