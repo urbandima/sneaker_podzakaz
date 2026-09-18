@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 SSH_USER="sneakerh"
 SSH_HOST="vh124.hoster.by"
 SSH_PORT="22"
-SSH_PASS="4R6xu){VWj"
+SSH_PASS="${SSH_PASS:?Установите переменную окружения SSH_PASS перед запуском — пароль больше не хранится в репозитории}"
 LOCAL_PORT="3306"
 REMOTE_PORT="3306"
 

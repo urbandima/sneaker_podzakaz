@@ -14,13 +14,13 @@ NC='\033[0m' # No Color
 SSH_HOST="93.125.99.7"
 SSH_PORT="22"
 SSH_USER="sneakerh"
-SSH_PASS="4R6xu){VWj"
+SSH_PASS="${SSH_PASS:?Установите переменную окружения SSH_PASS перед запуском — пароль больше не хранится в репозитории}"
 DEPLOY_PATH="/home/sneakerh/zakaz-test.sneaker-head.by"
 
 # База данных
 DB_NAME="sneakerh_username_order_management"
 DB_USER="sneakerh_username_order_user"
-DB_PASS="kefir1kefir"
+DB_PASS="${DB_PASS:?Установите переменную окружения DB_PASS перед запуском — пароль больше не хранится в репозитории}"
 
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}ДЕПЛОЙ НА zakaz-test.sneaker-head.by${NC}"
