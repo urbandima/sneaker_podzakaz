@@ -55,6 +55,7 @@ use app\backend\modules\admin\models\User;
 use app\backend\modules\admin\models\AdminLog;
 use app\backend\modules\admin\services\AdminLogService;
 use app\backend\modules\admin\services\OrderShippingService;
+use app\backend\modules\admin\services\OrderPaymentService;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -540,7 +541,7 @@ class OrderController extends BaseAdminController
                 }
 
                 $items = Yii::$app->request->post('OrderItem', []);
-                $this->saveOrderItems($model, $items, true);
+                (new OrderPaymentService())->saveOrderItems($model, $items, true);
 
                 // Инвалидируем кеш статистики
                 TagDependency::invalidate(Yii::$app->cache, ['orders-stats']);
@@ -690,105 +691,16 @@ class OrderController extends BaseAdminController
         }
 
         $post = Yii::$app->request->post();
-
-        if (isset($post['purchase_cost'])) {
-            $model->purchase_cost     = $post['purchase_cost'];
-        }
-        if (isset($post['purchase_currency'])) {
-            $model->purchase_currency = $post['purchase_currency'];
-        }
-        if (isset($post['purchase_date'])) {
-            $model->purchase_date     = $post['purchase_date'];
-        }
-        if (isset($post['purchase_user_id'])) {
-            $model->purchase_user_id  = (int)$post['purchase_user_id'];
-        }
-        if (!empty($post['china_track_number'])) {
-            $model->china_track_number = $post['china_track_number'];
-        }
-
-        // File upload for receipt — whitelist by extension + real MIME type (RCE prevention)
         $receipt = \yii\web\UploadedFile::getInstanceByName('purchase_receipt');
-        if ($receipt) {
-            $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf'];
-            $allowedMimeTypes = [
-                'image/jpeg', 'image/png', 'image/webp', 'application/pdf',
-            ];
-            $extension = strtolower($receipt->extension);
-            $mimeType = mime_content_type($receipt->tempName);
 
-            if (!in_array($extension, $allowedExtensions, true) || !in_array($mimeType, $allowedMimeTypes, true)) {
-                Yii::$app->response->statusCode = 422;
-                return ['success' => false, 'message' => 'Недопустимый формат файла. Разрешены: jpg, png, webp, pdf'];
-            }
+        $result = (new OrderPaymentService())->saveBuyout($model, $post, $receipt);
 
-            $uploadDir = Yii::getAlias('@webroot') . '/uploads/receipts/';
-            if (!is_dir($uploadDir)) {
-                @mkdir($uploadDir, 0755, true);
-            }
-            if (!file_exists($uploadDir . '.htaccess')) {
-                @file_put_contents($uploadDir . '.htaccess', "php_flag engine off\n<FilesMatch \"\\.(php|php\\d?|phtml|phar)$\">\nRequire all denied\n</FilesMatch>\n");
-            }
-            $filename = 'receipt_' . $model->id . '_' . time() . '.' . $extension;
-            if ($receipt->saveAs($uploadDir . $filename)) {
-                $model->purchase_receipt_url = '/uploads/receipts/' . $filename;
-            }
+        if (isset($result['status_code'])) {
+            Yii::$app->response->statusCode = $result['status_code'];
+            unset($result['status_code']);
         }
 
-        $model->purchase_status = 'draft';
-
-        // Auto-fill product_price from purchase_cost if empty
-        if ((float)$model->purchase_cost > 0 && (float)($model->product_price ?? 0) == 0) {
-            $model->product_price = $model->purchase_cost;
-        }
-
-        // Set expected_delivery_at if not already set
-        if (empty($model->expected_delivery_at)) {
-            $model->expected_delivery_at = $model->computeExpectedDelivery();
-        }
-
-        $model->save(false);
-
-        // Create or update linked Buyout
-        try {
-            $link   = \app\backend\modules\procurement\models\BuyoutOrderLink::find()
-                ->where(['order_id' => $model->id])->one();
-            $buyout = $link
-                ? \app\backend\modules\procurement\models\Buyout::findOne($link->buyout_id)
-                : null;
-
-            if (!$buyout) {
-                $buyout = new \app\backend\modules\procurement\models\Buyout();
-            }
-
-            $buyout->status           = \app\backend\modules\procurement\models\Buyout::STATUS_DRAFT;
-            $buyout->unit_cost_source = (float)($model->purchase_cost ?: 0);
-            $buyout->source_currency  = $model->purchase_currency ?: 'CNY';
-            $buyout->tracking_number  = $model->china_track_number ?: '';
-            $buyout->receipt_url      = $model->purchase_receipt_url ?: '';
-            $buyout->ordered_at       = !empty($model->purchase_date)
-                ? strtotime($model->purchase_date) : null;
-            $buyout->buyer_user_id    = $model->purchase_user_id ?: Yii::$app->user->id;
-            $buyout->source           = 'manual';
-            $buyout->qty              = 1;
-
-            if ($buyout->save(false) && !$link) {
-                $link            = new \app\backend\modules\procurement\models\BuyoutOrderLink();
-                $link->buyout_id = $buyout->id;
-                $link->order_id  = $model->id;
-                $link->qty       = 1;
-                $link->save(false);
-            }
-        } catch (\Throwable $e) {
-            Yii::warning('Buyout save error for order #' . $id . ': ' . $e->getMessage(), 'order');
-        }
-
-        return [
-            'success'       => true,
-            'message'       => 'Данные выкупа сохранены',
-            'buyout_filled' => $model->isBuyoutFilled(),
-            'product_price' => (float)$model->product_price,
-        ];
+        return $result;
     }
 
     /**
@@ -992,49 +904,6 @@ class OrderController extends BaseAdminController
         }
 
         return $model;
-    }
-
-    protected function saveOrderItems(Order $order, array $items, bool $replaceExisting): array
-    {
-        if ($replaceExisting) {
-            OrderItem::deleteAll(['order_id' => $order->id]);
-        }
-
-        $totalAmount = 0;
-        $itemCount = 0;
-
-        foreach ($items as $itemData) {
-            $productName = trim((string)($itemData['product_name'] ?? ''));
-            $priceRaw = $itemData['price'] ?? null;
-
-            if ($productName === '' || $priceRaw === null || $priceRaw === '') {
-                continue;
-            }
-
-            $item = new OrderItem();
-            $item->order_id = $order->id;
-            $item->product_name = $productName;
-            $item->quantity = isset($itemData['quantity']) ? (int)$itemData['quantity'] : 1;
-            $item->price = (float)$priceRaw;
-
-            if (!$item->save()) {
-                throw new \Exception('Ошибка сохранения товара: ' . json_encode($item->errors));
-            }
-
-            $totalAmount += $item->total;
-            $itemCount++;
-        }
-
-        if ($itemCount === 0) {
-            throw new \Exception('Необходимо добавить хотя бы один товар в заказ');
-        }
-
-        $order->total_amount = $totalAmount;
-        if (!$order->save(false)) {
-            throw new \Exception('Ошибка обновления суммы заказа');
-        }
-
-        return [$totalAmount, $itemCount];
     }
 
     /**
@@ -1738,7 +1607,7 @@ class OrderController extends BaseAdminController
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            [$totalAmount, $itemCount] = $this->saveOrderItems($model, $items, true);
+            [$totalAmount, $itemCount] = (new OrderPaymentService())->saveOrderItems($model, $items, true);
             $transaction->commit();
             $this->flashSuccess('Состав заказа обновлён. Итого: ' . number_format($totalAmount, 2) . ' Br (' . $itemCount . ' позиций)');
         } catch (\Exception $e) {
