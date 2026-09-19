@@ -38,9 +38,9 @@ const paths = {
     js: {
         // Core (загружается везде)
         core: [
-            'web/assets/vendor/jquery/jquery.min.js',
-            'web/assets/vendor/yii2/js/yii.js',
-            'web/assets/vendor/yii2/js/yii.activeForm.js',
+            'assets/vendor/jquery/jquery.min.js',
+            'assets/vendor/yii2/js/yii.js',
+            'assets/vendor/yii2/js/yii.activeForm.js',
             'web/js/utils.js',
             'web/js/global-helpers.js',
             'web/js/notifications.js',
@@ -52,7 +52,7 @@ const paths = {
         ],
         // Bootstrap JS
         bootstrap: [
-            'web/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'
+            'assets/vendor/bootstrap/js/bootstrap.bundle.min.js'
         ],
         // Каталог
         catalog: [
@@ -134,14 +134,6 @@ gulp.task('admin-css', function () {
         .pipe(gulp.dest(paths.css.dest));
 });
 
-// Vendor CSS (Bootstrap)
-gulp.task('vendor-css', function () {
-    return gulp.src(paths.css.vendor)
-        .pipe(concat('vendor-bundle.min.css'))
-        .pipe(cleanCSS({ compatibility: 'ie11', level: 2 }))
-        .pipe(gulp.dest(paths.css.dest));
-});
-
 // === JS BUNDLES ===
 
 // Core JS
@@ -211,13 +203,14 @@ gulp.task('bootstrap-js', function () {
 // === COMPOSITE TASKS ===
 
 // Все CSS бандлы
+// Bootstrap CSS сюда не входит: он публикуется на PHP-стороне через
+// yii\bootstrap5\BootstrapAsset (frontend/assets/BaseAsset.php), gulp-пайплайн его не собирает.
 gulp.task('css-bundles', gulp.parallel(
     'critical-css',
     'public-css',
     'catalog-css',
     'product-css',
-    'admin-css',
-    'vendor-css'
+    'admin-css'
 ));
 
 // Все JS бандлы
