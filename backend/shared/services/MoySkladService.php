@@ -42,7 +42,7 @@ class MoySkladService extends Component
         if (!empty($apiKey)) {
             $this->authHeader = 'Bearer ' . $apiKey;
         } else {
-            $login    = Yii::$app->settings->get('moysklad', 'login',    'admin@sneakerculture');
+            $login    = Yii::$app->settings->get('moysklad', 'login', 'admin@sneakerculture');
             $password = Yii::$app->settings->get('moysklad', 'password', 'NorTwe1534');
             $this->authHeader = 'Basic ' . base64_encode("{$login}:{$password}");
         }
@@ -240,9 +240,15 @@ class MoySkladService extends Component
 
         // Create new counterparty
         $payload = ['name' => $name];
-        if ($email) $payload['email'] = $email;
-        if ($order->client_phone) $payload['phone'] = $order->client_phone;
-        if ($order->delivery_address) $payload['actualAddress'] = $order->delivery_address;
+        if ($email) {
+            $payload['email'] = $email;
+        }
+        if ($order->client_phone) {
+            $payload['phone'] = $order->client_phone;
+        }
+        if ($order->delivery_address) {
+            $payload['actualAddress'] = $order->delivery_address;
+        }
 
         return $this->request('POST', '/entity/counterparty', $payload);
     }
@@ -614,8 +620,12 @@ class MoySkladService extends Component
 
         // Update financial fields
         $updates = [];
-        if ($payedSum !== null)   $updates['ms_payed_sum']   = $payedSum;
-        if ($shippedSum !== null) $updates['ms_shipped_sum'] = $shippedSum;
+        if ($payedSum !== null) {
+            $updates['ms_payed_sum']   = $payedSum;
+        }
+        if ($shippedSum !== null) {
+            $updates['ms_shipped_sum'] = $shippedSum;
+        }
         if (!empty($updates)) {
             \Yii::$app->db->createCommand()->update('order', $updates, ['id' => $order->id])->execute();
         }

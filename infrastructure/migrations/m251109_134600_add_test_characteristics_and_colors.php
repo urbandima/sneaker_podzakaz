@@ -18,7 +18,7 @@ class m251109_134600_add_test_characteristics_and_colors extends Migration
             ['fastening', 'Тип застежки', 'multiselect', 1, 1, 5],
             ['country_origin', 'Страна производства', 'select', 1, 1, 6],
         ];
-        
+
         foreach ($characteristics as $char) {
             $exists = $this->db->createCommand("SELECT COUNT(*) FROM {{%characteristic}} WHERE `key`=:key", [':key' => $char[0]])->queryScalar();
             if (!$exists) {
@@ -74,13 +74,13 @@ class m251109_134600_add_test_characteristics_and_colors extends Migration
             [$countryId, 'Индонезия', 'indonesia', 3, 1],
             [$countryId, 'США', 'usa', 4, 1],
         ];
-        
+
         foreach ($values as $val) {
             $exists = $this->db->createCommand(
                 "SELECT COUNT(*) FROM {{%characteristic_value}} WHERE characteristic_id=:char_id AND slug=:slug",
                 [':char_id' => $val[0], ':slug' => $val[2]]
             )->queryScalar();
-            
+
             if (!$exists) {
                 $this->insert('{{%characteristic_value}}', [
                     'characteristic_id' => $val[0],
@@ -94,7 +94,7 @@ class m251109_134600_add_test_characteristics_and_colors extends Migration
 
         // 9. Добавляем цвета товаров (для первых 20 товаров)
         $products = $this->db->createCommand("SELECT id FROM {{%product}} WHERE is_active=1 LIMIT 20")->queryColumn();
-        
+
         $colors = [
             ['Черный', '#000000'],
             ['Белый', '#FFFFFF'],
@@ -112,7 +112,7 @@ class m251109_134600_add_test_characteristics_and_colors extends Migration
                 "SELECT COUNT(*) FROM {{%product_color}} WHERE product_id=:pid",
                 [':pid' => $productId]
             )->queryScalar();
-            
+
             if (!$existingColors) {
                 $color1 = $colors[$index % count($colors)];
                 $this->insert('{{%product_color}}', [
@@ -120,7 +120,7 @@ class m251109_134600_add_test_characteristics_and_colors extends Migration
                     'name' => $color1[0],
                     'hex' => $color1[1],
                 ]);
-                
+
                 // Добавляем второй цвет для половины товаров
                 if ($index % 2 === 0 && $index + 1 < count($colors)) {
                     $color2 = $colors[($index + 1) % count($colors)];
@@ -164,45 +164,45 @@ class m251109_134600_add_test_characteristics_and_colors extends Migration
                 "SELECT COUNT(*) FROM {{%product_characteristic_value}} WHERE product_id=:pid",
                 [':pid' => $productId]
             )->queryScalar();
-            
+
             if (!$existingChars) {
                 $values = $valuesByProduct[$index % count($valuesByProduct)];
-                
+
                 // Материал
                 $this->insert('{{%product_characteristic_value}}', [
                     'product_id' => $productId,
                     'characteristic_id' => $materialId,
                     'characteristic_value_id' => $values[0],
                 ]);
-                
+
                 // Сезон
                 $this->insert('{{%product_characteristic_value}}', [
                     'product_id' => $productId,
                     'characteristic_id' => $seasonId,
                     'characteristic_value_id' => $values[1],
                 ]);
-                
+
                 // Пол
                 $this->insert('{{%product_characteristic_value}}', [
                     'product_id' => $productId,
                     'characteristic_id' => $genderId,
                     'characteristic_value_id' => $values[2],
                 ]);
-                
+
                 // Высота
                 $this->insert('{{%product_characteristic_value}}', [
                     'product_id' => $productId,
                     'characteristic_id' => $heightId,
                     'characteristic_value_id' => $values[3],
                 ]);
-                
+
                 // Застежка
                 $this->insert('{{%product_characteristic_value}}', [
                     'product_id' => $productId,
                     'characteristic_id' => $fasteningId,
                     'characteristic_value_id' => $values[4],
                 ]);
-                
+
                 // Страна
                 $this->insert('{{%product_characteristic_value}}', [
                     'product_id' => $productId,
@@ -225,7 +225,7 @@ class m251109_134600_add_test_characteristics_and_colors extends Migration
         $this->delete('{{%product_color}}');
         $this->delete('{{%characteristic_value}}');
         $this->delete('{{%characteristic}}');
-        
+
         echo "Тестовые данные удалены\n";
     }
 }

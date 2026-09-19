@@ -2,15 +2,16 @@
 
 /**
  * Coupon Usage Analytics Dashboard
- * 
+ *
  * Рекомендация #35: Usage Analytics
- * 
+ *
  * Метрики:
  * - Использование купонов
  * - Выручка с купонами
  * - Средний чек с купоном
  * - Конверсия
  */
+
 ?>
 
 <div class="coupon-analytics-dashboard">
@@ -96,7 +97,7 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($topCoupons ?? [] as $coupon): ?>
+                <?php foreach ($topCoupons ?? [] as $coupon) : ?>
                 <tr>
                     <td><code><?= Html::encode($coupon['code']) ?></code></td>
                     <td><?= Html::encode($coupon['name']) ?></td>

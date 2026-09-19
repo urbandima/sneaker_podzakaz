@@ -29,21 +29,21 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 <!-- LANDING WITHOUT MENU -->
 <main role="main" class="flex-shrink-0">
     <div class="container-fluid p-0">
-        <?php if (Yii::$app->session->hasFlash('success')): ?>
+        <?php if (Yii::$app->session->hasFlash('success')) : ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin: 1rem;">
                 <?= Yii::$app->session->getFlash('success') ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
 
-        <?php if (Yii::$app->session->hasFlash('error')): ?>
+        <?php if (Yii::$app->session->hasFlash('error')) : ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin: 1rem;">
                 <?= Yii::$app->session->getFlash('error') ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
 
-        <?php if (Yii::$app->session->hasFlash('warning')): ?>
+        <?php if (Yii::$app->session->hasFlash('warning')) : ?>
             <div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin: 1rem;">
                 <?= Html::encode(Yii::$app->session->getFlash('warning')) ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>

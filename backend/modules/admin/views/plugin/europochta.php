@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -82,12 +83,12 @@ $this->params['headerActions'] = [
                    oninput="filterPvzTable(this.value)" style="max-width:360px">
             <span id="pvzMatchCount" style="align-self:center;font-size:0.82rem;color:var(--admin-text-secondary)"></span>
         </div>
-        <?php if (empty($pvzList)): ?>
+        <?php if (empty($pvzList)) : ?>
         <p style="color:var(--admin-text-secondary);font-size:0.875rem">
             Пункты выдачи не загружены.
             Добавьте данные в <a href="<?= Url::to(['/admin/settings/shipping']) ?>">настройках доставки</a>.
         </p>
-        <?php else: ?>
+        <?php else : ?>
         <div style="max-height:400px;overflow-y:auto;border:1px solid var(--admin-border,#e5e7eb);border-radius:8px">
             <table class="admin-table" id="pvzTable" style="margin:0">
                 <thead>
@@ -98,7 +99,7 @@ $this->params['headerActions'] = [
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($pvzList as $pt): ?>
+                    <?php foreach ($pvzList as $pt) : ?>
                     <tr class="pvz-row">
                         <td><?= Html::encode($pt['num'] ?? '') ?></td>
                         <td><?= Html::encode($pt['city'] ?? '') ?></td>
@@ -148,14 +149,14 @@ function filterPvzTable(q) {
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($statusMappings as $m): ?>
+                <?php foreach ($statusMappings as $m) : ?>
                 <tr>
                     <td><?= Html::encode($m->provider_status_name) ?></td>
                     <td><code><?= Html::encode($m->internal_status) ?></code></td>
                     <td><?= Html::encode($m->display_name) ?></td>
                 </tr>
                 <?php endforeach; ?>
-                <?php if (empty($statusMappings)): ?>
+                <?php if (empty($statusMappings)) : ?>
                 <tr><td colspan="3" style="color:var(--admin-text-secondary);text-align:center">Статусы не настроены</td></tr>
                 <?php endif; ?>
             </tbody>

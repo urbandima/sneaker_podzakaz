@@ -2,14 +2,15 @@
 
 /**
  * ApiDocController — Генерация OpenAPI документации
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Автоматическая генерация Swagger/OpenAPI документации для REST API.
- * 
+ *
  * ENDPOINTS:
  * - /api/doc - Swagger UI
  * - /api/doc/json - OpenAPI JSON спецификация
  */
+
 namespace app\api\controllers;
 
 use Yii;
@@ -19,7 +20,7 @@ use yii\web\Response;
 class DocController extends Controller
 {
     public $layout = false;
-    
+
     /**
      * Swagger UI страница
      */
@@ -29,17 +30,17 @@ class DocController extends Controller
             'specUrl' => '/api/doc/json',
         ]);
     }
-    
+
     /**
      * OpenAPI JSON спецификация
      */
     public function actionJson()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         return $this->generateOpenApiSpec();
     }
-    
+
     /**
      * Генерация OpenAPI спецификации
      */
@@ -145,7 +146,7 @@ class DocController extends Controller
                         ],
                     ],
                 ],
-                
+
                 // Cart API
                 '/cart/add' => [
                     'post' => [
@@ -203,7 +204,7 @@ class DocController extends Controller
                         ],
                     ],
                 ],
-                
+
                 // Checkout API
                 '/checkout/create' => [
                     'post' => [

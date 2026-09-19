@@ -15,6 +15,7 @@
  * - Category (модель категории)
  * - Product (для подсчёта товаров)
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;

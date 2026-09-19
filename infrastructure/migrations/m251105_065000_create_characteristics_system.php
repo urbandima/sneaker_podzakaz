@@ -4,7 +4,7 @@ use yii\db\Migration;
 
 /**
  * Создание комплексной системы справочников характеристик товаров
- * 
+ *
  * Структура:
  * - characteristic - справочник типов характеристик (материал, сезон, пол и т.д.)
  * - characteristic_value - справочник значений характеристик (кожа, замша, зима и т.д.)
@@ -53,7 +53,7 @@ class m251105_065000_create_characteristics_system extends Migration
         $this->createIndex('idx_characteristic_value_char_id', '{{%characteristic_value}}', 'characteristic_id');
         $this->createIndex('idx_characteristic_value_slug', '{{%characteristic_value}}', 'slug');
         $this->createIndex('idx_characteristic_value_active', '{{%characteristic_value}}', 'is_active');
-        
+
         $this->addForeignKey(
             'fk_characteristic_value_characteristic',
             '{{%characteristic_value}}',
@@ -113,7 +113,7 @@ class m251105_065000_create_characteristics_system extends Migration
             ['material', 'Материал', 'select', 1, 1],
             ['upper_material', 'Материал верха', 'select', 1, 2],
             ['sole_material', 'Материал подошвы', 'select', 1, 3],
-            
+
             // Характеристики
             ['season', 'Сезон', 'select', 1, 10],
             ['gender', 'Пол', 'select', 1, 11],
@@ -121,16 +121,16 @@ class m251105_065000_create_characteristics_system extends Migration
             ['height', 'Высота', 'select', 1, 13],
             ['toe_style', 'Тип носка', 'select', 0, 14],
             ['heel_type', 'Тип каблука', 'select', 0, 15],
-            
+
             // Цвет и стиль
             ['color', 'Цвет', 'select', 1, 20],
             ['style_code', 'Код стиля', 'text', 0, 21],
-            
+
             // Дополнительно
             ['country_of_origin', 'Страна производства', 'select', 1, 30],
             ['release_year', 'Год выпуска', 'number', 0, 31],
             ['weight', 'Вес (грамм)', 'number', 0, 32],
-            
+
             // Функциональность
             ['functionality', 'Функциональность', 'multiselect', 0, 40],
         ]);
@@ -253,8 +253,9 @@ class m251105_065000_create_characteristics_system extends Migration
             $rows[] = [$characteristicId, $name, $slug, $sortOrder++];
         }
 
-        $this->batchInsert('{{%characteristic_value}}', 
-            ['characteristic_id', 'value', 'slug', 'sort_order'], 
+        $this->batchInsert(
+            '{{%characteristic_value}}',
+            ['characteristic_id', 'value', 'slug', 'sort_order'],
             $rows
         );
     }
@@ -268,7 +269,7 @@ class m251105_065000_create_characteristics_system extends Migration
 
         $this->dropForeignKey('fk_characteristic_value_characteristic', '{{%characteristic_value}}');
         $this->dropTable('{{%characteristic_value}}');
-        
+
         $this->dropTable('{{%characteristic}}');
 
         return true;

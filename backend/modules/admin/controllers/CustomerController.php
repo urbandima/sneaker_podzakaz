@@ -27,6 +27,7 @@
  * ДОСТУП:
  * - Администраторы и менеджеры
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -180,7 +181,10 @@ class CustomerController extends BaseAdminController
         }
 
         $loyaltyBalance = 0;
-        try { $loyaltyBalance = LoyaltyPoints::getBalance($id); } catch (\Exception $e) {}
+        try {
+            $loyaltyBalance = LoyaltyPoints::getBalance($id);
+        } catch (\Exception $e) {
+        }
 
         $recentOrders = Order::find()
             ->where(['customer_id' => $id])
@@ -608,7 +612,7 @@ class CustomerController extends BaseAdminController
         }
 
         // Очищаем теги от опасных символов
-        $tags = array_map(function($tag) {
+        $tags = array_map(function ($tag) {
             return preg_replace('/[^а-яёА-ЯЁa-zA-Z0-9\s\-_]/u', '', $tag);
         }, $tags);
         $tags = array_filter(array_unique($tags));
@@ -780,7 +784,7 @@ class CustomerController extends BaseAdminController
             ->asArray()
             ->all();
 
-        return array_map(function($c) {
+        return array_map(function ($c) {
             $name = trim(($c['first_name'] ?? '') . ' ' . ($c['last_name'] ?? ''));
             return [
                 'id'       => $c['id'],
@@ -855,7 +859,9 @@ class CustomerController extends BaseAdminController
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $q = Yii::$app->request->get('q', '');
-        if (strlen($q) < 2) return [];
+        if (strlen($q) < 2) {
+            return [];
+        }
 
         $rows = Customer::find()
             ->select(['id', 'TRIM(CONCAT(COALESCE(last_name,"")," ",COALESCE(first_name,""))) AS name', 'email'])
@@ -871,5 +877,4 @@ class CustomerController extends BaseAdminController
 
         return $rows;
     }
-
 }

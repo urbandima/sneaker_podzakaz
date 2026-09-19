@@ -2,11 +2,11 @@
 
 /**
  * CurrencySetting — Модель настроек валют
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Настройки валют для калькулятора цен: курсы, наценки,
  * стоимость доставки. Поддержка мультивалютности.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - currency_code: код валюты (BYN, RUB, CNY)
  * - currency_symbol: символ (Br, ₽, ¥)
@@ -15,16 +15,17 @@
  * - is_active: активна
  * - markup_percent: процент наценки
  * - delivery_fee: стоимость доставки
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - TariffController/admin (управление валютами)
  * - Калькулятор цен на фронтенде
  * - Конвертация цен в заказах
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Одна базовая валюта (is_base = true)
  * - Автоматическое обновление курсов
  */
+
 namespace app\backend\modules\admin\models;
 
 use Yii;
@@ -85,7 +86,7 @@ class CurrencySetting extends ActiveRecord
             'updated_at' => 'Обновлено',
         ];
     }
-    
+
     /**
      * Получить базовую валюту
      */
@@ -93,7 +94,7 @@ class CurrencySetting extends ActiveRecord
     {
         return self::findOne(['is_base' => true]);
     }
-    
+
     /**
      * Получить валюту по коду
      */
@@ -101,11 +102,11 @@ class CurrencySetting extends ActiveRecord
     {
         return self::findOne(['currency_code' => $code, 'is_active' => true]);
     }
-    
+
     /**
      * Округлить цену до "красивого" значения, заканчивающегося на 9
      * Примеры: 365.48 → 359, 419.84 → 419, 324.71 → 319
-     * 
+     *
      * @param float $price Исходная цена
      * @return int Округленная цена
      */
@@ -113,20 +114,20 @@ class CurrencySetting extends ActiveRecord
     {
         $floored = floor($price);
         $result = floor($floored / 10) * 10 + 9;
-        
+
         // Если результат больше исходной цены, отнимаем 10
         if ($result > $floored) {
             $result -= 10;
         }
-        
+
         return $result;
     }
-    
+
     /**
      * Конвертировать из CNY в целевую валюту с учетом наценки и доставки
      * Формула: (price_cny * exchange_rate * (1 + markup_percent/100)) + delivery_fee
      * Округление до "красивых" цен: 399, 409, 419, 429...
-     * 
+     *
      * @param float $priceCny Цена в юанях
      * @param string $targetCurrency Код целевой валюты (BYN, RUB, USD)
      * @return float Цена в целевой валюте
@@ -134,7 +135,7 @@ class CurrencySetting extends ActiveRecord
     public static function convertFromCny($priceCny, $targetCurrency = 'BYN')
     {
         $currency = self::getByCurrencyCode($targetCurrency);
-        
+
         if (!$currency) {
             // Фоллбэк на дефолтную формулу
             if ($targetCurrency === 'BYN') {
@@ -144,16 +145,16 @@ class CurrencySetting extends ActiveRecord
             }
             return $priceCny;
         }
-        
+
         // Новая формула с настройками из БД
         $basePrice = $priceCny * $currency->exchange_rate;
         $withMarkup = $basePrice * (1 + $currency->markup_percent / 100);
         $finalPrice = $withMarkup + $currency->delivery_fee;
-        
+
         // Округление до "красивых" цен (399, 409, 419...)
         return self::roundToPrettyPrice($finalPrice);
     }
-    
+
     /**
      * Получить все активные валюты
      */

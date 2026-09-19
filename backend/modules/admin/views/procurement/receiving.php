@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\PurchaseOrder[] $orders */
 /** @var \yii\data\Pagination $pagination */
@@ -97,7 +98,7 @@ textarea.rcv-form-control{height:60px;padding:8px 10px;resize:vertical}
     </a>
 </div>
 
-<?php if (!$orders): ?>
+<?php if (!$orders) : ?>
 <div class="admin-card" style="text-align:center;padding:2.5rem">
     <div style="font-size:48px;opacity:.3"><i class="bi bi-box-seam"></i></div>
     <h3 style="margin-top:12px;font-size:1rem;color:var(--admin-text-primary,#111)">Нет закупок, ожидающих приёмки</h3>
@@ -105,13 +106,13 @@ textarea.rcv-form-control{height:60px;padding:8px 10px;resize:vertical}
 </div>
 <?php endif; ?>
 
-<?php foreach ($orders as $po):
+<?php foreach ($orders as $po) :
     $totalQty = array_sum(array_column($po->items, 'quantity'));
     $rcvQty   = array_sum(array_column($po->items, 'received_quantity'));
     $pct      = $po->getReceivedPercent();
     $itemCount = count($po->items);
     $remaining = $totalQty - $rcvQty;
-?>
+    ?>
 <div class="rcv-card collapsed" id="po-card-<?= $po->id ?>">
     <div class="rcv-card-header" onclick="toggleCard(<?= $po->id ?>)">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -149,14 +150,14 @@ textarea.rcv-form-control{height:60px;padding:8px 10px;resize:vertical}
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($po->items as $item):
+                <?php foreach ($po->items as $item) :
                     $rowClass = '';
                     if ($item->received_quantity >= $item->quantity && $item->quantity > 0) {
                         $rowClass = 'rcv-row-full';
                     } elseif ($item->received_quantity > 0) {
                         $rowClass = 'rcv-row-partial';
                     }
-                ?>
+                    ?>
                 <tr class="<?= $rowClass ?>" id="row-item-<?= $item->id ?>">
                     <td><?= Html::encode($item->product_name) ?></td>
                     <td style="color:var(--admin-text-secondary,#6b7280)"><?= Html::encode($item->size ?? '—') ?></td>
@@ -190,7 +191,7 @@ textarea.rcv-form-control{height:60px;padding:8px 10px;resize:vertical}
 </div>
 <?php endforeach; ?>
 
-<?php if (isset($pagination) && $pagination->pageCount > 1): ?>
+<?php if (isset($pagination) && $pagination->pageCount > 1) : ?>
 <div style="margin:1.5rem 0;display:flex;justify-content:center">
     <?= LinkPager::widget(['pagination' => $pagination]) ?>
 </div>
@@ -208,7 +209,7 @@ textarea.rcv-form-control{height:60px;padding:8px 10px;resize:vertical}
                 <label>Закупка</label>
                 <select class="rcv-form-control" id="modal-po-select" onchange="onModalPoChange()">
                     <option value="">-- Выберите закупку --</option>
-                    <?php foreach ($orders as $po): ?>
+                    <?php foreach ($orders as $po) : ?>
                     <option value="<?= $po->id ?>"><?= Html::encode(($po->purchase_number ?: sprintf('%05d', $po->id)) . ' — ' . ($po->supplier->name ?? '')) ?></option>
                     <?php endforeach; ?>
                 </select>
@@ -256,12 +257,12 @@ textarea.rcv-form-control{height:60px;padding:8px 10px;resize:vertical}
 const csrf = <?= json_encode(\Yii::$app->request->csrfToken) ?>;
 
 // Pre-populate order data for the modal
-var ordersData = <?= json_encode(array_map(function($po) {
+var ordersData = <?= json_encode(array_map(function ($po) {
     return [
         'id' => $po->id,
         'purchase_number' => $po->purchase_number,
         'supplier' => $po->supplier->name ?? '',
-        'items' => array_map(function($item) {
+        'items' => array_map(function ($item) {
             return [
                 'id' => $item->id,
                 'product_name' => $item->product_name,
@@ -271,7 +272,7 @@ var ordersData = <?= json_encode(array_map(function($po) {
             ];
         }, $po->items),
     ];
-}, $orders)) ?>;
+                 }, $orders)) ?>;
 
 // ─── Collapse / Expand ─────────────────────────────────────────────────
 

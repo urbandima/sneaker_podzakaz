@@ -7,8 +7,11 @@ class m260424_400000_order_status_colors_and_system_flag extends Migration
     public function up()
     {
         // W19: add is_system flag
-        $this->addColumn('{{%order_status}}', 'is_system',
-            $this->tinyInteger(1)->notNull()->defaultValue(0)->after('is_active'));
+        $this->addColumn(
+            '{{%order_status}}',
+            'is_system',
+            $this->tinyInteger(1)->notNull()->defaultValue(0)->after('is_active')
+        );
 
         // W18: assign distinct default colors
         $colorMap = [

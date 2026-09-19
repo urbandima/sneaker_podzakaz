@@ -2,19 +2,20 @@
 
 /**
  * ReviewController — Публичный контроллер отзывов о товарах
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Позволяет клиентам оставлять отзывы о товарах, просматривать отзывы других покупателей.
- * 
+ *
  * ФУНКЦИИ:
  * - create() - создание отзыва о товаре
  * - list() - список отзывов товара
  * - helpful() - отметить отзыв полезным
- * 
+ *
  * ДОСТУП:
  * - Авторизованные пользователи (для создания)
  * - Все пользователи (для просмотра)
  */
+
 namespace app\backend\modules\catalog\controllers;
 
 use Yii;
@@ -60,13 +61,13 @@ class ReviewController extends Controller
     public function actionCreate()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $productId = Yii::$app->request->post('product_id');
         $rating = Yii::$app->request->post('rating');
         $comment = Yii::$app->request->post('comment');
         $advantages = Yii::$app->request->post('advantages');
         $disadvantages = Yii::$app->request->post('disadvantages');
-        
+
         // Валидация
         if (!$productId || !$rating || !$comment) {
             return [
@@ -74,7 +75,7 @@ class ReviewController extends Controller
                 'message' => 'Заполните все обязательные поля',
             ];
         }
-        
+
         $product = Product::findOne($productId);
         if (!$product) {
             return [
@@ -82,7 +83,7 @@ class ReviewController extends Controller
                 'message' => 'Товар не найден',
             ];
         }
-        
+
         // Проверка, не оставлял ли пользователь уже отзыв
         $customerId = Yii::$app->session->get('customer_id');
         if (!$customerId) {
@@ -91,18 +92,18 @@ class ReviewController extends Controller
                 'message' => 'Необходимо авторизоваться',
             ];
         }
-        
+
         $existingReview = ProductReview::find()
             ->where(['product_id' => $productId, 'customer_id' => $customerId])
             ->one();
-            
+
         if ($existingReview) {
             return [
                 'success' => false,
                 'message' => 'Вы уже оставили отзыв на этот товар',
             ];
         }
-        
+
         // Создание отзыва
         $review = new ProductReview();
         $review->product_id = $productId;
@@ -113,14 +114,14 @@ class ReviewController extends Controller
         $review->disadvantages = $disadvantages;
         $review->status = 'pending'; // На модерации
         $review->created_at = date('Y-m-d H:i:s');
-        
+
         if ($review->save()) {
             return [
                 'success' => true,
                 'message' => 'Спасибо за отзыв! Он будет опубликован после модерации.',
             ];
         }
-        
+
         return [
             'success' => false,
             'message' => 'Ошибка при сохранении отзыва',
@@ -134,13 +135,13 @@ class ReviewController extends Controller
     public function actionList($productId)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $reviews = ProductReview::find()
             ->where(['product_id' => $productId, 'status' => 'published'])
             ->with(['customer'])
             ->orderBy(['created_at' => SORT_DESC])
             ->all();
-        
+
         $result = [];
         foreach ($reviews as $review) {
             $result[] = [
@@ -154,7 +155,7 @@ class ReviewController extends Controller
                 'helpful_count' => $review->helpful_count ?? 0,
             ];
         }
-        
+
         return [
             'success' => true,
             'reviews' => $result,
@@ -168,9 +169,9 @@ class ReviewController extends Controller
     public function actionHelpful()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $reviewId = Yii::$app->request->post('review_id');
-        
+
         $review = ProductReview::findOne($reviewId);
         if (!$review) {
             return [
@@ -178,11 +179,11 @@ class ReviewController extends Controller
                 'message' => 'Отзыв не найден',
             ];
         }
-        
+
         // Увеличиваем счётчик полезности
         $review->helpful_count = ($review->helpful_count ?? 0) + 1;
         $review->save(false);
-        
+
         return [
             'success' => true,
             'helpful_count' => $review->helpful_count,

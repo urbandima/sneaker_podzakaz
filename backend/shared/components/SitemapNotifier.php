@@ -2,39 +2,40 @@
 
 /**
  * SitemapNotifier — Компонент планирования регенерации sitemap
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Планирование регенерации sitemap.xml при изменении контента.
  * Использует кэш для хранения флага необходимости обновления.
- * 
+ *
  * ФУНКЦИИ:
  * - scheduleRegeneration(): пометить sitemap как требующий обновления
  * - isPending(): проверить, требуется ли регенерация
  * - reset(): сбросить флаг после генерации
  * - getLastRun(): получить время последней генерации
- * 
+ *
  * КОНСТАНТЫ:
  * - CACHE_KEY_PENDING: ключ флага ожидания
  * - CACHE_KEY_LAST_RUN: ключ времени последнего запуска
  * - TTL_PENDING: время жизни флага (24 часа)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * ```php
  * // После изменения товара
  * SitemapNotifier::scheduleRegeneration();
- * 
+ *
  * // Проверка в SitemapAutoGenerator
  * if (SitemapNotifier::isPending()) {
  *     // генерация sitemap
  *     SitemapNotifier::reset();
  * }
  * ```
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Лёгкий флаг в кэше
  * - Не блокирует основной запрос
  * - Интеграция с моделями через behaviors
  */
+
 namespace app\backend\shared\components;
 
 use Yii;

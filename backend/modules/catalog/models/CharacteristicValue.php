@@ -2,31 +2,32 @@
 
 /**
  * CharacteristicValue — Модель значения характеристики
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Возможные значения характеристик типа select/multiselect:
  * например, для цвета: Белый, Чёрный, Красный.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - characteristic_id: ID характеристики
  * - value: значение
  * - slug: URL slug
  * - sort_order: порядок сортировки
  * - is_active: активно
- * 
+ *
  * СВЯЗИ:
  * - Characteristic (принадлежит характеристике)
  * - ProductCharacteristicValue[] (связи с товарами)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - CharacteristicController/admin (управление значениями)
  * - CatalogController (фильтрация по значениям)
  * - ProductController/admin (выбор значений для товара)
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Автоматическая генерация slug из value
  * - История изменений через CharacteristicHistory
  */
+
 namespace app\backend\modules\catalog\models;
 
 use Yii;
@@ -47,7 +48,7 @@ use app\backend\modules\catalog\models\Characteristic;
  * @property int $is_active
  * @property string $created_at
  * @property string $updated_at
- * 
+ *
  * @property Characteristic $characteristic
  * @property ProductCharacteristicValue[] $productCharacteristicValues
  */

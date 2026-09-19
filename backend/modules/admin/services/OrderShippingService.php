@@ -78,14 +78,18 @@ class OrderShippingService
                 'full'     => $pvz['full'] ?? '',
                 'schedule' => $pvz['schedule'] ?? ($pvz['work_time'] ?? ''),
             ];
-            if (count($results) >= $limit) break;
+            if (count($results) >= $limit) {
+                break;
+            }
         }
 
         // При пустом запросе — группируем по городу для удобства
         if ($q === '' && !empty($results)) {
             usort($results, function ($a, $b) {
                 $c = strcmp($a['city'] ?? '', $b['city'] ?? '');
-                if ($c !== 0) return $c;
+                if ($c !== 0) {
+                    return $c;
+                }
                 return strcmp($a['num'] ?? '', $b['num'] ?? '');
             });
         }
@@ -122,7 +126,9 @@ class OrderShippingService
         $text = $statusName;
         if ($date) {
             $ts = is_numeric($date) ? (int)$date : strtotime($date);
-            if ($ts) $text .= ' (' . date('d.m.Y', $ts) . ')';
+            if ($ts) {
+                $text .= ' (' . date('d.m.Y', $ts) . ')';
+            }
         }
         if ($location) {
             $text .= ' — ' . $location;
@@ -173,9 +179,13 @@ class OrderShippingService
 
         // Нет конкретного провайдера — пробуем каждый настроенный по очереди
         foreach (['europochtaTracking' => 'europochta', 'belpochtaTracking' => 'belpochta', 'cdekTracking' => 'cdek'] as $component => $name) {
-            if (!Yii::$app->has($component)) continue;
+            if (!Yii::$app->has($component)) {
+                continue;
+            }
             $svc = Yii::$app->$component;
-            if (!$svc->isConfigured()) continue;
+            if (!$svc->isConfigured()) {
+                continue;
+            }
             $result = $svc->getStatus($track);
             if (!in_array($result['status'] ?? '', ['not_found', 'not_configured', 'error'])) {
                 return $result;

@@ -30,7 +30,7 @@ class m251105_100000_add_delivery_and_series_fields extends Migration
         } catch (\Exception $e) {
             echo "⚠ Колонка related_products_json уже существует\n";
         }
-        
+
         // Добавляем поля в таблицу product_size
         try {
             $this->addColumn('{{%product_size}}', 'color_variant', $this->string(100)->comment('Цвет конкретного варианта размера'));
@@ -47,7 +47,7 @@ class m251105_100000_add_delivery_and_series_fields extends Migration
         } catch (\Exception $e) {
             echo "⚠ Колонка delivery_time_max в product_size уже существует\n";
         }
-        
+
         // Создаем индексы для оптимизации
         try {
             $this->createIndex('idx-product-series_name', '{{%product}}', 'series_name');
@@ -64,7 +64,7 @@ class m251105_100000_add_delivery_and_series_fields extends Migration
         } catch (\Exception $e) {
             echo "⚠ Индекс idx-product_size-color_variant уже существует\n";
         }
-        
+
         echo "✓ Добавлены поля серии, доставки и цветовых вариантов\n";
     }
 
@@ -74,18 +74,18 @@ class m251105_100000_add_delivery_and_series_fields extends Migration
         $this->dropIndex('idx-product_size-color_variant', '{{%product_size}}');
         $this->dropIndex('idx-product-delivery_time', '{{%product}}');
         $this->dropIndex('idx-product-series_name', '{{%product}}');
-        
+
         // Удаляем поля из product_size
         $this->dropColumn('{{%product_size}}', 'delivery_time_max');
         $this->dropColumn('{{%product_size}}', 'delivery_time_min');
         $this->dropColumn('{{%product_size}}', 'color_variant');
-        
+
         // Удаляем поля из product
         $this->dropColumn('{{%product}}', 'related_products_json');
         $this->dropColumn('{{%product}}', 'delivery_time_max');
         $this->dropColumn('{{%product}}', 'delivery_time_min');
         $this->dropColumn('{{%product}}', 'series_name');
-        
+
         echo "✓ Удалены поля серии, доставки и цветовых вариантов\n";
     }
 }

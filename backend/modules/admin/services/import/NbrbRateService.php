@@ -17,12 +17,12 @@ class NbrbRateService extends Component
     /**
      * API URL НБ РБ
      */
-    const API_URL = 'https://api.nbrb.by/exrates/rates';
+    public const API_URL = 'https://api.nbrb.by/exrates/rates';
 
     /**
      * Поддерживаемые валюты
      */
-    const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'CNY', 'RUB', 'PLN'];
+    public const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'CNY', 'RUB', 'PLN'];
 
     /**
      * HTTP клиент
@@ -35,7 +35,7 @@ class NbrbRateService extends Component
     public function init()
     {
         parent::init();
-        
+
         $this->client = new Client([
             'baseUrl' => self::API_URL,
             'requestConfig' => ['format' => Client::FORMAT_JSON],
@@ -65,7 +65,7 @@ class NbrbRateService extends Component
 
         // Получаем из API
         $rate = $this->fetchRateFromAPI($currencyCode);
-        
+
         if ($rate !== null) {
             $this->saveRateToCache($currencyCode, $rate);
         }
@@ -106,7 +106,7 @@ class NbrbRateService extends Component
         }
 
         $rate = $this->getRate($fromCurrency, $useCache);
-        
+
         if ($rate === null) {
             return null;
         }
@@ -206,7 +206,7 @@ class NbrbRateService extends Component
 
         foreach (self::SUPPORTED_CURRENCIES as $currency) {
             $rate = $this->fetchRateFromAPI($currency);
-            
+
             if ($rate !== null) {
                 $this->saveRateToCache($currency, $rate);
                 $results[$currency] = [
@@ -222,7 +222,7 @@ class NbrbRateService extends Component
         }
 
         Yii::info("Currency rates updated: " . json_encode($results), 'import');
-        
+
         return $results;
     }
 
@@ -276,7 +276,7 @@ class NbrbRateService extends Component
     public function needsUpdate()
     {
         $lastUpdate = $this->getLastUpdateDate();
-        
+
         if (!$lastUpdate) {
             return true;
         }

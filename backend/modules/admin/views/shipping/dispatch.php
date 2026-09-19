@@ -99,12 +99,12 @@ $carrierColors = [
                     <?= array_sum($counts) ?>
                 </span>
             </a>
-            <?php foreach ($carriers as $c): ?>
+            <?php foreach ($carriers as $c) : ?>
             <a href="<?= Url::to(['/admin/shipping/dispatch', 'carrier' => $c]) ?>"
                class="admin-btn admin-btn-sm <?= $carrier === $c ? 'admin-btn-primary' : 'admin-btn-secondary' ?>">
                 <i class="bi <?= $carrierIcons[$c] ?? 'bi-truck' ?>"></i>
                 <?= $carrierLabels[$c] ?>
-                <?php if (!empty($counts[$c])): ?>
+                <?php if (!empty($counts[$c])) : ?>
                 <span class="admin-badge <?= $carrier === $c ? 'admin-badge-light' : 'admin-badge-secondary' ?>" style="margin-left:4px">
                     <?= (int)$counts[$c] ?>
                 </span>
@@ -123,7 +123,7 @@ $carrierColors = [
     </div>
 </div>
 
-<?php if (empty($orders)): ?>
+<?php if (empty($orders)) : ?>
 <div class="admin-card">
     <div class="admin-card-body" style="text-align:center;padding:3rem">
         <i class="bi bi-inbox" style="font-size:2.5rem;color:var(--admin-text-secondary);display:block;margin-bottom:1rem"></i>
@@ -135,8 +135,7 @@ $carrierColors = [
         </div>
     </div>
 </div>
-<?php else: ?>
-
+<?php else : ?>
 <div class="admin-card">
     <div style="overflow-x:auto">
         <table class="admin-table" id="dispatch-table">
@@ -155,19 +154,21 @@ $carrierColors = [
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($orders as $order): ?>
-                <?php
-                $method     = $order->delivery_method ?? '';
-                $color      = $carrierColors[$method] ?? '#64748b';
-                $label      = $carrierLabels[$method] ?? $method;
-                $icon       = $carrierIcons[$method] ?? 'bi-truck';
-                $statusMap  = ['paid' => ['Оплачен', 'success'], 'processing' => ['В обработке', 'warning']];
-                [$statusLabel, $statusColor] = $statusMap[$order->status] ?? [$order->status, 'secondary'];
-                $recipient  = trim(($order->recipient_last_name ?? '') . ' ' . ($order->recipient_first_name ?? ''));
-                if (!$recipient) $recipient = $order->client_name ?? '—';
-                $address    = $order->delivery_address ?? $order->full_address ?? '—';
-                $trackNum   = $order->china_track_number ?? '';
-                ?>
+                <?php foreach ($orders as $order) : ?>
+                    <?php
+                    $method     = $order->delivery_method ?? '';
+                    $color      = $carrierColors[$method] ?? '#64748b';
+                    $label      = $carrierLabels[$method] ?? $method;
+                    $icon       = $carrierIcons[$method] ?? 'bi-truck';
+                    $statusMap  = ['paid' => ['Оплачен', 'success'], 'processing' => ['В обработке', 'warning']];
+                    [$statusLabel, $statusColor] = $statusMap[$order->status] ?? [$order->status, 'secondary'];
+                    $recipient  = trim(($order->recipient_last_name ?? '') . ' ' . ($order->recipient_first_name ?? ''));
+                    if (!$recipient) {
+                        $recipient = $order->client_name ?? '—';
+                    }
+                    $address    = $order->delivery_address ?? $order->full_address ?? '—';
+                    $trackNum   = $order->china_track_number ?? '';
+                    ?>
                 <tr data-id="<?= $order->id ?>">
                     <td>
                         <input type="checkbox" class="order-check" value="<?= $order->id ?>" onchange="updateSelectedCount()">
@@ -179,7 +180,7 @@ $carrierColors = [
                     </td>
                     <td>
                         <div style="font-weight:500"><?= Html::encode($recipient) ?></div>
-                        <?php if (!empty($order->client_phone)): ?>
+                        <?php if (!empty($order->client_phone)) : ?>
                         <div style="font-size:12px;color:var(--admin-text-secondary)"><?= Html::encode($order->client_phone) ?></div>
                         <?php endif; ?>
                     </td>
@@ -194,9 +195,9 @@ $carrierColors = [
                         </span>
                     </td>
                     <td>
-                        <?php if ($trackNum): ?>
+                        <?php if ($trackNum) : ?>
                         <code class="dispatch-track-code"><?= Html::encode($trackNum) ?></code>
-                        <?php else: ?>
+                        <?php else : ?>
                         <span style="color:var(--admin-text-secondary,#6b7280);font-size:12px">—</span>
                         <?php endif; ?>
                     </td>

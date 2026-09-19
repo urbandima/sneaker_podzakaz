@@ -2,11 +2,11 @@
 
 /**
  * DeliveryTracking — Модель отслеживания доставки
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Отслеживание статуса доставки заказа: трек-номер,
  * перевозчик, история событий, местоположение.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - order_id: ID заказа
  * - tracking_number: трек-номер
@@ -18,7 +18,7 @@
  * - actual_delivery: фактическая дата доставки
  * - events_json: история событий JSON
  * - last_check_at: последняя проверка
- * 
+ *
  * СТАТУСЫ:
  * - STATUS_PENDING: ожидает отправки
  * - STATUS_PICKED_UP: получен перевозчиком
@@ -28,15 +28,16 @@
  * - STATUS_DELIVERED: доставлен
  * - STATUS_FAILED: ошибка доставки
  * - STATUS_RETURNED: возвращён
- * 
+ *
  * СВЯЗИ:
  * - Order (принадлежит заказу)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - OrderController/admin (отслеживание)
  * - AccountController (для покупателей)
  * - Интеграция с API служб доставки
  */
+
 namespace app\backend\modules\checkout\models;
 
 use Yii;
@@ -63,14 +64,14 @@ use yii\db\ActiveRecord;
  */
 class DeliveryTracking extends ActiveRecord
 {
-    const STATUS_PENDING = 'pending';
-    const STATUS_PICKED_UP = 'picked_up';
-    const STATUS_IN_TRANSIT = 'in_transit';
-    const STATUS_CUSTOMS = 'customs';
-    const STATUS_OUT_FOR_DELIVERY = 'out_for_delivery';
-    const STATUS_DELIVERED = 'delivered';
-    const STATUS_FAILED = 'failed';
-    const STATUS_RETURNED = 'returned';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_PICKED_UP = 'picked_up';
+    public const STATUS_IN_TRANSIT = 'in_transit';
+    public const STATUS_CUSTOMS = 'customs';
+    public const STATUS_OUT_FOR_DELIVERY = 'out_for_delivery';
+    public const STATUS_DELIVERED = 'delivered';
+    public const STATUS_FAILED = 'failed';
+    public const STATUS_RETURNED = 'returned';
 
     public static function tableName()
     {
@@ -140,11 +141,11 @@ class DeliveryTracking extends ActiveRecord
         $this->status_description = $description;
         $this->location = $location;
         $this->last_check_at = date('Y-m-d H:i:s');
-        
+
         if ($status === self::STATUS_DELIVERED) {
             $this->actual_delivery = date('Y-m-d');
         }
-        
+
         return $this->save();
     }
 

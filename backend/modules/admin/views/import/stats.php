@@ -97,7 +97,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($sourceStats as $stat): ?>
+                    <?php foreach ($sourceStats as $stat) : ?>
                     <tr>
                         <td>
                             <strong><?= Html::encode($stat['source']->name) ?></strong>
@@ -107,8 +107,8 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td class="text-danger"><?= $stat['failed_runs'] ?></td>
                         <td><?= number_format($stat['total_products'], 0, '', ' ') ?></td>
                         <td>
-                            <?= $stat['last_run'] 
-                                ? Yii::$app->formatter->asRelativeTime($stat['last_run']) 
+                            <?= $stat['last_run']
+                                ? Yii::$app->formatter->asRelativeTime($stat['last_run'])
                                 : '<span class="text-muted">—</span>' ?>
                         </td>
                     </tr>
@@ -134,16 +134,16 @@ $this->params['breadcrumbs'][] = $this->title;
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($bestPrices as $price): ?>
+                    <?php foreach ($bestPrices as $price) : ?>
                     <tr>
                         <td>
-                            <?php if ($price->product): ?>
+                            <?php if ($price->product) : ?>
                                 <?= Html::a(
                                     Html::encode($price->product->name),
                                     ['/catalog/product/view', 'id' => $price->product->id],
                                     ['target' => '_blank']
                                 ) ?>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <span class="text-muted">SKU: <?= Html::encode($price->external_sku) ?></span>
                             <?php endif; ?>
                         </td>
@@ -154,7 +154,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         </td>
                         <td>
                             <strong><?= PriceHelper::format($price->price_byn) ?></strong>
-                            <?php if ($price->currency_code !== 'BYN'): ?>
+                            <?php if ($price->currency_code !== 'BYN') : ?>
                             <br><small class="text-muted">
                                 <?= number_format($price->price_original, 2) ?> <?= $price->currency_code ?>
                             </small>
@@ -187,7 +187,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($dailyStats as $day): ?>
+                <?php foreach ($dailyStats as $day) : ?>
                 <tr>
                     <td><?= Yii::$app->formatter->asDate($day['date'], 'php:d.m.Y') ?></td>
                     <td><?= $day['tasks'] ?></td>

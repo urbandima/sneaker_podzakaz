@@ -102,22 +102,22 @@ $this->params['headerActions'] = [
                     ]) ?>
                 </div>
                 <div class="admin-card-body">
-                    <?php if (!empty($rates)): ?>
+                    <?php if (!empty($rates)) : ?>
                     <table class="admin-table fs-sm">
-                        <?php foreach ($rates as $code => $rate): ?>
-                        <?php if ($code !== 'BYN'): ?>
+                        <?php foreach ($rates as $code => $rate) : ?>
+                            <?php if ($code !== 'BYN') : ?>
                         <tr>
                             <td><strong><?= Html::encode($code) ?></strong></td>
                             <td class="text-right"><?= PriceHelper::format($rate, 4) ?></td>
                         </tr>
-                        <?php endif; ?>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     </table>
-                    <?php else: ?>
+                    <?php else : ?>
                     <p class="text-muted">Курсы не загружены</p>
                     <?php endif; ?>
                     
-                    <?php if ($lastUpdate): ?>
+                    <?php if ($lastUpdate) : ?>
                     <p style="color: var(--admin-text-secondary); font-size: 0.75rem; margin-top: 1rem;">
                         Обновлено: <?= Yii::$app->formatter->asRelativeTime($lastUpdate) ?>
                     </p>
@@ -131,16 +131,16 @@ $this->params['headerActions'] = [
                     <h3 class="admin-card-title">CAPTCHA сервисы</h3>
                 </div>
                 <div class="admin-card-body">
-                    <?php if (!empty($captchaBalances)): ?>
+                    <?php if (!empty($captchaBalances)) : ?>
                     <table class="admin-table fs-sm">
-                        <?php foreach ($captchaBalances as $service => $balance): ?>
+                        <?php foreach ($captchaBalances as $service => $balance) : ?>
                         <tr>
                             <td><strong><?= Html::encode($service) ?></strong></td>
                             <td class="text-right">$<?= number_format($balance, 2) ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </table>
-                    <?php else: ?>
+                    <?php else : ?>
                     <p class="text-muted">
                         API ключи не настроены.<br>
                         Настройте в карточке источника.

@@ -10,7 +10,7 @@ $this->params['headerActions'] = [
 ];
 ?>
 
-<?php if (!empty($seo_flash)): ?>
+<?php if (!empty($seo_flash)) : ?>
 <div class="admin-alert admin-alert-success" style="display:flex;align-items:center;gap:10px;padding:12px 16px;margin-bottom:20px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:8px;color:#065f46">
     <i class="bi bi-check-circle-fill"></i>
     <?= Html::encode($seo_flash) ?>

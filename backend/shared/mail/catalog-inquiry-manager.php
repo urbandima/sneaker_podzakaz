@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Email шаблон: Уведомление менеджеру о новой заявке из каталога
- * 
+ *
  * @var $inquiry app\backend\modules\catalog\models\CatalogInquiry
  * @var $product app\backend\modules\catalog\models\Product
  * @var $order app\modules\checkout\models\Order (если создан)
@@ -125,13 +126,13 @@ use yii\helpers\Url;
                 <div class="info-label">Цена:</div>
                 <div class="info-value"><?= Yii::$app->formatter->asCurrency($product->price, 'BYN') ?></div>
             </div>
-            <?php if ($inquiry->size): ?>
+            <?php if ($inquiry->size) : ?>
             <div class="info-row">
                 <div class="info-label">Размер:</div>
                 <div class="info-value"><?= Html::encode($inquiry->size) ?></div>
             </div>
             <?php endif; ?>
-            <?php if ($inquiry->color): ?>
+            <?php if ($inquiry->color) : ?>
             <div class="info-row">
                 <div class="info-label">Цвет:</div>
                 <div class="info-value"><?= Html::encode($inquiry->color) ?></div>
@@ -153,7 +154,7 @@ use yii\helpers\Url;
                     </a>
                 </div>
             </div>
-            <?php if ($inquiry->email): ?>
+            <?php if ($inquiry->email) : ?>
             <div class="info-row">
                 <div class="info-label">Email:</div>
                 <div class="info-value">
@@ -163,7 +164,7 @@ use yii\helpers\Url;
                 </div>
             </div>
             <?php endif; ?>
-            <?php if ($inquiry->message): ?>
+            <?php if ($inquiry->message) : ?>
             <div class="info-row">
                 <div class="info-label">Комментарий:</div>
                 <div class="info-value"><?= Html::encode($inquiry->message) ?></div>
@@ -171,7 +172,7 @@ use yii\helpers\Url;
             <?php endif; ?>
         </div>
 
-        <?php if (isset($order)): ?>
+        <?php if (isset($order)) : ?>
         <div style="text-align: center;">
             <p><strong>✅ Заказ автоматически создан</strong></p>
             <p>Номер заказа: <strong><?= Html::encode($order->order_number) ?></strong></p>

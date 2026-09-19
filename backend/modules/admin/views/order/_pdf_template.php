@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Печатная накладная / счёт-фактура заказа.
  * Используется через window.print() — открывается в отдельном окне.
@@ -79,16 +80,16 @@ $trackerUrl = ($order->track_number && $order->token)
 <div class="doc-header">
     <div class="company-block">
         <h1><?= Html::encode($company['name'] ?? 'СНИКЕРХЭД') ?></h1>
-        <?php if (!empty($company['unp'])): ?>
+        <?php if (!empty($company['unp'])) : ?>
             <p>УНП: <?= Html::encode($company['unp']) ?></p>
         <?php endif; ?>
-        <?php if (!empty($company['address'])): ?>
+        <?php if (!empty($company['address'])) : ?>
             <p><?= Html::encode($company['address']) ?></p>
         <?php endif; ?>
-        <?php if (!empty($company['phone'])): ?>
+        <?php if (!empty($company['phone'])) : ?>
             <p>Тел.: <?= Html::encode($company['phone']) ?></p>
         <?php endif; ?>
-        <?php if (!empty($company['email'])): ?>
+        <?php if (!empty($company['email'])) : ?>
             <p><?= Html::encode($company['email']) ?></p>
         <?php endif; ?>
     </div>
@@ -97,7 +98,7 @@ $trackerUrl = ($order->track_number && $order->token)
         <div class="doc-date">
             Дата: <?= Yii::$app->formatter->asDate($order->created_at, 'dd.MM.yyyy') ?>
         </div>
-        <?php if ($order->paid_at): ?>
+        <?php if ($order->paid_at) : ?>
         <div class="doc-date">
             Оплачено: <?= Yii::$app->formatter->asDate($order->paid_at, 'dd.MM.yyyy') ?>
         </div>
@@ -118,13 +119,13 @@ $trackerUrl = ($order->track_number && $order->token)
         <h3>Покупатель</h3>
         <p>
             <strong><?= Html::encode($order->client_name ?? '') ?></strong><br>
-            <?php if (!empty($order->client_phone)): ?>
+            <?php if (!empty($order->client_phone)) : ?>
                 Тел.: <?= Html::encode($order->client_phone) ?><br>
             <?php endif; ?>
-            <?php if (!empty($order->client_email)): ?>
+            <?php if (!empty($order->client_email)) : ?>
                 <?= Html::encode($order->client_email) ?><br>
             <?php endif; ?>
-            <?php if (!empty($order->delivery_address)): ?>
+            <?php if (!empty($order->delivery_address)) : ?>
                 <?= Html::encode($order->delivery_address) ?>
             <?php endif; ?>
         </p>
@@ -143,15 +144,15 @@ $trackerUrl = ($order->track_number && $order->token)
         </tr>
     </thead>
     <tbody>
-        <?php $i = 1; foreach ($order->items as $item): ?>
+        <?php $i = 1; foreach ($order->items as $item) : ?>
         <tr>
             <td><?= $i++ ?></td>
             <td>
                 <?= Html::encode($item->product_name) ?>
-                <?php if (!empty($item->size)): ?>
+                <?php if (!empty($item->size)) : ?>
                     <br><small style="color:#888;">Размер: <?= Html::encode($item->size) ?></small>
                 <?php endif; ?>
-                <?php if (!empty($item->color)): ?>
+                <?php if (!empty($item->color)) : ?>
                     <small style="color:#888;"> | Цвет: <?= Html::encode($item->color) ?></small>
                 <?php endif; ?>
             </td>
@@ -162,13 +163,13 @@ $trackerUrl = ($order->track_number && $order->token)
         <?php endforeach; ?>
     </tbody>
     <tfoot>
-        <?php if (!empty($order->discount_amount) && $order->discount_amount > 0): ?>
+        <?php if (!empty($order->discount_amount) && $order->discount_amount > 0) : ?>
         <tr>
             <td colspan="4" style="text-align:right;font-weight:400;font-size:11px;">Скидка:</td>
             <td style="text-align:right;font-weight:400;color:#e53e3e;">-<?= PriceHelper::format($order->discount_amount) ?></td>
         </tr>
         <?php endif; ?>
-        <?php if (!empty($order->delivery_cost) && $order->delivery_cost > 0): ?>
+        <?php if (!empty($order->delivery_cost) && $order->delivery_cost > 0) : ?>
         <tr>
             <td colspan="4" style="text-align:right;font-weight:400;font-size:11px;">Доставка:</td>
             <td style="text-align:right;font-weight:400;"><?= PriceHelper::format($order->delivery_cost) ?></td>
@@ -182,12 +183,12 @@ $trackerUrl = ($order->track_number && $order->token)
 </table>
 
 <!-- Track Number -->
-<?php if ($order->track_number): ?>
+<?php if ($order->track_number) : ?>
 <div class="track-block">
     <div style="flex:1;">
         <div class="track-label">Трек-номер отправления</div>
         <div class="track-number"><?= Html::encode($order->track_number) ?></div>
-        <?php if ($trackerUrl): ?>
+        <?php if ($trackerUrl) : ?>
             <div style="font-size:10px;color:#3b82f6;margin-top:3px;"><?= Html::encode($trackerUrl) ?></div>
         <?php endif; ?>
     </div>

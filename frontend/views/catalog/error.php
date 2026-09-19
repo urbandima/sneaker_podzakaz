@@ -16,12 +16,12 @@ $this->title = $statusCode . ' - Страница не найдена';
             <div class="error-code"><?= $statusCode ?></div>
             <h1 class="error-title"><?= $message ?></h1>
             
-            <?php if ($statusCode == 404): ?>
+            <?php if ($statusCode == 404) : ?>
                 <p class="error-description">
                     К сожалению, запрашиваемая страница не найдена.
                     Возможно, товар был удален или вы перешли по неверной ссылке.
                 </p>
-            <?php else: ?>
+            <?php else : ?>
                 <p class="error-description">
                     Произошла ошибка при обработке запроса.
                     Пожалуйста, попробуйте позже.
@@ -39,7 +39,7 @@ $this->title = $statusCode . ' - Страница не найдена';
                 </a>
             </div>
 
-            <?php if ($statusCode == 404): ?>
+            <?php if ($statusCode == 404) : ?>
                 <div class="popular-links">
                     <h3>Популярные разделы:</h3>
                     <div class="links-grid">

@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\PurchaseOrder[] $orders */
 /** @var app\backend\modules\procurement\models\Supplier[] $suppliers */
@@ -10,9 +11,13 @@ use app\backend\shared\helpers\PriceHelper;
 $this->title = 'Закупки';
 
 $currentSort = Yii::$app->request->get('sort', '');
-$sortIcon = function(string $col) use ($currentSort): string {
-    if ($currentSort === $col)       return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▲</span>';
-    if ($currentSort === '-' . $col) return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▼</span>';
+$sortIcon = function (string $col) use ($currentSort): string {
+    if ($currentSort === $col) {
+        return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▲</span>';
+    }
+    if ($currentSort === '-' . $col) {
+        return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▼</span>';
+    }
     return ' <span style="color:#d1d5db;font-size:.6rem">⇅</span>';
 };
 
@@ -38,7 +43,10 @@ $storageKey = 'purchaseOrdersColumns';
 // Z52: show CNY column only if at least one order has a CNY amount
 $hasCnyColumn = false;
 foreach ($orders as $_o) {
-    if (!empty($_o->total_amount_cny)) { $hasCnyColumn = true; break; }
+    if (!empty($_o->total_amount_cny)) {
+        $hasCnyColumn = true;
+        break;
+    }
 }
 ?>
 
@@ -47,13 +55,13 @@ foreach ($orders as $_o) {
     <div class="compact-filter-bar filter-row1">
         <select name="status" class="compact-filter-select">
             <option value="">Все статусы</option>
-            <?php foreach ($statuses as $k => $v): ?>
+            <?php foreach ($statuses as $k => $v) : ?>
             <option value="<?= htmlspecialchars($k) ?>" <?= $filterStatus === $k ? 'selected' : '' ?>><?= htmlspecialchars($v) ?></option>
             <?php endforeach; ?>
         </select>
         <select name="type" class="compact-filter-select">
             <option value="">Все типы</option>
-            <?php foreach ($types as $k => $v): ?>
+            <?php foreach ($types as $k => $v) : ?>
             <option value="<?= htmlspecialchars($k) ?>" <?= $filterType === $k ? 'selected' : '' ?>><?= htmlspecialchars($v) ?></option>
             <?php endforeach; ?>
         </select>
@@ -65,7 +73,7 @@ foreach ($orders as $_o) {
             </button>
             <div id="colSelector" class="col-selector-dropdown" style="display:none">
                 <div style="font-weight:700;margin-bottom:8px;font-size:.8125rem">Показать столбцы:</div>
-                <?php foreach ($columnDefs as $colKey => $colLabel): ?>
+                <?php foreach ($columnDefs as $colKey => $colLabel) : ?>
                 <label class="col-selector-item">
                     <input type="checkbox" data-col="<?= $colKey ?>"
                            onchange="AdminTable.toggleColumn('<?= $colKey ?>', this.checked, '<?= $storageKey ?>')" checked>
@@ -98,7 +106,9 @@ foreach ($orders as $_o) {
                     <th data-col="type">Тип</th>
                     <th data-col="supplier">Поставщик</th>
                     <th>Статус</th>
-                    <?php if ($hasCnyColumn): ?><th data-col="amount_cny" data-sort="total_amount_cny" onclick="AdminTable.sortBy('total_amount_cny')" style="text-align:right">Сумма CNY <?= $sortIcon('total_amount_cny') ?></th><?php endif; ?>
+                    <?php if ($hasCnyColumn) :
+                        ?><th data-col="amount_cny" data-sort="total_amount_cny" onclick="AdminTable.sortBy('total_amount_cny')" style="text-align:right">Сумма CNY <?= $sortIcon('total_amount_cny') ?></th><?php
+                    endif; ?>
                     <th data-col="amount_byn" data-sort="total_amount_byn" onclick="AdminTable.sortBy('total_amount_byn')" style="text-align:right">Сумма BYN <?= $sortIcon('total_amount_byn') ?></th>
                     <th data-col="items" style="text-align:center">Позиций</th>
                     <th data-col="ordered_at" data-sort="ordered_at" onclick="AdminTable.sortBy('ordered_at')">Дата заказа <?= $sortIcon('ordered_at') ?></th>
@@ -107,12 +117,12 @@ foreach ($orders as $_o) {
                 </tr>
             </thead>
             <tbody>
-                <?php if (!$orders): ?>
+                <?php if (!$orders) : ?>
                     <tr><td colspan="10" style="text-align:center;padding:2.5rem;color:var(--admin-text-secondary,#6d7175)">Закупок нет</td></tr>
                 <?php endif; ?>
-                <?php foreach ($orders as $po):
+                <?php foreach ($orders as $po) :
                     $sp = $statusPills[$po->status] ?? ['bg' => '#f3f4f6', 'color' => '#6d7175'];
-                ?>
+                    ?>
                 <tr>
                     <td style="white-space:nowrap">
                         <a href="/admin/procurement/view/<?= $po->id ?>" style="font-weight:700;color:var(--admin-text-primary,#202223);text-decoration:none">
@@ -129,7 +139,7 @@ foreach ($orders as $_o) {
                             <?= $po->getStatusLabel() ?>
                         </span>
                     </td>
-                    <?php if ($hasCnyColumn): ?>
+                    <?php if ($hasCnyColumn) : ?>
                     <td data-col="amount_cny" style="text-align:right;white-space:nowrap">
                         <?= $po->total_amount_cny ? number_format($po->total_amount_cny, 2) . ' <span style="font-size:.7rem;color:var(--admin-text-secondary,#6d7175)">CNY</span>' : '<span style="color:var(--admin-text-secondary,#6d7175);font-size:.75rem">Будет указано в выкупе</span>' ?>
                     </td>
@@ -151,8 +161,8 @@ foreach ($orders as $_o) {
                                 <i class="bi bi-three-dots"></i>
                             </button>
                             <div id="po-dd-<?= $po->id ?>" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--admin-surface,#fff);border:1.5px solid var(--admin-border,#e1e3e5);border-radius:8px;padding:4px;z-index:200;min-width:140px;box-shadow:0 4px 16px rgba(0,0,0,.1)">
-                                <?php foreach ($statuses as $k => $v): ?>
-                                    <?php if ($k !== $po->status): ?>
+                                <?php foreach ($statuses as $k => $v) : ?>
+                                    <?php if ($k !== $po->status) : ?>
                                     <a href="#" onclick="updateStatus(<?= $po->id ?>, '<?= $k ?>', this); return false"
                                        style="display:block;padding:5px 10px;font-size:.8125rem;color:var(--admin-text-primary,#202223);text-decoration:none;border-radius:5px;white-space:nowrap"
                                        onmouseover="this.style.background='var(--admin-surface-hover,#f3f4f6)'"

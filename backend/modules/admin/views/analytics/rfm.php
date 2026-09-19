@@ -1,4 +1,5 @@
 <?php
+
 /**
  * RFM аналитика - сегментация клиентов
  * @var yii\web\View $this
@@ -117,7 +118,7 @@ foreach ($rfmSegments as $s) {
     </div>
     <div class="admin-card-body">
         <div style="display:grid;gap:16px">
-            <?php foreach ($rfmSegments as $segment): ?>
+            <?php foreach ($rfmSegments as $segment) : ?>
                 <?php
                 // Z81: always use 1 decimal place for consistent percent display
                 $pct = $totalCustomers > 0 ? ($segment['count'] / $totalCustomers) * 100 : 0;
@@ -164,7 +165,7 @@ $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'monetary'));
     </div>
     <div class="admin-card-body">
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
-            <?php foreach ($ltvSegments as $ltv): ?>
+            <?php foreach ($ltvSegments as $ltv) : ?>
             <div style="padding:16px;background:var(--admin-bg);border-radius:12px;border-left:4px solid <?= $ltv['color'] ?>;text-align:center">
                 <div style="font-size:2rem;font-weight:700;color:<?= $ltv['color'] ?>"><?= $ltv['count'] ?></div>
                 <div style="font-size:0.875rem;font-weight:600;color:var(--admin-text)"><?= $ltv['name'] ?> LTV</div>
@@ -204,14 +205,14 @@ $totalAtRiskLTV = array_sum(array_column($atRiskCustomers, 'monetary'));
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($atRiskCustomers as $customer):
+                <?php foreach ($atRiskCustomers as $customer) :
                     $ltv      = (float)($customer['monetary'] ?? 0);
                     $days     = (int)($customer['days'] ?? 0);
                     $ltvClass = $ltv >= 5000 ? 'VIP' : ($ltv >= 2000 ? 'Высокий' : ($ltv >= 500 ? 'Средний' : 'Низкий'));
                     $ltvColor = $ltv >= 5000 ? '#7c3aed' : ($ltv >= 2000 ? '#10b981' : ($ltv >= 500 ? '#3b82f6' : '#6b7280'));
                     $riskLabel = $days >= 90 ? 'Критический' : ($days >= 60 ? 'Высокий' : 'Средний');
                     $riskColor = $days >= 90 ? '#991b1b'    : ($days >= 60 ? '#dc2626'  : '#f59e0b');
-                ?>
+                    ?>
                 <tr style="border-bottom:1px solid var(--admin-border-light)">
                     <td style="padding:12px 16px">
                         <div style="font-weight:600;color:var(--admin-text)"><?= Html::encode($customer['name'] ?? '') ?></div>

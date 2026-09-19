@@ -289,7 +289,7 @@ $this->registerCss($css);
 
 <div class="contacts-page">
     <div class="container">
-        <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()): ?>
+        <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()) : ?>
         <div style="margin-bottom:1rem;text-align:right">
             <a href="/admin/page/edit?slug=contacts" class="page-edit-admin-btn" target="_blank">
                 <i class="bi bi-pencil-square"></i> Редактировать страницу
@@ -303,7 +303,7 @@ $this->registerCss($css);
 
         <!-- Contact info cards -->
         <div class="contact-cards">
-            <?php if ($phone): ?>
+            <?php if ($phone) : ?>
             <div class="contact-card">
                 <div class="contact-card-icon"><i class="bi bi-telephone-fill"></i></div>
                 <h3>Телефон</h3>
@@ -311,7 +311,7 @@ $this->registerCss($css);
                 <span class="contact-card-note"><?= Html::encode($workTime) ?></span>
             </div>
             <?php endif; ?>
-            <?php if ($email): ?>
+            <?php if ($email) : ?>
             <div class="contact-card">
                 <div class="contact-card-icon"><i class="bi bi-envelope-fill"></i></div>
                 <h3>Email</h3>
@@ -325,7 +325,7 @@ $this->registerCss($css);
                 <a href="https://t.me/sneakerheadbyweb_bot" target="_blank" rel="noopener">@sneakerheadbyweb_bot</a>
                 <span class="contact-card-note">Быстрые ответы 24/7</span>
             </div>
-            <?php if ($address): ?>
+            <?php if ($address) : ?>
             <div class="contact-card">
                 <div class="contact-card-icon"><i class="bi bi-geo-alt-fill"></i></div>
                 <h3>Адрес</h3>
@@ -436,7 +436,7 @@ $this->registerCss($css);
         </section>
 
         <!-- Address + Map (X22) -->
-        <?php if ($address): ?>
+        <?php if ($address) : ?>
         <section class="address-section">
             <h2>Наш адрес</h2>
             <div class="address-card">

@@ -2,9 +2,10 @@
 
 /**
  * Redirect — Модель редиректов
- * 
+ *
  * Таблица: redirect
  */
+
 namespace app\backend\modules\seo\models;
 
 use Yii;
@@ -24,9 +25,9 @@ use yii\behaviors\TimestampBehavior;
  */
 class Redirect extends ActiveRecord
 {
-    const TYPE_301 = 301; // Permanent
-    const TYPE_302 = 302; // Temporary
-    const TYPE_404 = 404; // Not Found (без редиректа, просто логирование)
+    public const TYPE_301 = 301; // Permanent
+    public const TYPE_302 = 302; // Temporary
+    public const TYPE_404 = 404; // Not Found (без редиректа, просто логирование)
 
     public static function tableName()
     {

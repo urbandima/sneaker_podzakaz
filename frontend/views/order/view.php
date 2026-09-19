@@ -68,7 +68,7 @@ $this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
                             <span class="order-client-label">Email:</span>
                             <span class="order-client-value"><?= Html::encode($viewModel->clientEmail) ?></span>
                         </div>
-                        <?php if ($viewModel->deliveryAddress): ?>
+                        <?php if ($viewModel->deliveryAddress) : ?>
                         <div class="order-client-item">
                             <span class="order-client-label">Адрес:</span>
                             <span class="order-client-value"><?= Html::encode($viewModel->deliveryAddress) ?></span>
@@ -81,14 +81,14 @@ $this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
                 <div class="order-view-section order-view-section--full">
                     <h2>Товары в заказе</h2>
                     <div class="order-items">
-                        <?php foreach ($viewModel->items as $item): ?>
+                        <?php foreach ($viewModel->items as $item) : ?>
                         <div class="order-item">
                             <div class="order-item-info">
                                 <div class="order-item-name">
                                     <?= Html::encode($item->productName) ?>
                                 </div>
                                 <div class="order-item-details">
-                                    <?php if ($item->size): ?>
+                                    <?php if ($item->size) : ?>
                                     <span class="order-item-size">Размер: <?= Html::encode($item->size) ?></span>
                                     <?php endif; ?>
                                     <span class="order-item-quantity">Кол-во: <?= Html::encode($item->quantity) ?></span>
@@ -109,7 +109,7 @@ $this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
                 </div>
 
                 <!-- ═══ ШАГ 1: Реквизиты для оплаты ═══ -->
-                <?php if ($viewModel->isAwaitingPayment): ?>
+                <?php if ($viewModel->isAwaitingPayment) : ?>
                 <div class="order-view-section order-view-section--full order-payment-step" data-step="1">
                     <div class="order-step-head">
                         <span class="order-step-num">1</span>
@@ -145,7 +145,7 @@ $this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
                                 <button type="button" class="order-req-copy" onclick="orderCopyReq(this,<?= htmlspecialchars(json_encode($reqRecipient), ENT_QUOTES) ?>)" title="Скопировать"><i class="bi bi-clipboard"></i></button>
                             </span>
                         </div>
-                        <?php if ($reqAccount): ?>
+                        <?php if ($reqAccount) : ?>
                         <div class="order-req-row">
                             <span class="order-req-label">Расчётный счёт (IBAN):</span>
                             <span class="order-req-value order-req-mono">
@@ -154,7 +154,7 @@ $this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
                             </span>
                         </div>
                         <?php endif; ?>
-                        <?php if ($reqBank): ?>
+                        <?php if ($reqBank) : ?>
                         <div class="order-req-row">
                             <span class="order-req-label">Банк:</span>
                             <span class="order-req-value">
@@ -163,7 +163,7 @@ $this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
                             </span>
                         </div>
                         <?php endif; ?>
-                        <?php if ($reqBic): ?>
+                        <?php if ($reqBic) : ?>
                         <div class="order-req-row">
                             <span class="order-req-label">БИК:</span>
                             <span class="order-req-value order-req-mono">
@@ -172,7 +172,7 @@ $this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
                             </span>
                         </div>
                         <?php endif; ?>
-                        <?php if ($reqUnp): ?>
+                        <?php if ($reqUnp) : ?>
                         <div class="order-req-row">
                             <span class="order-req-label">УНП:</span>
                             <span class="order-req-value">
@@ -203,7 +203,7 @@ $this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
                 <?php endif; ?>
 
                 <!-- ═══ ШАГ 2: Загрузка чека оплаты ═══ -->
-                <?php if ($viewModel->isAwaitingPayment): ?>
+                <?php if ($viewModel->isAwaitingPayment) : ?>
                 <div class="order-view-section order-view-section--full order-payment-step" data-step="2">
                     <div class="order-step-head">
                         <span class="order-step-num">2</span>
@@ -233,7 +233,7 @@ $this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
                 <?php endif; ?>
 
                 <!-- ═══ Подтверждение уже загруженной оплаты ═══ -->
-                <?php if ($viewModel->hasPaymentProof): ?>
+                <?php if ($viewModel->hasPaymentProof) : ?>
                 <div class="order-view-section order-view-section--full order-payment-confirmed">
                     <h2><i class="bi bi-check-circle-fill" style="color:#16a34a"></i> Чек оплаты получен</h2>
                     <div class="order-payment-proof">
@@ -246,7 +246,7 @@ $this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
                 <?php endif; ?>
 
                 <!-- ═══ ШАГ 3: Паспортные данные для ДоброПост ═══ -->
-                <?php if ($viewModel->isPassportNeeded): ?>
+                <?php if ($viewModel->isPassportNeeded) : ?>
                 <div class="order-view-section order-view-section--full order-payment-step" data-step="3">
                     <div class="order-step-head">
                         <span class="order-step-num">3</span>
@@ -255,7 +255,7 @@ $this->registerMetaTag(['name' => 'robots', 'content' => 'noindex, nofollow']);
                     <p class="order-step-sub">После получения оплаты необходимо заполнить паспортные данные для прохождения таможенного оформления.</p>
                     <?= $this->render('_passport_form', ['model' => $model]) ?>
                 </div>
-                <?php elseif ($viewModel->isPassportComplete && $viewModel->hasPaymentProof): ?>
+                <?php elseif ($viewModel->isPassportComplete && $viewModel->hasPaymentProof) : ?>
                 <div class="order-view-section order-view-section--full order-payment-confirmed">
                     <h2><i class="bi bi-check-circle-fill" style="color:#16a34a"></i> Паспортные данные заполнены</h2>
                     <p style="margin:0;color:#6b7280">Спасибо! Мы получили все необходимые данные для оформления доставки.</p>

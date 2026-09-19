@@ -2,11 +2,11 @@
 
 /**
  * CatalogSeoTrait — SEO методы для каталога
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Генерация SEO-данных для страниц каталога: мета-теги, Open Graph,
  * Twitter Cards, JSON-LD микроразметка, canonical URL.
- * 
+ *
  * ФУНКЦИИ:
  * - Регистрация мета-тегов (registerMetaTags)
  * - Генерация динамического описания (generateFilteredDescription)
@@ -16,21 +16,22 @@
  * - Регистрация Schema.org микроразметки (registerSchemaItemList, registerSchemaBreadcrumbs, registerSchemaWebSite)
  * - Проверка избранного (checkIsFavorite)
  * - Рендер страницы ошибки (renderError)
- * 
+ *
  * СВЯЗИ:
  * - Brand (модель бренда)
  * - Category (модель категории)
  * - SmartFilter (компонент умного фильтра)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * Подключить в CatalogController через "use CatalogSeoTrait;"
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Canonical URL без trailing slash (SEO best practice)
  * - Динамические описания на основе активных фильтров
  * - Поддержка Open Graph и Twitter Cards
  * - JSON-LD для Google Shopping
  */
+
 namespace app\backend\shared\traits;
 
 use Yii;
@@ -42,7 +43,7 @@ trait CatalogSeoTrait
 {
     /**
      * Регистрация мета-тегов
-     * 
+     *
      * @param array $tags
      */
     protected function registerMetaTags($tags)
@@ -54,12 +55,12 @@ trait CatalogSeoTrait
                 $this->view->registerMetaTag(['name' => $name, 'content' => $content], $name);
             }
         }
-        
+
         // Canonical URL с нормализацией параметров
         $canonicalUrl = $this->generateCanonicalUrl();
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => $canonicalUrl]);
     }
-    
+
     /**
      * Генерация канонического URL с нормализацией параметров
      */
@@ -67,13 +68,13 @@ trait CatalogSeoTrait
     {
         $request = Yii::$app->request;
         $urlParts = parse_url($request->absoluteUrl);
-        
+
         // Базовый URL без query параметров
         $canonical = $urlParts['scheme'] . '://' . $urlParts['host'] . ($urlParts['path'] ?? '/');
-        
+
         // Получаем и нормализуем query параметры
         $queryParams = $request->get();
-        
+
         if (!empty($queryParams)) {
             // Исключаем несущественные параметры
             $excludeParams = [
@@ -81,41 +82,41 @@ trait CatalogSeoTrait
                 'sort', 'order', 'per-page', // Пагинация и сортировка
                 'ajax', 'X-Requested-With', // AJAX параметры
             ];
-            
+
             $filteredParams = [];
             foreach ($queryParams as $key => $value) {
                 if (!in_array($key, $excludeParams) && $value !== '') {
                     $filteredParams[$key] = $value;
                 }
             }
-            
+
             // Сортируем параметры для консистентности
             ksort($filteredParams);
-            
+
             if (!empty($filteredParams)) {
                 $canonical .= '?' . http_build_query($filteredParams);
             }
         }
-        
+
         // Убираем trailing slash
         $canonical = rtrim($canonical, '/');
         if ($canonical === $urlParts['scheme'] . '://' . $urlParts['host']) {
             $canonical .= '/';
         }
-        
+
         return $canonical;
     }
 
     /**
      * Регистрация JSON-LD схемы
-     * 
+     *
      * @param array $schema
      * @param string $key
      */
     protected function registerJsonLd($schema, $key)
     {
         $jsonLd = json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-        
+
         if (!isset($this->view->params['jsonLdSchemas'])) {
             $this->view->params['jsonLdSchemas'] = [];
         }
@@ -124,7 +125,7 @@ trait CatalogSeoTrait
 
     /**
      * Регистрация Schema.org ItemList с расширенными данными Product
-     * 
+     *
      * @param array $products Массив товаров
      * @param int $totalCount Общее количество товаров
      * @param array $filters Активные фильтры для SEO-данных
@@ -137,11 +138,11 @@ trait CatalogSeoTrait
             'numberOfItems' => $totalCount,
             'itemListElement' => []
         ];
-        
+
         if (!empty($filters)) {
             $schema['description'] = $this->generateFilteredDescription($filters, '');
         }
-        
+
         foreach ($products as $index => $product) {
             $productSchema = [
                 '@type' => 'Product',
@@ -150,18 +151,18 @@ trait CatalogSeoTrait
                 'image' => Yii::$app->request->hostInfo . $product->getMainImageUrl(),
                 'sku' => $product->id,
             ];
-            
+
             if (!empty($product->description)) {
                 $productSchema['description'] = mb_substr(strip_tags($product->description), 0, 200);
             }
-            
+
             if ($product->brand) {
                 $productSchema['brand'] = [
                     '@type' => 'Brand',
                     'name' => $product->brand_name ?? $product->brand->name
                 ];
             }
-            
+
             // Offers с расширенными данными
             $availability = 'https://schema.org/OutOfStock';
             if ($product->stock_status === 'in_stock') {
@@ -169,7 +170,7 @@ trait CatalogSeoTrait
             } elseif ($product->stock_status === 'pre_order') {
                 $availability = 'https://schema.org/PreOrder';
             }
-            
+
             $productSchema['offers'] = [
                 '@type' => 'Offer',
                 'price' => (string)$product->price,
@@ -178,7 +179,7 @@ trait CatalogSeoTrait
                 'url' => Yii::$app->request->hostInfo . $product->getUrl(),
                 'priceValidUntil' => date('Y-m-d', strtotime('+1 year')),
             ];
-            
+
             // Добавляем рейтинг если есть
             if (!empty($product->rating) && $product->rating > 0) {
                 $productSchema['aggregateRating'] = [
@@ -189,20 +190,20 @@ trait CatalogSeoTrait
                     'worstRating' => '1'
                 ];
             }
-            
+
             $schema['itemListElement'][] = [
                 '@type' => 'ListItem',
                 'position' => $index + 1,
                 'item' => $productSchema
             ];
         }
-        
+
         $this->registerJsonLd($schema, 'schema-itemlist');
     }
 
     /**
      * Регистрация Schema.org BreadcrumbList с учетом фильтров
-     * 
+     *
      * @param array $breadcrumbs Массив хлебных крошек [['name' => 'Название', 'url' => '/url']]
      * @param array $filters Активные фильтры
      */
@@ -213,7 +214,7 @@ trait CatalogSeoTrait
             '@type' => 'BreadcrumbList',
             'itemListElement' => []
         ];
-        
+
         // Всегда начинаем с главной страницы
         $position = 1;
         $schema['itemListElement'][] = [
@@ -222,7 +223,7 @@ trait CatalogSeoTrait
             'name' => 'Главная',
             'item' => Yii::$app->request->hostInfo
         ];
-        
+
         // Добавляем каталог
         $schema['itemListElement'][] = [
             '@type' => 'ListItem',
@@ -230,7 +231,7 @@ trait CatalogSeoTrait
             'name' => 'Каталог',
             'item' => Yii::$app->request->hostInfo . '/catalog'
         ];
-        
+
         // Добавляем переданные хлебные крошки (бренд, категория)
         foreach ($breadcrumbs as $crumb) {
             $schema['itemListElement'][] = [
@@ -240,11 +241,11 @@ trait CatalogSeoTrait
                 'item' => Yii::$app->request->hostInfo . $crumb['url']
             ];
         }
-        
+
         // Добавляем информацию о фильтрах как часть навигации
         if (!empty($filters)) {
             $filterLabels = [];
-            
+
             if (!empty($filters['brands'])) {
                 $brands = Brand::find()
                     ->where(['id' => $filters['brands']])
@@ -254,14 +255,18 @@ trait CatalogSeoTrait
                     $filterLabels[] = implode(', ', $brands);
                 }
             }
-            
+
             if (!empty($filters['price_from']) || !empty($filters['price_to'])) {
                 $priceLabel = 'Цена: ';
-                if (!empty($filters['price_from'])) $priceLabel .= 'от ' . $filters['price_from'] . ' ';
-                if (!empty($filters['price_to'])) $priceLabel .= 'до ' . $filters['price_to'];
+                if (!empty($filters['price_from'])) {
+                    $priceLabel .= 'от ' . $filters['price_from'] . ' ';
+                }
+                if (!empty($filters['price_to'])) {
+                    $priceLabel .= 'до ' . $filters['price_to'];
+                }
                 $filterLabels[] = trim($priceLabel) . ' BYN';
             }
-            
+
             if (!empty($filterLabels)) {
                 $schema['itemListElement'][] = [
                     '@type' => 'ListItem',
@@ -271,7 +276,7 @@ trait CatalogSeoTrait
                 ];
             }
         }
-        
+
         $this->registerJsonLd($schema, 'schema-breadcrumbs');
     }
 
@@ -294,13 +299,13 @@ trait CatalogSeoTrait
                 'query-input' => 'required name=search_term_string'
             ]
         ];
-        
+
         $this->registerJsonLd($schema, 'schema-website');
     }
 
     /**
      * Регистрация rel prev/next для пагинации
-     * 
+     *
      * @param int $currentPage
      * @param int $totalPages
      * @param array $filters
@@ -308,7 +313,7 @@ trait CatalogSeoTrait
     protected function registerPaginationLinks($currentPage, $totalPages, $filters)
     {
         $baseUrl = SmartFilter::generateSefUrl($filters);
-        
+
         if ($currentPage > 1) {
             $prevUrl = $baseUrl . '?page=' . ($currentPage - 1);
             $this->view->registerLinkTag([
@@ -316,7 +321,7 @@ trait CatalogSeoTrait
                 'href' => Yii::$app->request->hostInfo . $prevUrl
             ]);
         }
-        
+
         if ($currentPage < $totalPages) {
             $nextUrl = $baseUrl . '?page=' . ($currentPage + 1);
             $this->view->registerLinkTag([
@@ -328,7 +333,7 @@ trait CatalogSeoTrait
 
     /**
      * Генерация динамического описания на основе фильтров
-     * 
+     *
      * @param array $filters
      * @param string $baseDescription
      * @return string
@@ -336,7 +341,7 @@ trait CatalogSeoTrait
     protected function generateFilteredDescription($filters, $baseDescription = '')
     {
         $parts = [];
-        
+
         if (!empty($filters['brands'])) {
             $brands = Brand::find()
                 ->where(['id' => $filters['brands']])
@@ -346,7 +351,7 @@ trait CatalogSeoTrait
                 $parts[] = implode(', ', $brands);
             }
         }
-        
+
         if (!empty($filters['categories']) && empty($filters['brands'])) {
             $categories = Category::find()
                 ->where(['id' => $filters['categories']])
@@ -356,7 +361,7 @@ trait CatalogSeoTrait
                 $parts[] = implode(', ', $categories);
             }
         }
-        
+
         if (!empty($filters['price_from']) && !empty($filters['price_to'])) {
             $parts[] = "от {$filters['price_from']} до {$filters['price_to']} BYN";
         } elseif (!empty($filters['price_from'])) {
@@ -364,17 +369,17 @@ trait CatalogSeoTrait
         } elseif (!empty($filters['price_to'])) {
             $parts[] = "до {$filters['price_to']} BYN";
         }
-        
+
         if (!empty($parts)) {
             return implode('. ', $parts) . '. ' . $baseDescription;
         }
-        
+
         return $baseDescription ?: 'Оригинальные товары из США и Европы с доставкой по Беларуси';
     }
 
     /**
      * Генерация динамического заголовка
-     * 
+     *
      * @param array $filters
      * @param string $baseTitle
      * @return string
@@ -382,7 +387,7 @@ trait CatalogSeoTrait
     protected function generateFilteredTitle($filters, $baseTitle = 'Каталог')
     {
         $parts = [$baseTitle];
-        
+
         if (!empty($filters['brands'])) {
             $brands = Brand::find()
                 ->where(['id' => array_slice($filters['brands'], 0, 2)])
@@ -392,7 +397,7 @@ trait CatalogSeoTrait
                 $parts[] = implode(', ', $brands);
             }
         }
-        
+
         if (!empty($filters['price_from']) || !empty($filters['price_to'])) {
             if (!empty($filters['price_from']) && !empty($filters['price_to'])) {
                 $parts[] = "{$filters['price_from']}-{$filters['price_to']} BYN";
@@ -402,13 +407,13 @@ trait CatalogSeoTrait
                 $parts[] = "до {$filters['price_to']} BYN";
             }
         }
-        
+
         return implode(' - ', $parts);
     }
 
     /**
      * Получение URL изображения первого товара из выборки
-     * 
+     *
      * @param \yii\db\ActiveQuery $query
      * @return string|null
      */
@@ -416,7 +421,7 @@ trait CatalogSeoTrait
     {
         $productQuery = clone $query;
         $product = $productQuery->select(['id', 'main_image_url'])->limit(1)->one();
-        
+
         if ($product && $product->main_image_url) {
             $imageUrl = $product->main_image_url;
             if (strpos($imageUrl, 'http') !== 0) {
@@ -424,26 +429,26 @@ trait CatalogSeoTrait
             }
             return $imageUrl;
         }
-        
+
         return null;
     }
-    
+
     /**
      * Генерация УТП (уникального торгового предложения) для товара
-     * 
+     *
      * @param mixed $product
      * @return string
      */
     protected function generateProductUTP($product)
     {
         $utp = [];
-        
+
         $utp[] = '✓ 100% оригинал';
-        
+
         if ($product->brand_name) {
             $utp[] = $product->brand_name . ' ' . $product->name;
         }
-        
+
         if ($product->old_price && $product->old_price > $product->price) {
             $discount = round((($product->old_price - $product->price) / $product->old_price) * 100);
             $price    = htmlspecialchars($product->price, ENT_QUOTES, 'UTF-8');
@@ -452,21 +457,21 @@ trait CatalogSeoTrait
         } else {
             $utp[] = "Цена: " . htmlspecialchars($product->price, ENT_QUOTES, 'UTF-8') . " BYN";
         }
-        
+
         if ($product->stock_status === 'in_stock') {
             $utp[] = '✓ В наличии';
         } elseif ($product->stock_status === 'pre_order') {
             $utp[] = '✓ Под заказ 7-14 дней';
         }
-        
+
         $utp[] = '✓ Доставка по Беларуси';
         $utp[] = '✓ Гарантия подлинности';
-        
+
         if (!empty($product->rating) && $product->rating >= 4) {
             $stars = str_repeat('⭐', min(5, (int)$product->rating));
             $utp[] = "Рейтинг: {$stars}";
         }
-        
+
         return implode(' • ', $utp);
     }
 }

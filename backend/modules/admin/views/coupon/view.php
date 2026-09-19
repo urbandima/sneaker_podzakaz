@@ -123,9 +123,9 @@ $this->params['headerActions'] = [
             <div class="coupon-hero-sub">
                 <?= Html::encode($model->getDiscountDescription()) ?>
                 &nbsp;·&nbsp;
-                <?php if ($isActive): ?>
+                <?php if ($isActive) : ?>
                 <span style="color:var(--admin-success,#16a34a);font-weight:600"><i class="bi bi-check-circle-fill" style="font-size:.75rem"></i> Активен</span>
-                <?php else: ?>
+                <?php else : ?>
                 <span style="color:var(--admin-text-secondary,#6b7280);font-weight:600"><i class="bi bi-dash-circle" style="font-size:.75rem"></i> Неактивен</span>
                 <?php endif; ?>
             </div>
@@ -164,13 +164,13 @@ $this->params['headerActions'] = [
                             <div class="c-field-label">Скидка</div>
                             <div class="c-field-val" style="font-size:1.125rem;font-weight:700;color:var(--admin-accent,#008060)"><?= Html::encode($model->getDiscountDescription()) ?></div>
                         </div>
-                        <?php if (!empty($model->min_order_amount)): ?>
+                        <?php if (!empty($model->min_order_amount)) : ?>
                         <div class="c-field">
                             <div class="c-field-label">Минимальная сумма</div>
                             <div class="c-field-val"><?= Yii::$app->formatter->asCurrency($model->min_order_amount, 'BYN') ?></div>
                         </div>
                         <?php endif; ?>
-                        <?php if (!empty($model->max_discount)): ?>
+                        <?php if (!empty($model->max_discount)) : ?>
                         <div class="c-field">
                             <div class="c-field-label">Максимальная скидка</div>
                             <div class="c-field-val"><?= Yii::$app->formatter->asCurrency($model->max_discount, 'BYN') ?></div>
@@ -186,8 +186,8 @@ $this->params['headerActions'] = [
                 <div class="c-card-body" style="padding:0">
                     <?php
                     $usages = $usageProvider->getModels();
-                    if (!empty($usages)):
-                    ?>
+                    if (!empty($usages)) :
+                        ?>
                     <table class="coupon-usage-table">
                         <thead>
                             <tr>
@@ -198,7 +198,7 @@ $this->params['headerActions'] = [
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($usages as $usage): ?>
+                            <?php foreach ($usages as $usage) : ?>
                             <tr>
                                 <td>
                                     <a href="<?= Url::to(['/admin/order/view', 'id' => $usage->order_id]) ?>"
@@ -215,7 +215,7 @@ $this->params['headerActions'] = [
                             <?php endforeach; ?>
                         </tbody>
                     </table>
-                    <?php else: ?>
+                    <?php else : ?>
                     <div style="padding:32px;text-align:center;color:var(--admin-text-secondary,#6b7280)">
                         <i class="bi bi-clock-history" style="font-size:2rem;display:block;margin-bottom:8px;opacity:.4"></i>
                         <div style="font-size:.875rem">Купон ещё не использовался</div>
@@ -243,7 +243,7 @@ $this->params['headerActions'] = [
                             <div class="c-stat-label">Лимит</div>
                         </div>
                     </div>
-                    <?php if (!empty($model->max_uses) && $model->max_uses > 0): ?>
+                    <?php if (!empty($model->max_uses) && $model->max_uses > 0) : ?>
                     <div>
                         <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--admin-text-secondary,#6b7280);margin-bottom:4px">
                             <span>Использовано</span>
@@ -264,42 +264,50 @@ $this->params['headerActions'] = [
                     <div class="c-field">
                         <div class="c-field-label">Активен с</div>
                         <div class="c-field-val">
-                            <?php if (!empty($model->valid_from)): ?>
-                            <?= date('d.m.Y', is_numeric($model->valid_from) ? $model->valid_from : strtotime($model->valid_from)) ?>
-                            <?php else: ?><span style="color:var(--admin-text-secondary,#6b7280)">—</span><?php endif; ?>
+                            <?php if (!empty($model->valid_from)) : ?>
+                                <?= date('d.m.Y', is_numeric($model->valid_from) ? $model->valid_from : strtotime($model->valid_from)) ?>
+                            <?php else :
+                                ?><span style="color:var(--admin-text-secondary,#6b7280)">—</span><?php
+                            endif; ?>
                         </div>
                     </div>
                     <div class="c-field">
                         <div class="c-field-label">Активен до</div>
                         <div class="c-field-val">
-                            <?php if (!empty($model->valid_until)): ?>
-                            <?php
-                            $untilTs = is_numeric($model->valid_until) ? $model->valid_until : strtotime($model->valid_until);
-                            $expired = $untilTs < time();
-                            ?>
+                            <?php if (!empty($model->valid_until)) : ?>
+                                <?php
+                                $untilTs = is_numeric($model->valid_until) ? $model->valid_until : strtotime($model->valid_until);
+                                $expired = $untilTs < time();
+                                ?>
                             <span style="<?= $expired ? 'color:var(--admin-danger,#dc2626)' : 'color:var(--admin-success,#16a34a)' ?>;font-weight:600">
                                 <?= date('d.m.Y', $untilTs) ?>
-                                <?php if ($expired): ?>
+                                <?php if ($expired) : ?>
                                 <span style="font-size:.7rem;font-weight:700;background:var(--admin-danger-bg,#fee2e2);color:var(--admin-danger,#dc2626);padding:1px 6px;border-radius:4px;margin-left:4px">Истёк</span>
                                 <?php endif; ?>
                             </span>
-                            <?php else: ?><span style="color:var(--admin-text-secondary,#6b7280)">Без ограничений</span><?php endif; ?>
+                            <?php else :
+                                ?><span style="color:var(--admin-text-secondary,#6b7280)">Без ограничений</span><?php
+                            endif; ?>
                         </div>
                     </div>
                     <div class="c-field">
                         <div class="c-field-label">Создан</div>
                         <div class="c-field-val" style="font-size:.8rem;color:var(--admin-text-secondary,#6b7280)">
-                            <?php if (!empty($model->created_at)): ?>
-                            <?= date('d.m.Y H:i', is_numeric($model->created_at) ? $model->created_at : strtotime($model->created_at)) ?>
-                            <?php else: ?>—<?php endif; ?>
+                            <?php if (!empty($model->created_at)) : ?>
+                                <?= date('d.m.Y H:i', is_numeric($model->created_at) ? $model->created_at : strtotime($model->created_at)) ?>
+                            <?php else :
+                                ?>—<?php
+                            endif; ?>
                         </div>
                     </div>
                     <div class="c-field">
                         <div class="c-field-label">Обновлён</div>
                         <div class="c-field-val" style="font-size:.8rem;color:var(--admin-text-secondary,#6b7280)">
-                            <?php if (!empty($model->updated_at)): ?>
-                            <?= date('d.m.Y H:i', is_numeric($model->updated_at) ? $model->updated_at : strtotime($model->updated_at)) ?>
-                            <?php else: ?>—<?php endif; ?>
+                            <?php if (!empty($model->updated_at)) : ?>
+                                <?= date('d.m.Y H:i', is_numeric($model->updated_at) ? $model->updated_at : strtotime($model->updated_at)) ?>
+                            <?php else :
+                                ?>—<?php
+                            endif; ?>
                         </div>
                     </div>
                 </div>

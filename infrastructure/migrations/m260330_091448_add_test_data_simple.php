@@ -9,7 +9,6 @@ class m260330_091448_add_test_data_simple extends Migration
      */
     public function safeUp()
     {
-
     }
 
     /**

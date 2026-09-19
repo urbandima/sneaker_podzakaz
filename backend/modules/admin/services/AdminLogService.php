@@ -92,8 +92,8 @@ class AdminLogService
                 $changes[] = "{$key}: {$oldValues[$key]} → {$value}";
             }
         }
-        
-        $description = !empty($changes) 
+
+        $description = !empty($changes)
             ? "Изменен {$entityType}: " . implode(', ', $changes)
             : "Изменен {$entityType}: {$entityName}";
 
@@ -199,7 +199,7 @@ class AdminLogService
         if ($errorCount > 0) {
             $description .= ", {$errorCount} ошибок";
         }
-        
+
         self::log(
             AdminLog::ACTION_IMPORT,
             $entityType,
@@ -239,9 +239,9 @@ class AdminLogService
             'deactivate' => 'деактивировано',
             'export' => 'экспортировано',
         ];
-        
+
         $label = $actionLabels[$action] ?? $action;
-        
+
         self::log(
             AdminLog::ACTION_BULK_ACTION,
             $entityType,
@@ -263,20 +263,20 @@ class AdminLogService
         $logs = AdminLog::find()
             ->where(['>=', 'created_at', $from])
             ->all();
-        
+
         $stats = [
             'total' => count($logs),
             'by_action' => [],
             'by_entity' => [],
             'by_user' => [],
         ];
-        
+
         foreach ($logs as $log) {
             $stats['by_action'][$log->action] = ($stats['by_action'][$log->action] ?? 0) + 1;
             $stats['by_entity'][$log->entity_type] = ($stats['by_entity'][$log->entity_type] ?? 0) + 1;
             $stats['by_user'][$log->username] = ($stats['by_user'][$log->username] ?? 0) + 1;
         }
-        
+
         return $stats;
     }
 }

@@ -10,7 +10,7 @@ class AdminModule extends Module
     public $controllerNamespace = 'app\backend\modules\admin\controllers';
     public $layout = 'admin';
     public $defaultRoute = 'dashboard';
-    
+
     public function init()
     {
         parent::init();

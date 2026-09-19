@@ -2,36 +2,37 @@
 
 /**
  * OrderController — Контроллер заказов
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Создание и управление заказами покупателей: оформление, просмотр,
  * загрузка подтверждения оплаты.
- * 
+ *
  * ФУНКЦИИ:
  * - Создание заказа из корзины (create)
  * - Страница успешного оформления (success)
  * - Просмотр заказа по токену (view)
  * - Загрузка подтверждения оплаты (upload-payment)
  * - Скачивание подтверждения оплаты (download-payment)
- * 
+ *
  * СВЯЗИ:
  * - Order (модель заказа)
  * - OrderItem (модель позиции заказа)
  * - OrderHistory (модель истории заказа)
  * - Cart (модель корзины)
  * - Customer (модель покупателя)
- * 
+ *
  * БЕЗОПАСНОСТЬ:
  * - Доступ к заказу по уникальному токену (не по ID)
  * - Файлы оплаты хранятся вне web root
  * - Rate limiting для загрузки файлов (5 попыток за 15 минут)
  * - Валидация MIME-типа и magic bytes загружаемых файлов
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Транзакционное создание заказа
  * - Email-уведомления клиенту и менеджеру
  * - Рекомендованные товары на странице успеха (upsell)
  */
+
 namespace app\backend\modules\checkout\controllers;
 
 use Yii;
@@ -54,16 +55,16 @@ use app\backend\modules\notification\services\WebhookService;
 class OrderController extends Controller
 {
     public $layout = 'main';
-    
+
     /** @var NotificationService */
     private $notificationService;
-    
+
     /** @var SmsService */
     private $smsService;
-    
+
     /** @var WebhookService */
     private $webhookService;
-    
+
     public function init()
     {
         parent::init();
@@ -89,19 +90,19 @@ class OrderController extends Controller
     public function actionCreate()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         if (!Yii::$app->request->isPost) {
             Yii::error('Попытка создания заказа не POST методом', 'order');
             return ['success' => false, 'message' => 'Недопустимый метод запроса'];
         }
-        
+
         Yii::info('Начало создания заказа', 'order');
-        
+
         // Получаем ID покупателя из сессии (не из POST — защита от IDOR)
         $customerId = Yii::$app->session->get('customer_id');
         $useSavedAddress = Yii::$app->request->post('use_saved_address');
         $saveToProfile = Yii::$app->request->post('save_to_profile');
-        
+
         // Получаем данные формы
         $name = Yii::$app->request->post('name');
         $phone = Yii::$app->request->post('phone');
@@ -112,11 +113,11 @@ class OrderController extends Controller
         $pickupPoint = Yii::$app->request->post('pickup_point'); // Europochta PVZ
         $comment = Yii::$app->request->post('comment');
         $payment = Yii::$app->request->post('payment');
-        
+
         // Купон и баллы лояльности
         $couponCode = Yii::$app->request->post('coupon_code');
         $loyaltyPoints = (int)Yii::$app->request->post('loyalty_points', 0);
-        
+
         // Если используется сохранённый адрес, загружаем данные покупателя
         if ($customerId && $useSavedAddress) {
             $customer = \app\backend\modules\account\models\Customer::findOne($customerId);
@@ -128,12 +129,12 @@ class OrderController extends Controller
                 $country = $customer->default_country ?? 'belarus';
             }
         }
-        
+
         // Валидация обязательных полей
         if (empty($name) || empty($phone) || empty($delivery)) {
             return ['success' => false, 'message' => 'Заполните все обязательные поля'];
         }
-        
+
         // Проверяем адрес (обязателен для всех кроме самовывоза)
         // Для Европочты адрес = выбранный ПВЗ (приходит как address или pickup_point)
         if ($delivery === 'europochta' && empty($address) && empty($pickupPoint)) {
@@ -142,7 +143,7 @@ class OrderController extends Controller
         if ($delivery !== 'pickup_minsk' && $delivery !== 'europochta' && empty($address)) {
             return ['success' => false, 'message' => 'Укажите адрес доставки'];
         }
-        
+
         // Получаем товары из корзины
         try {
             Yii::info('Попытка получения корзины', 'order');
@@ -152,15 +153,15 @@ class OrderController extends Controller
             Yii::error('Ошибка получения корзины: ' . $e->getMessage() . "\n" . $e->getTraceAsString(), 'order');
             return ['success' => false, 'message' => 'Ошибка загрузки корзины: ' . $e->getMessage()];
         }
-        
+
         if (empty($cartItems)) {
             Yii::warning('Попытка создания заказа с пустой корзиной', 'order');
             return ['success' => false, 'message' => 'Корзина пуста'];
         }
-        
+
         // Начинаем транзакцию
         $transaction = Yii::$app->db->beginTransaction();
-        
+
         try {
             // Создаем заказ
             $order = new Order();
@@ -183,7 +184,7 @@ class OrderController extends Controller
             } else {
                 Yii::warning('Поле source отсутствует в таблице order, пропускаем установку источника.', 'order');
             }
-            
+
             // Рассчитываем стоимость доставки через ShippingService
             $shippingService = new ShippingService();
             $totalAmount = Cart::getTotal();
@@ -194,15 +195,15 @@ class OrderController extends Controller
                 $totalAmount,
                 1.0 // Вес по умолчанию
             );
-            
+
             $deliveryCost = $shippingResult['cost'];
             $order->delivery_cost = $deliveryCost;
-            
+
             // Рассчитываем итоговую сумму
             $totalAmount = Cart::getTotal();
             $order->product_price = $totalAmount;
             $discountAmount = 0;
-            
+
             // Применяем купон если указан
             if (!empty($couponCode)) {
                 $couponService = new CouponService();
@@ -236,37 +237,37 @@ class OrderController extends Controller
                     Yii::warning("Купон {$couponCode} невалиден: " . $couponService->getErrorMessage(), 'order');
                 }
             }
-            
+
             // Применяем баллы лояльности если указаны
             if ($loyaltyPoints > 0 && $customerId) {
                 $loyaltyService = new LoyaltyService();
                 $maxPoints = $loyaltyService->getMaxRedeemPoints($customerId, $totalAmount);
-                
+
                 if ($loyaltyPoints > $maxPoints) {
                     $loyaltyPoints = $maxPoints;
                 }
-                
+
                 if ($loyaltyPoints >= $loyaltyService->minPointsToRedeem) {
                     $loyaltyDiscount = $loyaltyService->calculateRedeemDiscount($loyaltyPoints);
                     $discountAmount += $loyaltyDiscount;
                     $order->loyalty_points_used = $loyaltyPoints;
                     $order->loyalty_discount = $loyaltyDiscount;
-                    
+
                     Yii::info("Применены баллы лояльности: {$loyaltyPoints}, скидка: {$loyaltyDiscount}", 'order');
                 }
             }
-            
+
             // Сумма не может быть отрицательной (купон + баллы могут превысить стоимость)
             $order->total_amount = max(0, $totalAmount + $deliveryCost - $discountAmount);
-            
+
             // Генерируем номер заказа и токен
             $order->order_number = 'WEB-' . date('Ymd') . '-' . strtoupper(Yii::$app->security->generateRandomString(6));
             $order->token = Yii::$app->security->generateRandomString(32);
-            
+
             if (!$order->save()) {
                 throw new \Exception('Ошибка сохранения заказа: ' . json_encode($order->errors));
             }
-            
+
             // Добавляем товары в заказ
             foreach ($cartItems as $cartItem) {
                 if (!$cartItem->product) {
@@ -281,23 +282,23 @@ class OrderController extends Controller
                 $orderItem->price = $cartItem->price;
                 $orderItem->size = $cartItem->size;
                 $orderItem->color = $cartItem->color;
-                
+
                 if (!$orderItem->save()) {
                     throw new \Exception('Ошибка сохранения товара: ' . json_encode($orderItem->errors));
                 }
             }
-            
+
             // Добавляем запись в историю
             $history = new OrderHistory();
             $history->order_id = $order->id;
             $history->old_status = null;
             $history->new_status = 'new';
             $history->comment = 'Заказ создан через сайт';
-            
+
             if (!$history->save()) {
                 throw new \Exception('Ошибка сохранения истории: ' . json_encode($history->errors));
             }
-            
+
             // Сохраняем данные в профиль покупателя, если запрошено
             if ($customerId && $saveToProfile) {
                 $customer = \app\backend\modules\account\models\Customer::findOne($customerId);
@@ -315,12 +316,12 @@ class OrderController extends Controller
                     if ($customer->default_country !== $country) {
                         $customer->default_country = $country;
                     }
-                    
+
                     $customer->save(false); // Сохраняем без валидации, т.к. данные уже проверены
                     Yii::info("Обновлены данные покупателя #{$customerId}", 'order');
                 }
             }
-            
+
             // Привязываем заказ к покупателю, если авторизован
             $autoAccountPassword = null;
             $autoAccountPhone = null;
@@ -392,16 +393,16 @@ class OrderController extends Controller
                     );
                 }
             }
-            
+
             // Списываем баллы лояльности
             if (!empty($order->loyalty_points_used) && $customerId) {
                 $loyaltyService = new LoyaltyService();
                 $loyaltyService->redeemPoints($customerId, $order->loyalty_points_used, $order->id);
             }
-            
+
             // Очищаем корзину
             Cart::clear();
-            
+
             // Отправляем email уведомления (опционально)
             try {
                 // Клиенту
@@ -412,7 +413,7 @@ class OrderController extends Controller
                         ->setSubject('Заказ №' . $order->order_number . ' оформлен')
                         ->send();
                 }
-                
+
                 // Менеджеру
                 if (!empty(Yii::$app->params['adminEmail'])) {
                     Yii::$app->mailer->compose('order-created-manager', ['order' => $order])
@@ -424,7 +425,7 @@ class OrderController extends Controller
             } catch (\Exception $e) {
                 Yii::warning('Ошибка отправки email: ' . $e->getMessage(), 'order');
             }
-            
+
             $transaction->commit();
 
             // Отправляем уведомления через сервисы
@@ -459,11 +460,10 @@ class OrderController extends Controller
             }
 
             return $response;
-            
         } catch (\Throwable $e) {
             $transaction->rollBack();
             Yii::error('Ошибка создания заказа: ' . $e->getMessage() . "\n" . $e->getTraceAsString(), 'order');
-            
+
             return [
                 'success' => false,
                 'message' => 'Ошибка при оформлении заказа: ' . $e->getMessage()
@@ -579,15 +579,15 @@ class OrderController extends Controller
     public function actionValidateCoupon()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $code = Yii::$app->request->post('code');
         $orderAmount = (float)Yii::$app->request->post('order_amount', 0);
         $customerId = Yii::$app->request->post('customer_id');
-        
+
         if (empty($code)) {
             return ['success' => false, 'message' => 'Введите код купона'];
         }
-        
+
         $couponService = new CouponService();
         $coupon = $couponService->validateCoupon($code, $orderAmount, $customerId);
 
@@ -601,7 +601,7 @@ class OrderController extends Controller
         // Передаём реальную стоимость доставки для корректного расчёта free_shipping купонов
         $deliveryCostForPreview = (float)Yii::$app->request->post('delivery_cost', 0);
         $discount = $coupon->calculateDiscount($orderAmount, $deliveryCostForPreview);
-        
+
         return [
             'success' => true,
             'message' => 'Купон применён',
@@ -620,25 +620,25 @@ class OrderController extends Controller
     public function actionCalculateLoyalty()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $customerId = Yii::$app->request->post('customer_id');
         $orderAmount = (float)Yii::$app->request->post('order_amount', 0);
-        
+
         if (!$customerId) {
             return ['success' => false, 'message' => 'Авторизуйтесь для использования баллов'];
         }
-        
+
         $loyaltyService = new LoyaltyService();
         $balance = $loyaltyService->getCustomerBalance($customerId);
         $maxPoints = $loyaltyService->getMaxRedeemPoints($customerId, $orderAmount);
-        
+
         if ($balance < $loyaltyService->minPointsToRedeem) {
             return [
                 'success' => false,
                 'message' => "Минимум для списания: {$loyaltyService->minPointsToRedeem} баллов"
             ];
         }
-        
+
         return [
             'success' => true,
             'balance' => $balance,
@@ -723,7 +723,7 @@ class OrderController extends Controller
                                         ->setTo($model->creator->email)
                                         ->setSubject('Загружено подтверждение оплаты для заказа №' . $model->order_number)
                                         ->send();
-                                    
+
                                     if (!$sent) {
                                         Yii::warning('Не удалось отправить email менеджеру для заказа #' . $model->id, 'order');
                                     }
@@ -733,7 +733,7 @@ class OrderController extends Controller
                             }
 
                             $transaction->commit();
-                            
+
                             Yii::info('Загружено подтверждение оплаты для заказа #' . $model->id . ' (токен: ' . $token . ')', 'order');
                             Yii::$app->session->setFlash('success', 'Подтверждение оплаты загружено. Ожидайте проверки менеджером.');
                             return $this->redirect(['view', 'token' => $token]);
@@ -745,12 +745,12 @@ class OrderController extends Controller
                     }
                 } catch (\Exception $e) {
                     $transaction->rollBack();
-                    
+
                     // Удаляем файл если он был создан
                     if (isset($filePath) && file_exists($filePath)) {
                         @unlink($filePath);
                     }
-                    
+
                     Yii::error('Ошибка загрузки подтверждения оплаты: ' . $e->getMessage(), 'order');
                     Yii::$app->session->setFlash('error', 'Ошибка при загрузке файла. Попробуйте позже.');
                 }
@@ -784,7 +784,7 @@ class OrderController extends Controller
         // Проверка MIME-типа
         $allowedMimeTypes = [
             'image/jpeg',
-            'image/jpg', 
+            'image/jpg',
             'image/png',
             'image/gif',
             'image/webp',
@@ -872,7 +872,7 @@ class OrderController extends Controller
             'inline' => true // Показать в браузере вместо скачивания
         ]);
     }
-    
+
     /**
      * Отправить уведомления о заказе
      */
@@ -883,16 +883,15 @@ class OrderController extends Controller
             if ($customerId) {
                 $this->notificationService->notifyNewOrder($order->id, $customerId);
             }
-            
+
             // SMS уведомление
             if ($order->client_phone) {
                 $smsText = "Заказ {$order->order_number} оформлен. Сумма: {$order->total_amount} BYN. Спасибо за покупку!";
                 $this->smsService->send($order->client_phone, $smsText);
             }
-            
+
             // Webhook уведомление для внешних систем
             $this->webhookService->sendOrderCreated($order);
-            
         } catch (\Exception $e) {
             Yii::error('Ошибка отправки уведомлений: ' . $e->getMessage(), 'order');
         }

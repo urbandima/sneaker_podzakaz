@@ -30,7 +30,7 @@ class m251105_101000_create_size_conversion_table extends Migration
             ['eu_size', 'gender', 'category'],
             true
         );
-        
+
         // Индексы для быстрого поиска
         $this->createIndex('idx-size_conversion-us', '{{%size_conversion}}', 'us_size');
         $this->createIndex('idx-size_conversion-uk', '{{%size_conversion}}', 'uk_size');

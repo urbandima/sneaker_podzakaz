@@ -10,7 +10,7 @@ class m250102_000006_insert_test_products extends Migration
     public function safeUp()
     {
         // Добавляем тестовые товары с новыми полями фильтров
-        
+
         // Nike Air Max 90
         $this->insert('{{%product}}', [
             'category_id' => 1,
@@ -27,7 +27,7 @@ class m250102_000006_insert_test_products extends Migration
             'created_at' => time(),
             'updated_at' => time(),
         ]);
-        
+
         // Adidas Ultraboost 21
         $this->insert('{{%product}}', [
             'category_id' => 1,
@@ -44,7 +44,7 @@ class m250102_000006_insert_test_products extends Migration
             'created_at' => time(),
             'updated_at' => time(),
         ]);
-        
+
         // New Balance 574
         $this->insert('{{%product}}', [
             'category_id' => 1,
@@ -61,7 +61,7 @@ class m250102_000006_insert_test_products extends Migration
             'created_at' => time(),
             'updated_at' => time(),
         ]);
-        
+
         // Puma RS-X
         $this->insert('{{%product}}', [
             'category_id' => 1,
@@ -78,7 +78,7 @@ class m250102_000006_insert_test_products extends Migration
             'created_at' => time(),
             'updated_at' => time(),
         ]);
-        
+
         // Converse Chuck Taylor All Star
         $this->insert('{{%product}}', [
             'category_id' => 1,
@@ -95,7 +95,7 @@ class m250102_000006_insert_test_products extends Migration
             'created_at' => time(),
             'updated_at' => time(),
         ]);
-        
+
         // Vans Old Skool
         $this->insert('{{%product}}', [
             'category_id' => 1,
@@ -112,7 +112,7 @@ class m250102_000006_insert_test_products extends Migration
             'created_at' => time(),
             'updated_at' => time(),
         ]);
-        
+
         // Reebok Classic Leather
         $this->insert('{{%product}}', [
             'category_id' => 1,
@@ -129,7 +129,7 @@ class m250102_000006_insert_test_products extends Migration
             'created_at' => time(),
             'updated_at' => time(),
         ]);
-        
+
         // Asics Gel-Kayano 28
         $this->insert('{{%product}}', [
             'category_id' => 1,
@@ -146,7 +146,7 @@ class m250102_000006_insert_test_products extends Migration
             'created_at' => time(),
             'updated_at' => time(),
         ]);
-        
+
         // Nike Air Jordan 1
         $this->insert('{{%product}}', [
             'category_id' => 1,
@@ -163,7 +163,7 @@ class m250102_000006_insert_test_products extends Migration
             'created_at' => time(),
             'updated_at' => time(),
         ]);
-        
+
         // Adidas Stan Smith
         $this->insert('{{%product}}', [
             'category_id' => 1,
@@ -180,7 +180,7 @@ class m250102_000006_insert_test_products extends Migration
             'created_at' => time(),
             'updated_at' => time(),
         ]);
-        
+
         echo "✓ Добавлено 10 тестовых товаров с новыми полями\n";
     }
 

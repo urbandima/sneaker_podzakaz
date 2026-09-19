@@ -2,23 +2,23 @@
 
 /**
  * TariffSetupService — Сервис автоматической настройки таблиц тарифов
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Гарантирует доступность таблицы тарифов без ручных миграций.
  * Автоматическое создание и обновление схемы БД.
- * 
+ *
  * ФУНКЦИИ:
  * - ensureSchema(): проверка и создание всех сущностей
  * - ensureTariffTable(): создание таблицы тарифов
  * - ensureOrderSupport(): поддержка полей в заказах
  * - seedDefaults(): заполнение дефолтными значениями
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * ```php
  * // В конфигурации приложения
  * TariffSetupService::ensureSchema();
  * ```
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Автоматическое создание таблицы при отсутствии
  * - Добавление недостающих колонок
@@ -26,6 +26,7 @@
  * - Заполнение дефолтными тарифами
  * - Безопасное обновление схемы
  */
+
 namespace app\backend\shared\components;
 
 use Yii;
@@ -154,7 +155,7 @@ class TariffSetupService
      */
     private static function createMigration(Connection $db): Migration
     {
-        return new class($db) extends Migration {
+        return new class ($db) extends Migration {
             public function __construct(Connection $db, $config = [])
             {
                 $this->db = $db;

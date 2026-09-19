@@ -1,4 +1,5 @@
 <?php
+
 /**
  * EmailController — Email уведомления
  *
@@ -45,7 +46,6 @@ class EmailController extends BaseAdminController
             }
 
             return ['success' => false, 'message' => 'Ошибка отправки'];
-
         } catch (\Exception $e) {
             return ['success' => false, 'message' => $e->getMessage()];
         }
@@ -74,7 +74,6 @@ class EmailController extends BaseAdminController
                 ->send();
 
             return ['success' => true, 'message' => 'Тестовое письмо отправлено'];
-
         } catch (\Exception $e) {
             return ['success' => false, 'message' => $e->getMessage()];
         }

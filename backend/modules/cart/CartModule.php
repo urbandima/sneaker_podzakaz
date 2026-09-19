@@ -9,7 +9,7 @@ class CartModule extends Module
 {
     public $controllerNamespace = 'app\backend\modules\cart\controllers';
     public $layout = 'main';
-    
+
     public function init()
     {
         parent::init();

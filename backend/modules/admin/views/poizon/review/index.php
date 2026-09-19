@@ -50,7 +50,7 @@ $this->title = '⭐ Управление отзывами';
         <a href="<?= Url::to(['index', 'status' => 'featured']) ?>" class="filter-btn <?= Yii::$app->request->get('status') === 'featured' ? 'active' : '' ?>">
             Избранные
         </a>
-        <?php for ($i = 5; $i >= 1; $i--): ?>
+        <?php for ($i = 5; $i >= 1; $i--) : ?>
             <a href="<?= Url::to(['index', 'rating' => $i]) ?>" class="filter-btn <?= Yii::$app->request->get('rating') == $i ? 'active' : '' ?>">
                 <?= $i ?> ⭐
             </a>
@@ -59,7 +59,7 @@ $this->title = '⭐ Управление отзывами';
 
     <!-- Список отзывов -->
     <div class="review-list">
-        <?php foreach ($dataProvider->models as $review): ?>
+        <?php foreach ($dataProvider->models as $review) : ?>
             <div class="review-card">
                 <div class="review-header">
                     <div class="review-author">
@@ -72,27 +72,27 @@ $this->title = '⭐ Управление отзывами';
                         </div>
                     </div>
                     <div class="review-badges">
-                        <?php if ($review->is_published): ?>
+                        <?php if ($review->is_published) : ?>
                             <span class="badge badge-published">Опубликован</span>
-                        <?php else: ?>
+                        <?php else : ?>
                             <span class="badge badge-pending">На модерации</span>
                         <?php endif; ?>
-                        <?php if ($review->is_featured): ?>
+                        <?php if ($review->is_featured) : ?>
                             <span class="badge badge-featured">Избранный</span>
                         <?php endif; ?>
-                        <?php if ($review->is_verified): ?>
+                        <?php if ($review->is_verified) : ?>
                             <span class="badge badge-verified">✓ Подтвержден</span>
                         <?php endif; ?>
                     </div>
                 </div>
 
                 <div class="review-rating">
-                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                    <?php for ($i = 1; $i <= 5; $i++) : ?>
                         <span class="star <?= $i <= $review->rating ? '' : 'empty' ?>">★</span>
                     <?php endfor; ?>
                 </div>
 
-                <?php if ($review->product): ?>
+                <?php if ($review->product) : ?>
                     <div class="review-product">
                         <a href="<?= Url::to(['/admin/product/view', 'id' => $review->product_id]) ?>">
                             <?= Html::encode($review->product->name) ?>
@@ -100,21 +100,21 @@ $this->title = '⭐ Управление отзывами';
                     </div>
                 <?php endif; ?>
 
-                <?php if ($review->title): ?>
+                <?php if ($review->title) : ?>
                     <div class="review-title"><?= Html::encode($review->title) ?></div>
                 <?php endif; ?>
 
                 <div class="review-content"><?= Html::encode($review->content) ?></div>
 
-                <?php if ($review->pros || $review->cons): ?>
+                <?php if ($review->pros || $review->cons) : ?>
                     <div class="review-pros-cons">
-                        <?php if ($review->pros): ?>
+                        <?php if ($review->pros) : ?>
                             <div class="pros">
                                 <strong>✓ Достоинства:</strong><br>
                                 <?= Html::encode($review->pros) ?>
                             </div>
                         <?php endif; ?>
-                        <?php if ($review->cons): ?>
+                        <?php if ($review->cons) : ?>
                             <div class="cons">
                                 <strong>✗ Недостатки:</strong><br>
                                 <?= Html::encode($review->cons) ?>
@@ -123,7 +123,7 @@ $this->title = '⭐ Управление отзывами';
                     </div>
                 <?php endif; ?>
 
-                <?php if ($review->admin_response): ?>
+                <?php if ($review->admin_response) : ?>
                     <div class="admin-response">
                         <div class="admin-response-label">Ответ администратора (<?= Yii::$app->formatter->asDatetime($review->admin_response_at) ?>)</div>
                         <?= Html::encode($review->admin_response) ?>
@@ -131,9 +131,9 @@ $this->title = '⭐ Управление отзывами';
                 <?php endif; ?>
 
                 <div class="review-actions">
-                    <?php if (!$review->is_published): ?>
+                    <?php if (!$review->is_published) : ?>
                         <?= Html::a('✓ Опубликовать', ['publish', 'id' => $review->id], ['class' => 'btn-action success', 'data' => ['method' => 'post']]) ?>
-                    <?php else: ?>
+                    <?php else : ?>
                         <?= Html::a('✗ Снять', ['unpublish', 'id' => $review->id], ['class' => 'btn-action', 'data' => ['method' => 'post']]) ?>
                     <?php endif; ?>
                     

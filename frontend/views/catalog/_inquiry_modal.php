@@ -1,8 +1,11 @@
 <?php
-/** 
+
+/**
  * Модальное окно для заявки на товар
  */
+
 use yii\helpers\Html;
+
 ?>
 
 <div class="modal" id="inquiryModal">

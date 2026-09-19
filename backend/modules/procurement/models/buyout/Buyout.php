@@ -21,19 +21,19 @@ use yii\behaviors\TimestampBehavior;
 class Buyout extends ActiveRecord
 {
     // Buyout internal statuses
-    const STATUS_PENDING   = 'pending';
-    const STATUS_PURCHASED = 'purchased';
-    const STATUS_IN_TRANSIT = 'in_transit';
-    const STATUS_ARRIVED   = 'arrived';
-    const STATUS_ACCEPTED  = 'accepted';
-    const STATUS_ISSUED    = 'issued';
-    const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_PENDING   = 'pending';
+    public const STATUS_PURCHASED = 'purchased';
+    public const STATUS_IN_TRANSIT = 'in_transit';
+    public const STATUS_ARRIVED   = 'arrived';
+    public const STATUS_ACCEPTED  = 'accepted';
+    public const STATUS_ISSUED    = 'issued';
+    public const STATUS_CANCELLED = 'cancelled';
 
     /**
      * Maps buyout status → linked Order.status.
      * Aligned to actual order_status values in the DB and params.php.
      */
-    const ORDER_STATUS_MAP = [
+    public const ORDER_STATUS_MAP = [
         self::STATUS_PENDING    => 'ordered',
         self::STATUS_PURCHASED  => 'ordered',
         self::STATUS_IN_TRANSIT => 'international_delivery',

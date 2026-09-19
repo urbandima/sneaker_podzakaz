@@ -31,7 +31,7 @@ class m251104_184500_add_denormalized_fields_to_product extends Migration
         $this->createIndex('idx-product-brand_name', '{{%product}}', 'brand_name');
         $this->createIndex('idx-product-category_name', '{{%product}}', 'category_name');
         $this->createIndex('idx-product-price_active', '{{%product}}', ['price', 'is_active']);
-        
+
         // Composite index для частых запросов
         $this->createIndex('idx-product-catalog', '{{%product}}', ['is_active', 'brand_id', 'category_id', 'price']);
 

@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var array $items                  Позиции корзины */
 /** @var float $total                  Итого по товарам */
@@ -68,15 +69,17 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                 </div>
             </div>
             <div class="mobile-summary-body">
-                <?php foreach ($items as $item): ?>
-                    <?php if (!$item->product) continue; ?>
+                <?php foreach ($items as $item) : ?>
+                    <?php if (!$item->product) {
+                        continue;
+                    } ?>
                     <div class="summary-item">
                         <img src="<?= Html::encode($item->product->getMainImageUrl()) ?>"
                              alt="<?= Html::encode($item->product->name) ?>"
                              class="summary-item-img">
                         <div class="summary-item-info">
                             <span class="summary-item-title"><?= Html::encode(mb_strimwidth($item->product->name, 0, 35, '…')) ?></span>
-                            <?php if ($item->size): ?>
+                            <?php if ($item->size) : ?>
                                 <span class="summary-item-meta">Размер: <?= Html::encode($item->size) ?></span>
                             <?php endif; ?>
                             <span class="summary-item-meta"><?= (int)$item->quantity ?> × <?= PriceHelper::format($item->price) ?></span>
@@ -165,27 +168,27 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
 
                     <!-- Беларусь -->
                     <div class="shipping-options" id="deliveryBelarus">
-                        <?php if (empty($belarusMethods)): ?>
+                        <?php if (empty($belarusMethods)) : ?>
                         <div class="checkout-notice">
                             <i class="bi bi-truck"></i> Доставка рассчитывается индивидуально.
                             Мы свяжемся с вами для уточнения.
-                            <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()): ?>
+                            <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()) : ?>
                             <a href="/admin/settings/shipping" style="margin-left:8px;font-size:0.85em;opacity:0.7">(Настроить в админке)</a>
                             <?php endif; ?>
                         </div>
-                        <?php else: ?>
-                        <?php foreach ($belarusMethods as $smIdx => $sm): ?>
-                        <?php
-                            $smPrice = (float)($sm['price'] ?? 0);
-                            $smIcon  = Html::encode($sm['icon'] ?? 'truck');
-                            $smId    = Html::encode($sm['id']);
-                            $smName  = Html::encode($sm['name']);
-                            $smDesc  = Html::encode($sm['description'] ?? '');
-                            $smTime  = Html::encode($sm['delivery_time'] ?? '');
-                            $smPriceLabel = isset($sm['price_label'])
+                        <?php else : ?>
+                            <?php foreach ($belarusMethods as $smIdx => $sm) : ?>
+                                <?php
+                                $smPrice = (float)($sm['price'] ?? 0);
+                                $smIcon  = Html::encode($sm['icon'] ?? 'truck');
+                                $smId    = Html::encode($sm['id']);
+                                $smName  = Html::encode($sm['name']);
+                                $smDesc  = Html::encode($sm['description'] ?? '');
+                                $smTime  = Html::encode($sm['delivery_time'] ?? '');
+                                $smPriceLabel = isset($sm['price_label'])
                                 ? Html::encode($sm['price_label'])
                                 : ($smPrice > 0 ? $smPrice . ' BYN' : 'Бесплатно');
-                        ?>
+                                ?>
                         <label class="shipping-option">
                             <input type="radio" name="delivery" value="<?= $smId ?>"
                                    data-price="<?= $smPrice ?>"
@@ -195,14 +198,18 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                                 <div class="option-icon"><i class="bi bi-<?= $smIcon ?>"></i></div>
                                 <div class="option-info">
                                     <span class="option-name"><?= $smName ?></span>
-                                    <?php if ($smDesc): ?><span class="option-desc"><?= $smDesc ?></span><?php endif; ?>
-                                    <?php if ($smTime): ?><span class="option-time"><?= $smTime ?></span><?php endif; ?>
+                                    <?php if ($smDesc) :
+                                        ?><span class="option-desc"><?= $smDesc ?></span><?php
+                                    endif; ?>
+                                    <?php if ($smTime) :
+                                        ?><span class="option-time"><?= $smTime ?></span><?php
+                                    endif; ?>
                                 </div>
                                 <span class="option-price"><?= $smPriceLabel ?></span>
                                 <div class="option-radio"></div>
                             </div>
                         </label>
-                        <?php endforeach; ?>
+                            <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
 
@@ -292,34 +299,34 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                             setTimeout(function(){ document.getElementById('pvzDropdown').style.display = 'none'; }, 200);
                         }
                         </script>
-                        <?php if (empty($pvzJs)): ?>
+                        <?php if (empty($pvzJs)) : ?>
                         <p style="color:#9ca3af;font-size:12px;margin-top:4px">Пункты выдачи не загружены — настройте в плагине Европочта</p>
                         <?php endif; ?>
                     </div>
 
                     <!-- Россия -->
                     <div class="shipping-options" id="deliveryRussia" style="display:none">
-                        <?php if (empty($russiaMethods)): ?>
+                        <?php if (empty($russiaMethods)) : ?>
                         <div class="checkout-notice">
                             <i class="bi bi-truck"></i> Доставка по России рассчитывается индивидуально.
                             Мы свяжемся с вами после оформления заказа.
-                            <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()): ?>
+                            <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()) : ?>
                             <a href="/admin/settings/shipping" style="margin-left:8px;font-size:0.85em;opacity:0.7">(Настроить в админке)</a>
                             <?php endif; ?>
                         </div>
-                        <?php else: ?>
-                        <?php foreach ($russiaMethods as $smIdx => $sm): ?>
-                        <?php
-                            $smPrice = (float)($sm['price'] ?? 0);
-                            $smIcon  = Html::encode($sm['icon'] ?? 'truck');
-                            $smId    = Html::encode($sm['id']);
-                            $smName  = Html::encode($sm['name']);
-                            $smDesc  = Html::encode($sm['description'] ?? '');
-                            $smTime  = Html::encode($sm['delivery_time'] ?? '');
-                            $smPriceLabel = isset($sm['price_label'])
+                        <?php else : ?>
+                            <?php foreach ($russiaMethods as $smIdx => $sm) : ?>
+                                <?php
+                                $smPrice = (float)($sm['price'] ?? 0);
+                                $smIcon  = Html::encode($sm['icon'] ?? 'truck');
+                                $smId    = Html::encode($sm['id']);
+                                $smName  = Html::encode($sm['name']);
+                                $smDesc  = Html::encode($sm['description'] ?? '');
+                                $smTime  = Html::encode($sm['delivery_time'] ?? '');
+                                $smPriceLabel = isset($sm['price_label'])
                                 ? Html::encode($sm['price_label'])
                                 : ($smPrice > 0 ? $smPrice . ' BYN' : 'Бесплатно');
-                        ?>
+                                ?>
                         <label class="shipping-option">
                             <input type="radio" name="delivery" value="<?= $smId ?>"
                                    data-price="<?= $smPrice ?>"
@@ -329,14 +336,18 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                                 <div class="option-icon"><i class="bi bi-<?= $smIcon ?>"></i></div>
                                 <div class="option-info">
                                     <span class="option-name"><?= $smName ?></span>
-                                    <?php if ($smDesc): ?><span class="option-desc"><?= $smDesc ?></span><?php endif; ?>
-                                    <?php if ($smTime): ?><span class="option-time"><?= $smTime ?></span><?php endif; ?>
+                                    <?php if ($smDesc) :
+                                        ?><span class="option-desc"><?= $smDesc ?></span><?php
+                                    endif; ?>
+                                    <?php if ($smTime) :
+                                        ?><span class="option-time"><?= $smTime ?></span><?php
+                                    endif; ?>
                                 </div>
                                 <span class="option-price"><?= $smPriceLabel ?></span>
                                 <div class="option-radio"></div>
                             </div>
                         </label>
-                        <?php endforeach; ?>
+                            <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
 
@@ -385,16 +396,16 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                 ?>
                 <div class="checkout-section">
                     <h2><i class="bi bi-credit-card"></i> Оплата</h2>
-                    <?php if (empty($paymentMethods)): ?>
+                    <?php if (empty($paymentMethods)) : ?>
                     <div class="checkout-notice">
                         <i class="bi bi-credit-card"></i> Способ оплаты уточните у менеджера после оформления.
-                        <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()): ?>
+                        <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()) : ?>
                         <a href="/admin/settings/payment" style="margin-left:8px;font-size:0.85em;opacity:0.7">(Настроить в админке)</a>
                         <?php endif; ?>
                     </div>
-                    <?php else: ?>
+                    <?php else : ?>
                     <div class="payment-options" style="grid-template-columns: repeat(<?= $pmCols ?>, 1fr)">
-                        <?php foreach ($paymentMethods as $i => $pm): ?>
+                        <?php foreach ($paymentMethods as $i => $pm) : ?>
                         <label class="payment-option">
                             <input type="radio" name="payment"
                                    value="<?= Html::encode($pm['id']) ?>"
@@ -404,7 +415,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                                 <div class="option-icon"><i class="bi bi-<?= Html::encode($pm['icon'] ?? 'credit-card') ?>"></i></div>
                                 <div class="option-info">
                                     <span class="option-name"><?= Html::encode($pm['name']) ?></span>
-                                    <?php if (!empty($pm['description'])): ?>
+                                    <?php if (!empty($pm['description'])) : ?>
                                     <span class="option-desc"><?= Html::encode($pm['description']) ?></span>
                                     <?php endif; ?>
                                 </div>
@@ -433,15 +444,17 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                     <h3>Ваш заказ</h3>
 
                     <div class="summary-items">
-                        <?php foreach ($items as $item): ?>
-                            <?php if (!$item->product) continue; ?>
+                        <?php foreach ($items as $item) : ?>
+                            <?php if (!$item->product) {
+                                continue;
+                            } ?>
                             <div class="summary-item">
                                 <img src="<?= Html::encode($item->product->getMainImageUrl()) ?>"
                                      alt="<?= Html::encode($item->product->name) ?>"
                                      class="summary-item-img">
                                 <div class="summary-item-info">
                                     <span class="summary-item-title"><?= Html::encode(mb_strimwidth($item->product->name, 0, 40, '…')) ?></span>
-                                    <?php if ($item->size): ?>
+                                    <?php if ($item->size) : ?>
                                         <span class="summary-item-meta">Размер: <?= Html::encode($item->size) ?></span>
                                     <?php endif; ?>
                                     <span class="summary-item-meta"><?= (int)$item->quantity ?> × <?= PriceHelper::format($item->price) ?></span>
@@ -467,7 +480,7 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                         </div>
                     </div>
 
-                    <?php if ($total < $freeDeliveryThreshold): ?>
+                    <?php if ($total < $freeDeliveryThreshold) : ?>
                         <div class="delivery-info">
                             <i class="bi bi-truck"></i>
                             До бесплатной доставки: <?= PriceHelper::format($freeDeliveryThreshold - $total) ?>
@@ -569,7 +582,7 @@ var createUrl         = <?= json_encode($createUrl) ?>;
 // Analytics begin_checkout: GA4 + Y.Metrika ecommerce.checkout + Meta InitiateCheckout.
 // Все три тега settings-gated в layout — отсутствие конфигов делает emit no-op.
 <?php
-$ga4Items = array_map(function($i) {
+$ga4Items = array_map(function ($i) {
     $p = $i->product;
     $row = [
         'item_id'   => (string)($p->id ?? ''),
@@ -577,11 +590,15 @@ $ga4Items = array_map(function($i) {
         'price'     => (float)$i->price,
         'quantity'  => (int)$i->quantity,
     ];
-    if ($p && !empty($p->brand?->name))    { $row['item_brand']    = $p->brand->name; }
-    if ($p && !empty($p->category?->name)) { $row['item_category'] = $p->category->name; }
+    if ($p && !empty($p->brand?->name)) {
+        $row['item_brand']    = $p->brand->name;
+    }
+    if ($p && !empty($p->category?->name)) {
+        $row['item_category'] = $p->category->name;
+    }
     return $row;
 }, $items);
-$ymItems = array_map(function($i) {
+$ymItems = array_map(function ($i) {
     $p = $i->product;
     $row = [
         'id'       => (string)($p->id ?? ''),
@@ -589,8 +606,12 @@ $ymItems = array_map(function($i) {
         'price'    => (float)$i->price,
         'quantity' => (int)$i->quantity,
     ];
-    if ($p && !empty($p->brand?->name))    { $row['brand']    = $p->brand->name; }
-    if ($p && !empty($p->category?->name)) { $row['category'] = $p->category->name; }
+    if ($p && !empty($p->brand?->name)) {
+        $row['brand']    = $p->brand->name;
+    }
+    if ($p && !empty($p->category?->name)) {
+        $row['category'] = $p->category->name;
+    }
     return $row;
 }, $items);
 $numItems = (int)array_sum(array_map(fn($i) => (int)$i->quantity, $items));

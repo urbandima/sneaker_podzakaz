@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var stdClass $category */
 /** @var array $products */
@@ -25,33 +26,33 @@ $this->registerMetaTag(['name' => 'description', 'content' => 'Товары ка
         <!-- Category Header -->
         <div class="category-header">
             <h1><?= Html::encode($category->name ?? 'Категория') ?></h1>
-            <?php if (!empty($category->description)): ?>
+            <?php if (!empty($category->description)) : ?>
             <p class="category-description"><?= Html::encode($category->description) ?></p>
             <?php endif; ?>
         </div>
 
-        <?php if ($demoMode ?? false): ?>
+        <?php if ($demoMode ?? false) : ?>
         <div class="alert alert-info">
             <i class="bi bi-info-circle"></i> Демо-режим: отображаются примеры товаров
         </div>
         <?php endif; ?>
 
         <!-- Products Grid -->
-        <?php if (!empty($products)): ?>
+        <?php if (!empty($products)) : ?>
         <div class="products-grid">
-            <?php foreach ($products as $product): ?>
-            <?= $this->render('_product_card_simple', ['product' => $product]) ?>
+            <?php foreach ($products as $product) : ?>
+                <?= $this->render('_product_card_simple', ['product' => $product]) ?>
             <?php endforeach; ?>
         </div>
 
         <!-- Pagination -->
-        <?php if (isset($pagination)): ?>
+            <?php if (isset($pagination)) : ?>
         <div class="pagination-wrapper">
-            <?= LinkPager::widget(['pagination' => $pagination]) ?>
+                <?= LinkPager::widget(['pagination' => $pagination]) ?>
         </div>
-        <?php endif; ?>
+            <?php endif; ?>
 
-        <?php else: ?>
+        <?php else : ?>
         <div class="empty-state">
             <i class="bi bi-box"></i>
             <p>Товары не найдены</p>

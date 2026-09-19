@@ -26,7 +26,7 @@ $calculationHistory = $calculationHistory ?? [];
 
         <!-- Tariff Cards Grid -->
         <div class="tariff-grid">
-            <?php foreach ($tariffs as $tariff): ?>
+            <?php foreach ($tariffs as $tariff) : ?>
                 <div class="tariff-card <?= $tariff->is_active ? '' : 'inactive' ?>">
                     <div class="tariff-header">
                         <div class="tariff-name"><?= Html::encode($tariff->name) ?></div>
@@ -35,7 +35,7 @@ $calculationHistory = $calculationHistory ?? [];
                         </span>
                     </div>
                     
-                    <?php if ($tariff->description): ?>
+                    <?php if ($tariff->description) : ?>
                         <div class="tariff-description"><?= Html::encode($tariff->description) ?></div>
                     <?php endif; ?>
                     
@@ -85,8 +85,8 @@ $calculationHistory = $calculationHistory ?? [];
                 <div class="form-group">
                     <label>Тариф</label>
                     <select id="calcTariff">
-                        <?php foreach ($tariffs as $tariff): ?>
-                            <?php if ($tariff->is_active): ?>
+                        <?php foreach ($tariffs as $tariff) : ?>
+                            <?php if ($tariff->is_active) : ?>
                                 <option value="<?= $tariff->id ?>"><?= Html::encode($tariff->name) ?></option>
                             <?php endif; ?>
                         <?php endforeach; ?>
@@ -125,7 +125,7 @@ $calculationHistory = $calculationHistory ?? [];
                 </span>
             </div>
             
-            <?php if (!empty($calculationHistory)): ?>
+            <?php if (!empty($calculationHistory)) : ?>
                 <div class="history-table-wrapper">
                     <table class="history-table">
                         <thead>
@@ -143,7 +143,7 @@ $calculationHistory = $calculationHistory ?? [];
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($calculationHistory as $calc): ?>
+                            <?php foreach ($calculationHistory as $calc) : ?>
                                 <tr>
                                     <td><?= Yii::$app->formatter->asDatetime($calc->created_at, 'short') ?></td>
                                     <td><strong><?= Html::encode($calc->tariff_name) ?></strong></td>
@@ -157,11 +157,11 @@ $calculationHistory = $calculationHistory ?? [];
                                         <?= PriceHelper::format($calc->total_local) ?>
                                     </td>
                                     <td>
-                                        <?php if ($calc->note): ?>
+                                        <?php if ($calc->note) : ?>
                                             <span title="<?= Html::encode($calc->note) ?>">
                                                 <?= Html::encode(mb_substr($calc->note, 0, 20)) ?><?= mb_strlen($calc->note) > 20 ? '...' : '' ?>
                                             </span>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <span style="color: var(--admin-text-muted, #94a3b8);">—</span>
                                         <?php endif; ?>
                                     </td>
@@ -170,7 +170,7 @@ $calculationHistory = $calculationHistory ?? [];
                         </tbody>
                     </table>
                 </div>
-            <?php else: ?>
+            <?php else : ?>
                 <div class="history-empty">
                     <i class="bi bi-clock-history"></i>
                     <p>История расчетов пуста</p>

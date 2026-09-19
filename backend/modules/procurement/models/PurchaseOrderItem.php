@@ -1,11 +1,15 @@
 <?php
+
 namespace app\backend\modules\procurement\models;
 
 use yii\db\ActiveRecord;
 
 class PurchaseOrderItem extends ActiveRecord
 {
-    public static function tableName() { return 'purchase_order_item'; }
+    public static function tableName()
+    {
+        return 'purchase_order_item';
+    }
 
     public function rules()
     {

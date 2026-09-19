@@ -12,18 +12,18 @@ class StripePaymentPlugin extends BasePlugin implements PaymentGatewayInterface
     protected $description = 'Приём платежей через Stripe';
     protected $version = '1.0.0';
     protected $author = 'Sneakerhead Team';
-    
+
     public function init(): void
     {
         // Инициализация Stripe SDK
     }
-    
+
     public function createPayment(array $data): array
     {
         $apiKey = $this->getSetting('api_key');
         $amount = $data['amount'];
         $currency = $data['currency'] ?? 'BYN';
-        
+
         // Здесь будет реальная интеграция со Stripe API
         return [
             'success' => true,
@@ -33,7 +33,7 @@ class StripePaymentPlugin extends BasePlugin implements PaymentGatewayInterface
             'currency' => $currency,
         ];
     }
-    
+
     public function checkPaymentStatus(string $paymentId): array
     {
         return [
@@ -42,7 +42,7 @@ class StripePaymentPlugin extends BasePlugin implements PaymentGatewayInterface
             'payment_id' => $paymentId,
         ];
     }
-    
+
     public function refundPayment(string $paymentId, float $amount): array
     {
         return [
@@ -51,16 +51,16 @@ class StripePaymentPlugin extends BasePlugin implements PaymentGatewayInterface
             'amount' => $amount,
         ];
     }
-    
+
     public function getPaymentUrl(string $paymentId): string
     {
         return 'https://checkout.stripe.com/pay/' . $paymentId;
     }
-    
+
     public function handleWebhook(array $data): array
     {
         $event = $data['type'] ?? '';
-        
+
         switch ($event) {
             case 'payment_intent.succeeded':
                 return ['status' => 'completed'];
@@ -70,17 +70,17 @@ class StripePaymentPlugin extends BasePlugin implements PaymentGatewayInterface
                 return ['status' => 'unknown'];
         }
     }
-    
+
     public function getSupportedCurrencies(): array
     {
         return ['USD', 'EUR', 'BYN', 'RUB'];
     }
-    
+
     public function getMinAmount(): float
     {
         return 1.0;
     }
-    
+
     public function getMaxAmount(): float
     {
         return 999999.99;

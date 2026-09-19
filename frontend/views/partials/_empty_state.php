@@ -23,16 +23,16 @@ $cssClass = $cssClass ?? '';
 ?>
 <div class="empty-state <?= $cssClass ?>">
     <i class="bi <?= $icon ?>"></i>
-    <?php if ($title): ?>
+    <?php if ($title) : ?>
         <h3><?= $title ?></h3>
     <?php endif; ?>
-    <?php if ($message): ?>
+    <?php if ($message) : ?>
         <p><?= $message ?></p>
     <?php endif; ?>
-    <?php if ($actionUrl && $actionLabel): ?>
+    <?php if ($actionUrl && $actionLabel) : ?>
         <a href="<?= $actionUrl ?>" class="btn btn-primary"><?= $actionLabel ?></a>
     <?php endif; ?>
-    <?php if ($secondaryUrl && $secondaryLabel): ?>
+    <?php if ($secondaryUrl && $secondaryLabel) : ?>
         <a href="<?= $secondaryUrl ?>" class="empty-state__secondary"><?= $secondaryLabel ?></a>
     <?php endif; ?>
 </div>

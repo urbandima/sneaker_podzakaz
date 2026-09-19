@@ -21,7 +21,8 @@ class m260504_100000_amocrm_dm_handoff_map extends Migration
         );
 
         // ── 2. Insert DM handoff status rows ────────────────────────────────────
-        $this->batchInsert('{{%amocrm_status_mapping}}',
+        $this->batchInsert(
+            '{{%amocrm_status_mapping}}',
             ['our_status', 'our_track', 'amocrm_pipeline_id', 'amocrm_status_id', 'amocrm_status_name', 'direction'],
             [
                 ['dm.started',    'dm', 4453963, 41258857, 'Новый заказ',       'to_amocrm'],
@@ -38,8 +39,8 @@ class m260504_100000_amocrm_dm_handoff_map extends Migration
             'created_at' => $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP'),
         ], $this->db->driverName === 'mysql' ? 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci' : null);
 
-        $this->createIndex('uniq_acfm_code',     '{{%amocrm_custom_field_map}}', 'field_code', true);
-        $this->createIndex('uniq_acfm_field_id', '{{%amocrm_custom_field_map}}', 'field_id',   true);
+        $this->createIndex('uniq_acfm_code', '{{%amocrm_custom_field_map}}', 'field_code', true);
+        $this->createIndex('uniq_acfm_field_id', '{{%amocrm_custom_field_map}}', 'field_id', true);
 
         // ── 4. Create amocrm_custom_field_options ────────────────────────────────
         $this->createTable('{{%amocrm_custom_field_options}}', [
@@ -54,7 +55,8 @@ class m260504_100000_amocrm_dm_handoff_map extends Migration
         $this->createIndex('uniq_acfo_option_id', '{{%amocrm_custom_field_options}}', 'option_id', true);
 
         // ── 5. Populate custom fields ────────────────────────────────────────────
-        $this->batchInsert('{{%amocrm_custom_field_map}}',
+        $this->batchInsert(
+            '{{%amocrm_custom_field_map}}',
             ['field_code', 'field_id', 'field_type'],
             [
                 ['product_ref',                       864515, 'text'],
@@ -71,7 +73,8 @@ class m260504_100000_amocrm_dm_handoff_map extends Migration
         );
 
         // ── 6. Populate select options ───────────────────────────────────────────
-        $this->batchInsert('{{%amocrm_custom_field_options}}',
+        $this->batchInsert(
+            '{{%amocrm_custom_field_options}}',
             ['field_code', 'enum_code', 'option_id'],
             [
                 // deadline_strictness

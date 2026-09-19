@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\catalog\models\ProductFavorite[] $favorites */
 /** @var app\backend\modules\account\models\Customer|null $customer */
@@ -18,7 +19,7 @@ $this->registerJsFile('@web/js/catalog.js', ['position' => \yii\web\View::POS_HE
 $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View::POS_HEAD]);
 ?>
 
-<?php if ($customer): ?>
+<?php if ($customer) : ?>
 <div class="account-page">
     <div class="account-container">
         <nav class="breadcrumb">
@@ -45,7 +46,7 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
                         <h2><i class="bi bi-heart-fill"></i> Избранное <span class="orders-count"><?= count($favorites) ?></span></h2>
                     </div>
 
-                    <?php if (empty($favorites)): ?>
+                    <?php if (empty($favorites)) : ?>
                         <div class="empty-orders">
                             <i class="bi bi-heart"></i>
                             <h3>Избранное пустое</h3>
@@ -54,7 +55,7 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
                                 <i class="bi bi-grid-3x3-gap"></i> Перейти в каталог
                             </a>
                         </div>
-                    <?php else: ?>
+                    <?php else : ?>
                         <div class="catalog-toolbar mb-5">
                             <div class="toolbar-left">
                                 <span class="toolbar-meta">
@@ -77,7 +78,11 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
                         </div>
 
                         <div class="products grid-4" id="products">
-                            <?= $this->render('_products', ['products' => array_map(function($fav) { return $fav->product; }, array_filter($favorites, function($fav) { return $fav->product !== null; }))]) ?>
+                            <?= $this->render('_products', ['products' => array_map(function ($fav) {
+    return $fav->product;
+                            }, array_filter($favorites, function ($fav) {
+                                return $fav->product !== null;
+                            }))]) ?>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -85,7 +90,7 @@ $this->registerJsFile('@web/js/global-helpers.js', ['position' => \yii\web\View:
         </div>
     </div>
 </div>
-<?php else: ?>
+<?php else : ?>
 <div class="catalog-page">
     <div class="container">
         <nav class="breadcrumb">

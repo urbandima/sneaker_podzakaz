@@ -76,7 +76,7 @@ $statsByType = [
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($topCoupons as $coupon): ?>
+                <?php foreach ($topCoupons as $coupon) : ?>
                 <tr>
                     <td><?= Html::encode($coupon['code']) ?></td>
                     <td><?= $coupon['uses'] ?></td>
@@ -103,7 +103,7 @@ $statsByType = [
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($statsByType as $type): ?>
+                <?php foreach ($statsByType as $type) : ?>
                 <tr>
                     <td><?= Html::encode($type['type']) ?></td>
                     <td><?= $type['count'] ?></td>

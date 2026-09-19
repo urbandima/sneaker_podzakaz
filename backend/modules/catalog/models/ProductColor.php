@@ -2,28 +2,29 @@
 
 /**
  * ProductColor — Модель цвета товара
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Цвета товара: название и HEX-код для визуализации.
  * Используется для фильтрации и отображения.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - product_id: ID товара
  * - name: название цвета (Белый, Черный и т.д.)
  * - hex: HEX код цвета (#FFFFFF)
- * 
+ *
  * СВЯЗИ:
  * - Product (принадлежит товару)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - CatalogController (фильтр по цвету)
  * - ProductController/admin (управление цветами)
  * - Визуализация в карточке товара
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Валидация HEX формата (#RRGGBB)
  * - Визуализация цветных кружков в фильтре
  */
+
 namespace app\backend\modules\catalog\models;
 
 use Yii;
@@ -36,7 +37,7 @@ use yii\db\ActiveRecord;
  * @property int $product_id
  * @property string $name Название цвета (Белый, Черный и т.д.)
  * @property string|null $hex HEX код цвета (#FFFFFF)
- * 
+ *
  * @property Product $product
  */
 class ProductColor extends ActiveRecord
@@ -84,7 +85,7 @@ class ProductColor extends ActiveRecord
     {
         return $this->hasOne(Product::class, ['id' => 'product_id']);
     }
-    
+
     /**
      * Алиасы для удобства (обратная совместимость)
      */
@@ -92,17 +93,17 @@ class ProductColor extends ActiveRecord
     {
         return $this->hex;
     }
-    
+
     public function getName()
     {
         return $this->name;
     }
-    
+
     public function getColorName()
     {
         return $this->name;
     }
-    
+
     public function getColorHex()
     {
         return $this->hex;

@@ -5,8 +5,10 @@ use yii\helpers\Html;
 $this->title = 'Instagram — аналитика';
 
 $fmt = fn($n) => $n !== null ? number_format((int)$n, 0, '.', ' ') : '—';
-$delta = function($cur, $prev) {
-    if ($prev === null || $prev == 0 || $cur === null) return null;
+$delta = function ($cur, $prev) {
+    if ($prev === null || $prev == 0 || $cur === null) {
+        return null;
+    }
     return round(($cur - $prev) / $prev * 100, 1);
 };
 
@@ -34,14 +36,13 @@ $delta = function($cur, $prev) {
 .ig-no-token { background:#f1f5f9; border:1px solid var(--admin-border,#e2e8f0); border-radius:10px; padding:2rem; text-align:center; color:var(--admin-text-secondary,#64748b); }
 </style>
 
-<?php if ($error): ?>
+<?php if ($error) : ?>
 <div class="ig-alert"><i class="bi bi-exclamation-triangle-fill"></i> <?= Html::encode($error) ?></div>
 <?php endif; ?>
 
-<?php if (!$thisMetrics && !$prevMetrics && !$error): ?>
+<?php if (!$thisMetrics && !$prevMetrics && !$error) : ?>
 <div class="ig-no-token"><i class="bi bi-instagram" style="font-size:2rem;margin-bottom:.5rem;display:block;"></i>Нет данных. Проверьте токен LiveDune в настройках.</div>
-<?php else: ?>
-
+<?php else : ?>
 <!-- Текущая неделя -->
 <div class="ig-week-label">Текущая неделя (<?= Html::encode($thisWeekFrom) ?> — <?= Html::encode($thisWeekTo) ?>)</div>
 <div class="ig-grid">
@@ -51,15 +52,15 @@ $delta = function($cur, $prev) {
         ['label' => 'Визиты профиля', 'key' => 'profile_views', 'icon' => 'bi-person-circle'],
         ['label' => 'Stories (ср/день)', 'key' => 'stories_avg', 'icon' => 'bi-film'],
     ];
-    foreach ($metrics as $m):
+    foreach ($metrics as $m) :
         $cur = $thisMetrics[$m['key']] ?? null;
         $prv = $prevMetrics[$m['key']] ?? null;
         $d   = $delta($cur, $prv);
-    ?>
+        ?>
     <div class="ig-card">
         <h4><i class="bi <?= $m['icon'] ?>"></i> <?= $m['label'] ?></h4>
         <div class="ig-val"><?= $fmt($cur) ?></div>
-        <?php if ($d !== null): ?>
+        <?php if ($d !== null) : ?>
         <div class="ig-delta <?= $d > 0 ? 'up' : ($d < 0 ? 'down' : 'flat') ?>">
             <?= $d > 0 ? '▲' : ($d < 0 ? '▼' : '→') ?> <?= abs($d) ?>% vs прошлая неделя
         </div>
@@ -69,44 +70,45 @@ $delta = function($cur, $prev) {
 </div>
 
 <!-- Прошлая неделя -->
-<?php if ($prevMetrics): ?>
+    <?php if ($prevMetrics) : ?>
 <div class="ig-week-label" style="margin-top:.5rem;">Прошлая неделя (<?= Html::encode($prevWeekFrom) ?> — <?= Html::encode($prevWeekTo) ?>)</div>
 <div class="ig-grid" style="opacity:.7;">
-    <?php foreach ($metrics as $m): $prv = $prevMetrics[$m['key']] ?? null; ?>
+        <?php foreach ($metrics as $m) :
+            $prv = $prevMetrics[$m['key']] ?? null; ?>
     <div class="ig-card">
         <h4><i class="bi <?= $m['icon'] ?>"></i> <?= $m['label'] ?></h4>
         <div class="ig-val" style="font-size:1.5rem;"><?= $fmt($prv) ?></div>
     </div>
-    <?php endforeach; ?>
+        <?php endforeach; ?>
 </div>
-<?php endif; ?>
+    <?php endif; ?>
 
 <!-- Топ-3 поста -->
-<?php if (!empty($topPosts)): ?>
+    <?php if (!empty($topPosts)) : ?>
 <div class="ig-section-title" style="margin-top:1.5rem;"><i class="bi bi-trophy-fill" style="color:#f59e0b;"></i> Топ-3 поста по охвату</div>
 <div class="ig-posts">
-    <?php foreach ($topPosts as $i => $post): ?>
+        <?php foreach ($topPosts as $i => $post) : ?>
     <div class="ig-post">
         <div class="ig-post-rank">#<?= $i + 1 ?></div>
-        <?php if (!empty($post['thumbnail_url'])): ?>
+            <?php if (!empty($post['thumbnail_url'])) : ?>
         <img src="<?= Html::encode($post['thumbnail_url']) ?>" class="ig-post-thumb" alt="post thumbnail" loading="lazy">
-        <?php else: ?>
+            <?php else : ?>
         <div class="ig-post-thumb" style="display:flex;align-items:center;justify-content:center;"><i class="bi bi-image" style="font-size:2rem;color:#94a3b8;"></i></div>
-        <?php endif; ?>
+            <?php endif; ?>
         <div class="ig-post-stats">
             <span><b><?= $fmt($post['reach'] ?? null) ?></b> охват</span>
-            <?php if (isset($post['saves'])): ?>
+            <?php if (isset($post['saves'])) : ?>
             <span><b><?= $fmt($post['saves']) ?></b> сохр.</span>
             <?php endif; ?>
         </div>
-        <?php if (!empty($post['published_at'])): ?>
+            <?php if (!empty($post['published_at'])) : ?>
         <div style="font-size:.75rem;color:var(--admin-text-secondary,#64748b);margin-top:.4rem;"><?= Html::encode(substr($post['published_at'], 0, 10)) ?></div>
-        <?php endif; ?>
+            <?php endif; ?>
     </div>
-    <?php endforeach; ?>
+        <?php endforeach; ?>
 </div>
-<?php elseif (!$error): ?>
+    <?php elseif (!$error) : ?>
 <div style="color:var(--admin-text-secondary,#64748b);font-size:.875rem;margin-top:1rem;"><i class="bi bi-info-circle"></i> Посты за период не найдены.</div>
-<?php endif; ?>
+    <?php endif; ?>
 
 <?php endif; ?>

@@ -1,11 +1,12 @@
 <?php
 
-use app\helpers\ProductCardHelper;
-use yii\helpers\Html;
-
 /**
  * Карточка товара - унифицированный стиль
  */
+
+use app\helpers\ProductCardHelper;
+use yii\helpers\Html;
+
 /** @var app\backend\modules\catalog\models\Product $product */
 /** @var bool|null $isCriticalCard */
 /** @var string|null $selectedSizesParam */
@@ -46,7 +47,7 @@ $isPlaceholder = empty($mainImage) || strncmp($mainImage, 'data:', 5) === 0;
     <!-- Изображение -->
     <div class="product-image-wrapper<?= $isPlaceholder ? ' is-placeholder' : '' ?>">
         <a href="<?= $product->getUrl() ?>" class="product-link">
-            <?php if (!$isPlaceholder): ?>
+            <?php if (!$isPlaceholder) : ?>
             <img src="<?= Html::encode($mainImage) ?>"
                  class="product-image primary"
                  alt="<?= Html::encode($product->name) ?>"
@@ -55,7 +56,7 @@ $isPlaceholder = empty($mainImage) || strncmp($mainImage, 'data:', 5) === 0;
                  decoding="<?= $isCriticalCard ? 'sync' : 'async' ?>"
                  <?= $isCriticalCard ? 'fetchpriority="high"' : '' ?>
                  onerror="this.closest('.product-image-wrapper').classList.add('is-placeholder');this.onerror=null;">
-            <?php if (isset($galleryImages[1])): ?>
+                <?php if (isset($galleryImages[1])) : ?>
             <img src="<?= Html::encode($galleryImages[1]) ?>"
                  class="product-image secondary"
                  alt="<?= Html::encode($product->name) ?> - вид 2"
@@ -63,7 +64,7 @@ $isPlaceholder = empty($mainImage) || strncmp($mainImage, 'data:', 5) === 0;
                  loading="lazy"
                  decoding="async"
                  onerror="this.closest('.product-image-wrapper').classList.add('is-placeholder');this.onerror=null;">
-            <?php endif; ?>
+                <?php endif; ?>
             <?php endif; ?>
         </a>
 
@@ -80,10 +81,10 @@ $isPlaceholder = empty($mainImage) || strncmp($mainImage, 'data:', 5) === 0;
         
         <!-- Бейджи -->
         <div class="product-badges">
-            <?php if (ProductCardHelper::isNewProduct($product->created_at ?? null)): ?>
+            <?php if (ProductCardHelper::isNewProduct($product->created_at ?? null)) : ?>
             <span class="badge badge-new">NEW</span>
             <?php endif; ?>
-            <?php if ($product->hasDiscount()): ?>
+            <?php if ($product->hasDiscount()) : ?>
             <span class="badge badge-discount">-<?= (int) $product->getDiscountPercent() ?>%</span>
             <?php endif; ?>
         </div>
@@ -112,27 +113,27 @@ $isPlaceholder = empty($mainImage) || strncmp($mainImage, 'data:', 5) === 0;
     
     <!-- Информация -->
     <div class="product-info">
-        <?php if ($product->brand_name && $product->brand_name !== '-'): ?>
+        <?php if ($product->brand_name && $product->brand_name !== '-') : ?>
         <div class="product-card-brand"><?= Html::encode($product->brand_name) ?></div>
         <?php endif; ?>
         
         <h3 class="product-card-name">
             <a href="<?= $product->getUrl() ?>"><?php
                 $title = Html::encode($product->getDisplayTitle());
-                if ($searchQuery !== '' && mb_strlen($searchQuery) >= 2) {
-                    $title = preg_replace('/(' . preg_quote(Html::encode($searchQuery), '/') . ')/iu', '<mark>$1</mark>', $title);
-                }
+            if ($searchQuery !== '' && mb_strlen($searchQuery) >= 2) {
+                $title = preg_replace('/(' . preg_quote(Html::encode($searchQuery), '/') . ')/iu', '<mark>$1</mark>', $title);
+            }
                 echo $title;
             ?></a>
         </h3>
         
         <!-- Размеры -->
-        <?php if (!empty($sizeBadges['badges'])): ?>
+        <?php if (!empty($sizeBadges['badges'])) : ?>
         <div class="sizes-quick">
-            <?php foreach (array_slice($sizeBadges['badges'], 0, 4) as $badge): ?>
+            <?php foreach (array_slice($sizeBadges['badges'], 0, 4) as $badge) : ?>
             <span class="size-badge <?= $badge['selected'] ? 'selected' : '' ?>"><?= Html::encode($badge['value']) ?></span>
             <?php endforeach; ?>
-            <?php if ($sizeBadges['remaining'] > 0): ?>
+            <?php if ($sizeBadges['remaining'] > 0) : ?>
             <span class="size-more">+<?= (int) $sizeBadges['remaining'] ?></span>
             <?php endif; ?>
         </div>
@@ -143,21 +144,21 @@ $isPlaceholder = empty($mainImage) || strncmp($mainImage, 'data:', 5) === 0;
         $hasPriceRange = $priceView['showRange'] && $priceView['minPrice'] && $priceView['maxPrice'];
         ?>
         <div class="product-price">
-            <?php if ($hasPriceRange): ?>
+            <?php if ($hasPriceRange) : ?>
                 <span class="product-card-price-current">
                     от <?= Yii::$app->formatter->asCurrency($priceView['minPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
                 </span>
                 <span class="product-card-price-range">
                     до <?= Yii::$app->formatter->asCurrency($priceView['maxPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
                 </span>
-            <?php elseif ($hasPrice): ?>
+            <?php elseif ($hasPrice) : ?>
                 <span class="product-card-price-current">
                     <?= Yii::$app->formatter->asCurrency($effectivePrice, ProductCardHelper::PRICE_CURRENCY) ?>
                 </span>
-            <?php else: ?>
+            <?php else : ?>
                 <span class="product-card-price-pending">Цена уточняется</span>
             <?php endif; ?>
-            <?php if ($hasPrice && $priceView['showOldPrice'] && $priceView['oldPrice'] !== null): ?>
+            <?php if ($hasPrice && $priceView['showOldPrice'] && $priceView['oldPrice'] !== null) : ?>
             <span class="product-card-price-old">
                 <?= Yii::$app->formatter->asCurrency($priceView['oldPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
             </span>
@@ -174,11 +175,11 @@ $isPlaceholder = empty($mainImage) || strncmp($mainImage, 'data:', 5) === 0;
         ]) ?>
 
         <!-- Кнопка В корзину -->
-        <?php if ($hasPrice): ?>
+        <?php if ($hasPrice) : ?>
         <button class="product-card-add-to-cart" onclick="quickAddToCart(event, <?= $product->id ?>)" aria-label="Добавить в корзину">
             <i class="bi bi-bag-plus"></i> В корзину
         </button>
-        <?php else: ?>
+        <?php else : ?>
         <button class="product-card-add-to-cart" disabled data-disabled="no-price" aria-label="Цена уточняется" title="Цена уточняется — добавление недоступно">
             <i class="bi bi-question-circle"></i> Цена уточняется
         </button>

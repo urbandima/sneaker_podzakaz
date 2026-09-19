@@ -20,7 +20,7 @@ $this->title = 'AmoCRM — Воронка продаж';
     </div>
 </div>
 
-<?php if ($tokenStatus === 'error'): ?>
+<?php if ($tokenStatus === 'error') : ?>
 <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:0.75rem;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:0.75rem;">
     <i class="bi bi-exclamation-triangle-fill" style="color:#ef4444;font-size:1.2rem;flex-shrink:0;margin-top:0.1rem;"></i>
     <div>
@@ -32,8 +32,7 @@ $this->title = 'AmoCRM — Воронка продаж';
         </p>
     </div>
 </div>
-<?php else: ?>
-
+<?php else : ?>
 <!-- Сводные KPI воронки -->
 <div class="admin-stats" style="margin-bottom:1.5rem;">
     <div class="admin-stat-card">
@@ -44,14 +43,14 @@ $this->title = 'AmoCRM — Воронка продаж';
     <div class="admin-stat-card" style="border-left-color:var(--admin-success);">
         <p class="admin-stat-number"><?= $wonLeads ?></p>
         <p class="admin-stat-label">Выиграно</p>
-        <?php if ($totalLeads > 0): ?>
+        <?php if ($totalLeads > 0) : ?>
         <span class="admin-badge admin-badge-success"><?= round($wonLeads / $totalLeads * 100, 1) ?>%</span>
         <?php endif; ?>
     </div>
     <div class="admin-stat-card" style="border-left-color:var(--admin-danger, #ef4444);">
         <p class="admin-stat-number"><?= $lostLeads ?></p>
         <p class="admin-stat-label">Проиграно</p>
-        <?php if ($totalLeads > 0): ?>
+        <?php if ($totalLeads > 0) : ?>
         <span class="admin-badge admin-badge-danger"><?= round($lostLeads / $totalLeads * 100, 1) ?>%</span>
         <?php endif; ?>
     </div>
@@ -70,22 +69,24 @@ $this->title = 'AmoCRM — Воронка продаж';
         <h3 class="admin-card-title"><i class="bi bi-bar-chart-steps"></i> Этапы воронки</h3>
     </div>
     <div class="admin-card-body">
-        <?php if (empty($stageMetrics)): ?>
+        <?php if (empty($stageMetrics)) : ?>
             <p style="color:var(--admin-text-secondary);text-align:center;padding:2rem;">Нет данных</p>
-        <?php else: ?>
+        <?php else : ?>
             <?php
             $maxCount = max(array_column($stageMetrics, 'count')) ?: 1;
             $colors   = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#06b6d4','#ec4899'];
             $ci       = 0;
             ?>
-            <?php foreach ($stageMetrics as $stage): ?>
-            <?php if ($stage['count'] === 0) continue; ?>
+            <?php foreach ($stageMetrics as $stage) : ?>
+                <?php if ($stage['count'] === 0) {
+                    continue;
+                } ?>
             <div style="margin-bottom:0.75rem;">
                 <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
                     <span style="font-size:0.85rem;font-weight:500;"><?= Html::encode($stage['name']) ?></span>
                     <span style="font-size:0.85rem;font-weight:700;color:<?= $colors[$ci % count($colors)] ?>;">
                         <?= $stage['count'] ?>
-                        <?php if ($totalLeads > 0): ?>
+                        <?php if ($totalLeads > 0) : ?>
                         <small style="font-weight:400;color:var(--admin-text-secondary);">
                             (<?= round($stage['count'] / $totalLeads * 100, 1) ?>%)
                         </small>
@@ -96,7 +97,8 @@ $this->title = 'AmoCRM — Воронка продаж';
                     <div style="width:<?= round($stage['count'] / $maxCount * 100) ?>%;background:<?= $colors[$ci % count($colors)] ?>;height:8px;border-radius:4px;transition:width 0.3s;"></div>
                 </div>
             </div>
-            <?php $ci++; endforeach; ?>
+                <?php $ci++;
+            endforeach; ?>
         <?php endif; ?>
     </div>
 </div>
@@ -107,13 +109,13 @@ $this->title = 'AmoCRM — Воронка продаж';
         <h3 class="admin-card-title"><i class="bi bi-x-circle"></i> Топ причины проигрыша</h3>
     </div>
     <div class="admin-card-body">
-        <?php if (empty($lossReasons)): ?>
+        <?php if (empty($lossReasons)) : ?>
             <p style="color:var(--admin-text-secondary);text-align:center;padding:2rem;">
                 Нет данных (причины хранятся в кастомных полях лида)
             </p>
-        <?php else: ?>
+        <?php else : ?>
             <?php $maxLoss = max(array_values($lossReasons)) ?: 1; ?>
-            <?php foreach ($lossReasons as $reason => $cnt): ?>
+            <?php foreach ($lossReasons as $reason => $cnt) : ?>
             <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.6rem;">
                 <div style="flex:1;min-width:0;">
                     <div style="font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">

@@ -76,19 +76,19 @@ class Tariff extends ActiveRecord
     {
         // Комиссия
         $commission = ($productPriceCny * $this->commission_percent / 100) + $this->commission_fixed;
-        
+
         // Доставка
         $deliveryCost = $weightKg * $this->delivery_cost_per_kg;
-        
+
         // Страховка
         $insurance = $productPriceCny * $this->insurance_percent / 100;
-        
+
         // Итого в CNY
         $totalCny = $productPriceCny + $commission + $deliveryCost + $insurance;
-        
+
         // Итого в BYN (или другой валюте)
         $totalLocal = $totalCny * $this->exchange_rate;
-        
+
         return [
             'product_price_cny' => round($productPriceCny, 2),
             'commission_cny' => round($commission, 2),

@@ -12,7 +12,7 @@ $unreadCount = ImportNotification::getUnreadCount();
 <li class="nav-item dropdown">
     <a class="nav-link" href="#" data-bs-toggle="dropdown">
         <i class="fas fa-bell"></i>
-        <?php if ($unreadCount > 0): ?>
+        <?php if ($unreadCount > 0) : ?>
         <span class="badge badge-danger navbar-badge"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
         <?php endif; ?>
     </a>
@@ -22,12 +22,12 @@ $unreadCount = ImportNotification::getUnreadCount();
         </span>
         <div class="dropdown-divider"></div>
         
-        <?php if (empty($notifications)): ?>
+        <?php if (empty($notifications)) : ?>
         <a class="dropdown-item" href="#">
             <i class="fas fa-check-circle text-muted"></i> Нет новых уведомлений
         </a>
-        <?php else: ?>
-        <?php foreach ($notifications as $notification): ?>
+        <?php else : ?>
+            <?php foreach ($notifications as $notification) : ?>
         <a class="dropdown-item notification-item" href="#" data-id="<?= $notification->id ?>">
             <div class="media">
                 <div class="media-body">
@@ -41,7 +41,7 @@ $unreadCount = ImportNotification::getUnreadCount();
                 </div>
             </div>
         </a>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
         
         <div class="dropdown-divider"></div>
         <a class="dropdown-item dropdown-footer" href="#" id="mark-all-read">

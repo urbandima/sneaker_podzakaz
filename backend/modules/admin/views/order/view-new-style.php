@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Новая карточка заказа — Shopify 2026 стиль
- * 
+ *
  * @var yii\web\View $this
  * @var app\backend\modules\checkout\models\Order $model
  */
@@ -45,7 +46,7 @@ $this->params['headerActions'] = $actions;
         <div class="admin-card-body">
             <p><strong><?= Html::encode($model->client_name) ?></strong></p>
             <p><i class="bi bi-telephone"></i> <?= Html::encode($model->client_phone) ?></p>
-            <?php if ($model->client_email): ?>
+            <?php if ($model->client_email) : ?>
                 <p><i class="bi bi-envelope"></i> <?= Html::encode($model->client_email) ?></p>
             <?php endif; ?>
             <p><i class="bi bi-geo-alt"></i> <?= Html::encode($model->address) ?></p>
@@ -62,7 +63,7 @@ $this->params['headerActions'] = $actions;
         </div>
         <div class="admin-card-body">
             <p><strong>Сумма заказа:</strong> <?= Yii::$app->formatter->asCurrency($model->total_amount, 'BYN') ?></p>
-            <?php if ($model->paid_amount): ?>
+            <?php if ($model->paid_amount) : ?>
                 <p><strong>Оплачено:</strong> <?= Yii::$app->formatter->asCurrency($model->paid_amount, 'BYN') ?></p>
             <?php endif; ?>
             <p><strong>Способ:</strong> <?= $model->payment_method ?: 'Не указан' ?></p>
@@ -76,7 +77,7 @@ $this->params['headerActions'] = $actions;
         </div>
         <div class="admin-card-body">
             <p><strong>Метод:</strong> <?= $model->delivery_method ?: 'Не указан' ?></p>
-            <?php if ($model->track_number): ?>
+            <?php if ($model->track_number) : ?>
                 <p><strong>Трек-номер:</strong> <?= Html::encode($model->track_number) ?></p>
                 <button class="admin-btn admin-btn-sm admin-btn-secondary" onclick="checkTracking('<?= $model->track_number ?>')">
                     <i class="bi bi-search"></i> Проверить
@@ -89,11 +90,11 @@ $this->params['headerActions'] = $actions;
 <!-- Состав заказа -->
 <div class="admin-card">
     <?php
-$this->params['headerActions'] = [
+    $this->params['headerActions'] = [
     Html::a('<i class="bi bi-arrow-left"></i> К списку', ['index'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm']),
     Html::a('<i class="bi bi-printer"></i> Печать', ['print', 'id' => $model->id], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm'])
-];
-?>
+    ];
+    ?>
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-cart"></i> Состав заказа</h2>
         <button class="admin-btn admin-btn-sm admin-btn-primary" onclick="addOrderItem()">
@@ -112,7 +113,7 @@ $this->params['headerActions'] = [
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($model->orderItems as $item): ?>
+                <?php foreach ($model->orderItems as $item) : ?>
                 <tr>
                     <td><?= Html::encode($item->product_name) ?></td>
                     <td><?= Html::encode($item->size) ?></td>
@@ -137,7 +138,7 @@ $this->params['headerActions'] = [
     </div>
     <div class="admin-card-body">
         <div id="notes-container">
-            <?php foreach ($model->notes ?? [] as $note): ?>
+            <?php foreach ($model->notes ?? [] as $note) : ?>
                 <div class="note-item" style="padding:12px;border-bottom:1px solid var(--admin-border)">
                     <strong><?= $note['author'] ?></strong> 
                     <small class="text-muted"><?= $note['date'] ?></small>

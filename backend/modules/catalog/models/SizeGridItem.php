@@ -2,11 +2,11 @@
 
 /**
  * SizeGridItem — Модель элемента размерной сетки
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Элементы размерной сетки: размеры в разных системах
  * (US, EU, UK, CM) для конкретной сетки.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - size_grid_id: ID размерной сетки
  * - us_size: размер в системе US
@@ -15,15 +15,16 @@
  * - cm_size: размер в сантиметрах
  * - size: отображаемый размер
  * - sort_order: порядок отображения
- * 
+ *
  * СВЯЗИ:
  * - SizeGrid (размерная сетка)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - SizeGridController (управление элементами сетки)
  * - ProductController (выбор размера для товара)
  * - Каталог (отображение размеров)
  */
+
 namespace app\backend\modules\catalog\models;
 
 use Yii;
@@ -40,7 +41,7 @@ use yii\db\ActiveRecord;
  * @property float|null $cm_size
  * @property string $size
  * @property int $sort_order
- * 
+ *
  * @property SizeGrid $sizeGrid
  */
 class SizeGridItem extends ActiveRecord

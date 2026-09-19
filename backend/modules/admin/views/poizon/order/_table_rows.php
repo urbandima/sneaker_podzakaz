@@ -10,7 +10,7 @@ use yii\helpers\Url;
 /** @var array $logistMap */
 
 ?>
-<?php foreach ($orders as $order): ?>
+<?php foreach ($orders as $order) : ?>
     <?php
         $statusKey = $order->status;
         $statusLabel = Html::encode($statuses[$statusKey] ?? $statusKey);
@@ -28,7 +28,7 @@ use yii\helpers\Url;
         <td class="order-cell order-cell--primary" data-column="order">
             <div class="order-id-line">
                 <a href="<?= Url::to(['/admin/order/view', 'id' => $order->id]) ?>">№ <?= Html::encode($order->order_number) ?></a>
-                <?php if ($order->assigned_logist): ?>
+                <?php if ($order->assigned_logist) : ?>
                     <span class="meta-pill">
                         <i class="bi bi-person-badge"></i>
                         <?= Html::encode($logistName) ?>
@@ -37,10 +37,10 @@ use yii\helpers\Url;
             </div>
             <div class="order-date"><?= $formatter->asDatetime($order->created_at, 'php:d M, H:i') ?></div>
             <div class="order-meta-line">
-                <?php if ($order->china_track_number): ?>
+                <?php if ($order->china_track_number) : ?>
                     <span class="meta-pill">CN: <?= Html::encode($order->china_track_number) ?></span>
                 <?php endif; ?>
-                <?php if ($order->ms_number): ?>
+                <?php if ($order->ms_number) : ?>
                     <span class="meta-pill">МС: <?= Html::encode($order->ms_number) ?></span>
                 <?php endif; ?>
             </div>
@@ -48,10 +48,10 @@ use yii\helpers\Url;
         <td class="order-cell" data-column="client">
             <div class="client-name"><?= Html::encode($clientName ?: '—') ?></div>
             <div class="client-contact">
-                <?php if ($order->client_phone): ?>
+                <?php if ($order->client_phone) : ?>
                     <a href="tel:<?= Html::encode($order->client_phone) ?>"><?= Html::encode($order->client_phone) ?></a>
                 <?php endif; ?>
-                <?php if ($order->client_email): ?>
+                <?php if ($order->client_email) : ?>
                     · <a href="mailto:<?= Html::encode($order->client_email) ?>"><?= Html::encode($order->client_email) ?></a>
                 <?php endif; ?>
             </div>
@@ -100,7 +100,7 @@ use yii\helpers\Url;
                 </div>
                 <p class="status-description"><?= $statusDescription ?></p>
                 <select class="status-select" data-field="status" data-order-id="<?= $order->id ?>">
-                    <?php foreach ($statuses as $key => $label): ?>
+                    <?php foreach ($statuses as $key => $label) : ?>
                         <option value="<?= Html::encode($key) ?>" <?= $key === $order->status ? 'selected' : '' ?>>
                             <?= Html::encode($label) ?>
                         </option>
@@ -110,7 +110,7 @@ use yii\helpers\Url;
                     <a class="action-btn action-btn-view" title="Просмотр" href="<?= Url::to(['/admin/order/view', 'id' => $order->id]) ?>">
                         <i class="bi bi-eye"></i>
                     </a>
-                    <?php if (!$user->isLogist()): ?>
+                    <?php if (!$user->isLogist()) : ?>
                         <a class="action-btn action-btn-edit" title="Редактировать" href="<?= Url::to(['/admin/order/update', 'id' => $order->id]) ?>">
                             <i class="bi bi-pencil"></i>
                         </a>

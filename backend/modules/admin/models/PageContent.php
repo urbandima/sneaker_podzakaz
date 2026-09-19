@@ -68,7 +68,9 @@ class PageContent extends ActiveRecord
     /** Get content by slug, returns null if table missing or slug not found */
     public static function getBySlug(string $slug): ?self
     {
-        if (!self::isAvailable()) return null;
+        if (!self::isAvailable()) {
+            return null;
+        }
         try {
             return self::find()->where(['slug' => $slug, 'is_active' => 1])->one();
         } catch (\Exception $e) {

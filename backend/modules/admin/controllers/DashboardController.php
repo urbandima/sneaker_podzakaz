@@ -2,29 +2,30 @@
 
 /**
  * DashboardController — Главная панель администратора
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Главная страница админ-панели с виджетами статистики,
  * профилем пользователя и системными настройками.
- * 
+ *
  * ФУНКЦИИ:
  * - Главная страница с виджетами и статистикой (index)
  * - Профиль пользователя и смена пароля (profile)
  * - Системные настройки компании (settings)
  * - Выход из системы (logout)
  * - Очистка кэша (clear-cache)
- * 
+ *
  * СВЯЗИ:
  * - CompanySettings (модель настроек компании)
  * - OrderStatus (модель статусов заказа)
  * - Tariff (модель тарифов)
  * - ChangePasswordForm (форма смены пароля)
  * - Order, Product, User (для статистики)
- * 
+ *
  * ДОСТУП:
  * - Все авторизованные пользователи
  * - Настройки — только администраторы
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -58,13 +59,13 @@ class DashboardController extends BaseAdminController
             $companySettings = CompanySettings::getSettings();
         } catch (\Exception $e) {
             Yii::warning('Dashboard stats error: ' . $e->getMessage(), 'dashboard');
-            $orderStats    = ['total'=>0,'today'=>0,'thisMonth'=>0,'totalAmount'=>0,'pending'=>0,'processing'=>0,'completed'=>0];
-            $productStats  = ['total'=>0,'active'=>0,'inStock'=>0,'outOfStock'=>0];
-            $userStats     = ['total'=>0,'active'=>0,'admins'=>0,'managers'=>0,'logists'=>0];
+            $orderStats    = ['total' => 0,'today' => 0,'thisMonth' => 0,'totalAmount' => 0,'pending' => 0,'processing' => 0,'completed' => 0];
+            $productStats  = ['total' => 0,'active' => 0,'inStock' => 0,'outOfStock' => 0];
+            $userStats     = ['total' => 0,'active' => 0,'admins' => 0,'managers' => 0,'logists' => 0];
             $topProducts   = [];
             $activeLogists = [];
             $chartData     = [];
-            $companySettings = ['name'=>'СНИКЕРХЭД','email'=>'','phone'=>''];
+            $companySettings = ['name' => 'СНИКЕРХЭД','email' => '','phone' => ''];
         }
 
         // Operational stats
@@ -139,7 +140,7 @@ class DashboardController extends BaseAdminController
             'slaStats'                 => $slaStats,
         ]);
     }
-    
+
     /**
      * X5: Batch image health check — scans brand logos and category images for missing files.
      * Returns JSON with lists of broken entries.
@@ -200,11 +201,11 @@ class DashboardController extends BaseAdminController
     private function getOrderStats($user)
     {
         $baseQuery = Order::find();
-        
+
         if ($user->isLogist()) {
             $baseQuery->andWhere(['assigned_logist' => $user->id]);
         }
-        
+
         return [
             'total' => (int)(clone $baseQuery)->count(),
             'today' => (int)(clone $baseQuery)->andWhere(['>=', 'created_at', strtotime('today')])->count(),
@@ -215,7 +216,7 @@ class DashboardController extends BaseAdminController
             'completed' => (int)(clone $baseQuery)->andWhere(['status' => 'delivered'])->count(),
         ];
     }
-    
+
     /**
      * Получение статистики товаров
      */
@@ -231,7 +232,7 @@ class DashboardController extends BaseAdminController
             'outOfStock' => (int)Product::find()->where(['stock_status' => 'out_of_stock'])->count(),
         ];
     }
-    
+
     /**
      * Получение статистики пользователей
      */
@@ -248,10 +249,10 @@ class DashboardController extends BaseAdminController
                 'no_role'  => $noRole,
             ];
         } catch (\Exception $e) {
-            return ['total'=>0,'active'=>0,'admins'=>0,'logists'=>0,'managers'=>0,'no_role'=>0];
+            return ['total' => 0,'active' => 0,'admins' => 0,'logists' => 0,'managers' => 0,'no_role' => 0];
         }
     }
-    
+
     /**
      * Получение топ товаров
      */
@@ -277,7 +278,7 @@ class DashboardController extends BaseAdminController
 
         return Yii::$app->db->createCommand($sql)->queryAll();
     }
-    
+
     /**
      * Получение активных логистов
      */
@@ -523,7 +524,7 @@ class DashboardController extends BaseAdminController
 
         if (Yii::$app->request->isPost) {
             $post = Yii::$app->request->post();
-            
+
             // Сохранение реквизитов компании
             if ($settings->load($post) && $settings->validate()) {
                 $settings->updated_at = time();
@@ -562,10 +563,9 @@ class DashboardController extends BaseAdminController
 
                 $transaction->commit();
                 $this->flashSuccess('Настройки сохранены');
-                
+
                 // Обновляем данные для рендера
                 $statuses = OrderStatus::find()->orderBy(['sort' => SORT_ASC])->all();
-                
             } catch (\Throwable $e) {
                 $transaction->rollBack();
                 Yii::error('Ошибка при сохранении настроек: ' . $e->getMessage(), 'admin');

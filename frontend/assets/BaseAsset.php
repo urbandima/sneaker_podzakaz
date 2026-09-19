@@ -2,6 +2,8 @@
 
 namespace app\assets;
 
+use app\frontend\assets\VersionedAssetBundle;
+
 class BaseAsset extends VersionedAssetBundle
 {
     public $basePath = '@webroot';

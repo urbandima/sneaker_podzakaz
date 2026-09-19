@@ -2,10 +2,10 @@
 
 /**
  * ProductTagsWidget — Виджет отображения тегов товара
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Отображение тегов на карточке товара или на странице товара.
- * 
+ *
  * ПАРАМЕТРЫ:
  * - product: Product — товар для отображения тегов
  * - style: string — стиль отображения (badges|chips|pills)
@@ -45,7 +45,7 @@ class ProductTagsWidget extends Widget
     public function init()
     {
         parent::init();
-        
+
         if ($this->product === null) {
             throw new \InvalidArgumentException('Property "product" is required');
         }
@@ -57,7 +57,7 @@ class ProductTagsWidget extends Widget
     public function run()
     {
         $tags = $this->getTags();
-        
+
         if (empty($tags)) {
             return '';
         }
@@ -72,11 +72,11 @@ class ProductTagsWidget extends Widget
     protected function getTags()
     {
         $tags = $this->product->tags;
-        
+
         if ($this->limit > 0 && count($tags) > $this->limit) {
             return array_slice($tags, 0, $this->limit);
         }
-        
+
         return $tags;
     }
 
@@ -88,7 +88,7 @@ class ProductTagsWidget extends Widget
     protected function renderTags($tags)
     {
         $items = [];
-        
+
         foreach ($tags as $tag) {
             $items[] = $this->renderTag($tag);
         }
@@ -99,11 +99,11 @@ class ProductTagsWidget extends Widget
         }
 
         $html = '<div class="' . $containerClass . '">';
-        
+
         if ($this->title) {
             $html .= '<h4 class="product-tags__title">' . Html::encode($this->title) . '</h4>';
         }
-        
+
         $html .= '<div class="product-tags__list">';
         $html .= implode('', $items);
         $html .= '</div></div>';
@@ -119,14 +119,14 @@ class ProductTagsWidget extends Widget
     protected function renderTag($tag)
     {
         $content = Html::encode($tag->name);
-        
+
         $inlineStyle = '';
         if ($tag->color) {
             $inlineStyle = 'background-color: ' . $tag->color . '; color: #fff;';
         }
 
         $class = 'product-tag product-tag--' . $this->style;
-        
+
         if ($this->showLinks) {
             return Html::a($content, ['/catalog/search/tag', 'slug' => $tag->slug], [
                 'class' => $class,

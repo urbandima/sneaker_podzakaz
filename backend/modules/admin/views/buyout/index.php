@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\Buyout[] $buyouts */
 /** @var array $kpi */
@@ -66,13 +67,13 @@ $this->title = 'Выкупы товаров';
 <div class="compact-filter-row">
     <select name="status">
         <option value="">Все статусы</option>
-        <?php foreach ($statuses as $k => $v): ?>
+        <?php foreach ($statuses as $k => $v) : ?>
         <option value="<?= $k ?>" <?= $filterStatus === $k ? 'selected' : '' ?>><?= Html::encode($v) ?></option>
         <?php endforeach; ?>
     </select>
     <select name="source">
         <option value="">Все источники</option>
-        <?php foreach ($sources as $k => $v): ?>
+        <?php foreach ($sources as $k => $v) : ?>
         <option value="<?= $k ?>" <?= $filterSource === $k ? 'selected' : '' ?>><?= Html::encode($v) ?></option>
         <?php endforeach; ?>
     </select>
@@ -90,7 +91,7 @@ $this->title = 'Выкупы товаров';
 <div class="bulk-actions" id="bulk-panel" style="display:none">
     <span id="bulk-count" style="font-size:0.8rem;color:#6b7280"></span>
     <select id="bulk-status-select">
-        <?php foreach ($statuses as $k => $v): ?>
+        <?php foreach ($statuses as $k => $v) : ?>
         <option value="<?= $k ?>"><?= Html::encode($v) ?></option>
         <?php endforeach; ?>
     </select>
@@ -117,16 +118,16 @@ $this->title = 'Выкупы товаров';
     </tr>
 </thead>
 <tbody>
-<?php if (empty($buyouts)): ?>
+<?php if (empty($buyouts)) : ?>
 <tr><td colspan="13" style="text-align:center;padding:32px;color:#9ca3af">Выкупов не найдено</td></tr>
-<?php else: ?>
-<?php foreach ($buyouts as $b): ?>
-<?php $snap = is_array($b->product_snapshot) ? $b->product_snapshot : (array)json_decode((string)$b->product_snapshot, true); ?>
+<?php else : ?>
+    <?php foreach ($buyouts as $b) : ?>
+        <?php $snap = is_array($b->product_snapshot) ? $b->product_snapshot : (array)json_decode((string)$b->product_snapshot, true); ?>
 <tr data-id="<?= $b->id ?>">
     <td><input type="checkbox" class="buyout-chk" value="<?= $b->id ?>" onchange="onCheckChange()"></td>
     <td><a href="/admin/procurement/buyout/<?= $b->id ?>" style="font-weight:700;color:var(--admin-accent,#2563eb)"><?= $b->id ?></a></td>
     <td>
-        <?php if (!empty($snap['image'])): ?>
+        <?php if (!empty($snap['image'])) : ?>
         <img src="<?= Html::encode($snap['image']) ?>" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;margin-right:6px;vertical-align:middle">
         <?php endif; ?>
         <a href="/admin/procurement/buyout/<?= $b->id ?>" style="font-weight:600;color:var(--admin-text-primary,#111);text-decoration:none">
@@ -152,7 +153,7 @@ $this->title = 'Выкупы товаров';
         </a>
     </td>
 </tr>
-<?php endforeach; ?>
+    <?php endforeach; ?>
 <?php endif; ?>
 </tbody>
 </table>

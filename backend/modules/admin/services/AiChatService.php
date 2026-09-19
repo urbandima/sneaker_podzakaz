@@ -413,14 +413,14 @@ PROMPT;
                 'pipeline_id'  => null,
                 'client_phone' => null,
                 'message_text' => null,
-                'response_text'=> null,
+                'response_text' => null,
                 'tools_used'   => null,
                 'tool_loops'   => 0,
                 'escalated'    => false,
                 'response_ms'  => null,
                 'model'        => self::MODEL,
                 'success'      => true,
-                'error_message'=> null,
+                'error_message' => null,
                 'created_at'   => time(),
             ], $data))->execute();
         } catch (\Throwable $e) {

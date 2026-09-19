@@ -8,7 +8,7 @@ use app\backend\modules\catalog\models\Product;
 
 /**
  * ImportLog — Модель лога импорта
- * 
+ *
  * @property int $id
  * @property int $task_id ID задачи
  * @property int|null $product_id ID товара
@@ -21,21 +21,21 @@ use app\backend\modules\catalog\models\Product;
  * @property string|null $data JSON с данными
  * @property string|null $error_details Детали ошибки
  * @property string $created_at
- * 
+ *
  * @property ImportTask $task Задача
  * @property Product $product Товар
  */
 class ImportLog extends ActiveRecord
 {
-    const ACTION_CREATED = 'created';
-    const ACTION_UPDATED = 'updated';
-    const ACTION_SKIPPED = 'skipped';
-    const ACTION_ERROR = 'error';
-    const ACTION_DUPLICATE = 'duplicate';
+    public const ACTION_CREATED = 'created';
+    public const ACTION_UPDATED = 'updated';
+    public const ACTION_SKIPPED = 'skipped';
+    public const ACTION_ERROR = 'error';
+    public const ACTION_DUPLICATE = 'duplicate';
 
-    const LEVEL_INFO = 'info';
-    const LEVEL_WARNING = 'warning';
-    const LEVEL_ERROR = 'error';
+    public const LEVEL_INFO = 'info';
+    public const LEVEL_WARNING = 'warning';
+    public const LEVEL_ERROR = 'error';
 
     /**
      * {@inheritdoc}
@@ -169,11 +169,11 @@ class ImportLog extends ActiveRecord
             'product_name' => $productName,
             'message' => "Товар обновлен: {$productName}",
         ]);
-        
+
         if (!empty($changes)) {
             $log->setDataArray($changes);
         }
-        
+
         $log->save(false);
         return $log;
     }
@@ -221,11 +221,11 @@ class ImportLog extends ActiveRecord
             'message' => "Ошибка при импорте: {$productName}",
             'error_details' => $error,
         ]);
-        
+
         if (!empty($data)) {
             $log->setDataArray($data);
         }
-        
+
         $log->save(false);
         return $log;
     }

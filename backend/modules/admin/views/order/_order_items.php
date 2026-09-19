@@ -13,8 +13,8 @@ $itemIndexStart = $itemIndexStart ?? (count($orderItems) > 0 ? count($orderItems
 
 <h5 class="mb-3">Товары</h5>
 <div id="order-items">
-    <?php if (!empty($orderItems)): ?>
-        <?php foreach ($orderItems as $index => $item): ?>
+    <?php if (!empty($orderItems)) : ?>
+        <?php foreach ($orderItems as $index => $item) : ?>
             <div class="order-item row mb-3">
                 <div class="col-md-5">
                     <label class="form-label">Название товара</label>
@@ -33,7 +33,7 @@ $itemIndexStart = $itemIndexStart ?? (count($orderItems) > 0 ? count($orderItems
                 </div>
             </div>
         <?php endforeach; ?>
-    <?php else: ?>
+    <?php else : ?>
         <div class="order-item row mb-3">
             <div class="col-md-5">
                 <label class="form-label">Название товара</label>

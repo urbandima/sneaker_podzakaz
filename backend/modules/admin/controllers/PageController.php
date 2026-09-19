@@ -42,7 +42,7 @@ class PageController extends BaseAdminController
             $pages[] = [
                 'slug'       => $slug,
                 'title'      => isset($dbPages[$slug]) ? $dbPages[$slug]->title : $title,
-                'has_content'=> isset($dbPages[$slug]) && !empty($dbPages[$slug]->content),
+                'has_content' => isset($dbPages[$slug]) && !empty($dbPages[$slug]->content),
                 'updated_at' => isset($dbPages[$slug]) ? $dbPages[$slug]->updated_at : null,
             ];
         }
@@ -132,8 +132,12 @@ class PageController extends BaseAdminController
         }
 
         $model->saveRevision();
-        if ($content !== null) $model->content = $content;
-        if ($title)            $model->title   = $title;
+        if ($content !== null) {
+            $model->content = $content;
+        }
+        if ($title) {
+            $model->title   = $title;
+        }
         $model->updated_by = Yii::$app->user->id;
 
         if ($model->save()) {
@@ -255,8 +259,12 @@ class PageController extends BaseAdminController
             $model->slug  = $slug;
             $model->title = PageContent::knownPages()[$slug];
         }
-        if ($content !== null) $model->content = $content;
-        if ($title)            $model->title   = $title;
+        if ($content !== null) {
+            $model->content = $content;
+        }
+        if ($title) {
+            $model->title   = $title;
+        }
         $model->updated_by = Yii::$app->user->id;
 
         if ($model->save()) {

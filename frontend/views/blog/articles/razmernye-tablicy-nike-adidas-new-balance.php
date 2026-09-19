@@ -1,4 +1,8 @@
-<?php use yii\helpers\Url; ?>
+<?php
+
+use yii\helpers\Url;
+
+?>
 
 <p>Правильно выбрать <strong>размер кроссовок</strong> — важнее, чем выбрать модель. Мы собрали актуальные <strong>таблицы размеров</strong> для трёх самых популярных брендов.</p>
 
@@ -34,9 +38,9 @@
             ['29.0','45','10.5','11.5','9.5'],
             ['29.5','46','11','12','10'],
         ];
-        foreach ($nikeTable as $i => $row):
+        foreach ($nikeTable as $i => $row) :
             $bg = $i % 2 === 0 ? '#f9f9f9' : '#fff';
-        ?>
+            ?>
         <tr style="background:<?= $bg ?>;">
             <td style="padding:8px 14px;font-weight:500;"><?= $row[0] ?></td>
             <td style="padding:8px 14px;text-align:center;"><?= $row[1] ?></td>
@@ -79,9 +83,9 @@
             ['29.0','44.5','9.5','10'],
             ['29.5','45','10','10.5'],
         ];
-        foreach ($adidasTable as $i => $row):
+        foreach ($adidasTable as $i => $row) :
             $bg = $i % 2 === 0 ? '#f9f9f9' : '#fff';
-        ?>
+            ?>
         <tr style="background:<?= $bg ?>;">
             <td style="padding:8px 14px;font-weight:500;"><?= $row[0] ?></td>
             <td style="padding:8px 14px;text-align:center;"><?= $row[1] ?></td>
@@ -121,9 +125,9 @@
             ['28.5','44.5','10','11.5'],
             ['29.0','45','10.5','12'],
         ];
-        foreach ($nbTable as $i => $row):
+        foreach ($nbTable as $i => $row) :
             $bg = $i % 2 === 0 ? '#f9f9f9' : '#fff';
-        ?>
+            ?>
         <tr style="background:<?= $bg ?>;">
             <td style="padding:8px 14px;font-weight:500;"><?= $row[0] ?></td>
             <td style="padding:8px 14px;text-align:center;"><?= $row[1] ?></td>

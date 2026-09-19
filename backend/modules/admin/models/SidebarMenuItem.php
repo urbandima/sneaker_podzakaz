@@ -31,12 +31,12 @@ use yii\db\Expression;
  */
 class SidebarMenuItem extends ActiveRecord
 {
-    const TYPE_LINK = 'link';
-    const TYPE_BANNER = 'banner';
-    const TYPE_DIVIDER = 'divider';
-    const TYPE_HEADER = 'header';
+    public const TYPE_LINK = 'link';
+    public const TYPE_BANNER = 'banner';
+    public const TYPE_DIVIDER = 'divider';
+    public const TYPE_HEADER = 'header';
 
-    const TYPES = [
+    public const TYPES = [
         self::TYPE_LINK => 'Ссылка',
         self::TYPE_BANNER => 'Баннер',
         self::TYPE_DIVIDER => 'Разделитель',

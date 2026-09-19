@@ -20,7 +20,7 @@ class SendEmailJob extends BaseObject implements JobInterface
     public function execute($queue)
     {
         $mailer = \Yii::$app->mailer;
-        
+
         $message = $mailer->compose($this->template, $this->params)
             ->setTo($this->to)
             ->setSubject($this->subject);

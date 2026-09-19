@@ -6,6 +6,7 @@
  * Проверяет URL и выполняет редирект если настроен.
  * Подключается через bootstrap EVENT_BEFORE_REQUEST.
  */
+
 namespace app\backend\modules\seo\components;
 
 use Yii;

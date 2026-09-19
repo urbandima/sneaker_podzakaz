@@ -40,11 +40,11 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
     <div class="admin-stat-card">
         <p class="admin-stat-number"><?= PriceHelper::formatInt($thisTotal) ?></p>
         <p class="admin-stat-label">Выручка тек. месяц, BYN</p>
-        <?php if ($changePct !== null): ?>
+        <?php if ($changePct !== null) : ?>
         <span class="admin-badge <?= $changePct >= 0 ? 'admin-badge-success' : 'admin-badge-danger' ?>">
             <?= ($changePct >= 0 ? '+' : '') . $changePct ?>% vs пред. месяц
         </span>
-        <?php else: ?>
+        <?php else : ?>
         <span class="admin-badge admin-badge-secondary">Нет данных прошлого периода</span>
         <?php endif; ?>
     </div>
@@ -74,9 +74,9 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
         <span style="font-size:0.8rem;color:var(--admin-text-secondary);"><?= Html::encode($thisMonthFrom) ?> — сегодня</span>
     </div>
     <div class="admin-card-body" style="padding:0;">
-        <?php if (empty($topProducts)): ?>
+        <?php if (empty($topProducts)) : ?>
             <p style="color:var(--admin-text-secondary);text-align:center;padding:2rem;">Нет данных</p>
-        <?php else: ?>
+        <?php else : ?>
         <table class="admin-table">
             <thead>
                 <tr>
@@ -87,7 +87,7 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($topProducts as $i => $p): ?>
+                <?php foreach ($topProducts as $i => $p) : ?>
                 <tr>
                     <td style="color:var(--admin-text-secondary);width:2rem;"><?= $i + 1 ?></td>
                     <td style="font-size:0.85rem;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
@@ -112,9 +112,9 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
         <span style="font-size:0.8rem;color:var(--admin-text-secondary);">Все время</span>
     </div>
     <div class="admin-card-body">
-        <?php if (empty($ordersByStatus)): ?>
+        <?php if (empty($ordersByStatus)) : ?>
             <p style="color:var(--admin-text-secondary);text-align:center;padding:2rem;">Нет данных</p>
-        <?php else: ?>
+        <?php else : ?>
             <?php
             $total = array_sum(array_column($ordersByStatus, 'cnt')) ?: 1;
             $colors = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#ec4899','#14b8a6','#f97316','#6b7280'];
@@ -125,8 +125,8 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
                 'canceled' => 'Отменён','international_delivery' => 'Межд. доставка',
             ];
             ?>
-            <?php foreach ($ordersByStatus as $ci => $s): ?>
-            <?php $label = $statusLabels[$s['status']] ?? $s['status']; ?>
+            <?php foreach ($ordersByStatus as $ci => $s) : ?>
+                <?php $label = $statusLabels[$s['status']] ?? $s['status']; ?>
             <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
                 <div style="width:10px;height:10px;border-radius:50%;background:<?= $colors[$ci % count($colors)] ?>;flex-shrink:0;"></div>
                 <span style="flex:1;font-size:0.85rem;"><?= Html::encode($label) ?></span>
@@ -152,9 +152,9 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
         </a>
     </div>
     <div class="admin-card-body" style="padding:0;overflow-x:auto;">
-        <?php if (empty($recentOrders)): ?>
+        <?php if (empty($recentOrders)) : ?>
             <p style="color:var(--admin-text-secondary);text-align:center;padding:2rem;">Нет заказов</p>
-        <?php else: ?>
+        <?php else : ?>
         <table class="admin-table">
             <thead>
                 <tr>
@@ -167,7 +167,7 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($recentOrders as $ord): ?>
+                <?php foreach ($recentOrders as $ord) : ?>
                 <tr>
                     <td>
                         <a href="<?= Url::to(['/admin/order/view', 'id' => $ord['id']]) ?>"
@@ -199,7 +199,7 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
 </div>
 
 <!-- Дебиторская задолженность -->
-<?php if (!empty($debtData)): ?>
+<?php if (!empty($debtData)) : ?>
 <div class="admin-card">
     <div class="admin-card-header">
         <h3 class="admin-card-title">
@@ -223,7 +223,7 @@ $orderCount = (int)($thisRevenue['total_orders'] ?? 0);
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($debtData as $d): ?>
+                <?php foreach ($debtData as $d) : ?>
                 <tr>
                     <td><?= Html::encode($d['name']) ?></td>
                     <td><?= Html::encode($d['agent']) ?></td>

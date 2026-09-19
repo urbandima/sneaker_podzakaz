@@ -55,21 +55,21 @@ $this->params['breadcrumbs'][] = $this->title;
                     </table>
                 </div>
                 <div class="col-md-6">
-                    <?php if ($model->comment): ?>
+                    <?php if ($model->comment) : ?>
                     <div class="mb-3">
                         <strong>Ваш комментарий:</strong>
                         <p class="text-muted"><?= Html::encode($model->comment) ?></p>
                     </div>
                     <?php endif; ?>
 
-                    <?php if ($model->admin_comment): ?>
+                    <?php if ($model->admin_comment) : ?>
                     <div class="alert alert-info">
                         <strong>Комментарий менеджера:</strong>
                         <p class="mb-0"><?= Html::encode($model->admin_comment) ?></p>
                     </div>
                     <?php endif; ?>
 
-                    <?php if ($model->status === 'approved' && $model->tracking_number): ?>
+                    <?php if ($model->status === 'approved' && $model->tracking_number) : ?>
                     <div class="alert alert-success">
                         <i class="bi bi-truck"></i>
                         Трек-номер для отправки: <strong><?= Html::encode($model->tracking_number) ?></strong>
@@ -80,7 +80,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 
-    <?php if ($model->status === 'pending'): ?>
+    <?php if ($model->status === 'pending') : ?>
     <div class="alert alert-warning">
         <i class="bi bi-clock-history"></i>
         Ваша заявка находится на рассмотрении. Мы свяжемся с вами в течение 1-2 рабочих дней.

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Настройка цепочки статусов заказов
  */
@@ -25,14 +26,14 @@ $this->params['headerActions'] = [
     </div>
     <div class="admin-card-body">
         <div id="status-chain" style="display:flex;align-items:flex-start;gap:8px;overflow-x:auto;padding:16px;flex-wrap:wrap">
-            <?php foreach ($statuses as $i => $status): ?>
-                <?php if ($status['is_active'] && $status['key'] !== 'canceled'): ?>
+            <?php foreach ($statuses as $i => $status) : ?>
+                <?php if ($status['is_active'] && $status['key'] !== 'canceled') : ?>
                     <div class="status-chain-item" style="flex-shrink:0">
                         <div class="status-badge-large admin-badge-<?= $status['color'] ?? 'secondary' ?>" style="white-space:normal;word-break:break-word;min-height:2.5em;display:flex;align-items:center;text-align:center">
                             <?= $i + 1 ?>. <?= Html::encode($status['label']) ?>
                         </div>
                     </div>
-                    <?php if ($i < count($statuses) - 2): ?>
+                    <?php if ($i < count($statuses) - 2) : ?>
                         <i class="bi bi-arrow-right" style="font-size:20px;color:var(--admin-text-secondary)"></i>
                     <?php endif; ?>
                 <?php endif; ?>
@@ -60,14 +61,16 @@ $this->params['headerActions'] = [
                 </tr>
             </thead>
             <tbody id="statuses-list">
-                <?php foreach ($statuses as $i => $status): ?>
-                <?php $isSystem = !empty($status['is_system']); ?>
+                <?php foreach ($statuses as $i => $status) : ?>
+                    <?php $isSystem = !empty($status['is_system']); ?>
                 <tr class="status-row" data-key="<?= Html::encode($status['key']) ?>">
                     <td style="cursor:move;color:var(--admin-text-secondary)"><i class="bi bi-grip-vertical"></i></td>
                     <td>
                         <div style="display:flex;align-items:center;gap:6px">
                         <input type="text" class="admin-form-input status-key" value="<?= Html::encode($status['key']) ?>" style="width:100%" placeholder="status_key" <?= $isSystem ? 'readonly style="width:100%;background:#f1f5f9"' : '' ?>>
-                        <?php if ($isSystem): ?><span class="admin-badge admin-badge-secondary" style="font-size:10px;white-space:nowrap;padding:2px 6px" title="Системный статус — нельзя удалить">Системный</span><?php endif; ?>
+                        <?php if ($isSystem) :
+                            ?><span class="admin-badge admin-badge-secondary" style="font-size:10px;white-space:nowrap;padding:2px 6px" title="Системный статус — нельзя удалить">Системный</span><?php
+                        endif; ?>
                         </div>
                     </td>
                     <td>
@@ -90,7 +93,7 @@ $this->params['headerActions'] = [
                         <input type="checkbox" class="status-logist" <?= !empty($status['logist_available']) ? 'checked' : '' ?>>
                     </td>
                     <td>
-                        <?php if (!$isSystem): ?>
+                        <?php if (!$isSystem) : ?>
                         <button class="admin-btn admin-btn-danger" style="padding:4px 8px;font-size:12px" onclick="removeStatus(this)" title="Удалить">
                             <i class="bi bi-trash"></i>
                         </button>

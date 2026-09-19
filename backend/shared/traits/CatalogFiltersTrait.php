@@ -2,31 +2,32 @@
 
 /**
  * CatalogFiltersTrait — Методы фильтрации каталога
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Логика фильтрации товаров: применение фильтров, получение данных
  * для фильтров, кэширование результатов фильтрации.
- * 
+ *
  * ФУНКЦИИ:
  * - Применение фильтров к запросу (applyFilters)
  * - Получение данных для фильтров (getFiltersData)
  * - Кэшированный COUNT запрос (getCachedCount)
  * - Проверка обхода кэша (shouldBypassCatalogCache)
  * - Нормализация списка фильтров (normalizeFilterList)
- * 
+ *
  * СВЯЗИ:
  * - Product (модель товара)
  * - FilterBuilder (построитель фильтров)
  * - CacheManager (менеджер кэша)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * Подключить в CatalogController через "use CatalogFiltersTrait;"
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Делегирует логику в FilterBuilder для единого источника истины
  * - Кэширование COUNT запросов для производительности
  * - Поддержка фильтрации по характеристикам
  */
+
 namespace app\backend\shared\traits;
 
 use Yii;
@@ -39,7 +40,7 @@ trait CatalogFiltersTrait
     /**
      * Применить фильтры к запросу товаров
      * ИСПРАВЛЕНО: Принимает фильтры как параметр вместо чтения из $_GET
-     * 
+     *
      * @param \yii\db\ActiveQuery $query
      * @param array|null $filters Фильтры для применения (если null - читает из request)
      * @return \yii\db\ActiveQuery
@@ -62,7 +63,7 @@ trait CatalogFiltersTrait
         if (!empty($filters['search'])) {
             $query->andWhere(['like', 'name', $filters['search']]);
         }
-        
+
         // Применяем через FilterBuilder
         FilterBuilder::applyFiltersToProductQuery($query, $filters);
 
@@ -74,7 +75,7 @@ trait CatalogFiltersTrait
 
     /**
      * Собирает фильтры из request (для backward compatibility)
-     * 
+     *
      * @param \yii\web\Request $request
      * @return array
      */
@@ -86,7 +87,7 @@ trait CatalogFiltersTrait
         $priceFrom = $request->get('price_from');
         $priceTo = $request->get('price_to');
         $conditions = $request->get('conditions');
-        
+
         $filters = [
             'brands' => $brands ? (is_array($brands) ? $brands : explode(',', $brands)) : [],
             'categories' => $categories ? (is_array($categories) ? $categories : explode(',', $categories)) : [],
@@ -103,20 +104,20 @@ trait CatalogFiltersTrait
             'search' => $request->get('search'),
             'sort' => $request->get('sort', 'popular'),
         ];
-        
+
         // Характеристики
         foreach ($request->queryParams as $key => $value) {
             if (strpos($key, 'char_') === 0 && !empty($value)) {
                 $filters[$key] = is_array($value) ? $value : explode(',', $value);
             }
         }
-        
+
         return $filters;
     }
 
     /**
      * Применить сортировку к запросу
-     * 
+     *
      * @param \yii\db\ActiveQuery $query
      * @param string $sortBy
      * @return \yii\db\ActiveQuery
@@ -163,24 +164,24 @@ trait CatalogFiltersTrait
                 $query->orderBy(['views_count' => SORT_DESC]);
                 break;
         }
-        
+
         return $query;
     }
 
     /**
      * Получение данных для фильтров с учетом текущих фильтров (УМНЫЙ ФИЛЬТР + КЭШ)
-     * 
+     *
      * @param array $currentFiltersOrBaseCondition
      * @return array
      */
     protected function getFiltersData($currentFiltersOrBaseCondition = [])
     {
         // Определяем, что передано - currentFilters или baseCondition
-        $isCurrentFilters = isset($currentFiltersOrBaseCondition['brands']) || 
+        $isCurrentFilters = isset($currentFiltersOrBaseCondition['brands']) ||
                            isset($currentFiltersOrBaseCondition['categories']) ||
                            isset($currentFiltersOrBaseCondition['sizes']) ||
                            isset($currentFiltersOrBaseCondition['price_from']);
-        
+
         if ($isCurrentFilters) {
             $currentFilters = $currentFiltersOrBaseCondition;
             $baseCondition = [];
@@ -196,7 +197,7 @@ trait CatalogFiltersTrait
                 'price_to' => $request->get('price_to'),
                 'colors' => $request->get('colors') ? (is_array($request->get('colors')) ? $request->get('colors') : explode(',', $request->get('colors'))) : [],
             ];
-            
+
             // Характеристики (формат: char_{id} => [value_ids])
             foreach ($request->queryParams as $key => $value) {
                 if (strpos($key, 'char_') === 0 && !empty($value)) {
@@ -204,7 +205,7 @@ trait CatalogFiltersTrait
                 }
             }
         }
-        
+
         // Используем FilterBuilder для построения всех фильтров
         return FilterBuilder::buildFilters($currentFilters, $baseCondition);
     }
@@ -229,14 +230,14 @@ trait CatalogFiltersTrait
     {
         $rawSql = $query->createCommand()->getRawSql();
 
-        return CacheManager::getCatalogCount(['sql' => $rawSql], function() use ($query) {
+        return CacheManager::getCatalogCount(['sql' => $rawSql], function () use ($query) {
             return $query->count();
         });
     }
 
     /**
      * Определяет, нужно ли обходить кэш каталога
-     * 
+     *
      * @return bool
      */
     protected function shouldBypassCatalogCache(): bool
@@ -258,7 +259,7 @@ trait CatalogFiltersTrait
 
     /**
      * Приводит параметр фильтра (строка/список) к массиву значений.
-     * 
+     *
      * @param mixed $value
      * @return array
      */
@@ -285,7 +286,7 @@ trait CatalogFiltersTrait
     {
         CacheManager::invalidateFilters();
     }
-    
+
     /**
      * Инвалидация всего кэша каталога
      */

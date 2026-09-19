@@ -27,23 +27,23 @@ use yii\helpers\Url;
             <h4>Условия возврата</h4>
             <ul>
                 <li>Срок возврата: <strong><?= $policy->return_period_days ?> дней</strong></li>
-                <?php if ($policy->requires_original_packaging): ?>
+                <?php if ($policy->requires_original_packaging) : ?>
                 <li>Требуется оригинальная упаковка</li>
                 <?php endif; ?>
-                <?php if ($policy->requires_tags): ?>
+                <?php if ($policy->requires_tags) : ?>
                 <li>Требуются ярлыки и бирки</li>
                 <?php endif; ?>
-                <?php if ($policy->restocking_fee > 0): ?>
+                <?php if ($policy->restocking_fee > 0) : ?>
                 <li>Комиссия за возврат: <strong><?= $policy->restocking_fee ?>%</strong></li>
                 <?php endif; ?>
-                <?php if ($policy->free_return_shipping): ?>
+                <?php if ($policy->free_return_shipping) : ?>
                 <li>Бесплатная обратная доставка</li>
                 <?php endif; ?>
             </ul>
         </div>
     </div>
     
-    <?php if (empty($returns)): ?>
+    <?php if (empty($returns)) : ?>
     <!-- Empty State -->
     <div class="empty-returns">
         <div class="empty-icon"><i class="bi bi-box-seam"></i></div>
@@ -52,10 +52,10 @@ use yii\helpers\Url;
         <a href="/account/orders" class="btn-view-orders">Посмотреть заказы</a>
     </div>
     
-    <?php else: ?>
+    <?php else : ?>
     <!-- Returns List -->
     <div class="returns-list">
-        <?php foreach ($returns as $return): ?>
+        <?php foreach ($returns as $return) : ?>
         <div class="return-item">
             <div class="return-header">
                 <div class="return-number">
@@ -92,7 +92,7 @@ use yii\helpers\Url;
                 <div class="return-items">
                     <h4>Возвращаемые товары:</h4>
                     <div class="items-list">
-                        <?php foreach ($return->getItems() as $item): ?>
+                        <?php foreach ($return->getItems() as $item) : ?>
                         <div class="return-item-product">
                             <span class="item-name"><?= Html::encode($item['name'] ?? 'Товар') ?></span>
                             <span class="item-quantity">× <?= $item['quantity'] ?? 1 ?></span>
@@ -102,14 +102,14 @@ use yii\helpers\Url;
                 </div>
             </div>
             
-            <?php if ($return->status === 'approved' && $return->tracking_number): ?>
+            <?php if ($return->status === 'approved' && $return->tracking_number) : ?>
             <div class="return-tracking">
                 <i class="bi bi-truck"></i>
                 <span>Трек-номер для отправки: <strong><?= $return->tracking_number ?></strong></span>
             </div>
             <?php endif; ?>
             
-            <?php if ($return->admin_comment): ?>
+            <?php if ($return->admin_comment) : ?>
             <div class="return-comment">
                 <strong>Комментарий:</strong> <?= Html::encode($return->admin_comment) ?>
             </div>
@@ -119,7 +119,7 @@ use yii\helpers\Url;
                 <a href="/account/returns/<?= $return->id ?>" class="btn-details">
                     <i class="bi bi-eye"></i> Подробнее
                 </a>
-                <?php if ($return->status === 'pending'): ?>
+                <?php if ($return->status === 'pending') : ?>
                 <button class="btn-cancel" onclick="cancelReturn(<?= $return->id ?>)">
                     <i class="bi bi-x"></i> Отменить
                 </button>

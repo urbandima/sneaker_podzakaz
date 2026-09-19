@@ -9,7 +9,7 @@ $this->title = 'Массовое редактирование meta-тегов';
 <div class="seo-bulk-meta">
     <h1><?= Html::encode($this->title) ?></h1>
     
-    <?php if (!empty($results)): ?>
+    <?php if (!empty($results)) : ?>
         <div class="alert alert-success">
             Обновлено: <?= $results['success'] ?>, Ошибок: <?= $results['failed'] ?>
         </div>
@@ -72,7 +72,7 @@ $this->title = 'Массовое редактирование meta-тегов';
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($products as $product): ?>
+                            <?php foreach ($products as $product) : ?>
                             <tr>
                                 <td><?= $product->id ?></td>
                                 <td><?= Html::encode($product->name) ?></td>

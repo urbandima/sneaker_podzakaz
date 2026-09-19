@@ -135,8 +135,8 @@ class MoyskladController extends BaseAdminController
         $syncLog = json_decode(Yii::$app->settings->get('moysklad', 'sync_log', '[]'), true) ?: [];
 
         // Saved field mappings (ms_field => db_column)
-        $savedMappingOrders    = json_decode(Yii::$app->settings->get('moysklad', 'mapping_orders',    '{}'), true) ?: [];
-        $savedMappingProducts  = json_decode(Yii::$app->settings->get('moysklad', 'mapping_products',  '{}'), true) ?: [];
+        $savedMappingOrders    = json_decode(Yii::$app->settings->get('moysklad', 'mapping_orders', '{}'), true) ?: [];
+        $savedMappingProducts  = json_decode(Yii::$app->settings->get('moysklad', 'mapping_products', '{}'), true) ?: [];
         $savedMappingCustomers = json_decode(Yii::$app->settings->get('moysklad', 'mapping_customers', '{}'), true) ?: [];
 
         return $this->render('/plugin/moysklad', [
@@ -230,9 +230,9 @@ class MoyskladController extends BaseAdminController
         if ($apiKey) {
             Yii::$app->settings->set('moysklad', 'api_key', $apiKey);
         } elseif ($login && $password) {
-            Yii::$app->settings->set('moysklad', 'login',    $login);
+            Yii::$app->settings->set('moysklad', 'login', $login);
             Yii::$app->settings->set('moysklad', 'password', $password);
-            Yii::$app->settings->set('moysklad', 'api_key',  '');
+            Yii::$app->settings->set('moysklad', 'api_key', '');
         } else {
             return ['success' => false, 'message' => 'Введите API-ключ или логин+пароль'];
         }
@@ -374,7 +374,9 @@ class MoyskladController extends BaseAdminController
         Yii::$app->response->format = Response::FORMAT_JSON;
         $data = json_decode(Yii::$app->request->getRawBody(), true) ?: [];
         $id   = $data['id'] ?? '';
-        if (!$id) return ['success' => false, 'message' => 'Не указан ID вебхука'];
+        if (!$id) {
+            return ['success' => false, 'message' => 'Не указан ID вебхука'];
+        }
         try {
             Yii::$app->moysklad->deleteWebhook($id);
             return ['success' => true];
@@ -468,7 +470,9 @@ class MoyskladController extends BaseAdminController
 
             // Find our order
             $order = Order::find()->where(['moysklad_id' => $msId])->one();
-            if (!$order) continue;
+            if (!$order) {
+                continue;
+            }
 
             if ($action === 'UPDATE') {
                 try {
@@ -502,7 +506,8 @@ class MoyskladController extends BaseAdminController
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         $row = \Yii::$app->db->createCommand(
-            'SELECT ms_images_json FROM product WHERE id = :id', [':id' => $product_id]
+            'SELECT ms_images_json FROM product WHERE id = :id',
+            [':id' => $product_id]
         )->queryOne();
 
         if (!$row || empty($row['ms_images_json'])) {
@@ -558,7 +563,9 @@ class MoyskladController extends BaseAdminController
                     $proxy    = \yii\helpers\Url::to(['/admin/moysklad/ms-image']);
                     $miniHref = $proxy . '?url=' . urlencode($img['miniature']['href']);
                 }
-                if (!$miniHref) continue;
+                if (!$miniHref) {
+                    continue;
+                }
                 $out[] = [
                     'filename'  => $img['filename'] ?? '',
                     'miniature' => $miniHref,
@@ -618,7 +625,7 @@ class MoyskladController extends BaseAdminController
         }
 
         Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;
-        Yii::$app->response->headers->set('Content-Type',  $ctype ?: 'image/jpeg');
+        Yii::$app->response->headers->set('Content-Type', $ctype ?: 'image/jpeg');
         Yii::$app->response->headers->set('Cache-Control', 'public, max-age=3600');
         Yii::$app->response->content = $body;
         Yii::$app->response->send();

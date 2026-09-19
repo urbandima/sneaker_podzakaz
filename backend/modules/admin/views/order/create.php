@@ -17,7 +17,9 @@ $logists  = $user->isAdmin()
                 ->where(['role' => 'logist'])
                 ->orderBy(['username' => SORT_ASC])
                 ->all();
-        } catch (\Exception $e) { return []; }
+        } catch (\Exception $e) {
+            return [];
+        }
     })()
     : [];
 
@@ -25,7 +27,8 @@ $sources = [];
 try {
     $rawSrc = Yii::$app->settings->get('order', 'sources', '');
     $sources = $rawSrc ? json_decode($rawSrc, true) : [];
-} catch (\Exception $e) {}
+} catch (\Exception $e) {
+}
 if (empty($sources)) {
     $sources = ['Сайт', 'Telegram', 'Instagram', 'ВКонтакте', 'Звонок', 'WhatsApp', 'Viber', 'Рекомендация', 'Другое'];
 }
@@ -34,8 +37,12 @@ $orderItems = Yii::$app->request->post('OrderItem', [
     ['product_name' => '', 'quantity' => 1, 'price' => '', 'link' => ''],
 ]);
 
-if (empty($model->dobropost_tariff)) { $model->dobropost_tariff = 26; }
-if (empty($model->status))           { $model->status = 'new'; }
+if (empty($model->dobropost_tariff)) {
+    $model->dobropost_tariff = 26;
+}
+if (empty($model->status)) {
+    $model->status = 'new';
+}
 ?>
 <style>
 /* ═══ ORDER CRM CREATE ═══ */
@@ -195,7 +202,7 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
                             </tr>
                         </thead>
                         <tbody id="orderItemsBuilder">
-                            <?php foreach ($orderItems as $index => $item): ?>
+                            <?php foreach ($orderItems as $index => $item) : ?>
                             <tr class="crm-item-row" data-index="<?= $index ?>">
                                 <td><input type="text" name="OrderItem[<?= $index ?>][product_name]"
                                     class="crm-input" style="min-width:140px"
@@ -378,7 +385,7 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
                         <label class="crm-field-label"><?= $model->getAttributeLabel('source') ?></label>
                         <select name="Order[source]" class="crm-input">
                             <option value="">— выберите —</option>
-                            <?php foreach ($sources as $src): ?>
+                            <?php foreach ($sources as $src) : ?>
                                 <option value="<?= Html::encode($src) ?>" <?= $model->source === $src ? 'selected' : '' ?>>
                                     <?= Html::encode($src) ?>
                                 </option>
@@ -430,7 +437,7 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
                     <div class="crm-field">
                         <label class="crm-field-label"><?= $model->getAttributeLabel('status') ?></label>
                         <select name="Order[status]" class="crm-input">
-                            <?php foreach ($statuses as $key => $label): ?>
+                            <?php foreach ($statuses as $key => $label) : ?>
                                 <option value="<?= Html::encode($key) ?>" <?= $model->status === $key ? 'selected' : '' ?>>
                                     <?= Html::encode($label) ?>
                                 </option>
@@ -438,12 +445,14 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
                         </select>
                     </div>
                     <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
-                        <?php foreach ([
+                        <?php foreach (
+                        [
                             'offer_accepted'  => 'Оферта принята',
                             'is_processed'    => 'Обработано',
                             'is_shipped'      => 'Отправлено',
                             'customs_cleared' => 'Таможня пройдена',
-                        ] as $field => $flagLabel): ?>
+                        ] as $field => $flagLabel
+) : ?>
                             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.75rem">
                                 <?= Html::activeCheckbox($model, $field, ['label' => false]) ?>
                                 <?= $flagLabel ?>
@@ -487,7 +496,7 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
             </div>
 
             <!-- Логист (admin only) -->
-            <?php if ($user->isAdmin() && !empty($logists)): ?>
+            <?php if ($user->isAdmin() && !empty($logists)) : ?>
             <div class="crm-card">
                 <div class="crm-card-head">
                     <h3><i class="bi bi-person-badge"></i> Логист</h3>
@@ -496,7 +505,7 @@ textarea.crm-input { resize: vertical; min-height: 60px; }
                     <div class="crm-field">
                         <select name="Order[assigned_logist]" class="crm-input">
                             <option value="">— не назначен —</option>
-                            <?php foreach ($logists as $logist): ?>
+                            <?php foreach ($logists as $logist) : ?>
                                 <option value="<?= $logist->id ?>" <?= $model->assigned_logist == $logist->id ? 'selected' : '' ?>>
                                     <?= Html::encode($logist->username) ?>
                                 </option>

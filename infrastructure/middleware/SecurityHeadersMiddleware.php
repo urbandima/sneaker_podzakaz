@@ -2,11 +2,11 @@
 
 /**
  * SecurityHeadersMiddleware — Middleware для добавления security headers
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Добавление заголовков безопасности для защиты от XSS, clickjacking,
  * MIME-sniffing и других атак.
- * 
+ *
  * HEADERS:
  * - X-Frame-Options: защита от clickjacking
  * - X-Content-Type-Options: защита от MIME-sniffing
@@ -14,6 +14,7 @@
  * - Referrer-Policy: контроль передачи referrer
  * - Content-Security-Policy: защита от XSS и injection атак
  */
+
 namespace app\infrastructure\middleware;
 
 use Yii;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Общий сайдбар личного кабинета.
  * Единственный источник истины — все account-страницы рендерят этот partial.
@@ -32,7 +33,7 @@ $menuItems = [
             <div class="user-name"><?= Html::encode($customer->fullName) ?></div>
             <div class="user-email"><?= Html::encode($customer->email) ?></div>
 
-            <?php if (!empty($orders)): ?>
+            <?php if (!empty($orders)) : ?>
             <div class="user-stats">
                 <div class="stat-item">
                     <div class="stat-value"><?= count($orders) ?></div>
@@ -47,7 +48,7 @@ $menuItems = [
         </div>
 
         <ul class="account-menu">
-            <?php foreach ($menuItems as $item): ?>
+            <?php foreach ($menuItems as $item) : ?>
             <li>
                 <a href="<?= Url::to([$item['route']]) ?>"<?= $activePage === $item['key'] ? ' class="active"' : '' ?>>
                     <i class="bi <?= $item['icon'] ?>"></i> <?= $item['label'] ?>

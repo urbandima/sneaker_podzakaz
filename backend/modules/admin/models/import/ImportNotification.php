@@ -7,7 +7,7 @@ use yii\db\ActiveRecord;
 
 /**
  * ImportNotification — Модель уведомления об импорте
- * 
+ *
  * @property int $id
  * @property int $task_id ID задачи
  * @property string $type Тип уведомления (success, error, warning)
@@ -15,15 +15,15 @@ use yii\db\ActiveRecord;
  * @property string $message Сообщение
  * @property bool $is_read Прочитано
  * @property string $created_at
- * 
+ *
  * @property ImportTask $task Задача
  */
 class ImportNotification extends ActiveRecord
 {
-    const TYPE_SUCCESS = 'success';
-    const TYPE_ERROR = 'error';
-    const TYPE_WARNING = 'warning';
-    const TYPE_INFO = 'info';
+    public const TYPE_SUCCESS = 'success';
+    public const TYPE_ERROR = 'error';
+    public const TYPE_WARNING = 'warning';
+    public const TYPE_INFO = 'info';
 
     /**
      * {@inheritdoc}
@@ -181,7 +181,7 @@ class ImportNotification extends ActiveRecord
      */
     public function getIcon()
     {
-        return match($this->type) {
+        return match ($this->type) {
             self::TYPE_SUCCESS => 'check-circle',
             self::TYPE_ERROR => 'exclamation-circle',
             self::TYPE_WARNING => 'exclamation-triangle',
@@ -196,7 +196,7 @@ class ImportNotification extends ActiveRecord
      */
     public function getCssClass()
     {
-        return match($this->type) {
+        return match ($this->type) {
             self::TYPE_SUCCESS => 'success',
             self::TYPE_ERROR => 'danger',
             self::TYPE_WARNING => 'warning',

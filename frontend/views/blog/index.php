@@ -15,7 +15,7 @@ $this->params['breadcrumbs'][] = 'Блог';
     <p style="color:#666;margin-bottom:32px;">Полезные статьи о выборе кроссовок, уходе за обувью и модных трендах.</p>
 
     <div class="blog-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;">
-        <?php foreach ($articles as $article): ?>
+        <?php foreach ($articles as $article) : ?>
         <article class="blog-card" style="border:1px solid #e5e5e5;border-radius:12px;overflow:hidden;transition:box-shadow .2s;" itemscope itemtype="https://schema.org/Article">
             <meta itemprop="datePublished" content="<?= Html::encode($article['datePublished']) ?>">
             <meta itemprop="dateModified"  content="<?= Html::encode($article['dateModified']) ?>">

@@ -35,14 +35,14 @@ $this->title = 'Управление редиректами';
             [
                 'attribute' => 'from_url',
                 'format' => 'raw',
-                'value' => function($model) {
+                'value' => function ($model) {
                     return Html::tag('code', Html::encode($model->from_url));
                 },
             ],
             [
                 'attribute' => 'to_url',
                 'format' => 'raw',
-                'value' => function($model) {
+                'value' => function ($model) {
                     return Html::tag('code', Html::encode($model->to_url));
                 },
             ],
@@ -62,7 +62,7 @@ $this->title = 'Управление редиректами';
             [
                 'class' => 'yii\grid\ActionColumn',
                 'template' => '{update} {delete}',
-                'urlCreator' => function($action, $model) {
+                'urlCreator' => function ($action, $model) {
                     if ($action === 'update') {
                         return Url::to(['redirect-edit', 'id' => $model->id]);
                     }

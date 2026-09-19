@@ -138,7 +138,7 @@ class MoyskladClient extends Component
         if (!empty($apiKey)) {
             $this->authHeader = 'Bearer ' . $apiKey;
         } else {
-            $login    = Yii::$app->settings->get('moysklad', 'login',    'admin@sneakerculture');
+            $login    = Yii::$app->settings->get('moysklad', 'login', 'admin@sneakerculture');
             $password = Yii::$app->settings->get('moysklad', 'password', 'NorTwe1534');
             $this->authHeader = 'Basic ' . base64_encode("{$login}:{$password}");
         }

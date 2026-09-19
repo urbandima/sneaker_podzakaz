@@ -27,13 +27,13 @@ AppAsset::register($this);
                 <div class="content-card">
                     <h2><i class="bi bi-box-seam"></i> Состав заказа</h2>
                     
-                    <?php if (!empty($order->orderItems)): ?>
+                    <?php if (!empty($order->orderItems)) : ?>
                         <div class="order-items">
-                            <?php foreach ($order->orderItems as $item): ?>
+                            <?php foreach ($order->orderItems as $item) : ?>
                                 <div class="order-item">
-                                    <?php if ($item->product && $item->product->image): ?>
+                                    <?php if ($item->product && $item->product->image) : ?>
                                         <img src="<?= Html::encode($item->product->image) ?>" alt="" class="item-image">
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <div class="item-image item-image--placeholder">
                                             <i class="bi bi-image placeholder-icon"></i>
                                         </div>
@@ -41,8 +41,12 @@ AppAsset::register($this);
                                     <div class="item-info">
                                         <div class="item-name"><?= Html::encode($item->product_name ?: 'Товар') ?></div>
                                         <div class="item-details">
-                                            <?php if ($item->size): ?>Размер: <?= Html::encode($item->size) ?><?php endif; ?>
-                                            <?php if ($item->color): ?> • Цвет: <?= Html::encode($item->color) ?><?php endif; ?>
+                                            <?php if ($item->size) :
+                                                ?>Размер: <?= Html::encode($item->size) ?><?php
+                                            endif; ?>
+                                            <?php if ($item->color) :
+                                                ?> • Цвет: <?= Html::encode($item->color) ?><?php
+                                            endif; ?>
                                         </div>
                                     </div>
                                     <div class="item-price">
@@ -52,24 +56,24 @@ AppAsset::register($this);
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                    <?php else: ?>
+                    <?php else : ?>
                         <p class="text-muted">Информация о товарах недоступна</p>
                     <?php endif; ?>
                     
                     <div class="order-summary">
-                        <?php if ($order->product_price): ?>
+                        <?php if ($order->product_price) : ?>
                             <div class="summary-row">
                                 <span>Товары</span>
                                 <span><?= Yii::$app->formatter->asCurrency($order->product_price, 'BYN') ?></span>
                             </div>
                         <?php endif; ?>
-                        <?php if ($order->logistics_price): ?>
+                        <?php if ($order->logistics_price) : ?>
                             <div class="summary-row">
                                 <span>Доставка</span>
                                 <span><?= Yii::$app->formatter->asCurrency($order->logistics_price, 'BYN') ?></span>
                             </div>
                         <?php endif; ?>
-                        <?php if ($order->commission_price): ?>
+                        <?php if ($order->commission_price) : ?>
                             <div class="summary-row">
                                 <span>Комиссия</span>
                                 <span><?= Yii::$app->formatter->asCurrency($order->commission_price, 'BYN') ?></span>
@@ -104,21 +108,21 @@ AppAsset::register($this);
                         </div>
                     </div>
                     
-                    <?php if ($order->delivery_address || $order->full_address): ?>
+                    <?php if ($order->delivery_address || $order->full_address) : ?>
                         <div class="info-item info-item-spacing-top">
                             <div class="info-label">Адрес доставки</div>
                             <div class="info-value"><?= Html::encode($order->full_address ?: $order->delivery_address) ?></div>
                         </div>
                     <?php endif; ?>
                     
-                    <?php if ($order->pickup_point): ?>
+                    <?php if ($order->pickup_point) : ?>
                         <div class="info-item info-item-spacing-top">
                             <div class="info-label">Пункт выдачи</div>
                             <div class="info-value"><i class="bi bi-geo-alt-fill" style="color:#ef4444"></i> <?= Html::encode($order->pickup_point) ?></div>
                         </div>
                     <?php endif; ?>
 
-                    <?php if ($order->local_track_number): ?>
+                    <?php if ($order->local_track_number) : ?>
                         <div class="track-number" style="margin-top:12px">
                             <i class="bi bi-truck"></i>
                             <div class="track-info">
@@ -126,7 +130,7 @@ AppAsset::register($this);
                                 <div class="track-value"><?= Html::encode($order->local_track_number) ?></div>
                             </div>
                         </div>
-                    <?php elseif ($order->china_track_number): ?>
+                    <?php elseif ($order->china_track_number) : ?>
                         <div class="track-number">
                             <i class="bi bi-truck"></i>
                             <div class="track-info">
@@ -139,8 +143,8 @@ AppAsset::register($this);
             </div>
 
             <div class="order-sidebar">
-                <?php if ($order->status === 'paid' && $order->hasMethod('isPassportComplete') && !$order->isPassportComplete()): ?>
-                <?= $this->render('_passport_form', ['order' => $order]) ?>
+                <?php if ($order->status === 'paid' && $order->hasMethod('isPassportComplete') && !$order->isPassportComplete()) : ?>
+                    <?= $this->render('_passport_form', ['order' => $order]) ?>
                 <?php endif; ?>
 
                 <div class="content-card">
@@ -162,11 +166,13 @@ AppAsset::register($this);
                         ];
                         $statusOrder = array_keys($statusFlow);
                         $currentIdx = array_search($order->status, $statusOrder);
-                        if ($currentIdx === false) $currentIdx = -1;
-                        foreach ($statusFlow as $key => $step):
+                        if ($currentIdx === false) {
+                            $currentIdx = -1;
+                        }
+                        foreach ($statusFlow as $key => $step) :
                             $idx = array_search($key, $statusOrder);
                             $state = ($currentIdx > $idx) ? 'completed' : (($currentIdx === $idx) ? 'active' : '');
-                        ?>
+                            ?>
                         <div class="timeline-item <?= $state ?>">
                             <div class="timeline-dot"></div>
                             <div class="timeline-content">
@@ -191,7 +197,7 @@ AppAsset::register($this);
                         <div class="info-value"><?= Yii::$app->formatter->asDatetime($order->created_at, 'medium') ?></div>
                     </div>
                     
-                    <?php if ($order->delivery_date): ?>
+                    <?php if ($order->delivery_date) : ?>
                         <div class="info-item">
                             <div class="info-label">Ожидаемая доставка</div>
                             <div class="info-value"><?= Html::encode($order->delivery_date) ?></div>

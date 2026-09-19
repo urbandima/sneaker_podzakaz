@@ -34,13 +34,13 @@ $pagination = $dataProvider->getPagination();
     <?= Html::a('<i class="bi bi-plus-lg"></i> Создать бренд', ['/admin/brand/create'], ['class' => 'btn btn-primary']) ?>
 </div>
 
-<?php if (Yii::$app->session->hasFlash('success')): ?>
+<?php if (Yii::$app->session->hasFlash('success')) : ?>
     <div class="alert alert-success alert-dismissible">
         <?= Html::encode(Yii::$app->session->getFlash('success')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
-<?php if (Yii::$app->session->hasFlash('error')): ?>
+<?php if (Yii::$app->session->hasFlash('error')) : ?>
     <div class="alert alert-danger alert-dismissible">
         <?= Html::encode(Yii::$app->session->getFlash('error')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -63,7 +63,7 @@ $pagination = $dataProvider->getPagination();
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($brands as $brand): ?>
+                <?php foreach ($brands as $brand) : ?>
                     <?php
                     $productCount = \app\backend\modules\catalog\models\Product::find()
                         ->where(['brand_id' => $brand->id])
@@ -73,13 +73,13 @@ $pagination = $dataProvider->getPagination();
                     <tr>
                         <td class="text-muted" style="font-size:.8rem"><?= $brand->id ?></td>
                         <td>
-                            <?php if ($logoSrc): ?>
+                            <?php if ($logoSrc) : ?>
                                 <img src="<?= Html::encode($logoSrc) ?>"
                                      class="brand-thumb"
                                      title="Нажмите для смены логотипа"
                                      onclick="openUpload(<?= $brand->id ?>, '<?= Html::encode($brand->name) ?>')"
                                      onerror="this.replaceWith(makeNoBadge(<?= $brand->id ?>, '<?= Html::encode($brand->name) ?>'))">
-                            <?php else: ?>
+                            <?php else : ?>
                                 <span class="badge-no-logo"
                                       onclick="openUpload(<?= $brand->id ?>, '<?= Html::encode($brand->name) ?>')">
                                     Без лого
@@ -88,16 +88,16 @@ $pagination = $dataProvider->getPagination();
                         </td>
                         <td>
                             <strong><?= Html::encode($brand->name) ?></strong>
-                            <?php if ($brand->description): ?>
+                            <?php if ($brand->description) : ?>
                                 <br><small class="text-muted"><?= Html::encode(mb_substr($brand->description, 0, 60)) ?>...</small>
                             <?php endif; ?>
                         </td>
                         <td><code style="font-size:.8rem"><?= Html::encode($brand->slug) ?></code></td>
                         <td class="text-center"><?= $brand->sort_order ?></td>
                         <td>
-                            <?php if ($brand->is_active): ?>
+                            <?php if ($brand->is_active) : ?>
                                 <span class="badge bg-success">Активен</span>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <span class="badge bg-secondary">Неактивен</span>
                             <?php endif; ?>
                         </td>
@@ -106,16 +106,19 @@ $pagination = $dataProvider->getPagination();
                         </td>
                         <td>
                             <div class="btn-group btn-group-sm">
-                                <?= Html::a('<i class="bi bi-pencil"></i>', ['/admin/brand/'.$brand->id.'/edit'], ['class' => 'btn btn-outline-primary', 'title' => 'Редактировать']) ?>
-                                <?= Html::a('<i class="bi bi-trash"></i>', ['/admin/brand/'.$brand->id.'/delete'],
+                                <?= Html::a('<i class="bi bi-pencil"></i>', ['/admin/brand/' . $brand->id . '/edit'], ['class' => 'btn btn-outline-primary', 'title' => 'Редактировать']) ?>
+                                <?= Html::a(
+                                    '<i class="bi bi-trash"></i>',
+                                    ['/admin/brand/' . $brand->id . '/delete'],
                                     ['class' => 'btn btn-outline-danger', 'title' => 'Удалить',
-                                     'data-confirm' => 'Удалить бренд «'.$brand->name.'»?',
-                                     'data-method' => 'post']) ?>
+                                     'data-confirm' => 'Удалить бренд «' . $brand->name . '»?',
+                                    'data-method' => 'post']
+                                ) ?>
                             </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>
-                <?php if (empty($brands)): ?>
+                <?php if (empty($brands)) : ?>
                     <tr><td colspan="8" class="text-center text-muted py-4">Бренды не найдены</td></tr>
                 <?php endif; ?>
             </tbody>
@@ -123,7 +126,7 @@ $pagination = $dataProvider->getPagination();
     </div>
 </div>
 
-<?php if ($pagination->pageCount > 1): ?>
+<?php if ($pagination->pageCount > 1) : ?>
 <div class="mt-3">
     <?= \yii\widgets\LinkPager::widget(['pagination' => $pagination]) ?>
 </div>

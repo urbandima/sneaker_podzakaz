@@ -49,9 +49,9 @@ $this->registerCssFile('@web/css/pages/settings.css');
                         <div class="info-item">
                             <div class="info-label">Статус</div>
                             <div class="info-value">
-                                <?php if ($customer->email_verified): ?>
+                                <?php if ($customer->email_verified) : ?>
                                     <span class="status-verified"><i class="bi bi-check-circle-fill"></i> Подтвержден</span>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <span class="status-unverified"><i class="bi bi-exclamation-circle"></i> Не подтвержден</span>
                                 <?php endif; ?>
                             </div>

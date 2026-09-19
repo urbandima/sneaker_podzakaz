@@ -22,9 +22,9 @@ class m260412_110000_create_delivery_provider extends Migration
             'updated_at'       => $this->integer()->null(),
         ]);
 
-        $this->createIndex('idx-delivery_provider-code',      '{{%delivery_provider}}', 'code',      true);
+        $this->createIndex('idx-delivery_provider-code', '{{%delivery_provider}}', 'code', true);
         $this->createIndex('idx-delivery_provider-is_active', '{{%delivery_provider}}', 'is_active');
-        $this->createIndex('idx-delivery_provider-type',      '{{%delivery_provider}}', 'type');
+        $this->createIndex('idx-delivery_provider-type', '{{%delivery_provider}}', 'type');
 
         $now = time();
 

@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\Receiving[] $receivings */
 /** @var yii\data\Pagination $pagination */
@@ -72,13 +73,13 @@ $this->title = 'Приёмки товаров';
 <form method="get" class="compact-filter-bar">
     <select name="status" class="compact-filter-select" style="min-width:140px">
         <option value="">Все статусы</option>
-        <?php foreach (Receiving::getStatuses() as $val => $lbl): ?>
+        <?php foreach (Receiving::getStatuses() as $val => $lbl) : ?>
             <option value="<?= $val ?>" <?= $status === $val ? 'selected' : '' ?>><?= htmlspecialchars($lbl) ?></option>
         <?php endforeach; ?>
     </select>
     <select name="supplier_id" class="compact-filter-select" style="min-width:160px">
         <option value="">Все поставщики</option>
-        <?php foreach ($suppliers as $s): ?>
+        <?php foreach ($suppliers as $s) : ?>
             <option value="<?= $s->id ?>" <?= $supplierId == $s->id ? 'selected' : '' ?>><?= htmlspecialchars($s->name) ?></option>
         <?php endforeach; ?>
     </select>
@@ -105,25 +106,25 @@ $this->title = 'Приёмки товаров';
         </tr>
     </thead>
     <tbody>
-    <?php if (!$receivings): ?>
+    <?php if (!$receivings) : ?>
         <tr><td colspan="8" style="text-align:center;padding:32px;color:#9ca3af">Нет приёмок</td></tr>
     <?php endif; ?>
-    <?php foreach ($receivings as $r): ?>
-    <?php
+    <?php foreach ($receivings as $r) : ?>
+        <?php
         $pct = $r->total_qty_expected > 0
             ? min(100, round($r->total_qty_arrived / $r->total_qty_expected * 100))
             : 0;
-    ?>
+        ?>
     <tr>
         <td>
             <a href="<?= Url::to(['/admin/receiving/view', 'id' => $r->id]) ?>" class="rcv-num"><?= Html::encode($r->number) ?></a>
         </td>
         <td class="rcv-supplier">
-            <?php if ($r->supplier_id && $r->supplier): ?>
+            <?php if ($r->supplier_id && $r->supplier) : ?>
                 <i class="bi bi-building"></i> <?= Html::encode($r->supplier->name) ?>
-            <?php elseif ($r->buyout_id): ?>
+            <?php elseif ($r->buyout_id) : ?>
                 <i class="bi bi-bag-check"></i> Выкуп #<?= $r->buyout_id ?>
-            <?php else: ?>
+            <?php else : ?>
                 <span style="color:#d1d5db">—</span>
             <?php endif; ?>
         </td>
@@ -152,7 +153,7 @@ $this->title = 'Приёмки товаров';
 </table>
 </div>
 
-<?php if ($pagination->pageCount > 1): ?>
+<?php if ($pagination->pageCount > 1) : ?>
 <div style="margin-top:16px;display:flex;justify-content:center">
     <?= LinkPager::widget(['pagination' => $pagination]) ?>
 </div>

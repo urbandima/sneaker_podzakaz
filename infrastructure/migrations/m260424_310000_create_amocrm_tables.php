@@ -18,10 +18,10 @@ class m260424_310000_create_amocrm_tables extends Migration
             'created_at' => $this->integer()->notNull(),
         ]);
         $this->createIndex('idx_amocrm_log_created', '{{%amocrm_log}}', 'created_at');
-        $this->createIndex('idx_amocrm_log_status',  '{{%amocrm_log}}', 'status');
+        $this->createIndex('idx_amocrm_log_status', '{{%amocrm_log}}', 'status');
 
         // Add AmoCRM lead ID + last sync timestamp to order table
-        $this->addColumn('{{%order}}', 'amocrm_lead_id',    $this->integer()->null()->after('amocrm_deal_id'));
+        $this->addColumn('{{%order}}', 'amocrm_lead_id', $this->integer()->null()->after('amocrm_deal_id'));
         $this->addColumn('{{%order}}', 'amocrm_last_sync_at', $this->integer()->null()->after('amocrm_lead_id'));
     }
 

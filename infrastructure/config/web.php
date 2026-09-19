@@ -98,7 +98,7 @@ $config = [
     'components' => [
         'request' => [
             // SECURITY: Cookie key MUST be set via .env - no hardcoded fallback in production
-            'cookieValidationKey' => env('COOKIE_VALIDATION_KEY') ?: ((defined('YII_ENV_DEV') && YII_ENV_DEV) ? 'dev-only-key-change-in-production' : (function() {
+            'cookieValidationKey' => env('COOKIE_VALIDATION_KEY') ?: ((defined('YII_ENV_DEV') && YII_ENV_DEV) ? 'dev-only-key-change-in-production' : (function () {
                 throw new \RuntimeException('COOKIE_VALIDATION_KEY must be set in .env for production!');
             })()),
             'baseUrl' => '',
@@ -283,7 +283,7 @@ $config = [
                 // Блог
                 'blog' => 'blog/index',
                 'blog/<slug:[a-z0-9-]+>' => 'blog/view',
-                
+
                 // Статические страницы (соответствие законодательству РБ)
                 'payment-terms' => 'page/payment-terms',
                 'delivery-terms' => 'page/delivery-terms',
@@ -309,7 +309,7 @@ $config = [
                 // brand/{slug} — обратная совместимость (старые URLs в Google Index)
                 'brand/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
                 'brands/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
-                
+
                 // Checkout — страница оформления (GET) и создание заказа (AJAX POST)
                 'checkout' => 'order/index',
                 'order/create' => 'order/create',
@@ -321,7 +321,7 @@ $config = [
                 'order/<token:[a-zA-Z0-9_-]+>/upload' => 'order/upload-payment',
                 'order/<token:[a-zA-Z0-9_-]+>/download-payment' => 'order/download-payment',
                 'order/<token:[a-zA-Z0-9_-]+>' => 'order/view',
-                
+
                 // Каталог товаров
                 'catalog' => 'catalog/catalog/index',
                 // SEO инструменты в админке
@@ -335,7 +335,7 @@ $config = [
                 'admin/seo/alt-texts' => 'admin/seo/alt-texts',
                 'admin/seo/update-product-meta' => 'admin/seo/update-product-meta',
                 'admin/seo/update-image-alt' => 'admin/seo/update-image-alt',
-                
+
                 // АЛИАСЫ: Совместимость со старыми URL
                 'admin/delivery' => 'admin/shipping/index',
                 'admin/delivery/<action:[a-z-]+>' => 'admin/shipping/<action>',
@@ -356,7 +356,7 @@ $config = [
                 'admin/campaign/<action:[a-z-]+>' => 'admin/marketing/<action>',
                 'admin/amocrm' => 'admin/plugin/amocrm',
                 'admin/settings/delivery' => 'admin/settings/shipping',
-                
+
                 // Webhook endpoints
                 'api/webhook/dobropost' => 'api/webhook/dobropost',
                 'api/webhook/amocrm' => 'api/webhook/amocrm',
@@ -381,15 +381,15 @@ $config = [
                 'catalog/product' => 'catalog/catalog/product', // Поддержка query параметра ?slug=
                 'catalog/favorites' => 'catalog/catalog/favorites',
                 'catalog/history' => 'catalog/catalog/history',
-                
+
                 // Страница брендов
                 'brands' => 'catalog/catalog/brands',
                 'brands/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
-                
+
                 // Страница скидок (+ алиас /sales для 301)
                 'sale' => 'page/sale',
                 'sales' => 'page/sale',
-                
+
                 // ИСПРАВЛЕНО: Явные API роуты для AJAX (Проблема #7)
                 'catalog/add-favorite' => 'favorite/add',
                 'catalog/remove-favorite' => 'favorite/remove',
@@ -420,7 +420,7 @@ $config = [
                 'compare/remove' => 'compare/compare/remove',
                 'compare/clear' => 'compare/compare/clear',
                 'compare/count' => 'compare/compare/count',
-                
+
                 // Личный кабинет покупателя
                 'account' => 'account/account/index',
                 'account/login' => 'account/account/login',
@@ -448,24 +448,24 @@ $config = [
                 // Публичный просмотр покупателя (для админки)
                 'customer/view' => 'admin/customer/view',
                 'customer/update' => 'admin/customer/update',
-                
+
                 // Feedback to director
                 'feedback' => 'feedback/index',
                 'feedback/submit' => 'feedback/submit',
 
                 // Sitemap
                 'sitemap.xml' => 'sitemap/index',
-                
+
                 // SEF фильтрация (умный фильтр) - ДОЛЖЕН быть после явных роутов
                 // actionFilterSef был удалён; SEF-урл переадресуется на обычный фильтр
                 'catalog/filter/<filters:[\w\-/]+>' => 'catalog/catalog/filter',
-                
+
                 // Админ-панель
                 'admin' => 'admin/dashboard/index',
                 'admin/login' => 'admin/admin/login',
                 'admin/logout' => 'admin/admin/logout',
                 'admin/dashboard' => 'admin/dashboard/index',
-                
+
                 // Orders
                 'admin/order' => 'admin/order/index',
                 'admin/order/create' => 'admin/order/create',
@@ -483,7 +483,7 @@ $config = [
                 'admin/order/<id:\d+>/send-to-dp' => 'admin/order/send-to-dp',
                 'admin/order/<id:\d+>/dp-status' => 'admin/order/dp-status',
                 'admin/order/<id:\d+>/retry-dp' => 'admin/order/retry-dp',
-                
+
                 // Categories
                 'admin/category'                         => 'admin/category/index',
                 'admin/category/create'                  => 'admin/category/create',
@@ -531,7 +531,7 @@ $config = [
                 'admin/user/create' => 'admin/user/create',
                 'admin/user/logists' => 'admin/user/logists',
                 'admin/user/<id:\d+>/delete' => 'admin/user/delete',
-                
+
                 // Size Grids
                 'admin/size-grid' => 'admin/size-grid/index',
                 'admin/size-grid/create' => 'admin/size-grid/create',
@@ -540,14 +540,14 @@ $config = [
                 'admin/size-grid/guide' => 'admin/size-grid/guide',
                 'admin/size-grid/<gridId:\d+>/add-item' => 'admin/size-grid/add-item',
                 'admin/size-grid/item/<id:\d+>/delete' => 'admin/size-grid/delete-item',
-                
+
                 // Poizon
                 'admin/poizon' => 'admin/poizon/index',
                 'admin/poizon/run' => 'admin/poizon/run',
                 'admin/poizon/<id:\d+>' => 'admin/poizon/view',
                 'admin/poizon/logs' => 'admin/poizon/view-log',
                 'admin/poizon/<id:\d+>/delete' => 'admin/poizon/delete',
-                
+
                 // Statistics & Settings
                 'admin/statistics' => 'admin/statistics/index',
                 'admin/settings' => 'admin/settings/index',
@@ -685,7 +685,7 @@ $config = [
                 'admin/settings/save-shipping' => 'admin/settings/save-shipping',
                 'admin/settings/statuses' => 'admin/settings/statuses',
                 'admin/settings/save-statuses' => 'admin/settings/save-statuses',
-                
+
                 // Tariffs (комиссии и тарифы)
                 'admin/tariff' => 'admin/tariff/index',
                 'admin/tariff/create' => 'admin/tariff/create',
@@ -693,7 +693,7 @@ $config = [
                 'admin/tariff/<id:\d+>/delete' => 'admin/tariff/delete',
                 'admin/tariff/<id:\d+>/toggle' => 'admin/tariff/toggle',
                 'admin/tariff/calculate' => 'admin/tariff/calculate',
-                
+
                 // Reviews (отзывы)
                 'admin/review' => 'admin/review/index',
                 'admin/review/<id:\d+>' => 'admin/review/view',
@@ -702,7 +702,7 @@ $config = [
                 'admin/review/<id:\d+>/respond' => 'admin/review/respond',
                 'admin/review/<id:\d+>/delete' => 'admin/review/delete',
                 'admin/review/<id:\d+>/toggle-featured' => 'admin/review/toggle-featured',
-                
+
                 // Analytics (аналитика)
                 'admin/analytics' => 'admin/analytics/index',
                 'admin/analytics/conversion' => 'admin/analytics/conversion',
@@ -713,16 +713,16 @@ $config = [
                 'admin/feedback' => 'admin/feedback/index',
                 'admin/feedback/reply' => 'admin/feedback/reply',
                 'admin/feedback/delete/<id:\d+>' => 'admin/feedback/delete',
-                
+
                 // Search
                 'admin/search' => 'admin/search/global',
                 'admin/search/orders' => 'admin/search/orders',
                 'admin/profile' => 'admin/dashboard/profile',
-                
+
                 // Characteristics
                 'admin/characteristic' => 'admin/characteristic/index',
                 'admin/characteristic/guide' => 'admin/characteristic/guide',
-                
+
                 // Customers (покупатели) — /admin/client is an alias
                 'admin/client' => 'admin/customer/index',
                 'admin/customer' => 'admin/customer/index',
@@ -738,7 +738,7 @@ $config = [
                 'admin/customer/add-tag' => 'admin/customer/add-tag',
                 'admin/customer/remove-tag' => 'admin/customer/remove-tag',
                 'admin/customer/add-note' => 'admin/customer/add-note',
-                
+
                 // Import
                 'admin/export' => 'admin/import/index',
                 'admin/import' => 'admin/import/index',
@@ -750,7 +750,7 @@ $config = [
                 'admin/import/logs' => 'admin/import/logs',
                 'admin/import/stats' => 'admin/import/stats',
                 'admin/import/settings' => 'admin/import/settings',
-                
+
                 // Общее правило для остальных admin действий
                 'admin/<controller:\w+>/<action:\w+>/<id:\d+>' => 'admin/<controller>/<action>',
                 'admin/<controller:\w+>/<action:\w+>' => 'admin/<controller>/<action>',

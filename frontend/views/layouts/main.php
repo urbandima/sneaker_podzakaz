@@ -14,13 +14,21 @@ AppAsset::register($this);
     $cId = $c->id;
     $aId = $c->action ? $c->action->id : null;
 
-    if (!$mId && $cId === 'site' && $aId === 'index')                             $css = 'landing';
-    elseif ($mId === 'catalog' && in_array($aId, ['product', 'product-simple']))   $css = 'product';
-    elseif ($mId === 'catalog')                                                    $css = 'catalog';
-    elseif (!$mId && $cId === 'cart')                                              $css = 'cart';
-    elseif (!$mId && $cId === 'order')                                             $css = 'checkout';
-    elseif ($mId === 'account' || (!$mId && $cId === 'account'))                   $css = 'account';
-    else return;
+    if (!$mId && $cId === 'site' && $aId === 'index') {
+        $css = 'landing';
+    } elseif ($mId === 'catalog' && in_array($aId, ['product', 'product-simple'])) {
+        $css = 'product';
+    } elseif ($mId === 'catalog') {
+        $css = 'catalog';
+    } elseif (!$mId && $cId === 'cart') {
+        $css = 'cart';
+    } elseif (!$mId && $cId === 'order') {
+        $css = 'checkout';
+    } elseif ($mId === 'account' || (!$mId && $cId === 'account')) {
+        $css = 'account';
+    } else {
+        return;
+    }
 
     $file    = Yii::getAlias('@webroot') . '/css/pages/' . $css . '.css';
     $v       = file_exists($file) ? filemtime($file) : '1';
@@ -54,8 +62,8 @@ if (!empty($this->params['description'])) {
     <?php $this->head() ?>
     
     <?php // JSON-LD Schema.org разметка ?>
-    <?php if (!empty($this->params['jsonLdSchemas'])): ?>
-        <?php foreach ($this->params['jsonLdSchemas'] as $schema): ?>
+    <?php if (!empty($this->params['jsonLdSchemas'])) : ?>
+        <?php foreach ($this->params['jsonLdSchemas'] as $schema) : ?>
             <script type="application/ld+json"><?= $schema ?></script>
         <?php endforeach; ?>
     <?php endif; ?>
@@ -67,12 +75,12 @@ if (!empty($this->params['description'])) {
     <?php // CMP-252: LCP image preload — ставим как можно выше в <head>.
     // product.php и _products.php передают URL первой картинки через params['lcpImageUrl'].
     // Браузер начинает скачивать её на этапе парсинга head, до встречи с <img>. ?>
-    <?php if (!empty($this->params['lcpImageUrl'])): ?>
+    <?php if (!empty($this->params['lcpImageUrl'])) : ?>
     <link rel="preload" as="image" href="<?= Html::encode($this->params['lcpImageUrl']) ?>" fetchpriority="high">
     <?php endif; ?>
 
     <?php // noscript fallback для deferred page CSS (users without JS получат стили) ?>
-    <?php if (!empty($this->params['deferredPageCss'])): ?>
+    <?php if (!empty($this->params['deferredPageCss'])) : ?>
     <noscript><link rel="stylesheet" href="<?= Html::encode($this->params['deferredPageCss']) ?>"></noscript>
     <?php endif; ?>
 
@@ -99,16 +107,16 @@ if (!empty($this->params['description'])) {
     // Replace META_PIXEL_ID_PLACEHOLDER with the real 13–16-digit Pixel ID to activate.
     $metaPixelValid = !empty($metaPixelId) && $metaPixelId !== 'META_PIXEL_ID_PLACEHOLDER' && $metaPixelId !== 'XXXXXXXXXXXXXXX' && ctype_digit($metaPixelId) && strlen($metaPixelId) >= 13 && strlen($metaPixelId) <= 16;
     ?>
-    <?php if ($ga4Valid): ?>
+    <?php if ($ga4Valid) : ?>
     <script async src="https://www.googletagmanager.com/gtag/js?id=<?= htmlspecialchars($ga4Id) ?>"></script>
     <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','<?= htmlspecialchars($ga4Id) ?>');</script>
     <?php endif; ?>
-    <?php if ($metrikaValid): ?>
+    <?php if ($metrikaValid) : ?>
     <script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");ym(<?= (int)$metrikaId ?>,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true});</script>
     <noscript><div><img src="https://mc.yandex.ru/watch/<?= (int)$metrikaId ?>" style="position:absolute;left:-9999px;" alt=""/></div></noscript>
     <?php endif; ?>
-    <?php if ($metaPixelValid): ?>
-    <?php // Meta Pixel — base PageView. Standard events fire from product / cart / checkout views. ?>
+    <?php if ($metaPixelValid) : ?>
+        <?php // Meta Pixel — base PageView. Standard events fire from product / cart / checkout views. ?>
     <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','<?= htmlspecialchars($metaPixelId) ?>');fbq('track','PageView');</script>
     <noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=<?= htmlspecialchars($metaPixelId) ?>&ev=PageView&noscript=1"/></noscript>
     <?php endif; ?>
@@ -117,7 +125,7 @@ if (!empty($this->params['description'])) {
 <?php $this->beginBody() ?>
 
 <!-- Admin toolbar (X20: visible only to authenticated admins) -->
-<?php if (!Yii::$app->user->isGuest && (Yii::$app->user->identity->isAdmin ?? false)): ?>
+<?php if (!Yii::$app->user->isGuest && (Yii::$app->user->identity->isAdmin ?? false)) : ?>
 <div class="admin-toolbar" style="background:#1e293b;color:#fff;padding:6px 16px;font-size:13px;display:flex;align-items:center;gap:12px;z-index:9999;position:relative">
     <span><i class="bi bi-shield-fill-check"></i> Режим администратора</span>
     <a href="/admin" style="color:#60a5fa;text-decoration:none">Панель управления</a>
@@ -129,10 +137,12 @@ if (!empty($this->params['description'])) {
         $slug = $m[1] ?? null;
         if ($slug) {
             $prod = \app\backend\modules\catalog\models\Product::find()->where(['slug' => $slug])->select(['id'])->scalar();
-            if ($prod) $editUrl = '/admin/catalog/product/update?id=' . $prod;
+            if ($prod) {
+                $editUrl = '/admin/catalog/product/update?id=' . $prod;
+            }
         }
     }
-    if ($editUrl): ?>
+    if ($editUrl) : ?>
         <a href="<?= $editUrl ?>" style="color:#86efac;text-decoration:none"><i class="bi bi-pencil-square"></i> Редактировать товар</a>
     <?php endif; ?>
 </div>
@@ -189,7 +199,7 @@ if (!empty($this->params['description'])) {
 
 <!-- Main Content -->
 <main id="main-content">
-    <?php if (Yii::$app->session->hasFlash('success')): ?>
+    <?php if (Yii::$app->session->hasFlash('success')) : ?>
         <?php $flashSuccess = Yii::$app->session->getFlash('success'); ?>
         <div class="container" style="padding-top:1rem">
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -198,7 +208,7 @@ if (!empty($this->params['description'])) {
             </div>
         </div>
     <?php endif; ?>
-    <?php if (Yii::$app->session->hasFlash('error')): ?>
+    <?php if (Yii::$app->session->hasFlash('error')) : ?>
         <?php $flashError = Yii::$app->session->getFlash('error'); ?>
         <div class="container" style="padding-top:1rem">
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -207,7 +217,7 @@ if (!empty($this->params['description'])) {
             </div>
         </div>
     <?php endif; ?>
-    <?php if (Yii::$app->session->hasFlash('warning')): ?>
+    <?php if (Yii::$app->session->hasFlash('warning')) : ?>
         <?php $flashWarning = Yii::$app->session->getFlash('warning'); ?>
         <div class="container" style="padding-top:1rem">
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -310,11 +320,11 @@ if (!empty($this->params['description'])) {
     </nav>
     <div class="mobile-menu-footer">
         <div class="mobile-menu-contacts">
-            <?php if (!empty($company['phone'])): ?>
+            <?php if (!empty($company['phone'])) : ?>
             <a href="tel:<?= preg_replace('/[^+\d]/', '', $company['phone']) ?>"><i class="bi bi-telephone"></i><?= Html::encode($company['phone']) ?></a>
             <?php endif; ?>
             <?php $tgUrl = Yii::$app->settings->get('social', 'telegram', ''); ?>
-            <?php if (!empty($tgUrl) && strlen($tgUrl) > 5 && $tgUrl !== '#'): ?>
+            <?php if (!empty($tgUrl) && strlen($tgUrl) > 5 && $tgUrl !== '#') : ?>
             <a href="<?= Html::encode($tgUrl) ?>" target="_blank" rel="noopener noreferrer"><i class="bi bi-telegram"></i>Telegram</a>
             <?php endif; ?>
         </div>

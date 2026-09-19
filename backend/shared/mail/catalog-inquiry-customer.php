@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Email шаблон: Подтверждение заявки клиенту
- * 
+ *
  * @var $inquiry app\backend\modules\catalog\models\CatalogInquiry
  * @var $product app\backend\modules\catalog\models\Product
  */
@@ -148,14 +149,14 @@ use yii\helpers\Html;
             <div class="product-title"><?= Html::encode($product->name) ?></div>
             
             <div class="product-details">
-                <?php if ($inquiry->size): ?>
+                <?php if ($inquiry->size) : ?>
                 <div class="detail-row">
                     <span class="detail-label">Размер:</span>
                     <span class="detail-value"><?= Html::encode($inquiry->size) ?></span>
                 </div>
                 <?php endif; ?>
                 
-                <?php if ($inquiry->color): ?>
+                <?php if ($inquiry->color) : ?>
                 <div class="detail-row">
                     <span class="detail-label">Цвет:</span>
                     <span class="detail-value"><?= Html::encode($inquiry->color) ?></span>

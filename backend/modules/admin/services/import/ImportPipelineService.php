@@ -4,18 +4,18 @@ namespace app\backend\modules\admin\services\import;
 
 /**
  * ImportPipelineService — сервис импорта с очередью
- * 
+ *
  * Рекомендация #24: Product Import Pipeline
- * 
+ *
  * Статусы: pending, processing, completed, failed
  */
 class ImportPipelineService
 {
-    const STATUS_PENDING = 'pending';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_FAILED = 'failed';
-    
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_PROCESSING = 'processing';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_FAILED = 'failed';
+
     /**
      * Создать задачу импорта
      */
@@ -29,10 +29,10 @@ class ImportPipelineService
         $task->created_at = time();
         $task->created_by = \Yii::$app->user->id ?? null;
         $task->save();
-        
+
         return $task->id;
     }
-    
+
     /**
      * Запустить обработку
      */
@@ -42,25 +42,25 @@ class ImportPipelineService
         if (!$task) {
             throw new \Exception("Task not found: {$taskId}");
         }
-        
+
         // Обновляем статус
         $task->status = self::STATUS_PROCESSING;
         $task->started_at = time();
         $task->save();
-        
+
         try {
             // Получаем парсер для источника
             $parser = $this->getParser($task->source);
-            
+
             // Парсим файл
             $data = $parser->parse($task->file_path);
-            
+
             // Валидируем
             $validated = $this->validate($data);
-            
+
             // Импортируем
             $result = $this->import($validated, $task->source);
-            
+
             // Успех
             $task->status = self::STATUS_COMPLETED;
             $task->completed_at = time();
@@ -70,15 +70,14 @@ class ImportPipelineService
                 'failed' => $result['failed'],
                 'errors' => $result['errors'] ?? [],
             ]);
-            
         } catch (\Exception $e) {
             $task->status = self::STATUS_FAILED;
             $task->error_message = $e->getMessage();
         }
-        
+
         $task->save();
     }
-    
+
     /**
      * Предпросмотр импорта (рекомендация #47)
      */
@@ -88,16 +87,16 @@ class ImportPipelineService
         if (!$task) {
             throw new \Exception("Task not found");
         }
-        
+
         $parser = $this->getParser($task->source);
         $data = $parser->parse($task->file_path);
-        
+
         // Показываем первые 10 товаров
         $preview = array_slice($data, 0, 10);
-        
+
         // Проверяем конфликты
         $conflicts = $this->checkConflicts($data);
-        
+
         return [
             'total' => count($data),
             'preview' => $preview,
@@ -106,7 +105,7 @@ class ImportPipelineService
             'will_update' => count(array_filter($data, fn($item) => $item['exists'])),
         ];
     }
-    
+
     /**
      * Получить парсер
      */
@@ -117,11 +116,11 @@ class ImportPipelineService
             'lamoda' => LamodaParser::class,
             'csv' => CsvParser::class,
         ];
-        
+
         $class = $parsers[$source->type] ?? CsvParser::class;
         return new $class();
     }
-    
+
     /**
      * Валидация данных
      */
@@ -137,7 +136,7 @@ class ImportPipelineService
         }
         return $validated;
     }
-    
+
     /**
      * Импорт данных
      */
@@ -146,7 +145,7 @@ class ImportPipelineService
         $success = 0;
         $failed = 0;
         $errors = [];
-        
+
         foreach ($data as $item) {
             try {
                 $this->importProduct($item, $source);
@@ -159,10 +158,10 @@ class ImportPipelineService
                 ];
             }
         }
-        
+
         return compact('success', 'failed', 'errors');
     }
-    
+
     /**
      * Импорт одного товара
      */
@@ -171,24 +170,24 @@ class ImportPipelineService
         $product = \app\backend\modules\catalog\models\Product::find()
             ->where(['sku' => $data['sku']])
             ->one();
-        
+
         if (!$product) {
             $product = new \app\backend\modules\catalog\models\Product();
             $product->sku = $data['sku'];
             $product->created_at = time();
         }
-        
+
         $product->name = $data['name'];
         $product->price = $data['price'];
         $product->brand_id = $this->resolveBrand($data['brand'] ?? null);
         $product->category_id = $this->resolveCategory($data['category'] ?? null);
         $product->updated_at = time();
-        
+
         if (!$product->save()) {
             throw new \Exception('Failed to save product: ' . implode(', ', $product->getErrorSummary(true)));
         }
     }
-    
+
     /**
      * Проверка конфликтов
      */
@@ -196,17 +195,17 @@ class ImportPipelineService
     {
         $conflicts = [];
         $skus = array_column($data, 'sku');
-        
+
         $existing = \app\backend\modules\catalog\models\Product::find()
             ->where(['sku' => $skus])
             ->indexBy('sku')
             ->all();
-        
+
         foreach ($data as $item) {
             if (isset($existing[$item['sku']])) {
                 $oldPrice = $existing[$item['sku']]->price;
                 $newPrice = $item['price'];
-                
+
                 if ($oldPrice != $newPrice) {
                     $conflicts[] = [
                         'sku' => $item['sku'],
@@ -217,20 +216,24 @@ class ImportPipelineService
                 }
             }
         }
-        
+
         return $conflicts;
     }
-    
+
     private function resolveBrand(?string $name): ?int
     {
-        if (!$name) return null;
+        if (!$name) {
+            return null;
+        }
         // Логика поиска/создания бренда
         return null;
     }
-    
+
     private function resolveCategory(?string $name): ?int
     {
-        if (!$name) return null;
+        if (!$name) {
+            return null;
+        }
         // Логика поиска/создания категории
         return null;
     }

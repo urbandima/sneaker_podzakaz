@@ -1,4 +1,5 @@
 <?php
+
 use yii\db\Migration;
 
 class m260426_200300_normalize_product_brand extends Migration

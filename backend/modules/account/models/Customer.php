@@ -2,11 +2,11 @@
 
 /**
  * Customer — Модель покупателя
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Зарегистрированные покупатели интернет-магазина: профиль,
  * авторизация, история заказов, адреса доставки.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - Авторизация: email, password_hash, auth_key
  * - Профиль: first_name, last_name, middle_name, phone, birth_date, gender
@@ -15,24 +15,25 @@
  * - Статистика: orders_count, total_spent, last_order_at
  * - Настройки: subscribe_news, subscribe_promo
  * - Статус: status (active/inactive/deleted)
- * 
+ *
  * СТАТУСЫ (поле is_active):
  * - STATUS_ACTIVE = 1 (активный)
  * - STATUS_INACTIVE = 0 (неактивный/удалённый)
- * 
+ *
  * СВЯЗИ:
  * - Order[] (заказы покупателя)
  * - ProductFavorite[] (избранные товары)
  * - CustomerSocialAccount[] (социальные аккаунты)
- * 
+ *
  * ИНТЕРФЕЙСЫ:
  * - IdentityInterface (для авторизации через сессию)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - AccountController (личный кабинет)
  * - CustomerController/admin (управление покупателями)
  * - OrderController (привязка к заказу)
  */
+
 namespace app\backend\modules\account\models;
 
 use Yii;
@@ -80,11 +81,11 @@ use app\backend\modules\admin\behaviors\LogBehavior;
  */
 class Customer extends ActiveRecord implements IdentityInterface
 {
-    const STATUS_INACTIVE = 0;
-    const STATUS_ACTIVE = 1;
-    const STATUS_ACTIVE_DB = 10;
-    const STATUS_INACTIVE_DB = 9;
-    const STATUS_DELETED = 0;
+    public const STATUS_INACTIVE = 0;
+    public const STATUS_ACTIVE = 1;
+    public const STATUS_ACTIVE_DB = 10;
+    public const STATUS_INACTIVE_DB = 9;
+    public const STATUS_DELETED = 0;
 
     public $password;
     public $password_confirm;
@@ -152,7 +153,7 @@ class Customer extends ActiveRecord implements IdentityInterface
     {
         $scenarios = parent::scenarios();
         $scenarios['register'] = ['email', 'phone', 'password', 'password_confirm', 'first_name', 'last_name', 'subscribe_news', 'subscribe_promo'];
-        $scenarios['profile'] = ['first_name', 'last_name', 'middle_name', 'phone', 'birth_date', 'gender', 
+        $scenarios['profile'] = ['first_name', 'last_name', 'middle_name', 'phone', 'birth_date', 'gender',
             'default_country', 'default_city', 'default_address', 'default_postal_code',
             'passport_series', 'passport_number', 'passport_issue_date', 'inn',
             'subscribe_news', 'subscribe_promo'];

@@ -46,7 +46,7 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
             <label class="page-size-control">
                 Показывать
                 <select id="pageSizeSelect" onchange="changeProductPageSize(this.value)">
-                    <?php foreach ($pageSizeOptions as $size): ?>
+                    <?php foreach ($pageSizeOptions as $size) : ?>
                         <option value="<?= $size ?>" <?= $pageSize === $size ? 'selected' : '' ?>><?= $size ?></option>
                     <?php endforeach; ?>
                 </select>
@@ -55,7 +55,7 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
             <button class="btn-action btn-secondary-action filter-toggle" id="filtersToggle" type="button" onclick="toggleProductFilters()">
                 <i class="bi bi-funnel"></i>
                 Фильтры
-                <?php if ($activeFilterCount): ?>
+                <?php if ($activeFilterCount) : ?>
                     <span class="filter-count"><?= $activeFilterCount ?></span>
                 <?php endif; ?>
             </button>
@@ -180,7 +180,7 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
             </div>
         </div>
 
-        <?php if (!empty($products)): ?>
+        <?php if (!empty($products)) : ?>
             <div class="table-scroll">
                 <table class="products-table">
                     <thead>
@@ -197,19 +197,19 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($products as $product): ?>
+                        <?php foreach ($products as $product) : ?>
                             <?php
                                 $imageUrl = $product->getMainImageUrl();
                                 $stockStatus = $product->stock_status;
                                 $stockClass = 'stock-in';
                                 $stockText = 'В наличии';
-                                if ($stockStatus === 'low_stock') {
-                                    $stockClass = 'stock-low';
-                                    $stockText = 'Мало';
-                                } elseif ($stockStatus === Product::STOCK_OUT_OF_STOCK) {
-                                    $stockClass = 'stock-out';
-                                    $stockText = 'Нет в наличии';
-                                }
+                            if ($stockStatus === 'low_stock') {
+                                $stockClass = 'stock-low';
+                                $stockText = 'Мало';
+                            } elseif ($stockStatus === Product::STOCK_OUT_OF_STOCK) {
+                                $stockClass = 'stock-out';
+                                $stockText = 'Нет в наличии';
+                            }
                                 $sourceClass = $product->poizon_id ? 'poizon' : 'manual';
                                 $sourceText = $product->poizon_id ? 'Poizon' : 'Ручной';
                             ?>
@@ -217,9 +217,9 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
                                 <td><input type="checkbox" class="product-checkbox" value="<?= $product->id ?>"></td>
                                 <td>
                                     <div class="product-info">
-                                        <?php if ($imageUrl): ?>
+                                        <?php if ($imageUrl) : ?>
                                             <img src="<?= $imageUrl ?>" alt="<?= Html::encode($product->name) ?>" class="product-image" loading="lazy">
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <div class="product-image" style="display:flex;align-items:center;justify-content:center;color:#9ca3af;">
                                                 <i class="bi bi-image"></i>
                                             </div>
@@ -273,7 +273,7 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
                     </tbody>
                 </table>
             </div>
-        <?php else: ?>
+        <?php else : ?>
             <div class="empty-state">
                 <p>Товары не найдены. Измените фильтры или добавьте новый товар.</p>
             </div>

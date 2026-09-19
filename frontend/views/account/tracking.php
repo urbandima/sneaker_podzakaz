@@ -19,7 +19,7 @@ $tracking = $order->deliveryTracking;
         <div class="tracking-number">
             <span>Трек-номер:</span>
             <strong><?= $tracking->tracking_number ?? 'Не присвоен' ?></strong>
-            <?php if ($tracking): ?>
+            <?php if ($tracking) : ?>
             <button class="btn-copy" onclick="copyToClipboard('<?= $tracking->tracking_number ?>')">
                 <i class="bi bi-clipboard"></i>
             </button>
@@ -27,7 +27,7 @@ $tracking = $order->deliveryTracking;
         </div>
     </div>
     
-    <?php if ($tracking): ?>
+    <?php if ($tracking) : ?>
     <!-- Tracking Progress -->
     <div class="tracking-progress">
         <?php
@@ -38,22 +38,22 @@ $tracking = $order->deliveryTracking;
             'out_for_delivery' => ['На доставке', 'bi bi-house', false],
             'delivered' => ['Доставлен', 'bi bi-check-circle', false],
         ];
-        
+
         $currentStatus = $tracking->status;
         $foundCurrent = false;
-        
-        foreach ($statuses as $status => $info):
+
+        foreach ($statuses as $status => $info) :
             $isCompleted = !$foundCurrent && $status !== $currentStatus;
             $isActive = $status === $currentStatus;
             $foundCurrent = $foundCurrent || $isActive;
-        ?>
+            ?>
         <div class="tracking-step <?= $isCompleted ? 'completed' : '' ?> <?= $isActive ? 'active' : '' ?>">
             <div class="step-icon">
                 <i class="<?= $info[1] ?>"></i>
             </div>
             <div class="step-info">
                 <span class="step-name"><?= $info[0] ?></span>
-                <?php if ($isActive): ?>
+                <?php if ($isActive) : ?>
                 <span class="step-date"><?= Yii::$app->formatter->asDate($tracking->last_check_at, 'dd.MM.yyyy HH:mm') ?></span>
                 <?php endif; ?>
             </div>
@@ -71,7 +71,7 @@ $tracking = $order->deliveryTracking;
             <div class="status-location"><?= $tracking->location ?></div>
             <div class="status-carrier">
                 Перевозчик: <?= $tracking->carrier ?>
-                <?php if ($trackingUrl = \app\backend\modules\checkout\services\TrackingService::getTrackingUrl($tracking->tracking_number, $tracking->carrier)): ?>
+                <?php if ($trackingUrl = \app\backend\modules\checkout\services\TrackingService::getTrackingUrl($tracking->tracking_number, $tracking->carrier)) : ?>
                 <a href="<?= $trackingUrl ?>" target="_blank" class="carrier-link">
                     Отследить на сайте <i class="bi bi-box-arrow-up-right"></i>
                 </a>
@@ -84,7 +84,7 @@ $tracking = $order->deliveryTracking;
     <div class="tracking-events">
         <h3>История перемещений</h3>
         <div class="events-timeline">
-            <?php foreach ($tracking->getEvents() as $event): ?>
+            <?php foreach ($tracking->getEvents() as $event) : ?>
             <div class="event-item">
                 <div class="event-marker"></div>
                 <div class="event-content">
@@ -92,7 +92,7 @@ $tracking = $order->deliveryTracking;
                         <span class="event-status"><?= Html::encode($event['description']) ?></span>
                         <span class="event-date"><?= Yii::$app->formatter->asDate($event['timestamp'], 'dd.MM.yyyy HH:mm') ?></span>
                     </div>
-                    <?php if (!empty($event['location'])): ?>
+                    <?php if (!empty($event['location'])) : ?>
                     <div class="event-location">
                         <i class="bi bi-geo-alt"></i>
                         <?= Html::encode($event['location']) ?>
@@ -105,7 +105,7 @@ $tracking = $order->deliveryTracking;
     </div>
     
     <!-- Estimated Delivery -->
-    <?php if ($tracking->estimated_delivery): ?>
+        <?php if ($tracking->estimated_delivery) : ?>
     <div class="estimated-delivery">
         <div class="delivery-icon">📅</div>
         <div class="delivery-info">
@@ -113,9 +113,9 @@ $tracking = $order->deliveryTracking;
             <div class="delivery-date"><?= Yii::$app->formatter->asDate($tracking->estimated_delivery, 'dd.MM.yyyy') ?></div>
         </div>
     </div>
-    <?php endif; ?>
+        <?php endif; ?>
     
-    <?php else: ?>
+    <?php else : ?>
     <!-- No Tracking -->
     <div class="no-tracking">
         <div class="no-tracking-icon"><i class="bi bi-box-seam"></i></div>
@@ -130,7 +130,7 @@ $tracking = $order->deliveryTracking;
         <a href="/account/orders" class="btn-back">
             <i class="bi bi-arrow-left"></i> К заказам
         </a>
-        <?php if ($tracking): ?>
+        <?php if ($tracking) : ?>
         <button class="btn-refresh" onclick="refreshTracking(<?= $order->id ?>)">
             <i class="bi bi-arrow-clockwise"></i> Обновить данные
         </button>

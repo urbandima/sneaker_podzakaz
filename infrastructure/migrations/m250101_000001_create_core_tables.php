@@ -28,8 +28,10 @@ class m250101_000001_create_core_tables extends Migration
 
         // Add FK from order to customer if not already added by m241228_213000
         $tableSchema = $this->db->schema->getTableSchema('{{%order}}', true);
-        if ($tableSchema && !isset($tableSchema->foreignKeys['fk_order_customer'])
-            && !isset($tableSchema->foreignKeys['fk-order-customer_id'])) {
+        if (
+            $tableSchema && !isset($tableSchema->foreignKeys['fk_order_customer'])
+            && !isset($tableSchema->foreignKeys['fk-order-customer_id'])
+        ) {
             $this->addForeignKey('fk_order_customer', '{{%order}}', 'customer_id', '{{%customer}}', 'id', 'SET NULL');
         }
     }

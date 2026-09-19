@@ -24,20 +24,20 @@ class DeliveryStatusMapping extends ActiveRecord
     // -------------------------------------------------------------------------
     // Internal status constants
     // -------------------------------------------------------------------------
-    const STATUS_WAITING             = 'waiting';
-    const STATUS_RECEIVED            = 'received';
-    const STATUS_PROCESSING          = 'processing';
-    const STATUS_IN_TRANSIT          = 'in_transit';
-    const STATUS_CUSTOMS             = 'customs';
-    const STATUS_CUSTOMS_DUTY        = 'customs_duty';
-    const STATUS_CUSTOMS_CLEARED     = 'customs_cleared';
-    const STATUS_CUSTOMS_REJECTED    = 'customs_rejected';
-    const STATUS_IN_DELIVERY         = 'in_delivery';
-    const STATUS_PREPARED_DELIVERY   = 'prepared_for_delivery';
-    const STATUS_EDIT_REQUEST        = 'edit_request';
-    const STATUS_EDIT_REJECTED       = 'edit_rejected';
-    const STATUS_EDIT_DONE           = 'edit_done';
-    const STATUS_LOST                = 'lost';
+    public const STATUS_WAITING             = 'waiting';
+    public const STATUS_RECEIVED            = 'received';
+    public const STATUS_PROCESSING          = 'processing';
+    public const STATUS_IN_TRANSIT          = 'in_transit';
+    public const STATUS_CUSTOMS             = 'customs';
+    public const STATUS_CUSTOMS_DUTY        = 'customs_duty';
+    public const STATUS_CUSTOMS_CLEARED     = 'customs_cleared';
+    public const STATUS_CUSTOMS_REJECTED    = 'customs_rejected';
+    public const STATUS_IN_DELIVERY         = 'in_delivery';
+    public const STATUS_PREPARED_DELIVERY   = 'prepared_for_delivery';
+    public const STATUS_EDIT_REQUEST        = 'edit_request';
+    public const STATUS_EDIT_REJECTED       = 'edit_rejected';
+    public const STATUS_EDIT_DONE           = 'edit_done';
+    public const STATUS_LOST                = 'lost';
 
     public static function tableName(): string
     {

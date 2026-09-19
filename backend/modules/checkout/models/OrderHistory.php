@@ -111,7 +111,9 @@ class OrderHistory extends ActiveRecord
 
     public function getNewStatusLabel(): string
     {
-        if (!$this->new_status) return '—';
+        if (!$this->new_status) {
+            return '—';
+        }
         $statuses = Yii::$app->settings->getStatuses();
         return $statuses[$this->new_status] ?? $this->new_status;
     }

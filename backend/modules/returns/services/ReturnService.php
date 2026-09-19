@@ -2,11 +2,11 @@
 
 /**
  * ReturnService — Сервис обработки возвратов
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Бизнес-логика обработки возвратов товаров: создание заявок,
  * обработка, возврат средств, обновление остатков.
- * 
+ *
  * ФУНКЦИИ:
  * - createReturn() - создание заявки на возврат
  * - processReturn() - обработка возврата
@@ -14,6 +14,7 @@
  * - updateInventory() - обновление остатков
  * - canReturn() - проверка возможности возврата
  */
+
 namespace app\backend\modules\returns\services;
 
 use Yii;
@@ -30,7 +31,7 @@ class ReturnService extends Component
 
     /**
      * Создать заявку на возврат
-     * 
+     *
      * @param int $orderId ID заказа
      * @param array $items Массив товаров для возврата
      * @param string $reason Причина возврата
@@ -41,32 +42,32 @@ class ReturnService extends Component
     public function createReturn(int $orderId, array $items, string $reason, ?string $comment = null, ?string $pickupAddress = null): ?ReturnRequest
     {
         $this->errorMessage = null;
-        
+
         $order = Order::findOne($orderId);
         if (!$order) {
             $this->errorMessage = 'Заказ не найден';
             return null;
         }
-        
+
         // Проверяем политику возврата
         $policy = ReturnPolicy::getDefault();
         if (!$policy) {
             $this->errorMessage = 'Политика возврата не настроена';
             return null;
         }
-        
+
         list($canReturn, $error) = $policy->canReturn($order);
         if (!$canReturn) {
             $this->errorMessage = $error;
             return null;
         }
-        
+
         // Валидация товаров
         if (empty($items)) {
             $this->errorMessage = 'Укажите товары для возврата';
             return null;
         }
-        
+
         // Проверяем, что все товары из заказа
         $orderItemIds = array_map(fn($item) => $item->id, $order->orderItems);
         foreach ($items as $item) {
@@ -75,7 +76,7 @@ class ReturnService extends Component
                 return null;
             }
         }
-        
+
         // Создаём заявку
         $request = new ReturnRequest();
         $request->order_id = $orderId;
@@ -84,7 +85,7 @@ class ReturnService extends Component
         $request->comment = $comment;
         $request->pickup_address = $pickupAddress ?? $order->delivery_address;
         $request->items_json = json_encode($items, JSON_UNESCAPED_UNICODE);
-        
+
         // Рассчитываем сумму возврата
         $totalRefund = 0;
         foreach ($items as $item) {
@@ -95,22 +96,22 @@ class ReturnService extends Component
                 $totalRefund += $orderItem->price * $quantity;
             }
         }
-        
+
         $request->refund_amount = $policy->calculateRefund($totalRefund);
         $request->refund_method = 'original'; // Возврат на исходный способ оплаты
-        
+
         if ($request->save()) {
             Yii::info("Создана заявка на возврат #{$request->id} для заказа #{$orderId}", 'return');
             return $request;
         }
-        
+
         $this->errorMessage = 'Ошибка при создании заявки: ' . json_encode($request->errors);
         return null;
     }
 
     /**
      * Обработать возврат (одобрить/отклонить)
-     * 
+     *
      * @param ReturnRequest $request
      * @param bool $approve Одобрить или отклонить
      * @param string|null $comment Комментарий админа
@@ -119,51 +120,51 @@ class ReturnService extends Component
     public function processReturn(ReturnRequest $request, bool $approve, ?string $comment = null): bool
     {
         $this->errorMessage = null;
-        
+
         if ($request->status !== ReturnRequest::STATUS_PENDING) {
             $this->errorMessage = 'Заявка уже обработана';
             return false;
         }
-        
+
         if ($approve) {
             if ($request->approve($comment)) {
                 Yii::info("Заявка на возврат #{$request->id} одобрена", 'return');
-                
+
                 // Отправляем email клиенту
                 $this->sendApprovalEmail($request);
-                
+
                 return true;
             }
         } else {
             if ($request->reject($comment ?? 'Возврат отклонён')) {
                 Yii::info("Заявка на возврат #{$request->id} отклонена", 'return');
-                
+
                 // Отправляем email клиенту
                 $this->sendRejectionEmail($request);
-                
+
                 return true;
             }
         }
-        
+
         $this->errorMessage = 'Ошибка при обработке заявки';
         return false;
     }
 
     /**
      * Завершить возврат с возвратом средств
-     * 
+     *
      * @param ReturnRequest $request
      * @return bool
      */
     public function completeReturn(ReturnRequest $request): bool
     {
         $this->errorMessage = null;
-        
+
         if ($request->status !== ReturnRequest::STATUS_APPROVED && $request->status !== ReturnRequest::STATUS_PROCESSING) {
             $this->errorMessage = 'Заявка должна быть одобрена';
             return false;
         }
-        
+
         $transaction = Yii::$app->db->beginTransaction();
 
         try {
@@ -190,7 +191,6 @@ class ReturnService extends Component
 
             Yii::info("Возврат #{$request->id} переведён в статус ожидания ручного возврата средств, ссылка: {$referenceId}", 'return');
             return true;
-
         } catch (\Exception $e) {
             $transaction->rollBack();
             $this->errorMessage = $e->getMessage();
@@ -219,7 +219,7 @@ class ReturnService extends Component
 
     /**
      * Обновление остатков товаров
-     * 
+     *
      * @param ReturnRequest $request
      * @return bool
      */
@@ -266,7 +266,7 @@ class ReturnService extends Component
 
     /**
      * Проверка возможности возврата
-     * 
+     *
      * @param Order $order
      * @return array [canReturn, errorMessage]
      */
@@ -276,7 +276,7 @@ class ReturnService extends Component
         if (!$policy) {
             return [false, 'Политика возврата не настроена'];
         }
-        
+
         return $policy->canReturn($order);
     }
 
@@ -339,7 +339,7 @@ class ReturnService extends Component
 
     /**
      * Получить сообщение об ошибке
-     * 
+     *
      * @return string|null
      */
     public function getErrorMessage(): ?string

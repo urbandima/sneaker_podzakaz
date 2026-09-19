@@ -2,11 +2,11 @@
 
 /**
  * Category — Модель категории товаров
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Иерархические категории товаров: обувь, одежда, аксессуары и т.д.
  * Поддержка вложенности (дерево категорий).
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - name: название категории
  * - slug: SEO-friendly URL
@@ -16,25 +16,26 @@
  * - sort_order: порядок сортировки
  * - is_active: активность
  * - meta_title, meta_description, meta_keywords: SEO
- * 
+ *
  * СВЯЗИ:
  * - Category (parent): родительская категория
  * - Category[] (children): дочерние категории
  * - Product[]: товары категории
- * 
+ *
  * МЕТОДЫ:
  * - getChildrenIds(): ID всех дочерних категорий (для фильтрации)
  * - findBySlug(): поиск по slug
- * 
+ *
  * ПОВЕДЕНИЯ:
  * - TimestampBehavior (created_at, updated_at)
  * - SluggableBehavior (генерация slug из name)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - CatalogController (страница категории /catalog/category/{slug})
  * - Фильтрация по категориям в каталоге
  * - Навигация (breadcrumbs, меню)
  */
+
 namespace app\backend\modules\catalog\models;
 
 use Yii;
@@ -60,7 +61,7 @@ use app\backend\shared\components\SitemapNotifier;
  * @property int $created_at
  * @property int $updated_at
  * @property string|null $color_code HEX цвет категории
- * 
+ *
  * @property Category $parent Родительская категория
  * @property Category[] $children Дочерние категории
  * @property Product[] $products
@@ -90,7 +91,9 @@ class Category extends ActiveRecord
         return [
             [
                 'class' => TimestampBehavior::class,
-                'value' => function() { return date('Y-m-d H:i:s'); },
+                'value' => function () {
+                    return date('Y-m-d H:i:s');
+                },
             ],
             [
                 'class' => SluggableBehavior::class,
@@ -232,12 +235,12 @@ class Category extends ActiveRecord
     {
         $breadcrumbs = [];
         $category = $this;
-        
+
         while ($category) {
             array_unshift($breadcrumbs, $category);
             $category = $category->parent;
         }
-        
+
         return $breadcrumbs;
     }
 
@@ -247,11 +250,11 @@ class Category extends ActiveRecord
     public function getChildrenIds()
     {
         $ids = [$this->id];
-        
+
         foreach ($this->children as $child) {
             $ids = array_merge($ids, $child->getChildrenIds());
         }
-        
+
         return $ids;
     }
 
@@ -285,7 +288,7 @@ class Category extends ActiveRecord
     public function getTotalProductsCount()
     {
         $categoryIds = $this->getChildrenIds();
-        
+
         return Product::find()
             ->where(['category_id' => $categoryIds, 'is_active' => true])
             ->count();

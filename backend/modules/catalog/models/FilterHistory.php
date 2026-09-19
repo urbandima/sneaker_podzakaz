@@ -2,28 +2,29 @@
 
 /**
  * FilterHistory — Модель истории фильтрации
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Сохранение истории применённых фильтров каталога
  * для аналитики популярности фильтров.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - user_id: ID пользователя (если авторизован)
  * - session_id: ID сессии (для гостей)
  * - filter_params: JSON с параметрами фильтров
  * - results_count: количество найденных товаров
- * 
+ *
  * СВЯЗИ:
  * - User (пользователь)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - AnalyticsController (аналитика фильтров)
  * - Рекомендации популярных фильтров
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Сохранение для аналитики
  * - Определение популярных фильтров
  */
+
 namespace app\backend\modules\catalog\models;
 
 use Yii;
@@ -40,7 +41,7 @@ use app\backend\modules\admin\models\User;
  * @property string $filter_params JSON строка с параметрами фильтров
  * @property int $results_count Количество результатов
  * @property string $created_at
- * 
+ *
  * @property User $user
  */
 class FilterHistory extends ActiveRecord
@@ -88,7 +89,7 @@ class FilterHistory extends ActiveRecord
         $history->session_id = $sessionId;
         $history->filter_params = json_encode($filterParams);
         $history->results_count = $resultsCount;
-        
+
         $saved = $history->save();
 
         if ($saved) {
@@ -106,13 +107,13 @@ class FilterHistory extends ActiveRecord
         $query = static::find()
             ->orderBy(['created_at' => SORT_DESC])
             ->limit($limit);
-            
+
         if ($userId) {
             $query->where(['user_id' => $userId]);
         } elseif ($sessionId) {
             $query->where(['session_id' => $sessionId]);
         }
-        
+
         return $query->all();
     }
 

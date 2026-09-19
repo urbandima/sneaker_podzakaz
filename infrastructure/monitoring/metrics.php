@@ -3,12 +3,13 @@
 /**
  * Конфигурация метрик Prometheus
  */
+
 return [
     'enabled' => env('METRICS_ENABLED', false),
-    
+
     // Префикс метрик
     'namespace' => 'sneakerhead',
-    
+
     // Метрики приложения
     'metrics' => [
         // HTTP метрики
@@ -23,7 +24,7 @@ return [
             'labels' => ['method', 'path'],
             'buckets' => [0.1, 0.25, 0.5, 1, 2.5, 5, 10],
         ],
-        
+
         // Бизнес метрики
         'orders_total' => [
             'type' => 'counter',
@@ -39,7 +40,7 @@ return [
             'help' => 'Total product views',
             'labels' => ['category'],
         ],
-        
+
         // Метрики производительности
         'database_query_duration_seconds' => [
             'type' => 'histogram',
@@ -52,7 +53,7 @@ return [
             'help' => 'Cache hit ratio',
         ],
     ],
-    
+
     // Интервал сбора метрик
     'collect_interval' => 60,
 ];

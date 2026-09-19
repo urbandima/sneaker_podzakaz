@@ -9,7 +9,7 @@ class CheckoutModule extends Module
 {
     public $controllerNamespace = 'app\backend\modules\checkout\controllers';
     public $layout = 'main';
-    
+
     public function init()
     {
         parent::init();

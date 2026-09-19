@@ -30,7 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <div class="account-content">
                 <h1><?= Html::encode($this->title) ?></h1>
                 
-                <?php if (empty($orders)): ?>
+                <?php if (empty($orders)) : ?>
                     <div class="empty-orders text-center py-5">
                         <div class="mb-4">
                             <i class="bi bi-box-seam" style="font-size: 4rem; color: #dee2e6;"></i>
@@ -39,9 +39,9 @@ $this->params['breadcrumbs'][] = $this->title;
                         <p class="text-muted">Сделайте первый заказ, чтобы увидеть его здесь</p>
                         <?= Html::a('Перейти в каталог', ['/catalog'], ['class' => 'btn btn-primary']) ?>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="orders-list">
-                        <?php foreach ($orders as $order): ?>
+                        <?php foreach ($orders as $order) : ?>
                             <div class="card mb-3">
                                 <div class="card-body">
                                     <div class="row align-items-center">
@@ -58,7 +58,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                                     • Сумма: <?= Yii::$app->formatter->asCurrency($order->total_amount) ?>
                                                 </small>
                                             </p>
-                                            <?php if ($order->delivery_address): ?>
+                                            <?php if ($order->delivery_address) : ?>
                                                 <p class="card-text">
                                                     <small><strong>Адрес доставки:</strong> <?= Html::encode($order->delivery_address) ?></small>
                                                 </p>
@@ -66,7 +66,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                         </div>
                                         <div class="col-md-4 text-end">
                                             <?= Html::a('Подробнее', ['account/order-view', 'id' => $order->id], ['class' => 'btn btn-outline-primary btn-sm']) ?>
-                                            <?php if ($order->canBePaid()): ?>
+                                            <?php if ($order->canBePaid()) : ?>
                                                 <?= Html::a('Оплатить', ['order/view', 'token' => $order->token], ['class' => 'btn btn-success btn-sm ms-2']) ?>
                                             <?php endif; ?>
                                         </div>
@@ -76,7 +76,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <?php endforeach; ?>
                     </div>
                     
-                    <?php if (isset($pagination)): ?>
+                    <?php if (isset($pagination)) : ?>
                         <div class="d-flex justify-content-center mt-4">
                             <?= LinkPager::widget([
                                 'pagination' => $pagination,

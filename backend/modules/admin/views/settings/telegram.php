@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Настройки Telegram-бота
  * @var yii\web\View $this

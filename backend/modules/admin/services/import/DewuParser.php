@@ -7,7 +7,7 @@ use Yii;
 
 /**
  * DewuParser — Парсер товаров с Dewu.com (Poizon)
- * 
+ *
  * Парсинг карточки товара, категорий, поиска
  * Китайский рынок, цены в CNY
  */
@@ -36,7 +36,7 @@ class DewuParser extends BaseParser
     public function parseProduct($url)
     {
         $html = $this->request($url);
-        
+
         if (!$html) {
             return null;
         }
@@ -44,7 +44,7 @@ class DewuParser extends BaseParser
         // Dewu использует JavaScript для рендеринга
         // Пробуем извлечь данные из JSON в странице
         $data = $this->extractJsonData($html);
-        
+
         if ($data) {
             return $data;
         }
@@ -64,7 +64,7 @@ class DewuParser extends BaseParser
         if (preg_match('/window\.__INITIAL_STATE__\s*=\s*({.*?});/s', $html, $matches)) {
             try {
                 $json = json_decode($matches[1], true);
-                
+
                 if ($json && isset($json['detail'])) {
                     return $this->parseJsonProduct($json['detail']);
                 }
@@ -99,7 +99,7 @@ class DewuParser extends BaseParser
 
         // Нормализуем изображения
         if (!empty($product['images'])) {
-            $product['images'] = array_map(function($img) {
+            $product['images'] = array_map(function ($img) {
                 if (strpos($img, 'http') !== 0) {
                     return 'https://img.dewu.com/' . ltrim($img, '/');
                 }
@@ -171,7 +171,7 @@ class DewuParser extends BaseParser
         $apiUrl .= '?page=' . $page;
 
         $response = $this->request($apiUrl);
-        
+
         if (!$response) {
             return [];
         }
@@ -180,7 +180,7 @@ class DewuParser extends BaseParser
 
         try {
             $data = json_decode($response, true);
-            
+
             if (isset($data['list']) && is_array($data['list'])) {
                 foreach ($data['list'] as $item) {
                     $products[] = [
@@ -204,9 +204,9 @@ class DewuParser extends BaseParser
     public function searchProducts($query, $limit = 50)
     {
         $apiUrl = 'https://www.dewu.com/api/search?keyword=' . urlencode($query) . '&size=' . $limit;
-        
+
         $response = $this->request($apiUrl);
-        
+
         if (!$response) {
             return [];
         }
@@ -215,7 +215,7 @@ class DewuParser extends BaseParser
 
         try {
             $data = json_decode($response, true);
-            
+
             if (isset($data['list']) && is_array($data['list'])) {
                 foreach ($data['list'] as $item) {
                     $products[] = [
@@ -244,7 +244,7 @@ class DewuParser extends BaseParser
 
         while ($page <= $maxPages) {
             $products = $this->parseCategory($categoryUrl, $page);
-            
+
             if (empty($products)) {
                 break;
             }
@@ -280,7 +280,7 @@ class DewuParser extends BaseParser
         // Нормализуем характеристики
         if (!empty($rawData['characteristics'])) {
             $chars = $rawData['characteristics'];
-            
+
             $normalized['material'] = $chars['材质'] ?? $chars['material'] ?? null;
             $normalized['season'] = $this->normalizeSeason($chars['季节'] ?? $chars['season'] ?? null);
             $normalized['gender'] = $this->normalizeGender($chars['性别'] ?? $chars['gender'] ?? null);
@@ -351,7 +351,7 @@ class DewuParser extends BaseParser
         if (preg_match('/product-(\d+)/', $url, $matches)) {
             return $matches[1];
         }
-        
+
         return null;
     }
 
@@ -369,7 +369,7 @@ class DewuParser extends BaseParser
         // Китайские размеры обуви примерно соответствуют EU
         // Китай 39 = EU 39, Китай 40 = EU 40 и т.д.
         // Для кроссовок обычно совпадают
-        
+
         return $chineseSize;
     }
 
@@ -380,7 +380,7 @@ class DewuParser extends BaseParser
     {
         // Удаляем все кроме цифр и точки
         $price = preg_replace('/[^0-9.]/', '', $text);
-        
+
         return (float) $price;
     }
 
@@ -399,11 +399,11 @@ class DewuParser extends BaseParser
         if (strpos($seasonLower, '夏') !== false || strpos($seasonLower, 'summer') !== false) {
             return 'summer';
         }
-        
+
         if (strpos($seasonLower, '冬') !== false || strpos($seasonLower, 'winter') !== false) {
             return 'winter';
         }
-        
+
         if (strpos($seasonLower, '春秋') !== false || strpos($seasonLower, 'spring') !== false || strpos($seasonLower, 'autumn') !== false) {
             return 'demi';
         }
@@ -426,7 +426,7 @@ class DewuParser extends BaseParser
         if (strpos($genderLower, '男') !== false || strpos($genderLower, 'male') !== false) {
             return 'male';
         }
-        
+
         if (strpos($genderLower, '女') !== false || strpos($genderLower, 'female') !== false) {
             return 'female';
         }

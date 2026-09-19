@@ -2,33 +2,34 @@
 
 /**
  * SizeGrid — Модель размерной сетки
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Размерные сетки для разных брендов и полов: мужские, женские,
  * унисекс, детские. Используется для отображения размеров товаров.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - brand_id: ID бренда (опционально)
  * - gender: пол (male, female, unisex, kids)
  * - name: название сетки
  * - description: описание
  * - is_active: активна ли сетка
- * 
+ *
  * ПОЛ:
  * - GENDER_MALE: мужские
  * - GENDER_FEMALE: женские
  * - GENDER_UNISEX: унисекс
  * - GENDER_KIDS: детские
- * 
+ *
  * СВЯЗИ:
  * - Brand (бренд)
  * - SizeGridItem[] (элементы сетки)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - SizeGridController (управление сетками)
  * - ProductController (выбор сетки для товара)
  * - Каталог (отображение размеров)
  */
+
 namespace app\backend\modules\catalog\models;
 
 use Yii;
@@ -46,16 +47,16 @@ use yii\helpers\Inflector;
  * @property int $is_active
  * @property string $created_at
  * @property string $updated_at
- * 
+ *
  * @property Brand $brand
  * @property SizeGridItem[] $items
  */
 class SizeGrid extends ActiveRecord
 {
-    const GENDER_MALE = 'male';
-    const GENDER_FEMALE = 'female';
-    const GENDER_UNISEX = 'unisex';
-    const GENDER_KIDS = 'kids';
+    public const GENDER_MALE = 'male';
+    public const GENDER_FEMALE = 'female';
+    public const GENDER_UNISEX = 'unisex';
+    public const GENDER_KIDS = 'kids';
 
     public static function tableName()
     {

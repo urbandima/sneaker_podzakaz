@@ -2,10 +2,10 @@
 
 /**
  * RateLimitUser - Компонент для rate limiting пользователей
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Ограничение частоты запросов для защиты от брутфорса и DoS атак
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - В контроллерах через behaviors()
  * - Для форм входа, регистрации, API
@@ -28,7 +28,7 @@ class RateLimitUser extends BaseUser
             // Для гостей: 5 попыток входа в минуту
             return [5, 60];
         }
-        
+
         // Для авторизованных: более мягкие лимиты
         return [20, 60];
     }
@@ -39,17 +39,17 @@ class RateLimitUser extends BaseUser
     public function loadAllowance($request, $action)
     {
         // Используем сессию или IP для хранения счетчиков
-        $key = $this->isGuest 
-            ? 'rate_limit_' . $request->getUserIP() 
+        $key = $this->isGuest
+            ? 'rate_limit_' . $request->getUserIP()
             : 'rate_limit_user_' . $this->id;
-            
+
         $cache = \Yii::$app->cache;
         $data = $cache->get($key);
-        
+
         if ($data === false) {
             return [$this->getRateLimit($request, $action)[1], time()];
         }
-        
+
         return [$data['allowance'], $data['timestamp']];
     }
 
@@ -58,10 +58,10 @@ class RateLimitUser extends BaseUser
      */
     public function saveAllowance($request, $action, $allowance, $timestamp)
     {
-        $key = $this->isGuest 
-            ? 'rate_limit_' . $request->getUserIP() 
+        $key = $this->isGuest
+            ? 'rate_limit_' . $request->getUserIP()
             : 'rate_limit_user_' . $this->id;
-            
+
         $cache = \Yii::$app->cache;
         $cache->set($key, [
             'allowance' => $allowance,

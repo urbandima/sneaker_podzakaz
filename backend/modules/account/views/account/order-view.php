@@ -72,9 +72,9 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="row">
                             <div class="col-md-6">
                                 <p><strong>Способ доставки:</strong> <?= Html::encode($order->delivery_method) ?></p>
-                                <?php if ($order->pickup_point): ?>
+                                <?php if ($order->pickup_point) : ?>
                                     <p><strong>Пункт выдачи:</strong> <i class="bi bi-geo-alt-fill text-danger"></i> <?= Html::encode($order->pickup_point) ?></p>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <p><strong>Адрес доставки:</strong> <?= Html::encode($order->delivery_address) ?></p>
                                 <?php endif; ?>
                             </div>
@@ -83,7 +83,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 <p><strong>Телефон:</strong> <?= Html::encode($order->client_phone ?? '') ?></p>
                             </div>
                         </div>
-                        <?php if ($order->local_track_number): ?>
+                        <?php if ($order->local_track_number) : ?>
                         <div class="mt-3 p-3" style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px">
                             <p class="mb-1"><strong><i class="bi bi-truck"></i> Трек-номер (доставка по РБ):</strong></p>
                             <code style="font-size:1rem"><?= Html::encode($order->local_track_number) ?></code>
@@ -109,7 +109,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($order->orderItems as $item): ?>
+                                    <?php foreach ($order->orderItems as $item) : ?>
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center">
@@ -118,7 +118,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                                          class="me-3" style="width: 50px; height: 50px; object-fit: cover;">
                                                     <div>
                                                         <strong><?= Html::encode($item->product->name) ?></strong>
-                                                        <?php if ($item->size): ?>
+                                                        <?php if ($item->size) : ?>
                                                             <br><small class="text-muted">Размер: <?= Html::encode($item->size) ?></small>
                                                         <?php endif; ?>
                                                     </div>
@@ -146,10 +146,10 @@ $this->params['breadcrumbs'][] = $this->title;
                     <div class="card-body">
                         <div class="d-flex gap-2">
                             <?= Html::a('← Вернуться к заказам', ['account/orders'], ['class' => 'btn btn-outline-secondary']) ?>
-                            <?php if ($order->canBePaid()): ?>
+                            <?php if ($order->canBePaid()) : ?>
                                 <?= Html::a('Оплатить заказ', ['order/view', 'token' => $order->token], ['class' => 'btn btn-success']) ?>
                             <?php endif; ?>
-                            <?php if ($order->canBeReturned()): ?>
+                            <?php if ($order->canBeReturned()) : ?>
                                 <?= Html::a('Оформить возврат', ['return/create', 'order_id' => $order->id], ['class' => 'btn btn-warning']) ?>
                             <?php endif; ?>
                         </div>

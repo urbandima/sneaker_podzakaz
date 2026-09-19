@@ -1,18 +1,20 @@
 <?php
+
 /**
  * AdminController — Контроллер входа в админ-панель
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Обработка входа в админ-панель, выход, управление сессией.
- * 
+ *
  * ФУНКЦИИ:
  * - actionLogin(): страница входа и обработка формы
  * - actionLogout(): выход из системы
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - /admin/login - вход в админ-панель
  * - /admin/logout - выход из админ-панели
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -26,13 +28,13 @@ class AdminController extends BaseAdminController
 {
     public $layout = 'admin'; // Admin layout
     public $viewPath = '@backend/modules/admin/views'; // Явно указываем путь к views
-    
+
     public function init()
     {
         parent::init();
         // AdminAsset регистрируется автоматически через BaseAdminController
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -44,7 +46,7 @@ class AdminController extends BaseAdminController
         }
         return parent::beforeAction($action);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -131,7 +133,7 @@ class AdminController extends BaseAdminController
     public function actionLogout()
     {
         Yii::$app->user->logout();
-        
+
         return $this->redirect(['/admin/login']);
     }
 }

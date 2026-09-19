@@ -187,7 +187,7 @@ class ActivityLogController extends BaseAdminController
         string $period,
         string $startDate,
         string $endDate,
-        int    $userId,
+        int $userId,
         string $targetType,
         string $action,
         string $source,

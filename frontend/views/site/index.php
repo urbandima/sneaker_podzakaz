@@ -1,4 +1,5 @@
 <?php
+
 /* @var $this yii\web\View */
 /* @var $popularProducts array */
 /* @var int $productCount */
@@ -86,19 +87,19 @@ $this->title = 'Оригинальные кроссовки в Беларуси 
 </style>
 
 <!-- Popular Products -->
-<?php if (!empty($popularProducts)): ?>
+<?php if (!empty($popularProducts)) : ?>
 <section class="popular-section">
     <div class="section-header">
         <h2 class="section-title">Популярные товары</h2>
         <a href="/catalog" class="btn btn-secondary">Смотреть все</a>
     </div>
     <div class="products-grid" style="max-width: var(--container-xl); margin: 0 auto; padding: 0 var(--spacing-4);">
-        <?php foreach ($popularProducts as $product): ?>
+        <?php foreach ($popularProducts as $product) : ?>
         <div class="product product-card modern-card">
             <div class="product-image-wrapper">
                 <a href="<?= $product->getUrl() ?>" class="product-link">
                     <div class="product-image-slider">
-                        <?php if ($product->main_image_url): ?>
+                        <?php if ($product->main_image_url) : ?>
                         <img
                             class="product-image is-active primary"
                             src="<?= Html::encode($product->main_image_url) ?>"
@@ -112,7 +113,7 @@ $this->title = 'Оригинальные кроссовки в Беларуси 
             <a href="<?= $product->getUrl() ?>" class="product-link">
                 <div class="info product-card-body">
                     <div class="product-card-header">
-                        <?php if ($product->brand_name): ?>
+                        <?php if ($product->brand_name) : ?>
                             <span class="product-card-brand"><?= Html::encode($product->brand_name) ?></span>
                         <?php endif; ?>
                     </div>
@@ -137,19 +138,19 @@ $this->title = 'Оригинальные кроссовки в Беларуси 
 <?php endif; ?>
 
 <!-- New Arrivals -->
-<?php if (!empty($newArrivals ?? [])): ?>
+<?php if (!empty($newArrivals ?? [])) : ?>
 <section class="new-arrivals-section">
     <div class="section-header">
         <h2 class="section-title">Новинки</h2>
         <a href="/catalog?sort=new" class="btn btn-secondary">Все новинки</a>
     </div>
     <div class="products-grid" style="max-width: var(--container-xl); margin: 0 auto; padding: 0 var(--spacing-4);">
-        <?php foreach (array_slice($newArrivals, 0, 8) as $product): ?>
+        <?php foreach (array_slice($newArrivals, 0, 8) as $product) : ?>
         <div class="product product-card modern-card">
             <div class="product-image-wrapper">
                 <a href="<?= $product->getUrl() ?>" class="product-link">
                     <div class="product-image-slider">
-                        <?php if ($product->main_image_url): ?>
+                        <?php if ($product->main_image_url) : ?>
                         <img class="product-image is-active primary"
                              src="<?= Html::encode($product->main_image_url) ?>"
                              alt="<?= Html::encode($product->name) ?>"
@@ -162,7 +163,7 @@ $this->title = 'Оригинальные кроссовки в Беларуси 
             <a href="<?= $product->getUrl() ?>" class="product-link">
                 <div class="info product-card-body">
                     <div class="product-card-header">
-                        <?php if ($product->brand_name): ?>
+                        <?php if ($product->brand_name) : ?>
                             <span class="product-card-brand"><?= Html::encode($product->brand_name) ?></span>
                         <?php endif; ?>
                     </div>
@@ -187,20 +188,20 @@ $this->title = 'Оригинальные кроссовки в Беларуси 
 <?php endif; ?>
 
 <!-- Top Brands -->
-<?php if (!empty($topBrands ?? [])): ?>
+<?php if (!empty($topBrands ?? [])) : ?>
 <section class="brands-section">
     <div class="section-header" style="max-width: var(--container-xl); margin: 0 auto; padding: 0 var(--spacing-4);">
         <h2 class="section-title">Популярные бренды</h2>
         <a href="/brands" class="btn btn-secondary">Все бренды</a>
     </div>
     <div class="brands-grid" style="max-width: var(--container-xl); margin: 0 auto; padding: 0 var(--spacing-4);">
-        <?php foreach (array_slice($topBrands, 0, 10) as $brand): ?>
+        <?php foreach (array_slice($topBrands, 0, 10) as $brand) : ?>
         <a href="/catalog/brand/<?= Html::encode($brand->slug ?? $brand->id) ?>" class="brand-card">
-            <?php if (!empty($brand->logo_url)): ?>
+            <?php if (!empty($brand->logo_url)) : ?>
                 <img src="<?= Html::encode($brand->logo_url) ?>" alt=""
                      loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                 <span class="brand-name-fallback" style="display:none"><?= Html::encode($brand->name) ?></span>
-            <?php else: ?>
+            <?php else : ?>
                 <span class="brand-name-fallback"><?= Html::encode($brand->name) ?></span>
             <?php endif; ?>
             <span class="brand-label"><?= Html::encode($brand->name) ?></span>

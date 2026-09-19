@@ -2,10 +2,10 @@
 
 /**
  * CompareController — Контроллер сравнения товаров
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Управление списком сравнения товаров: добавление, удаление, просмотр.
- * 
+ *
  * ФУНКЦИИ:
  * - index() - страница сравнения товаров
  * - add() - добавить товар в сравнение
@@ -13,6 +13,7 @@
  * - clear() - очистить список сравнения
  * - count() - получить количество товаров в сравнении
  */
+
 namespace app\backend\modules\compare\controllers;
 
 use Yii;
@@ -30,7 +31,7 @@ class CompareController extends Controller
     public function actionIndex()
     {
         $compareIds = Yii::$app->session->get('compare', []);
-        
+
         $products = [];
         if (!empty($compareIds)) {
             $products = Product::find()
@@ -38,7 +39,7 @@ class CompareController extends Controller
                 ->with(['brand', 'category', 'images', 'characteristicValues'])
                 ->all();
         }
-        
+
         return $this->render('index', [
             'products' => $products,
         ]);
@@ -50,16 +51,16 @@ class CompareController extends Controller
     public function actionAdd()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $productId = Yii::$app->request->post('product_id');
-        
+
         if (!$productId) {
             return [
                 'success' => false,
                 'message' => 'ID товара не указан',
             ];
         }
-        
+
         $product = Product::findOne($productId);
         if (!$product) {
             return [
@@ -67,16 +68,16 @@ class CompareController extends Controller
                 'message' => 'Товар не найден',
             ];
         }
-        
+
         $compare = Yii::$app->session->get('compare', []);
-        
+
         if (in_array($productId, $compare)) {
             return [
                 'success' => false,
                 'message' => 'Товар уже в сравнении',
             ];
         }
-        
+
         // Ограничение: максимум 4 товара для сравнения
         if (count($compare) >= 4) {
             return [
@@ -84,10 +85,10 @@ class CompareController extends Controller
                 'message' => 'Можно сравнивать не более 4 товаров',
             ];
         }
-        
+
         $compare[] = $productId;
         Yii::$app->session->set('compare', $compare);
-        
+
         return [
             'success' => true,
             'message' => 'Товар добавлен в сравнение',
@@ -101,13 +102,13 @@ class CompareController extends Controller
     public function actionRemove()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $productId = Yii::$app->request->post('product_id');
-        
+
         $compare = Yii::$app->session->get('compare', []);
         $compare = array_diff($compare, [$productId]);
         Yii::$app->session->set('compare', array_values($compare));
-        
+
         return [
             'success' => true,
             'message' => 'Товар удалён из сравнения',
@@ -121,9 +122,9 @@ class CompareController extends Controller
     public function actionClear()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         Yii::$app->session->remove('compare');
-        
+
         return [
             'success' => true,
             'message' => 'Список сравнения очищен',
@@ -137,9 +138,9 @@ class CompareController extends Controller
     public function actionCount()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $compare = Yii::$app->session->get('compare', []);
-        
+
         return [
             'success' => true,
             'count' => count($compare),

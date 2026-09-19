@@ -2,25 +2,26 @@
 
 /**
  * ProductSizeImage — Модель изображений вариантов размеров
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Изображения для разных размеров товаров (например, фото обуви
  * разных размеров с разным углом обзора).
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - product_size_id: ID размера товара
  * - image_url: URL изображения
  * - sort_order: порядок отображения
  * - is_main: главное изображение
- * 
+ *
  * СВЯЗИ:
  * - ProductSize (размер товара)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - ProductController (управление изображениями размеров)
  * - Каталог (отображение изображений разных размеров)
  * - Импорт из Poizon
  */
+
 namespace app\backend\modules\catalog\models;
 
 use Yii;
@@ -37,7 +38,7 @@ use yii\behaviors\TimestampBehavior;
  * @property int $is_main
  * @property string $created_at
  * @property string $updated_at
- * 
+ *
  * @property ProductSize $productSize
  */
 class ProductSizeImage extends ActiveRecord
@@ -58,7 +59,9 @@ class ProductSizeImage extends ActiveRecord
         return [
             [
                 'class' => TimestampBehavior::class,
-                'value' => function() { return date('Y-m-d H:i:s'); },
+                'value' => function () {
+                    return date('Y-m-d H:i:s');
+                },
             ],
         ];
     }
@@ -101,7 +104,7 @@ class ProductSizeImage extends ActiveRecord
     {
         return $this->hasOne(ProductSize::class, ['id' => 'product_size_id']);
     }
-    
+
     /**
      * Получить главное изображение варианта
      */
@@ -112,7 +115,7 @@ class ProductSizeImage extends ActiveRecord
             ->orderBy(['sort_order' => SORT_ASC])
             ->one();
     }
-    
+
     /**
      * Получить все изображения варианта
      */

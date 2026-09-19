@@ -2,11 +2,11 @@
 
 /**
  * DevToolsController — Инструменты разработчика
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Диагностика системы, проверка состояния БД, кэша, логов,
  * быстрое исправление проблем и сброс кэша.
- * 
+ *
  * ФУНКЦИИ:
  * - Главная страница диагностики (index)
  * - Проверка базы данных (check-database)
@@ -16,18 +16,19 @@
  * - Проверка маршрутов (check-routes)
  * - Проверка файлов (check-files)
  * - Диагностика производительности (performance)
- * 
+ *
  * СВЯЗИ:
  * - Прямая работа с Yii::$app->db, Yii::$app->cache
  * - FileHelper для работы с файлами
- * 
+ *
  * ДОСТУП:
  * - Только администраторы
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Инструменты для быстрой диагностики проблем
  * - Не используется в production регулярно
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -107,7 +108,6 @@ class DevToolsController extends BaseAdminController
             if (count($slowQueries) > 50) {
                 $issues[] = "Много активных запросов: " . count($slowQueries);
             }
-
         } catch (\Exception $e) {
             $issues[] = "Ошибка подключения к БД: " . $e->getMessage();
             $stats['connection'] = 'ERROR';
@@ -130,11 +130,11 @@ class DevToolsController extends BaseAdminController
 
         try {
             $cache = Yii::$app->cache;
-            
+
             // Тест записи/чтения
             $testKey = 'devtools_test_' . time();
             $testValue = 'test_value';
-            
+
             if ($cache->set($testKey, $testValue, 60)) {
                 $retrieved = $cache->get($testKey);
                 if ($retrieved === $testValue) {
@@ -152,14 +152,13 @@ class DevToolsController extends BaseAdminController
             if (is_dir($cacheDir)) {
                 $files = FileHelper::findFiles($cacheDir);
                 $stats['files_count'] = count($files);
-                
+
                 $totalSize = 0;
                 foreach ($files as $file) {
                     $totalSize += filesize($file);
                 }
                 $stats['total_size'] = Yii::$app->formatter->asShortSize($totalSize);
             }
-
         } catch (\Exception $e) {
             $issues[] = "Ошибка кэша: " . $e->getMessage();
         }
@@ -180,7 +179,7 @@ class DevToolsController extends BaseAdminController
         $stats = [];
 
         $logDir = Yii::getAlias('@runtime/logs');
-        
+
         if (!is_dir($logDir)) {
             $issues[] = "Директория логов не существует";
             return [
@@ -194,12 +193,12 @@ class DevToolsController extends BaseAdminController
         $appLog = $logDir . '/app.log';
         if (file_exists($appLog)) {
             $stats['app_log_size'] = Yii::$app->formatter->asShortSize(filesize($appLog));
-            
+
             // Читаем последние 100 строк
             $lines = $this->tail($appLog, 100);
             $errorCount = 0;
             $recentErrors = [];
-            
+
             foreach ($lines as $line) {
                 if (preg_match('/\[error\]|\[warning\]/i', $line)) {
                     $errorCount++;
@@ -208,10 +207,10 @@ class DevToolsController extends BaseAdminController
                     }
                 }
             }
-            
+
             $stats['recent_errors'] = $errorCount;
             $stats['error_samples'] = $recentErrors;
-            
+
             if ($errorCount > 10) {
                 $issues[] = "Обнаружено {$errorCount} ошибок в последних 100 строках лога";
             }
@@ -234,7 +233,7 @@ class DevToolsController extends BaseAdminController
 
         $urlManager = Yii::$app->urlManager;
         $rules = $urlManager->rules;
-        
+
         $stats['total_rules'] = count($rules);
 
         // Проверка критичных маршрутов
@@ -317,7 +316,7 @@ class DevToolsController extends BaseAdminController
         // Использование памяти
         $memoryUsage = memory_get_usage(true);
         $stats['memory_usage'] = Yii::$app->formatter->asShortSize($memoryUsage);
-        
+
         if ($memoryUsage > 128 * 1024 * 1024) { // 128 MB
             $issues[] = "Высокое использование памяти: " . $stats['memory_usage'];
         }
@@ -349,7 +348,7 @@ class DevToolsController extends BaseAdminController
 
         try {
             Yii::$app->cache->flush();
-            
+
             return [
                 'success' => true,
                 'message' => 'Кэш успешно очищен',
@@ -372,7 +371,7 @@ class DevToolsController extends BaseAdminController
         try {
             $logDir = Yii::getAlias('@runtime/logs');
             $files = FileHelper::findFiles($logDir, ['only' => ['*.log']]);
-            
+
             $cleared = 0;
             foreach ($files as $file) {
                 if (file_put_contents($file, '') !== false) {
@@ -422,7 +421,9 @@ class DevToolsController extends BaseAdminController
                 rewind($handle);
             }
             $text[$lines - $linecounter - 1] = fgets($handle);
-            if ($beginning) break;
+            if ($beginning) {
+                break;
+            }
         }
         fclose($handle);
 

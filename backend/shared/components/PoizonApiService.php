@@ -2,33 +2,34 @@
 
 /**
  * PoizonApiService — Сервис интеграции с Poizon (Dewu)
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Интеграция с API Poizon для импорта товаров: получение списка,
  * проверка наличия, актуальные цены, конвертация размеров.
- * 
+ *
  * ФУНКЦИИ:
  * - Получение списка товаров обуви
  * - Проверка наличия размеров
  * - Получение актуальных цен
  * - Конвертация размеров (US/EU/UK/CM)
  * - Импорт товаров в каталог
- * 
+ *
  * НАСТРОЙКИ:
  * - apiUrl: URL API Poizon
  * - apiKey: API ключ
  * - timeout: таймаут запросов
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - PoizonController/admin (импорт товаров)
  * - Консольные команды импорта
  * - Синхронизация цен и остатков
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Поддержка сторонних сервисов парсинга
  * - Retry механизм при ошибках
  * - Кэширование ответов API
  */
+
 namespace app\backend\shared\components;
 
 use Yii;
@@ -36,7 +37,7 @@ use yii\base\Component;
 
 /**
  * Сервис для работы с Poizon/Dewu API
- * 
+ *
  * Поддерживает:
  * - Получение списка товаров
  * - Проверка наличия размеров
@@ -49,12 +50,12 @@ class PoizonApiService extends Component
      * @var string URL API Poizon (можно использовать сторонние сервисы парсинга)
      */
     public $apiUrl = 'https://api.poizon-parser.com/v1'; // Примерный URL
-    
+
     /**
      * @var string API ключ
      */
     public $apiKey;
-    
+
     /**
      * @var int Таймаут запросов в секундах
      */
@@ -66,7 +67,7 @@ class PoizonApiService extends Component
     public function init()
     {
         parent::init();
-        
+
         // Получаем API ключ из конфига (если есть)
         if (!$this->apiKey && isset(Yii::$app->params['poizonApiKey'])) {
             $this->apiKey = Yii::$app->params['poizonApiKey'];
@@ -75,7 +76,7 @@ class PoizonApiService extends Component
 
     /**
      * Получить список товаров обуви по популярности
-     * 
+     *
      * @param array $params Параметры фильтрации
      * @return array
      */
@@ -88,20 +89,19 @@ class PoizonApiService extends Component
             'limit' => 100,            // Товаров за запрос
             'offset' => 0,
         ];
-        
+
         $params = array_merge($defaultParams, $params);
-        
+
         try {
             // ВНИМАНИЕ: Это примерная реализация
             // Реальный API Poizon закрыт, используйте сторонние сервисы или парсинг
-            
+
             // Вариант 1: Использование XML фида (если есть доступ)
             if (isset(Yii::$app->params['poizonXmlUrl'])) {
                 return $this->parseXmlFeed(Yii::$app->params['poizonXmlUrl']);
             }
-            
+
             return ['items' => [], 'error' => 'API импорт не настроен. Используйте XML фид или JSON файл'];
-            
         } catch (\Exception $e) {
             Yii::error('Poizon API exception: ' . $e->getMessage(), __METHOD__);
             return ['items' => [], 'error' => $e->getMessage()];
@@ -110,7 +110,7 @@ class PoizonApiService extends Component
 
     /**
      * Парсинг XML фида
-     * 
+     *
      * @param string $xmlUrl URL XML фида
      * @return array
      */
@@ -121,20 +121,19 @@ class PoizonApiService extends Component
             if (!$xml) {
                 throw new \Exception('Failed to load XML feed');
             }
-            
+
             libxml_use_internal_errors(true);
             $xmlObj = simplexml_load_string($xml);
             if (!$xmlObj) {
                 throw new \Exception('Failed to parse XML');
             }
-            
+
             $products = [];
             foreach ($xmlObj->shop->offers->offer as $offer) {
                 $products[] = $this->parseXmlOffer($offer);
             }
-            
+
             return ['items' => $products, 'total' => count($products)];
-            
         } catch (\Exception $e) {
             Yii::error('XML parsing error: ' . $e->getMessage(), __METHOD__);
             return ['items' => [], 'error' => $e->getMessage()];
@@ -152,13 +151,13 @@ class PoizonApiService extends Component
             foreach ($offer->param as $param) {
                 $name = (string) $param['name'];
                 $value = (string) $param;
-                
+
                 if (stripos($name, 'size') !== false || stripos($name, 'размер') !== false) {
                     $sizes[] = $value;
                 }
             }
         }
-        
+
         return [
             'poizon_id' => (string) $offer['id'],
             'name' => (string) $offer->name,
@@ -210,25 +209,25 @@ class PoizonApiService extends Component
     private function extractBrand($name)
     {
         $brands = [
-            'Nike', 'Adidas', 'New Balance', 'Puma', 'Reebok', 
+            'Nike', 'Adidas', 'New Balance', 'Puma', 'Reebok',
             'Converse', 'Vans', 'Asics', 'Jordan', 'Yeezy',
             'Under Armour', 'Saucony', 'Mizuno', 'Salomon',
             'Hoka', 'Brooks', 'On Running', 'Balenciaga',
             'Alexander McQueen', 'Common Projects', 'Rick Owens'
         ];
-        
+
         foreach ($brands as $brand) {
             if (stripos($name, $brand) !== false) {
                 return $brand;
             }
         }
-        
+
         return 'Unknown';
     }
 
     /**
      * Проверить наличие размера товара в реальном времени
-     * 
+     *
      * @param string $poizonSkuId SKU ID размера в Poizon
      * @return array ['available' => bool, 'stock' => int, 'price' => float]
      */
@@ -250,7 +249,7 @@ class PoizonApiService extends Component
 
     /**
      * Конвертировать размер между системами
-     * 
+     *
      * @param float $size Размер
      * @param string $from Из системы (us, eu, uk, cm)
      * @param string $to В систему (us, eu, uk, cm)
@@ -278,7 +277,7 @@ class PoizonApiService extends Component
             12.5 => [46.5, 11.5, 30.5],
             13 => [47, 12, 31],
         ];
-        
+
         // Таблица конвертации размеров (женские)
         $femaleConversion = [
             // US => [EU, UK, CM]
@@ -296,20 +295,20 @@ class PoizonApiService extends Component
             10.5 => [41, 8, 27.5],
             11 => [41.5, 8.5, 28],
         ];
-        
+
         $table = ($gender === 'female') ? $femaleConversion : $maleConversion;
-        
+
         // Конвертация
         $from = strtolower($from);
         $to = strtolower($to);
-        
+
         if ($from === $to) {
             return $size;
         }
-        
+
         // Индексы в массиве
         $indexes = ['us' => 0, 'eu' => 1, 'uk' => 2, 'cm' => 3];
-        
+
         // Если конвертируем из US
         if ($from === 'us' && isset($table[$size])) {
             $toIndex = $indexes[$to] ?? null;
@@ -317,7 +316,7 @@ class PoizonApiService extends Component
                 return $table[$size][$toIndex - 1];
             }
         }
-        
+
         // Для других конвертаций - сначала найти US размер
         if ($from !== 'us') {
             $fromIndex = $indexes[$from] ?? null;
@@ -336,14 +335,14 @@ class PoizonApiService extends Component
                 }
             }
         }
-        
+
         return null; // Не смогли конвертировать
     }
 
     /**
      * Рассчитать цену в BYN по формуле: CNY * курс * 1.5 + 40 BYN
      * ДЕЛЕГИРУЕТ в CurrencyService для единообразия калькуляции и красивого округления
-     * 
+     *
      * @param float $priceCny Цена в юанях
      * @return float Цена в BYN
      */
@@ -368,12 +367,11 @@ class PoizonApiService extends Component
                     'items_found' => count($result['items'] ?? []),
                 ];
             }
-            
+
             return [
                 'success' => false,
                 'message' => 'Poizon XML URL not configured in params',
             ];
-            
         } catch (\Exception $e) {
             return [
                 'success' => false,

@@ -1,7 +1,8 @@
 <?php
+
 /**
  * AJAX результаты поиска для живого поиска
- * 
+ *
  * @var array $products
  * @var string $query
  */
@@ -10,13 +11,13 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use app\backend\shared\helpers\PriceHelper;
 
-if (empty($products)): ?>
+if (empty($products)) : ?>
     <div class="search-results-empty">
         <p>Ничего не найдено по запросу "<?= Html::encode($query) ?>"</p>
     </div>
-<?php else: ?>
+<?php else : ?>
     <div class="search-results-list">
-        <?php foreach ($products as $product): ?>
+        <?php foreach ($products as $product) : ?>
             <a href="<?= $product->getUrl() ?>" class="search-result-item">
                 <div class="search-result-image">
                     <img src="<?= $product->getMainImageUrl() ?>" alt="<?= Html::encode($product->name) ?>" loading="lazy">

@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Редактирование тега
- * 
+ *
  * @var ProductTag $model
  */
 

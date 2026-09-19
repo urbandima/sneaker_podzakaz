@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Chat Analytics — all AmoCRM pipelines, full lead data (CMP-159)
  */
@@ -32,7 +33,7 @@ $customFieldDefs   = $customFieldDefs   ?? [];
     </a>
 </div>
 
-<?php if ($tokenStatus === 'error'): ?>
+<?php if ($tokenStatus === 'error') : ?>
 <div style="margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:0.5rem;background:#fef3c7;border:1px solid #f59e0b;color:#92400e;">
     <i class="bi bi-exclamation-triangle"></i>
     <strong>AmoCRM недоступен.</strong> Проверьте <code>AMOCRM_LONG_TOKEN</code> в .env. Данные не загружены.
@@ -63,7 +64,7 @@ $customFieldDefs   = $customFieldDefs   ?? [];
     </div>
 </div>
 
-<?php if (empty($pipelineMetrics) && $tokenStatus !== 'error'): ?>
+<?php if (empty($pipelineMetrics) && $tokenStatus !== 'error') : ?>
 <div class="admin-card" style="padding:2rem;text-align:center;color:var(--admin-text-secondary);">
     <i class="bi bi-chat-dots" style="font-size:2.5rem;opacity:0.3;"></i>
     <p style="margin-top:0.75rem;">Воронки в AmoCRM не найдены или пусты.</p>
@@ -71,7 +72,7 @@ $customFieldDefs   = $customFieldDefs   ?? [];
 <?php endif; ?>
 
 <!-- Per-pipeline breakdown -->
-<?php foreach ($pipelineMetrics as $pid => $pm): ?>
+<?php foreach ($pipelineMetrics as $pid => $pm) : ?>
 <div class="admin-card" style="margin-bottom:1.5rem;">
     <h2 class="admin-card-title">
         <i class="bi bi-funnel"></i>
@@ -105,7 +106,7 @@ $customFieldDefs   = $customFieldDefs   ?? [];
             <div style="font-size:1.1rem;font-weight:700;"><?= Html::encode($pm['avgResHuman']) ?></div>
             <div style="font-size:0.75rem;color:var(--admin-text-secondary);">Ср. закрытие</div>
         </div>
-        <?php if ($pm['price_sum'] > 0): ?>
+        <?php if ($pm['price_sum'] > 0) : ?>
         <div style="background:#f5f3ff;border-radius:0.5rem;padding:0.75rem;text-align:center;">
             <div style="font-size:1.1rem;font-weight:700;color:#7c3aed;"><?= PriceHelper::formatInt((float)$pm['price_sum']) ?></div>
             <div style="font-size:0.75rem;color:var(--admin-text-secondary);">Сумма (BYN)</div>
@@ -118,18 +119,18 @@ $customFieldDefs   = $customFieldDefs   ?? [];
     </div>
 
     <!-- Status distribution -->
-    <?php if (!empty($pm['statusCounts'])): ?>
+    <?php if (!empty($pm['statusCounts'])) : ?>
     <h3 style="font-size:0.85rem;font-weight:600;margin:0 0 0.6rem;color:var(--admin-text-secondary);">По статусам</h3>
     <div style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:1rem;">
         <?php
         $maxCount = max($pm['statusCounts']) ?: 1;
         $barColors = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#84cc16','#f97316'];
         $ci = 0;
-        foreach ($pm['statusCounts'] as $sname => $cnt):
+        foreach ($pm['statusCounts'] as $sname => $cnt) :
             $pct  = $pm['total'] > 0 ? round($cnt / $pm['total'] * 100, 1) : 0;
             $barW = round($cnt / $maxCount * 100);
             $color = $barColors[$ci++ % count($barColors)];
-        ?>
+            ?>
         <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.83rem;">
             <div style="width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--admin-text);" title="<?= Html::encode($sname) ?>"><?= Html::encode($sname) ?></div>
             <div style="flex:1;background:#f1f5f9;border-radius:4px;height:16px;">
@@ -142,10 +143,10 @@ $customFieldDefs   = $customFieldDefs   ?? [];
     <?php endif; ?>
 
     <!-- Per-pipeline tags -->
-    <?php if (!empty($pm['tagCounts'])): ?>
+    <?php if (!empty($pm['tagCounts'])) : ?>
     <h3 style="font-size:0.85rem;font-weight:600;margin:0 0 0.5rem;color:var(--admin-text-secondary);">Топ теги</h3>
     <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
-        <?php foreach ($pm['tagCounts'] as $tag => $cnt): ?>
+        <?php foreach ($pm['tagCounts'] as $tag => $cnt) : ?>
         <span style="background:#eff6ff;color:#1d4ed8;border-radius:9999px;padding:0.2rem 0.6rem;font-size:0.78rem;">
             <?= Html::encode($tag) ?> <strong>(<?= $cnt ?>)</strong>
         </span>
@@ -156,7 +157,7 @@ $customFieldDefs   = $customFieldDefs   ?? [];
 <?php endforeach; ?>
 
 <!-- Recent leads table -->
-<?php if (!empty($recentLeads)): ?>
+<?php if (!empty($recentLeads)) : ?>
 <div class="admin-card" style="margin-bottom:1.5rem;">
     <h2 class="admin-card-title"><i class="bi bi-list-ul"></i> Последние лиды (все воронки)</h2>
     <div style="overflow-x:auto;">
@@ -186,7 +187,7 @@ $customFieldDefs   = $customFieldDefs   ?? [];
         // Won status IDs (to color green)
         $wonStatusIds = [142];
 
-        foreach ($recentLeads as $i => $lead):
+        foreach ($recentLeads as $i => $lead) :
             $isWon  = in_array((int)($lead['status_id'] ?? 0), $wonStatusIds);
             $rowBg  = $i % 2 === 0 ? '#fff' : 'var(--admin-bg-secondary,#f8fafc)';
             $tags   = implode(', ', array_column($lead['_embedded']['tags'] ?? [], 'name'));
@@ -203,7 +204,7 @@ $customFieldDefs   = $customFieldDefs   ?? [];
                     $cfPairs[] = $cfName . ': ' . $cfVal;
                 }
             }
-        ?>
+            ?>
         <tr style="background:<?= $rowBg ?>;border-bottom:1px solid #f1f5f9;">
             <td style="padding:0.45rem 0.75rem;color:#94a3b8;">
                 <a href="https://<?= Html::encode(env('AMOCRM_API_DOMAIN') ?: env('AMOCRM_SUBDOMAIN', 'app') . '.amocrm.ru') ?>/leads/detail/<?= (int)$lead['id'] ?>"
@@ -212,7 +213,7 @@ $customFieldDefs   = $customFieldDefs   ?? [];
             <td style="padding:0.45rem 0.75rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
                 title="<?= Html::encode($lead['name'] ?? '') ?>">
                 <?= Html::encode(mb_substr($lead['name'] ?? '—', 0, 60)) ?>
-                <?php if (!empty($cfPairs)): ?>
+                <?php if (!empty($cfPairs)) : ?>
                 <br><small style="color:#94a3b8;font-size:0.73rem;"><?= Html::encode(mb_substr(implode(' · ', $cfPairs), 0, 80)) ?></small>
                 <?php endif; ?>
             </td>
@@ -248,16 +249,16 @@ $customFieldDefs   = $customFieldDefs   ?? [];
 <?php endif; ?>
 
 <!-- Global tags cloud -->
-<?php if (!empty($tagCounts)): ?>
+<?php if (!empty($tagCounts)) : ?>
 <div class="admin-card" style="margin-bottom:1.5rem;">
     <h2 class="admin-card-title"><i class="bi bi-tags"></i> Популярные теги (все воронки)</h2>
     <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
         <?php
         $maxTag = max($tagCounts) ?: 1;
-        foreach ($tagCounts as $tag => $cnt):
+        foreach ($tagCounts as $tag => $cnt) :
             $sz      = round(0.78 + ($cnt / $maxTag) * 0.72, 2);
             $opacity = round(0.55 + ($cnt / $maxTag) * 0.45, 2);
-        ?>
+            ?>
         <span style="background:#eff6ff;color:#1d4ed8;border-radius:9999px;padding:0.25rem 0.75rem;font-size:<?= $sz ?>rem;opacity:<?= $opacity ?>;">
             <?= Html::encode($tag) ?> <strong>(<?= $cnt ?>)</strong>
         </span>
@@ -282,12 +283,14 @@ $customFieldDefs   = $customFieldDefs   ?? [];
             'G' => '#84cc16', 'H' => '#ef4444', '?' => '#9ca3af',
         ];
         $totalCategorized = array_sum($categoryCounts) ?: 1;
-        foreach ($categoryCounts as $cat => $cnt):
-            if ($cnt === 0) continue;
+        foreach ($categoryCounts as $cat => $cnt) :
+            if ($cnt === 0) {
+                continue;
+            }
             $pct   = round($cnt / $totalCategorized * 100, 1);
             $color = $catColors[$cat] ?? '#9ca3af';
             $label = $categoryLabels[$cat] ?? $cat;
-        ?>
+            ?>
         <div style="background:var(--admin-bg-secondary,#f8fafc);border-radius:0.5rem;padding:0.75rem;border-left:3px solid <?= $color ?>;">
             <div style="font-size:0.75rem;font-weight:700;color:<?= $color ?>;margin-bottom:0.25rem;">
                 <?= $cat !== '?' ? "Категория $cat" : 'Не классиф.' ?>
@@ -315,7 +318,9 @@ try {
         FROM {{%ai_chat_log}}
         WHERE created_at >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))
     ")->queryOne();
-} catch (\Throwable $e) { /* table may not exist yet */ }
+} catch (\Throwable $e) {
+/* table may not exist yet */
+}
 $totalInteractions = (int)($aiStats['total_interactions'] ?? 0);
 ?>
 <div class="admin-card" style="margin-bottom:1.5rem;<?= $totalInteractions === 0 ? 'opacity:0.8;' : '' ?>">
@@ -325,7 +330,7 @@ $totalInteractions = (int)($aiStats['total_interactions'] ?? 0);
             За 30 дней · цели: ответ &lt;30с, эскалации &lt;35%, ИИ-обработка &gt;65%
         </span>
     </h2>
-    <?php if ($totalInteractions === 0): ?>
+    <?php if ($totalInteractions === 0) : ?>
     <div style="padding:1.25rem;text-align:center;color:var(--admin-text-secondary);">
         <i class="bi bi-info-circle" style="font-size:1.5rem;opacity:0.5;"></i>
         <p style="margin-top:0.5rem;font-size:0.9rem;">
@@ -339,7 +344,7 @@ $totalInteractions = (int)($aiStats['total_interactions'] ?? 0);
             <i class="bi bi-shield-check"></i> Проверить health-check
         </a>
     </div>
-    <?php else: ?>
+    <?php else : ?>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;">
         <?php
         $avgMs  = (int)($aiStats['avg_response_ms'] ?? 0);

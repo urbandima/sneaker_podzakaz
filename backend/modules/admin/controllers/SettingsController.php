@@ -38,7 +38,7 @@ class SettingsController extends BaseAdminController
     {
         return $this->redirect(['/admin/plugin/index']);
     }
-    
+
     /**
      * Сохранение настроек
      */
@@ -476,7 +476,9 @@ class SettingsController extends BaseAdminController
 
         $clean = [];
         foreach ($raw['methods'] as $m) {
-            if (empty($m['id']) || empty($m['name'])) continue;
+            if (empty($m['id']) || empty($m['name'])) {
+                continue;
+            }
             $clean[] = [
                 'id'          => preg_replace('/[^a-z0-9_]/', '', strtolower($m['id'])),
                 'name'        => mb_substr(strip_tags($m['name']), 0, 80),
@@ -488,7 +490,9 @@ class SettingsController extends BaseAdminController
         }
         // Re-number sort_order sequentially to avoid gaps
         usort($clean, fn($a, $b) => $a['sort_order'] <=> $b['sort_order']);
-        foreach ($clean as $i => &$item) { $item['sort_order'] = $i + 1; }
+        foreach ($clean as $i => &$item) {
+            $item['sort_order'] = $i + 1;
+        }
         unset($item);
 
         Yii::$app->settings->set('checkout', 'payment_methods', json_encode($clean, JSON_UNESCAPED_UNICODE));
@@ -612,7 +616,9 @@ class SettingsController extends BaseAdminController
 
         $clean = [];
         foreach ($raw['shipping']['methods'] as $m) {
-            if (empty($m['id']) || empty($m['name'])) continue;
+            if (empty($m['id']) || empty($m['name'])) {
+                continue;
+            }
             $plugin = preg_replace('/[^a-z0-9_]/', '', strtolower($m['plugin'] ?? ''));
             // Z74: if plugin is empty, force status to inactive
             $status = ($m['status'] ?? '') === 'active' ? 'active' : 'inactive';

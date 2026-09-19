@@ -19,7 +19,7 @@ $csrfToken = Yii::$app->request->csrfToken;
     </div>
     <div class="admin-card-body" style="padding:0">
         <div id="payment-methods-list">
-        <?php foreach ($methods as $i => $method): ?>
+        <?php foreach ($methods as $i => $method) : ?>
         <div class="payment-method-row" id="pm-row-<?= $i ?>" data-idx="<?= $i ?>">
             <div class="pm-drag"><i class="bi bi-grip-vertical"></i></div>
             <div class="pm-icon-preview">
@@ -39,7 +39,7 @@ $csrfToken = Yii::$app->request->csrfToken;
                            value="<?= Html::encode($method['id']) ?>"
                            placeholder="ID (латиница)" data-field="id" data-idx="<?= $i ?>">
                     <input type="number" class="admin-form-input pm-sort" style="width:70px"
-                           value="<?= (int)($method['sort_order'] ?? $i+1) ?>"
+                           value="<?= (int)($method['sort_order'] ?? $i + 1) ?>"
                            placeholder="Порядок" data-field="sort_order" data-idx="<?= $i ?>">
                 </div>
                 <div class="pm-field-row">

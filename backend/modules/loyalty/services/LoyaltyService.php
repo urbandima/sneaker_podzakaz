@@ -2,21 +2,22 @@
 
 /**
  * LoyaltyService — Сервис программы лояльности
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Управление программой лояльности: расчёт баллов, уровней, скидок.
- * 
+ *
  * ФУНКЦИИ:
  * - calculateEarnPoints() - расчёт начисляемых баллов
  * - calculateRedeemDiscount() - расчёт скидки при списании
  * - getCustomerLevel() - получение уровня клиента
  * - processOrderCompletion() - обработка завершения заказа
  * - redeemPoints() - списание баллов при оплате
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * $service = new LoyaltyService();
  * $points = $service->calculateEarnPoints($customerId, $orderAmount);
  */
+
 namespace app\backend\modules\loyalty\services;
 
 use Yii;
@@ -28,19 +29,19 @@ class LoyaltyService extends Component
 {
     /** @var int Баллы за 1 BYN */
     public $pointsPerByn = 10;
-    
+
     /** @var float Стоимость 1 балла в BYN */
     public $pointValue = 0.01;
-    
+
     /** @var int Минимум баллов для списания */
     public $minPointsToRedeem = 100;
-    
+
     /** @var int Максимум % заказа, который можно оплатить баллами */
     public $maxRedeemPercent = 50;
 
     /**
      * Рассчитать начисляемые баллы за заказ
-     * 
+     *
      * @param int $customerId ID клиента
      * @param float $orderAmount Сумма заказа
      * @return int
@@ -50,16 +51,16 @@ class LoyaltyService extends Component
         // Получаем уровень клиента
         $level = $this->getCustomerLevel($customerId);
         $multiplier = $level ? $level->points_multiplier : 1.0;
-        
+
         // Базовые баллы * множитель уровня
         $points = (int)($orderAmount * $this->pointsPerByn * $multiplier);
-        
+
         return $points;
     }
 
     /**
      * Рассчитать скидку при списании баллов
-     * 
+     *
      * @param int $points Количество баллов
      * @return float
      */
@@ -84,7 +85,7 @@ class LoyaltyService extends Component
 
     /**
      * Получить баланс клиента
-     * 
+     *
      * @param int $customerId
      * @return int
      */
@@ -95,7 +96,7 @@ class LoyaltyService extends Component
 
     /**
      * Обработать завершение заказа (начислить баллы)
-     * 
+     *
      * @param int $customerId ID клиента
      * @param float $orderAmount Сумма заказа
      * @param int $orderId ID заказа
@@ -104,7 +105,7 @@ class LoyaltyService extends Component
     public function processOrderCompletion(int $customerId, float $orderAmount, int $orderId): int
     {
         $points = $this->calculateEarnPoints($customerId, $orderAmount);
-        
+
         if ($points > 0) {
             $level = $this->getCustomerLevel($customerId);
             $multiplier = $level ? $level->points_multiplier : 1.0;
@@ -125,7 +126,7 @@ class LoyaltyService extends Component
 
     /**
      * Списать баллы при оплате заказа
-     * 
+     *
      * @param int $customerId ID клиента
      * @param int $points Количество баллов
      * @param int $orderId ID заказа
@@ -141,7 +142,7 @@ class LoyaltyService extends Component
                 'message' => "Минимум для списания: {$this->minPointsToRedeem} баллов",
             ];
         }
-        
+
         // Проверка баланса
         $balance = $this->getCustomerBalance($customerId);
         if ($balance < $points) {
@@ -151,10 +152,10 @@ class LoyaltyService extends Component
                 'message' => "Недостаточно баллов. Ваш баланс: {$balance}",
             ];
         }
-        
+
         // Рассчитываем скидку
         $discount = $this->calculateRedeemDiscount($points);
-        
+
         // Списываем баллы
         if (LoyaltyPoints::redeem($customerId, $points, $orderId)) {
             return [
@@ -163,7 +164,7 @@ class LoyaltyService extends Component
                 'message' => "Списано {$points} баллов. Скидка: {$discount} BYN",
             ];
         }
-        
+
         return [
             'success' => false,
             'discount' => 0,
@@ -173,7 +174,7 @@ class LoyaltyService extends Component
 
     /**
      * Получить максимальное количество баллов для списания
-     * 
+     *
      * @param int $customerId ID клиента
      * @param float $orderAmount Сумма заказа
      * @return int
@@ -182,13 +183,13 @@ class LoyaltyService extends Component
     {
         $balance = $this->getCustomerBalance($customerId);
         $maxByOrder = (int)(($orderAmount * $this->maxRedeemPercent / 100) / $this->pointValue);
-        
+
         return min($balance, $maxByOrder);
     }
 
     /**
      * Получить информацию о программе лояльности для клиента
-     * 
+     *
      * @param int $customerId
      * @return array
      */
@@ -197,7 +198,7 @@ class LoyaltyService extends Component
         $balance = $this->getCustomerBalance($customerId);
         $level = $this->getCustomerLevel($customerId);
         $nextLevel = $level ? $level->getNextLevel() : null;
-        
+
         return [
             'balance' => $balance,
             'level' => $level,
@@ -210,7 +211,7 @@ class LoyaltyService extends Component
 
     /**
      * Начислить бонус за регистрацию
-     * 
+     *
      * @param int $customerId
      * @return bool
      */
@@ -221,7 +222,7 @@ class LoyaltyService extends Component
 
     /**
      * Начислить бонус за отзыв
-     * 
+     *
      * @param int $customerId
      * @return bool
      */
@@ -232,7 +233,7 @@ class LoyaltyService extends Component
 
     /**
      * Начислить бонус за реферала
-     * 
+     *
      * @param int $referralId Кто пригласил
      * @param int $newCustomerId Новый клиент
      * @return bool
@@ -241,7 +242,7 @@ class LoyaltyService extends Component
     {
         // Начисляем пригласившему
         $result = LoyaltyPoints::earnForReferral($referralId, $newCustomerId, 200);
-        
+
         // Начисляем новому клиенту
         if ($result) {
             LoyaltyPoints::earn(
@@ -253,13 +254,13 @@ class LoyaltyService extends Component
                 90
             );
         }
-        
+
         return $result;
     }
 
     /**
      * Получить статистику программы лояльности
-     * 
+     *
      * @return array
      */
     public function getStatistics(): array

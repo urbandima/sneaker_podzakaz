@@ -23,7 +23,7 @@ class m251105_032500_create_product_characteristics_table extends Migration
         // Индексы
         $this->createIndex('idx_product_characteristic_product_id', '{{%product_characteristic}}', 'product_id');
         $this->createIndex('idx_product_characteristic_key', '{{%product_characteristic}}', 'characteristic_key');
-        
+
         // Внешний ключ
         $this->addForeignKey(
             'fk_product_characteristic_product',
@@ -33,15 +33,15 @@ class m251105_032500_create_product_characteristics_table extends Migration
             'id',
             'CASCADE'
         );
-        
+
         // Добавляем недостающие поля в product
         $this->addColumn('{{%product}}', 'vat', $this->string(50)->after('price')->comment('НДС'));
         $this->addColumn('{{%product}}', 'currency', $this->string(10)->defaultValue('BYN')->after('vat')->comment('Валюта'));
         $this->addColumn('{{%product}}', 'related_products', $this->text()->after('keywords')->comment('Похожие товары (JSON)'));
-        
+
         // Добавляем цвет в product_size
         $this->addColumn('{{%product_size}}', 'color', $this->string(100)->after('size')->comment('Цвет варианта'));
-        
+
         return true;
     }
 
@@ -49,13 +49,13 @@ class m251105_032500_create_product_characteristics_table extends Migration
     {
         $this->dropForeignKey('fk_product_characteristic_product', '{{%product_characteristic}}');
         $this->dropTable('{{%product_characteristic}}');
-        
+
         $this->dropColumn('{{%product}}', 'vat');
         $this->dropColumn('{{%product}}', 'currency');
         $this->dropColumn('{{%product}}', 'related_products');
-        
+
         $this->dropColumn('{{%product_size}}', 'color');
-        
+
         return true;
     }
 }

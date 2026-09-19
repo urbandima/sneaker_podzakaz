@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\backend\shared\helpers\PriceHelper;
@@ -96,9 +97,9 @@ $this->params['headerActions'] = [
             ->limit(20)
             ->all();
         ?>
-        <?php if (empty($orders)): ?>
+        <?php if (empty($orders)) : ?>
             <p style="color:var(--admin-text-secondary);font-size:13px">Заказов из AmoCRM пока нет.</p>
-        <?php else: ?>
+        <?php else : ?>
             <table class="admin-table" style="width:100%">
                 <thead>
                     <tr>
@@ -113,21 +114,21 @@ $this->params['headerActions'] = [
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($orders as $o): ?>
+                    <?php foreach ($orders as $o) : ?>
                         <tr>
                             <td><?= Html::encode($o->order_number) ?></td>
                             <td><?= Html::encode($o->client_name) ?></td>
                             <td><?= Html::encode($o->client_phone) ?></td>
                             <td><?= PriceHelper::format($o->total_amount) ?></td>
                             <td>
-                                <?php if ($o->ms_deal_link): ?>
+                                <?php if ($o->ms_deal_link) : ?>
                                     <a href="<?= Html::encode($o->ms_deal_link) ?>" target="_blank" rel="noopener"
                                        style="color:var(--admin-accent)">
                                         #<?= Html::encode($o->amocrm_deal_id) ?>
                                     </a>
-                                <?php elseif ($o->amocrm_deal_id): ?>
+                                <?php elseif ($o->amocrm_deal_id) : ?>
                                     #<?= Html::encode($o->amocrm_deal_id) ?>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <span style="color:var(--admin-text-secondary)">—</span>
                                 <?php endif; ?>
                             </td>

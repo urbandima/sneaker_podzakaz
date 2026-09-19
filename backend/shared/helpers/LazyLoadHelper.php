@@ -6,7 +6,7 @@ use yii\helpers\Html;
 
 /**
  * LazyLoadHelper - Хелпер для ленивой загрузки изображений
- * 
+ *
  * Улучшает производительность страницы за счет отложенной загрузки изображений
  */
 class LazyLoadHelper
@@ -14,16 +14,16 @@ class LazyLoadHelper
     /**
      * Placeholder для изображений (1x1 прозрачный пиксель)
      */
-    const PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-    
+    public const PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
     /**
      * SVG placeholder с градиентом
      */
-    const SVG_PLACEHOLDER = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"%3E%3Crect fill="%23f5f5f5" width="400" height="400"/%3E%3C/svg%3E';
+    public const SVG_PLACEHOLDER = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"%3E%3Crect fill="%23f5f5f5" width="400" height="400"/%3E%3C/svg%3E';
 
     /**
      * Создать img тег с ленивой загрузкой
-     * 
+     *
      * @param string $src URL изображения
      * @param array $options HTML атрибуты
      * @return string HTML img tag
@@ -32,10 +32,10 @@ class LazyLoadHelper
     {
         // Добавляем loading="lazy" для нативной ленивой загрузки
         $options['loading'] = $options['loading'] ?? 'lazy';
-        
+
         // Добавляем decoding="async" для асинхронного декодирования
         $options['decoding'] = $options['decoding'] ?? 'async';
-        
+
         // Если указан data-src, используем placeholder
         if (isset($options['data-src'])) {
             $options['src'] = self::SVG_PLACEHOLDER;
@@ -43,18 +43,18 @@ class LazyLoadHelper
         } else {
             $options['src'] = $src;
         }
-        
+
         // Alt текст обязателен для SEO
         if (!isset($options['alt'])) {
             $options['alt'] = '';
         }
-        
+
         return Html::tag('img', '', $options);
     }
 
     /**
      * Создать img тег с ленивой загрузкой и placeholder
-     * 
+     *
      * @param string $src URL изображения
      * @param string|null $alt Alt текст
      * @param array $options HTML атрибуты
@@ -68,13 +68,13 @@ class LazyLoadHelper
         $options['loading'] = 'lazy';
         $options['decoding'] = 'async';
         $options['class'] = trim(($options['class'] ?? '') . ' lazy-image');
-        
+
         return Html::tag('img', '', $options);
     }
 
     /**
      * Создать picture элемент с WebP и fallback
-     * 
+     *
      * @param string $src URL изображения (jpg/png)
      * @param string|null $webpSrc URL WebP версии (опционально)
      * @param string|null $alt Alt текст
@@ -84,7 +84,7 @@ class LazyLoadHelper
     public static function picture(string $src, ?string $webpSrc = null, ?string $alt = '', array $options = []): string
     {
         $sources = [];
-        
+
         // WebP source если есть
         if ($webpSrc) {
             $sources[] = Html::tag('source', '', [
@@ -101,22 +101,22 @@ class LazyLoadHelper
                 ]);
             }
         }
-        
+
         // Fallback img
         $imgOptions = array_merge($options, [
             'loading' => 'lazy',
             'decoding' => 'async',
             'alt' => $alt,
         ]);
-        
+
         $img = Html::img($src, $imgOptions);
-        
+
         return Html::tag('picture', implode("\n", $sources) . "\n" . $img);
     }
 
     /**
      * Создать srcset для responsive изображений
-     * 
+     *
      * @param string $baseSrc Базовый URL изображения
      * @param array $sizes Массив размеров [width => url]
      * @return string srcset строка
@@ -132,19 +132,19 @@ class LazyLoadHelper
                 1280 => self::getResizedUrl($baseSrc, 1280),
             ];
         }
-        
+
         $srcset = [];
         foreach ($sizes as $width => $url) {
             $srcset[] = "{$url} {$width}w";
         }
-        
+
         return implode(', ', $srcset);
     }
 
     /**
      * Получить URL для изменённого размера (placeholder)
      * В production используйте CDN с resize-on-the-fly
-     * 
+     *
      * @param string $src Оригинальный URL
      * @param int $width Желаемая ширина
      * @return string URL
@@ -153,14 +153,14 @@ class LazyLoadHelper
     {
         // Для production можно интегрировать с CDN:
         // return "https://cdn.example.com/resize/{$width}/{$src}";
-        
+
         // По умолчанию возвращаем оригинал
         return $src;
     }
 
     /**
      * Создать background lazy load div
-     * 
+     *
      * @param string $bgUrl URL фонового изображения
      * @param array $options HTML атрибуты
      * @return string HTML div tag
@@ -169,13 +169,13 @@ class LazyLoadHelper
     {
         $options['data-bg'] = $bgUrl;
         $options['class'] = trim(($options['class'] ?? '') . ' lazy-bg');
-        
+
         return Html::tag('div', $options['content'] ?? '', $options);
     }
 
     /**
      * Получить JavaScript для инициализации ленивой загрузки
-     * 
+     *
      * @return string JavaScript код
      */
     public static function getInitScript(): string

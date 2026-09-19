@@ -1,4 +1,5 @@
 <?php
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -36,7 +37,9 @@ class ProcurementController extends BaseAdminController
     public function actionSupplier(int $id)
     {
         $supplier = Supplier::findOne($id);
-        if (!$supplier) throw new NotFoundHttpException('Поставщик не найден.');
+        if (!$supplier) {
+            throw new NotFoundHttpException('Поставщик не найден.');
+        }
 
         $allBrands = Brand::find()->where(['is_active' => 1])->orderBy(['name' => SORT_ASC])->all();
 
@@ -53,26 +56,56 @@ class ProcurementController extends BaseAdminController
         $id   = (int)($data['id'] ?? 0);
 
         $supplier = $id ? Supplier::findOne($id) : new Supplier();
-        if (!$supplier) return ['success' => false, 'message' => 'Не найдено'];
+        if (!$supplier) {
+            return ['success' => false, 'message' => 'Не найдено'];
+        }
 
         // Only update fields that were explicitly sent
-        if (array_key_exists('name', $data))           $supplier->name           = $data['name'];
-        if (array_key_exists('contact_person', $data)) $supplier->contact_person = $data['contact_person'] ?: null;
-        if (array_key_exists('phone', $data))          $supplier->phone          = $data['phone'] ?: null;
-        if (array_key_exists('email', $data))          $supplier->email          = $data['email'] ?: null;
-        if (array_key_exists('address', $data))        $supplier->address        = $data['address'] ?: null;
-        if (array_key_exists('country', $data))        $supplier->country        = $data['country'] ?: null;
-        if (array_key_exists('region', $data))         $supplier->region         = $data['region'] ?: null;
-        if (array_key_exists('payment_terms', $data))  $supplier->payment_terms  = $data['payment_terms'] ?: null;
-        if (array_key_exists('notes', $data))          $supplier->notes          = $data['notes'] ?: null;
-        if (array_key_exists('brands', $data))         $supplier->brands         = $data['brands'] ?: null;
-        if (array_key_exists('contract_type', $data))  $supplier->contract_type  = $data['contract_type'] ?: null;
-        if (array_key_exists('contract_terms', $data)) $supplier->contract_terms = $data['contract_terms'] ?: null;
-        if (array_key_exists('is_active', $data))      $supplier->is_active      = (int)$data['is_active'];
+        if (array_key_exists('name', $data)) {
+            $supplier->name           = $data['name'];
+        }
+        if (array_key_exists('contact_person', $data)) {
+            $supplier->contact_person = $data['contact_person'] ?: null;
+        }
+        if (array_key_exists('phone', $data)) {
+            $supplier->phone          = $data['phone'] ?: null;
+        }
+        if (array_key_exists('email', $data)) {
+            $supplier->email          = $data['email'] ?: null;
+        }
+        if (array_key_exists('address', $data)) {
+            $supplier->address        = $data['address'] ?: null;
+        }
+        if (array_key_exists('country', $data)) {
+            $supplier->country        = $data['country'] ?: null;
+        }
+        if (array_key_exists('region', $data)) {
+            $supplier->region         = $data['region'] ?: null;
+        }
+        if (array_key_exists('payment_terms', $data)) {
+            $supplier->payment_terms  = $data['payment_terms'] ?: null;
+        }
+        if (array_key_exists('notes', $data)) {
+            $supplier->notes          = $data['notes'] ?: null;
+        }
+        if (array_key_exists('brands', $data)) {
+            $supplier->brands         = $data['brands'] ?: null;
+        }
+        if (array_key_exists('contract_type', $data)) {
+            $supplier->contract_type  = $data['contract_type'] ?: null;
+        }
+        if (array_key_exists('contract_terms', $data)) {
+            $supplier->contract_terms = $data['contract_terms'] ?: null;
+        }
+        if (array_key_exists('is_active', $data)) {
+            $supplier->is_active      = (int)$data['is_active'];
+        }
 
         // New supplier defaults
         if (!$id) {
-            if (empty($supplier->name)) return ['success' => false, 'errors' => ['name' => ['Обязательное поле']]];
+            if (empty($supplier->name)) {
+                return ['success' => false, 'errors' => ['name' => ['Обязательное поле']]];
+            }
             $supplier->is_active = $supplier->is_active ?? 1;
         }
 
@@ -88,7 +121,9 @@ class ProcurementController extends BaseAdminController
         $data = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
         $id   = (int)($data['id'] ?? 0);
         $s    = Supplier::findOne($id);
-        if (!$s) return ['success' => false, 'message' => 'Не найдено'];
+        if (!$s) {
+            return ['success' => false, 'message' => 'Не найдено'];
+        }
         $s->delete();
         return ['success' => true];
     }
@@ -98,14 +133,18 @@ class ProcurementController extends BaseAdminController
     public function actionIndex()
     {
         $filterStatus = Yii::$app->request->get('status', '');
-        $filterType   = Yii::$app->request->get('type',   '');
+        $filterType   = Yii::$app->request->get('type', '');
 
         $query = PurchaseOrder::find()
             ->with(['supplier', 'items'])
             ->orderBy(['created_at' => SORT_DESC]);
 
-        if ($filterStatus) $query->andWhere(['status' => $filterStatus]);
-        if ($filterType)   $query->andWhere(['order_type' => $filterType]);
+        if ($filterStatus) {
+            $query->andWhere(['status' => $filterStatus]);
+        }
+        if ($filterType) {
+            $query->andWhere(['order_type' => $filterType]);
+        }
 
         $orders    = $query->limit(200)->all();
         $suppliers = Supplier::find()->where(['is_active' => 1])->orderBy(['name' => SORT_ASC])->all();
@@ -146,7 +185,9 @@ class ProcurementController extends BaseAdminController
                 $byns  = $post['item_price_byn'] ?? [];
 
                 foreach ($names as $i => $name) {
-                    if (empty($name)) continue;
+                    if (empty($name)) {
+                        continue;
+                    }
                     $item = new PurchaseOrderItem();
                     $item->purchase_order_id = $po->id;
                     $item->product_name      = $name;
@@ -189,7 +230,9 @@ class ProcurementController extends BaseAdminController
         $id     = (int)($data['id'] ?? 0);
         $status = $data['status'] ?? '';
         $po     = PurchaseOrder::findOne($id);
-        if (!$po) return ['success' => false, 'message' => 'Не найдено'];
+        if (!$po) {
+            return ['success' => false, 'message' => 'Не найдено'];
+        }
 
         $po->status = $status;
         if ($status === PurchaseOrder::STATUS_RECEIVED) {
@@ -235,7 +278,9 @@ class ProcurementController extends BaseAdminController
         $items = $data['items'] ?? []; // [{id: N, received_qty: N}, ...]
 
         $po = PurchaseOrder::findOne($poId);
-        if (!$po) return ['success' => false, 'message' => 'Закупка не найдена'];
+        if (!$po) {
+            return ['success' => false, 'message' => 'Закупка не найдена'];
+        }
 
         foreach ($items as $entry) {
             $item = PurchaseOrderItem::findOne((int)$entry['id']);
@@ -265,7 +310,9 @@ class ProcurementController extends BaseAdminController
             ->with(['supplier', 'purchaseOrder', 'items'])
             ->orderBy(['created_at' => SORT_DESC]);
 
-        if ($filterStatus) $query->andWhere(['status' => $filterStatus]);
+        if ($filterStatus) {
+            $query->andWhere(['status' => $filterStatus]);
+        }
 
         $returns = $query->limit(200)->all();
 
@@ -297,11 +344,13 @@ class ProcurementController extends BaseAdminController
                 $sizes  = $post['item_size']      ?? [];
                 $qtys   = $post['item_qty']        ?? [];
                 $prices = $post['item_price_byn']  ?? [];
-                $reasons= $post['item_reason']     ?? [];
+                $reasons = $post['item_reason']     ?? [];
                 $poiIds = $post['item_poi_id']     ?? [];
 
                 foreach ($names as $i => $name) {
-                    if (empty($name)) continue;
+                    if (empty($name)) {
+                        continue;
+                    }
                     $item = new SupplierReturnItem();
                     $item->supplier_return_id     = $sr->id;
                     $item->product_name           = $name;
@@ -346,15 +395,19 @@ class ProcurementController extends BaseAdminController
         $id     = (int)($data['id'] ?? 0);
         $status = $data['status'] ?? '';
         $sr     = SupplierReturn::findOne($id);
-        if (!$sr) return ['success' => false, 'message' => 'Не найдено'];
+        if (!$sr) {
+            return ['success' => false, 'message' => 'Не найдено'];
+        }
 
         $oldStatus  = $sr->status;
         $sr->status = $status;
         $sr->save(false);
 
         // When refunded: create negative expense (income from refund)
-        if ($status === SupplierReturn::STATUS_REFUNDED && $oldStatus !== SupplierReturn::STATUS_REFUNDED
-            && $sr->total_amount > 0) {
+        if (
+            $status === SupplierReturn::STATUS_REFUNDED && $oldStatus !== SupplierReturn::STATUS_REFUNDED
+            && $sr->total_amount > 0
+        ) {
             $expense = new Expense();
             $expense->category    = Expense::CAT_OTHER;
             $expense->amount      = -$sr->total_amount;
@@ -373,14 +426,18 @@ class ProcurementController extends BaseAdminController
     private function findReturn(int $id): SupplierReturn
     {
         $sr = SupplierReturn::find()->with(['supplier', 'purchaseOrder', 'items'])->where(['id' => $id])->one();
-        if (!$sr) throw new NotFoundHttpException('Возврат не найден.');
+        if (!$sr) {
+            throw new NotFoundHttpException('Возврат не найден.');
+        }
         return $sr;
     }
 
     private function findPo(int $id): PurchaseOrder
     {
         $po = PurchaseOrder::find()->with(['supplier', 'items'])->where(['id' => $id])->one();
-        if (!$po) throw new NotFoundHttpException('Закупка не найдена.');
+        if (!$po) {
+            throw new NotFoundHttpException('Закупка не найдена.');
+        }
         return $po;
     }
 }

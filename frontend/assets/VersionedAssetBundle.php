@@ -15,20 +15,20 @@ class VersionedAssetBundle extends AssetBundle
     public function init()
     {
         parent::init();
-        
+
         // Добавляем timestamp к файлам для кеширования
         if ($this->baseUrl && ($this->basePath || $this->sourcePath)) {
             $this->appendTimestamp();
         }
     }
-    
+
     /**
      * Добавляет timestamp к URL файлов
      */
     protected function appendTimestamp()
     {
         $basePath = \Yii::getAlias($this->basePath ?: $this->sourcePath);
-        
+
         foreach (['css', 'js'] as $type) {
             if (!empty($this->$type)) {
                 foreach ($this->$type as $key => $file) {

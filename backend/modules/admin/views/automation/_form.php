@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -36,7 +37,7 @@ $actionTypeOptionsHtml = implode('', $actionTypeOptions);
                     <label class="admin-label">Событие <span style="color:red">*</span></label>
                     <select name="event_code" class="admin-select" required>
                         <option value="">— выберите —</option>
-                        <?php foreach ($eventCodes as $code => $label): ?>
+                        <?php foreach ($eventCodes as $code => $label) : ?>
                         <option value="<?= $code ?>" <?= $model->event_code === $code ? 'selected' : '' ?>>
                             <?= Html::encode($label) ?>
                         </option>
@@ -73,12 +74,12 @@ $actionTypeOptionsHtml = implode('', $actionTypeOptions);
         </div>
         <div class="admin-card-body">
             <div id="conditions-list">
-                <?php foreach ($conditions as $i => $cond): ?>
+                <?php foreach ($conditions as $i => $cond) : ?>
                 <div class="condition-row" style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
                     <input type="text" name="cond_field[]" class="admin-input" style="flex:2"
                            value="<?= Html::encode($cond['field'] ?? '') ?>" placeholder="order.status">
                     <select name="cond_operator[]" class="admin-select" style="flex:1.5">
-                        <?php foreach ($operators as $op => $opLabel): ?>
+                        <?php foreach ($operators as $op => $opLabel) : ?>
                         <option value="<?= $op ?>" <?= ($cond['operator'] ?? '') === $op ? 'selected' : '' ?>>
                             <?= Html::encode($opLabel) ?>
                         </option>
@@ -109,16 +110,16 @@ $actionTypeOptionsHtml = implode('', $actionTypeOptions);
         </div>
         <div class="admin-card-body">
             <div id="actions-list">
-                <?php foreach ($actions as $i => $act): ?>
-                <?php
+                <?php foreach ($actions as $i => $act) : ?>
+                    <?php
                     $actType = $act['type'] ?? '';
                     $params = $act;
                     unset($params['type']);
                     $paramsJson = json_encode($params, JSON_UNESCAPED_UNICODE);
-                ?>
+                    ?>
                 <div class="action-row" style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px">
                     <select name="act_type[]" class="admin-select" style="flex:1.5" onchange="onActionTypeChange(this)">
-                        <?php foreach ($actionTypes as $k => $v): ?>
+                        <?php foreach ($actionTypes as $k => $v) : ?>
                         <option value="<?= $k ?>" <?= $actType === $k ? 'selected' : '' ?>><?= Html::encode($v) ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -146,7 +147,8 @@ $actionTypeOptionsHtml = implode('', $actionTypeOptions);
         <button type="submit" class="admin-btn admin-btn-primary">
             <i class="bi bi-check-lg"></i> <?= $isNew ? 'Создать' : 'Сохранить' ?>
         </button>
-        <?= Html::a('<i class="bi bi-x"></i> Отмена',
+        <?= Html::a(
+            '<i class="bi bi-x"></i> Отмена',
             Url::to(['/admin/settings/triggers']),
             ['class' => 'admin-btn admin-btn-secondary']
         ) ?>
@@ -155,7 +157,8 @@ $actionTypeOptionsHtml = implode('', $actionTypeOptions);
 </div>
 
 <?php
-function automationActionHint(string $type): string {
+function automationActionHint(string $type): string
+{
     $hints = [
         'send_sms'       => 'Параметры: template (код шаблона), to (client|admin|custom), phone (если custom)',
         'send_email'     => 'Параметры: subject, body, to (email или "client")',
@@ -164,7 +167,7 @@ function automationActionHint(string $type): string {
         'change_status'  => 'Параметры: status (новый статус заказа)',
         'assign_tag'     => 'Параметры: tag (название тега)',
         'earn_bonus'     => 'Параметры: points (число), description',
-        'create_customer'=> 'Без параметров',
+        'create_customer' => 'Без параметров',
         'send_to_dp'     => 'Без параметров',
         'notify_admin'   => 'Параметры: message (текст уведомления)',
         'webhook'        => 'Параметры: url, method (GET|POST), body (шаблон JSON)',
@@ -174,7 +177,7 @@ function automationActionHint(string $type): string {
 ?>
 
 <script>
-var operatorOptions = <?= json_encode(array_map(fn($k,$v) => "<option value=\"$k\">$v</option>", array_keys($operators), array_values($operators))) ?>;
+var operatorOptions = <?= json_encode(array_map(fn($k, $v) => "<option value=\"$k\">$v</option>", array_keys($operators), array_values($operators))) ?>;
 var actionHints = <?= json_encode([
     'send_sms'       => 'Параметры: template (код шаблона), to (client|admin|custom), phone (если custom)',
     'send_email'     => 'Параметры: subject, body, to (email или "client")',
@@ -183,7 +186,7 @@ var actionHints = <?= json_encode([
     'change_status'  => 'Параметры: status (новый статус заказа)',
     'assign_tag'     => 'Параметры: tag (название тега)',
     'earn_bonus'     => 'Параметры: points (число), description',
-    'create_customer'=> 'Без параметров',
+    'create_customer' => 'Без параметров',
     'send_to_dp'     => 'Без параметров',
     'notify_admin'   => 'Параметры: message (текст уведомления)',
     'webhook'        => 'Параметры: url, method (GET|POST), body (шаблон JSON)',
@@ -195,7 +198,7 @@ function addCondition() {
     row.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:8px';
     row.innerHTML = `
         <input type="text" name="cond_field[]" class="admin-input" style="flex:2" placeholder="order.status">
-        <select name="cond_operator[]" class="admin-select" style="flex:1.5"><?= implode('', array_map(fn($k,$v) => "<option value=\"$k\">$v</option>", array_keys($operators), array_values($operators))) ?></select>
+        <select name="cond_operator[]" class="admin-select" style="flex:1.5"><?= implode('', array_map(fn($k, $v) => "<option value=\"$k\">$v</option>", array_keys($operators), array_values($operators))) ?></select>
         <input type="text" name="cond_value[]" class="admin-input" style="flex:2" placeholder="paid">
         <button type="button" class="admin-btn admin-btn-sm admin-btn-danger" onclick="removeRow(this)"><i class="bi bi-x"></i></button>
     `;
@@ -207,7 +210,7 @@ function addAction() {
     var row = document.createElement('div');
     row.className = 'action-row';
     row.style.cssText = 'display:flex;gap:8px;align-items:flex-start;margin-bottom:8px';
-    var opts = <?= json_encode(implode('', array_map(fn($k,$v) => "<option value=\"$k\">$v</option>", array_keys($actionTypes), array_values($actionTypes)))) ?>;
+    var opts = <?= json_encode(implode('', array_map(fn($k, $v) => "<option value=\"$k\">$v</option>", array_keys($actionTypes), array_values($actionTypes)))) ?>;
     row.innerHTML = `
         <select name="act_type[]" class="admin-select" style="flex:1.5" onchange="onActionTypeChange(this)">${opts}</select>
         <div style="flex:3">

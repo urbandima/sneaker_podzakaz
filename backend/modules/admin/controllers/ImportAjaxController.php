@@ -47,7 +47,7 @@ class ImportAjaxController extends BaseAdminController
     public function actionStatus($taskId)
     {
         $task = ImportTask::findOne($taskId);
-        
+
         if (!$task) {
             return [
                 'success' => false,
@@ -89,7 +89,7 @@ class ImportAjaxController extends BaseAdminController
     public function actionProgress($taskId)
     {
         $task = ImportTask::findOne($taskId);
-        
+
         if (!$task) {
             return [
                 'success' => false,
@@ -120,7 +120,7 @@ class ImportAjaxController extends BaseAdminController
     public function actionStop($taskId)
     {
         $task = ImportTask::findOne($taskId);
-        
+
         if (!$task) {
             return [
                 'success' => false,
@@ -157,7 +157,7 @@ class ImportAjaxController extends BaseAdminController
     public function actionLogs($taskId, $lastId = 0)
     {
         $task = ImportTask::findOne($taskId);
-        
+
         if (!$task) {
             return [
                 'success' => false,
@@ -235,7 +235,7 @@ class ImportAjaxController extends BaseAdminController
     public function actionSourceStatus($sourceId)
     {
         $source = ImportSource::findOne($sourceId);
-        
+
         if (!$source) {
             return [
                 'success' => false,
@@ -277,7 +277,7 @@ class ImportAjaxController extends BaseAdminController
      */
     public function actionStats($period = 'today')
     {
-        $dateCondition = match($period) {
+        $dateCondition = match ($period) {
             'today' => 'DATE(created_at) = CURDATE()',
             'week' => 'created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)',
             'month' => 'created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)',
@@ -316,7 +316,7 @@ class ImportAjaxController extends BaseAdminController
     public function actionMarkNotificationRead($id)
     {
         $notification = \app\backend\modules\admin\models\import\ImportNotification::findOne($id);
-        
+
         if (!$notification) {
             return [
                 'success' => false,

@@ -39,9 +39,9 @@ $this->params['headerActions'] = [
 </div>
 
 <!-- Примеры рекомендаций -->
-<?php if (!empty($recommendations)): ?>
-    <?php foreach ($recommendations as $item): ?>
-        <?php 
+<?php if (!empty($recommendations)) : ?>
+    <?php foreach ($recommendations as $item) : ?>
+        <?php
         $product = $item['product'];
         $crossSell = $item['cross_sell'] ?? [];
         $upsell = $item['upsell'] ?? [];
@@ -64,15 +64,15 @@ $this->params['headerActions'] = [
             
             <div class="admin-card-body">
                 <!-- Cross-sell -->
-                <?php if (!empty($crossSell)): ?>
+                <?php if (!empty($crossSell)) : ?>
                     <div style="margin-bottom: 1.5rem;">
                         <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--admin-primary);">
                             <i class="bi bi-diagram-2"></i> Cross-sell (похожие товары)
                         </h3>
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
-                            <?php foreach ($crossSell as $rec): ?>
+                            <?php foreach ($crossSell as $rec) : ?>
                                 <div style="border: 1px solid var(--admin-border); border-radius: var(--admin-radius); overflow: hidden; text-align: center;">
-                                    <?php $img = $rec->getMainImageUrl(); if ($img): ?>
+                                    <?php $img = $rec->getMainImageUrl(); if ($img) : ?>
                                         <img src="<?= Html::encode($img) ?>" style="width: 100%; height: 120px; object-fit: cover;" alt="<?= Html::encode($rec->name) ?>">
                                     <?php endif; ?>
                                     <div style="padding: 0.5rem;">
@@ -90,15 +90,15 @@ $this->params['headerActions'] = [
                 <?php endif; ?>
                 
                 <!-- Upsell -->
-                <?php if (!empty($upsell)): ?>
+                <?php if (!empty($upsell)) : ?>
                     <div style="margin-bottom: 1.5rem;">
                         <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--admin-success);">
                             <i class="bi bi-arrow-up-circle"></i> Upsell (более дорогие альтернативы)
                         </h3>
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
-                            <?php foreach ($upsell as $rec): ?>
+                            <?php foreach ($upsell as $rec) : ?>
                                 <div style="border: 1px solid var(--admin-border); border-radius: var(--admin-radius); overflow: hidden; text-align: center;">
-                                    <?php $img = $rec->getMainImageUrl(); if ($img): ?>
+                                    <?php $img = $rec->getMainImageUrl(); if ($img) : ?>
                                         <img src="<?= Html::encode($img) ?>" style="width: 100%; height: 120px; object-fit: cover;" alt="<?= Html::encode($rec->name) ?>">
                                     <?php endif; ?>
                                     <div style="padding: 0.5rem;">
@@ -116,15 +116,15 @@ $this->params['headerActions'] = [
                 <?php endif; ?>
                 
                 <!-- Frequently bought together -->
-                <?php if (!empty($frequentlyBought)): ?>
+                <?php if (!empty($frequentlyBought)) : ?>
                     <div>
                         <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--admin-info);">
                             <i class="bi bi-cart-check"></i> Часто покупают вместе
                         </h3>
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
-                            <?php foreach ($frequentlyBought as $rec): ?>
+                            <?php foreach ($frequentlyBought as $rec) : ?>
                                 <div style="border: 1px solid var(--admin-border); border-radius: var(--admin-radius); overflow: hidden; text-align: center;">
-                                    <?php $img = $rec->getMainImageUrl(); if ($img): ?>
+                                    <?php $img = $rec->getMainImageUrl(); if ($img) : ?>
                                         <img src="<?= Html::encode($img) ?>" style="width: 100%; height: 120px; object-fit: cover;" alt="<?= Html::encode($rec->name) ?>">
                                     <?php endif; ?>
                                     <div style="padding: 0.5rem;">
@@ -141,7 +141,7 @@ $this->params['headerActions'] = [
                     </div>
                 <?php endif; ?>
                 
-                <?php if (empty($crossSell) && empty($upsell) && empty($frequentlyBought)): ?>
+                <?php if (empty($crossSell) && empty($upsell) && empty($frequentlyBought)) : ?>
                     <div style="padding: 2rem; text-align: center; color: var(--admin-text-secondary);">
                         <i class="bi bi-info-circle" style="font-size: 2rem;"></i>
                         <p style="margin-top: 1rem;">Нет рекомендаций для этого товара</p>
@@ -150,7 +150,7 @@ $this->params['headerActions'] = [
             </div>
         </div>
     <?php endforeach; ?>
-<?php else: ?>
+<?php else : ?>
     <div class="admin-card">
         <div class="admin-card-body" style="padding: 3rem; text-align: center; color: var(--admin-text-secondary);">
             <i class="bi bi-box-seam" style="font-size: 3rem;"></i>

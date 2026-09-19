@@ -40,11 +40,11 @@ class m260426_140000_create_buyout_tables extends Migration
             'created_at'         => $this->dateTime()->notNull()->defaultExpression('CURRENT_TIMESTAMP'),
             'updated_at'         => $this->dateTime()->notNull()->defaultExpression('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         ]);
-        $this->createIndex('idx-buyout-status',   '{{%buyout}}', 'status');
-        $this->createIndex('idx-buyout-source',   '{{%buyout}}', 'source');
-        $this->createIndex('idx-buyout-product',  '{{%buyout}}', 'product_id');
-        $this->createIndex('idx-buyout-buyer',    '{{%buyout}}', 'buyer_user_id');
-        $this->createIndex('idx-buyout-ordered',  '{{%buyout}}', 'ordered_at');
+        $this->createIndex('idx-buyout-status', '{{%buyout}}', 'status');
+        $this->createIndex('idx-buyout-source', '{{%buyout}}', 'source');
+        $this->createIndex('idx-buyout-product', '{{%buyout}}', 'product_id');
+        $this->createIndex('idx-buyout-buyer', '{{%buyout}}', 'buyer_user_id');
+        $this->createIndex('idx-buyout-ordered', '{{%buyout}}', 'ordered_at');
 
         // ── 2. buyout_order_link ──────────────────────────────────────────────
         $this->createTable('{{%buyout_order_link}}', [
@@ -54,7 +54,7 @@ class m260426_140000_create_buyout_tables extends Migration
             'qty'            => $this->integer()->notNull()->defaultValue(1),
         ]);
         $this->addPrimaryKey('pk-buyout_order_link', '{{%buyout_order_link}}', ['buyout_id', 'order_id', 'order_item_id']);
-        $this->createIndex('idx-bol-order',  '{{%buyout_order_link}}', 'order_id');
+        $this->createIndex('idx-bol-order', '{{%buyout_order_link}}', 'order_id');
         $this->createIndex('idx-bol-buyout', '{{%buyout_order_link}}', 'buyout_id');
 
         // ── 3. buyout_history ─────────────────────────────────────────────────
@@ -68,7 +68,7 @@ class m260426_140000_create_buyout_tables extends Migration
             'created_at' => $this->dateTime()->notNull()->defaultExpression('CURRENT_TIMESTAMP'),
         ]);
         $this->createIndex('idx-bh-buyout', '{{%buyout_history}}', 'buyout_id');
-        $this->createIndex('idx-bh-user',   '{{%buyout_history}}', 'user_id');
+        $this->createIndex('idx-bh-user', '{{%buyout_history}}', 'user_id');
     }
 
     public function safeDown()

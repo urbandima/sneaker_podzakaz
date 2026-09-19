@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var mixed $customer */
 
@@ -38,7 +39,7 @@ $this->title = 'Написать директору — СНИКЕРХЭД';
                 <div class="feedback-field">
                     <label class="feedback-label">Ваша оценка</label>
                     <div class="star-rating" id="starRating">
-                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <?php for ($i = 1; $i <= 5; $i++) : ?>
                         <button type="button" class="star-btn" data-value="<?= $i ?>" onclick="setRating(<?= $i ?>)" title="<?= $i ?> звёзд">
                             <i class="bi bi-star"></i>
                         </button>
@@ -47,7 +48,7 @@ $this->title = 'Написать директору — СНИКЕРХЭД';
                     <input type="hidden" id="ratingValue" name="rating" value="5">
                 </div>
 
-                <?php if (!$customer): ?>
+                <?php if (!$customer) : ?>
                 <!-- Name + email for guests -->
                 <div class="feedback-row">
                     <div class="feedback-field">
@@ -59,8 +60,8 @@ $this->title = 'Написать директору — СНИКЕРХЭД';
                         <input type="email" id="fbEmail" name="email" class="feedback-input" placeholder="ivan@example.com" maxlength="200">
                     </div>
                 </div>
-                <?php else: ?>
-                <?php
+                <?php else : ?>
+                    <?php
                     $_fbAuthor = '';
                     if (method_exists($customer, 'getFullName')) {
                         $_fbAuthor = (string) $customer->getFullName();
@@ -68,7 +69,7 @@ $this->title = 'Написать директору — СНИКЕРХЭД';
                     if ($_fbAuthor === '') {
                         $_fbAuthor = (string) ($customer->name ?? $customer->username ?? $customer->email ?? 'Авторизованный пользователь');
                     }
-                ?>
+                    ?>
                 <div class="feedback-field">
                     <label class="feedback-label">Вы пишете как</label>
                     <div class="feedback-author">

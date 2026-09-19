@@ -7,16 +7,16 @@ use yii\helpers\Url;
 /* @var $items app\backend\modules\cart\models\Cart[] */
 ?>
 
-<?php if (empty($items)): ?>
+<?php if (empty($items)) : ?>
     <div class="cart-empty">
         <i class="bi bi-bag"></i>
         <p>Ваша корзина пуста</p>
         <a href="<?= Url::to(['/catalog']) ?>" class="btn btn-primary" style="margin-top: 16px;" onclick="closeCartDrawer()">Перейти в каталог</a>
     </div>
-<?php else: ?>
-    <?php foreach ($items as $item): ?>
+<?php else : ?>
+    <?php foreach ($items as $item) : ?>
         <?php $product = $item->product; ?>
-        <?php if ($product): ?>
+        <?php if ($product) : ?>
             <div class="cart-item" data-cart-id="<?= $item->id ?>">
                 <img src="<?= Html::encode($product->getMainImageUrl()) ?>" alt="<?= Html::encode($product->name) ?>" class="cart-item-image">
                 
@@ -26,7 +26,7 @@ use yii\helpers\Url;
                         <?= Html::encode($product->name) ?>
                     </a>
                     
-                    <?php if ($item->size): ?>
+                    <?php if ($item->size) : ?>
                         <div class="cart-item-size">Размер: <?= Html::encode($item->size) ?></div>
                     <?php endif; ?>
                     

@@ -3,22 +3,23 @@
 /**
  * Конфигурация структурированных логов
  */
+
 return [
     'enabled' => true,
-    
+
     // Формат логов
     'format' => 'json', // json или text
-    
+
     // Уровень логирования
     'level' => env('LOG_LEVEL', 'info'),
-    
+
     // Поля по умолчанию
     'default_context' => [
         'app' => 'sneakerhead',
         'env' => env('YII_ENV', 'dev'),
         'version' => env('APP_VERSION', '1.0.0'),
     ],
-    
+
     // Каналы логирования
     'channels' => [
         'app' => [
@@ -47,7 +48,7 @@ return [
             'max_files' => 30,
         ],
     ],
-    
+
     // Чувствительные поля для маскировки
     'sensitive_fields' => [
         'password',

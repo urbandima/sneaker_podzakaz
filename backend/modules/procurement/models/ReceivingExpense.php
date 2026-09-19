@@ -6,16 +6,16 @@ use yii\db\ActiveRecord;
 
 class ReceivingExpense extends ActiveRecord
 {
-    const TYPE_CUSTOMS   = 'customs';
-    const TYPE_SHIPPING  = 'shipping';
-    const TYPE_INSURANCE = 'insurance';
-    const TYPE_PACKAGING = 'packaging';
-    const TYPE_OTHER     = 'other';
+    public const TYPE_CUSTOMS   = 'customs';
+    public const TYPE_SHIPPING  = 'shipping';
+    public const TYPE_INSURANCE = 'insurance';
+    public const TYPE_PACKAGING = 'packaging';
+    public const TYPE_OTHER     = 'other';
 
-    const DIST_EQUAL    = 'equal';
-    const DIST_BY_QTY   = 'by_qty';
-    const DIST_BY_VALUE = 'by_value';
-    const DIST_MANUAL   = 'manual';
+    public const DIST_EQUAL    = 'equal';
+    public const DIST_BY_QTY   = 'by_qty';
+    public const DIST_BY_VALUE = 'by_value';
+    public const DIST_MANUAL   = 'manual';
 
     public static function tableName(): string
     {

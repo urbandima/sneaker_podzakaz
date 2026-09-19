@@ -22,9 +22,9 @@ use yii\db\ActiveRecord;
  */
 class Feedback extends ActiveRecord
 {
-    const STATUS_NEW     = 'new';
-    const STATUS_READ    = 'read';
-    const STATUS_REPLIED = 'replied';
+    public const STATUS_NEW     = 'new';
+    public const STATUS_READ    = 'read';
+    public const STATUS_REPLIED = 'replied';
 
     public static function tableName(): string
     {

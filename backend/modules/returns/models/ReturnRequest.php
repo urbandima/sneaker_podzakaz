@@ -2,10 +2,10 @@
 
 /**
  * ReturnRequest — Модель заявки на возврат
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Заявки на возврат товаров: создание, обработка, статусы.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - order_id: ID заказа
  * - customer_id: ID клиента
@@ -13,17 +13,18 @@
  * - reason: причина возврата
  * - items_json: возвращаемые товары (JSON)
  * - refund_amount: сумма возврата
- * 
+ *
  * СТАТУСЫ:
  * - pending: ожидает обработки
  * - approved: одобрено
  * - rejected: отклонено
  * - processing: в обработке
  * - completed: завершено
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * $request = ReturnRequest::create($orderId, $items, $reason);
  */
+
 namespace app\backend\modules\returns\models;
 
 use Yii;
@@ -60,22 +61,22 @@ use app\backend\modules\returns\models\ReturnPolicy;
 class ReturnRequest extends ActiveRecord
 {
     // Статусы
-    const STATUS_PENDING = 'pending';
-    const STATUS_APPROVED = 'approved';
-    const STATUS_REJECTED = 'rejected';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_COMPLETED = 'completed';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
+    public const STATUS_PROCESSING = 'processing';
+    public const STATUS_COMPLETED = 'completed';
     // Средства ещё не возвращены реальным платёжным шлюзом — требуется ручная обработка бухгалтерией/менеджером
-    const STATUS_REFUND_PENDING_MANUAL = 'refund_pending_manual';
-    
+    public const STATUS_REFUND_PENDING_MANUAL = 'refund_pending_manual';
+
     // Причины возврата
-    const REASON_DEFECT = 'defect';
-    const REASON_WRONG_ITEM = 'wrong_item';
-    const REASON_NOT_AS_DESCRIBED = 'not_as_described';
-    const REASON_SIZE_ISSUE = 'size_issue';
-    const REASON_CHANGED_MIND = 'changed_mind';
-    const REASON_DAMAGED = 'damaged';
-    const REASON_OTHER = 'other';
+    public const REASON_DEFECT = 'defect';
+    public const REASON_WRONG_ITEM = 'wrong_item';
+    public const REASON_NOT_AS_DESCRIBED = 'not_as_described';
+    public const REASON_SIZE_ISSUE = 'size_issue';
+    public const REASON_CHANGED_MIND = 'changed_mind';
+    public const REASON_DAMAGED = 'damaged';
+    public const REASON_OTHER = 'other';
 
     public static function tableName()
     {
@@ -107,7 +108,7 @@ class ReturnRequest extends ActiveRecord
             [['pickup_address'], 'string', 'max' => 500],
             [['pickup_date', 'processed_at', 'completed_at'], 'safe'],
             [['status'], 'default', 'value' => self::STATUS_PENDING],
-            [['return_number'], 'default', 'value' => function() {
+            [['return_number'], 'default', 'value' => function () {
                 return 'R' . date('Ymd') . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
             }],
         ];
@@ -135,7 +136,7 @@ class ReturnRequest extends ActiveRecord
 
     /**
      * Создать заявку на возврат
-     * 
+     *
      * @param int $orderId ID заказа
      * @param array $items Массив товаров [['product_id' => 1, 'quantity' => 1, 'price' => 100]]
      * @param string $reason Причина
@@ -148,18 +149,18 @@ class ReturnRequest extends ActiveRecord
         if (!$order) {
             return null;
         }
-        
+
         // Проверяем политику возврата
         $policy = ReturnPolicy::getDefault();
         if (!$policy) {
             return null;
         }
-        
+
         list($canReturn, $error) = $policy->canReturn($order);
         if (!$canReturn) {
             return null;
         }
-        
+
         // Создаём заявку
         $request = new self();
         $request->order_id = $orderId;
@@ -167,24 +168,24 @@ class ReturnRequest extends ActiveRecord
         $request->reason = $reason;
         $request->comment = $comment;
         $request->items_json = json_encode($items, JSON_UNESCAPED_UNICODE);
-        
+
         // Рассчитываем сумму возврата
         $totalRefund = 0;
         foreach ($items as $item) {
             $totalRefund += ($item['price'] ?? 0) * ($item['quantity'] ?? 1);
         }
         $request->refund_amount = $policy->calculateRefund($totalRefund);
-        
+
         if ($request->save()) {
             return $request;
         }
-        
+
         return null;
     }
 
     /**
      * Одобрить заявку
-     * 
+     *
      * @param string|null $adminComment Комментарий админа
      * @return bool
      */
@@ -193,13 +194,13 @@ class ReturnRequest extends ActiveRecord
         $this->status = self::STATUS_APPROVED;
         $this->admin_comment = $adminComment;
         $this->processed_at = date('Y-m-d H:i:s');
-        
+
         return $this->save(false);
     }
 
     /**
      * Отклонить заявку
-     * 
+     *
      * @param string $reason Причина отклонения
      * @return bool
      */
@@ -208,13 +209,13 @@ class ReturnRequest extends ActiveRecord
         $this->status = self::STATUS_REJECTED;
         $this->admin_comment = $reason;
         $this->processed_at = date('Y-m-d H:i:s');
-        
+
         return $this->save(false);
     }
 
     /**
      * Начать обработку
-     * 
+     *
      * @return bool
      */
     public function startProcessing(): bool
@@ -225,7 +226,7 @@ class ReturnRequest extends ActiveRecord
 
     /**
      * Завершить возврат
-     * 
+     *
      * @param string $transaction ID транзакции возврата
      * @return bool
      */
@@ -234,7 +235,7 @@ class ReturnRequest extends ActiveRecord
         $this->status = self::STATUS_COMPLETED;
         $this->refund_transaction = $transaction;
         $this->completed_at = date('Y-m-d H:i:s');
-        
+
         return $this->save(false);
     }
 
@@ -260,7 +261,7 @@ class ReturnRequest extends ActiveRecord
 
     /**
      * Получить товары заявки
-     * 
+     *
      * @return array
      */
     public function getItems(): array

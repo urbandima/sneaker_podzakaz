@@ -168,13 +168,13 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
                 <?php
                 $customerId = Yii::$app->session->get('customer_id');
                 $customerName = Yii::$app->session->get('customer_name');
-                if ($customerId):
-                ?>
+                if ($customerId) :
+                    ?>
                 <a href="/account/profile" class="header-btn header-btn-user">
                     <div class="user-avatar-mini"><?= mb_strtoupper(mb_substr($customerName ?: 'U', 0, 1)) ?></div>
                     <span class="label"><?= Yii::$app->formatter->asText(mb_substr($customerName ?: 'Профиль', 0, 10)) ?></span>
                 </a>
-                <?php else: ?>
+                <?php else : ?>
                 <a href="/account/login" class="header-btn">
                     <i class="bi bi-person"></i>
                     <span class="label">Войти</span>
@@ -465,21 +465,21 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 
 <main role="main" class="flex-shrink-0">
     <div class="container-fluid p-0">
-        <?php if (Yii::$app->session->hasFlash('success')): ?>
+        <?php if (Yii::$app->session->hasFlash('success')) : ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <?= Yii::$app->session->getFlash('success') ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
 
-        <?php if (Yii::$app->session->hasFlash('error')): ?>
+        <?php if (Yii::$app->session->hasFlash('error')) : ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <?= Yii::$app->session->getFlash('error') ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
 
-        <?php if (Yii::$app->session->hasFlash('warning')): ?>
+        <?php if (Yii::$app->session->hasFlash('warning')) : ?>
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 <?= Html::encode(Yii::$app->session->getFlash('warning')) ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>

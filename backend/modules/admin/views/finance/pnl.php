@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var array $months */
 /** @var int $year */
@@ -42,7 +43,7 @@ $totalMargin  = $totalRevenue > 0 ? round($totalNet / $totalRevenue * 100, 1) : 
     <div class="compact-filter-bar filter-row1">
         <span style="font-size:.8125rem;font-weight:600;color:var(--admin-text-secondary,#6d7175)">Год:</span>
         <select name="year" class="compact-filter-select" onchange="this.form.submit()">
-            <?php foreach ($years as $y): ?>
+            <?php foreach ($years as $y) : ?>
             <option value="<?= $y ?>" <?= $y === $year ? 'selected' : '' ?>><?= $y ?></option>
             <?php endforeach; ?>
         </select>
@@ -76,34 +77,36 @@ $totalMargin  = $totalRevenue > 0 ? round($totalNet / $totalRevenue * 100, 1) : 
                 <?php
                 $currentMonth = (int)date('n');
                 $currentYear  = (int)date('Y');
-                foreach ($months as $m => $row):
+                foreach ($months as $m => $row) :
                     // Z46: skip future months for the selected year
-                    if ($year == $currentYear && $m > $currentMonth) continue;
-                ?>
+                    if ($year == $currentYear && $m > $currentMonth) {
+                        continue;
+                    }
+                    ?>
                 <tr style="<?= $row['revenue'] == 0 ? 'opacity:.45' : '' ?>">
                     <td><strong><?= $monthNames[$m] ?></strong></td>
                     <td style="text-align:right"><?= PriceHelper::formatInt($row['revenue']) ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['cogs'] > 0 ? '−'.PriceHelper::formatInt($row['cogs']) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['cogs'] > 0 ? '−' . PriceHelper::formatInt($row['cogs']) : '—' ?></td>
                     <td style="text-align:right"><strong><?= PriceHelper::formatInt($row['gross']) ?></strong></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delChina'] > 0 ? '−'.PriceHelper::formatInt($row['delChina']) : '—' ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['customs'] > 0 ? '−'.PriceHelper::formatInt($row['customs']) : '—' ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delLocal'] > 0 ? '−'.PriceHelper::formatInt($row['delLocal']) : '—' ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['rent'] > 0 ? '−'.PriceHelper::formatInt($row['rent']) : '—' ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['salary'] > 0 ? '−'.PriceHelper::formatInt($row['salary']) : '—' ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['other'] > 0 ? '−'.PriceHelper::formatInt($row['other']) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delChina'] > 0 ? '−' . PriceHelper::formatInt($row['delChina']) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['customs'] > 0 ? '−' . PriceHelper::formatInt($row['customs']) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delLocal'] > 0 ? '−' . PriceHelper::formatInt($row['delLocal']) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['rent'] > 0 ? '−' . PriceHelper::formatInt($row['rent']) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['salary'] > 0 ? '−' . PriceHelper::formatInt($row['salary']) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['other'] > 0 ? '−' . PriceHelper::formatInt($row['other']) : '—' ?></td>
                     <td style="text-align:right">
                         <strong style="color:<?= $row['net'] >= 0 ? 'var(--admin-success,#008060)' : 'var(--admin-danger,#d72c0d)' ?>">
                             <?= PriceHelper::formatInt($row['net']) ?>
                         </strong>
                     </td>
                     <td style="text-align:right">
-                        <?php if ($row['revenue'] > 0 && $row['cogs'] == 0): ?>
+                        <?php if ($row['revenue'] > 0 && $row['cogs'] == 0) : ?>
                             <span class="status-pill" style="background:#f3f4f6;color:#6d7175" title="Себестоимость не указана — добавьте расходы на закупку">Нет данных</span>
-                        <?php elseif ($row['revenue'] > 0): ?>
+                        <?php elseif ($row['revenue'] > 0) : ?>
                             <span class="status-pill" style="background:<?= $row['margin'] >= 15 ? '#d1f7e5;color:#008060' : ($row['margin'] >= 0 ? '#fff4e5;color:#ffa500' : '#fbeae5;color:#d72c0d') ?>">
                                 <?= $row['margin'] ?>%
                             </span>
-                        <?php else: ?>
+                        <?php else : ?>
                             <span style="color:#6d7175">—</span>
                         <?php endif; ?>
                     </td>
@@ -114,7 +117,7 @@ $totalMargin  = $totalRevenue > 0 ? round($totalNet / $totalRevenue * 100, 1) : 
                 <tr style="font-weight:700;background:var(--admin-surface-hover,#fafbfc)">
                     <td>ИТОГО</td>
                     <td style="text-align:right"><?= PriceHelper::formatInt($totalRevenue) ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $totalCogs > 0 ? '−'.PriceHelper::formatInt($totalCogs) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $totalCogs > 0 ? '−' . PriceHelper::formatInt($totalCogs) : '—' ?></td>
                     <td style="text-align:right"><?= PriceHelper::formatInt($totalGross) ?></td>
                     <td colspan="6"></td>
                     <td style="text-align:right;color:<?= $totalNet >= 0 ? 'var(--admin-success,#008060)' : 'var(--admin-danger,#d72c0d)' ?>">

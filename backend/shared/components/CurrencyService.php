@@ -2,32 +2,33 @@
 
 /**
  * CurrencyService — Сервис работы с валютными курсами
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Управление валютными курсами: получение, кэширование,
  * конвертация цен. Поддержка CNY, BYN, RUB.
- * 
+ *
  * ФУНКЦИИ:
  * - getCnyToBynRate(): получение курса CNY к BYN
  * - convertCnyToByn(): конвертация юаней в BYN
  * - updateRate(): обновление курса вручную
  * - getRateFromApi(): получение курса из внешнего API
- * 
+ *
  * НАСТРОЙКИ:
  * - cnyToBynRate: курс по умолчанию
  * - cacheDuration: время жизни кэша
  * - retryAttempts: количество попыток API
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - TariffController (калькулятор цен)
  * - OrderController (расчёт стоимости)
  * - ProductController (конвертация цен)
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Кэширование курсов
  * - Retry механизм при ошибках API
  * - Fallback на дефолтный курс
  */
+
 namespace app\backend\shared\components;
 
 use Yii;
@@ -79,10 +80,10 @@ class CurrencyService extends Component
      * @var callable|null Кастомный HTTP клиент (callable(string $url, array $options): array)
      */
     private $httpClient;
-    
+
     /**
      * Получить текущий курс CNY к BYN
-     * 
+     *
      * @return float
      */
     public function getCnyToBynRate()
@@ -93,7 +94,7 @@ class CurrencyService extends Component
         if ($rate === false) {
             // Кэш пуст, используем значение по умолчанию
             $rate = $this->cnyToBynRate;
-            
+
             // Пытаемся получить актуальный курс через API
             try {
                 $result = $this->fetchCnyToBynRate();
@@ -108,32 +109,32 @@ class CurrencyService extends Component
                 $this->storeRateInCache($rate, 'fallback');
             }
         }
-        
+
         return (float)$rate;
     }
-    
+
     /**
      * Установить курс CNY к BYN вручную
-     * 
+     *
      * @param float $rate Курс
      * @return bool
      */
     public function setCnyToBynRate($rate)
     {
         $rate = (float)$rate;
-        
+
         if ($rate <= 0) {
             return false;
         }
-        
+
         $this->cnyToBynRate = $rate;
 
         return $this->storeRateInCache($rate, 'manual');
     }
-    
+
     /**
      * Получить актуальный курс CNY к BYN через API Национального банка РБ
-     * 
+     *
      * @return array{rate: float, source: string}
      */
     protected function fetchCnyToBynRate()
@@ -181,10 +182,10 @@ class CurrencyService extends Component
 
         throw new \RuntimeException('Все источники курса CNY/BYN недоступны.');
     }
-    
+
     /**
      * Конвертировать CNY в BYN
-     * 
+     *
      * @param float $cny Сумма в юанях
      * @return float Сумма в BYN
      */
@@ -192,12 +193,12 @@ class CurrencyService extends Component
     {
         return $cny * $this->getCnyToBynRate();
     }
-    
+
     /**
      * Рассчитать цену в BYN по формуле для Poizon
      * Формула: (price_cny * курс * 1.5) + 40 BYN
      * С округлением до красивых значений (309, 419, 529 и т.д.)
-     * 
+     *
      * @param float $priceCny Цена в юанях
      * @param float $markup Наценка (по умолчанию 1.5)
      * @param float $fixedFee Фиксированная комиссия (по умолчанию 40 BYN)
@@ -207,15 +208,15 @@ class CurrencyService extends Component
     {
         $rate = $this->getCnyToBynRate();
         $priceByn = ($priceCny * $rate * $markup) + $fixedFee;
-        
+
         // Округляем до красивого значения, заканчивающегося на 9
         return $this->roundToPrettyPrice($priceByn);
     }
-    
+
     /**
      * Округлить цену до "красивого" значения, заканчивающегося на 9
      * Примеры: 454.21 → 449, 523.36 → 519, 661.66 → 659
-     * 
+     *
      * @param float $price Исходная цена
      * @return int Округленная цена (всегда заканчивается на 9)
      */
@@ -224,13 +225,13 @@ class CurrencyService extends Component
         if ($price <= 0) {
             return 0;
         }
-        
+
         // Округляем вниз до целого числа
         $floored = floor($price);
-        
+
         // Находим ближайшее число, заканчивающееся на 9 (вниз)
         $lastDigit = $floored % 10;
-        
+
         if ($lastDigit == 9) {
             // Уже заканчивается на 9
             return (int) $floored;
@@ -239,10 +240,10 @@ class CurrencyService extends Component
             return (int) ($floored - $lastDigit - 1);
         }
     }
-    
+
     /**
      * Очистить кэш курсов
-     * 
+     *
      * @return bool
      */
     public function clearCache()
@@ -254,10 +255,10 @@ class CurrencyService extends Component
 
         return $deleted;
     }
-    
+
     /**
      * Получить информацию о текущем курсе
-     * 
+     *
      * @return array
      */
     public function getCurrencyInfo()

@@ -2,10 +2,10 @@
 
 /**
  * HealthController — Health Check эндпоинты для мониторинга
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Kubernetes/Docker health checks, мониторинг доступности сервисов.
- * 
+ *
  * ENDPOINTS:
  * - /health/live - Liveness probe (приложение живо), публичный, без авторизации
  * - /health/ready - Readiness probe (приложение готово к работе), публичный, без авторизации
@@ -15,6 +15,7 @@
  *   (timing-safe сравнение через hash_equals). Без настроенного токена
  *   эндпоинт отвечает 403 (fail-closed).
  */
+
 namespace app\api\controllers;
 
 use Yii;
@@ -26,7 +27,7 @@ use yii\redis\Connection as RedisConnection;
 class HealthController extends Controller
 {
     public $enableCsrfValidation = false;
-    
+
     /**
      * Liveness probe - приложение живо?
      * Используется Kubernetes для проверки зависших процессов
@@ -34,13 +35,13 @@ class HealthController extends Controller
     public function actionLive()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         return [
             'status' => 'ok',
             'timestamp' => time(),
         ];
     }
-    
+
     /**
      * Readiness probe - приложение готово принимать трафик?
      * Проверяет подключение к БД и другим сервисам
@@ -48,24 +49,24 @@ class HealthController extends Controller
     public function actionReady()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $checks = [
             'database' => $this->checkDatabase(),
             'cache' => $this->checkCache(),
             'storage' => $this->checkStorage(),
         ];
-        
+
         $allOk = !in_array(false, $checks, true);
-        
+
         Yii::$app->response->statusCode = $allOk ? 200 : 503;
-        
+
         return [
             'status' => $allOk ? 'ok' : 'degraded',
             'checks' => $checks,
             'timestamp' => time(),
         ];
     }
-    
+
     /**
      * Полный статус системы
      *
@@ -90,7 +91,7 @@ class HealthController extends Controller
             'php' => $this->getPhpInfo(),
             'opcache' => $this->getOpcacheStatus(),
         ];
-        
+
         return [
             'status' => 'ok',
             'version' => Yii::$app->version ?? '1.0.0',
@@ -100,7 +101,7 @@ class HealthController extends Controller
             'timestamp' => time(),
         ];
     }
-    
+
     /**
      * Доступ к /health/status — mandatory shared token via X-Health-Token
      * header (set HEALTH_STATUS_TOKEN in .env). Без сконфигурированного
@@ -131,7 +132,7 @@ class HealthController extends Controller
             return false;
         }
     }
-    
+
     /**
      * Детальная проверка БД
      */
@@ -141,7 +142,7 @@ class HealthController extends Controller
             $start = microtime(true);
             Yii::$app->db->createCommand('SELECT 1')->execute();
             $latency = round((microtime(true) - $start) * 1000, 2);
-            
+
             return [
                 'status' => 'ok',
                 'latency_ms' => $latency,
@@ -155,7 +156,7 @@ class HealthController extends Controller
             ];
         }
     }
-    
+
     /**
      * Проверка кэша
      */
@@ -172,23 +173,23 @@ class HealthController extends Controller
             return false;
         }
     }
-    
+
     /**
      * Детальная проверка кэша
      */
     private function checkCacheDetails(): array
     {
         $cache = Yii::$app->cache;
-        
+
         $type = get_class($cache);
         $isRedis = $cache instanceof \yii\redis\Cache;
-        
+
         $details = [
             'status' => 'ok',
             'type' => $type,
             'is_redis' => $isRedis,
         ];
-        
+
         if ($isRedis) {
             try {
                 $redis = Yii::$app->redis;
@@ -201,10 +202,10 @@ class HealthController extends Controller
                 $details['redis_error'] = $e->getMessage();
             }
         }
-        
+
         return $details;
     }
-    
+
     /**
      * Проверка файлового хранилища
      */
@@ -213,7 +214,7 @@ class HealthController extends Controller
         $runtimePath = Yii::getAlias('@runtime');
         return is_writable($runtimePath);
     }
-    
+
     /**
      * Детальная проверка хранилища
      */
@@ -221,7 +222,7 @@ class HealthController extends Controller
     {
         $runtimePath = Yii::getAlias('@runtime');
         $uploadsPath = Yii::getAlias('@uploads');
-        
+
         return [
             'status' => 'ok',
             'runtime_writable' => is_writable($runtimePath),
@@ -230,7 +231,7 @@ class HealthController extends Controller
             'disk_total' => $this->formatBytes(disk_total_space($runtimePath)),
         ];
     }
-    
+
     /**
      * Информация о PHP
      */
@@ -249,7 +250,7 @@ class HealthController extends Controller
             ],
         ];
     }
-    
+
     /**
      * Статус OPcache
      */
@@ -258,13 +259,13 @@ class HealthController extends Controller
         if (!function_exists('opcache_get_status')) {
             return ['status' => 'disabled'];
         }
-        
+
         $status = opcache_get_status(false);
-        
+
         if (!$status) {
             return ['status' => 'disabled'];
         }
-        
+
         return [
             'status' => 'enabled',
             'memory_used' => $this->formatBytes($status['memory_usage']['used_memory']),
@@ -273,7 +274,7 @@ class HealthController extends Controller
             'cached_scripts' => $status['opcache_statistics']['num_cached_scripts'],
         ];
     }
-    
+
     /**
      * Версия БД
      */
@@ -286,7 +287,7 @@ class HealthController extends Controller
             return 'unknown';
         }
     }
-    
+
     /**
      * Форматирование байтов
      */

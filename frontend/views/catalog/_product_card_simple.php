@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple product card for category/brand listing pages.
  * Receives a $product array with keys: slug, id, image, name, brand_name, price
@@ -9,6 +10,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+
 ?>
 <?php
 $image = $product['image'] ?? '';
@@ -21,7 +23,7 @@ $isPlaceholder = empty($image)
 <div class="product-card">
     <a href="<?= Url::to(['/catalog/catalog/product', 'slug' => $product['slug'] ?? ($product['id'] ?? '')]) ?>">
         <div class="product-image-wrapper<?= $isPlaceholder ? ' is-placeholder' : '' ?>">
-            <?php if (!$isPlaceholder): ?>
+            <?php if (!$isPlaceholder) : ?>
             <img src="<?= Html::encode($image) ?>"
                  class="product-image primary"
                  alt="<?= Html::encode($product['name'] ?? 'Товар') ?>"

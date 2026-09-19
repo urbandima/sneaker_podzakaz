@@ -2,17 +2,18 @@
 
 /**
  * ShippingService — Сервис расчёта доставки
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Расчёт стоимости доставки, получение доступных методов доставки,
  * валидация адреса, интеграция с транспортными компаниями.
- * 
+ *
  * ФУНКЦИИ:
  * - calculateShippingCost() - расчёт стоимости доставки
  * - getAvailableMethods() - получение доступных способов доставки
  * - validateAddress() - валидация адреса доставки
  * - getDeliveryTime() - расчёт времени доставки
  */
+
 namespace app\backend\modules\checkout\services;
 
 use Yii;
@@ -29,14 +30,14 @@ class ShippingService extends Component
     public function init()
     {
         parent::init();
-        
+
         // Загружаем конфигурацию из params
         $this->shippingMethods = Yii::$app->params['shipping']['methods'] ?? $this->getDefaultMethods();
     }
 
     /**
      * Рассчитать стоимость доставки
-     * 
+     *
      * @param string $method Метод доставки
      * @param string $country Страна доставки
      * @param string|null $city Город
@@ -52,7 +53,7 @@ class ShippingService extends Component
         float $weight = 1.0
     ): array {
         $methodConfig = $this->shippingMethods[$method] ?? null;
-        
+
         if (!$methodConfig) {
             return [
                 'cost' => 0,
@@ -99,7 +100,7 @@ class ShippingService extends Component
 
     /**
      * Расчёт стоимости курьерской доставки по Минску
-     * 
+     *
      * @param string $city Город
      * @param float $orderAmount Сумма заказа
      * @return float
@@ -119,7 +120,7 @@ class ShippingService extends Component
         }
 
         $zoneConfig = $zones[$zone];
-        
+
         if ($orderAmount >= $zoneConfig['freeFrom']) {
             return 0;
         }
@@ -129,7 +130,7 @@ class ShippingService extends Component
 
     /**
      * Получить доступные методы доставки
-     * 
+     *
      * @param string $country Страна доставки
      * @param float $orderAmount Сумма заказа
      * @return array
@@ -141,7 +142,7 @@ class ShippingService extends Component
         foreach ($this->shippingMethods as $key => $method) {
             if (in_array($country, $method['countries']) && $method['enabled']) {
                 $cost = $this->calculateShippingCost($key, $country, null, $orderAmount);
-                
+
                 $available[] = [
                     'key' => $key,
                     'name' => $method['name'],
@@ -158,7 +159,7 @@ class ShippingService extends Component
 
     /**
      * Валидация адреса доставки
-     * 
+     *
      * @param string $address Адрес
      * @param string $country Страна
      * @return array [isValid, errors]
@@ -205,7 +206,7 @@ class ShippingService extends Component
 
     /**
      * Получить время доставки
-     * 
+     *
      * @param string $method Метод доставки
      * @param string $country Страна
      * @return array [min, max, unit]
@@ -213,7 +214,7 @@ class ShippingService extends Component
     public function getDeliveryTime(string $method, string $country = 'belarus'): array
     {
         $methodConfig = $this->shippingMethods[$method] ?? null;
-        
+
         if (!$methodConfig) {
             return ['min' => 0, 'max' => 0, 'unit' => 'days'];
         }
@@ -230,7 +231,7 @@ class ShippingService extends Component
 
     /**
      * Получить конфигурацию методов доставки по умолчанию
-     * 
+     *
      * @return array
      */
     protected function getDefaultMethods(): array
@@ -286,7 +287,7 @@ class ShippingService extends Component
 
     /**
      * Получить информацию о методе доставки
-     * 
+     *
      * @param string $method Ключ метода
      * @return array|null
      */
@@ -297,7 +298,7 @@ class ShippingService extends Component
 
     /**
      * Проверить доступность метода для страны
-     * 
+     *
      * @param string $method Метод доставки
      * @param string $country Страна
      * @return bool
@@ -305,7 +306,7 @@ class ShippingService extends Component
     public function isMethodAvailable(string $method, string $country): bool
     {
         $methodConfig = $this->shippingMethods[$method] ?? null;
-        
+
         if (!$methodConfig || !$methodConfig['enabled']) {
             return false;
         }

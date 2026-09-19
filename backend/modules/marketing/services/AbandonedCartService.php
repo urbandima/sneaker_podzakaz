@@ -8,9 +8,9 @@ use app\backend\modules\catalog\models\Customer;
 
 class AbandonedCartService
 {
-    const ABANDONED_THRESHOLD_HOURS = 24;
-    const REMINDER_INTERVALS = [24, 48, 72]; // часы
-    
+    public const ABANDONED_THRESHOLD_HOURS = 24;
+    public const REMINDER_INTERVALS = [24, 48, 72]; // часы
+
     /**
      * Проверка существования таблицы cart
      */
@@ -25,7 +25,7 @@ class AbandonedCartService
             return false;
         }
     }
-    
+
     /**
      * Получить брошенные корзины
      */
@@ -34,7 +34,7 @@ class AbandonedCartService
         if (!$this->tableExists()) {
             return [];
         }
-        
+
         try {
             $threshold = time() - (self::ABANDONED_THRESHOLD_HOURS * 3600);
 
@@ -49,7 +49,7 @@ class AbandonedCartService
             return [];
         }
     }
-    
+
     /**
      * Получить статистику брошенных корзин
      */
@@ -64,7 +64,7 @@ class AbandonedCartService
                 'recovery_rate' => 0,
             ];
         }
-        
+
         try {
             $threshold = time() - (self::ABANDONED_THRESHOLD_HOURS * 3600);
 
@@ -82,7 +82,7 @@ class AbandonedCartService
 
             // No recovered_at column in cart — recovery tracking not available
             $recoveredToday = 0;
-            
+
             return [
                 'total_abandoned' => $totalAbandoned,
                 'total_value' => $totalValue,
@@ -101,7 +101,7 @@ class AbandonedCartService
             ];
         }
     }
-    
+
     /**
      * Отправить напоминание о брошенной корзине
      */
@@ -111,16 +111,16 @@ class AbandonedCartService
             Yii::warning('Попытка отправить письмо брошенной корзины без email клиента');
             return false;
         }
-        
+
         $customer = $cart->customer;
-        
+
         try {
             $mailer = Yii::$app->mailer;
             if (!$mailer) {
                 Yii::error('Mailer компонент не настроен');
                 return false;
             }
-            
+
             $result = $mailer->compose('abandoned-cart', [
                 'customer' => $customer,
                 'cart' => $cart,
@@ -130,18 +130,18 @@ class AbandonedCartService
             ->setTo($customer->email)
             ->setSubject('Вы забыли товары в корзине!')
             ->send();
-            
+
             if ($result) {
                 Yii::info('Письмо брошенной корзины отправлено: ' . $customer->email);
             }
-            
+
             return $result;
         } catch (\Exception $e) {
             Yii::error('Ошибка отправки письма о брошенной корзине: ' . $e->getMessage());
             return false;
         }
     }
-    
+
     /**
      * Автоматическая отправка напоминаний
      */
@@ -150,20 +150,20 @@ class AbandonedCartService
         if (!$this->tableExists()) {
             return 0;
         }
-        
+
         $sent = 0;
-        
+
         try {
             foreach (self::REMINDER_INTERVALS as $hours) {
                 $threshold = time() - ($hours * 3600);
                 $nextThreshold = time() - (($hours + 1) * 3600);
-                
+
                 $carts = Cart::find()
                     ->where(['between', 'updated_at', $nextThreshold, $threshold])
                     ->with('customer')
                     ->limit(100)
                     ->all();
-                
+
                 foreach ($carts as $cart) {
                     if ($this->sendAbandonedCartEmail($cart)) {
                         $sent++;
@@ -173,10 +173,10 @@ class AbandonedCartService
         } catch (\Exception $e) {
             Yii::error('Ошибка автоматической отправки напоминаний: ' . $e->getMessage());
         }
-        
+
         return $sent;
     }
-    
+
     /**
      * Создать промокод для восстановления корзины
      */
@@ -190,10 +190,10 @@ class AbandonedCartService
                     return $couponService->createRecoveryCoupon($cart, $discountPercent);
                 }
             }
-            
+
             // Fallback - генерируем простой код
             $code = 'CART' . strtoupper(substr(md5($cart->id . time()), 0, 8));
-            
+
             // Сохраняем в сессии для применения
             $session = Yii::$app->session;
             $recoveryCoupons = $session->get('recovery_coupons', []);
@@ -203,7 +203,7 @@ class AbandonedCartService
                 'expires_at' => time() + (24 * 3600), // 24 часа
             ];
             $session->set('recovery_coupons', $recoveryCoupons);
-            
+
             return $code;
         } catch (\Exception $e) {
             Yii::error('Ошибка создания промокода восстановления: ' . $e->getMessage());

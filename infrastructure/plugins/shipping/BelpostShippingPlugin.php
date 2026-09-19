@@ -12,24 +12,24 @@ class BelpostShippingPlugin extends BasePlugin implements ShippingProviderInterf
     protected $description = 'Доставка через Белпочту по всей Беларуси';
     protected $version = '1.0.0';
     protected $author = 'Sneakerhead Team';
-    
+
     public function init(): void
     {
         // Инициализация API Белпочты
     }
-    
+
     public function calculateShippingCost(array $data): array
     {
         $fromCity = $data['from_city'] ?? 'Минск';
         $toCity = $data['to_city'];
         $weight = $data['weight'] ?? 1.0;
-        
+
         $baseCost = 5.0;
         $weightCost = $weight * 2.0;
         $distanceCost = ($fromCity !== $toCity) ? 3.0 : 0;
-        
+
         $totalCost = $baseCost + $weightCost + $distanceCost;
-        
+
         return [
             'success' => true,
             'cost' => $totalCost,
@@ -37,7 +37,7 @@ class BelpostShippingPlugin extends BasePlugin implements ShippingProviderInterf
             'delivery_time' => $this->getDeliveryTime($fromCity, $toCity),
         ];
     }
-    
+
     public function createShipment(array $data): array
     {
         return [
@@ -47,7 +47,7 @@ class BelpostShippingPlugin extends BasePlugin implements ShippingProviderInterf
             'status' => 'created',
         ];
     }
-    
+
     public function trackShipment(string $trackingNumber): array
     {
         return [
@@ -61,12 +61,12 @@ class BelpostShippingPlugin extends BasePlugin implements ShippingProviderInterf
             ],
         ];
     }
-    
+
     public function cancelShipment(string $shipmentId): bool
     {
         return true;
     }
-    
+
     public function getPickupPoints(string $city): array
     {
         $points = [
@@ -78,21 +78,21 @@ class BelpostShippingPlugin extends BasePlugin implements ShippingProviderInterf
                 ['id' => 10, 'name' => 'Отделение №1', 'address' => 'пр. Ленина, 5', 'phone' => '+375 232 70-00-01'],
             ],
         ];
-        
+
         return $points[$city] ?? [];
     }
-    
+
     public function getSupportedCities(): array
     {
         return ['Минск', 'Гомель', 'Брест', 'Витебск', 'Гродно', 'Могилёв'];
     }
-    
+
     public function getDeliveryTime(string $fromCity, string $toCity): int
     {
         if ($fromCity === $toCity) {
             return 2;
         }
-        
+
         return 5;
     }
 }

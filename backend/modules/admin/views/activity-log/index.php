@@ -58,23 +58,37 @@ $makeTargetUrl = static function (array $row) use ($targetUrls): ?string {
 
 /** Относительное время */
 $relTime = static function ($ts): string {
-    if (!$ts) return '—';
+    if (!$ts) {
+        return '—';
+    }
     $diff = time() - (int)$ts;
-    if ($diff < 60)     return 'только что';
-    if ($diff < 3600)   return floor($diff / 60) . ' мин. назад';
-    if ($diff < 86400)  return 'сегодня в ' . date('H:i', $ts);
-    if ($diff < 172800) return 'вчера в '   . date('H:i', $ts);
+    if ($diff < 60) {
+        return 'только что';
+    }
+    if ($diff < 3600) {
+        return floor($diff / 60) . ' мин. назад';
+    }
+    if ($diff < 86400) {
+        return 'сегодня в ' . date('H:i', $ts);
+    }
+    if ($diff < 172800) {
+        return 'вчера в '   . date('H:i', $ts);
+    }
     return date('d M', $ts) . ' в ' . date('H:i', $ts);
 };
 
 /** Красивый diff из JSON-строки */
 $renderDiff = static function (string $changesJson): string {
     $data = @json_decode($changesJson, true);
-    if (!is_array($data) || empty($data)) return '';
+    if (!is_array($data) || empty($data)) {
+        return '';
+    }
 
     $rows = '';
     foreach ($data as $field => $chg) {
-        if (!is_array($chg)) continue;
+        if (!is_array($chg)) {
+            continue;
+        }
         $old = isset($chg['old']) ? Html::encode((string)$chg['old']) : '—';
         $new = isset($chg['new']) ? Html::encode((string)$chg['new']) : '—';
         $rows .= '<tr>'
@@ -283,13 +297,15 @@ $csvParams = array_merge(['/admin/activity-log/export-csv'], array_filter($f, fn
         <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
             <span style="font-size:.75rem;color:var(--admin-text-secondary);font-weight:600;white-space:nowrap"><i class="bi bi-lightning-fill"></i> Период:</span>
             <div class="al-period-chips">
-                <?php foreach ([
+                <?php foreach (
+                [
                     'today' => 'Сегодня',
                     'week'  => 'Неделя',
                     'month' => 'Месяц',
                     'all'   => 'Всё время',
-                    'custom'=> 'Произвольный',
-                ] as $pKey => $pLabel): ?>
+                    'custom' => 'Произвольный',
+                ] as $pKey => $pLabel
+) : ?>
                 <a href="javascript:void(0)"
                    class="al-chip <?= $f['period'] === $pKey ? 'active' : '' ?>"
                    onclick="setAlPeriod('<?= $pKey ?>')"><?= $pLabel ?></a>
@@ -310,7 +326,7 @@ $csvParams = array_merge(['/admin/activity-log/export-csv'], array_filter($f, fn
             <!-- User -->
             <select name="user_id" class="al-select" style="width:180px">
                 <option value="">— Все пользователи —</option>
-                <?php foreach ($adminUsers as $u): ?>
+                <?php foreach ($adminUsers as $u) : ?>
                 <option value="<?= $u['id'] ?>" <?= (int)$f['user_id'] === (int)$u['id'] ? 'selected' : '' ?>>
                     <?= Html::encode($u['username']) ?>
                 </option>
@@ -320,7 +336,7 @@ $csvParams = array_merge(['/admin/activity-log/export-csv'], array_filter($f, fn
             <!-- Target type -->
             <select name="target_type" class="al-select" style="width:160px">
                 <option value="">— Все типы —</option>
-                <?php foreach ($targetTypeLabels as $k => $v): ?>
+                <?php foreach ($targetTypeLabels as $k => $v) : ?>
                 <option value="<?= Html::encode($k) ?>" <?= $f['target_type'] === $k ? 'selected' : '' ?>>
                     <?= Html::encode($v) ?>
                 </option>
@@ -330,7 +346,7 @@ $csvParams = array_merge(['/admin/activity-log/export-csv'], array_filter($f, fn
             <!-- Action -->
             <select name="action" class="al-select" style="width:160px">
                 <option value="">— Все действия —</option>
-                <?php foreach ($actionLabels as $k => $v): ?>
+                <?php foreach ($actionLabels as $k => $v) : ?>
                 <option value="<?= Html::encode($k) ?>" <?= $f['action'] === $k ? 'selected' : '' ?>>
                     <?= Html::encode($v) ?>
                 </option>
@@ -340,7 +356,7 @@ $csvParams = array_merge(['/admin/activity-log/export-csv'], array_filter($f, fn
             <!-- Source -->
             <select name="source" class="al-select" style="width:120px">
                 <option value="">— Источник —</option>
-                <?php foreach ($sources as $k => $v): ?>
+                <?php foreach ($sources as $k => $v) : ?>
                 <option value="<?= Html::encode($k) ?>" <?= $f['source'] === $k ? 'selected' : '' ?>>
                     <?= Html::encode($v) ?>
                 </option>
@@ -365,16 +381,15 @@ $csvParams = array_merge(['/admin/activity-log/export-csv'], array_filter($f, fn
 <div class="admin-card">
     <div class="admin-card-body" style="padding:0">
 
-    <?php if (empty($logs)): ?>
+    <?php if (empty($logs)) : ?>
         <div style="padding:60px;text-align:center;color:var(--admin-text-secondary)">
             <i class="bi bi-journal-x" style="font-size:2.5rem;opacity:.4"></i>
             <p style="margin-top:12px">Записей не найдено</p>
-            <?php if (array_filter($f, fn($v) => $v !== '' && $v !== 0 && $v !== '0' && $v !== 'today')): ?>
-            <?= Html::a('Сбросить фильтры', ['/admin/activity-log'], ['class' => 'admin-btn admin-btn-secondary']) ?>
+            <?php if (array_filter($f, fn($v) => $v !== '' && $v !== 0 && $v !== '0' && $v !== 'today')) : ?>
+                <?= Html::a('Сбросить фильтры', ['/admin/activity-log'], ['class' => 'admin-btn admin-btn-secondary']) ?>
             <?php endif; ?>
         </div>
-    <?php else: ?>
-
+    <?php else : ?>
     <div style="overflow-x:auto">
     <table class="al-timeline">
         <thead style="background:var(--admin-bg,#f9fafb);font-size:.75rem;color:var(--admin-text-secondary);text-transform:uppercase;letter-spacing:.04em">
@@ -390,12 +405,12 @@ $csvParams = array_merge(['/admin/activity-log/export-csv'], array_filter($f, fn
             </tr>
         </thead>
         <tbody>
-        <?php foreach ($logs as $i => $row):
+        <?php foreach ($logs as $i => $row) :
             $meta    = $actionMeta[$row['action']] ?? ['icon' => 'bi-activity', 'color' => '#6b7280', 'bg' => '#f3f4f6'];
             $hasDiff = !empty($row['changes']);
             $url     = $makeTargetUrl($row);
             $diffId  = 'al-diff-' . $i;
-        ?>
+            ?>
         <tr>
             <!-- Icon -->
             <td style="padding:10px 12px">
@@ -414,17 +429,17 @@ $csvParams = array_merge(['/admin/activity-log/export-csv'], array_filter($f, fn
 
             <!-- User -->
             <td>
-                <?php if ($row['user_name']): ?>
+                <?php if ($row['user_name']) : ?>
                 <span class="al-user-pill">
                     <i class="bi bi-person-fill" style="font-size:.7rem;opacity:.7"></i>
                     <?= Html::encode(mb_substr($row['user_name'], 0, 16)) ?>
                 </span>
-                <?php if ($row['user_role']): ?>
+                    <?php if ($row['user_role']) : ?>
                 <div style="font-size:.7rem;color:var(--admin-text-secondary);margin-top:2px;padding-left:4px">
-                    <?= Html::encode($row['user_role']) ?>
+                        <?= Html::encode($row['user_role']) ?>
                 </div>
-                <?php endif; ?>
-                <?php else: ?>
+                    <?php endif; ?>
+                <?php else : ?>
                 <span style="color:var(--admin-text-secondary);font-size:.8rem">—</span>
                 <?php endif; ?>
             </td>
@@ -441,7 +456,7 @@ $csvParams = array_merge(['/admin/activity-log/export-csv'], array_filter($f, fn
                 <div style="font-size:.8125rem;line-height:1.5">
                     <?= $buildDescription($row) ?>
                 </div>
-                <?php if ($hasDiff): ?>
+                <?php if ($hasDiff) : ?>
                 <div style="margin-top:4px">
                     <button type="button" class="al-diff-toggle" onclick="alToggleDiff('<?= $diffId ?>', this)">
                         <i class="bi bi-code-slash"></i> показать изменения
@@ -469,8 +484,8 @@ $csvParams = array_merge(['/admin/activity-log/export-csv'], array_filter($f, fn
 
             <!-- Open link -->
             <td style="text-align:right">
-                <?php if ($url): ?>
-                <?= Html::a('<i class="bi bi-box-arrow-up-right"></i> Открыть', $url, [
+                <?php if ($url) : ?>
+                    <?= Html::a('<i class="bi bi-box-arrow-up-right"></i> Открыть', $url, [
                     'class'  => 'admin-btn admin-btn-secondary',
                     'style'  => 'font-size:.75rem;padding:3px 8px',
                     'target' => '_blank',
@@ -488,7 +503,7 @@ $csvParams = array_merge(['/admin/activity-log/export-csv'], array_filter($f, fn
         <span style="font-size:.8125rem;color:var(--admin-text-secondary)">
             Показано <?= count($logs) ?> из <?= number_format($totalCount) ?> записей
         </span>
-        <?php if ($pagination->pageCount > 1): ?>
+        <?php if ($pagination->pageCount > 1) : ?>
         <div class="al-pager">
             <?= LinkPager::widget([
                 'pagination'  => $pagination,

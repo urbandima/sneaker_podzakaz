@@ -35,10 +35,10 @@ class m250315_120000_create_coupon_tables extends Migration
             'created_at' => $this->dateTime()->notNull(),
             'updated_at' => $this->dateTime()->notNull(),
         ]);
-        
+
         $this->createIndex('idx-coupon-code', '{{%coupon}}', 'code');
         $this->createIndex('idx-coupon-active', '{{%coupon}}', ['is_active', 'valid_from', 'valid_until']);
-        
+
         // Таблица истории использования купонов
         $this->createTable('{{%coupon_usage}}', [
             'id' => $this->primaryKey(),
@@ -48,16 +48,16 @@ class m250315_120000_create_coupon_tables extends Migration
             'discount_amount' => $this->decimal(10, 2)->notNull(),
             'used_at' => $this->dateTime()->notNull(),
         ]);
-        
+
         $this->createIndex('idx-coupon_usage-coupon', '{{%coupon_usage}}', 'coupon_id');
         $this->createIndex('idx-coupon_usage-order', '{{%coupon_usage}}', 'order_id');
         $this->createIndex('idx-coupon_usage-user', '{{%coupon_usage}}', 'user_id');
-        
+
         $this->addForeignKey('fk-coupon_usage-coupon', '{{%coupon_usage}}', 'coupon_id', '{{%coupon}}', 'id', 'CASCADE');
         $this->addForeignKey('fk-coupon_usage-order', '{{%coupon_usage}}', 'order_id', '{{%order}}', 'id', 'CASCADE');
         // user_id stores customer.id (the customer who used the coupon)
         $this->addForeignKey('fk-coupon_usage-customer', '{{%coupon_usage}}', 'user_id', '{{%customer}}', 'id', 'SET NULL');
-        
+
         // Добавляем поля купона в таблицу заказов
         $this->addColumn('{{%order}}', 'coupon_id', $this->integer());
         $this->addColumn('{{%order}}', 'coupon_code', $this->string(50));

@@ -292,7 +292,7 @@ $this->registerCss($css);
 ?>
 
 <div class="container pt-page">
-    <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()): ?>
+    <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()) : ?>
     <div style="margin-bottom:1.25rem;text-align:right">
         <a href="/admin/page/edit?slug=payment-terms" class="page-edit-admin-btn" target="_blank">
             <i class="bi bi-pencil-square"></i> Редактировать страницу
@@ -558,7 +558,8 @@ $this->registerCss($css);
             <div style="font-weight:700;font-size:0.9375rem;margin-bottom:3px">Проблемы с оплатой?</div>
             <div style="font-size:0.8125rem;color:#666">
                 Напишите нам на <a href="mailto:payment@snikered.by" style="color:#111;font-weight:600">payment@snikered.by</a>
-                <?php $company = Yii::$app->settings->getCompany(); $phone = $company['phone'] ?? '+375 44 700-90-01'; ?>
+                <?php $company = Yii::$app->settings->getCompany();
+                $phone = $company['phone'] ?? '+375 44 700-90-01'; ?>
                 или позвоните <a href="tel:<?= preg_replace('/[^+\d]/', '', $phone) ?>" style="color:#111;font-weight:600"><?= Html::encode($phone) ?></a> — поможем разобраться.
             </div>
         </div>

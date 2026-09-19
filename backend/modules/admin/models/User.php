@@ -2,11 +2,11 @@
 
 /**
  * User — Модель пользователя админ-панели
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Пользователи админ-панели: администраторы, менеджеры, логисты.
  * Управление правами доступа и ролями.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - username: имя пользователя
  * - email: email
@@ -14,29 +14,30 @@
  * - auth_key: ключ авторизации
  * - role: роль (admin, manager, logist)
  * - status: статус (active, inactive, deleted)
- * 
+ *
  * РОЛИ:
  * - ROLE_ADMIN: полный доступ ко всему
  * - ROLE_MANAGER: управление заказами, товарами, покупателями
  * - ROLE_LOGIST: работа с назначенными заказами (доставка)
- * 
+ *
  * СТАТУСЫ:
  * - STATUS_ACTIVE = 10 (активный)
  * - STATUS_INACTIVE = 9 (неактивный)
  * - STATUS_DELETED = 0 (удалённый)
- * 
+ *
  * СВЯЗИ:
  * - Order (createdOrders): созданные заказы
  * - Order (assignedOrders): назначенные заказы (для логистов)
- * 
+ *
  * ИНТЕРФЕЙСЫ:
  * - IdentityInterface (для авторизации)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - SiteController (авторизация в админку)
  * - UserController/admin (управление пользователями)
  * - OrderController (назначение логистов)
  */
+
 namespace app\backend\modules\admin\models;
 
 use Yii;
@@ -47,14 +48,14 @@ use app\backend\modules\checkout\models\Order;
 
 class User extends ActiveRecord implements IdentityInterface
 {
-    const STATUS_DELETED = 0;
-    const STATUS_INACTIVE = 9;
-    const STATUS_ACTIVE = 10;
+    public const STATUS_DELETED = 0;
+    public const STATUS_INACTIVE = 9;
+    public const STATUS_ACTIVE = 10;
 
-    const ROLE_ADMIN    = 'admin';
-    const ROLE_DIRECTOR = 'director';
-    const ROLE_MANAGER  = 'manager';
-    const ROLE_LOGIST   = 'logist';
+    public const ROLE_ADMIN    = 'admin';
+    public const ROLE_DIRECTOR = 'director';
+    public const ROLE_MANAGER  = 'manager';
+    public const ROLE_LOGIST   = 'logist';
 
     public $password; // Для формы создания
 
@@ -104,16 +105,16 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
-            
+
             ['role', 'default', 'value' => self::ROLE_MANAGER],
             ['role', 'in', 'range' => [self::ROLE_ADMIN, self::ROLE_DIRECTOR, self::ROLE_MANAGER, self::ROLE_LOGIST]],
-            
+
             [['username', 'email'], 'required'],
             [['username', 'email'], 'string', 'max' => 255],
             ['username', 'unique'],
             ['email', 'email'],
             ['email', 'unique'],
-            
+
             // Для создания пользователя
             ['password', 'required', 'on' => 'create'],
             ['password', 'string', 'min' => 8, 'on' => 'create'], // AUDIT-70: минимальная длина пароля 8 символов

@@ -15,7 +15,7 @@ trait CatalogSeoTrait
 {
     /**
      * Регистрация мета-тегов
-     * 
+     *
      * @param array $tags
      */
     protected function registerMetaTags($tags)
@@ -27,7 +27,7 @@ trait CatalogSeoTrait
                 $this->view->registerMetaTag(['name' => $name, 'content' => $content], $name);
             }
         }
-        
+
         // Canonical URL
         $canonicalUrl = $this->buildCanonicalUrl();
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => $canonicalUrl], 'canonical');
@@ -35,7 +35,7 @@ trait CatalogSeoTrait
 
     /**
      * Построение canonical URL
-     * 
+     *
      * @return string
      */
     protected function buildCanonicalUrl(): string
@@ -43,32 +43,32 @@ trait CatalogSeoTrait
         $canonicalUrl = Yii::$app->request->absoluteUrl;
         $parsedUrl = parse_url($canonicalUrl);
         $path = $parsedUrl['path'] ?? '/';
-        
+
         // Убираем trailing slash
         if ($path !== '/' && substr($path, -1) === '/') {
             $path = rtrim($path, '/');
         }
-        
+
         $canonical = ($parsedUrl['scheme'] ?? 'https') . '://' . ($parsedUrl['host'] ?? '');
         $canonical .= $path;
-        
+
         if (!empty($parsedUrl['query'])) {
             $canonical .= '?' . $parsedUrl['query'];
         }
-        
+
         return $canonical;
     }
 
     /**
      * Регистрация JSON-LD схемы
-     * 
+     *
      * @param array $schema
      * @param string $key
      */
     protected function registerJsonLd($schema, $key)
     {
         $jsonLd = json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-        
+
         if (!isset($this->view->params['jsonLdSchemas'])) {
             $this->view->params['jsonLdSchemas'] = [];
         }
@@ -77,7 +77,7 @@ trait CatalogSeoTrait
 
     /**
      * Регистрация Schema.org ItemList
-     * 
+     *
      * @param array $products
      * @param int $totalCount
      * @param array $filters
@@ -90,11 +90,11 @@ trait CatalogSeoTrait
             'numberOfItems' => $totalCount,
             'itemListElement' => []
         ];
-        
+
         if (!empty($filters)) {
             $schema['description'] = $this->generateFilteredDescription($filters, '');
         }
-        
+
         foreach ($products as $index => $product) {
             $productSchema = [
                 '@type' => 'Product',
@@ -103,40 +103,40 @@ trait CatalogSeoTrait
                 'image' => Yii::$app->request->hostInfo . $product->getMainImageUrl(),
                 'sku' => $product->id,
             ];
-            
+
             if (!empty($product->description)) {
                 $productSchema['description'] = mb_substr(strip_tags($product->description), 0, 200);
             }
-            
+
             if ($product->brand) {
                 $productSchema['brand'] = [
                     '@type' => 'Brand',
                     'name' => $product->brand_name ?? $product->brand->name
                 ];
             }
-            
+
             $productSchema['offers'] = [
                 '@type' => 'Offer',
                 'price' => $product->price,
                 'priceCurrency' => 'BYN',
-                'availability' => $product->isInStock() 
-                    ? 'https://schema.org/InStock' 
+                'availability' => $product->isInStock()
+                    ? 'https://schema.org/InStock'
                     : 'https://schema.org/OutOfStock',
             ];
-            
+
             $schema['itemListElement'][] = [
                 '@type' => 'ListItem',
                 'position' => $index + 1,
                 'item' => $productSchema
             ];
         }
-        
+
         $this->registerJsonLd($schema, 'schema-itemlist');
     }
 
     /**
      * Регистрация Schema.org BreadcrumbList
-     * 
+     *
      * @param array $breadcrumbs
      * @param array $filters
      */
@@ -147,7 +147,7 @@ trait CatalogSeoTrait
             '@type' => 'BreadcrumbList',
             'itemListElement' => []
         ];
-        
+
         $position = 1;
         foreach ($breadcrumbs as $crumb) {
             $schema['itemListElement'][] = [
@@ -157,7 +157,7 @@ trait CatalogSeoTrait
                 'item' => $crumb['url'] ?? Yii::$app->request->absoluteUrl
             ];
         }
-        
+
         $this->registerJsonLd($schema, 'schema-breadcrumbs');
     }
 
@@ -180,13 +180,13 @@ trait CatalogSeoTrait
                 'query-input' => 'required name=search_term_string'
             ]
         ];
-        
+
         $this->registerJsonLd($schema, 'schema-website');
     }
 
     /**
      * Регистрация rel prev/next для пагинации
-     * 
+     *
      * @param int $currentPage
      * @param int $totalPages
      * @param array $filters
@@ -194,7 +194,7 @@ trait CatalogSeoTrait
     protected function registerPaginationLinks($currentPage, $totalPages, $filters)
     {
         $baseUrl = SmartFilter::generateSefUrl($filters);
-        
+
         if ($currentPage > 1) {
             $prevUrl = $baseUrl . '?page=' . ($currentPage - 1);
             $this->view->registerLinkTag([
@@ -202,7 +202,7 @@ trait CatalogSeoTrait
                 'href' => Yii::$app->request->hostInfo . $prevUrl
             ]);
         }
-        
+
         if ($currentPage < $totalPages) {
             $nextUrl = $baseUrl . '?page=' . ($currentPage + 1);
             $this->view->registerLinkTag([
@@ -214,7 +214,7 @@ trait CatalogSeoTrait
 
     /**
      * Генерация динамического описания на основе фильтров
-     * 
+     *
      * @param array $filters
      * @param string $baseDescription
      * @return string
@@ -222,7 +222,7 @@ trait CatalogSeoTrait
     protected function generateFilteredDescription($filters, $baseDescription = '')
     {
         $parts = [];
-        
+
         if (!empty($filters['brands'])) {
             $brands = Brand::find()
                 ->where(['id' => $filters['brands']])
@@ -232,7 +232,7 @@ trait CatalogSeoTrait
                 $parts[] = implode(', ', $brands);
             }
         }
-        
+
         if (!empty($filters['categories']) && empty($filters['brands'])) {
             $categories = Category::find()
                 ->where(['id' => $filters['categories']])
@@ -242,7 +242,7 @@ trait CatalogSeoTrait
                 $parts[] = implode(', ', $categories);
             }
         }
-        
+
         if (!empty($filters['price_from']) && !empty($filters['price_to'])) {
             $parts[] = "от {$filters['price_from']} до {$filters['price_to']} BYN";
         } elseif (!empty($filters['price_from'])) {
@@ -250,17 +250,17 @@ trait CatalogSeoTrait
         } elseif (!empty($filters['price_to'])) {
             $parts[] = "до {$filters['price_to']} BYN";
         }
-        
+
         if (!empty($parts)) {
             return implode('. ', $parts) . '. ' . $baseDescription;
         }
-        
+
         return $baseDescription ?: 'Оригинальные товары из США и Европы с доставкой по Беларуси';
     }
 
     /**
      * Генерация динамического заголовка
-     * 
+     *
      * @param array $filters
      * @param string $baseTitle
      * @return string
@@ -268,7 +268,7 @@ trait CatalogSeoTrait
     protected function generateFilteredTitle($filters, $baseTitle = 'Каталог')
     {
         $parts = [$baseTitle];
-        
+
         if (!empty($filters['brands'])) {
             $brands = Brand::find()
                 ->where(['id' => array_slice($filters['brands'], 0, 2)])
@@ -278,7 +278,7 @@ trait CatalogSeoTrait
                 $parts[] = implode(', ', $brands);
             }
         }
-        
+
         if (!empty($filters['price_from']) || !empty($filters['price_to'])) {
             if (!empty($filters['price_from']) && !empty($filters['price_to'])) {
                 $parts[] = "{$filters['price_from']}-{$filters['price_to']} BYN";
@@ -288,13 +288,13 @@ trait CatalogSeoTrait
                 $parts[] = "до {$filters['price_to']} BYN";
             }
         }
-        
+
         return implode(' - ', $parts);
     }
 
     /**
      * Получение URL изображения первого товара
-     * 
+     *
      * @param \yii\db\ActiveQuery $query
      * @return string|null
      */
@@ -302,11 +302,11 @@ trait CatalogSeoTrait
     {
         $productQuery = clone $query;
         $product = $productQuery->select(['id', 'main_image_url'])->limit(1)->one();
-        
+
         if ($product && $product->main_image_url) {
             return Yii::$app->request->hostInfo . $product->main_image_url;
         }
-        
+
         return null;
     }
 }

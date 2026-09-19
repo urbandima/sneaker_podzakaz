@@ -15,14 +15,14 @@ class m251222_000000_add_logistics_fields_to_order extends Migration
         } catch (\Exception $e) {
             echo "⚠ Колонка china_track_number уже существует\n";
         }
-        
+
         // Ценность шипмента (общая, Y)
         try {
             $this->addColumn('{{%order}}', 'shipment_value_cny', $this->decimal(10, 2)->after('china_track_number'));
         } catch (\Exception $e) {
             echo "⚠ Колонка shipment_value_cny уже существует\n";
         }
-        
+
         // Паспортные данные получателя
         try {
             $this->addColumn('{{%order}}', 'recipient_last_name', $this->string(100)->after('client_name'));
@@ -64,7 +64,7 @@ class m251222_000000_add_logistics_fields_to_order extends Migration
         } catch (\Exception $e) {
             echo "⚠ Колонка inn уже существует\n";
         }
-        
+
         // Адрес получателя (детализированный)
         try {
             $this->addColumn('{{%order}}', 'full_address', $this->text()->after('inn'));
@@ -86,7 +86,7 @@ class m251222_000000_add_logistics_fields_to_order extends Migration
         } catch (\Exception $e) {
             echo "⚠ Колонка postal_code уже существует\n";
         }
-        
+
         // Описание товара для таможни
         $directColumns = [
             ['customs_description', $this->text()->after('comment')],
@@ -110,7 +110,7 @@ class m251222_000000_add_logistics_fields_to_order extends Migration
                 echo "⚠ Колонка {$col} уже существует\n";
             }
         }
-        
+
         // Индексы для быстрого поиска
         $this->createIndex('idx-order-china_track', '{{%order}}', 'china_track_number');
         $this->createIndex('idx-order-is_processed', '{{%order}}', 'is_processed');
@@ -124,7 +124,7 @@ class m251222_000000_add_logistics_fields_to_order extends Migration
         $this->dropIndex('idx-order-is_shipped', '{{%order}}');
         $this->dropIndex('idx-order-is_processed', '{{%order}}');
         $this->dropIndex('idx-order-china_track', '{{%order}}');
-        
+
         $this->dropColumn('{{%order}}', 'commission_price');
         $this->dropColumn('{{%order}}', 'logistics_price');
         $this->dropColumn('{{%order}}', 'product_price');

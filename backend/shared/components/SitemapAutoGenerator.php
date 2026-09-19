@@ -2,21 +2,21 @@
 
 /**
  * SitemapAutoGenerator — Компонент автоматической генерации sitemap
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Автоматическая регенерация sitemap.xml при изменении товаров,
  * категорий, брендов. Перехватывает завершение запроса.
- * 
+ *
  * ФУНКЦИИ:
  * - Перехват EVENT_AFTER_REQUEST
  * - Проверка флага необходимости обновления
  * - Фоновая генерация sitemap
  * - Блокировка для предотвращения параллельной генерации
- * 
+ *
  * КОНСТАНТЫ:
  * - CACHE_LOCK_KEY: ключ блокировки
  * - CACHE_CHECK_KEY: ключ последней проверки
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * Автоматически регистрируется как bootstrap компонент:
  * ```php
@@ -25,12 +25,13 @@
  *     'sitemapAutoGenerator' => ['class' => SitemapAutoGenerator::class],
  * ],
  * ```
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Отложенная генерация после запроса
  * - Проверка интервала для снижения нагрузки
  * - Интеграция с SitemapNotifier
  */
+
 namespace app\backend\shared\components;
 
 use Yii;
@@ -102,7 +103,7 @@ class SitemapAutoGenerator extends Component implements BootstrapInterface
 
         $cache = Yii::$app->cache;
         $lockTtl = Yii::$app->params['sitemap']['lockTtl'] ?? 600;
-        
+
         if (!$cache || !$cache->add(self::CACHE_LOCK_KEY, time(), $lockTtl)) {
             return;
         }

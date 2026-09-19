@@ -25,7 +25,7 @@ CheckoutAsset::register($this);
                             <h1 class="order-title mb-1">Заказ №<?= Html::encode($model->order_number) ?></h1>
                             <div class="text-muted small"><?= Html::encode($model->client_name) ?> • <?= Yii::$app->formatter->asDate($model->created_at) ?></div>
                         </div>
-                        <?php if (!empty($model->history)): ?>
+                        <?php if (!empty($model->history)) : ?>
                         <button class="btn-history-compact" onclick="showHistoryModal()" title="История изменений">
                             <i class="bi bi-clock-history"></i>
                             <span class="d-none d-md-inline">История</span>
@@ -47,7 +47,7 @@ CheckoutAsset::register($this);
                 <div class="product-card">
                     <h5 class="section-title"><i class="bi bi-cart3"></i> Состав заказа</h5>
                     <div class="products-list">
-                        <?php foreach ($model->orderItems as $index => $item): ?>
+                        <?php foreach ($model->orderItems as $index => $item) : ?>
                         <div class="product-item">
                             <div class="product-number"><?= $index + 1 ?></div>
                             <div class="product-info flex-grow-1">
@@ -154,7 +154,7 @@ CheckoutAsset::register($this);
             </div>
 
             <!-- Подтверждение оплаты -->
-            <?php if (!$model->payment_proof): ?>
+            <?php if (!$model->payment_proof) : ?>
             <section class="confirmation-section">
                 <div class="confirmation-card">
                     <div class="confirmation-header">
@@ -254,7 +254,7 @@ CheckoutAsset::register($this);
                     </div>
                 </div>
             </section>
-            <?php else: ?>
+            <?php else : ?>
             <section class="confirmation-section">
                 <div class="confirmation-card success">
                     <div class="confirmation-header">
@@ -298,7 +298,7 @@ CheckoutAsset::register($this);
                                     <span class="meta-value success"><i class="bi bi-check-circle"></i> На проверке</span>
                                 </li>
                             </ul>
-                            <?php if ($model->payment_proof): ?>
+                            <?php if ($model->payment_proof) : ?>
                                 <a class="ghost-button" href="<?= Url::to(['download-payment', 'token' => $model->token]) ?>" target="_blank">
                                     <i class="bi bi-download"></i> Скачать загруженный файл
                                 </a>
@@ -330,7 +330,7 @@ CheckoutAsset::register($this);
 </div>
 
 <!-- Модальное окно истории заказа -->
-<?php if (!empty($model->history)): ?>
+<?php if (!empty($model->history)) : ?>
 <div id="history-modal" class="history-modal" onclick="closeHistoryModal(event)">
     <div class="history-modal-content" onclick="event.stopPropagation()">
         <div class="history-modal-header">
@@ -341,16 +341,16 @@ CheckoutAsset::register($this);
         </div>
         <div class="history-modal-body">
             <div class="history-timeline-modal">
-                <?php foreach (array_reverse($model->history) as $index => $history): ?>
+                <?php foreach (array_reverse($model->history) as $index => $history) : ?>
                 <div class="history-item-modal">
                     <div class="history-dot-modal"></div>
-                    <?php if ($index < count($model->history) - 1): ?>
+                    <?php if ($index < count($model->history) - 1) : ?>
                     <div class="history-line-modal"></div>
                     <?php endif; ?>
                     <div class="history-content-modal">
                         <div class="history-status-modal"><?= $history->getNewStatusLabel() ?></div>
                         <div class="history-date-modal"><?= Yii::$app->formatter->asDatetime($history->created_at, 'medium') ?></div>
-                        <?php if ($history->comment): ?>
+                        <?php if ($history->comment) : ?>
                             <div class="history-comment-modal"><?= Html::encode($history->comment) ?></div>
                         <?php endif; ?>
                     </div>

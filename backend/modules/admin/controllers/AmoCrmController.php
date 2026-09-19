@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AmoCrmController — Интеграция с AmoCRM
  *
@@ -57,7 +58,6 @@ class AmoCrmController extends BaseAdminController
                 'deal_id' => $dealId,
                 'contact_id' => $contactId,
             ];
-
         } catch (\Exception $e) {
             Yii::error('AmoCRM error: ' . $e->getMessage(), 'admin');
             return ['success' => false, 'message' => $e->getMessage()];

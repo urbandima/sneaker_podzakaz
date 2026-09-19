@@ -3,9 +3,10 @@
 /**
  * Конфигурация health checks
  */
+
 return [
     'enabled' => true,
-    
+
     // Проверки здоровья
     'checks' => [
         'database' => [
@@ -30,7 +31,7 @@ return [
             'min_free_space' => 1_000_000_000, // 1GB
         ],
     ],
-    
+
     // Пороги для alerting
     'thresholds' => [
         'memory_usage' => 0.9, // 90%

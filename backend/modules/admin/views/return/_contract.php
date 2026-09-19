@@ -149,8 +149,8 @@ $contractNumber = 'КД-' . $model->return_number;
         </tr>
     </thead>
     <tbody>
-        <?php if ($model->order && $model->order->orderItems): ?>
-            <?php $i = 1; foreach ($model->order->orderItems as $item): ?>
+        <?php if ($model->order && $model->order->orderItems) : ?>
+            <?php $i = 1; foreach ($model->order->orderItems as $item) : ?>
             <tr>
                 <td><?= $i++ ?></td>
                 <td><?= Html::encode($item->product_name) ?></td>
@@ -159,7 +159,7 @@ $contractNumber = 'КД-' . $model->return_number;
                 <td><?= PriceHelper::format($item->price) ?></td>
             </tr>
             <?php endforeach; ?>
-        <?php else: ?>
+        <?php else : ?>
             <tr><td colspan="5" style="text-align:center;color:#999;">Позиции товаров не указаны</td></tr>
         <?php endif; ?>
     </tbody>
@@ -198,7 +198,7 @@ $contractNumber = 'КД-' . $model->return_number;
         Адрес: <?= Html::encode($companyAddress) ?><br>
         Тел.: <?= Html::encode($companyPhone) ?><br>
         Email: <?= Html::encode($companyEmail) ?><br>
-        <?php if ($bankDetails): ?>
+        <?php if ($bankDetails) : ?>
         <br><?= nl2br(Html::encode($bankDetails)) ?>
         <?php endif; ?>
     </div>

@@ -9,7 +9,6 @@ class m251102_081314_add_brand_seo_fields extends Migration
      */
     public function safeUp()
     {
-
     }
 
     /**

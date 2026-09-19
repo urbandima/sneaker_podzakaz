@@ -125,19 +125,19 @@ $formatter = Yii::$app->formatter;
                         <span class="quick-pill">Калькулятор</span>
                         <h2>Мгновенный расчёт заказа</h2>
                     </div>
-                    <?php if (!empty($tariffs)): ?>
+                    <?php if (!empty($tariffs)) : ?>
                         <button class="admin-btn admin-btn--ghost admin-btn--sm" id="calcPanelReset">
                             <i class="bi bi-arrow-counterclockwise"></i> Сбросить
                         </button>
                     <?php endif; ?>
                 </div>
-                <?php if (!empty($tariffs)): ?>
+                <?php if (!empty($tariffs)) : ?>
                 <form id="dashboardCalcForm" class="calc-form">
                     <div class="calc-form-grid">
                         <label class="calc-field">
                             <span>Тариф</span>
                             <select name="tariff_id" id="calcTariff">
-                                <?php foreach ($tariffs as $tariff): ?>
+                                <?php foreach ($tariffs as $tariff) : ?>
                                     <option value="<?= $tariff->id ?>"><?= Html::encode($tariff->name) ?></option>
                                 <?php endforeach; ?>
                             </select>
@@ -170,7 +170,7 @@ $formatter = Yii::$app->formatter;
                     </div>
                     <div class="calc-breakdown" id="calcBreakdown"></div>
                 </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="calc-empty-state">
                         <p>Нет активных тарифов. Добавьте тариф, чтобы воспользоваться калькулятором.</p>
                         <a href="<?= Url::to(['/admin/tariff/index']) ?>" class="admin-btn admin-btn--outline">
@@ -249,7 +249,7 @@ $formatter = Yii::$app->formatter;
                     </a>
                 </div>
                 <div class="admin-card-body recent-orders-list">
-                    <?php foreach ($recentOrders as $order): ?>
+                    <?php foreach ($recentOrders as $order) : ?>
                         <a href="<?= Url::to(['/admin/order/view', 'id' => $order->id]) ?>" class="recent-order">
                             <div class="recent-order__avatar">
                                 <i class="bi bi-box-seam"></i>
@@ -266,7 +266,7 @@ $formatter = Yii::$app->formatter;
                             </div>
                         </a>
                     <?php endforeach; ?>
-                    <?php if (empty($recentOrders)): ?>
+                    <?php if (empty($recentOrders)) : ?>
                         <div class="admin-empty-state">
                             <div class="admin-empty-state-icon">✨</div>
                             <div class="admin-empty-state-title">Пока нет новых заказов</div>
@@ -289,7 +289,7 @@ $formatter = Yii::$app->formatter;
                     </a>
                 </div>
                 <div class="admin-card-body top-products-list">
-                    <?php foreach ($topProducts as $index => $product): ?>
+                    <?php foreach ($topProducts as $index => $product) : ?>
                         <div class="top-product">
                             <span class="top-product__rank"><?= $index + 1 ?></span>
                             <div>
@@ -304,7 +304,7 @@ $formatter = Yii::$app->formatter;
                             </span>
                         </div>
                     <?php endforeach; ?>
-                    <?php if (empty($topProducts)): ?>
+                    <?php if (empty($topProducts)) : ?>
                         <div class="admin-text-muted">Недостаточно данных для рейтинга.</div>
                     <?php endif; ?>
                 </div>
@@ -321,7 +321,7 @@ $formatter = Yii::$app->formatter;
                     </a>
                 </div>
                 <div class="admin-card-body logist-list">
-                    <?php foreach ($activeLogists as $logist): ?>
+                    <?php foreach ($activeLogists as $logist) : ?>
                         <div class="logist-entry">
                             <div class="logist-entry__avatar">
                                 <?= Html::encode(mb_strtoupper(mb_substr($logist->username, 0, 2))) ?>
@@ -335,7 +335,7 @@ $formatter = Yii::$app->formatter;
                             </a>
                         </div>
                     <?php endforeach; ?>
-                    <?php if (empty($activeLogists)): ?>
+                    <?php if (empty($activeLogists)) : ?>
                         <div class="admin-text-muted">Нет активных логистов.</div>
                     <?php endif; ?>
                 </div>

@@ -1,11 +1,15 @@
 <?php
+
 namespace app\backend\modules\procurement\models;
 
 use yii\db\ActiveRecord;
 
 class SupplierReturnItem extends ActiveRecord
 {
-    public static function tableName() { return 'supplier_return_item'; }
+    public static function tableName()
+    {
+        return 'supplier_return_item';
+    }
 
     public function rules()
     {

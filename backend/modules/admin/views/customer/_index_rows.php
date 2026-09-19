@@ -1,4 +1,5 @@
 <?php
+
 /** @var app\backend\modules\account\models\Customer[] $customers */
 
 use yii\helpers\Html;
@@ -12,11 +13,13 @@ $statusPills = [
     0  => ['bg' => '#f3f4f6', 'color' => '#6b7280', 'label' => 'Удалён'],
 ];
 
-foreach ($customers as $customer):
+foreach ($customers as $customer) :
     $sp = $statusPills[$customer->status] ?? ['bg' => '#f3f4f6', 'color' => '#6b7280', 'label' => $customer->getStatusLabel()];
     $fullName = trim(($customer->first_name ?? '') . ' ' . ($customer->last_name ?? ''));
-    if (!$fullName) $fullName = 'Клиент #' . $customer->id;
-?>
+    if (!$fullName) {
+        $fullName = 'Клиент #' . $customer->id;
+    }
+    ?>
 <tr data-href="<?= Url::to(['customer/view', 'id' => $customer->id]) ?>">
     <td style="white-space:nowrap;padding:6px 8px;font-weight:700">
         <?= $customer->id ?>

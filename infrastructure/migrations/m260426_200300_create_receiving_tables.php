@@ -26,19 +26,19 @@ class m260426_200300_create_receiving_tables extends Migration
             'total_qty_defected'     => $this->integer()->notNull()->defaultValue(0),
             'subtotal_byn'           => $this->decimal(12, 2)->notNull()->defaultValue(0),
             'expenses_total_byn'     => $this->decimal(12, 2)->notNull()->defaultValue(0),
-            'total_with_expenses_byn'=> $this->decimal(12, 2)->notNull()->defaultValue(0),
+            'total_with_expenses_byn' => $this->decimal(12, 2)->notNull()->defaultValue(0),
             'receiver_user_id'       => $this->integer()->null(),
             'notes'                  => $this->text()->null(),
             'created_at'             => $this->integer()->notNull(),
             'updated_at'             => $this->integer()->notNull(),
         ]);
 
-        $this->createIndex('idx_receiving_status',      '{{%receiving}}', 'status');
-        $this->createIndex('idx_receiving_supplier',    '{{%receiving}}', 'supplier_id');
-        $this->createIndex('idx_receiving_buyout',      '{{%receiving}}', 'buyout_id');
-        $this->createIndex('idx_receiving_expected',    '{{%receiving}}', 'expected_date');
-        $this->createIndex('idx_receiving_arrived',     '{{%receiving}}', 'arrived_date');
-        $this->createIndex('idx_receiving_created',     '{{%receiving}}', 'created_at');
+        $this->createIndex('idx_receiving_status', '{{%receiving}}', 'status');
+        $this->createIndex('idx_receiving_supplier', '{{%receiving}}', 'supplier_id');
+        $this->createIndex('idx_receiving_buyout', '{{%receiving}}', 'buyout_id');
+        $this->createIndex('idx_receiving_expected', '{{%receiving}}', 'expected_date');
+        $this->createIndex('idx_receiving_arrived', '{{%receiving}}', 'arrived_date');
+        $this->createIndex('idx_receiving_created', '{{%receiving}}', 'created_at');
 
         $this->createTable('{{%receiving_item}}', [
             'id'                    => $this->primaryKey(),
@@ -52,18 +52,23 @@ class m260426_200300_create_receiving_tables extends Migration
             'source_currency'       => $this->char(3)->notNull()->defaultValue('BYN'),
             'exchange_rate'         => $this->decimal(10, 4)->notNull()->defaultValue(1),
             'unit_cost_byn'         => $this->decimal(10, 2)->notNull()->defaultValue(0),
-            'allocated_expenses_byn'=> $this->decimal(10, 2)->notNull()->defaultValue(0),
+            'allocated_expenses_byn' => $this->decimal(10, 2)->notNull()->defaultValue(0),
             'final_cost_byn'        => $this->decimal(10, 2)->notNull()->defaultValue(0),
             'notes'                 => $this->text()->null(),
         ]);
 
         $this->createIndex('idx_ri_receiving', '{{%receiving_item}}', 'receiving_id');
-        $this->createIndex('idx_ri_product',   '{{%receiving_item}}', 'product_id');
-        $this->createIndex('idx_ri_size',      '{{%receiving_item}}', 'size_id');
+        $this->createIndex('idx_ri_product', '{{%receiving_item}}', 'product_id');
+        $this->createIndex('idx_ri_size', '{{%receiving_item}}', 'size_id');
 
         $this->addForeignKey(
-            'fk_ri_receiving', '{{%receiving_item}}', 'receiving_id',
-            '{{%receiving}}', 'id', 'CASCADE', 'CASCADE'
+            'fk_ri_receiving',
+            '{{%receiving_item}}',
+            'receiving_id',
+            '{{%receiving}}',
+            'id',
+            'CASCADE',
+            'CASCADE'
         );
 
         $this->createTable('{{%receiving_expense}}', [
@@ -80,8 +85,13 @@ class m260426_200300_create_receiving_tables extends Migration
 
         $this->createIndex('idx_re_receiving', '{{%receiving_expense}}', 'receiving_id');
         $this->addForeignKey(
-            'fk_re_receiving', '{{%receiving_expense}}', 'receiving_id',
-            '{{%receiving}}', 'id', 'CASCADE', 'CASCADE'
+            'fk_re_receiving',
+            '{{%receiving_expense}}',
+            'receiving_id',
+            '{{%receiving}}',
+            'id',
+            'CASCADE',
+            'CASCADE'
         );
 
         $this->createTable('{{%receiving_document}}', [
@@ -98,13 +108,18 @@ class m260426_200300_create_receiving_tables extends Migration
 
         $this->createIndex('idx_rd_receiving', '{{%receiving_document}}', 'receiving_id');
         $this->addForeignKey(
-            'fk_rd_receiving', '{{%receiving_document}}', 'receiving_id',
-            '{{%receiving}}', 'id', 'CASCADE', 'CASCADE'
+            'fk_rd_receiving',
+            '{{%receiving_document}}',
+            'receiving_id',
+            '{{%receiving}}',
+            'id',
+            'CASCADE',
+            'CASCADE'
         );
 
         $this->createTable('{{%receiving_history}}', [
             'id'          => $this->primaryKey(),
-            'receiving_id'=> $this->integer()->notNull(),
+            'receiving_id' => $this->integer()->notNull(),
             'from_status' => $this->string(32)->null(),
             'to_status'   => $this->string(32)->null(),
             'comment'     => $this->text()->null(),
@@ -114,8 +129,13 @@ class m260426_200300_create_receiving_tables extends Migration
 
         $this->createIndex('idx_rh_receiving', '{{%receiving_history}}', 'receiving_id');
         $this->addForeignKey(
-            'fk_rh_receiving', '{{%receiving_history}}', 'receiving_id',
-            '{{%receiving}}', 'id', 'CASCADE', 'CASCADE'
+            'fk_rh_receiving',
+            '{{%receiving_history}}',
+            'receiving_id',
+            '{{%receiving}}',
+            'id',
+            'CASCADE',
+            'CASCADE'
         );
     }
 

@@ -3,6 +3,7 @@
 /**
  * SeoMetaBulkForm — Форма массового редактирования meta-тегов
  */
+
 namespace app\backend\modules\seo\models;
 
 use Yii;

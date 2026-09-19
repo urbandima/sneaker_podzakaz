@@ -2,15 +2,15 @@
 
 /**
  * ProductTagAssignment — Связующая модель товара и тега
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Many-to-many связь между Product и ProductTag.
  * Один товар может иметь множество тегов, один тег может быть у многих товаров.
- * 
+ *
  * СВЯЗИ:
  * - Product: товар
  * - ProductTag: тег
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - Не используется напрямую, работа через Product::getTags() и ProductTag::getProducts()
  * - Массовое назначение тегов в ProductTagController::actionAssign()
@@ -28,7 +28,7 @@ use yii\db\ActiveRecord;
  * @property int $product_id ID товара
  * @property int $tag_id ID тега
  * @property int $created_at
- * 
+ *
  * @property Product $product
  * @property ProductTag $tag
  */

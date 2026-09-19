@@ -206,13 +206,13 @@ $this->params['headerActions'] = [];
             ];
             ?>
             <table class="admin-table">
-                <?php foreach ($pdfFields as $key => $label): ?>
+                <?php foreach ($pdfFields as $key => $label) : ?>
                 <tr>
                     <td class="fw-600"><?= Html::encode($label) ?></td>
                     <td>
-                        <?php if (!empty($company[$key])): ?>
+                        <?php if (!empty($company[$key])) : ?>
                             <span style="color:#10b981;"><i class="bi bi-check-circle-fill"></i> <?= Html::encode($company[$key]) ?></span>
-                        <?php else: ?>
+                        <?php else : ?>
                             <span style="color:#f59e0b;"><i class="bi bi-exclamation-circle"></i> Не заполнено</span>
                         <?php endif; ?>
                     </td>

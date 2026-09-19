@@ -43,7 +43,9 @@ class AutomationLog extends ActiveRecord
 
     public function getActionsArray(): array
     {
-        if (empty($this->actions_executed)) return [];
+        if (empty($this->actions_executed)) {
+            return [];
+        }
         $decoded = json_decode($this->actions_executed, true);
         return is_array($decoded) ? $decoded : [];
     }
@@ -51,10 +53,16 @@ class AutomationLog extends ActiveRecord
     public function getStatusSummary(): string
     {
         $actions = $this->getActionsArray();
-        if (empty($actions)) return '—';
+        if (empty($actions)) {
+            return '—';
+        }
         $statuses = array_column($actions, 'status');
-        if (in_array('error', $statuses)) return 'ошибка';
-        if (in_array('success', $statuses)) return 'успех';
+        if (in_array('error', $statuses)) {
+            return 'ошибка';
+        }
+        if (in_array('success', $statuses)) {
+            return 'успех';
+        }
         return 'выполнено';
     }
 }

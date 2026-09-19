@@ -2,28 +2,29 @@
 
 /**
  * CustomerLoginForm — Форма авторизации покупателя
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Форма входа для покупателей интернет-магазина.
  * Авторизация по email и паролю.
- * 
+ *
  * ПОЛЯ:
  * - email: email покупателя
  * - password: пароль
  * - rememberMe: запомнить меня
- * 
+ *
  * МЕТОДЫ:
  * - validatePassword(): валидация пароля
  * - login(): выполнение авторизации
  * - getCustomer(): получение покупателя
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - AccountController (actionLogin)
- * 
+ *
  * БЕЗОПАСНОСТЬ:
  * - Проверка статуса покупателя
  * - Поддержка rememberMe
  */
+
 namespace app\backend\modules\account\models;
 
 use Yii;
@@ -38,7 +39,7 @@ class CustomerLoginForm extends Model
     public $password;
     public $rememberMe = true;
 
-    private $_customer = false;
+    private $customer = false;
 
     public function rules()
     {
@@ -74,16 +75,16 @@ class CustomerLoginForm extends Model
     {
         if ($this->validate()) {
             $customer = $this->getCustomer();
-            
+
             // Сохраняем данные в сессию для совместимости с существующей системой
             Yii::$app->session->set('customer_id', $customer->id);
             Yii::$app->session->set('customer_email', $customer->email);
             Yii::$app->session->set('customer_phone', $customer->phone);
             Yii::$app->session->set('customer_name', $customer->getFullName());
-            
+
             // Обновляем информацию о входе
             $customer->updateLoginInfo();
-            
+
             // Устанавливаем cookie для rememberMe
             if ($this->rememberMe) {
                 $duration = 3600 * 24 * 30; // 30 дней
@@ -99,7 +100,7 @@ class CustomerLoginForm extends Model
                     'sameSite' => 'Lax',
                 ]));
             }
-            
+
             return true;
         }
         return false;
@@ -107,10 +108,10 @@ class CustomerLoginForm extends Model
 
     public function getCustomer()
     {
-        if ($this->_customer === false) {
-            $this->_customer = Customer::findByEmail($this->email);
+        if ($this->customer === false) {
+            $this->customer = Customer::findByEmail($this->email);
         }
 
-        return $this->_customer;
+        return $this->customer;
     }
 }

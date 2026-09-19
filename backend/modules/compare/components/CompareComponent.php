@@ -24,10 +24,10 @@ use app\backend\modules\catalog\models\Product;
 class CompareComponent extends Component
 {
     /** Максимальное количество товаров для сравнения */
-    const MAX_ITEMS = 4;
+    public const MAX_ITEMS = 4;
 
     /** Ключ сессии для хранения списка */
-    const SESSION_KEY = 'compare';
+    public const SESSION_KEY = 'compare';
 
     /**
      * Добавить товар в список сравнения.

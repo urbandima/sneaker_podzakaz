@@ -2,11 +2,11 @@
 
 /**
  * ProductController — Управление товарами в админ-панели
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Полное управление товарами: создание, редактирование, управление
  * изображениями, размерами, ценами, синхронизация с Poizon.
- * 
+ *
  * ФУНКЦИИ:
  * - Список товаров с фильтрацией и поиском (index)
  * - Просмотр товара (view)
@@ -19,7 +19,7 @@
  * - Добавление размеров из размерной сетки (add-sizes-from-grid)
  * - Управление изображениями: добавление, удаление, установка главного (add-image, delete-image, set-main-image)
  * - Массовые операции (batch-update, batch-delete)
- * 
+ *
  * СВЯЗИ:
  * - Product (модель товара)
  * - ProductSize (модель размера)
@@ -29,10 +29,11 @@
  * - Category (модель категории)
  * - SizeGrid (модель размерной сетки)
  * - ProductRepository (репозиторий товаров)
- * 
+ *
  * ДОСТУП:
  * - Только администраторы
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -51,7 +52,7 @@ class ProductController extends BaseAdminController
 {
     /** @var ProductRepository */
     private $productRepository;
-    
+
     /**
      * Инициализация контроллера
      */
@@ -220,7 +221,7 @@ class ProductController extends BaseAdminController
             'filterSeason'       => $filterSeason,
             'filterPriceFrom'    => $filterPriceFrom,
             'filterPriceTo'      => $filterPriceTo,
-            'filterBrandMismatch'=> $filterBrandMismatch,
+            'filterBrandMismatch' => $filterBrandMismatch,
             'pageSize'           => $requestedPageSize,
             'pageSizeOptions'    => $pageSizeOptions,
         ]);
@@ -250,7 +251,9 @@ class ProductController extends BaseAdminController
         $previewData = [];
         foreach ($rows as $row) {
             $firstWord = preg_split('/\s+/', trim($row['name']), 2)[0] ?? '';
-            if (!$firstWord) continue;
+            if (!$firstWord) {
+                continue;
+            }
             $previewData[] = [
                 'id'        => $row['id'],
                 'name'      => $row['name'],
@@ -265,7 +268,8 @@ class ProductController extends BaseAdminController
 
         $fixed = 0;
         foreach ($previewData as $item) {
-            Yii::$app->db->createCommand()->update('product',
+            Yii::$app->db->createCommand()->update(
+                'product',
                 ['brand_name' => $item['brand_new'], 'updated_at' => date('Y-m-d H:i:s')],
                 ['id' => $item['id']]
             )->execute();
@@ -302,7 +306,7 @@ class ProductController extends BaseAdminController
 
     /**
      * Просмотр товара
-     * 
+     *
      * @param int $id
      */
     public function actionView($id)
@@ -323,7 +327,7 @@ class ProductController extends BaseAdminController
 
     /**
      * Редактирование товара
-     * 
+     *
      * @param int $id
      */
     public function actionEdit($id)
@@ -343,7 +347,7 @@ class ProductController extends BaseAdminController
                 // Парсим meta_keywords из формы
                 $metaKeywordsArray = array_map('trim', explode(',', $product->meta_keywords));
                 $metaKeywordsArray = array_filter($metaKeywordsArray); // убираем пустые
-                
+
                 // Получаем keywords из Poizon (JSON)
                 $poizonKeywords = [];
                 if ($product->keywords) {
@@ -352,15 +356,15 @@ class ProductController extends BaseAdminController
                         $poizonKeywords = $keywordsData;
                     }
                 }
-                
+
                 // Объединяем и удаляем дубликаты (регистронезависимо)
                 $allKeywords = array_merge($metaKeywordsArray, $poizonKeywords);
                 $allKeywords = array_unique(array_map('mb_strtolower', $allKeywords));
-                
+
                 // Сохраняем обратно в meta_keywords
                 $product->meta_keywords = implode(', ', $allKeywords);
             }
-            
+
             // Обработка измененных характеристик Poizon
             $poizonProps = Yii::$app->request->post('poizon_props');
             if (is_array($poizonProps) && !empty($poizonProps)) {
@@ -374,12 +378,12 @@ class ProductController extends BaseAdminController
                         ];
                     }
                 }
-                
+
                 if (!empty($updatedProps)) {
                     $product->properties = json_encode($updatedProps, JSON_UNESCAPED_UNICODE);
                 }
             }
-            
+
             if ($product->save()) {
                 $this->flashSuccess('Товар успешно обновлен');
                 return $this->redirect(['/admin/product/view', 'id' => $product->id]);
@@ -398,14 +402,14 @@ class ProductController extends BaseAdminController
 
     /**
      * Активация/деактивация товара
-     * 
+     *
      * @param int $id
      */
     public function actionToggle($id)
     {
         $product = $this->findModel($id);
         $product->is_active = $product->is_active ? 0 : 1;
-        
+
         if ($product->save(false)) {
             $status = $product->is_active ? 'активирован' : 'деактивирован';
             $this->flashSuccess("Товар {$status}");
@@ -416,14 +420,14 @@ class ProductController extends BaseAdminController
 
     /**
      * Удаление товара
-     * 
+     *
      * @param int $id
      */
     public function actionDelete($id)
     {
         $this->requirePermission('manageProducts');
         $product = $this->findModel($id);
-        
+
         if ($product->delete()) {
             $this->flashSuccess('Товар успешно удален');
         } else {
@@ -435,13 +439,13 @@ class ProductController extends BaseAdminController
 
     /**
      * Синхронизация товара с Poizon
-     * 
+     *
      * @param int $id
      */
     public function actionSync($id)
     {
         $product = $this->findModel($id);
-        
+
         if (!$product->poizon_id) {
             $this->flashError('Товар не импортирован из Poizon');
             return $this->redirect(['/admin/product/view', 'id' => $id]);
@@ -452,7 +456,7 @@ class ProductController extends BaseAdminController
             // Здесь будет логика синхронизации
             $product->last_sync_at = date('Y-m-d H:i:s');
             $product->save(false);
-            
+
             $this->flashSuccess('Товар успешно синхронизирован с Poizon');
         } catch (\Exception $e) {
             Yii::error('Ошибка синхронизации товара #' . $id . ': ' . $e->getMessage(), 'product');
@@ -464,7 +468,7 @@ class ProductController extends BaseAdminController
 
     /**
      * Добавить размер к товару
-     * 
+     *
      * @param int $productId
      */
     public function actionAddSize($productId)
@@ -475,19 +479,19 @@ class ProductController extends BaseAdminController
 
         if ($size->load(Yii::$app->request->post()) && $size->save()) {
             $this->flashSuccess('Размер успешно добавлен');
-            
+
             // Если AJAX - возвращаем JSON
             if (Yii::$app->request->isAjax) {
                 Yii::$app->response->format = Response::FORMAT_JSON;
                 return ['success' => true, 'message' => 'Размер добавлен'];
             }
-            
+
             // Проверяем откуда пришел запрос
             $returnUrl = Yii::$app->request->get('returnUrl', 'view');
             if ($returnUrl === 'edit') {
                 return $this->redirect(['/admin/product/edit', 'id' => $productId]);
             }
-            
+
             return $this->redirect(['/admin/product/view', 'id' => $productId]);
         }
 
@@ -499,7 +503,7 @@ class ProductController extends BaseAdminController
 
     /**
      * Массовое добавление размеров из сетки
-     * 
+     *
      * @param int $productId
      * @param int $gridId
      */
@@ -507,7 +511,7 @@ class ProductController extends BaseAdminController
     {
         $product = $this->findModel($productId);
         $grid = SizeGrid::findOne($gridId);
-        
+
         if (!$grid) {
             throw new NotFoundHttpException('Размерная сетка не найдена');
         }
@@ -518,7 +522,7 @@ class ProductController extends BaseAdminController
             $exists = ProductSize::find()
                 ->where(['product_id' => $productId, 'us_size' => $item->us_size])
                 ->exists();
-                
+
             if (!$exists) {
                 $size = new ProductSize();
                 $size->product_id = $productId;
@@ -529,7 +533,7 @@ class ProductController extends BaseAdminController
                 $size->size = $item->size;
                 $size->stock = 0;
                 $size->is_available = 1;
-                
+
                 if ($size->save()) {
                     $added++;
                 }
@@ -537,19 +541,19 @@ class ProductController extends BaseAdminController
         }
 
         $this->flashSuccess("Добавлено размеров: {$added}");
-        
+
         // Проверяем откуда пришел запрос
         $returnUrl = Yii::$app->request->get('returnUrl', 'view');
         if ($returnUrl === 'edit') {
             return $this->redirect(['/admin/product/edit', 'id' => $productId]);
         }
-        
+
         return $this->redirect(['/admin/product/view', 'id' => $productId]);
     }
 
     /**
      * Редактировать размер
-     * 
+     *
      * @param int $id
      */
     public function actionEditSize($id)
@@ -572,7 +576,7 @@ class ProductController extends BaseAdminController
 
     /**
      * Удалить размер
-     * 
+     *
      * @param int $id
      */
     public function actionDeleteSize($id)
@@ -590,22 +594,22 @@ class ProductController extends BaseAdminController
 
     /**
      * Добавить изображение к товару
-     * 
+     *
      * @param int $productId
      */
     public function actionAddImage($productId)
     {
         $product = $this->findModel($productId);
-        
+
         if (Yii::$app->request->isPost) {
             $imageUrl = Yii::$app->request->post('image_url');
-            
+
             if ($imageUrl) {
                 $image = new ProductImage();
                 $image->product_id = $productId;
                 $image->image = $imageUrl;
                 $image->sort_order = ProductImage::find()->where(['product_id' => $productId])->max('sort_order') + 1;
-                
+
                 if ($image->save()) {
                     $this->flashSuccess('Изображение добавлено');
                 } else {
@@ -625,7 +629,7 @@ class ProductController extends BaseAdminController
 
     /**
      * Удалить изображение
-     * 
+     *
      * @param int $id
      */
     public function actionDeleteImage($id)
@@ -643,7 +647,7 @@ class ProductController extends BaseAdminController
 
     /**
      * Установить главное изображение
-     * 
+     *
      * @param int $id
      */
     public function actionSetMainImage($id)
@@ -664,24 +668,24 @@ class ProductController extends BaseAdminController
     public function actionBulkUpdate()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $ids = json_decode(Yii::$app->request->post('ids', []), true);
         $field = Yii::$app->request->post('field');
         $value = Yii::$app->request->post('value');
-        
+
         if (empty($ids) || !$field) {
             return ['success' => false, 'message' => 'Не указаны товары или поле'];
         }
-        
+
         // Разрешенные поля для массового обновления
         $allowedFields = ['is_active'];
-        
+
         if (!in_array($field, $allowedFields)) {
             return ['success' => false, 'message' => 'Недопустимое поле'];
         }
-        
+
         $updated = Product::updateAll([$field => $value], ['id' => $ids]);
-        
+
         return ['success' => true, 'updated' => $updated];
     }
 
@@ -691,13 +695,13 @@ class ProductController extends BaseAdminController
     public function actionBulkDelete()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $ids = json_decode(Yii::$app->request->post('ids', []), true);
-        
+
         if (empty($ids)) {
             return ['success' => false, 'message' => 'Не указаны товары'];
         }
-        
+
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $deleted = 0;
@@ -711,7 +715,7 @@ class ProductController extends BaseAdminController
                     $deleted++;
                 }
             }
-            
+
             $transaction->commit();
             return ['success' => true, 'deleted' => $deleted];
         } catch (\Exception $e) {
@@ -795,11 +799,11 @@ class ProductController extends BaseAdminController
     {
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        
+
         // Заголовки
         $headers = ['ID', 'SKU', 'Название', 'Бренд', 'Категория', 'Цена', 'Старая цена', 'Наличие', 'Статус', 'Poizon ID'];
         $sheet->fromArray($headers, null, 'A1');
-        
+
         // Стиль заголовков
         $headerStyle = [
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
@@ -807,7 +811,7 @@ class ProductController extends BaseAdminController
             'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
         ];
         $sheet->getStyle('A1:J1')->applyFromArray($headerStyle);
-        
+
         // Данные
         $row = 2;
         foreach ($products as $product) {
@@ -825,12 +829,12 @@ class ProductController extends BaseAdminController
             ], null, "A{$row}");
             $row++;
         }
-        
+
         // Автоширина колонок
         foreach (range('A', 'J') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
-        
+
         // Границы
         $sheet->getStyle("A1:J{$row}")->applyFromArray([
             'borders' => [
@@ -840,12 +844,12 @@ class ProductController extends BaseAdminController
                 ],
             ],
         ]);
-        
+
         // Отправка файла
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="products_export_' . date('Y-m-d_His') . '.xlsx"');
         header('Cache-Control: max-age=0');
-        
+
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $writer->save('php://output');
         exit;
@@ -853,7 +857,7 @@ class ProductController extends BaseAdminController
 
     /**
      * Найти модель товара
-     * 
+     *
      * @param int $id
      * @return Product
      * @throws NotFoundHttpException
@@ -861,17 +865,17 @@ class ProductController extends BaseAdminController
     protected function findModel($id)
     {
         $model = Product::findOne($id);
-        
+
         if ($model === null) {
             throw new NotFoundHttpException('Товар не найден');
         }
-        
+
         return $model;
     }
 
     /**
      * Клонирование товара
-     * 
+     *
      * @param int $id
      */
     public function actionClone($id)
@@ -908,7 +912,6 @@ class ProductController extends BaseAdminController
             Yii::info("Товар #{$original->id} клонирован -> #{$clone->id}", 'product');
             $this->flashSuccess('Товар клонирован. Отредактируйте копию.');
             return $this->redirect(['/admin/product/edit', 'id' => $clone->id]);
-
         } catch (\Exception $e) {
             $transaction->rollBack();
             $this->flashError('Ошибка клонирования: ' . $e->getMessage());
@@ -1010,7 +1013,9 @@ class ProductController extends BaseAdminController
         $id = (int)($data['id'] ?? 0);
         $price = (float)($data['price'] ?? 0);
         $product = Product::findOne($id);
-        if (!$product) return ['success' => false, 'message' => 'Не найден'];
+        if (!$product) {
+            return ['success' => false, 'message' => 'Не найден'];
+        }
         $product->price = $price;
         $product->save(false);
         return ['success' => true, 'price' => $price];
@@ -1025,9 +1030,13 @@ class ProductController extends BaseAdminController
         $field = (string)($data['field'] ?? '');
         $value = $data['value'] ?? '';
         $allowed = ['name', 'description', 'meta_title', 'meta_description', 'meta_keywords'];
-        if (!in_array($field, $allowed)) return ['success' => false, 'message' => 'Поле не разрешено'];
+        if (!in_array($field, $allowed)) {
+            return ['success' => false, 'message' => 'Поле не разрешено'];
+        }
         $product = Product::findOne($id);
-        if (!$product) return ['success' => false, 'message' => 'Не найден'];
+        if (!$product) {
+            return ['success' => false, 'message' => 'Не найден'];
+        }
         $product->$field = $value;
         $product->save(false);
         return ['success' => true, 'value' => $value];
@@ -1040,7 +1049,9 @@ class ProductController extends BaseAdminController
         $data = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
         $id = (int)($data['id'] ?? 0);
         $product = Product::findOne($id);
-        if (!$product) return ['success' => false, 'message' => 'Не найден'];
+        if (!$product) {
+            return ['success' => false, 'message' => 'Не найден'];
+        }
         $product->is_active = !$product->is_active;
         $product->save(false);
         return ['success' => true, 'is_active' => $product->is_active];
@@ -1087,7 +1098,9 @@ class ProductController extends BaseAdminController
         $priceByn = (float)($data['price_byn'] ?? 0);
         try {
             $size = \app\backend\modules\catalog\models\ProductSize::findOne($sizeId);
-            if (!$size) return ['success' => false, 'message' => 'Размер не найден'];
+            if (!$size) {
+                return ['success' => false, 'message' => 'Размер не найден'];
+            }
             $size->price_byn = $priceByn;
             $size->save(false);
             return ['success' => true];
@@ -1243,7 +1256,9 @@ class ProductController extends BaseAdminController
         $data = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
         $id = (int)($data['id'] ?? 0);
         $product = Product::findOne($id);
-        if (!$product || !$product->poizon_id) return ['success' => false, 'message' => 'Товар без Poizon ID'];
+        if (!$product || !$product->poizon_id) {
+            return ['success' => false, 'message' => 'Товар без Poizon ID'];
+        }
         try {
             $apiService = new \app\backend\shared\components\PoizonApiService();
             $apiService->syncProduct($product);

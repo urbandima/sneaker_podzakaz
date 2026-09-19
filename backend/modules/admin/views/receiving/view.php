@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\Receiving $receiving */
 /** @var app\backend\modules\procurement\models\ReceivingItem[] $items */
@@ -96,24 +97,24 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
         <?= $receiving->getStatusLabel() ?>
     </span>
     <div class="header-actions">
-        <?php if ($isCreate): ?>
+        <?php if ($isCreate) : ?>
         <button class="btn btn-success" id="btnConfirmCreate" onclick="rcvConfirmCreate(<?= $receiving->id ?>)">
             <i class="bi bi-check-lg"></i> Создать
         </button>
         <button class="btn btn-outline" style="color:#dc2626;border-color:#dc2626" onclick="rcvDeleteDraft(<?= $receiving->id ?>)">
             <i class="bi bi-trash"></i> Отменить
         </button>
-        <?php else: ?>
-        <?php if ($canAccept): ?>
+        <?php else : ?>
+            <?php if ($canAccept) : ?>
         <button class="btn btn-success" onclick="rcvAccept(<?= $receiving->id ?>)">
             <i class="bi bi-check-lg"></i> Принять на склад
         </button>
-        <?php endif; ?>
-        <?php if ($canEdit && !in_array($receiving->status, [Receiving::STATUS_ACCEPTED, Receiving::STATUS_PARTIAL])): ?>
+            <?php endif; ?>
+            <?php if ($canEdit && !in_array($receiving->status, [Receiving::STATUS_ACCEPTED, Receiving::STATUS_PARTIAL])) : ?>
         <button class="btn btn-danger" onclick="rcvCancel(<?= $receiving->id ?>)" title="Отменить">
             <i class="bi bi-x-circle"></i> Отменить
         </button>
-        <?php endif; ?>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 </div>
@@ -131,7 +132,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                             onchange="saveField('supplier_id', this.value)"
                             <?= !$canEdit ? 'disabled' : '' ?>>
                         <option value="">— Без поставщика —</option>
-                        <?php foreach ($suppliers as $s): ?>
+                        <?php foreach ($suppliers as $s) : ?>
                             <option value="<?= $s->id ?>" <?= $receiving->supplier_id == $s->id ? 'selected' : '' ?>>
                                 <?= Html::encode($s->name) ?>
                             </option>
@@ -171,7 +172,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                         (<?= count($items) ?> поз., <?= $receiving->total_qty_expected ?> ед.)
                     </span>
                 </span>
-                <?php if ($canEdit): ?>
+                <?php if ($canEdit) : ?>
                 <button class="btn btn-outline" style="padding:3px 10px;font-size:.78rem" onclick="rcvShowAddItem()">
                     <i class="bi bi-plus"></i> Добавить позицию
                 </button>
@@ -188,43 +189,45 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                         <th style="text-align:right">Цена BYN</th>
                         <th style="text-align:right">Расходы</th>
                         <th style="text-align:right">Итого</th>
-                        <?php if ($canEdit): ?><th></th><?php endif; ?>
+                        <?php if ($canEdit) :
+                            ?><th></th><?php
+                        endif; ?>
                     </tr>
                 </thead>
                 <tbody id="itemsTbody">
-                <?php foreach ($items as $item): ?>
+                <?php foreach ($items as $item) : ?>
                 <tr id="item-row-<?= $item->id ?>">
                     <td>
                         <div style="font-weight:600;font-size:.8125rem">
                             <?= Html::encode($item->product ? $item->product->name : "Товар #{$item->product_id}") ?>
                         </div>
-                        <?php if ($item->size): ?>
+                        <?php if ($item->size) : ?>
                             <div style="font-size:.75rem;color:#6b7280"><?= Html::encode($item->size->size) ?></div>
                         <?php endif; ?>
                     </td>
                     <td style="text-align:right"><?= $item->qty_expected ?></td>
                     <td style="text-align:right">
-                        <?php if ($canEdit): ?>
+                        <?php if ($canEdit) : ?>
                         <input type="number" class="ri-input" min="0" value="<?= $item->qty_arrived ?>"
                                onchange="rcvUpdateItem(<?= $item->id ?>, 'qty_arrived', this.value)"
                                id="qa-<?= $item->id ?>">
-                        <?php else: ?>
+                        <?php else : ?>
                             <?= $item->qty_arrived ?>
                         <?php endif; ?>
                     </td>
                     <td style="text-align:right">
-                        <?php if ($canEdit): ?>
+                        <?php if ($canEdit) : ?>
                         <input type="number" class="ri-input" min="0" value="<?= $item->qty_defected ?>"
                                onchange="rcvUpdateItem(<?= $item->id ?>, 'qty_defected', this.value)"
                                id="qd-<?= $item->id ?>">
-                        <?php else: ?>
+                        <?php else : ?>
                             <?= $item->qty_defected ?>
                         <?php endif; ?>
                     </td>
                     <td style="text-align:right"><?= PriceHelper::format($item->unit_cost_byn) ?></td>
                     <td style="text-align:right;color:#059669" id="alloc-<?= $item->id ?>"><?= PriceHelper::format($item->allocated_expenses_byn) ?></td>
                     <td style="text-align:right;font-weight:700" id="final-<?= $item->id ?>"><?= PriceHelper::format($item->final_cost_byn) ?></td>
-                    <?php if ($canEdit): ?>
+                    <?php if ($canEdit) : ?>
                     <td>
                         <button class="btn btn-outline" style="padding:2px 7px;font-size:.72rem;color:#dc2626;border-color:#dc2626"
                                 onclick="rcvRemoveItem(<?= $item->id ?>)" title="Удалить позицию">
@@ -234,7 +237,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                     <?php endif; ?>
                 </tr>
                 <?php endforeach; ?>
-                <?php if (!$items): ?>
+                <?php if (!$items) : ?>
                 <tr id="noItemsRow">
                     <td colspan="8" style="text-align:center;padding:20px;color:#9ca3af">
                         Нет позиций. <a href="#" onclick="rcvShowAddItem();return false">Добавить товар</a>
@@ -293,7 +296,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
         <div class="rcv-card">
             <div class="rcv-card-title" style="display:flex;justify-content:space-between;align-items:center">
                 <span><i class="bi bi-receipt"></i> Расходы на поставку</span>
-                <?php if ($canEdit): ?>
+                <?php if ($canEdit) : ?>
                 <button class="btn btn-outline" style="padding:3px 10px;font-size:.78rem" onclick="rcvShowAddExpense()">
                     <i class="bi bi-plus"></i> Добавить расход
                 </button>
@@ -309,11 +312,13 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                         <th style="text-align:right">BYN</th>
                         <th>Распределение</th>
                         <th>Примечания</th>
-                        <?php if ($canEdit): ?><th></th><?php endif; ?>
+                        <?php if ($canEdit) :
+                            ?><th></th><?php
+                        endif; ?>
                     </tr>
                 </thead>
                 <tbody id="expensesTbody">
-                <?php foreach ($expenses as $exp): ?>
+                <?php foreach ($expenses as $exp) : ?>
                 <tr id="exp-row-<?= $exp->id ?>">
                     <td><?= $exp->getTypeLabel() ?></td>
                     <td style="text-align:right"><?= number_format($exp->amount, 2) ?></td>
@@ -321,7 +326,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                     <td style="text-align:right;font-weight:600"><?= PriceHelper::format($exp->amount_byn) ?></td>
                     <td><span style="font-size:.75rem;color:#059669"><?= $exp->getDistributionLabel() ?></span></td>
                     <td style="color:#6b7280;font-size:.75rem"><?= Html::encode($exp->notes ?? '') ?></td>
-                    <?php if ($canEdit): ?>
+                    <?php if ($canEdit) : ?>
                     <td>
                         <button class="btn btn-outline" style="padding:2px 7px;font-size:.72rem;color:#dc2626;border-color:#dc2626"
                                 onclick="rcvRemoveExpense(<?= $exp->id ?>)">
@@ -331,7 +336,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                     <?php endif; ?>
                 </tr>
                 <?php endforeach; ?>
-                <?php if (!$expenses): ?>
+                <?php if (!$expenses) : ?>
                 <tr id="noExpensesRow">
                     <td colspan="7" style="text-align:center;padding:16px;color:#9ca3af">Расходов нет</td>
                 </tr>
@@ -344,7 +349,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
             <div id="addExpensePanel" style="display:none" class="rcv-card-body" style="border-top:1px solid #f0f0f0">
                 <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;padding-top:10px">
                     <select id="expType" class="compact-filter-select">
-                        <?php foreach (ReceivingExpense::getTypes() as $v => $l): ?>
+                        <?php foreach (ReceivingExpense::getTypes() as $v => $l) : ?>
                             <option value="<?= $v ?>"><?= $l ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -354,7 +359,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                     </select>
                     <input type="number" id="expRate" class="ri-input" placeholder="Курс" value="1" step="0.0001" style="width:70px">
                     <select id="expDist" class="compact-filter-select">
-                        <?php foreach (ReceivingExpense::getDistributionMethods() as $v => $l): ?>
+                        <?php foreach (ReceivingExpense::getDistributionMethods() as $v => $l) : ?>
                             <option value="<?= $v ?>"><?= $l ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -370,14 +375,14 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
             <div class="rcv-card-title"><i class="bi bi-paperclip"></i> Документы</div>
             <div class="rcv-card-body">
                 <div id="docsList">
-                    <?php foreach ($documents as $doc): ?>
+                    <?php foreach ($documents as $doc) : ?>
                     <div class="doc-item" id="doc-<?= $doc->id ?>">
                         <span class="doc-icon">
-                            <?php if (str_contains($doc->mime_type ?? '', 'pdf')): ?>
+                            <?php if (str_contains($doc->mime_type ?? '', 'pdf')) : ?>
                                 <i class="bi bi-file-earmark-pdf"></i>
-                            <?php elseif (str_contains($doc->mime_type ?? '', 'image')): ?>
+                            <?php elseif (str_contains($doc->mime_type ?? '', 'image')) : ?>
                                 <i class="bi bi-file-earmark-image"></i>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <i class="bi bi-file-earmark"></i>
                             <?php endif; ?>
                         </span>
@@ -387,7 +392,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                             </a>
                             <div style="font-size:.72rem;color:#9ca3af"><?= $doc->getTypeLabel() ?> · <?= $doc->getFormattedSize() ?></div>
                         </div>
-                        <?php if ($canEdit): ?>
+                        <?php if ($canEdit) : ?>
                         <button class="btn btn-outline" style="padding:2px 7px;font-size:.72rem;color:#dc2626;border-color:#dc2626"
                                 onclick="rcvDeleteDocument(<?= $doc->id ?>)">
                             <i class="bi bi-trash"></i>
@@ -395,11 +400,11 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                         <?php endif; ?>
                     </div>
                     <?php endforeach; ?>
-                    <?php if (!$documents): ?>
+                    <?php if (!$documents) : ?>
                         <div id="noDocsMsg" style="color:#9ca3af;font-size:.8rem">Документов нет</div>
                     <?php endif; ?>
                 </div>
-                <?php if ($canEdit): ?>
+                <?php if ($canEdit) : ?>
                 <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
                     <i class="bi bi-cloud-upload" style="font-size:1.4rem"></i>
                     <div>Перетащите файл или нажмите</div>
@@ -407,7 +412,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                 </div>
                 <div style="display:flex;gap:8px;margin-top:8px">
                     <select id="uploadDocType" class="compact-filter-select" style="flex:1">
-                        <?php foreach (ReceivingDocument::getTypes() as $v => $l): ?>
+                        <?php foreach (ReceivingDocument::getTypes() as $v => $l) : ?>
                             <option value="<?= $v ?>"><?= $l ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -418,24 +423,24 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
             </div>
         </div>
 
-        <?php if (!$isCreate): ?>
+        <?php if (!$isCreate) : ?>
         <!-- Timeline -->
         <div class="rcv-card">
             <div class="rcv-card-title"><i class="bi bi-clock-history"></i> История</div>
             <div class="rcv-card-body" id="timelineBlock">
-                <?php foreach ($history as $h): ?>
+                <?php foreach ($history as $h) : ?>
                 <div class="timeline-item">
                     <div class="timeline-dot" style="background:<?= Receiving::getStatusColors()[$h->to_status] ?? '#6b7280' ?>"></div>
                     <div class="timeline-time"><?= date('d.m.Y H:i', $h->changed_at) ?></div>
                     <div>
                         <strong><?= $h->getStatusLabel() ?></strong>
-                        <?php if ($h->comment): ?>
+                        <?php if ($h->comment) : ?>
                             <div style="color:#6b7280;font-size:.75rem"><?= Html::encode($h->comment) ?></div>
                         <?php endif; ?>
                     </div>
                 </div>
                 <?php endforeach; ?>
-                <?php if (!$history): ?>
+                <?php if (!$history) : ?>
                     <div style="color:#9ca3af;font-size:.8125rem">Нет истории</div>
                 <?php endif; ?>
             </div>
@@ -451,14 +456,14 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
             <div class="rcv-card-body">
                 <div class="rcv-field-row">
                     <span class="rcv-field-label">Связанный выкуп</span>
-                    <?php if ($receiving->buyout_id && $receiving->buyout): ?>
+                    <?php if ($receiving->buyout_id && $receiving->buyout) : ?>
                         <div style="font-size:.8125rem">
                             <a href="<?= Url::to(['/admin/procurement/buyouts', 'id' => $receiving->buyout_id]) ?>"
                                style="color:var(--admin-primary,#2563eb);font-weight:600">
                                 <?= Html::encode($receiving->buyout->number ?? ('Выкуп #' . $receiving->buyout_id)) ?>
                             </a>
                         </div>
-                    <?php else: ?>
+                    <?php else : ?>
                         <div style="color:#9ca3af;font-size:.8125rem">—</div>
                     <?php endif; ?>
                 </div>
@@ -482,7 +487,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                             onchange="saveField('receiver_user_id', this.value)"
                             <?= !$canEdit ? 'disabled' : '' ?>>
                         <option value="">— Не назначен —</option>
-                        <?php foreach ($adminUsers as $u): ?>
+                        <?php foreach ($adminUsers as $u) : ?>
                             <option value="<?= $u['id'] ?>" <?= $receiving->receiver_user_id == $u['id'] ? 'selected' : '' ?>>
                                 <?= Html::encode($u['username']) ?>
                             </option>
@@ -493,12 +498,14 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
         </div>
 
         <!-- Status transitions -->
-        <?php if (!$isCreate && $canEdit && !$receiving->isFinal()): ?>
+        <?php if (!$isCreate && $canEdit && !$receiving->isFinal()) : ?>
         <div class="rcv-card">
             <div class="rcv-card-title"><i class="bi bi-arrow-right-circle"></i> Сменить статус</div>
             <div class="rcv-card-body" style="display:flex;flex-wrap:wrap;gap:6px">
-                <?php foreach (Receiving::ALLOWED_TRANSITIONS[$receiving->status] as $ts): ?>
-                <?php if (in_array($ts, [Receiving::STATUS_ACCEPTED, Receiving::STATUS_PARTIAL])) continue; ?>
+                <?php foreach (Receiving::ALLOWED_TRANSITIONS[$receiving->status] as $ts) : ?>
+                    <?php if (in_array($ts, [Receiving::STATUS_ACCEPTED, Receiving::STATUS_PARTIAL])) {
+                        continue;
+                    } ?>
                 <button class="status-btn" style="background:<?= Receiving::getStatusColors()[$ts] ?>;color:#fff"
                         onclick="rcvSetStatus(<?= $receiving->id ?>, '<?= $ts ?>')">
                     <?= Receiving::getStatuses()[$ts] ?>
@@ -527,7 +534,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                 <div style="margin-top:10px;font-size:.75rem;color:#6b7280">
                     <div>Позиций: <strong id="totalItems"><?= $receiving->total_items ?></strong></div>
                     <div>Прибыло: <strong id="totalArrived"><?= $receiving->total_qty_arrived ?></strong> / <span id="totalExpected"><?= $receiving->total_qty_expected ?></span> ожидалось</div>
-                    <?php if ($receiving->total_qty_defected > 0): ?>
+                    <?php if ($receiving->total_qty_defected > 0) : ?>
                     <div style="color:#dc2626">Дефект: <strong><?= $receiving->total_qty_defected ?></strong></div>
                     <?php endif; ?>
                 </div>

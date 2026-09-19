@@ -138,7 +138,11 @@ $this->params['headerActions'] = [];
 
     <!-- Таможня:ДП -->
     <?php
-    try { $dpConnected = !empty(Yii::$app->dobropost->email ?? ''); } catch (\Exception $e) { $dpConnected = false; }
+    try {
+        $dpConnected = !empty(Yii::$app->dobropost->email ?? '');
+    } catch (\Exception $e) {
+        $dpConnected = false;
+    }
     ?>
     <div class="plugin-card <?= $dpConnected ? 'active' : '' ?>">
         <div class="plugin-header">
@@ -154,7 +158,11 @@ $this->params['headerActions'] = [];
 
     <!-- Европочта -->
     <?php
-    try { $epConfigured = Yii::$app->europochtaTracking->isConfigured(); } catch (\Exception $e) { $epConfigured = false; }
+    try {
+        $epConfigured = Yii::$app->europochtaTracking->isConfigured();
+    } catch (\Exception $e) {
+        $epConfigured = false;
+    }
     ?>
     <div class="plugin-card <?= $epConfigured ? 'active' : '' ?>">
         <div class="plugin-header">
@@ -170,7 +178,11 @@ $this->params['headerActions'] = [];
 
     <!-- Белпочта -->
     <?php
-    try { $bpConfigured = Yii::$app->belpochtaTracking->isConfigured(); } catch (\Exception $e) { $bpConfigured = false; }
+    try {
+        $bpConfigured = Yii::$app->belpochtaTracking->isConfigured();
+    } catch (\Exception $e) {
+        $bpConfigured = false;
+    }
     ?>
     <div class="plugin-card <?= $bpConfigured ? 'active' : '' ?>">
         <div class="plugin-header">
@@ -186,7 +198,11 @@ $this->params['headerActions'] = [];
 
     <!-- СДЭК -->
     <?php
-    try { $cdekConfigured = Yii::$app->cdekTracking->isConfigured(); } catch (\Exception $e) { $cdekConfigured = false; }
+    try {
+        $cdekConfigured = Yii::$app->cdekTracking->isConfigured();
+    } catch (\Exception $e) {
+        $cdekConfigured = false;
+    }
     ?>
     <div class="plugin-card <?= $cdekConfigured ? 'active' : '' ?>">
         <div class="plugin-header">
@@ -204,8 +220,8 @@ $this->params['headerActions'] = [];
 
 <h3 style="margin: 2rem 0 1rem 0;">Оплата</h3>
 <div class="plugins-grid">
-    <?php foreach ($plugins as $plugin): ?>
-        <?php if ($plugin instanceof \app\infrastructure\plugins\interfaces\PaymentGatewayInterface): ?>
+    <?php foreach ($plugins as $plugin) : ?>
+        <?php if ($plugin instanceof \app\infrastructure\plugins\interfaces\PaymentGatewayInterface) : ?>
             <div class="plugin-card <?= $plugin->isActive() ? 'active' : '' ?>">
                 <div class="plugin-header">
                     <div class="plugin-icon" style="background:#0ea5e9"><i class="bi bi-credit-card"></i></div>
@@ -224,7 +240,7 @@ $this->params['headerActions'] = [];
                         <i class="bi bi-<?= $plugin->isActive() ? 'x-circle' : 'check-circle' ?>"></i>
                         <?= $plugin->isActive() ? 'Деактивировать' : 'Активировать' ?>
                     </button>
-                    <?php if ($plugin->isActive()): ?>
+                    <?php if ($plugin->isActive()) : ?>
                         <a href="<?= Url::to(['plugin/settings', 'id' => $plugin->getId()]) ?>" class="admin-btn admin-btn-secondary"><i class="bi bi-gear"></i> Настройки</a>
                     <?php endif; ?>
                 </div>

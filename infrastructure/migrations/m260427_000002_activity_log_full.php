@@ -64,10 +64,22 @@ class m260427_000002_activity_log_full extends Migration
         }
 
         // Ensure indexes exist (ignore errors if already present)
-        try { $this->createIndex('idx_al_user',    'activity_log', ['user_id',    'created_at']); } catch (\Exception $e) {}
-        try { $this->createIndex('idx_al_target',  'activity_log', ['target_type','target_id', 'created_at']); } catch (\Exception $e) {}
-        try { $this->createIndex('idx_al_action',  'activity_log', 'action'); } catch (\Exception $e) {}
-        try { $this->createIndex('idx_al_created', 'activity_log', 'created_at'); } catch (\Exception $e) {}
+        try {
+            $this->createIndex('idx_al_user', 'activity_log', ['user_id',    'created_at']);
+        } catch (\Exception $e) {
+        }
+        try {
+            $this->createIndex('idx_al_target', 'activity_log', ['target_type','target_id', 'created_at']);
+        } catch (\Exception $e) {
+        }
+        try {
+            $this->createIndex('idx_al_action', 'activity_log', 'action');
+        } catch (\Exception $e) {
+        }
+        try {
+            $this->createIndex('idx_al_created', 'activity_log', 'created_at');
+        } catch (\Exception $e) {
+        }
     }
 
     public function safeDown()

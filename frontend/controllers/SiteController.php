@@ -2,11 +2,11 @@
 
 /**
  * SiteController — Базовый контроллер сайта
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Основной контроллер для обработки публичных страниц сайта.
  * Отображение главной страницы, ошибок, базовой навигации.
- * 
+ *
  * ФУНКЦИИ:
  * - actionIndex(): главная страница
  * - actions(): внешние действия (error, captcha, etc.)
@@ -16,6 +16,7 @@
  * - / → actionIndex()
  * - /site/error → actions()['error'] (yii\web\ErrorAction)
  */
+
 namespace app\frontend\controllers;
 
 use Yii;
@@ -31,8 +32,9 @@ use app\backend\shared\traits\CatalogSeoTrait;
 class SiteController extends Controller
 {
     use CatalogSeoTrait;
+
     public $layout = 'main'; // Единый layout
-    
+
     /**
      * {@inheritdoc}
      */
@@ -104,16 +106,16 @@ class SiteController extends Controller
         $this->view->registerMetaTag(['property' => 'og:image', 'content' => Yii::$app->request->hostInfo . '/images/hero-sneakers.png']);
         $this->view->registerMetaTag(['property' => 'og:image:width', 'content' => '1200']);
         $this->view->registerMetaTag(['property' => 'og:image:height', 'content' => '630']);
-        
+
         // Twitter Card
         $this->view->registerMetaTag(['name' => 'twitter:card', 'content' => 'summary_large_image']);
         $this->view->registerMetaTag(['name' => 'twitter:title', 'content' => 'Купить оригинальные кроссовки в Беларуси — СНИКЕРХЭД']);
         $this->view->registerMetaTag(['name' => 'twitter:description', 'content' => 'Оригинальные кроссовки Nike, Adidas, Jordan с доставкой по Беларуси. 100% подлинность.']);
         $this->view->registerMetaTag(['name' => 'twitter:image', 'content' => Yii::$app->request->hostInfo . '/images/hero-sneakers.png']);
-        
+
         // Canonical URL
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->hostInfo]);
-        
+
         // Schema.org Organization
         $organizationSchema = [
             '@context' => 'https://schema.org',
@@ -133,7 +135,7 @@ class SiteController extends Controller
             ]
         ];
         $this->registerJsonLd($organizationSchema, 'organization');
-        
+
         // Schema.org WebSite с SearchAction
         $websiteSchema = [
             '@context' => 'https://schema.org',
@@ -151,7 +153,7 @@ class SiteController extends Controller
             ]
         ];
         $this->registerJsonLd($websiteSchema, 'website');
-        
+
         // Загрузка данных для главной страницы
         $popularProducts = $this->getPopularProducts();
         $categories = $this->getCategories();
@@ -189,7 +191,7 @@ class SiteController extends Controller
         // Если нет landing страницы, показываем базовую главную
         return $this->render('index', $viewData);
     }
-    
+
     /**
      * Получение популярных товаров для главной страницы
      */
@@ -203,14 +205,14 @@ class SiteController extends Controller
                 ->orderBy(['created_at' => SORT_DESC])
                 ->limit(8)
                 ->all();
-                
+
             return $products;
         } catch (\Throwable $e) {
             Yii::error('Failed to load popular products: ' . $e->getMessage(), __METHOD__);
             return [];
         }
     }
-    
+
     /**
      * Получение категорий для главной страницы.
      * Graceful fallback: если image пустой, подставляет фото первого товара категории.
@@ -253,7 +255,7 @@ class SiteController extends Controller
             return [];
         }
     }
-    
+
     /**
      * Получение брендов для главной страницы.
      * Скрывает пустые/служебные записи (name = '-' или пустое).
@@ -295,7 +297,7 @@ class SiteController extends Controller
             return [];
         }
     }
-    
+
     /**
      * Страница договора оферты
      */
@@ -328,18 +330,18 @@ class SiteController extends Controller
             // Иначе перенаправляем в личный кабинет
             return $this->redirect(['/account']);
         }
-        
+
         // Для CLI режима показываем страницу входа напрямую
         if (php_sapi_name() === 'cli') {
             // Создаем модель формы
             $model = new \app\backend\modules\account\models\CustomerLoginForm();
             return $this->render('//account/login', ['model' => $model]);
         }
-        
+
         // Перенаправляем на соответствующий контроллер входа
         return $this->redirect(['/account/login']);
     }
-    
+
     /**
      * Выход из системы
      *
@@ -348,8 +350,7 @@ class SiteController extends Controller
     public function actionLogout()
     {
         Yii::$app->user->logout();
-        
+
         return $this->goHome();
     }
-    
 }

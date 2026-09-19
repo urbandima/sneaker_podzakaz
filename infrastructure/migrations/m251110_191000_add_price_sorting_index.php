@@ -4,10 +4,10 @@ use yii\db\Migration;
 
 /**
  * Добавление индекса для оптимизации сортировки по цене
- * 
+ *
  * Проблема: При сортировке каталога по цене используются подзапросы к product_size,
  * которые без индекса работают медленно на больших объемах данных.
- * 
+ *
  * Решение: Составной индекс (product_id, is_available, price_byn) для оптимизации
  * подзапросов MIN/MAX в CatalogController::applyFilters()
  */
@@ -22,7 +22,7 @@ class m251110_191000_add_price_sorting_index extends Migration
             '{{%product_size}}',
             ['product_id', 'is_available', 'price_byn']
         );
-        
+
         echo "✅ Создан индекс idx_product_size_price_sorting для оптимизации сортировки по цене\n";
     }
 

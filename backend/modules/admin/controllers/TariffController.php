@@ -2,11 +2,11 @@
 
 /**
  * TariffController — Управление тарифами и комиссиями
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Настройка тарифов и комиссий для расчёта цен: наценки,
  * курсы валют, условия доставки.
- * 
+ *
  * ФУНКЦИИ:
  * - Список тарифов (index)
  * - Создание тарифа (create)
@@ -14,19 +14,20 @@
  * - Удаление тарифа (delete)
  * - Калькулятор расчёта цены (calculate)
  * - История изменений тарифов (history)
- * 
+ *
  * СВЯЗИ:
  * - Tariff (модель тарифа)
  * - TariffCalculation (модель расчёта по тарифу)
  * - TariffSetupService (сервис настройки схемы БД)
- * 
+ *
  * ДОСТУП:
  * - Только администраторы
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Автоматическая проверка схемы БД при загрузке
  * - Поддержка разных валют и курсов
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -82,7 +83,7 @@ class TariffController extends BaseAdminController
     public function actionIndex()
     {
         $tariffs = Tariff::find()->orderBy(['sort_order' => SORT_ASC])->all();
-        
+
         if (empty($tariffs)) {
             Yii::$app->session->setFlash(
                 'info',
@@ -99,7 +100,7 @@ class TariffController extends BaseAdminController
         } catch (\Exception $e) {
             // Таблица еще не создана
         }
-        
+
         return $this->render('index', [
             'tariffs' => $tariffs,
             'tariffFeatureAvailable' => true,
@@ -115,12 +116,12 @@ class TariffController extends BaseAdminController
         $this->ensureTariffFeatureAvailable();
 
         $model = new Tariff();
-        
+
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->session->setFlash('success', 'Тариф создан');
             return $this->redirect(['index']);
         }
-        
+
         return $this->render('form', [
             'model' => $model,
         ]);
@@ -134,12 +135,12 @@ class TariffController extends BaseAdminController
         $this->ensureTariffFeatureAvailable();
 
         $model = $this->findModel($id);
-        
+
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->session->setFlash('success', 'Тариф обновлен');
             return $this->redirect(['index']);
         }
-        
+
         return $this->render('form', [
             'model' => $model,
         ]);
@@ -165,18 +166,18 @@ class TariffController extends BaseAdminController
         $this->ensureTariffFeatureAvailable();
 
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
+
         $tariffId = Yii::$app->request->post('tariff_id');
         $priceCny = Yii::$app->request->post('price_cny', 0);
         $weightKg = Yii::$app->request->post('weight_kg', 0.5);
         $saveHistory = Yii::$app->request->post('save_history', true);
         $note = Yii::$app->request->post('note', '');
-        
+
         $tariff = Tariff::findOne($tariffId);
         if (!$tariff) {
             return ['success' => false, 'message' => 'Тариф не найден'];
         }
-        
+
         $calculation = $tariff->calculateOrderCost($priceCny, $weightKg);
 
         // Сохраняем в историю расчетов
@@ -190,7 +191,7 @@ class TariffController extends BaseAdminController
                 Yii::error('Failed to save tariff calculation: ' . $e->getMessage());
             }
         }
-        
+
         return [
             'success' => true,
             'calculation' => $calculation,
@@ -208,7 +209,7 @@ class TariffController extends BaseAdminController
         $model = $this->findModel($id);
         $model->is_active = !$model->is_active;
         $model->save();
-        
+
         Yii::$app->session->setFlash('success', $model->is_active ? 'Тариф активирован' : 'Тариф деактивирован');
         return $this->redirect(['index']);
     }

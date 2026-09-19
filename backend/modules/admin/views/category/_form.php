@@ -53,7 +53,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-transparent fw-bold">Изображение категории</div>
             <div class="card-body">
-                <?php if (!$model->isNewRecord && $model->image): ?>
+                <?php if (!$model->isNewRecord && $model->image) : ?>
                     <div class="mb-3 text-center">
                         <img src="<?= Html::encode($model->image) ?>"
                              alt="Текущее фото"
@@ -85,7 +85,7 @@ $this->params['breadcrumbs'][] = $this->title;
                        accept="image/*" style="display:none"
                        onchange="previewImage(this)">
 
-                <?php if ($model->image): ?>
+                <?php if ($model->image) : ?>
                     <div class="form-check mt-2">
                         <input class="form-check-input" type="checkbox" name="Category[image]" value="" id="clearImage">
                         <label class="form-check-label text-muted" for="clearImage" style="font-size:.85rem">

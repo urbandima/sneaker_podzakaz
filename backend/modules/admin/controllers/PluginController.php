@@ -15,32 +15,32 @@ class PluginController extends BaseAdminController
     public function actionIndex()
     {
         $manager = PluginManager::getInstance();
-        
+
         $plugins = $manager->getAllPlugins();
         $activePlugins = $manager->getActivePlugins();
-        
+
         return $this->render('index', [
             'plugins' => $plugins,
             'activePlugins' => $activePlugins,
         ]);
     }
-    
+
     /**
      * Активация/деактивация плагина
      */
     public function actionToggle()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $id = Yii::$app->request->post('id');
         $action = Yii::$app->request->post('action');
-        
+
         if (!$id || !in_array($action, ['activate', 'deactivate'])) {
             return ['success' => false, 'message' => 'Неверные параметры'];
         }
-        
+
         $manager = PluginManager::getInstance();
-        
+
         if ($action === 'activate') {
             $result = $manager->activatePlugin($id);
             $message = $result ? 'Плагин активирован' : 'Ошибка активации';
@@ -48,13 +48,13 @@ class PluginController extends BaseAdminController
             $result = $manager->deactivatePlugin($id);
             $message = $result ? 'Плагин деактивирован' : 'Ошибка деактивации';
         }
-        
+
         return [
             'success' => $result,
             'message' => $message,
         ];
     }
-    
+
     /**
      * Настройки плагина (для динамических плагинов из PluginManager)
      */
@@ -104,7 +104,8 @@ class PluginController extends BaseAdminController
                 $logs = Yii::$app->db->createCommand(
                     'SELECT * FROM {{%amocrm_log}} ORDER BY created_at DESC LIMIT 100'
                 )->queryAll();
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
         }
 
         return $this->render('amocrm', [
@@ -193,7 +194,7 @@ class PluginController extends BaseAdminController
         $data = json_decode($body, true);
 
         if (!empty($data['access_token'])) {
-            $s->set('amocrm', 'access_token',  $data['access_token']);
+            $s->set('amocrm', 'access_token', $data['access_token']);
             $s->set('amocrm', 'refresh_token', $data['refresh_token']);
             $s->set('amocrm', 'token_expires_at', (string)(time() + (int)($data['expires_in'] ?? 86400)));
             Yii::$app->session->remove('amocrm_oauth_state');
@@ -256,7 +257,9 @@ class PluginController extends BaseAdminController
 
         if ($orderId) {
             $order = \app\backend\modules\checkout\models\Order::findOne($orderId);
-            if (!$order) return ['success' => false, 'message' => 'Заказ не найден'];
+            if (!$order) {
+                return ['success' => false, 'message' => 'Заказ не найден'];
+            }
             $ok = $this->syncOrderToAmo($amo, $order);
             return ['success' => $ok, 'message' => $ok ? "Заказ #{$orderId} синхронизирован" : 'Ошибка синхронизации'];
         }
@@ -271,7 +274,9 @@ class PluginController extends BaseAdminController
         $orders = $query->all();
         $synced = 0;
         foreach ($orders as $order) {
-            if ($this->syncOrderToAmo($amo, $order)) $synced++;
+            if ($this->syncOrderToAmo($amo, $order)) {
+                $synced++;
+            }
         }
 
         Yii::$app->settings->set('amocrm', 'last_sync_at', (string)time());
@@ -298,12 +303,20 @@ class PluginController extends BaseAdminController
                 'name'  => 'Заказ #' . $order->id . ($recipientName ? ' — ' . $recipientName : ''),
                 'price' => (int)($order->total_amount ?? 0),
             ];
-            if ($pid = (int)$s->get('amocrm', 'pipeline_id', 0)) $leadData['pipeline_id'] = $pid;
-            if ($sid = (int)$s->get('amocrm', 'new_order_status_id', 0)) $leadData['status_id'] = $sid;
-            if ($rid = (int)$s->get('amocrm', 'responsible_user_id', 0)) $leadData['responsible_user_id'] = $rid;
+            if ($pid = (int)$s->get('amocrm', 'pipeline_id', 0)) {
+                $leadData['pipeline_id'] = $pid;
+            }
+            if ($sid = (int)$s->get('amocrm', 'new_order_status_id', 0)) {
+                $leadData['status_id'] = $sid;
+            }
+            if ($rid = (int)$s->get('amocrm', 'responsible_user_id', 0)) {
+                $leadData['responsible_user_id'] = $rid;
+            }
 
             $lead = $amo->createLead($leadData);
-            if (!$lead || empty($lead['id'])) return false;
+            if (!$lead || empty($lead['id'])) {
+                return false;
+            }
 
             $order->amocrm_lead_id      = $lead['id'];
             $order->amocrm_last_sync_at = time();
@@ -347,7 +360,8 @@ class PluginController extends BaseAdminController
                 $params
             )->queryAll();
             $total = (int)Yii::$app->db->createCommand(
-                'SELECT COUNT(*) FROM {{%amocrm_log}}' . $where, $params
+                'SELECT COUNT(*) FROM {{%amocrm_log}}' . $where,
+                $params
             )->queryScalar();
             return ['success' => true, 'rows' => $rows, 'total' => $total, 'page' => $page];
         } catch (\Exception $e) {
@@ -413,7 +427,8 @@ class PluginController extends BaseAdminController
             $mappings = Yii::$app->db->createCommand(
                 'SELECT * FROM {{%amocrm_field_mapping}} WHERE entity_type="lead"'
             )->queryAll();
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         return ['success' => true, 'fields' => $fields, 'mappings' => $mappings];
     }
@@ -438,7 +453,9 @@ class PluginController extends BaseAdminController
                 $fieldId   = (int)($m['amocrm_field_id'] ?? 0);
                 $fieldName = trim($m['amocrm_field_name'] ?? '');
                 $localField = trim($m['local_field'] ?? '');
-                if (!$fieldId || !$localField) continue;
+                if (!$fieldId || !$localField) {
+                    continue;
+                }
 
                 // Upsert: delete old + insert new
                 $db->createCommand()->delete('{{%amocrm_field_mapping}}', [
@@ -449,7 +466,7 @@ class PluginController extends BaseAdminController
                     'entity_type'      => 'lead',
                     'local_field'      => $localField,
                     'amocrm_field_id'  => $fieldId,
-                    'amocrm_field_name'=> $fieldName,
+                    'amocrm_field_name' => $fieldName,
                     'direction'        => 'from_amocrm',
                     'created_at'       => date('Y-m-d H:i:s'),
                 ])->execute();
@@ -469,7 +486,9 @@ class PluginController extends BaseAdminController
         Yii::$app->response->format = Response::FORMAT_JSON;
         $body = json_decode(Yii::$app->request->rawBody, true) ?: [];
         $id   = (int)($body['id'] ?? 0);
-        if (!$id) return ['success' => false, 'message' => 'id required'];
+        if (!$id) {
+            return ['success' => false, 'message' => 'id required'];
+        }
 
         try {
             Yii::$app->db->createCommand()->delete('{{%amocrm_field_mapping}}', ['id' => $id])->execute();
@@ -619,7 +638,8 @@ class PluginController extends BaseAdminController
                 ->orderBy(['created_at' => SORT_DESC])
                 ->limit(50)
                 ->all();
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         return $this->render('lamoda-parser', [
             'lastResult' => json_decode($lastResult, true) ?: [],

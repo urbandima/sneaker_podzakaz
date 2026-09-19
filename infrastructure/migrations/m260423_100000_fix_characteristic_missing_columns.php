@@ -1,4 +1,5 @@
 <?php
+
 class m260423_100000_fix_characteristic_missing_columns extends \yii\db\Migration
 {
     public function safeUp()

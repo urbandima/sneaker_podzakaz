@@ -8,7 +8,7 @@ use app\backend\modules\account\models\Customer;
 
 /**
  * Notification — Модель уведомления
- * 
+ *
  * @property int $id
  * @property int $customer_id
  * @property string $type

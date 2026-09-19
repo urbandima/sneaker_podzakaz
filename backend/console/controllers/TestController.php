@@ -164,7 +164,7 @@ class TestController extends Controller
         }
 
         $totalChecks = count($checks);
-        $passedChecks = count(array_filter($checks, function($check) {
+        $passedChecks = count(array_filter($checks, function ($check) {
             return $check['status'];
         }));
 
@@ -182,7 +182,7 @@ class TestController extends Controller
             $tables = Yii::$app->db->schema->getTableNames();
             $requiredTables = ['user', 'order', 'order_item', 'order_history', 'migration'];
             $found = array_intersect($requiredTables, $tables);
-            
+
             return [
                 'status' => count($found) === count($requiredTables),
                 'message' => count($found) . '/' . count($requiredTables) . ' таблиц найдено'

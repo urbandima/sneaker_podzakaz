@@ -1,21 +1,25 @@
 <?php
+
 namespace app\backend\modules\procurement\models;
 
 use yii\db\ActiveRecord;
 
 class PurchaseOrder extends ActiveRecord
 {
-    const STATUS_DRAFT     = 'draft';
-    const STATUS_ORDERED   = 'ordered';
-    const STATUS_TRANSIT   = 'in_transit';
-    const STATUS_RECEIVED  = 'received';
-    const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_DRAFT     = 'draft';
+    public const STATUS_ORDERED   = 'ordered';
+    public const STATUS_TRANSIT   = 'in_transit';
+    public const STATUS_RECEIVED  = 'received';
+    public const STATUS_CANCELLED = 'cancelled';
 
-    const TYPE_STOCK      = 'stock';
-    const TYPE_PREORDER   = 'preorder';
-    const TYPE_COMMISSION = 'commission';
+    public const TYPE_STOCK      = 'stock';
+    public const TYPE_PREORDER   = 'preorder';
+    public const TYPE_COMMISSION = 'commission';
 
-    public static function tableName() { return 'purchase_order'; }
+    public static function tableName()
+    {
+        return 'purchase_order';
+    }
 
     public function rules()
     {
@@ -120,7 +124,9 @@ class PurchaseOrder extends ActiveRecord
     public function getReceivedPercent(): int
     {
         $items = $this->items;
-        if (!$items) return 0;
+        if (!$items) {
+            return 0;
+        }
         $total    = array_sum(array_column($items, 'quantity'));
         $received = array_sum(array_column($items, 'received_quantity'));
         return $total > 0 ? (int)round($received / $total * 100) : 0;

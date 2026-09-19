@@ -2,28 +2,29 @@
 
 /**
  * SearchController — Глобальный поиск по админ-панели
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Быстрый поиск по всем сущностям системы: заказы, товары, пользователи.
  * Используется для глобального поиска в шапке админки.
- * 
+ *
  * ФУНКЦИИ:
  * - Глобальный поиск по всем сущностям (global)
  * - Поиск заказов (orders)
  * - Поиск товаров (products)
  * - Поиск пользователей (users)
- * 
+ *
  * СВЯЗИ:
  * - Order (модель заказа)
  * - Product (модель товара)
  * - User (модель пользователя)
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Работает через AJAX
  * - Возвращает результаты в формате JSON
  * - Ограничение на количество результатов (max 50)
  * - Учитывает права доступа (логисты видят только свои заказы)
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -56,17 +57,17 @@ class SearchController extends BaseAdminController
     public function actionGlobal()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $query = Yii::$app->request->get('q', '');
         $limit = min((int)Yii::$app->request->get('limit', 10), 50);
-        
+
         if (strlen($query) < 2) {
             return ['results' => []];
         }
-        
+
         $user = Yii::$app->user->identity;
         $results = [];
-        
+
         // Поиск заказов
         $orderQuery = Order::find()
             ->with(['creator', 'logist'])
@@ -78,13 +79,13 @@ class SearchController extends BaseAdminController
                 ['like', 'china_track_number', $query],
             ])
             ->limit($limit / 2);
-            
+
         if ($user->isLogist()) {
             $orderQuery->andWhere(['assigned_logist' => $user->id]);
         }
-        
+
         $orders = $orderQuery->all();
-        
+
         foreach ($orders as $order) {
             $results[] = [
                 'type' => 'order',
@@ -96,7 +97,7 @@ class SearchController extends BaseAdminController
                 'icon' => 'bi bi-box-seam',
             ];
         }
-        
+
         // Поиск товаров (только для админов)
         if ($user->isAdmin()) {
             $products = Product::find()
@@ -109,12 +110,12 @@ class SearchController extends BaseAdminController
                 ->andWhere(['is_active' => true])
                 ->limit($limit / 2)
                 ->all();
-                
+
             foreach ($products as $product) {
                 $results[] = [
                     'type' => 'product',
                     'title' => $product->name,
-                    'description' => ($product->brand ? $product->brand->name . ' • ' : '') . 
+                    'description' => ($product->brand ? $product->brand->name . ' • ' : '') .
                                     ($product->vendor_code ? 'Арт. ' . $product->vendor_code . ' • ' : '') .
                                     Yii::$app->formatter->asCurrency($product->price, 'BYN'),
                     'url' => ['/admin/product/view', 'id' => $product->id],
@@ -124,7 +125,7 @@ class SearchController extends BaseAdminController
                 ];
             }
         }
-        
+
         // Поиск пользователей (только для админов)
         if ($user->isAdmin()) {
             try {
@@ -135,7 +136,7 @@ class SearchController extends BaseAdminController
                     ])
                     ->limit(5)
                     ->all();
-                    
+
                 foreach ($users as $userModel) {
                     $results[] = [
                         'type' => 'user',
@@ -149,36 +150,36 @@ class SearchController extends BaseAdminController
                 // Игнорируем ошибки при поиске пользователей
             }
         }
-        
+
         // Сортировка по релевантности (новые и точные совпадения выше)
-        usort($results, function($a, $b) use ($query) {
+        usort($results, function ($a, $b) use ($query) {
             $aExact = stripos($a['title'], $query) === 0 ? 1 : 0;
             $bExact = stripos($b['title'], $query) === 0 ? 1 : 0;
-            
+
             if ($aExact !== $bExact) {
                 return $bExact - $aExact;
             }
-            
+
             return 0;
         });
-        
+
         return ['results' => array_slice($results, 0, $limit)];
     }
-    
+
     /**
      * Быстрый поиск заказов для autocomplete
      */
     public function actionOrders()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $query = Yii::$app->request->get('q', '');
         $limit = min((int)Yii::$app->request->get('limit', 20), 50);
-        
+
         if (strlen($query) < 2) {
             return ['results' => []];
         }
-        
+
         $user = Yii::$app->user->identity;
         $orderQuery = Order::find()
             ->select(['id', 'order_number', 'client_name', 'total_amount', 'status'])
@@ -189,13 +190,13 @@ class SearchController extends BaseAdminController
                 ['like', 'china_track_number', $query],
             ])
             ->limit($limit);
-            
+
         if ($user->isLogist()) {
             $orderQuery->andWhere(['assigned_logist' => $user->id]);
         }
-        
+
         $orders = $orderQuery->all();
-        
+
         $results = [];
         foreach ($orders as $order) {
             $results[] = [
@@ -205,7 +206,7 @@ class SearchController extends BaseAdminController
                 'status' => $order->getStatusLabel(),
             ];
         }
-        
+
         return ['results' => $results];
     }
 }

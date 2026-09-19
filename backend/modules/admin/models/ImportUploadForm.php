@@ -24,7 +24,7 @@ class ImportUploadForm extends Model
             [['source_id'], 'integer'],
             [['format'], 'string', 'max' => 10],
             [['format'], 'in', 'range' => ['json', 'csv', 'xlsx']],
-            [['file'], 'file', 
+            [['file'], 'file',
                 'skipOnEmpty' => false,
                 'extensions' => ['json', 'csv', 'xlsx'],
                 'maxSize' => 10 * 1024 * 1024, // 10MB

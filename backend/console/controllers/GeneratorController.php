@@ -33,7 +33,7 @@ class GeneratorController extends Controller
         'Panda', 'Wolf Grey', 'University Blue', 'Chicago', 'Bred', 'Royal'
     ];
     private $seasons = ['2023', '2024', '2025'];
-    
+
     /**
      * Генерирует тестовые товары
      * Usage: php yii generator/create <count>
@@ -58,7 +58,7 @@ class GeneratorController extends Controller
             try {
                 // Генерируем случайный товар
                 $productData = $this->generateProduct();
-                
+
                 // Проверяем существующий
                 $existing = Product::findOne(['slug' => $productData['slug']]);
                 if ($existing) {
@@ -94,7 +94,6 @@ class GeneratorController extends Controller
                 } else {
                     $skipped++;
                 }
-
             } catch (\Exception $e) {
                 $skipped++;
                 $this->stderr("❌ Ошибка: {$e->getMessage()}\n");
@@ -119,10 +118,10 @@ class GeneratorController extends Controller
         $models = $this->models[$brandName] ?? ['Classic', 'Pro', 'Elite'];
         $model = $models[array_rand($models)];
         $color = $this->colors[array_rand($this->colors)];
-        
+
         // Формируем название
         $name = "Кроссовки {$brandName} {$model} \"{$color}\"";
-        
+
         // Добавляем Wmns для некоторых
         $gender = 'unisex';
         if (rand(0, 3) == 0) {
@@ -138,7 +137,7 @@ class GeneratorController extends Controller
         // Генерируем цену (100-500 BYN)
         $price = round(rand(100, 500) + rand(0, 99) / 100, 2);
         $oldPrice = null;
-        
+
         // 40% товаров со скидкой
         if (rand(0, 100) < 40) {
             $oldPrice = round($price * rand(120, 150) / 100, 2);

@@ -68,7 +68,7 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
                             </div>
                         </div>
 
-                        <?php if ($nextLevel): ?>
+                        <?php if ($nextLevel) : ?>
                         <div class="card-progress">
                             <div class="progress-header">
                                 <span>До уровня "<?= Html::encode($nextLevel->name) ?>"</span>
@@ -83,20 +83,20 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
                         <div class="card-benefits">
                             <h4>Ваши преимущества:</h4>
                             <ul class="benefits-list">
-                                <?php if ($level): ?>
-                                    <?php if ($level->points_multiplier > 1): ?>
+                                <?php if ($level) : ?>
+                                    <?php if ($level->points_multiplier > 1) : ?>
                                     <li>
                                         <i class="bi bi-check-circle-fill"></i>
                                         <span>+<?= ($level->points_multiplier - 1) * 100 ?>% к начислению баллов</span>
                                     </li>
                                     <?php endif; ?>
-                                    <?php if ($level->discount_percent > 0): ?>
+                                    <?php if ($level->discount_percent > 0) : ?>
                                     <li>
                                         <i class="bi bi-check-circle-fill"></i>
                                         <span>Скидка <?= $level->discount_percent ?>% на все покупки</span>
                                     </li>
                                     <?php endif; ?>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <li>
                                         <i class="bi bi-check-circle-fill"></i>
                                         <span>Базовое начисление баллов за покупки</span>
@@ -152,12 +152,12 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
                     <div class="history-section">
                         <h3>История баллов</h3>
 
-                        <?php if (empty($history)): ?>
+                        <?php if (empty($history)) : ?>
                             <div class="empty-history">
                                 <i class="bi bi-clock-history"></i>
                                 <p>История баллов пуста</p>
                             </div>
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="history-table">
                                 <table>
                                     <thead>
@@ -168,7 +168,7 @@ $levelInfo = $levelColors[$level->level ?? 'bronze'] ?? $levelColors['bronze'];
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($history as $item): ?>
+                                        <?php foreach ($history as $item) : ?>
                                         <tr>
                                             <td><?= Html::encode($item['date']) ?></td>
                                             <td><?= Html::encode($item['description'] ?? '') ?></td>

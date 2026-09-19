@@ -15,7 +15,7 @@ use app\backend\modules\account\models\Customer;
 class FavoriteController extends Controller
 {
     public $layout = 'main'; // Единый layout
-    
+
     /**
      * Страница избранного (редирект на каталог/избранное)
      */
@@ -180,7 +180,9 @@ class FavoriteController extends Controller
 
         foreach ($ids as $productId) {
             $productId = (int) $productId;
-            if ($productId <= 0) continue;
+            if ($productId <= 0) {
+                continue;
+            }
             ProductFavorite::add($productId, $userId, null);
         }
 

@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<ruleset name="Splitwise">
+    <description>PSR12 for the storefront/admin/API code, with a few project-specific carve-outs.</description>
+
+    <arg name="extensions" value="php"/>
+    <arg name="colors"/>
+    <arg value="p"/>
+
+    <file>backend</file>
+    <file>frontend</file>
+    <file>api</file>
+    <file>infrastructure</file>
+
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/runtime/*</exclude-pattern>
+    <exclude-pattern>*/web/assets/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
+
+    <rule ref="PSR12"/>
+
+    <!--
+      Yii2 migration classes are named after their timestamped filename
+      (mNNNNNN_NNNNNN_description) with no namespace, per the migration
+      runner's own lookup convention — PSR1/Squiz class-naming rules don't
+      apply to them.
+    -->
+    <rule ref="PSR1.Classes.ClassDeclaration">
+        <exclude-pattern>*/migrations/*</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.Classes.ValidClassName">
+        <exclude-pattern>*/migrations/*</exclude-pattern>
+    </rule>
+
+    <!--
+      Yii2 views and front controllers are inherently side-effecting by
+      design (a view sets $this->title/breadcrumbs and echoes output; an
+      entry script bootstraps the app) — PSR1's "declare symbols XOR cause
+      side effects" split doesn't fit that architecture.
+    -->
+    <rule ref="PSR1.Files.SideEffects">
+        <exclude-pattern>*/views/*</exclude-pattern>
+        <exclude-pattern>frontend/web/index.php</exclude-pattern>
+        <exclude-pattern>frontend/web/index-prod.php</exclude-pattern>
+        <exclude-pattern>infrastructure/config/bootstrap.php</exclude-pattern>
+    </rule>
+
+    <!--
+      Line length is a soft PSR12 warning, not an error, and this codebase
+      has thousands of pre-existing long lines (Yii2 validation rule
+      arrays, embedded HTML/JS in views, SQL). Rewrapping them all is a
+      repo-wide cosmetic pass, not a CI-blocking concern — tracked
+      separately rather than done in one PR (CMP-406).
+    -->
+    <rule ref="Generic.Files.LineLength">
+        <severity>0</severity>
+    </rule>
+</ruleset>

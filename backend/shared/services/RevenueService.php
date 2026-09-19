@@ -1,4 +1,5 @@
 <?php
+
 namespace app\backend\shared\services;
 
 use Yii;
@@ -11,7 +12,7 @@ use yii\db\Query;
  */
 class RevenueService
 {
-    const EXCLUDED_STATUSES = ['cancelled', 'canceled', 'trash', 'return', 'imported', 'imported_invalid'];
+    public const EXCLUDED_STATUSES = ['cancelled', 'canceled', 'trash', 'return', 'imported', 'imported_invalid'];
 
     /**
      * Total revenue for a Unix-timestamp range.
@@ -27,8 +28,12 @@ class RevenueService
             ->from('`order`')
             ->where(['NOT IN', 'status', self::EXCLUDED_STATUSES]);
 
-        if ($from !== null) $q->andWhere(['>=', 'created_at', $from]);
-        if ($to   !== null) $q->andWhere(['<',  'created_at', $to]);
+        if ($from !== null) {
+            $q->andWhere(['>=', 'created_at', $from]);
+        }
+        if ($to   !== null) {
+            $q->andWhere(['<',  'created_at', $to]);
+        }
 
         return (float)($q->scalar() ?: 0);
     }

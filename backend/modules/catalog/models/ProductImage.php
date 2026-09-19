@@ -2,30 +2,31 @@
 
 /**
  * ProductImage — Модель изображения товара
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Изображения товара: главное фото, галерея, сортировка.
  * Поддержка нескольких изображений для одного товара.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - product_id: ID товара
  * - image: путь к изображению
  * - sort_order: порядок сортировки
  * - is_main: главное изображение (для карточки и каталога)
- * 
+ *
  * СВЯЗИ:
  * - Product (принадлежит товару)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - CatalogController (отображение в карточке товара)
  * - ProductController/admin (управление изображениями)
  * - SEO (Open Graph, Schema.org)
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Автоматическое создание миниатюр
  * - Водяные знаки (опционально)
  * - Оптимизация размера
  */
+
 namespace app\backend\modules\catalog\models;
 
 use Yii;
@@ -40,7 +41,7 @@ use yii\db\ActiveRecord;
  * @property int $sort_order Порядок сортировки
  * @property int $is_main Главное изображение
  * @property string $created_at
- * 
+ *
  * @property Product $product
  */
 class ProductImage extends ActiveRecord
@@ -100,12 +101,12 @@ class ProductImage extends ActiveRecord
         if (empty($this->image)) {
             return null;
         }
-        
+
         // Если это полный URL (начинается с http)
         if (strpos($this->image, 'http') === 0) {
             return $this->image;
         }
-        
+
         // Если это относительный путь - добавляем baseUrl
         return Yii::$app->request->baseUrl . '/' . ltrim($this->image, '/');
     }
@@ -118,12 +119,12 @@ class ProductImage extends ActiveRecord
         if (empty($this->image)) {
             return null;
         }
-        
+
         // Если это полный URL (начинается с http)
         if (strpos($this->image, 'http') === 0) {
             return $this->image;
         }
-        
+
         // Если это относительный путь
         return Yii::getAlias('@web') . '/' . ltrim($this->image, '/');
     }
@@ -138,7 +139,7 @@ class ProductImage extends ActiveRecord
             ['is_main' => 0],
             ['product_id' => $this->product_id]
         );
-        
+
         // Установить флаг для текущего
         $this->is_main = 1;
         return $this->save(false);

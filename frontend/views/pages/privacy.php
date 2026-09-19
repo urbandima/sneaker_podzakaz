@@ -23,7 +23,7 @@ $this->params['breadcrumbs'][] = $this->title;
 </style>
 <div class="container" style="padding-top:var(--space-12,3rem);padding-bottom:var(--space-16,4rem)">
     <div class="info-page-wrap">
-        <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()): ?>
+        <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity && Yii::$app->user->identity->isAdmin()) : ?>
         <div style="margin-bottom:1rem;text-align:right">
             <a href="/admin/page/edit?slug=privacy" class="page-edit-admin-btn" target="_blank">
                 <i class="bi bi-pencil-square"></i> Редактировать страницу

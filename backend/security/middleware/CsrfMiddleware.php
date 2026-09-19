@@ -10,7 +10,8 @@ use yii\web\BadRequestHttpException;
  */
 class CsrfMiddleware extends ActionFilter
 {
-    public array $except = [];
+    /** @var string[] */
+    public $except = [];
 
     public function beforeAction($action)
     {
@@ -19,7 +20,7 @@ class CsrfMiddleware extends ActionFilter
         }
 
         $request = \Yii::$app->request;
-        
+
         // Пропускаем GET запросы
         if ($request->getIsGet()) {
             return true;

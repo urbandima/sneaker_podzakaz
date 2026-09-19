@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var string $tab, $from, $to */
 /** @var array $data */
@@ -8,9 +9,13 @@ use app\backend\shared\helpers\PriceHelper;
 $this->title = 'Маржинальность';
 
 $currentSort = Yii::$app->request->get('sort', '');
-$sortIcon = function(string $col) use ($currentSort): string {
-    if ($currentSort === $col)       return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▲</span>';
-    if ($currentSort === '-' . $col) return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▼</span>';
+$sortIcon = function (string $col) use ($currentSort): string {
+    if ($currentSort === $col) {
+        return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▲</span>';
+    }
+    if ($currentSort === '-' . $col) {
+        return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▼</span>';
+    }
     return ' <span style="color:#d1d5db;font-size:.6rem">⇅</span>';
 };
 ?>
@@ -45,7 +50,7 @@ $sortIcon = function(string $col) use ($currentSort): string {
         </h2>
     </div>
 
-    <?php if ($tab === 'product'): ?>
+    <?php if ($tab === 'product') : ?>
     <div style="overflow-x:auto">
         <table class="admin-table" style="font-size:.8125rem">
             <thead>
@@ -60,17 +65,26 @@ $sortIcon = function(string $col) use ($currentSort): string {
                 </tr>
             </thead>
             <tbody>
-                <?php if (!$data): ?>
+                <?php if (!$data) : ?>
                     <tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--admin-text-secondary,#6d7175)">Нет данных за период</td></tr>
                 <?php endif; ?>
-                <?php foreach ($data as $row):
+                <?php foreach ($data as $row) :
                     $pct  = (float)$row['margin_pct'];
                     $cogs = (float)$row['cogs'];
-                    if ($cogs == 0)        { $pctBg = '#f3f4f6'; $pctColor = '#6d7175'; }
-                    elseif ($pct >= 20)    { $pctBg = '#d1f7e5'; $pctColor = '#008060'; }
-                    elseif ($pct >= 0)     { $pctBg = '#fff4e5'; $pctColor = '#ffa500'; }
-                    else                   { $pctBg = '#fbeae5'; $pctColor = '#d72c0d'; }
-                ?>
+                    if ($cogs == 0) {
+                        $pctBg = '#f3f4f6';
+                        $pctColor = '#6d7175';
+                    } elseif ($pct >= 20) {
+                        $pctBg = '#d1f7e5';
+                        $pctColor = '#008060';
+                    } elseif ($pct >= 0) {
+                        $pctBg = '#fff4e5';
+                        $pctColor = '#ffa500';
+                    } else {
+                        $pctBg = '#fbeae5';
+                        $pctColor = '#d72c0d';
+                    }
+                    ?>
                 <tr>
                     <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
                         <?= htmlspecialchars($row['product_name'] ?? '—') ?>
@@ -83,9 +97,9 @@ $sortIcon = function(string $col) use ($currentSort): string {
                         <?= $cogs > 0 ? PriceHelper::format($row['margin']) : '—' ?>
                     </td>
                     <td style="text-align:right">
-                        <?php if ($cogs == 0): ?>
+                        <?php if ($cogs == 0) : ?>
                             <span class="status-pill" style="background:#f3f4f6;color:#6d7175" title="Себестоимость не указана">Нет себестоимости</span>
-                        <?php else: ?>
+                        <?php else : ?>
                             <span class="status-pill" style="background:<?= $pctBg ?>;color:<?= $pctColor ?>"><?= $pct ?>%</span>
                         <?php endif; ?>
                     </td>
@@ -94,7 +108,7 @@ $sortIcon = function(string $col) use ($currentSort): string {
             </tbody>
         </table>
     </div>
-    <?php else: ?>
+    <?php else : ?>
     <div style="overflow-x:auto">
         <table class="admin-table" style="font-size:.8125rem">
             <thead>
@@ -108,20 +122,27 @@ $sortIcon = function(string $col) use ($currentSort): string {
                 </tr>
             </thead>
             <tbody>
-                <?php if (!$data): ?>
+                <?php if (!$data) : ?>
                     <tr><td colspan="6" style="text-align:center;padding:2.5rem;color:var(--admin-text-secondary,#6d7175)">Нет данных за период</td></tr>
                 <?php endif; ?>
-                <?php foreach ($data as $row):
+                <?php foreach ($data as $row) :
                     $pct = (float)$row['margin_pct'];
-                    if ($pct >= 20)        { $pctBg = '#d1f7e5'; $pctColor = '#008060'; }
-                    elseif ($pct >= 0)     { $pctBg = '#fff4e5'; $pctColor = '#ffa500'; }
-                    else                   { $pctBg = '#fbeae5'; $pctColor = '#d72c0d'; }
-                ?>
+                    if ($pct >= 20) {
+                        $pctBg = '#d1f7e5';
+                        $pctColor = '#008060';
+                    } elseif ($pct >= 0) {
+                        $pctBg = '#fff4e5';
+                        $pctColor = '#ffa500';
+                    } else {
+                        $pctBg = '#fbeae5';
+                        $pctColor = '#d72c0d';
+                    }
+                    ?>
                 <tr>
                     <td><strong><?= htmlspecialchars($row['manager']) ?></strong></td>
                     <td style="text-align:right"><?= (int)$row['orders'] ?></td>
                     <td style="text-align:right"><?= PriceHelper::format($row['revenue']) ?></td>
-                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delivery_cost'] > 0 ? '−'.PriceHelper::format($row['delivery_cost']) : '—' ?></td>
+                    <td style="text-align:right;color:var(--admin-danger,#d72c0d)"><?= $row['delivery_cost'] > 0 ? '−' . PriceHelper::format($row['delivery_cost']) : '—' ?></td>
                     <td style="text-align:right;font-weight:700;color:<?= $row['margin'] >= 0 ? 'var(--admin-success,#008060)' : 'var(--admin-danger,#d72c0d)' ?>">
                         <?= PriceHelper::format($row['margin']) ?>
                     </td>

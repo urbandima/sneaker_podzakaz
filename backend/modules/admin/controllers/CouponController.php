@@ -2,10 +2,10 @@
 
 /**
  * CouponController — Контроллер управления купонами в админке
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * CRUD операции для купонов, статистика использования, управление активностью.
- * 
+ *
  * ФУНКЦИИ:
  * - index() - список всех купонов
  * - view() - просмотр купона и статистики
@@ -15,6 +15,7 @@
  * - toggle() - активация/деактивация купона
  * - statistics() - статистика использования
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -116,14 +117,14 @@ class CouponController extends BaseAdminController
         if ($model->load(Yii::$app->request->post())) {
             // Преобразуем код в верхний регистр
             $model->code = strtoupper($model->code);
-            
+
             // Обработка JSON полей
             if (Yii::$app->request->post('applicable_products')) {
                 $model->applicable_products = json_encode(
                     array_filter(explode(',', Yii::$app->request->post('applicable_products')))
                 );
             }
-            
+
             if (Yii::$app->request->post('applicable_categories')) {
                 $model->applicable_categories = json_encode(
                     array_filter(explode(',', Yii::$app->request->post('applicable_categories')))
@@ -153,14 +154,14 @@ class CouponController extends BaseAdminController
         if ($model->load(Yii::$app->request->post())) {
             // Преобразуем код в верхний регистр
             $model->code = strtoupper($model->code);
-            
+
             // Обработка JSON полей
             if (Yii::$app->request->post('applicable_products')) {
                 $model->applicable_products = json_encode(
                     array_filter(explode(',', Yii::$app->request->post('applicable_products')))
                 );
             }
-            
+
             if (Yii::$app->request->post('applicable_categories')) {
                 $model->applicable_categories = json_encode(
                     array_filter(explode(',', Yii::$app->request->post('applicable_categories')))
@@ -186,10 +187,10 @@ class CouponController extends BaseAdminController
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
-        
+
         // Проверяем, использовался ли купон
         $usageCount = CouponUsage::find()->where(['coupon_id' => $id])->count();
-        
+
         if ($usageCount > 0) {
             Yii::$app->session->setFlash('error', 'Нельзя удалить купон, который уже использовался. Деактивируйте его вместо удаления.');
             return $this->redirect(['view', 'id' => $id]);
@@ -211,7 +212,7 @@ class CouponController extends BaseAdminController
     {
         $model = $this->findModel($id);
         $model->is_active = !$model->is_active;
-        
+
         if ($model->save(false, ['is_active'])) {
             $status = $model->is_active ? 'активирован' : 'деактивирован';
             Yii::$app->session->setFlash('success', "Купон {$status}");
@@ -263,17 +264,17 @@ class CouponController extends BaseAdminController
     public function actionGenerateCode()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
+
         $prefix = Yii::$app->request->post('prefix', '');
         $length = Yii::$app->request->post('length', 8);
-        
+
         $characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
         $code = $prefix;
-        
+
         for ($i = 0; $i < $length; $i++) {
             $code .= $characters[rand(0, strlen($characters) - 1)];
         }
-        
+
         // Проверяем уникальность
         while (Coupon::find()->where(['code' => $code])->exists()) {
             $code = $prefix;
@@ -281,7 +282,7 @@ class CouponController extends BaseAdminController
                 $code .= $characters[rand(0, strlen($characters) - 1)];
             }
         }
-        
+
         return ['code' => $code];
     }
 

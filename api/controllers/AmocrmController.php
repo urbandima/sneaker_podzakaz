@@ -30,6 +30,7 @@
  * Ключ хранится в настройках: Yii::$app->settings->get('amocrm', 'widget_api_key')
  * с фолбэком на Yii::$app->settings->get('amocrm', 'api_key').
  */
+
 namespace app\api\controllers;
 
 use Yii;

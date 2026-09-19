@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\frontend\assets\CartAsset;
@@ -22,17 +23,17 @@ $delivery = DeliveryService::calculate($total);
     <div class="container">
         <h1><i class="bi bi-cart3"></i> Корзина</h1>
         
-        <?php if (empty($items)): ?>
+        <?php if (empty($items)) : ?>
             <div class="cart-empty">
                 <i class="bi bi-cart-x"></i>
                 <h2>Корзина пуста</h2>
                 <p>Добавьте товары из каталога</p>
                 <a href="<?= Url::to(['/catalog']) ?>" class="btn-catalog">Перейти в каталог</a>
             </div>
-        <?php else: ?>
+        <?php else : ?>
             <div class="cart-layout">
                 <div class="cart-items">
-                    <?php foreach ($items as $item): ?>
+                    <?php foreach ($items as $item) : ?>
                         <div class="cart-item" data-cart-id="<?= $item->id ?>">
                             <div class="item-image">
                                 <img src="<?= Html::encode($item->product->getMainImageUrl()) ?>" alt="<?= Html::encode($item->product->name) ?>">
@@ -42,11 +43,11 @@ $delivery = DeliveryService::calculate($total);
                                 <div class="item-brand"><?= Html::encode($item->product->brand->name ?? '') ?></div>
                                 <h3 class="item-name"><?= Html::encode($item->product->name) ?></h3>
                                 
-                                <?php if ($item->size): ?>
+                                <?php if ($item->size) : ?>
                                     <div class="item-size">Размер: <?= Html::encode($item->size) ?></div>
                                 <?php endif; ?>
                                 
-                                <?php if ($item->color): ?>
+                                <?php if ($item->color) : ?>
                                     <div class="item-color">Цвет: <?= Html::encode($item->color) ?></div>
                                 <?php endif; ?>
                             </div>
@@ -103,7 +104,7 @@ $delivery = DeliveryService::calculate($total);
                         <div id="promoError" class="promo-error d-none"></div>
                     </div>
                     
-                    <?php if ($customer): ?>
+                    <?php if ($customer) : ?>
                     <!-- Блок баллов лояльности -->
                     <div class="loyalty-points-section">
                         <h4><i class="bi bi-star-fill"></i> Баллы лояльности</h4>
@@ -156,7 +157,7 @@ $delivery = DeliveryService::calculate($total);
                             <span class="cart-total" id="finalTotal"><?= Yii::$app->formatter->asCurrency($total + $delivery['cost'], 'BYN') ?></span>
                         </div>
 
-                        <?php if (!$delivery['is_free'] && $delivery['threshold'] > 0): ?>
+                        <?php if (!$delivery['is_free'] && $delivery['threshold'] > 0) : ?>
                             <div class="delivery-info">
                                 <i class="bi bi-truck"></i>
                                 До бесплатной доставки: <span id="toFreeDelivery"><?= Yii::$app->formatter->asCurrency($delivery['remaining'], 'BYN') ?></span>
@@ -188,14 +189,14 @@ $delivery = DeliveryService::calculate($total);
         <h2><i class="bi bi-bag-check"></i> Оформление заказа</h2>
         
         <form id="checkoutForm" onsubmit="submitOrder(event)">
-            <?php if ($customer): ?>
+            <?php if ($customer) : ?>
                 <input type="hidden" name="customer_id" value="<?= $customer->id ?>">
             <?php endif; ?>
             
             <div class="checkout-grid">
                 <!-- Левая колонка -->
                 <div class="checkout-left">
-                    <?php if ($customer): ?>
+                    <?php if ($customer) : ?>
                         <!-- Переключатель режимов для авторизованных -->
                         <div class="form-mode-switcher">
                             <button type="button" class="mode-btn active" onclick="switchFormMode('profile')">
@@ -210,7 +211,7 @@ $delivery = DeliveryService::calculate($total);
                         <div class="saved-addresses-section" id="savedAddressesSection">
                             <h3>Выберите адрес доставки</h3>
                             <div class="saved-addresses">
-                                <?php if ($customer && isset($customer->default_address) && $customer->default_address): ?>
+                                <?php if ($customer && isset($customer->default_address) && $customer->default_address) : ?>
                                     <label class="saved-address-card active">
                                         <input type="radio" name="saved_address" value="default" checked>
                                         <div class="address-content">
@@ -222,7 +223,7 @@ $delivery = DeliveryService::calculate($total);
                                                 <?= Html::encode($customer->default_country ?? 'Беларусь') ?>, 
                                                 <?= Html::encode($customer->default_city ?? '') ?><br>
                                                 <?= Html::encode($customer->default_address) ?>
-                                                <?php if (isset($customer->default_postal_code) && $customer->default_postal_code): ?>
+                                                <?php if (isset($customer->default_postal_code) && $customer->default_postal_code) : ?>
                                                     , <?= Html::encode($customer->default_postal_code) ?>
                                                 <?php endif; ?>
                                             </div>
@@ -343,7 +344,7 @@ $delivery = DeliveryService::calculate($total);
                         </div>
                     </div>
                     
-                    <?php if ($customer): ?>
+                    <?php if ($customer) : ?>
                         <!-- Опция сохранения данных -->
                         <div class="form-section d-none" id="saveDataSection">
                             <label class="checkbox-label">

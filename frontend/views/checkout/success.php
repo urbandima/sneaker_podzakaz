@@ -31,7 +31,7 @@ CheckoutAsset::register($this);
         
         <h1 class="success-title">Заказ #<?= Html::encode($model->order_number) ?> принят</h1>
         
-        <?php if ($model->payment_method === 'erip' || $model->payment_method === 'card_online'): ?>
+        <?php if ($model->payment_method === 'erip' || $model->payment_method === 'card_online') : ?>
             <div class="next-step-card">
                 <h3>Следующий шаг: Оплата</h3>
                 <p>Ваш заказ ожидает оплаты. Вы можете оплатить его через ЕРИП или картой онлайн.</p>
@@ -43,7 +43,7 @@ CheckoutAsset::register($this);
                     <i class="bi bi-copy"></i> Скопировать номер
                 </button>
             </div>
-        <?php else: ?>
+        <?php else : ?>
             <div class="next-step-card">
                 <h3>Следующий шаг: Подтверждение</h3>
                 <p>Наш менеджер свяжется с вами в ближайшее время для подтверждения заказа.</p>
@@ -53,7 +53,7 @@ CheckoutAsset::register($this);
             </div>
         <?php endif; ?>
 
-        <?php if (!empty($autoAccount)): ?>
+        <?php if (!empty($autoAccount)) : ?>
             <div class="auto-account-card">
                 <h3>Ваш личный кабинет создан</h3>
                 <p>Мы автоматически создали для вас аккаунт. Используйте эти данные для входа:</p>

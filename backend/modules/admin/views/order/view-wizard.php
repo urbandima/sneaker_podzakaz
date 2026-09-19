@@ -13,7 +13,7 @@ $canEdit = !$user->isLogist();
 $isEditing = $canEdit && !empty($editing);
 $inputDisabled = ($canEdit && $isEditing) ? '' : 'disabled';
 $logists = $user->isAdmin()
-    ? (function() {
+    ? (function () {
         try {
             return \app\backend\modules\admin\models\User::find()->where(['role' => 'logist'])->orderBy(['username' => SORT_ASC])->all();
         } catch (\Exception $e) {
@@ -42,15 +42,15 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
             <a href="<?= Url::to(['/admin/order/index']) ?>" class="btn btn--secondary">
                 ← Список заказов
             </a>
-            <?php if ($canEdit): ?>
-                <?php if ($isEditing): ?>
+            <?php if ($canEdit) : ?>
+                <?php if ($isEditing) : ?>
                     <button type="submit" form="orderUpdateForm" class="btn btn--success">
                         💾 Сохранить изменения
                     </button>
                     <a href="<?= Url::to(['/admin/order/view', 'id' => $model->id]) ?>" class="btn btn--secondary">
                         ❌ Отменить
                     </a>
-                <?php else: ?>
+                <?php else : ?>
                     <a href="<?= Url::to(['/admin/order/view', 'id' => $model->id, 'editing' => 1]) ?>" class="btn btn--primary">
                         ✏️ Редактировать
                     </a>
@@ -77,16 +77,16 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
             </div>
             <div class="metric-note"><?= Html::encode($model->comment ?: 'Комментариев нет') ?></div>
         </div>
-        <?php if ($amoDealId): ?>
+        <?php if ($amoDealId) : ?>
         <div class="metric-card amo-card">
             <div class="metric-label">🔗 amoCRM</div>
             <div class="metric-value">#<?= Html::encode($amoDealId) ?></div>
             <div class="metric-note">
-                <?php if ($amoDealUrl): ?>
+                <?php if ($amoDealUrl) : ?>
                     <a href="<?= Html::encode($amoDealUrl) ?>" target="_blank" class="btn" style="padding: 6px 12px; font-size: 0.75rem;">
                         Открыть сделку →
                     </a>
-                <?php else: ?>
+                <?php else : ?>
                     Сделка привязана
                 <?php endif; ?>
             </div>
@@ -96,7 +96,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
 
     <div class="view-container">
         <main class="view-main">
-            <?php if ($canEdit && $isEditing): ?>
+            <?php if ($canEdit && $isEditing) : ?>
                 <div class="edit-mode-indicator">
                     <span>⚠️</span>
                     <span>Режим редактирования - внесите изменения и нажмите "Сохранить изменения"</span>
@@ -117,91 +117,91 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                 <div class="info-grid info-grid--3">
                     <div class="info-item">
                         <div class="info-label">ФИО клиента</div>
-                        <?php if ($isEditing): ?>
+                        <?php if ($isEditing) : ?>
                             <div class="form-field">
                                 <input type="text" name="Order[client_name]" value="<?= Html::encode($model->client_name) ?>">
                             </div>
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="info-value"><?= Html::encode($model->client_name ?: 'Не указано') ?></div>
                         <?php endif; ?>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Телефон</div>
-                        <?php if ($isEditing): ?>
+                        <?php if ($isEditing) : ?>
                             <div class="form-field">
                                 <input type="text" name="Order[client_phone]" value="<?= Html::encode($model->client_phone) ?>">
                             </div>
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="info-value"><?= Html::encode($model->client_phone ?: 'Не указан') ?></div>
                         <?php endif; ?>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Email</div>
-                        <?php if ($isEditing): ?>
+                        <?php if ($isEditing) : ?>
                             <div class="form-field">
                                 <input type="email" name="Order[client_email]" value="<?= Html::encode($model->client_email) ?>">
                             </div>
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="info-value"><?= Html::encode($model->client_email ?: 'Не указан') ?></div>
                         <?php endif; ?>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Способ доставки</div>
-                        <?php if ($isEditing): ?>
+                        <?php if ($isEditing) : ?>
                             <div class="form-field">
                                 <input type="text" name="Order[delivery_method]" value="<?= Html::encode($model->delivery_method) ?>">
                             </div>
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="info-value"><?= Html::encode($model->delivery_method ?: 'Не указан') ?></div>
                         <?php endif; ?>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Дата доставки</div>
-                        <?php if ($isEditing): ?>
+                        <?php if ($isEditing) : ?>
                             <div class="form-field">
                                 <input type="date" name="Order[delivery_date]" value="<?= Html::encode($model->delivery_date) ?>">
                             </div>
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="info-value"><?= Html::encode($model->delivery_date ?: 'Не указана') ?></div>
                         <?php endif; ?>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Страна</div>
-                        <?php if ($isEditing): ?>
+                        <?php if ($isEditing) : ?>
                             <div class="form-field">
                                 <input type="text" name="Order[delivery_country]" value="<?= Html::encode($model->delivery_country) ?>">
                             </div>
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="info-value"><?= Html::encode($model->delivery_country ?: 'Не указана') ?></div>
                         <?php endif; ?>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Город</div>
-                        <?php if ($isEditing): ?>
+                        <?php if ($isEditing) : ?>
                             <div class="form-field">
                                 <input type="text" name="Order[city]" value="<?= Html::encode($model->city) ?>">
                             </div>
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="info-value"><?= Html::encode($model->city ?: 'Не указан') ?></div>
                         <?php endif; ?>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Область</div>
-                        <?php if ($isEditing): ?>
+                        <?php if ($isEditing) : ?>
                             <div class="form-field">
                                 <input type="text" name="Order[region]" value="<?= Html::encode($model->region) ?>">
                             </div>
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="info-value"><?= Html::encode($model->region ?: 'Не указана') ?></div>
                         <?php endif; ?>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Почтовый индекс</div>
-                        <?php if ($isEditing): ?>
+                        <?php if ($isEditing) : ?>
                             <div class="form-field">
                                 <input type="text" name="Order[postal_code]" value="<?= Html::encode($model->postal_code) ?>">
                             </div>
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="info-value"><?= Html::encode($model->postal_code ?: 'Не указан') ?></div>
                         <?php endif; ?>
                     </div>
@@ -209,21 +209,21 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                 <div class="info-grid info-grid--2 mt-20px">
                     <div class="info-item">
                         <div class="info-label">Полный адрес</div>
-                        <?php if ($isEditing): ?>
+                        <?php if ($isEditing) : ?>
                             <div class="form-field">
                                 <textarea name="Order[full_address]" rows="3"><?= Html::encode($model->full_address) ?></textarea>
                             </div>
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="info-value"><?= Html::encode($model->full_address ?: 'Не указан') ?></div>
                         <?php endif; ?>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Комментарий менеджера</div>
-                        <?php if ($isEditing): ?>
+                        <?php if ($isEditing) : ?>
                             <div class="form-field">
                                 <textarea name="Order[comment]" rows="3"><?= Html::encode($model->comment) ?></textarea>
                             </div>
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="info-value"><?= Html::encode($model->comment ?: 'Нет комментариев') ?></div>
                         <?php endif; ?>
                     </div>
@@ -239,11 +239,11 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                         <div class="panel-subtitle">Позиции и стоимости</div>
                     </div>
                 </div>
-                <?php if ($isEditing): ?>
+                <?php if ($isEditing) : ?>
                     <?= $this->render('_order_items', [
                         'orderItems' => $model->orderItems,
                     ]) ?>
-                <?php else: ?>
+                <?php else : ?>
                     <table class="products-table">
                         <thead>
                             <tr>
@@ -254,7 +254,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($model->orderItems as $item): ?>
+                            <?php foreach ($model->orderItems as $item) : ?>
                                 <tr>
                                     <td><?= Html::encode($item->product_name) ?></td>
                                     <td><?= $item->quantity ?></td>
@@ -289,7 +289,8 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                             </div>
                         </div>
                         <div class="info-grid info-grid--3">
-                            <?php foreach ([
+                            <?php foreach (
+                            [
                                 'recipient_last_name' => 'Фамилия',
                                 'recipient_first_name' => 'Имя',
                                 'recipient_middle_name' => 'Отчество',
@@ -298,16 +299,17 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                                 'passport_issue_date' => 'Дата выдачи',
                                 'birth_date' => 'Дата рождения',
                                 'inn' => 'ИНН',
-                            ] as $field => $label): ?>
+                            ] as $field => $label
+) : ?>
                                 <div class="info-item">
                                     <div class="info-label"><?= Html::encode($label) ?></div>
-                                    <?php if ($isEditing): ?>
+                                    <?php if ($isEditing) : ?>
                                         <div class="form-field">
                                             <input type="<?= $field === 'passport_issue_date' || $field === 'birth_date' ? 'date' : 'text' ?>" 
                                                    name="Order[<?= $field ?>]" 
                                                    value="<?= Html::encode($model->$field) ?>">
                                         </div>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <div class="info-value"><?= Html::encode($model->$field ?: 'Не указано') ?></div>
                                     <?php endif; ?>
                                 </div>
@@ -325,24 +327,26 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                             </div>
                         </div>
                         <div class="info-grid info-grid--3">
-                            <?php foreach ([
+                            <?php foreach (
+                            [
                                 'china_track_number' => 'Китайский трек',
                                 'ms_number' => '№ МС',
                                 'dobropost_tariff' => 'DobroПост тариф',
                                 'shipment_value_cny' => 'Ценность (¥)',
                                 'item_quantity' => 'Кол-во товаров',
                                 'item_price_cny' => 'Цена за ед. (¥)',
-                            ] as $field => $label): ?>
+                            ] as $field => $label
+) : ?>
                                 <div class="info-item">
                                     <div class="info-label"><?= Html::encode($label) ?></div>
-                                    <?php if ($isEditing): ?>
+                                    <?php if ($isEditing) : ?>
                                         <div class="form-field">
                                             <input type="<?= in_array($field, ['shipment_value_cny', 'item_price_cny'], true) ? 'number' : 'text' ?>" 
                                                    name="Order[<?= $field ?>]" 
                                                    value="<?= Html::encode($model->$field) ?>"
                                                    step="<?= in_array($field, ['shipment_value_cny', 'item_price_cny'], true) ? '0.01' : '' ?>">
                                         </div>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <div class="info-value"><?= Html::encode($model->$field ?: 'Не указано') ?></div>
                                     <?php endif; ?>
                                 </div>
@@ -351,17 +355,17 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                         <div class="info-grid info-grid--2 mt-20px">
                             <div class="info-item">
                                 <div class="info-label">Ссылка на товар</div>
-                                <?php if ($isEditing): ?>
+                                <?php if ($isEditing) : ?>
                                     <div class="form-field">
                                         <input type="url" name="Order[product_link]" value="<?= Html::encode($model->product_link) ?>">
                                     </div>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <div class="info-value">
-                                        <?php if ($model->product_link): ?>
+                                        <?php if ($model->product_link) : ?>
                                             <a href="<?= Html::encode($model->product_link) ?>" target="_blank" class="info-value--link">
                                                 <?= Html::encode($model->product_link) ?>
                                             </a>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <span class="info-value--empty">Не указана</span>
                                         <?php endif; ?>
                                     </div>
@@ -369,17 +373,17 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Ссылка Sneakerhead</div>
-                                <?php if ($isEditing): ?>
+                                <?php if ($isEditing) : ?>
                                     <div class="form-field">
                                         <input type="url" name="Order[sneakerhead_order_link]" value="<?= Html::encode($model->sneakerhead_order_link) ?>">
                                     </div>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <div class="info-value">
-                                        <?php if ($model->sneakerhead_order_link): ?>
+                                        <?php if ($model->sneakerhead_order_link) : ?>
                                             <a href="<?= Html::encode($model->sneakerhead_order_link) ?>" target="_blank" class="info-value--link">
                                                 <?= Html::encode($model->sneakerhead_order_link) ?>
                                             </a>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <span class="info-value--empty">Не указана</span>
                                         <?php endif; ?>
                                     </div>
@@ -388,11 +392,11 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                         </div>
                         <div class="info-item mt-20px">
                             <div class="info-label">Описание для таможни</div>
-                            <?php if ($isEditing): ?>
+                            <?php if ($isEditing) : ?>
                                 <div class="form-field">
                                     <textarea name="Order[customs_description]" rows="3"><?= Html::encode($model->customs_description) ?></textarea>
                                 </div>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <div class="info-value"><?= Html::encode($model->customs_description ?: 'Не указано') ?></div>
                             <?php endif; ?>
                         </div>
@@ -400,7 +404,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                 </div>
             </div>
 
-            <?php if ($canEdit && $isEditing): ?>
+            <?php if ($canEdit && $isEditing) : ?>
                 </form>
             <?php endif; ?>
         </main>
@@ -415,7 +419,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                         <div class="panel-subtitle"><?= Html::encode($model->getStatusLabel()) ?></div>
                     </div>
                 </div>
-                <?php if ($canEdit): ?>
+                <?php if ($canEdit) : ?>
                     <form method="post" action="<?= Url::to(['/admin/order/change-status', 'id' => $model->id]) ?>">
                         <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                         <div class="form-field">
@@ -425,7 +429,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                                 $statusList = $user->isLogist()
                                     ? Yii::$app->settings->getLogistStatuses()
                                     : $statuses;
-                                foreach ($statusList as $key => $label): ?>
+                                foreach ($statusList as $key => $label) : ?>
                                     <option value="<?= $key ?>" <?= $model->status === $key ? 'selected' : '' ?>>
                                         <?= Html::encode($label) ?>
                                     </option>
@@ -440,7 +444,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                             🔄 Сохранить статус
                         </button>
                     </form>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="info-value" style="color: var(--muted); font-size: 0.875rem;">
                         У вас нет прав для изменения статуса.
                     </div>
@@ -480,7 +484,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                 </div>
             </section>
 
-            <?php if ($user->isAdmin()): ?>
+            <?php if ($user->isAdmin()) : ?>
             <section class="panel">
                 <div class="panel-header">
                     <div>
@@ -496,7 +500,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                         <label>Выберите логиста</label>
                         <select name="logist_id">
                             <option value="">—</option>
-                            <?php foreach ($logists as $logist): ?>
+                            <?php foreach ($logists as $logist) : ?>
                                 <option value="<?= $logist->id ?>" <?= $model->assigned_logist == $logist->id ? 'selected' : '' ?>>
                                     <?= Html::encode($logist->username) ?>
                                 </option>
@@ -525,7 +529,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                 </div>
             </section>
 
-            <?php if ($model->history): ?>
+            <?php if ($model->history) : ?>
             <section class="panel">
                 <div class="panel-header">
                     <div>
@@ -536,15 +540,17 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                     </div>
                 </div>
                 <div class="timeline">
-                    <?php foreach ($model->history as $history): ?>
+                    <?php foreach ($model->history as $history) : ?>
                         <div class="timeline-item">
                             <div class="timeline-content">
                                 <div class="timeline-title"><?= Html::encode($history->getNewStatusLabel()) ?></div>
                                 <div class="timeline-meta">
                                     <?= Yii::$app->formatter->asDatetime($history->created_at, 'short') ?>
-                                    <?php if ($history->changer): ?> • <?= Html::encode($history->changer->username) ?><?php endif; ?>
+                                    <?php if ($history->changer) :
+                                        ?> • <?= Html::encode($history->changer->username) ?><?php
+                                    endif; ?>
                                 </div>
-                                <?php if ($history->comment): ?>
+                                <?php if ($history->comment) : ?>
                                     <div class="timeline-comment"><?= Html::encode($history->comment) ?></div>
                                 <?php endif; ?>
                             </div>

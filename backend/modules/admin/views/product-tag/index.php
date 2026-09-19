@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Список тегов в админ-панели
- * 
+ *
  * @var ProductTagSearch $searchModel
  * @var ActiveDataProvider $dataProvider
  */
@@ -30,7 +31,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php Pjax::begin(); ?>
     
-    <?php if ($dataProvider->getCount() == 0): ?>
+    <?php if ($dataProvider->getCount() == 0) : ?>
     <div class="empty-state">
         <div class="empty-state-icon">
             <i class="bi bi-tags"></i>
@@ -39,18 +40,17 @@ $this->params['breadcrumbs'][] = $this->title;
         <p class="empty-state-description">Создайте теги для организации товаров в каталоге</p>
         <?= Html::a('<i class="bi bi-plus-lg"></i> Создать первый тег', ['create'], ['class' => 'admin-btn admin-btn-primary']) ?>
     </div>
-    <?php else: ?>
-    
-    <?= GridView::widget([
+    <?php else : ?>
+        <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-            
+
             [
                 'attribute' => 'name',
                 'format' => 'raw',
-                'value' => function($model) {
+                'value' => function ($model) {
                     $color = $model->color ? ' style="background-color: ' . $model->color . '"' : '';
                     return Html::a(
                         '<span class="tag-badge"' . $color . '>' . Html::encode($model->name) . '</span>',
@@ -58,17 +58,17 @@ $this->params['breadcrumbs'][] = $this->title;
                     );
                 },
             ],
-            
+
             [
                 'attribute' => 'slug',
                 'format' => 'text',
                 'contentOptions' => ['class' => 'text-muted'],
             ],
-            
+
             [
                 'attribute' => 'color',
                 'format' => 'raw',
-                'value' => function($model) {
+                'value' => function ($model) {
                     if (!$model->color) {
                         return '<span class="text-muted">—</span>';
                     }
@@ -76,12 +76,12 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'contentOptions' => ['class' => 'color-cell'],
             ],
-            
+
             [
                 'attribute' => 'is_active',
                 'format' => 'raw',
                 'filter' => [1 => 'Активен', 0 => 'Неактивен'],
-                'value' => function($model) {
+                'value' => function ($model) {
                     $class = $model->is_active ? 'status-active' : 'status-inactive';
                     $text = $model->is_active ? 'Активен' : 'Неактивен';
                     return Html::a($text, ['toggle-active', 'id' => $model->id], [
@@ -91,33 +91,33 @@ $this->params['breadcrumbs'][] = $this->title;
                     ]);
                 },
             ],
-            
+
             [
                 'attribute' => 'sort_order',
                 'format' => 'integer',
                 'contentOptions' => ['class' => 'text-center'],
             ],
-            
+
             [
                 'label' => 'Товаров',
                 'format' => 'raw',
-                'value' => function($model) {
+                'value' => function ($model) {
                     $count = $model->getProductsCount();
                     return Html::tag('span', $count, ['class' => 'badge']);
                 },
             ],
-            
+
             [
                 'class' => 'yii\grid\ActionColumn',
                 'template' => '{update} {delete}',
                 'buttons' => [
-                    'update' => function($url, $model) {
+                    'update' => function ($url, $model) {
                         return Html::a('<i class="icon-edit"></i>', $url, [
                             'title' => 'Редактировать',
                             'class' => 'btn-icon',
                         ]);
                     },
-                    'delete' => function($url, $model) {
+                    'delete' => function ($url, $model) {
                         return Html::a('<i class="icon-trash"></i>', $url, [
                             'title' => 'Удалить',
                             'class' => 'btn-icon btn-danger',

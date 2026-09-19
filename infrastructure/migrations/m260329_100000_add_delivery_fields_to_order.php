@@ -16,28 +16,28 @@ class m260329_100000_add_delivery_fields_to_order extends Migration
         } catch (\Exception $e) {
             echo "⚠ Поле delivery_method уже существует\n";
         }
-        
+
         try {
             $this->addColumn('{{%order}}', 'delivery_country', $this->string(50)->after('delivery_method'));
             echo "✓ Добавлено поле delivery_country\n";
         } catch (\Exception $e) {
             echo "⚠ Поле delivery_country уже существует\n";
         }
-        
+
         try {
             $this->addColumn('{{%order}}', 'delivery_address', $this->text()->after('delivery_country'));
             echo "✓ Добавлено поле delivery_address\n";
         } catch (\Exception $e) {
             echo "⚠ Поле delivery_address уже существует\n";
         }
-        
+
         try {
             $this->addColumn('{{%order}}', 'delivery_cost', $this->decimal(10, 2)->defaultValue(0)->after('delivery_address'));
             echo "✓ Добавлено поле delivery_cost\n";
         } catch (\Exception $e) {
             echo "⚠ Поле delivery_cost уже существует\n";
         }
-        
+
         try {
             $this->addColumn('{{%order}}', 'comment', $this->text()->after('delivery_cost'));
             echo "✓ Добавлено поле comment\n";
@@ -51,13 +51,13 @@ class m260329_100000_add_delivery_fields_to_order extends Migration
         } catch (\Exception $e) {
             echo "⚠ Индекс idx-order-delivery_method уже существует\n";
         }
-        
+
         try {
             $this->createIndex('idx-order-delivery_country', '{{%order}}', 'delivery_country');
         } catch (\Exception $e) {
             echo "⚠ Индекс idx-order-delivery_country уже существует\n";
         }
-        
+
         echo "✓ Все поля доставки успешно добавлены\n";
     }
 
@@ -66,14 +66,14 @@ class m260329_100000_add_delivery_fields_to_order extends Migration
         // Удаляем индексы
         $this->dropIndex('idx-order-delivery_country', '{{%order}}');
         $this->dropIndex('idx-order-delivery_method', '{{%order}}');
-        
+
         // Удаляем поля
         $this->dropColumn('{{%order}}', 'comment');
         $this->dropColumn('{{%order}}', 'delivery_cost');
         $this->dropColumn('{{%order}}', 'delivery_address');
         $this->dropColumn('{{%order}}', 'delivery_country');
         $this->dropColumn('{{%order}}', 'delivery_method');
-        
+
         echo "✓ Поля доставки успешно удалены\n";
     }
 }

@@ -2,16 +2,17 @@
 
 /**
  * LoyaltyController — Контроллер программы лояльности
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Управление баллами лояльности в личном кабинете: просмотр баланса,
  * история начислений/списаний, информация о программе.
- * 
+ *
  * ФУНКЦИИ:
  * - index() - история баллов
  * - program() - информация о программе лояльности
  * - balance() - AJAX получение баланса
  */
+
 namespace app\backend\modules\account\controllers;
 
 use Yii;
@@ -64,15 +65,15 @@ class LoyaltyController extends Controller
     {
         $customerId = Yii::$app->session->get('customer_id');
         $loyaltyService = new LoyaltyService();
-        
+
         // Получаем информацию о программе
         $info = $loyaltyService->getCustomerInfo($customerId);
-        
+
         // История операций
         $query = LoyaltyPoints::find()
             ->where(['customer_id' => $customerId])
             ->orderBy(['created_at' => SORT_DESC]);
-        
+
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
@@ -115,10 +116,10 @@ class LoyaltyController extends Controller
 
         $customerId = Yii::$app->session->get('customer_id');
         $loyaltyService = new LoyaltyService();
-        
+
         $balance = $loyaltyService->getCustomerBalance($customerId);
         $level = $loyaltyService->getCustomerLevel($customerId);
-        
+
         return [
             'success' => true,
             'balance' => $balance,

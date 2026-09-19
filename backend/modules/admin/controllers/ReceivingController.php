@@ -23,7 +23,7 @@ class ReceivingController extends BaseAdminController
     public function actionIndex()
     {
         $status    = Yii::$app->request->get('status', '');
-        $supplierId= (int)Yii::$app->request->get('supplier_id', 0);
+        $supplierId = (int)Yii::$app->request->get('supplier_id', 0);
         $dateFrom  = Yii::$app->request->get('date_from', '');
         $dateTo    = Yii::$app->request->get('date_to', '');
         $search    = trim(Yii::$app->request->get('q', ''));
@@ -66,8 +66,17 @@ class ReceivingController extends BaseAdminController
 
         $suppliers = Supplier::find()->where(['is_active' => 1])->orderBy('name')->all();
 
-        return $this->render('index', compact('receivings', 'pagination', 'kpi', 'suppliers',
-            'status', 'supplierId', 'dateFrom', 'dateTo', 'search'));
+        return $this->render('index', compact(
+            'receivings',
+            'pagination',
+            'kpi',
+            'suppliers',
+            'status',
+            'supplierId',
+            'dateFrom',
+            'dateTo',
+            'search'
+        ));
     }
 
     // ── View ───────────────────────────────────────────────────────────────────
@@ -205,7 +214,9 @@ class ReceivingController extends BaseAdminController
         Yii::$app->response->format = Response::FORMAT_JSON;
         $data = json_decode(Yii::$app->request->rawBody, true) ?: Yii::$app->request->post();
         $item = ReceivingItem::findOne((int)($data['id'] ?? 0));
-        if (!$item) return ['success' => false, 'message' => 'Не найдено'];
+        if (!$item) {
+            return ['success' => false, 'message' => 'Не найдено'];
+        }
 
         foreach (['qty_arrived', 'qty_defected', 'qty_expected', 'unit_cost_source', 'unit_cost_byn', 'notes'] as $field) {
             if (isset($data[$field])) {
@@ -225,7 +236,9 @@ class ReceivingController extends BaseAdminController
         Yii::$app->response->format = Response::FORMAT_JSON;
         $data = json_decode(Yii::$app->request->rawBody, true) ?: Yii::$app->request->post();
         $item = ReceivingItem::findOne((int)($data['id'] ?? 0));
-        if (!$item) return ['success' => false];
+        if (!$item) {
+            return ['success' => false];
+        }
 
         $receiving = $item->receiving;
         $item->delete();
@@ -256,7 +269,9 @@ class ReceivingController extends BaseAdminController
         Yii::$app->response->format = Response::FORMAT_JSON;
         $data    = json_decode(Yii::$app->request->rawBody, true) ?: Yii::$app->request->post();
         $expense = ReceivingExpense::findOne((int)($data['id'] ?? 0));
-        if (!$expense) return ['success' => false, 'message' => 'Не найдено'];
+        if (!$expense) {
+            return ['success' => false, 'message' => 'Не найдено'];
+        }
 
         foreach (['type', 'amount', 'currency', 'exchange_rate', 'distribution_method', 'notes'] as $field) {
             if (isset($data[$field])) {
@@ -276,7 +291,9 @@ class ReceivingController extends BaseAdminController
         Yii::$app->response->format = Response::FORMAT_JSON;
         $data    = json_decode(Yii::$app->request->rawBody, true) ?: Yii::$app->request->post();
         $expense = ReceivingExpense::findOne((int)($data['id'] ?? 0));
-        if (!$expense) return ['success' => false];
+        if (!$expense) {
+            return ['success' => false];
+        }
 
         $receiving = $expense->receiving;
         $expense->delete();
@@ -354,7 +371,9 @@ class ReceivingController extends BaseAdminController
         Yii::$app->response->format = Response::FORMAT_JSON;
         $data = json_decode(Yii::$app->request->rawBody, true) ?: Yii::$app->request->post();
         $doc  = ReceivingDocument::findOne((int)($data['id'] ?? 0));
-        if (!$doc) return ['success' => false];
+        if (!$doc) {
+            return ['success' => false];
+        }
 
         $fullPath = Yii::getAlias('@app') . '/../frontend/web/' . $doc->file_path;
         if (file_exists($fullPath)) {
@@ -373,8 +392,10 @@ class ReceivingController extends BaseAdminController
         $data      = json_decode(Yii::$app->request->rawBody, true) ?: Yii::$app->request->post();
         $receiving = $this->findReceiving((int)($data['id'] ?? 0));
 
-        if (!$receiving->canTransitionTo(Receiving::STATUS_ACCEPTED) &&
-            !$receiving->canTransitionTo(Receiving::STATUS_PARTIAL)) {
+        if (
+            !$receiving->canTransitionTo(Receiving::STATUS_ACCEPTED) &&
+            !$receiving->canTransitionTo(Receiving::STATUS_PARTIAL)
+        ) {
             return ['success' => false, 'message' => 'Нельзя принять в текущем статусе'];
         }
 
@@ -446,8 +467,10 @@ class ReceivingController extends BaseAdminController
             'name'  => $p->name,
             'sku'   => $p->sku ?? '',
             'price' => (float)$p->price,
-            'sizes' => array_map(fn($s) => ['id' => $s->id, 'size' => $s->size, 'price' => (float)$s->price],
-                $p->sizes ?? []),
+            'sizes' => array_map(
+                fn($s) => ['id' => $s->id, 'size' => $s->size, 'price' => (float)$s->price],
+                $p->sizes ?? []
+            ),
         ], $query->all());
     }
 
@@ -456,7 +479,9 @@ class ReceivingController extends BaseAdminController
     private function findReceiving(int $id): Receiving
     {
         $r = Receiving::findOne($id);
-        if (!$r) throw new NotFoundHttpException("Приёмка #{$id} не найдена");
+        if (!$r) {
+            throw new NotFoundHttpException("Приёмка #{$id} не найдена");
+        }
         return $r;
     }
 

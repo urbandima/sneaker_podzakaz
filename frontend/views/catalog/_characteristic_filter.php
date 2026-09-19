@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Partial для рендеринга одной характеристики-фильтра
- * 
+ *
  * @var app\backend\modules\catalog\models\Characteristic $characteristic Данные характеристики
  * @var array $currentFilters Текущие активные фильтры
  */
@@ -18,13 +19,13 @@ $currentValues = $currentFilters[$charKey] ?? [];
         <i class="bi bi-chevron-down"></i>
     </h4>
     <div class="filter-content d-none">
-        <?php if ($characteristic['type'] === 'select' || $characteristic['type'] === 'multiselect'): ?>
+        <?php if ($characteristic['type'] === 'select' || $characteristic['type'] === 'multiselect') : ?>
             <!-- Select/Multiselect: чекбоксы с количеством -->
-            <?php if (count($characteristic['values']) > 8): ?>
+            <?php if (count($characteristic['values']) > 8) : ?>
                 <input type="text" class="filter-search" placeholder="Поиск..." oninput="searchInFilter(this, '.char-<?= $characteristic['id'] ?>-item')">
             <?php endif; ?>
             <div class="filter-scroll">
-                <?php foreach ($characteristic['values'] as $value): ?>
+                <?php foreach ($characteristic['values'] as $value) : ?>
                     <?php $count = $value['count'] ?? 0; ?>
                     <?php
                     // ИСПРАВЛЕНО: Для полей product (gender, season и т.д.) value['id'] - это строка, а не число
@@ -44,7 +45,7 @@ $currentValues = $currentFilters[$charKey] ?? [];
                 <?php endforeach; ?>
             </div>
             
-        <?php elseif ($characteristic['type'] === 'number'): ?>
+        <?php elseif ($characteristic['type'] === 'number') : ?>
             <!-- Number: диапазон -->
             <div class="number-range">
                 <input type="number" 
@@ -62,7 +63,7 @@ $currentValues = $currentFilters[$charKey] ?? [];
                        value="<?= $currentFilters[$charKey . '_to'] ?? '' ?>">
             </div>
             
-        <?php elseif ($characteristic['type'] === 'boolean'): ?>
+        <?php elseif ($characteristic['type'] === 'boolean') : ?>
             <!-- Boolean: один чекбокс -->
             <label class="filter-item">
                 <input type="checkbox" 

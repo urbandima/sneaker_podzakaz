@@ -7,7 +7,7 @@ use Yii;
 
 /**
  * StockXParser — Парсер товаров со StockX.com
- * 
+ *
  * Рынок кроссовок, цены в USD
  */
 class StockXParser extends BaseParser
@@ -35,7 +35,7 @@ class StockXParser extends BaseParser
     public function parseProduct($url)
     {
         $html = $this->request($url);
-        
+
         if (!$html) {
             return null;
         }
@@ -44,7 +44,7 @@ class StockXParser extends BaseParser
         if ($this->hasCaptcha($html) || strpos($html, 'challenge') !== false) {
             Yii::warning("CAPTCHA/Cloudflare detected on StockX: {$url}", 'import');
             $token = $this->solveCaptcha($html, $url);
-            
+
             if ($token) {
                 $html = $this->request($url, 'GET', [
                     'headers' => ['cf-turnstile-response' => $token],
@@ -54,14 +54,14 @@ class StockXParser extends BaseParser
 
         // StockX использует JSON-LD и Next.js данные
         $data = $this->extractNextData($html);
-        
+
         if ($data) {
             return $data;
         }
 
         // Fallback: JSON-LD
         $data = $this->extractJsonLd($html);
-        
+
         if ($data) {
             return $data;
         }
@@ -80,7 +80,7 @@ class StockXParser extends BaseParser
         if (preg_match('/<script id="__NEXT_DATA__"[^>]*>(.*?)<\/script>/s', $html, $matches)) {
             try {
                 $json = json_decode($matches[1], true);
-                
+
                 if ($json && isset($json['props']['pageProps']['product'])) {
                     return $this->parseNextProduct($json['props']['pageProps']['product']);
                 }
@@ -117,7 +117,7 @@ class StockXParser extends BaseParser
         if (isset($data['media']['imageUrl'])) {
             $product['images'][] = $data['media']['imageUrl'];
         }
-        
+
         if (isset($data['media']['gallery']) && is_array($data['media']['gallery'])) {
             foreach ($data['media']['gallery'] as $img) {
                 $product['images'][] = $img['url'] ?? $img;
@@ -158,10 +158,10 @@ class StockXParser extends BaseParser
 
         try {
             $jsonLd = $crawler->filter('script[type="application/ld+json"]')->first()->text('');
-            
+
             if ($jsonLd) {
                 $data = json_decode($jsonLd, true);
-                
+
                 if ($data && isset($data['@type']) && $data['@type'] === 'Product') {
                     return [
                         'url' => $data['url'] ?? null,
@@ -224,9 +224,9 @@ class StockXParser extends BaseParser
     {
         // StockX использует API для списка товаров
         $apiUrl = 'https://stockx.com/api/browse?category=sneakers&page=' . $page;
-        
+
         $response = $this->request($apiUrl);
-        
+
         if (!$response) {
             // Fallback: парсим HTML
             return $this->parseCategoryFromHtml($url, $page);
@@ -236,7 +236,7 @@ class StockXParser extends BaseParser
 
         try {
             $data = json_decode($response, true);
-            
+
             if (isset($data['Products']) && is_array($data['Products'])) {
                 foreach ($data['Products'] as $item) {
                     $products[] = [
@@ -264,7 +264,7 @@ class StockXParser extends BaseParser
     {
         $urlWithPage = $url . '?page=' . $page;
         $html = $this->request($urlWithPage);
-        
+
         if (!$html) {
             return [];
         }
@@ -275,10 +275,10 @@ class StockXParser extends BaseParser
         try {
             $crawler->filter('[data-testid="product-tile"]')->each(function (Crawler $node) use (&$products) {
                 $link = $node->filter('a');
-                
+
                 if ($link->count() > 0) {
                     $href = $link->attr('href');
-                    
+
                     $products[] = [
                         'url' => 'https://stockx.com' . $href,
                         'name' => trim($node->filter('[data-testid="product-name"]')->text('')),
@@ -300,9 +300,9 @@ class StockXParser extends BaseParser
     public function searchProducts($query, $limit = 50)
     {
         $apiUrl = 'https://stockx.com/api/browse?_search=' . urlencode($query) . '&size=' . $limit;
-        
+
         $response = $this->request($apiUrl);
-        
+
         if (!$response) {
             return [];
         }
@@ -311,7 +311,7 @@ class StockXParser extends BaseParser
 
         try {
             $data = json_decode($response, true);
-            
+
             if (isset($data['Products']) && is_array($data['Products'])) {
                 foreach ($data['Products'] as $item) {
                     $products[] = [
@@ -340,7 +340,7 @@ class StockXParser extends BaseParser
 
         while ($page <= $maxPages) {
             $products = $this->parseCategory($categoryUrl, $page);
-            
+
             if (empty($products)) {
                 break;
             }
@@ -376,7 +376,7 @@ class StockXParser extends BaseParser
         // Нормализуем характеристики
         if (!empty($rawData['characteristics'])) {
             $chars = $rawData['characteristics'];
-            
+
             $normalized['material'] = $chars['Upper Material'] ?? $chars['material'] ?? null;
             $normalized['season'] = $this->normalizeSeason($chars['Season'] ?? null);
             $normalized['gender'] = $this->normalizeGender($chars['Gender'] ?? null);
@@ -505,25 +505,39 @@ class StockXParser extends BaseParser
 
     protected function normalizeSeason($season)
     {
-        if (!$season) return null;
+        if (!$season) {
+            return null;
+        }
 
         $seasonLower = mb_strtolower($season, 'UTF-8');
 
-        if (strpos($seasonLower, 'summer') !== false) return 'summer';
-        if (strpos($seasonLower, 'winter') !== false) return 'winter';
-        if (strpos($seasonLower, 'spring') !== false || strpos($seasonLower, 'fall') !== false) return 'demi';
+        if (strpos($seasonLower, 'summer') !== false) {
+            return 'summer';
+        }
+        if (strpos($seasonLower, 'winter') !== false) {
+            return 'winter';
+        }
+        if (strpos($seasonLower, 'spring') !== false || strpos($seasonLower, 'fall') !== false) {
+            return 'demi';
+        }
 
         return 'all';
     }
 
     protected function normalizeGender($gender)
     {
-        if (!$gender) return null;
+        if (!$gender) {
+            return null;
+        }
 
         $genderLower = mb_strtolower($gender, 'UTF-8');
 
-        if (strpos($genderLower, 'men') !== false || strpos($genderLower, 'male') !== false) return 'male';
-        if (strpos($genderLower, 'women') !== false || strpos($genderLower, 'female') !== false) return 'female';
+        if (strpos($genderLower, 'men') !== false || strpos($genderLower, 'male') !== false) {
+            return 'male';
+        }
+        if (strpos($genderLower, 'women') !== false || strpos($genderLower, 'female') !== false) {
+            return 'female';
+        }
 
         return 'unisex';
     }

@@ -2,11 +2,11 @@
 
 /**
  * ProductCharacteristicValue — Модель значения характеристики товара
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Связь товара с характеристикой и её значением.
  * Поддержка разных типов значений: select, text, number, boolean.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - product_id: ID товара
  * - characteristic_id: ID характеристики
@@ -14,17 +14,18 @@
  * - value_text: текстовое значение (для text)
  * - value_number: числовое значение (для number)
  * - value_boolean: булево значение (для boolean)
- * 
+ *
  * СВЯЗИ:
  * - Product (товар)
  * - Characteristic (характеристика)
  * - CharacteristicValue (значение для select)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - ProductController/admin (заполнение характеристик)
  * - CatalogController (фильтрация по характеристикам)
  * - Отображение характеристик в карточке товара
  */
+
 namespace app\backend\modules\catalog\models;
 
 use Yii;
@@ -41,7 +42,7 @@ use yii\db\ActiveRecord;
  * @property float|null $value_number
  * @property int|null $value_boolean
  * @property string $created_at
- * 
+ *
  * @property Product $product
  * @property Characteristic $characteristic
  * @property CharacteristicValue $characteristicValue
@@ -113,19 +114,19 @@ class ProductCharacteristicValue extends ActiveRecord
         if ($this->characteristicValue) {
             return $this->characteristicValue->value;
         }
-        
+
         if ($this->value_text) {
             return $this->value_text;
         }
-        
+
         if ($this->value_number !== null) {
             return $this->value_number;
         }
-        
+
         if ($this->value_boolean !== null) {
             return $this->value_boolean ? 'Да' : 'Нет';
         }
-        
+
         return '-';
     }
 }

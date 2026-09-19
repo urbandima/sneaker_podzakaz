@@ -16,7 +16,7 @@ class m251104_120000_add_poizon_fields_to_product extends Migration
         $this->addColumn('{{%product}}', 'poizon_url', $this->string(500)->comment('URL товара на Poizon'));
         $this->addColumn('{{%product}}', 'poizon_price_cny', $this->decimal(10, 2)->comment('Цена в CNY на Poizon'));
         $this->addColumn('{{%product}}', 'last_sync_at', $this->timestamp()->null()->comment('Последняя синхронизация'));
-        
+
         // Дополнительные характеристики обуви
         $this->addColumn('{{%product}}', 'upper_material', $this->string(100)->comment('Материал верха'));
         $this->addColumn('{{%product}}', 'sole_material', $this->string(100)->comment('Материал подошвы'));
@@ -25,7 +25,7 @@ class m251104_120000_add_poizon_fields_to_product extends Migration
         $this->addColumn('{{%product}}', 'release_year', $this->integer()->comment('Год выпуска'));
         $this->addColumn('{{%product}}', 'is_limited', $this->boolean()->defaultValue(0)->comment('Лимитированная модель'));
         $this->addColumn('{{%product}}', 'weight', $this->integer()->comment('Вес в граммах'));
-        
+
         // Индексы для производительности
         $this->createIndex('idx-product-sku', '{{%product}}', 'sku');
         $this->createIndex('idx-product-poizon_id', '{{%product}}', 'poizon_id');
@@ -39,7 +39,7 @@ class m251104_120000_add_poizon_fields_to_product extends Migration
         $this->dropIndex('idx-product-poizon_spu_id', '{{%product}}');
         $this->dropIndex('idx-product-poizon_id', '{{%product}}');
         $this->dropIndex('idx-product-sku', '{{%product}}');
-        
+
         $this->dropColumn('{{%product}}', 'weight');
         $this->dropColumn('{{%product}}', 'is_limited');
         $this->dropColumn('{{%product}}', 'release_year');

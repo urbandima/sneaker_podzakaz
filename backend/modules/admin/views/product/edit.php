@@ -51,7 +51,7 @@ if (!$product->isNewRecord) {
 }
 ?>
 
-<?php if (!$product->isNewRecord): ?>
+<?php if (!$product->isNewRecord) : ?>
 <span id="js-product-id" data-id="<?= $product->id ?>" class="d-none"></span>
 <?php endif; ?>
 
@@ -60,22 +60,23 @@ if (!$product->isNewRecord) {
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="mb-1"><?= Html::encode($this->title) ?></h1>
-            <?php if ($product->poizon_id): ?>
+            <?php if ($product->poizon_id) : ?>
                 <span class="badge bg-info"><i class="bi bi-cloud-download"></i> Товар из Poizon (ID: <?= $product->poizon_id ?>)</span>
             <?php endif; ?>
-            <?php if ($product->parent_product_id): ?>
+            <?php if ($product->parent_product_id) : ?>
                 <span class="badge bg-secondary"><i class="bi bi-link"></i> Вариант товара</span>
             <?php endif; ?>
         </div>
         <div class="btn-group">
-            <?= Html::a('<i class="bi bi-arrow-left"></i> Назад', 
-                $product->isNewRecord ? ['/admin/product/index'] : ['/admin/product/view', 'id' => $product->id], 
+            <?= Html::a(
+                '<i class="bi bi-arrow-left"></i> Назад',
+                $product->isNewRecord ? ['/admin/product/index'] : ['/admin/product/view', 'id' => $product->id],
                 ['class' => 'btn btn-secondary']
             ) ?>
         </div>
     </div>
 
-    <?php if ($product->poizon_id): ?>
+    <?php if ($product->poizon_id) : ?>
     <div class="alert alert-info">
         <i class="bi bi-info-circle"></i>
         <strong>Товар из Poizon</strong> - некоторые поля синхронизируются автоматически при импорте.
@@ -144,7 +145,7 @@ if (!$product->isNewRecord) {
                                 'placeholder' => 'SKU-12345'
                             ])->label('SKU (артикул)') ?>
                         </div>
-                        <?php if ($product->hasAttribute('vendor_code')): ?>
+                        <?php if ($product->hasAttribute('vendor_code')) : ?>
                         <div class="col-md-6">
                             <?= $form->field($product, 'vendor_code')->textInput([
                                 'maxlength' => true,
@@ -160,7 +161,7 @@ if (!$product->isNewRecord) {
                                 \yii\helpers\ArrayHelper::map($brands, 'id', 'name'),
                                 ['prompt' => 'Выберите бренд', 'id' => 'brand-select']
                             )->label('Бренд') ?>
-                            <?php if ($product->brand && $product->brand->getLogoUrl()): ?>
+                            <?php if ($product->brand && $product->brand->getLogoUrl()) : ?>
                                 <div class="mt-2" id="brand-logo-preview">
                                     <img src="<?= Html::encode($product->brand->getLogoUrl()) ?>" 
                                          alt="<?= Html::encode($product->brand->name) ?>" 
@@ -188,7 +189,7 @@ if (!$product->isNewRecord) {
                             ])->label('Цена (BYN)') ?>
                         </div>
                         <div class="col-md-6">
-                            <?php if ($product->hasAttribute('poizon_id') && $product->poizon_id): ?>
+                            <?php if ($product->hasAttribute('poizon_id') && $product->poizon_id) : ?>
                                 <?= $form->field($product, 'poizon_price_cny')->textInput([
                                     'type' => 'number',
                                     'step' => '0.01',
@@ -214,7 +215,7 @@ if (!$product->isNewRecord) {
                                 'label' => 'Хит продаж'
                             ]) ?>
                         </div>
-                        <?php if ($product->hasAttribute('is_limited')): ?>
+                        <?php if ($product->hasAttribute('is_limited')) : ?>
                         <div class="col-md-4">
                             <?= $form->field($product, 'is_limited')->checkbox([
                                 'label' => 'Лимитированная'
@@ -223,7 +224,7 @@ if (!$product->isNewRecord) {
                         <?php endif; ?>
                     </div>
                     
-                    <?php if ($product->hasAttribute('purchase_price')): ?>
+                    <?php if ($product->hasAttribute('purchase_price')) : ?>
                     <div class="row">
                         <div class="col-md-6">
                             <?= $form->field($product, 'purchase_price')->textInput([
@@ -297,7 +298,7 @@ if (!$product->isNewRecord) {
                         'maxlength' => 160
                     ])->label('Meta Description')->hint('Оптимальная длина: 150-160 символов') ?>
 
-                    <?php 
+                    <?php
                     // Предзаполняем поле объединенными ключевыми словами
                     if (!empty($allKeywords) && empty($product->meta_keywords)) {
                         $product->meta_keywords = implode(', ', $allKeywords);
@@ -309,13 +310,13 @@ if (!$product->isNewRecord) {
                         'value' => $product->meta_keywords ?: implode(', ', $allKeywords)
                     ])->label('Ключевые слова (SEO) <span class="badge bg-info ms-1">Объединенные</span>', ['encode' => false])->hint('Объединены ключевые слова из Poizon и meta_keywords. Редактируйте здесь, дубликаты будут удалены автоматически.') ?>
                     
-                    <?php if (!empty($allKeywords)): ?>
+                    <?php if (!empty($allKeywords)) : ?>
                     <div class="mb-3">
                         <div class="alert alert-secondary mb-0">
                             <small>
                                 <i class="bi bi-tags"></i> <strong>Текущие ключевые слова (<?= count($allKeywords) ?>):</strong><br>
                                 <div class="mt-2">
-                                <?php foreach ($allKeywords as $kw): ?>
+                                <?php foreach ($allKeywords as $kw) : ?>
                                     <span class="badge bg-dark me-1 mb-1"><?= Html::encode($kw) ?></span>
                                 <?php endforeach; ?>
                                 </div>
@@ -337,7 +338,7 @@ if (!$product->isNewRecord) {
                         'placeholder' => 'https://example.com/image.jpg или uploads/products/image.jpg'
                     ])->label('Главное изображение (URL)')->hint('Прямая ссылка на изображение или локальный путь') ?>
                     
-                    <?php if ($product->hasAttribute('poizon_url') && $product->poizon_id): ?>
+                    <?php if ($product->hasAttribute('poizon_url') && $product->poizon_id) : ?>
                     <div class="alert alert-info">
                         <strong>Poizon URL:</strong><br>
                         <?= $form->field($product, 'poizon_url')->textInput([
@@ -348,19 +349,19 @@ if (!$product->isNewRecord) {
                     <?php endif; ?>
                     
                     <!-- Галерея изображений -->
-                    <?php if (!$product->isNewRecord && $product->images): ?>
+                    <?php if (!$product->isNewRecord && $product->images) : ?>
                     <hr class="my-4">
                     <h6 class="mb-3">Галерея изображений</h6>
                     <div class="row g-2 mb-3">
-                        <?php foreach ($product->images as $image): ?>
+                        <?php foreach ($product->images as $image) : ?>
                             <div class="col-md-3">
                                 <div class="position-relative">
                                     <img src="<?= $image->getImageUrl() ?>" class="img-fluid rounded" alt="">
-                                    <?php if ($image->is_main): ?>
+                                    <?php if ($image->is_main) : ?>
                                         <span class="badge bg-success position-absolute top-0 start-0 m-1">Главное</span>
                                     <?php endif; ?>
                                     <div class="position-absolute top-0 end-0 m-1">
-                                        <?php if (!$image->is_main): ?>
+                                        <?php if (!$image->is_main) : ?>
                                             <?= Html::a('<i class="bi bi-star"></i>', ['/admin/product/set-main-image', 'id' => $image->id], [
                                                 'class' => 'btn btn-sm btn-warning',
                                                 'title' => 'Сделать главным',
@@ -381,7 +382,7 @@ if (!$product->isNewRecord) {
                     <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addImageModal">
                         <i class="bi bi-plus-circle"></i> Добавить изображение
                     </button>
-                    <?php else: ?>
+                    <?php else : ?>
                     <div class="alert alert-secondary">
                         <i class="bi bi-info-circle"></i> После сохранения товара вы сможете добавить дополнительные изображения.
                     </div>
@@ -393,14 +394,14 @@ if (!$product->isNewRecord) {
             <div class="card mt-3" id="section-specs">
                 <div class="card-header d-flex justify-content-between align-items-center bg-light">
                     <h5 class="mb-0"><i class="bi bi-list-check"></i> Характеристики</h5>
-                    <?php if (!$product->isNewRecord): ?>
+                    <?php if (!$product->isNewRecord) : ?>
                     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#manageCharacteristicsModal">
                         <i class="bi bi-plus-circle"></i> Добавить
                     </button>
                     <?php endif; ?>
                 </div>
                 <div class="card-body p-0">
-                    <?php if (!$product->isNewRecord):
+                    <?php if (!$product->isNewRecord) :
                         $productParams = [
                             ['key' => 'material', 'name' => 'Материал верха', 'value' => $product->material, 'type' => 'select', 'options' => [
                                 'leather' => 'Кожа', 'textile' => 'Текстиль', 'synthetic' => 'Синтетика',
@@ -431,7 +432,9 @@ if (!$product->isNewRecord) {
                                 ? $product->ms_attributes_json
                                 : (json_decode($product->ms_attributes_json, true) ?: []);
                             foreach ($rawMsAttrs as $attr) {
-                                if (empty($attr['name'])) continue;
+                                if (empty($attr['name'])) {
+                                    continue;
+                                }
                                 $val = '';
                                 if (isset($attr['value'])) {
                                     if (is_array($attr['value']) && isset($attr['value']['name'])) {
@@ -452,8 +455,8 @@ if (!$product->isNewRecord) {
                         $hasMsAttrs = !empty($msAttrs);
                         $hasRegistryChars = count($characteristicsFromRegistry) > 0;
                         $hasAny = $hasRegistryChars || $hasPoizonProps || $hasMsAttrs || true; // always show params
-                        if ($hasAny):
-                    ?>
+                        if ($hasAny) :
+                            ?>
                     <div class="table-responsive">
                         <table class="table table-sm table-hover mb-0" id="characteristicsTable">
                             <thead class="table-light">
@@ -467,37 +470,39 @@ if (!$product->isNewRecord) {
                             <tbody>
                                 <?php
                                 // 1. Основные поля товара — авто-сохранение через saveField
-                                foreach ($productParams as $param):
-                                    if (empty($param['value'])) continue;
+                                foreach ($productParams as $param) :
+                                    if (empty($param['value'])) {
+                                        continue;
+                                    }
                                     $displayValue = $param['value'];
                                     if ($param['type'] === 'select' && isset($param['options'][$param['value']])) {
                                         $displayValue = $param['options'][$param['value']];
                                     }
-                                ?>
+                                    ?>
                                 <tr class="product-param-row" data-param-key="<?= $param['key'] ?>">
                                     <td class="text-muted small"><?= Html::encode($param['name']) ?></td>
                                     <td>
                                         <div class="param-value-display fw-semibold"><?= Html::encode($displayValue) ?></div>
                                         <div class="param-value-edit d-none">
-                                            <?php if ($param['type'] === 'select'): ?>
+                                            <?php if ($param['type'] === 'select') : ?>
                                                 <select class="form-select form-select-sm param-edit-input"
                                                         name="Product[<?= $param['key'] ?>]"
                                                         data-field="<?= $param['key'] ?>"
                                                         data-original="<?= Html::encode($param['value']) ?>">
                                                     <option value="">— не выбрано —</option>
-                                                    <?php foreach ($param['options'] as $optKey => $optValue): ?>
+                                                    <?php foreach ($param['options'] as $optKey => $optValue) : ?>
                                                         <option value="<?= $optKey ?>" <?= $optKey === $param['value'] ? 'selected' : '' ?>>
                                                             <?= Html::encode($optValue) ?>
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
-                                            <?php elseif ($param['type'] === 'number'): ?>
+                                            <?php elseif ($param['type'] === 'number') : ?>
                                                 <input type="number" class="form-control form-control-sm param-edit-input"
                                                        name="Product[<?= $param['key'] ?>]"
                                                        data-field="<?= $param['key'] ?>"
                                                        value="<?= Html::encode($param['value']) ?>"
                                                        data-original="<?= Html::encode($param['value']) ?>">
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <input type="text" class="form-control form-control-sm param-edit-input"
                                                        name="Product[<?= $param['key'] ?>]"
                                                        data-field="<?= $param['key'] ?>"
@@ -530,34 +535,34 @@ if (!$product->isNewRecord) {
 
                                 <?php
                                 // 2. Характеристики из справочников
-                                foreach ($characteristicsFromRegistry as $pcv): ?>
+                                foreach ($characteristicsFromRegistry as $pcv) : ?>
                                 <tr data-char-id="<?= $pcv->id ?>" class="editable-char-row">
                                     <td class="text-muted small"><?= Html::encode($pcv->characteristic ? $pcv->characteristic->name : '—') ?></td>
                                     <td>
                                         <div class="char-value-display fw-semibold">
-                                            <?php if ($pcv->characteristicValue): ?>
+                                            <?php if ($pcv->characteristicValue) : ?>
                                                 <?= Html::encode($pcv->characteristicValue->value) ?>
-                                            <?php elseif ($pcv->value_text): ?>
+                                            <?php elseif ($pcv->value_text) : ?>
                                                 <?= Html::encode($pcv->value_text) ?>
-                                            <?php elseif ($pcv->value_number !== null): ?>
+                                            <?php elseif ($pcv->value_number !== null) : ?>
                                                 <?= Html::encode($pcv->value_number) ?>
                                             <?php endif; ?>
                                         </div>
                                         <div class="char-value-edit d-none">
                                             <?php $charType = $pcv->characteristic ? $pcv->characteristic->type : null;
-                                            if ($charType === 'select'):
+                                            if ($charType === 'select') :
                                                 $values = \yii\helpers\ArrayHelper::map($pcv->characteristic->values ?? [], 'id', 'value'); ?>
                                                 <select class="form-select form-select-sm char-edit-input" data-original="<?= $pcv->characteristic_value_id ?>">
-                                                    <?php foreach ($values as $valId => $valName): ?>
+                                                    <?php foreach ($values as $valId => $valName) : ?>
                                                         <option value="<?= $valId ?>" <?= $valId == $pcv->characteristic_value_id ? 'selected' : '' ?>>
                                                             <?= Html::encode($valName) ?>
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
-                                            <?php elseif ($charType === 'number'): ?>
+                                            <?php elseif ($charType === 'number') : ?>
                                                 <input type="number" step="0.01" class="form-control form-control-sm char-edit-input"
                                                        value="<?= $pcv->value_number ?>" data-original="<?= $pcv->value_number ?>">
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <input type="text" class="form-control form-control-sm char-edit-input"
                                                        value="<?= Html::encode($pcv->value_text) ?>" data-original="<?= Html::encode($pcv->value_text) ?>">
                                             <?php endif; ?>
@@ -591,9 +596,9 @@ if (!$product->isNewRecord) {
 
                                 <?php
                                 // 3. Poizon props
-                                if ($hasPoizonProps):
+                                if ($hasPoizonProps) :
                                     $propIndex = 0;
-                                    foreach ($properties as $prop): ?>
+                                    foreach ($properties as $prop) : ?>
                                 <tr class="poizon-prop-row" data-prop-index="<?= $propIndex ?>">
                                     <td class="text-muted small">
                                         <div class="poizon-prop-key-display"><?= Html::encode($prop['key'] ?? '') ?></div>
@@ -631,23 +636,24 @@ if (!$product->isNewRecord) {
                                         </span>
                                     </td>
                                 </tr>
-                                    <?php $propIndex++; endforeach;
+                                        <?php $propIndex++;
+                                    endforeach;
                                 endif; ?>
 
-                                <?php if ($hasMsAttrs): ?>
+                                <?php if ($hasMsAttrs) : ?>
                                 <tr class="table-secondary">
                                     <td colspan="4" class="py-1 px-3">
                                         <small class="text-muted fw-semibold"><i class="bi bi-database me-1"></i>Атрибуты МойСклад</small>
                                     </td>
                                 </tr>
-                                <?php foreach ($msAttrs as $msAttr): ?>
+                                    <?php foreach ($msAttrs as $msAttr) : ?>
                                 <tr id="section-ms-attrs">
                                     <td class="text-muted small"><?= Html::encode($msAttr['name']) ?></td>
                                     <td class="fw-semibold"><?= Html::encode($msAttr['value']) ?></td>
                                     <td class="text-center"><span class="badge" style="background:#5c3d1e;color:#fff;">МС</span></td>
                                     <td class="text-center text-muted small">—</td>
                                 </tr>
-                                <?php endforeach; ?>
+                                    <?php endforeach; ?>
                                 <?php endif; ?>
 
                             </tbody>
@@ -656,10 +662,10 @@ if (!$product->isNewRecord) {
                     <div class="px-3 py-2 text-muted border-top" style="font-size: 0.8rem;">
                         <i class="bi bi-pencil-square"></i> Нажмите карандаш — изменение сохраняется мгновенно без перезагрузки страницы.
                     </div>
-                    <?php else: ?>
+                        <?php else : ?>
                     <div class="p-3 text-muted">Сохраните товар для редактирования характеристик.</div>
-                    <?php endif; ?>
-                    <?php else: ?>
+                        <?php endif; ?>
+                    <?php else : ?>
                     <div class="p-3 text-muted">Сохраните товар для добавления характеристик.</div>
                     <?php endif; // !isNewRecord ?>
                 </div>
@@ -677,7 +683,7 @@ if (!$product->isNewRecord) {
                         <button type="button" class="btn btn-light btn-sm size-hero-btn" data-bs-toggle="modal" data-bs-target="#addSizeModal">
                             <i class="bi bi-plus-circle"></i> Добавить размер
                         </button>
-                        <?php if ($product->poizon_id): ?>
+                        <?php if ($product->poizon_id) : ?>
                         <span class="badge bg-light text-dark size-hero-badge">
                             <i class="bi bi-cloud-arrow-down"></i> Poizon linked
                         </span>
@@ -685,36 +691,36 @@ if (!$product->isNewRecord) {
                     </div>
                 </div>
                 <div class="card-body size-card-body">
-                    <?php if (!$product->isNewRecord): ?>
-                    <?php 
-                    $sizes = $product->getSizes()->orderBy(['us_size' => SORT_ASC])->all();
-                    $sizesCount = count($sizes);
-                    $totalLocalStock = 0;
-                    $availableSizeCount = 0;
-                    $poizonLinkedCount = 0;
-                    $priceRangeMin = null;
-                    $priceRangeMax = null;
-                    foreach ($sizes as $size) {
-                        $totalLocalStock += (int)$size->stock;
-                        if ($size->is_available) {
-                            $availableSizeCount++;
-                        }
-                        if (!empty($size->poizon_sku_id)) {
-                            $poizonLinkedCount++;
-                        }
-                        $effectivePrice = $size->price_byn ?? $size->price ?? $product->price;
-                        if ($effectivePrice !== null) {
-                            $effectivePrice = (float)$effectivePrice;
-                            if ($priceRangeMin === null || $effectivePrice < $priceRangeMin) {
-                                $priceRangeMin = $effectivePrice;
+                    <?php if (!$product->isNewRecord) : ?>
+                        <?php
+                        $sizes = $product->getSizes()->orderBy(['us_size' => SORT_ASC])->all();
+                        $sizesCount = count($sizes);
+                        $totalLocalStock = 0;
+                        $availableSizeCount = 0;
+                        $poizonLinkedCount = 0;
+                        $priceRangeMin = null;
+                        $priceRangeMax = null;
+                        foreach ($sizes as $size) {
+                            $totalLocalStock += (int)$size->stock;
+                            if ($size->is_available) {
+                                $availableSizeCount++;
                             }
-                            if ($priceRangeMax === null || $effectivePrice > $priceRangeMax) {
-                                $priceRangeMax = $effectivePrice;
+                            if (!empty($size->poizon_sku_id)) {
+                                $poizonLinkedCount++;
+                            }
+                            $effectivePrice = $size->price_byn ?? $size->price ?? $product->price;
+                            if ($effectivePrice !== null) {
+                                $effectivePrice = (float)$effectivePrice;
+                                if ($priceRangeMin === null || $effectivePrice < $priceRangeMin) {
+                                    $priceRangeMin = $effectivePrice;
+                                }
+                                if ($priceRangeMax === null || $effectivePrice > $priceRangeMax) {
+                                    $priceRangeMax = $effectivePrice;
+                                }
                             }
                         }
-                    }
-                    if ($sizesCount > 0):
-                    ?>
+                        if ($sizesCount > 0) :
+                            ?>
                     <div class="size-metrics-grid mb-4">
                         <div class="size-metric-card">
                             <p class="size-metric-label">Размеров активно</p>
@@ -731,28 +737,28 @@ if (!$product->isNewRecord) {
                         <div class="size-metric-card">
                             <p class="size-metric-label">Диапазон цен (BYN)</p>
                             <div class="size-metric-value">
-                                <?php if ($priceRangeMin !== null): ?>
+                                <?php if ($priceRangeMin !== null) : ?>
                                     <?= PriceHelper::format($priceRangeMin) ?> — <?= PriceHelper::format($priceRangeMax) ?>
-                                <?php else: ?>
+                                <?php else : ?>
                                     —
                                 <?php endif; ?>
                             </div>
                             <span class="size-metric-chip">С учетом индивидуальных цен</span>
                         </div>
-                        <?php if ($product->poizon_id): ?>
+                            <?php if ($product->poizon_id) : ?>
                         <div class="size-metric-card">
                             <p class="size-metric-label">Привязано к Poizon</p>
                             <div class="size-metric-value"><?= $poizonLinkedCount ?></div>
                             <span class="size-metric-chip">SKU синхронизированы</span>
                         </div>
-                        <?php endif; ?>
+                            <?php endif; ?>
                     </div>
 
                     <div class="size-legend d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
                         <div class="d-flex flex-wrap gap-2">
                             <span class="size-legend-item"><span class="legend-dot legend-dot--available"></span> Доступен</span>
                             <span class="size-legend-item"><span class="legend-dot legend-dot--wait"></span> Под заказ</span>
-                            <?php if ($product->poizon_id): ?>
+                            <?php if ($product->poizon_id) : ?>
                             <span class="size-legend-item"><span class="legend-dot legend-dot--poizon"></span> Poizon SKU</span>
                             <?php endif; ?>
                         </div>
@@ -776,7 +782,7 @@ if (!$product->isNewRecord) {
                                         <i class="bi bi-info-circle-fill text-info"></i>
                                     </th>
                                     <th class="text-uppercase">Цена BYN</th>
-                                    <?php if ($product->poizon_id): ?>
+                                    <?php if ($product->poizon_id) : ?>
                                         <th class="text-uppercase">Poizon SKU</th>
                                         <th class="text-uppercase">Poizon остаток</th>
                                     <?php endif; ?>
@@ -786,22 +792,22 @@ if (!$product->isNewRecord) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($sizes as $size): ?>
-                                <?php 
+                                <?php foreach ($sizes as $size) : ?>
+                                    <?php
                                     $rowClasses = [];
                                     if ($size->is_available) {
                                         $rowClasses[] = 'size-row-available';
                                     } else {
                                         $rowClasses[] = 'size-row-waitlist';
                                     }
-                                ?>
+                                    ?>
                                 <tr class="<?= implode(' ', $rowClasses) ?>">
                                     <td><strong class="size-value-main"><?= Html::encode($size->us_size ?: $size->size) ?></strong></td>
                                     <td><span class="size-value-muted"><?= Html::encode($size->eu_size ?: '-') ?></span></td>
                                     <td><span class="size-value-muted"><?= Html::encode($size->uk_size ?: '-') ?></span></td>
                                     <td><span class="size-value-muted"><?= Html::encode($size->cm_size ?: '-') ?></span></td>
                                     <td>
-                                        <?php if ($size->price_cny): ?>
+                                        <?php if ($size->price_cny) : ?>
                                             <button type="button"
                                                 class="size-price-chip size-price-chip--cny"
                                                 onclick="copyToClipboard('<?= $size->price_cny ?>', this)"
@@ -809,7 +815,7 @@ if (!$product->isNewRecord) {
                                                 ¥<?= number_format($size->price_cny, 2) ?>
                                                 <i class="bi bi-clipboard ms-1"></i>
                                             </button>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <span class="text-muted">—</span>
                                         <?php endif; ?>
                                     </td>
@@ -828,7 +834,7 @@ if (!$product->isNewRecord) {
                                                 <?= $sizePriceDisplay ?>
                                                 <i class="bi bi-pencil ms-1" style="font-size:0.7em;opacity:0.5;"></i>
                                             </span>
-                                            <?php if (!$sizePriceIsCustom): ?>
+                                            <?php if (!$sizePriceIsCustom) : ?>
                                             <small class="text-muted d-block" style="font-size:0.7em;">общая</small>
                                             <?php endif; ?>
                                         </div>
@@ -850,33 +856,33 @@ if (!$product->isNewRecord) {
                                             </div>
                                         </div>
                                     </td>
-                                    <?php if ($product->poizon_id): ?>
+                                    <?php if ($product->poizon_id) : ?>
                                         <td>
                                             <span class="size-chip <?= $size->poizon_sku_id ? 'size-chip--poizon' : 'size-chip--muted' ?>">
                                                 <?= Html::encode($size->poizon_sku_id ?: '—') ?>
                                             </span>
                                         </td>
                                         <td>
-                                            <?php if ($size->poizon_stock > 0): ?>
+                                            <?php if ($size->poizon_stock > 0) : ?>
                                                 <span class="size-chip size-chip--success"><?= $size->poizon_stock ?></span>
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <span class="size-chip size-chip--muted">0</span>
                                             <?php endif; ?>
                                         </td>
                                     <?php endif; ?>
                                     <td>
-                                        <?php if ($size->stock > 0): ?>
+                                        <?php if ($size->stock > 0) : ?>
                                             <span class="size-chip size-chip--primary"><?= $size->stock ?></span>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <span class="size-chip size-chip--muted">0</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <?php if ($size->is_available): ?>
+                                        <?php if ($size->is_available) : ?>
                                             <span class="size-status size-status--available">
                                                 <i class="bi bi-check-circle-fill"></i> Доступен
                                             </span>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <span class="size-status size-status--wait">
                                                 <i class="bi bi-hourglass-split"></i> Ожидание
                                             </span>
@@ -916,7 +922,7 @@ if (!$product->isNewRecord) {
                             </button>
                         </div>
                     </div>
-                    <?php else: ?>
+                        <?php else : ?>
                     <div class="size-empty-state text-center py-5">
                         <div class="size-empty-icon mb-3">
                             <i class="bi bi-rulers"></i>
@@ -932,8 +938,8 @@ if (!$product->isNewRecord) {
                             </button>
                         </div>
                     </div>
-                    <?php endif; ?>
-                    <?php else: ?>
+                        <?php endif; ?>
+                    <?php else : ?>
                     <div class="alert alert-warning">
                         <i class="bi bi-exclamation-triangle"></i> Сначала сохраните товар, чтобы добавить размеры.
                     </div>
@@ -941,19 +947,19 @@ if (!$product->isNewRecord) {
                 </div>
             </div>
 
-            <?php if (!$product->isNewRecord): ?>
+            <?php if (!$product->isNewRecord) : ?>
             <!-- Быстрая сетка доступных размеров (sizes_data) -->
-            <?php
-            $quickSizes = [];
-            if (!empty($product->sizes_data)) {
-                $rawSd = is_array($product->sizes_data) ? $product->sizes_data : (json_decode($product->sizes_data, true) ?: []);
-                // Use only if dict format (not Poizon array)
-                if (!empty($rawSd) && array_keys($rawSd) !== range(0, count($rawSd) - 1)) {
-                    $quickSizes = $rawSd;
+                <?php
+                $quickSizes = [];
+                if (!empty($product->sizes_data)) {
+                    $rawSd = is_array($product->sizes_data) ? $product->sizes_data : (json_decode($product->sizes_data, true) ?: []);
+                    // Use only if dict format (not Poizon array)
+                    if (!empty($rawSd) && array_keys($rawSd) !== range(0, count($rawSd) - 1)) {
+                        $quickSizes = $rawSd;
+                    }
                 }
-            }
-            $allEuSizes = ['36','36.5','37','37.5','38','38.5','39','39.5','40','40.5','41','41.5','42','42.5','43','43.5','44','44.5','45','46','47'];
-            ?>
+                $allEuSizes = ['36','36.5','37','37.5','38','38.5','39','39.5','40','40.5','41','41.5','42','42.5','43','43.5','44','44.5','45','46','47'];
+                ?>
             <div class="card mt-3" id="sizes-quick-grid-card">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="mb-0"><i class="bi bi-check2-square"></i> Быстрая сетка размеров EU</h5>
@@ -961,8 +967,8 @@ if (!$product->isNewRecord) {
                 </div>
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-2 mb-3" id="sizeCheckboxGrid">
-                        <?php foreach ($allEuSizes as $eu): ?>
-                        <?php $checked = !empty($quickSizes) ? !empty($quickSizes[$eu]) : false; ?>
+                        <?php foreach ($allEuSizes as $eu) : ?>
+                            <?php $checked = !empty($quickSizes) ? !empty($quickSizes[$eu]) : false; ?>
                         <label class="size-quick-btn <?= $checked ? 'active' : '' ?>" title="EU <?= $eu ?>">
                             <input type="checkbox" value="<?= $eu ?>" <?= $checked ? 'checked' : '' ?> style="position:absolute;opacity:0;pointer-events:none">
                             <?= $eu ?>
@@ -1059,7 +1065,7 @@ if (!$product->isNewRecord) {
         <!-- Правая колонка: дополнительная информация -->
         <div class="col-lg-4">
             
-            <?php if ($product->poizon_id): ?>
+            <?php if ($product->poizon_id) : ?>
             <!-- Информация Poizon -->
             <div class="card mb-3">
                 <div class="card-header bg-info text-white">
@@ -1075,7 +1081,7 @@ if (!$product->isNewRecord) {
                             <th>SPU ID:</th>
                             <td><?= Html::encode($product->poizon_spu_id) ?></td>
                         </tr>
-                        <?php if ($product->poizon_url): ?>
+                        <?php if ($product->poizon_url) : ?>
                         <tr>
                             <th>Ссылка:</th>
                             <td><?= Html::a('Открыть', $product->poizon_url, [
@@ -1087,9 +1093,9 @@ if (!$product->isNewRecord) {
                         <tr>
                             <th>Последняя синхр.:</th>
                             <td>
-                                <?php if ($product->last_sync_at): ?>
+                                <?php if ($product->last_sync_at) : ?>
                                     <small><?= Yii::$app->formatter->asDatetime($product->last_sync_at) ?></small>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <span class="text-danger">Не синхронизирован</span>
                                 <?php endif; ?>
                             </td>
@@ -1133,7 +1139,7 @@ if (!$product->isNewRecord) {
 </div>
 
 <!-- Modal: Добавить изображение -->
-<?php if (!$product->isNewRecord): ?>
+<?php if (!$product->isNewRecord) : ?>
 <div class="modal fade" id="addImageModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -1182,14 +1188,14 @@ if (!$product->isNewRecord) {
                         $sizeGrids = [];
                         Yii::warning('SizeGrid query error: ' . $e->getMessage(), 'admin');
                     }
-                    
-                    if ($sizeGrids): ?>
+
+                    if ($sizeGrids) : ?>
                     <div class="alert alert-info">
                         <i class="bi bi-magic"></i> <strong>Быстрое добавление:</strong>
                         <div class="mt-2">
                             <select id="size-grid-select" class="form-select form-select-sm">
                                 <option value="">-- Выберите размерную сетку для массового добавления --</option>
-                                <?php foreach ($sizeGrids as $grid): ?>
+                                <?php foreach ($sizeGrids as $grid) : ?>
                                     <option value="<?= $grid->id ?>">
                                         <?= Html::encode($grid->getFullName()) ?> (<?= count($grid->items) ?> размеров)
                                     </option>
@@ -1283,7 +1289,7 @@ if (!$product->isNewRecord) {
 <?php endif; ?>
 
 <!-- Modal: Добавление характеристики -->
-<?php if (!$product->isNewRecord): ?>
+<?php if (!$product->isNewRecord) : ?>
 <div class="modal fade" id="manageCharacteristicsModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">

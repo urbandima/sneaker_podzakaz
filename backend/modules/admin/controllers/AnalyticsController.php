@@ -2,27 +2,28 @@
 
 /**
  * AnalyticsController — Контроллер аналитики и отчетов
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Сбор и отображение аналитических данных о работе магазина:
  * конверсия, продажи, популярные товары, поведение пользователей.
- * 
+ *
  * ФУНКЦИИ:
  * - Главная страница аналитики с виджетами (index)
  * - Отчет по конверсии (conversion)
  * - Отчет по продажам (sales)
  * - Отчет по товарам (products)
  * - Отчет по пользователям (users)
- * 
+ *
  * СВЯЗИ:
  * - AnalyticsEvent (модель событий аналитики)
  * - Order (модель заказа)
  * - Product (модель товара)
  * - User (модель пользователя)
- * 
+ *
  * ДОСТУП:
  * - Только администраторы и менеджеры
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -135,12 +136,12 @@ class AnalyticsController extends BaseAdminController
         $period = Yii::$app->request->get('period', '30');
         $dateFrom = date('Y-m-d', strtotime("-{$period} days"));
         $dateTo = date('Y-m-d');
-        
+
         $conversion = AnalyticsEvent::getConversionStats($dateFrom, $dateTo);
-        
+
         // Конверсия по дням
         $conversionByDay = $this->getConversionByDay($dateFrom, $dateTo);
-        
+
         return $this->render('conversion', [
             'period' => $period,
             'conversion' => $conversion,
@@ -184,19 +185,19 @@ class AnalyticsController extends BaseAdminController
         $period = Yii::$app->request->get('period', '30');
         $dateFrom = date('Y-m-d', strtotime("-{$period} days"));
         $dateTo = date('Y-m-d');
-        
+
         // Продажи по дням
         $salesByDay = $this->getSalesByDay($dateFrom, $dateTo);
-        
+
         // Топ товары по продажам
         $topProducts = $this->getTopSellingProducts($dateFrom, $dateTo);
-        
+
         // Топ категории
         $topCategories = $this->getTopCategories($dateFrom, $dateTo);
-        
+
         // Средний чек
         $avgOrderValue = $this->getAverageOrderValue($dateFrom, $dateTo);
-        
+
         return $this->render('sales', [
             'period' => $period,
             'salesByDay' => $salesByDay,
@@ -307,40 +308,68 @@ class AnalyticsController extends BaseAdminController
             $money = (float)$r['monetary'];
 
             // R score: fewer days = higher
-            if ($days === null)      $rScore = 0;
-            elseif ($days <= 30)     $rScore = 5;
-            elseif ($days <= 60)     $rScore = 4;
-            elseif ($days <= 90)     $rScore = 3;
-            elseif ($days <= 180)    $rScore = 2;
-            else                     $rScore = 1;
+            if ($days === null) {
+                $rScore = 0;
+            } elseif ($days <= 30) {
+                $rScore = 5;
+            } elseif ($days <= 60) {
+                $rScore = 4;
+            } elseif ($days <= 90) {
+                $rScore = 3;
+            } elseif ($days <= 180) {
+                $rScore = 2;
+            } else {
+                $rScore = 1;
+            }
 
             // F score
-            if ($freq >= 10)    $fScore = 5;
-            elseif ($freq >= 5) $fScore = 4;
-            elseif ($freq >= 3) $fScore = 3;
-            elseif ($freq >= 2) $fScore = 2;
-            elseif ($freq >= 1) $fScore = 1;
-            else                $fScore = 0;
+            if ($freq >= 10) {
+                $fScore = 5;
+            } elseif ($freq >= 5) {
+                $fScore = 4;
+            } elseif ($freq >= 3) {
+                $fScore = 3;
+            } elseif ($freq >= 2) {
+                $fScore = 2;
+            } elseif ($freq >= 1) {
+                $fScore = 1;
+            } else {
+                $fScore = 0;
+            }
 
             // M score
-            if ($money >= 5000)      $mScore = 5;
-            elseif ($money >= 2000)  $mScore = 4;
-            elseif ($money >= 1000)  $mScore = 3;
-            elseif ($money >= 500)   $mScore = 2;
-            elseif ($money > 0)      $mScore = 1;
-            else                     $mScore = 0;
+            if ($money >= 5000) {
+                $mScore = 5;
+            } elseif ($money >= 2000) {
+                $mScore = 4;
+            } elseif ($money >= 1000) {
+                $mScore = 3;
+            } elseif ($money >= 500) {
+                $mScore = 2;
+            } elseif ($money > 0) {
+                $mScore = 1;
+            } else {
+                $mScore = 0;
+            }
 
             // Segment
             if ($freq === 0) {
                 $seg = 'no_orders';
             } else {
                 $avg = ($rScore + $fScore + $mScore) / 3;
-                if ($avg >= 4.5)                        $seg = 'champions';
-                elseif ($rScore >= 4 && $freq === 1)    $seg = 'new';
-                elseif ($avg >= 3.0)                    $seg = 'loyal';
-                elseif ($days !== null && $days > 60 && $freq >= 2) $seg = 'at_risk';
-                elseif ($days !== null && $days > 90)   $seg = 'lost';
-                else                                    $seg = 'potential';
+                if ($avg >= 4.5) {
+                    $seg = 'champions';
+                } elseif ($rScore >= 4 && $freq === 1) {
+                    $seg = 'new';
+                } elseif ($avg >= 3.0) {
+                    $seg = 'loyal';
+                } elseif ($days !== null && $days > 60 && $freq >= 2) {
+                    $seg = 'at_risk';
+                } elseif ($days !== null && $days > 90) {
+                    $seg = 'lost';
+                } else {
+                    $seg = 'potential';
+                }
             }
 
             $r['r_score'] = $rScore;
@@ -388,10 +417,15 @@ class AnalyticsController extends BaseAdminController
         ];
         foreach ($allCustomers as $c) {
             $m = (float)$c['monetary'];
-            if ($m >= 5000)     $ltvSegments[0]['count']++;
-            elseif ($m >= 2000) $ltvSegments[1]['count']++;
-            elseif ($m >= 500)  $ltvSegments[2]['count']++;
-            else                $ltvSegments[3]['count']++;
+            if ($m >= 5000) {
+                $ltvSegments[0]['count']++;
+            } elseif ($m >= 2000) {
+                $ltvSegments[1]['count']++;
+            } elseif ($m >= 500) {
+                $ltvSegments[2]['count']++;
+            } else {
+                $ltvSegments[3]['count']++;
+            }
         }
 
         $totalRevenue = array_sum(array_column($allCustomers, 'monetary'));
@@ -445,14 +479,14 @@ class AnalyticsController extends BaseAdminController
         $type = Yii::$app->request->get('type', 'sales');
         $period = Yii::$app->request->get('period', '30');
         $format = Yii::$app->request->get('format', 'csv');
-        
+
         $dateFrom = date('Y-m-d', strtotime("-{$period} days"));
         $dateTo = date('Y-m-d');
-        
+
         // Генерация данных в зависимости от типа отчета
         $data = [];
         $filename = "report_{$type}_{$dateFrom}_{$dateTo}";
-        
+
         switch ($type) {
             case 'sales':
                 $data = $this->getSalesByDay($dateFrom, $dateTo);
@@ -464,11 +498,11 @@ class AnalyticsController extends BaseAdminController
                 $data = $this->getTopSellingProducts($dateFrom, $dateTo, 100);
                 break;
         }
-        
+
         if ($format === 'csv') {
             return $this->exportCsv($data, $filename);
         }
-        
+
         return $this->redirect(['index']);
     }
 
@@ -974,7 +1008,9 @@ class AnalyticsController extends BaseAdminController
         foreach ($allLeads as $l) {
             if (!empty($l['closed_at']) && !empty($l['created_at'])) {
                 $d = (int)$l['closed_at'] - (int)$l['created_at'];
-                if ($d > 0) $allResSeconds[] = $d;
+                if ($d > 0) {
+                    $allResSeconds[] = $d;
+                }
             }
         }
         $overallAvgRes = !empty($allResSeconds)
@@ -1011,9 +1047,15 @@ class AnalyticsController extends BaseAdminController
      */
     private function secondsToHuman(int $s): string
     {
-        if ($s < 60)          return $s . 'с';
-        if ($s < 3600)        return (int)($s / 60) . 'м ' . ($s % 60) . 'с';
-        if ($s < 86400)       return (int)($s / 3600) . 'ч ' . (int)(($s % 3600) / 60) . 'м';
+        if ($s < 60) {
+            return $s . 'с';
+        }
+        if ($s < 3600) {
+            return (int)($s / 60) . 'м ' . ($s % 60) . 'с';
+        }
+        if ($s < 86400) {
+            return (int)($s / 3600) . 'ч ' . (int)(($s % 3600) / 60) . 'м';
+        }
         $days = (int)($s / 86400);
         $hrs  = (int)(($s % 86400) / 3600);
         return $days . ' дн. ' . $hrs . 'ч';
@@ -1074,8 +1116,10 @@ class AnalyticsController extends BaseAdminController
                     }
                     // Collect loss reason from custom fields (field_id varies — use value text)
                     foreach ($lead['custom_fields_values'] ?? [] as $cf) {
-                        if (mb_stripos($cf['field_name'] ?? '', 'причина') !== false ||
-                            mb_stripos($cf['field_name'] ?? '', 'reason')  !== false) {
+                        if (
+                            mb_stripos($cf['field_name'] ?? '', 'причина') !== false ||
+                            mb_stripos($cf['field_name'] ?? '', 'reason')  !== false
+                        ) {
                             $val = $cf['values'][0]['value'] ?? null;
                             if ($val) {
                                 $lossReasons[$val] = ($lossReasons[$val] ?? 0) + 1;
@@ -1250,7 +1294,7 @@ class AnalyticsController extends BaseAdminController
         $marginByMonth = [];
         for ($i = 5; $i >= 0; $i--) {
             $mFrom = date('Y-m-01', strtotime("-{$i} months"));
-            $mTo   = date('Y-m-t',  strtotime("-{$i} months"));
+            $mTo   = date('Y-m-t', strtotime("-{$i} months"));
             $r     = $this->getRevenueStats($mFrom, $mTo);
             $rev   = (float)($r['total_revenue'] ?? 0);
             $marginByMonth[] = [
@@ -1487,23 +1531,23 @@ class AnalyticsController extends BaseAdminController
         $response->format = \yii\web\Response::FORMAT_RAW;
         $response->headers->add('Content-Type', 'text/csv; charset=UTF-8');
         $response->headers->add('Content-Disposition', "attachment; filename={$filename}.csv");
-        
+
         $output = fopen('php://temp', 'r+');
-        
+
         if (!empty($data)) {
             // Заголовки
             fputcsv($output, array_keys($data[0]));
-            
+
             // Данные
             foreach ($data as $row) {
                 fputcsv($output, $row);
             }
         }
-        
+
         rewind($output);
         $csv = stream_get_contents($output);
         fclose($output);
-        
+
         return "\xEF\xBB\xBF" . $csv; // BOM для UTF-8
     }
 }

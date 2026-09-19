@@ -61,8 +61,8 @@ class InputSanitizer
      */
     public static function sanitizeArray(array $input, string $type = 'string'): array
     {
-        return array_map(function($value) use ($type) {
-            return match($type) {
+        return array_map(function ($value) use ($type) {
+            return match ($type) {
                 'int' => self::sanitizeInt($value),
                 'float' => self::sanitizeFloat($value),
                 'email' => self::sanitizeEmail($value),

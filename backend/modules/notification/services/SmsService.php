@@ -5,6 +5,7 @@
  *
  * Поддерживает провайдеров: Twilio, SMSC.ru, SMS.ru, RocketSMS.by
  */
+
 namespace app\backend\modules\notification\services;
 
 use Yii;
@@ -59,7 +60,7 @@ class SmsService extends Component
 
     /**
      * Отправить SMS
-     * 
+     *
      * @param string $phone Номер телефона
      * @param string $message Сообщение
      * @return bool
@@ -67,7 +68,7 @@ class SmsService extends Component
     public function send(string $phone, string $message): bool
     {
         $phone = $this->normalizePhone($phone);
-        
+
         if (empty($phone)) {
             Yii::error('Invalid phone number', 'sms');
             return false;
@@ -169,8 +170,10 @@ class SmsService extends Component
             $data = json_decode($response, true);
 
             // RocketSMS при успехе возвращает {"status": "SENT", "id": ..., "cost": ...}
-            if ($httpCode >= 200 && $httpCode < 300 && is_array($data)
-                && isset($data['status']) && in_array(strtoupper($data['status']), ['SENT','QUEUED','OK'], true)) {
+            if (
+                $httpCode >= 200 && $httpCode < 300 && is_array($data)
+                && isset($data['status']) && in_array(strtoupper($data['status']), ['SENT','QUEUED','OK'], true)
+            ) {
                 $cost = is_array($data['cost']) ? ($data['cost']['credits'] ?? 0) . ' кред.' : $data['cost'];
                 Yii::info("RocketSMS sent OK: id={$data['id']}, cost={$cost}", 'sms');
                 return true;
@@ -202,7 +205,7 @@ class SmsService extends Component
         try {
             $response = $this->httpGet($url, $params);
             $data = json_decode($response, true);
-            
+
             if (isset($data['error'])) {
                 Yii::error('SMSC error: ' . $data['error'], 'sms');
                 return false;
@@ -225,7 +228,7 @@ class SmsService extends Component
         $from = $this->apiKeys['twilio_from'] ?? '';
 
         $url = "https://api.twilio.com/2010-04-01/Accounts/{$sid}/Messages.json";
-        
+
         $params = [
             'To' => $phone,
             'From' => $from,
@@ -240,7 +243,7 @@ class SmsService extends Component
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_USERPWD, "{$sid}:{$token}");
             curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-            
+
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
@@ -323,13 +326,13 @@ class SmsService extends Component
     private function httpGet(string $url, array $params): string
     {
         $url .= '?' . http_build_query($params);
-        
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
+
         $response = curl_exec($ch);
         curl_close($ch);
 

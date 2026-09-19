@@ -134,9 +134,9 @@ $statusMeta = [
                         Быстро находите людей по роли, статусу или имени.
                     </p>
                 </div>
-                <?php if (!empty($activeFilters)): ?>
+                <?php if (!empty($activeFilters)) : ?>
                     <div class="admin-flex admin-gap-2 admin-flex--wrap">
-                        <?php foreach ($activeFilters as $key => $value): ?>
+                        <?php foreach ($activeFilters as $key => $value) : ?>
                             <span class="admin-badge admin-badge--neutral">
                                 <?= Html::encode($key) ?>: <strong><?= Html::encode($value) ?></strong>
                             </span>
@@ -224,7 +224,7 @@ $statusMeta = [
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($dataProvider->getModels() as $user): ?>
+                        <?php foreach ($dataProvider->getModels() as $user) : ?>
                             <tr>
                                 <td>#<?= Html::encode($user->id) ?></td>
                                 <td>
@@ -240,7 +240,7 @@ $statusMeta = [
                                 </td>
                                 <td>
                                     <?php $role = $roleMeta[$user->role] ?? null; ?>
-                                    <?php if ($role): ?>
+                                    <?php if ($role) : ?>
                                         <span class="<?= $role['badge'] ?>">
                                             <i class="bi bi-<?= $role['icon'] ?>"></i>
                                             <?= Html::encode($role['label']) ?>
@@ -249,11 +249,11 @@ $statusMeta = [
                                 </td>
                                 <td>
                                     <?php $lastLogin = $user->last_login_at ?? null; ?>
-                                    <?php if ($lastLogin): ?>
+                                    <?php if ($lastLogin) : ?>
                                         <span title="<?= Html::encode(Yii::$app->formatter->asDatetime($lastLogin, 'php:d.m.Y H:i')) ?>">
                                             <?= Html::encode(Yii::$app->formatter->asRelativeTime($lastLogin)) ?>
                                         </span>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <span class="text-muted">Никогда</span>
                                     <?php endif; ?>
                                 </td>
@@ -273,7 +273,7 @@ $statusMeta = [
                                             onclick="editUser(<?= (int)$user->id ?>)">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        <?php if ($user->id != Yii::$app->user->id): ?>
+                                        <?php if ($user->id != Yii::$app->user->id) : ?>
                                             <button class="admin-btn admin-btn--ghost admin-btn--icon"
                                                 title="Сбросить пароль"
                                                 onclick="resetPassword(<?= (int)$user->id ?>, '<?= Html::encode($user->username) ?>')">
@@ -289,7 +289,7 @@ $statusMeta = [
                                                 onclick="deleteUser(<?= (int)$user->id ?>, '<?= Html::encode($user->username) ?>')">
                                                 <i class="bi bi-trash"></i>
                                             </button>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <button class="admin-btn admin-btn--ghost admin-btn--icon" title="Нельзя управлять собой" disabled>
                                                 <i class="bi bi-shield-lock"></i>
                                             </button>
@@ -298,7 +298,7 @@ $statusMeta = [
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                        <?php if ($dataProvider->getTotalCount() === 0): ?>
+                        <?php if ($dataProvider->getTotalCount() === 0) : ?>
                             <tr>
                                 <td colspan="6">
                                     <div class="admin-empty-state">
@@ -331,28 +331,28 @@ $statusMeta = [
                     $startPage = max(1, $currentPage - 2);
                     $endPage = min($totalPages, $currentPage + 2);
                     ?>
-                    <?php if ($currentPage > 1): ?>
+                    <?php if ($currentPage > 1) : ?>
                         <a class="admin-btn admin-btn--ghost admin-btn--icon" href="<?= Url::current(['page' => $currentPage - 1]) ?>">
                             <i class="bi bi-chevron-left"></i>
                         </a>
                     <?php endif; ?>
 
-                    <?php if ($startPage > 1): ?>
+                    <?php if ($startPage > 1) : ?>
                         <a class="admin-btn admin-btn--ghost admin-btn--sm" href="<?= Url::current(['page' => 1]) ?>">1</a>
-                        <?php if ($startPage > 2): ?>
+                        <?php if ($startPage > 2) : ?>
                             <span class="admin-btn admin-btn--ghost admin-btn--sm no-events">…</span>
                         <?php endif; ?>
                     <?php endif; ?>
 
-                    <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                    <?php for ($i = $startPage; $i <= $endPage; $i++) : ?>
                         <a class="admin-btn admin-btn--sm <?= $i === $currentPage ? 'admin-btn--accent' : 'admin-btn--ghost' ?>"
                            href="<?= Url::current(['page' => $i]) ?>">
                             <?= $i ?>
                         </a>
                     <?php endfor; ?>
 
-                    <?php if ($endPage < $totalPages): ?>
-                        <?php if ($endPage < $totalPages - 1): ?>
+                    <?php if ($endPage < $totalPages) : ?>
+                        <?php if ($endPage < $totalPages - 1) : ?>
                             <span class="admin-btn admin-btn--ghost admin-btn--sm no-events">…</span>
                         <?php endif; ?>
                         <a class="admin-btn admin-btn--ghost admin-btn--sm"
@@ -361,7 +361,7 @@ $statusMeta = [
                         </a>
                     <?php endif; ?>
 
-                    <?php if ($currentPage < $totalPages): ?>
+                    <?php if ($currentPage < $totalPages) : ?>
                         <a class="admin-btn admin-btn--ghost admin-btn--icon" href="<?= Url::current(['page' => $currentPage + 1]) ?>">
                             <i class="bi bi-chevron-right"></i>
                         </a>

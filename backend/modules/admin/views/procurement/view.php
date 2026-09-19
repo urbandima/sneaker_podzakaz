@@ -22,7 +22,7 @@ $this->title = $po->purchase_number;
         </span>
       </div>
       <div class="d-flex gap-2">
-        <?php if ($po->status === \app\backend\modules\procurement\models\PurchaseOrder::STATUS_RECEIVED): ?>
+        <?php if ($po->status === \app\backend\modules\procurement\models\PurchaseOrder::STATUS_RECEIVED) : ?>
           <a href="/admin/procurement/create-return/<?= $po->id ?>" class="btn btn-outline-warning">
             Возврат поставщику
           </a>
@@ -30,10 +30,10 @@ $this->title = $po->purchase_number;
       <div class="dropdown">
         <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">Изменить статус</button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <?php foreach (\app\backend\modules\procurement\models\PurchaseOrder::getStatuses() as $k => $v): ?>
-            <?php if ($k !== $po->status): ?>
+          <?php foreach (\app\backend\modules\procurement\models\PurchaseOrder::getStatuses() as $k => $v) : ?>
+                <?php if ($k !== $po->status) : ?>
             <li><a class="dropdown-item" href="#" onclick="updateStatus('<?= $k ?>'); return false"><?= $v ?></a></li>
-            <?php endif; ?>
+                <?php endif; ?>
           <?php endforeach; ?>
         </ul>
       </div>
@@ -51,7 +51,7 @@ $this->title = $po->purchase_number;
             <tr><th>Тип</th><td><?= $po->getTypeLabel() ?></td></tr>
             <tr><th>Поставщик</th><td><?= htmlspecialchars($po->supplier->name ?? '—') ?></td></tr>
             <tr><th>Курс CNY</th><td><?= $po->exchange_rate ? $po->exchange_rate : '—' ?></td></tr>
-            <tr><th>Заказ клиента</th><td><?= $po->order_id ? '<a href="/admin/order/'.$po->order_id.'">#'.$po->order_id.'</a>' : '—' ?></td></tr>
+            <tr><th>Заказ клиента</th><td><?= $po->order_id ? '<a href="/admin/order/' . $po->order_id . '">#' . $po->order_id . '</a>' : '—' ?></td></tr>
             <tr><th>Дата заказа</th><td><?= $po->ordered_at ? date('d.m.Y', strtotime($po->ordered_at)) : '—' ?></td></tr>
             <tr><th>Дата получения</th><td><?= $po->received_at ? date('d.m.Y', strtotime($po->received_at)) : '—' ?></td></tr>
             <tr><th>Создан</th><td><?= $po->created_at ? date('d.m.Y H:i', strtotime($po->created_at)) : '—' ?></td></tr>
@@ -74,7 +74,7 @@ $this->title = $po->purchase_number;
         </div>
       </div>
 
-      <?php if ($po->notes): ?>
+      <?php if ($po->notes) : ?>
       <div class="card">
         <div class="card-body">
           <h6 class="card-title">Примечания</h6>
@@ -98,7 +98,7 @@ $this->title = $po->purchase_number;
             <span class="text-muted ms-2" style="font-size:12px">Получено: <?= $rcvQty ?>/<?= $totalQty ?> (<?= $pct ?>%)</span>
           </h6>
 
-          <?php if ($pct > 0 && $pct < 100): ?>
+          <?php if ($pct > 0 && $pct < 100) : ?>
           <div class="progress mb-3" style="height:6px">
             <div class="progress-bar bg-success" style="width:<?= $pct ?>%"></div>
           </div>
@@ -118,7 +118,7 @@ $this->title = $po->purchase_number;
                 </tr>
               </thead>
               <tbody>
-                <?php foreach ($po->items as $item): ?>
+                <?php foreach ($po->items as $item) : ?>
                 <tr>
                   <td><?= htmlspecialchars($item->product_name) ?></td>
                   <td><?= htmlspecialchars($item->size ?? '—') ?></td>

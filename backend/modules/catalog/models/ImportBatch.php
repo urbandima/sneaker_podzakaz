@@ -2,11 +2,11 @@
 
 /**
  * ImportBatch — Модель батча импорта
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Отслеживание пакетов импорта товаров: статистика, логи, статус.
  * Используется для импорта из Poizon, ручного импорта, API импорта.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - source: источник (poizon, manual, api)
  * - type: тип (full, update, sizes)
@@ -15,32 +15,33 @@
  * - duration_seconds: длительность
  * - total_items: всего товаров
  * - created_count, updated_count, skipped_count, error_count: статистика
- * 
+ *
  * СТАТУСЫ:
  * - STATUS_PENDING: ожидает запуска
  * - STATUS_PROCESSING: выполняется
  * - STATUS_COMPLETED: завершен успешно
  * - STATUS_FAILED: завершен с ошибкой
- * 
+ *
  * ИСТОЧНИКИ:
  * - SOURCE_POIZON: Poizon API
  * - SOURCE_MANUAL: ручной импорт
  * - SOURCE_API: API
- * 
+ *
  * ТИПЫ:
  * - TYPE_FULL: полный импорт
  * - TYPE_UPDATE: обновление
  * - TYPE_SIZES: только размеры
- * 
+ *
  * СВЯЗИ:
  * - User (creator): запустивший импорт
  * - ImportLog[] (logs): логи батча
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - PoizonController (импорт из Poizon)
  * - ImportController (ручной импорт)
  * - Отслеживание прогресса импорта
  */
+
 namespace app\backend\modules\catalog\models;
 
 use Yii;
@@ -68,24 +69,24 @@ use app\backend\modules\admin\models\User;
  * @property string $error_message
  * @property int $created_by
  * @property string $created_at
- * 
+ *
  * @property User $creator
  * @property ImportLog[] $logs
  */
 class ImportBatch extends ActiveRecord
 {
-    const STATUS_PENDING = 'pending';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_FAILED = 'failed';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_PROCESSING = 'processing';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_FAILED = 'failed';
 
-    const SOURCE_POIZON = 'poizon';
-    const SOURCE_MANUAL = 'manual';
-    const SOURCE_API = 'api';
+    public const SOURCE_POIZON = 'poizon';
+    public const SOURCE_MANUAL = 'manual';
+    public const SOURCE_API = 'api';
 
-    const TYPE_FULL = 'full';
-    const TYPE_UPDATE = 'update';
-    const TYPE_SIZES = 'sizes';
+    public const TYPE_FULL = 'full';
+    public const TYPE_UPDATE = 'update';
+    public const TYPE_SIZES = 'sizes';
 
     public static function tableName()
     {
@@ -159,13 +160,13 @@ class ImportBatch extends ActiveRecord
     {
         $this->status = $success ? self::STATUS_COMPLETED : self::STATUS_FAILED;
         $this->finished_at = date('Y-m-d H:i:s');
-        
+
         if ($this->started_at) {
             $start = strtotime($this->started_at);
             $end = strtotime($this->finished_at);
             $this->duration_seconds = $end - $start;
         }
-        
+
         return $this->save(false);
     }
 
@@ -243,10 +244,10 @@ class ImportBatch extends ActiveRecord
         if (!$this->duration_seconds) {
             return '-';
         }
-        
+
         $minutes = floor($this->duration_seconds / 60);
         $seconds = $this->duration_seconds % 60;
-        
+
         if ($minutes > 0) {
             return sprintf('%d мин %d сек', $minutes, $seconds);
         }

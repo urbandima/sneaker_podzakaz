@@ -18,7 +18,7 @@ $csrfToken  = Yii::$app->request->csrfToken;
             <i class="bi bi-arrow-left-right"></i> Сравнение товаров
         </h1>
 
-        <?php if (empty($products)): ?>
+        <?php if (empty($products)) : ?>
             <div class="alert alert-info">
                 <h4>Список сравнения пуст</h4>
                 <p>Добавьте товары для сравнения из каталога</p>
@@ -26,7 +26,7 @@ $csrfToken  = Yii::$app->request->csrfToken;
                     <i class="bi bi-grid"></i> Перейти в каталог
                 </a>
             </div>
-        <?php else: ?>
+        <?php else : ?>
             <div class="compare-actions mb-4">
                 <button class="btn btn-secondary" onclick="clearCompare()">
                     <i class="bi bi-trash"></i> Очистить список
@@ -39,7 +39,7 @@ $csrfToken  = Yii::$app->request->csrfToken;
                     <thead>
                         <tr>
                             <th style="width: 200px;">Характеристика</th>
-                            <?php foreach ($products as $product): ?>
+                            <?php foreach ($products as $product) : ?>
                                 <th class="text-center">
                                     <div class="product-image mb-2">
                                         <img src="<?= Html::encode($product->getMainImageUrl()) ?>"
@@ -53,7 +53,7 @@ $csrfToken  = Yii::$app->request->csrfToken;
                                     </div>
                                     <div class="product-price mt-2">
                                         <strong><?= number_format($product->price, 2) ?> BYN</strong>
-                                        <?php if ($product->hasDiscount()): ?>
+                                        <?php if ($product->hasDiscount()) : ?>
                                             <span class="text-muted text-decoration-line-through ms-1">
                                                 <?= number_format($product->old_price, 2) ?>
                                             </span>
@@ -70,31 +70,31 @@ $csrfToken  = Yii::$app->request->csrfToken;
                     <tbody>
                         <tr>
                             <td><strong>Бренд</strong></td>
-                            <?php foreach ($products as $product): ?>
+                            <?php foreach ($products as $product) : ?>
                                 <td class="text-center"><?= Html::encode($product->brand->name ?? $product->brand_name ?? '-') ?></td>
                             <?php endforeach; ?>
                         </tr>
                         <tr>
                             <td><strong>Категория</strong></td>
-                            <?php foreach ($products as $product): ?>
+                            <?php foreach ($products as $product) : ?>
                                 <td class="text-center"><?= Html::encode($product->category->name ?? $product->category_name ?? '-') ?></td>
                             <?php endforeach; ?>
                         </tr>
                         <tr>
                             <td><strong>Артикул</strong></td>
-                            <?php foreach ($products as $product): ?>
+                            <?php foreach ($products as $product) : ?>
                                 <td class="text-center"><?= Html::encode($product->sku ?? '-') ?></td>
                             <?php endforeach; ?>
                         </tr>
                         <tr>
                             <td><strong>Наличие</strong></td>
-                            <?php foreach ($products as $product): ?>
+                            <?php foreach ($products as $product) : ?>
                                 <td class="text-center">
-                                    <?php if ($product->isInStock()): ?>
+                                    <?php if ($product->isInStock()) : ?>
                                         <span class="badge bg-success">В наличии</span>
-                                    <?php elseif ($product->stock_status === 'preorder'): ?>
+                                    <?php elseif ($product->stock_status === 'preorder') : ?>
                                         <span class="badge bg-warning text-dark">Под заказ</span>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <span class="badge bg-danger">Нет в наличии</span>
                                     <?php endif; ?>
                                 </td>
@@ -102,12 +102,12 @@ $csrfToken  = Yii::$app->request->csrfToken;
                         </tr>
                         <tr>
                             <td><strong>Рейтинг</strong></td>
-                            <?php foreach ($products as $product): ?>
+                            <?php foreach ($products as $product) : ?>
                                 <td class="text-center">
-                                    <?php if ($product->rating > 0): ?>
+                                    <?php if ($product->rating > 0) : ?>
                                         <span class="text-warning">★</span> <?= number_format($product->rating, 1) ?>
                                         <small class="text-muted">(<?= (int)$product->reviews_count ?>)</small>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <span class="text-muted">—</span>
                                     <?php endif; ?>
                                 </td>
@@ -129,10 +129,10 @@ $csrfToken  = Yii::$app->request->csrfToken;
                         }
                         ?>
 
-                        <?php foreach (array_keys($allCharacteristics) as $charName): ?>
+                        <?php foreach (array_keys($allCharacteristics) as $charName) : ?>
                             <tr>
                                 <td><strong><?= Html::encode($charName) ?></strong></td>
-                                <?php foreach ($products as $product): ?>
+                                <?php foreach ($products as $product) : ?>
                                     <td class="text-center">
                                         <?php
                                         $value = '—';
@@ -154,18 +154,18 @@ $csrfToken  = Yii::$app->request->csrfToken;
 
                         <tr>
                             <td><strong>Действия</strong></td>
-                            <?php foreach ($products as $product): ?>
+                            <?php foreach ($products as $product) : ?>
                                 <td class="text-center">
                                     <a href="<?= $product->getUrl() ?>" class="btn btn-primary btn-sm mb-2">
                                         <i class="bi bi-eye"></i> Подробнее
                                     </a>
                                     <br>
-                                    <?php if ($product->isInStock()): ?>
+                                    <?php if ($product->isInStock()) : ?>
                                         <button class="btn btn-success btn-sm"
                                                 onclick="compareAddToCart(<?= (int)$product->id ?>, this)">
                                             <i class="bi bi-cart-plus"></i> В корзину
                                         </button>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <button class="btn btn-secondary btn-sm" disabled>
                                             <i class="bi bi-cart-x"></i> Нет в наличии
                                         </button>

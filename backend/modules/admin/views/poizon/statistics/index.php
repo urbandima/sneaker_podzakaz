@@ -69,7 +69,7 @@ $this->title = 'Статистика';
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($statusStats as $status => $count): ?>
+                        <?php foreach ($statusStats as $status => $count) : ?>
                         <tr>
                             <td><?= Html::encode($status) ?></td>
                             <td class="text-end"><strong><?= $count ?></strong></td>
@@ -106,7 +106,7 @@ $this->title = 'Статистика';
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($managerStats as $manager): ?>
+                        <?php foreach ($managerStats as $manager) : ?>
                         <tr>
                             <td><?= Html::encode($manager->username) ?></td>
                             <td><?= Html::encode($manager->email) ?></td>
@@ -148,7 +148,7 @@ $this->title = 'Статистика';
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($logistStats as $logist): ?>
+                        <?php foreach ($logistStats as $logist) : ?>
                         <tr>
                             <td><?= Html::encode($logist->username) ?></td>
                             <td><?= Html::encode($logist->email) ?></td>

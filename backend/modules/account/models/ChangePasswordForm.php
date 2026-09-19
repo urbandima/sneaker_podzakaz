@@ -2,28 +2,29 @@
 
 /**
  * ChangePasswordForm — Форма смены пароля
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Форма смены пароля для авторизованных пользователей
  * (администраторы, менеджеры, логисты).
- * 
+ *
  * ПОЛЯ:
  * - old_password: текущий пароль
  * - new_password: новый пароль
  * - new_password_repeat: подтверждение нового пароля
- * 
+ *
  * МЕТОДЫ:
  * - validateOldPassword(): проверка текущего пароля
  * - changePassword(): сохранение нового пароля
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - UserController/admin (changePassword action)
- * 
+ *
  * ВАЛИДАЦИЯ:
  * - Проверка текущего пароля
  * - Минимум 6 символов нового пароля
  * - Совпадение нового пароля и подтверждения
  */
+
 namespace app\backend\modules\account\models;
 
 use Yii;
@@ -70,7 +71,7 @@ class ChangePasswordForm extends Model
             $user = Yii::$app->user->identity;
             $user->setPassword($this->new_password);
             $user->generateAuthKey();
-            
+
             if ($user->save(false)) {
                 Yii::info('Пользователь #' . $user->id . ' (' . $user->username . ') сменил пароль', 'user');
                 return true;

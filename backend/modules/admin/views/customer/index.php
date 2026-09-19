@@ -18,9 +18,13 @@ $pagination = $dataProvider->pagination;
 
 // Sort helpers
 $currentSort = Yii::$app->request->get('sort', '');
-$sortIcon = function(string $col) use ($currentSort): string {
-    if ($currentSort === $col)        return ' <span style="color:var(--admin-primary,#2563eb);font-size:.65rem">▲</span>';
-    if ($currentSort === '-' . $col)  return ' <span style="color:var(--admin-primary,#2563eb);font-size:.65rem">▼</span>';
+$sortIcon = function (string $col) use ($currentSort): string {
+    if ($currentSort === $col) {
+        return ' <span style="color:var(--admin-primary,#2563eb);font-size:.65rem">▲</span>';
+    }
+    if ($currentSort === '-' . $col) {
+        return ' <span style="color:var(--admin-primary,#2563eb);font-size:.65rem">▼</span>';
+    }
     return ' <span style="color:#d1d5db;font-size:.6rem">⇅</span>';
 };
 
@@ -96,10 +100,10 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
 
 <!-- Status Funnel -->
 <div class="customer-funnel">
-    <?php foreach ($statusItems as $sKey => $sItem):
+    <?php foreach ($statusItems as $sKey => $sItem) :
         $isAct = (string)$status === (string)$sKey;
         $url = $sKey === '' ? Url::to(['/admin/customer']) : Url::to(['/admin/customer', 'status' => $sKey]);
-    ?>
+        ?>
     <a href="<?= $url ?>" class="funnel-pill <?= $isAct ? 'funnel-pill--active' : '' ?>">
         <span class="funnel-pill-dot" style="background:<?= $sItem['dot'] ?>"></span>
         <span class="funnel-pill-label"><?= Html::encode($sItem['label']) ?></span>
@@ -111,7 +115,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
 <!-- Filter Bar -->
 <form method="get" id="filterForm" class="filter-wrap">
     <div class="compact-filter-bar">
-        <?php if ($status !== null && $status !== ''): ?>
+        <?php if ($status !== null && $status !== '') : ?>
         <input type="hidden" name="status" value="<?= Html::encode($status) ?>">
         <?php endif; ?>
         <input type="text" name="search" class="compact-filter-input"
@@ -138,7 +142,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
             </button>
             <div id="colSelector" class="col-selector-dropdown" style="display:none">
                 <div style="font-weight:700;margin-bottom:8px;font-size:.8125rem">Показать столбцы:</div>
-                <?php foreach ($columnDefs as $colKey => $colLabel): ?>
+                <?php foreach ($columnDefs as $colKey => $colLabel) : ?>
                 <label class="col-selector-item">
                     <input type="checkbox" data-col="<?= $colKey ?>"
                            onchange="toggleColumn('<?= $colKey ?>', this.checked)" checked>
@@ -184,12 +188,14 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
                 </tr>
             </thead>
             <tbody>
-                <?php if (!empty($customers)): ?>
-                    <?php foreach ($customers as $customer):
+                <?php if (!empty($customers)) : ?>
+                    <?php foreach ($customers as $customer) :
                         $sp = $statusPills[$customer->status] ?? ['bg' => '#f3f4f6', 'color' => '#6b7280', 'label' => $customer->getStatusLabel()];
                         $fullName = trim(($customer->first_name ?? '') . ' ' . ($customer->last_name ?? ''));
-                        if (!$fullName) $fullName = 'Клиент #' . $customer->id;
-                    ?>
+                        if (!$fullName) {
+                            $fullName = 'Клиент #' . $customer->id;
+                        }
+                        ?>
                     <tr data-href="<?= Url::to(['customer/view', 'id' => $customer->id]) ?>">
                         <td style="white-space:nowrap;padding:6px 8px;font-weight:700">
                             <?= $customer->id ?>
@@ -226,7 +232,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
                         </td>
                     </tr>
                     <?php endforeach; ?>
-                <?php else: ?>
+                <?php else : ?>
                     <tr>
                         <td colspan="9" style="padding:0">
                             <div class="empty-state" style="padding:2.5rem;text-align:center">

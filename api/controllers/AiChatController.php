@@ -29,7 +29,8 @@ class AiChatController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         Yii::info(
-            sprintf('[AiChat webhook] %s %s | IP: %s | Body(200): %s',
+            sprintf(
+                '[AiChat webhook] %s %s | IP: %s | Body(200): %s',
                 Yii::$app->request->method,
                 Yii::$app->request->url,
                 Yii::$app->request->userIP,

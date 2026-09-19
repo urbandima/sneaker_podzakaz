@@ -8,10 +8,10 @@ use Yii;
 
 /**
  * PageController — Контроллер статических страниц
- * 
+ *
  * Управление информационными страницами сайта:
  * - Условия оплаты
- * - Условия доставки  
+ * - Условия доставки
  * - Условия возврата и обмена
  * - Политика конфиденциальности
  */
@@ -33,7 +33,7 @@ class PageController extends Controller
         $this->view->registerMetaTag(['property' => 'og:description', 'content' => 'Удобные и безопасные способы оплаты заказов кроссовок']);
         $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
-        
+
         return $this->render('/pages/payment-terms');
     }
 
@@ -51,7 +51,7 @@ class PageController extends Controller
         $this->view->registerMetaTag(['property' => 'og:description', 'content' => 'Быстрая и удобная доставка кроссовок по всей Беларуси']);
         $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
-        
+
         return $this->render('/pages/delivery-terms');
     }
 
@@ -69,7 +69,7 @@ class PageController extends Controller
         $this->view->registerMetaTag(['property' => 'og:description', 'content' => 'Гарантия качества и удобные условия возврата кроссовок']);
         $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
-        
+
         return $this->render('/pages/return-policy');
     }
 
@@ -87,7 +87,7 @@ class PageController extends Controller
         $this->view->registerMetaTag(['property' => 'og:description', 'content' => 'Защита персональных данных и конфиденциальность пользователей']);
         $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
-        
+
         return $this->render('/pages/privacy');
     }
 
@@ -105,7 +105,7 @@ class PageController extends Controller
         $this->view->registerMetaTag(['property' => 'og:description', 'content' => 'Ведущий магазин оригинальных кроссовок в Беларуси']);
         $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
-        
+
         return $this->render('/pages/about');
     }
 
@@ -142,7 +142,7 @@ class PageController extends Controller
         $this->view->registerMetaTag(['property' => 'og:description', 'content' => 'Выгодные цены и акции на оригинальные кроссовки']);
         $this->view->registerMetaTag(['property' => 'og:type', 'content' => 'website']);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
-        
+
         return $this->render('/pages/sale');
     }
 }

@@ -15,6 +15,7 @@
  * - Brand (модель бренда)
  * - Product (для подсчёта товаров)
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;

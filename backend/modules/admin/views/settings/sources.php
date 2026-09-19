@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Источники заказов — справочник
  */
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -25,7 +27,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
         <div style="padding:16px 20px">
             <div id="sources-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px">
-                <?php foreach ($sources as $i => $src): ?>
+                <?php foreach ($sources as $i => $src) : ?>
                 <div class="source-row" style="display:flex;align-items:center;gap:8px;background:var(--admin-surface-2,#f8f9fa);border:1px solid var(--admin-border,#e5e7eb);border-radius:8px;padding:8px 12px">
                     <i class="bi bi-grip-vertical" style="color:var(--admin-text-secondary,#9ca3af);cursor:grab;flex-shrink:0"></i>
                     <input type="text" class="admin-form-input source-name-input" value="<?= Html::encode($src) ?>" placeholder="Название источника" style="flex:1;font-size:0.875rem;padding:5px 10px">

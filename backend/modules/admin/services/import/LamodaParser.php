@@ -7,7 +7,7 @@ use Yii;
 
 /**
  * LamodaParser — Парсер товаров с Lamoda.by
- * 
+ *
  * Парсинг карточки товара, категорий, поиска
  */
 class LamodaParser extends BaseParser
@@ -35,7 +35,7 @@ class LamodaParser extends BaseParser
     public function parseProduct($url)
     {
         $html = $this->request($url);
-        
+
         if (!$html) {
             return null;
         }
@@ -43,10 +43,10 @@ class LamodaParser extends BaseParser
         // Проверяем на CAPTCHA
         if ($this->hasCaptcha($html)) {
             Yii::warning("CAPTCHA detected on Lamoda: {$url}", 'import');
-            
+
             // Пробуем решить
             $token = $this->solveCaptcha($html, $url);
-            
+
             if ($token) {
                 // Повторяем запрос с токеном
                 $html = $this->request($url, 'GET', [
@@ -87,7 +87,7 @@ class LamodaParser extends BaseParser
     {
         $urlWithPage = $url . '?page=' . $page;
         $html = $this->request($urlWithPage);
-        
+
         if (!$html) {
             return [];
         }
@@ -98,7 +98,7 @@ class LamodaParser extends BaseParser
         try {
             $crawler->filter('.products-listing__item')->each(function (Crawler $node) use (&$products) {
                 $link = $node->filter('a.products-listing__item-link');
-                
+
                 if ($link->count() > 0) {
                     $products[] = [
                         'url' => 'https://www.lamoda.by' . $link->attr('href'),
@@ -122,7 +122,7 @@ class LamodaParser extends BaseParser
     {
         $url = 'https://www.lamoda.by/catalogsearch/result/?q=' . urlencode($query) . '&submit=y';
         $html = $this->request($url);
-        
+
         if (!$html) {
             return [];
         }
@@ -133,7 +133,7 @@ class LamodaParser extends BaseParser
         try {
             $crawler->filter('.products-listing__item')->slice(0, $limit)->each(function (Crawler $node) use (&$products) {
                 $link = $node->filter('a.products-listing__item-link');
-                
+
                 if ($link->count() > 0) {
                     $products[] = [
                         'url' => 'https://www.lamoda.by' . $link->attr('href'),
@@ -161,7 +161,7 @@ class LamodaParser extends BaseParser
 
         while ($page <= $maxPages) {
             $products = $this->parseCategory($categoryUrl, $page);
-            
+
             if (empty($products)) {
                 break;
             }
@@ -197,7 +197,7 @@ class LamodaParser extends BaseParser
         // Нормализуем характеристики
         if (!empty($rawData['characteristics'])) {
             $chars = $rawData['characteristics'];
-            
+
             $normalized['material'] = $chars['Материал'] ?? $chars['material'] ?? null;
             $normalized['season'] = $this->normalizeSeason($chars['Сезон'] ?? $chars['season'] ?? null);
             $normalized['gender'] = $this->normalizeGender($chars['Пол'] ?? $chars['gender'] ?? null);
@@ -230,7 +230,7 @@ class LamodaParser extends BaseParser
         try {
             $name = $crawler->filter('.product-title__brand-name')->text('');
             $model = $crawler->filter('.product-title__model-name')->text('');
-            
+
             return trim($name . ' ' . $model);
         } catch (\Exception $e) {
             return $crawler->filter('h1')->text('');
@@ -320,7 +320,7 @@ class LamodaParser extends BaseParser
         try {
             $crawler->filter('.product-size-selector__item')->each(function (Crawler $node) use (&$sizes) {
                 $sizeText = trim($node->text(''));
-                
+
                 if ($sizeText && strpos($sizeText, 'Нет в наличии') === false) {
                     $sizes[] = [
                         'size' => $sizeText,
@@ -344,7 +344,7 @@ class LamodaParser extends BaseParser
         try {
             // Lamoda использует артикул как SKU
             $sku = $crawler->filter('[itemprop="sku"]')->attr('content');
-            
+
             if (!$sku) {
                 // Пробуем извлечь из характеристик
                 $crawler->filter('.product-characteristics__item')->each(function (Crawler $node) use (&$sku) {
@@ -354,7 +354,7 @@ class LamodaParser extends BaseParser
                     }
                 });
             }
-            
+
             return $sku;
         } catch (\Exception $e) {
             return null;
@@ -372,7 +372,7 @@ class LamodaParser extends BaseParser
             $crawler->filter('.breadcrumbs__item a')->each(function (Crawler $node) use (&$categories) {
                 $categories[] = trim($node->text(''));
             });
-            
+
             // Возвращаем последнюю категорию (самую конкретную)
             return end($categories) ?: null;
         } catch (\Exception $e) {
@@ -391,7 +391,7 @@ class LamodaParser extends BaseParser
             $crawler->filter('.product-characteristics__item')->each(function (Crawler $node) use (&$characteristics) {
                 $label = trim($node->filter('.product-characteristics__label')->text(''));
                 $value = trim($node->filter('.product-characteristics__value')->text(''));
-                
+
                 if ($label && $value) {
                     $characteristics[$label] = $value;
                 }
@@ -410,7 +410,7 @@ class LamodaParser extends BaseParser
     {
         // Удаляем все кроме цифр и точки
         $price = preg_replace('/[^0-9.]/', '', $text);
-        
+
         return (float) $price;
     }
 
@@ -428,11 +428,11 @@ class LamodaParser extends BaseParser
         if (strpos($seasonLower, 'лет') !== false || strpos($seasonLower, 'summer') !== false) {
             return 'summer';
         }
-        
+
         if (strpos($seasonLower, 'зим') !== false || strpos($seasonLower, 'winter') !== false) {
             return 'winter';
         }
-        
+
         if (strpos($seasonLower, 'деми') !== false || strpos($seasonLower, 'осен') !== false || strpos($seasonLower, 'весен') !== false) {
             return 'demi';
         }
@@ -454,7 +454,7 @@ class LamodaParser extends BaseParser
         if (strpos($genderLower, 'муж') !== false || strpos($genderLower, 'male') !== false) {
             return 'male';
         }
-        
+
         if (strpos($genderLower, 'жен') !== false || strpos($genderLower, 'female') !== false) {
             return 'female';
         }

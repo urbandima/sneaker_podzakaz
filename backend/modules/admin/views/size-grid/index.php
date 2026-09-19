@@ -91,14 +91,14 @@ $brandTemplates = [
                 </a>
             </div>
             <div class="brand-templates-grid">
-                <?php foreach ($brandTemplates as $brandName => $sizes): ?>
+                <?php foreach ($brandTemplates as $brandName => $sizes) : ?>
                 <div class="brand-template-card" data-brand="<?= Html::encode($brandName) ?>">
                     <div class="brand-template-name">
                         <i class="bi bi-tag"></i>
                         <?= Html::encode($brandName) ?>
                     </div>
                     <div class="brand-template-preview">
-                        <?php foreach (array_slice($sizes, 0, 4) as $s): ?>
+                        <?php foreach (array_slice($sizes, 0, 4) as $s) : ?>
                             <span class="size-chip">US <?= Html::encode($s['us']) ?> = EU <?= Html::encode($s['eu']) ?></span>
                         <?php endforeach; ?>
                         <span class="size-chip muted">+<?= count($sizes) - 4 ?> ещё</span>
@@ -185,7 +185,7 @@ $brandTemplates = [
                         <span>Пол</span>
                         <select name="gender">
                             <option value="">Все</option>
-                            <?php foreach ($genderOptions as $key => $label): ?>
+                            <?php foreach ($genderOptions as $key => $label) : ?>
                                 <option value="<?= Html::encode($key) ?>" <?= $gender === $key ? 'selected' : '' ?>>
                                     <?= Html::encode($label) ?>
                                 </option>
@@ -196,7 +196,7 @@ $brandTemplates = [
                         <span>Бренд</span>
                         <select name="brand">
                             <option value="">Все</option>
-                            <?php foreach ($brandOptions as $id => $label): ?>
+                            <?php foreach ($brandOptions as $id => $label) : ?>
                                 <option value="<?= Html::encode($id) ?>" <?= (string)$brandId === (string)$id ? 'selected' : '' ?>>
                                     <?= Html::encode($label) ?>
                                 </option>

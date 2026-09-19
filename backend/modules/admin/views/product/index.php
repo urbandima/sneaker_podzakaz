@@ -28,9 +28,13 @@ $categoryOptions = ArrayHelper::map($categories, 'id', 'name');
 
 // Sort helpers
 $currentSort = Yii::$app->request->get('sort', '');
-$sortIcon = function(string $col) use ($currentSort): string {
-    if ($currentSort === $col)       return ' <span style="color:var(--admin-primary,#2563eb);font-size:.65rem">▲</span>';
-    if ($currentSort === '-' . $col) return ' <span style="color:var(--admin-primary,#2563eb);font-size:.65rem">▼</span>';
+$sortIcon = function (string $col) use ($currentSort): string {
+    if ($currentSort === $col) {
+        return ' <span style="color:var(--admin-primary,#2563eb);font-size:.65rem">▲</span>';
+    }
+    if ($currentSort === '-' . $col) {
+        return ' <span style="color:var(--admin-primary,#2563eb);font-size:.65rem">▼</span>';
+    }
     return ' <span style="color:#d1d5db;font-size:.6rem">⇅</span>';
 };
 
@@ -145,10 +149,10 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
 
 <!-- Status Funnel -->
 <div class="catalog-funnel">
-    <?php foreach ($funnelItems as $sKey => $sItem):
+    <?php foreach ($funnelItems as $sKey => $sItem) :
         $isAct = (string)($filterStatus ?? '') === (string)$sKey;
         $url = $sKey === '' ? Url::to(['/admin/catalog']) : Url::to(['/admin/catalog', 'status' => $sKey]);
-    ?>
+        ?>
     <a href="<?= $url ?>" class="funnel-pill <?= $isAct ? 'funnel-pill--active' : '' ?>"<?= isset($sItem['title']) ? ' title="' . Html::encode($sItem['title']) . '"' : '' ?>>
         <span class="funnel-pill-dot" style="background:<?= $sItem['dot'] ?>"></span>
         <span class="funnel-pill-label"><?= Html::encode($sItem['label']) ?></span>
@@ -158,7 +162,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
 </div>
 
 <!-- Brand Mismatch Banner -->
-<?php if (!empty($filterBrandMismatch)): ?>
+<?php if (!empty($filterBrandMismatch)) : ?>
 <div id="brand-mismatch-banner" style="margin-bottom:12px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:.825rem;color:#991b1b">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <i class="bi bi-exclamation-circle-fill"></i>
@@ -191,7 +195,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
 <form method="get" id="filterForm" class="filter-wrap">
     <!-- Row 1 -->
     <div class="compact-filter-bar filter-row1 <?= $row2Active ? 'has-row2' : '' ?>">
-        <?php if ($filterStatus): ?>
+        <?php if ($filterStatus) : ?>
         <input type="hidden" name="status" value="<?= Html::encode($filterStatus) ?>">
         <?php endif; ?>
 
@@ -201,14 +205,14 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
 
         <select name="brand" class="compact-filter-select">
             <option value="">Бренд ▾</option>
-            <?php foreach ($brandOptions as $id => $name): ?>
+            <?php foreach ($brandOptions as $id => $name) : ?>
                 <option value="<?= $id ?>" <?= ($filterBrand ?? '') == $id ? 'selected' : '' ?>><?= Html::encode($name) ?></option>
             <?php endforeach; ?>
         </select>
 
         <select name="category" class="compact-filter-select">
             <option value="">Категория ▾</option>
-            <?php foreach ($categoryOptions as $id => $name): ?>
+            <?php foreach ($categoryOptions as $id => $name) : ?>
                 <option value="<?= $id ?>" <?= ($filterCategory ?? '') == $id ? 'selected' : '' ?>><?= Html::encode($name) ?></option>
             <?php endforeach; ?>
         </select>
@@ -224,7 +228,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
                 class="compact-filter-btn compact-filter-btn--expand <?= $row2Active ? 'is-active' : '' ?>"
                 onclick="toggleFilterRow2()">
             <i class="bi bi-sliders"></i> Ещё
-            <?php if ($row2Count > 0): ?>
+            <?php if ($row2Count > 0) : ?>
             <span style="background:var(--admin-primary,#2563eb);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700"><?= $row2Count ?></span>
             <?php endif; ?>
         </button>
@@ -243,7 +247,7 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
             </button>
             <div id="colSelector" class="col-selector-dropdown" style="display:none">
                 <div style="font-weight:700;margin-bottom:8px;font-size:.8125rem">Показать столбцы:</div>
-                <?php foreach ($columnDefs as $colKey => $colLabel): ?>
+                <?php foreach ($columnDefs as $colKey => $colLabel) : ?>
                 <label class="col-selector-item">
                     <input type="checkbox" data-col="<?= $colKey ?>"
                            onchange="toggleColumn('<?= $colKey ?>', this.checked)" checked>
@@ -332,11 +336,11 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (!empty($products)): ?>
-                        <?php foreach ($products as $product): ?>
+                    <?php if (!empty($products)) : ?>
+                        <?php foreach ($products as $product) : ?>
                             <?= $this->render('_product_row', ['product' => $product]) ?>
                         <?php endforeach; ?>
-                    <?php else: ?>
+                    <?php else : ?>
                         <tr>
                             <td colspan="9" style="padding:0">
                                 <div class="catalog-empty">
@@ -354,13 +358,13 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
 
     <!-- GRID VIEW -->
     <div id="gridView" style="display:none;">
-        <?php if (!empty($products)): ?>
+        <?php if (!empty($products)) : ?>
             <div class="product-grid" id="productGrid">
-                <?php foreach ($products as $product): ?>
+                <?php foreach ($products as $product) : ?>
                     <?= $this->render('_product_card', ['product' => $product]) ?>
                 <?php endforeach; ?>
             </div>
-        <?php else: ?>
+        <?php else : ?>
             <div class="catalog-empty">
                 <i class="bi bi-inbox"></i>
                 <h3 style="margin:.5rem 0 .35rem">Товары не найдены</h3>

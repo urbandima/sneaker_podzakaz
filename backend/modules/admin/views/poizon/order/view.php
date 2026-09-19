@@ -20,7 +20,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                 <h1><i class="bi bi-box-seam"></i> <?= Html::encode($this->title) ?></h1>
                 <div class="order-top-meta">
                     <?= Yii::$app->formatter->asDatetime($model->created_at, 'short') ?>
-                    <?php if ($model->creator): ?>
+                    <?php if ($model->creator) : ?>
                         • <?= Html::encode($model->creator->username) ?>
                     <?php endif; ?>
                 </div>
@@ -32,7 +32,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                     <div class="status-select-wrap">
                         <label>Статус:</label>
                         <select name="status" class="status-select status-<?= $model->status ?>" onchange="this.form.submit()">
-                            <?php foreach ($statuses as $key => $label): ?>
+                            <?php foreach ($statuses as $key => $label) : ?>
                                 <option value="<?= $key ?>" <?= $model->status == $key ? 'selected' : '' ?>><?= $label ?></option>
                             <?php endforeach; ?>
                         </select>
@@ -53,7 +53,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                     <button type="button" class="btn-action btn-secondary-light" onclick="openHistoryModal()">
                         <i class="bi bi-clock-history"></i> История
                     </button>
-                    <?php if (!$user->isLogist()): ?>
+                    <?php if (!$user->isLogist()) : ?>
                         <button type="button" class="btn-action btn-action-primary" id="toggleEditMode">
                             <i class="bi bi-pencil"></i> <span id="editModeText">Редактировать</span>
                         </button>
@@ -82,7 +82,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($model->orderItems as $index => $item): ?>
+                            <?php foreach ($model->orderItems as $index => $item) : ?>
                             <tr>
                                 <td style="color:#6b7280;"><?= $index + 1 ?></td>
                                 <td class="item-name"><?= Html::encode($item->product_name) ?></td>
@@ -125,7 +125,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                                 </div>
                             </div>
 
-                            <?php if ($model->comment): ?>
+                            <?php if ($model->comment) : ?>
                             <div style="margin-top:1rem;padding:0.875rem;background:#fef3c7;border-radius:8px;">
                                 <div style="font-weight:600;font-size:0.75rem;color:#92400e;margin-bottom:0.25rem;">КОММЕНТАРИЙ</div>
                                 <div style="color:#78350f;"><?= nl2br(Html::encode($model->comment)) ?></div>
@@ -161,7 +161,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                                     <div class="mb-3">
                                         <label class="form-label fw-bold">Статус</label>
                                         <select class="form-select" name="Order[status]">
-                                            <?php foreach (Yii::$app->settings->getStatuses() as $key => $label): ?>
+                                            <?php foreach (Yii::$app->settings->getStatuses() as $key => $label) : ?>
                                                 <option value="<?= $key ?>" <?= $model->status == $key ? 'selected' : '' ?>>
                                                     <?= $label ?>
                                                 </option>
@@ -218,7 +218,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($model->orderItems as $index => $item): ?>
+                                <?php foreach ($model->orderItems as $index => $item) : ?>
                                 <tr>
                                     <td><?= $index + 1 ?></td>
                                     <td><?= Html::encode($item->product_name) ?></td>
@@ -240,7 +240,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                     <!-- Режим редактирования товаров -->
                     <div id="editModeItems" class="d-none">
                         <div id="order-items-edit">
-                            <?php foreach ($model->orderItems as $index => $item): ?>
+                            <?php foreach ($model->orderItems as $index => $item) : ?>
                             <div class="order-item row mb-3">
                                 <div class="col-md-5">
                                     <label class="form-label">Название товара</label>
@@ -287,8 +287,8 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                             <select name="status" class="form-select">
                                 <?php
                                 $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::$app->settings->getStatuses();
-                                foreach ($statuses as $key => $label):
-                                ?>
+                                foreach ($statuses as $key => $label) :
+                                    ?>
                                     <option value="<?= $key ?>" <?= $model->status == $key ? 'selected' : '' ?>>
                                         <?= $label ?>
                                     </option>
@@ -307,7 +307,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
             </div>
 
             <!-- Назначение логиста (только для админа) -->
-            <?php if ($user->isAdmin()): ?>
+            <?php if ($user->isAdmin()) : ?>
             <div class="sidebar-card">
                 <div class="sidebar-header">
                     <i class="bi bi-truck"></i> Логистика
@@ -325,8 +325,8 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                                 <option value="">Не назначен</option>
                                 <?php
                                 $logists = \app\models\User::find()->where(['role' => 'logist'])->all();
-                                foreach ($logists as $logist):
-                                ?>
+                                foreach ($logists as $logist) :
+                                    ?>
                                     <option value="<?= $logist->id ?>" <?= $model->assigned_logist == $logist->id ? 'selected' : '' ?>>
                                         <?= Html::encode($logist->username) ?>
                                     </option>
@@ -341,7 +341,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
             <?php endif; ?>
 
             <!-- Подтверждение оплаты -->
-            <?php if ($model->payment_proof): ?>
+            <?php if ($model->payment_proof) : ?>
             <div class="sidebar-card">
                 <div class="sidebar-header">
                     <i class="bi bi-credit-card"></i> Подтверждение оплаты
@@ -354,7 +354,7 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
                         <i class="bi bi-file-earmark-image"></i> Просмотреть файл
                     </a>
 
-                    <?php if ($model->offer_accepted): ?>
+                    <?php if ($model->offer_accepted) : ?>
                         <div class="alert alert-success mt-3 mb-0">
                             <i class="bi bi-check-circle"></i> Оферта принята
                         </div>
@@ -376,27 +376,27 @@ $statuses = $user->isLogist() ? Yii::$app->settings->getLogistStatuses() : Yii::
             </button>
         </div>
         <div class="history-modal-body">
-            <?php if (!empty($model->history)): ?>
+            <?php if (!empty($model->history)) : ?>
                 <div class="timeline">
-                    <?php foreach ($model->history as $history): ?>
+                    <?php foreach ($model->history as $history) : ?>
                         <div class="timeline-item mb-4 <?= $history->new_status === $model->status ? 'active' : '' ?>">
                             <div class="timeline-dot"></div>
                             <div class="timeline-content">
                                 <div class="timeline-title"><?= $history->getNewStatusLabel() ?></div>
                                 <div class="timeline-meta">
                                     <?= Yii::$app->formatter->asDatetime($history->created_at) ?>
-                                    <?php if ($history->changer): ?>
+                                    <?php if ($history->changer) : ?>
                                         • <?= Html::encode($history->changer->username) ?>
                                     <?php endif; ?>
                                 </div>
-                                <?php if ($history->comment): ?>
+                                <?php if ($history->comment) : ?>
                                     <div class="mt-1"><?= Html::encode($history->comment) ?></div>
                                 <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
-            <?php else: ?>
+            <?php else : ?>
                 <p class="text-muted">История изменений пока пуста.</p>
             <?php endif; ?>
         </div>

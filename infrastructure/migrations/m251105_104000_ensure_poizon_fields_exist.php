@@ -10,17 +10,17 @@ class m251105_104000_ensure_poizon_fields_exist extends Migration
     public function safeUp()
     {
         $db = $this->db;
-        
+
         // Проверяем существование таблицы
         $tableSchema = $db->getTableSchema('{{%product}}');
-        
+
         if (!$tableSchema) {
             echo "⚠️ Таблица product не существует, пропускаем\n";
             return true;
         }
-        
+
         $columns = $tableSchema->columnNames;
-        
+
         // Список всех Poizon полей
         $poizonFields = [
             'sku' => $this->string(100)->comment('Уникальный SKU товара'),
@@ -37,7 +37,7 @@ class m251105_104000_ensure_poizon_fields_exist extends Migration
             'is_limited' => $this->boolean()->defaultValue(0)->comment('Лимитированная модель'),
             'weight' => $this->integer()->comment('Вес в граммах'),
         ];
-        
+
         // Добавляем каждое поле если его нет
         foreach ($poizonFields as $fieldName => $fieldType) {
             if (!in_array($fieldName, $columns)) {
@@ -47,18 +47,18 @@ class m251105_104000_ensure_poizon_fields_exist extends Migration
                 echo "  Поле {$fieldName} уже существует\n";
             }
         }
-        
+
         // Создаём индексы если их нет
         $indexes = $db->schema->getTableIndexes('{{%product}}');
         $indexNames = array_keys($indexes);
-        
+
         $requiredIndexes = [
             'idx-product-sku' => 'sku',
             'idx-product-poizon_id' => 'poizon_id',
             'idx-product-poizon_spu_id' => 'poizon_spu_id',
             'idx-product-last_sync_at' => 'last_sync_at',
         ];
-        
+
         foreach ($requiredIndexes as $indexName => $column) {
             if (!in_array($indexName, $indexNames)) {
                 try {
@@ -76,7 +76,7 @@ class m251105_104000_ensure_poizon_fields_exist extends Migration
                 echo "  Индекс {$indexName} уже существует\n";
             }
         }
-        
+
         echo "✅ Все Poizon поля проверены и добавлены\n";
     }
 

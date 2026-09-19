@@ -127,7 +127,8 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                     <div class="panel__hint">Используется для таможенных деклараций</div>
                 </div>
                 <div class="form-grid form-grid--3">
-                    <?php foreach ([
+                    <?php foreach (
+                    [
                         'recipient_last_name',
                         'recipient_first_name',
                         'recipient_middle_name',
@@ -136,7 +137,8 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                         'passport_issue_date',
                         'birth_date',
                         'inn',
-                    ] as $attribute): ?>
+                    ] as $attribute
+) : ?>
                         <div class="form-field">
                             <label><?= $model->getAttributeLabel($attribute) ?></label>
                             <?= Html::activeInput($attribute === 'passport_issue_date' || $attribute === 'birth_date' ? 'date' : 'text', $model, $attribute) ?>
@@ -152,14 +154,16 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                     <div class="panel__hint">Укажите всё, что поможет доставке</div>
                 </div>
                 <div class="form-grid form-grid--3">
-                    <?php foreach ([
+                    <?php foreach (
+                    [
                         'china_track_number',
                         'ms_number',
                         'dobropost_tariff',
                         'shipment_value_cny',
                         'item_quantity',
                         'item_price_cny',
-                    ] as $attribute): ?>
+                    ] as $attribute
+) : ?>
                         <div class="form-field">
                             <label><?= $model->getAttributeLabel($attribute) ?></label>
                             <?= Html::activeTextInput($model, $attribute, [
@@ -195,7 +199,7 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                     <div class="panel__hint">Добавьте хотя бы один товар</div>
                 </div>
                 <div class="order-items-builder" id="orderItemsBuilder" data-item-count="<?= count($orderItems) ?>" data-initial-index="<?= count($orderItems) ?>">
-                    <?php foreach ($orderItems as $index => $item): ?>
+                    <?php foreach ($orderItems as $index => $item) : ?>
                         <div class="order-item-row" data-index="<?= $index ?>">
                             <div class="form-field">
                                 <label>Название</label>
@@ -226,7 +230,7 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                 <div class="form-field">
                     <label><?= $model->getAttributeLabel('status') ?></label>
                     <select name="Order[status]">
-                        <?php foreach ($statuses as $key => $label): ?>
+                        <?php foreach ($statuses as $key => $label) : ?>
                             <option value="<?= Html::encode($key) ?>" <?= $model->status === $key ? 'selected' : '' ?>><?= Html::encode($label) ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -249,7 +253,7 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                     <div class="panel__title">Финансовые поля</div>
                     <div class="panel__hint">Суммы используются в отчётах</div>
                 </div>
-                <?php foreach (['product_price', 'logistics_price', 'commission_price', 'delivery_cost', 'total_amount'] as $attribute): ?>
+                <?php foreach (['product_price', 'logistics_price', 'commission_price', 'delivery_cost', 'total_amount'] as $attribute) : ?>
                     <div class="form-field">
                         <label><?= $model->getAttributeLabel($attribute) ?></label>
                         <?= Html::activeTextInput($model, $attribute, ['type' => 'number', 'step' => '0.01']) ?>
@@ -263,12 +267,14 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                     <div class="panel__title">Флаги процесса</div>
                     <div class="panel__hint">Проверки логиста</div>
                 </div>
-                <?php foreach ([
+                <?php foreach (
+                [
                     'offer_accepted' => 'Оферта принята',
                     'is_processed' => 'Обработано',
                     'is_shipped' => 'Отправлено',
                     'customs_cleared' => 'Таможня пройдена',
-                ] as $field => $label): ?>
+                ] as $field => $label
+) : ?>
                     <label style="display:flex;align-items:center;gap:.5rem;">
                         <?= Html::activeCheckbox($model, $field, ['label' => false]) ?>
                         <span><?= $label ?></span>
@@ -276,7 +282,7 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                 <?php endforeach; ?>
             </section>
 
-            <?php if ($user->isAdmin()): ?>
+            <?php if ($user->isAdmin()) : ?>
             <section class="panel">
                 <div class="panel__header">
                     <div class="panel__title">Ответственный логист</div>
@@ -286,7 +292,7 @@ $orderItems = Yii::$app->request->post('OrderItem', [
                     <label><?= $model->getAttributeLabel('assigned_logist') ?></label>
                     <select name="Order[assigned_logist]">
                         <option value="">—</option>
-                        <?php foreach ($logists as $logist): ?>
+                        <?php foreach ($logists as $logist) : ?>
                             <option value="<?= $logist->id ?>" <?= $model->assigned_logist == $logist->id ? 'selected' : '' ?>>
                                 <?= Html::encode($logist->username) ?>
                             </option>

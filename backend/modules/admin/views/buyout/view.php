@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\Buyout $buyout */
 /** @var app\backend\modules\procurement\models\BuyoutOrderLink[] $links */
@@ -33,12 +34,12 @@ $allowed = $buyout->getAllowedTransitions();
         </span>
     </div>
     <div class="crm-topbar-actions">
-        <?php foreach ($allowed as $s): ?>
+        <?php foreach ($allowed as $s) : ?>
         <button class="admin-btn admin-btn-sm admin-btn-primary" onclick="changeStatus('<?= $s ?>')">
             → <?= Html::encode($statuses[$s] ?? $s) ?>
         </button>
         <?php endforeach; ?>
-        <?php if (in_array($buyout->status, [\app\backend\modules\procurement\models\Buyout::STATUS_ARRIVED], true)): ?>
+        <?php if (in_array($buyout->status, [\app\backend\modules\procurement\models\Buyout::STATUS_ARRIVED], true)) : ?>
         <button class="admin-btn admin-btn-sm" style="background:#059669;color:#fff" onclick="acceptBuyout()">
             <i class="bi bi-check-circle"></i> Принять (создать приёмку)
         </button>
@@ -59,19 +60,19 @@ $allowed = $buyout->getAllowedTransitions();
     <div class="crm-card">
         <div class="crm-card-head"><h3><i class="bi bi-box-seam"></i> Товар</h3></div>
         <div class="crm-card-body" style="display:flex;gap:16px;align-items:flex-start">
-            <?php if (!empty($snap['image'])): ?>
+            <?php if (!empty($snap['image'])) : ?>
             <img src="<?= Html::encode($snap['image']) ?>" alt=""
                  style="width:100px;height:100px;object-fit:cover;border-radius:10px;flex-shrink:0;border:1px solid #e5e7eb">
             <?php endif; ?>
             <div style="flex:1;min-width:0">
                 <div style="font-size:1rem;font-weight:700;margin-bottom:4px"><?= Html::encode($buyout->getProductName()) ?></div>
-                <?php if (!empty($snap['brand'])): ?>
+                <?php if (!empty($snap['brand'])) : ?>
                 <div style="font-size:0.8rem;color:#6b7280;margin-bottom:6px"><?= Html::encode($snap['brand']) ?></div>
                 <?php endif; ?>
-                <?php if ($buyout->size): ?>
+                <?php if ($buyout->size) : ?>
                 <div class="crm-field-row"><span class="crm-field-label">Размер</span><span class="crm-field-val"><?= Html::encode($buyout->size) ?></span></div>
                 <?php endif; ?>
-                <?php if ($buyout->source_url): ?>
+                <?php if ($buyout->source_url) : ?>
                 <div style="margin-top:8px">
                     <a href="<?= Html::encode($buyout->source_url) ?>" target="_blank" class="admin-btn admin-btn-sm admin-btn-secondary">
                         <i class="bi bi-box-arrow-up-right"></i> Открыть источник
@@ -118,9 +119,9 @@ $allowed = $buyout->getAllowedTransitions();
             </button>
         </div>
         <div class="crm-card-body">
-            <?php if (empty($links)): ?>
+            <?php if (empty($links)) : ?>
             <div style="color:#9ca3af;font-size:0.85rem;padding:8px 0">Нет привязанных заказов</div>
-            <?php else: ?>
+            <?php else : ?>
             <table style="width:100%;border-collapse:collapse;font-size:0.8125rem">
                 <tr style="color:#6b7280;font-size:0.72rem;border-bottom:1px solid #e5e7eb">
                     <th style="padding:6px;text-align:left">Заказ</th>
@@ -128,21 +129,23 @@ $allowed = $buyout->getAllowedTransitions();
                     <th style="padding:6px;text-align:left">Статус</th>
                     <th style="padding:6px"></th>
                 </tr>
-                <?php foreach ($links as $link): ?>
-                <?php $order = $link->order; ?>
+                <?php foreach ($links as $link) : ?>
+                    <?php $order = $link->order; ?>
                 <tr style="border-bottom:1px solid #f3f4f6">
                     <td style="padding:6px">
-                        <?php if ($order): ?>
+                        <?php if ($order) : ?>
                         <a href="/admin/order/<?= $order->id ?>" style="font-weight:700;color:var(--admin-accent,#2563eb)">
                             #<?= Html::encode($order->order_number ?? $order->id) ?>
                         </a>
-                        <?php else: ?>#<?= $link->order_id ?><?php endif; ?>
+                        <?php else :
+                            ?>#<?= $link->order_id ?><?php
+                        endif; ?>
                     </td>
                     <td style="padding:6px;color:#374151">
                         <?= $order ? Html::encode($order->name ?? '—') : '—' ?>
                     </td>
                     <td style="padding:6px">
-                        <?php if ($order): ?>
+                        <?php if ($order) : ?>
                         <span style="font-size:0.72rem;padding:2px 7px;background:#f3f4f6;border-radius:999px">
                             <?= Html::encode($order->getStatusLabel()) ?>
                         </span>
@@ -165,20 +168,20 @@ $allowed = $buyout->getAllowedTransitions();
     <div class="crm-card">
         <div class="crm-card-head"><h3><i class="bi bi-clock-history"></i> История</h3></div>
         <div class="crm-card-body" style="padding:0">
-            <?php if (empty($histories)): ?>
+            <?php if (empty($histories)) : ?>
             <div style="padding:16px;color:#9ca3af;font-size:0.85rem">Нет событий</div>
-            <?php else: ?>
+            <?php else : ?>
             <ul style="list-style:none;margin:0;padding:0">
-                <?php foreach ($histories as $h): ?>
-                <?php
+                <?php foreach ($histories as $h) : ?>
+                    <?php
                     $nv = is_array($h->new_value) ? $h->new_value : (array)json_decode((string)$h->new_value, true);
                     $ov = is_array($h->old_value) ? $h->old_value : (array)json_decode((string)$h->old_value, true);
-                ?>
+                    ?>
                 <li style="display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid #f3f4f6">
                     <div style="width:8px;height:8px;border-radius:50%;background:var(--admin-accent,#2563eb);margin-top:5px;flex-shrink:0"></div>
                     <div style="flex:1">
                         <div style="font-size:0.8rem;font-weight:600"><?= Html::encode($h->getActionLabel()) ?></div>
-                        <?php if ($h->action === 'status_changed'): ?>
+                        <?php if ($h->action === 'status_changed') : ?>
                         <div style="font-size:0.75rem;color:#6b7280">
                             <?= Html::encode($ov['status'] ?? '—') ?> → <?= Html::encode($nv['status'] ?? '—') ?>
                         </div>
@@ -206,7 +209,7 @@ $allowed = $buyout->getAllowedTransitions();
         <div class="crm-card-body">
             <div class="crm-field-row"><span class="crm-field-label">Платформа</span>
                 <span class="crm-field-val"><?= Html::encode($buyout->getSourceLabel()) ?></span></div>
-            <?php if ($buyout->external_id): ?>
+            <?php if ($buyout->external_id) : ?>
             <div class="crm-field-row"><span class="crm-field-label">Внешний ID</span>
                 <span class="crm-field-val"><?= Html::encode($buyout->external_id) ?></span></div>
             <?php endif; ?>
@@ -236,11 +239,11 @@ $allowed = $buyout->getAllowedTransitions();
     <div class="crm-card">
         <div class="crm-card-head"><h3><i class="bi bi-receipt"></i> Чек / инвойс</h3></div>
         <div class="crm-card-body">
-            <?php if ($buyout->receipt_url): ?>
+            <?php if ($buyout->receipt_url) : ?>
             <a href="<?= Html::encode($buyout->receipt_url) ?>" target="_blank" class="admin-btn admin-btn-sm admin-btn-secondary">
                 <i class="bi bi-file-earmark"></i> Открыть
             </a>
-            <?php else: ?>
+            <?php else : ?>
             <div style="color:#9ca3af;font-size:0.8rem">Не загружен</div>
             <?php endif; ?>
         </div>
@@ -261,7 +264,7 @@ $allowed = $buyout->getAllowedTransitions();
         </div>
     </div>
 
-    <?php if ($buyout->notes): ?>
+    <?php if ($buyout->notes) : ?>
     <!-- Notes -->
     <div class="crm-card">
         <div class="crm-card-head"><h3><i class="bi bi-sticky"></i> Заметки</h3></div>
@@ -271,7 +274,7 @@ $allowed = $buyout->getAllowedTransitions();
     </div>
     <?php endif; ?>
 
-    <?php if ($buyout->receiving_id): ?>
+    <?php if ($buyout->receiving_id) : ?>
     <div class="crm-card">
         <div class="crm-card-head"><h3><i class="bi bi-box-arrow-in-down"></i> Приёмка</h3></div>
         <div class="crm-card-body">

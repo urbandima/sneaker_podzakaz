@@ -1,15 +1,18 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 
 $this->title = 'Триггеры автоматизации';
 
 $this->params['headerActions'] = [
-    Html::a('<i class="bi bi-plus-lg"></i> Создать триггер',
+    Html::a(
+        '<i class="bi bi-plus-lg"></i> Создать триггер',
         Url::to(['/admin/settings/triggers/create']),
         ['class' => 'admin-btn admin-btn-primary']
     ),
-    Html::a('<i class="bi bi-journal-text"></i> Лог выполнения',
+    Html::a(
+        '<i class="bi bi-journal-text"></i> Лог выполнения',
         Url::to(['/admin/settings/triggers/log']),
         ['class' => 'admin-btn admin-btn-secondary']
     ),
@@ -20,9 +23,13 @@ $filterEvent  = Yii::$app->request->get('event', '');
 $filterActive = Yii::$app->request->get('active', '');
 
 $currentSort = Yii::$app->request->get('sort', '');
-$sortIcon = function(string $col) use ($currentSort): string {
-    if ($currentSort === $col)       return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▲</span>';
-    if ($currentSort === '-' . $col) return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▼</span>';
+$sortIcon = function (string $col) use ($currentSort): string {
+    if ($currentSort === $col) {
+        return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▲</span>';
+    }
+    if ($currentSort === '-' . $col) {
+        return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▼</span>';
+    }
     return ' <span style="color:#d1d5db;font-size:.6rem">⇅</span>';
 };
 
@@ -42,7 +49,7 @@ $storageKey = 'triggersColumns';
                placeholder="Название триггера…" value="<?= Html::encode($filterSearch) ?>">
         <select name="event" class="compact-filter-select">
             <option value="">Все события</option>
-            <?php foreach ($eventCodes as $k => $v): ?>
+            <?php foreach ($eventCodes as $k => $v) : ?>
             <option value="<?= Html::encode($k) ?>" <?= $filterEvent === $k ? 'selected' : '' ?>><?= Html::encode($v) ?></option>
             <?php endforeach; ?>
         </select>
@@ -59,7 +66,7 @@ $storageKey = 'triggersColumns';
             </button>
             <div id="colSelector" class="col-selector-dropdown" style="display:none">
                 <div style="font-weight:700;margin-bottom:8px;font-size:.8125rem">Показать столбцы:</div>
-                <?php foreach ($columnDefs as $colKey => $colLabel): ?>
+                <?php foreach ($columnDefs as $colKey => $colLabel) : ?>
                 <label class="col-selector-item">
                     <input type="checkbox" data-col="<?= $colKey ?>"
                            onchange="AdminTable.toggleColumn('<?= $colKey ?>', this.checked, '<?= $storageKey ?>')" checked>
@@ -82,14 +89,14 @@ $storageKey = 'triggersColumns';
         </h2>
     </div>
 
-    <?php if (empty($triggers)): ?>
+    <?php if (empty($triggers)) : ?>
         <div class="empty-state" style="padding:2.5rem">
             <div class="empty-state-icon"><i class="bi bi-lightning"></i></div>
             <h3 class="empty-state-title">Триггеров нет</h3>
             <p class="empty-state-description">Создайте первый триггер автоматизации</p>
             <?= Html::a('<i class="bi bi-plus-circle"></i> Создать триггер', ['/admin/settings/triggers/create'], ['class' => 'admin-btn admin-btn-primary']) ?>
         </div>
-    <?php else: ?>
+    <?php else : ?>
     <div style="overflow-x:auto">
         <table class="admin-table" style="font-size:.8125rem">
             <thead>
@@ -105,11 +112,11 @@ $storageKey = 'triggersColumns';
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($triggers as $trigger): ?>
+                <?php foreach ($triggers as $trigger) : ?>
                 <tr>
                     <td style="max-width:220px">
                         <strong><?= Html::encode($trigger->name) ?></strong>
-                        <?php if ($trigger->description): ?>
+                        <?php if ($trigger->description) : ?>
                         <div style="font-size:11px;color:var(--admin-text-secondary,#6d7175);margin-top:2px"><?= Html::encode($trigger->description) ?></div>
                         <?php endif; ?>
                     </td>

@@ -64,7 +64,7 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 
     <!-- Последний импорт -->
-    <?php if (!empty($stats['last_batch'])): ?>
+    <?php if (!empty($stats['last_batch'])) : ?>
     <div class="card mb-4">
         <div class="card-header bg-light">
             <h5 class="mb-0"><i class="bi bi-clock-history"></i> Последний импорт</h5>

@@ -222,14 +222,14 @@ class OrderController extends Controller
     public function actionCreate()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         if (!Yii::$app->request->isPost) {
             Yii::error('Попытка создания заказа не POST методом', 'order');
             return ['success' => false, 'message' => 'Недопустимый метод запроса'];
         }
-        
+
         Yii::info('Начало создания заказа', 'order');
-        
+
         // Получаем и очищаем данные формы
         $name     = trim(strip_tags(Yii::$app->request->post('name', '')));
         $phone    = trim(strip_tags(Yii::$app->request->post('phone', '')));
@@ -271,7 +271,7 @@ class OrderController extends Controller
         if (mb_strlen($address) > 500) {
             return ['success' => false, 'message' => 'Адрес слишком длинный (максимум 500 символов)'];
         }
-        
+
         // Получаем товары из корзины
         try {
             Yii::info('Попытка получения корзины', 'order');
@@ -281,7 +281,7 @@ class OrderController extends Controller
             Yii::error('Ошибка получения корзины: ' . $e->getMessage() . "\n" . $e->getTraceAsString(), 'order');
             return ['success' => false, 'message' => 'Ошибка загрузки корзины: ' . $e->getMessage()];
         }
-        
+
         if (empty($cartItems)) {
             Yii::warning('Попытка создания заказа с пустой корзиной', 'order');
             return ['success' => false, 'message' => 'Корзина пуста'];
@@ -351,7 +351,7 @@ class OrderController extends Controller
 
         // Начинаем транзакцию
         $transaction = Yii::$app->db->beginTransaction();
-        
+
         try {
             // Создаем заказ
             $order = new Order();
@@ -377,7 +377,7 @@ class OrderController extends Controller
             } else {
                 Yii::warning('Поле source отсутствует в таблице order, пропускаем установку источника.', 'order');
             }
-            
+
             // Рассчитываем стоимость доставки — единственный источник истины: настройки
             // доставки (Settings), те же самые, что показываются на странице оформления
             // заказа (actionIndex). Никаких захардкоженных значений здесь и в JS быть не должно.
@@ -400,15 +400,15 @@ class OrderController extends Controller
 
             $order->delivery_cost = $deliveryCost;
             $order->total_amount = $totalAmount + $deliveryCost;
-            
+
             // Генерируем номер заказа и токен
             $order->order_number = 'WEB-' . date('Ymd') . '-' . strtoupper(Yii::$app->security->generateRandomString(6));
             $order->token = Yii::$app->security->generateRandomString(32);
-            
+
             if (!$order->save()) {
                 throw new \Exception('Ошибка сохранения заказа: ' . json_encode($order->errors));
             }
-            
+
             // Добавляем товары в заказ
             foreach ($cartItems as $cartItem) {
                 if (!$cartItem->product) {
@@ -423,26 +423,26 @@ class OrderController extends Controller
                 $orderItem->price = $cartItem->price;
                 $orderItem->size = $cartItem->size;
                 $orderItem->color = $cartItem->color;
-                
+
                 if (!$orderItem->save()) {
                     throw new \Exception('Ошибка сохранения товара: ' . json_encode($orderItem->errors));
                 }
             }
-            
+
             // Добавляем запись в историю
             $history = new OrderHistory();
             $history->order_id = $order->id;
             $history->old_status = null;
             $history->new_status = 'new';
             $history->comment = 'Заказ создан через сайт';
-            
+
             if (!$history->save()) {
                 throw new \Exception('Ошибка сохранения истории: ' . json_encode($history->errors));
             }
-            
+
             // Очищаем корзину
             Cart::clear();
-            
+
             // Отправляем email уведомления (опционально)
             try {
                 // Клиенту
@@ -453,7 +453,7 @@ class OrderController extends Controller
                         ->setSubject('Заказ №' . $order->order_number . ' оформлен')
                         ->send();
                 }
-                
+
                 // Менеджеру
                 if (!empty(Yii::$app->params['adminEmail'])) {
                     Yii::$app->mailer->compose('order-created-manager', ['order' => $order])
@@ -465,22 +465,21 @@ class OrderController extends Controller
             } catch (\Exception $e) {
                 Yii::warning('Ошибка отправки email: ' . $e->getMessage(), 'order');
             }
-            
+
             $transaction->commit();
-            
+
             Yii::info('Создан заказ #' . $order->id . ' через корзину', 'order');
-            
+
             return [
                 'success' => true,
                 'order_id' => $order->id,
                 'order_number' => $order->order_number,
                 'token' => $order->token
             ];
-            
         } catch (\Throwable $e) {
             $transaction->rollBack();
             Yii::error('Ошибка создания заказа: ' . $e->getMessage() . "\n" . $e->getTraceAsString(), 'order');
-            
+
             return [
                 'success' => false,
                 'message' => 'Ошибка при оформлении заказа: ' . $e->getMessage()
@@ -683,7 +682,7 @@ class OrderController extends Controller
                                         ->setTo($model->creator->email)
                                         ->setSubject('Загружено подтверждение оплаты для заказа №' . $model->order_number)
                                         ->send();
-                                    
+
                                     if (!$sent) {
                                         Yii::warning('Не удалось отправить email менеджеру для заказа #' . $model->id, 'order');
                                     }
@@ -693,7 +692,7 @@ class OrderController extends Controller
                             }
 
                             $transaction->commit();
-                            
+
                             Yii::info('Загружено подтверждение оплаты для заказа #' . $model->id . ' (токен: ' . $token . ')', 'order');
                             Yii::$app->session->setFlash('success', 'Подтверждение оплаты загружено. Ожидайте проверки менеджером.');
                             return $this->redirect(['view', 'token' => $token]);
@@ -705,12 +704,12 @@ class OrderController extends Controller
                     }
                 } catch (\Exception $e) {
                     $transaction->rollBack();
-                    
+
                     // Удаляем файл если он был создан
                     if (isset($filePath) && file_exists($filePath)) {
                         @unlink($filePath);
                     }
-                    
+
                     Yii::error('Ошибка загрузки подтверждения оплаты: ' . $e->getMessage(), 'order');
                     Yii::$app->session->setFlash('error', 'Ошибка при загрузке файла. Попробуйте позже.');
                 }
@@ -744,7 +743,7 @@ class OrderController extends Controller
         // Проверка MIME-типа
         $allowedMimeTypes = [
             'image/jpeg',
-            'image/jpg', 
+            'image/jpg',
             'image/png',
             'image/gif',
             'image/webp',

@@ -244,7 +244,7 @@ if (file_exists(Yii::getAlias('@frontend/web/css/app.css'))) {
 
             <span id="pe-dirty-dot" title="Есть несохранённые изменения"></span>
 
-            <?php if (!$model->isNewRecord): ?>
+            <?php if (!$model->isNewRecord) : ?>
             <a href="<?= Html::encode($frontendUrl) ?>" target="_blank"
                class="admin-btn admin-btn-sm admin-btn-secondary" title="Открыть на сайте">
                 <i class="bi bi-box-arrow-up-right"></i>
@@ -311,7 +311,7 @@ if (file_exists(Yii::getAlias('@frontend/web/css/app.css'))) {
         </div>
 
         <!-- History accordion -->
-        <?php if (!empty($revisions)): ?>
+        <?php if (!empty($revisions)) : ?>
         <div class="pe-accordion">
             <div class="pe-accordion-header" id="histToggle">
                 <i class="bi bi-clock-history"></i> История версий
@@ -320,7 +320,7 @@ if (file_exists(Yii::getAlias('@frontend/web/css/app.css'))) {
             </div>
             <div class="pe-accordion-body" id="histBody">
                 <div class="pe-history-list">
-                    <?php foreach ($revisions as $rev): ?>
+                    <?php foreach ($revisions as $rev) : ?>
                     <div class="pe-rev-item">
                         <div class="pe-rev-time">
                             <?= date('d.m.Y H:i', $rev['saved_at']) ?>
@@ -357,10 +357,10 @@ if (file_exists(Yii::getAlias('@frontend/web/css/app.css'))) {
                 <i class="bi bi-arrow-clockwise"></i>
             </button>
         </div>
-        <?php if (!$model->isNewRecord): ?>
+        <?php if (!$model->isNewRecord) : ?>
         <iframe id="previewFrame" src="<?= Html::encode($frontendUrl) ?>"
                 title="Предпросмотр страницы"></iframe>
-        <?php else: ?>
+        <?php else : ?>
         <div style="display:flex;align-items:center;justify-content:center;flex:1;color:var(--admin-text-secondary);font-size:14px;gap:8px">
             <i class="bi bi-info-circle"></i> Предпросмотр появится после первого сохранения
         </div>

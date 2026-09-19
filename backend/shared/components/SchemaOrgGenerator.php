@@ -2,11 +2,11 @@
 
 /**
  * SchemaOrgGenerator — Компонент генерации Schema.org микроразметки
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Генерация JSON-LD микроразметки для SEO: товары, отзывы,
  * хлебные крошки, организация. Улучшение отображения в поиске.
- * 
+ *
  * ТИПЫ СХЕМ:
  * - Product: товар
  * - Offer: предложение
@@ -15,23 +15,24 @@
  * - AggregateRating: рейтинг
  * - Review: отзывы
  * - ItemList: список товаров
- * 
+ *
  * ФУНКЦИИ:
  * - generateProduct(): микроразметка товара
  * - generateBreadcrumbList(): хлебные крошки
  * - generateOrganization(): организация
  * - generateItemList(): список товаров
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - CatalogController (карточка товара)
  * - CatalogSeoTrait (страницы каталога)
  * - SEO оптимизация
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Кэширование сгенерированных схем
  * - Автоматические переводы (material, gender, season)
  * - Поддержка Google Shopping
  */
+
 namespace app\backend\shared\components;
 
 use Yii;
@@ -42,7 +43,7 @@ use app\backend\modules\catalog\models\Category;
 
 /**
  * Компонент для генерации Schema.org микроразметки (JSON-LD)
- * 
+ *
  * Поддерживает типы:
  * - Product (товар)
  * - Offer (предложение)
@@ -50,7 +51,7 @@ use app\backend\modules\catalog\models\Category;
  * - Organization (организация)
  * - AggregateRating (рейтинг)
  * - Review (отзывы)
- * 
+ *
  * @package app\components
  */
 class SchemaOrgGenerator
@@ -123,7 +124,7 @@ class SchemaOrgGenerator
 
     /**
      * Генерация полной разметки для страницы товара
-     * 
+     *
      * @param Product $product Товар
      * @param array $options Дополнительные опции для расширения
      * @return array Массив с JSON-LD структурами
@@ -148,7 +149,7 @@ class SchemaOrgGenerator
 
     /**
      * Построение структуры Product + Offer
-     * 
+     *
      * @param Product $product
      * @param array $options
      * @return array
@@ -186,7 +187,7 @@ class SchemaOrgGenerator
                 '@type' => 'Brand',
                 'name' => $product->brand->name,
             ];
-            
+
             // Логотип бренда если есть
             if ($product->brand->logo_url || $product->brand->logo) {
                 $logoUrl = $product->brand->getLogoUrl();
@@ -253,7 +254,7 @@ class SchemaOrgGenerator
 
     /**
      * Получение всех изображений товара
-     * 
+     *
      * @param Product $product
      * @return array
      */
@@ -282,7 +283,7 @@ class SchemaOrgGenerator
 
     /**
      * Получение идентификаторов товара (SKU, MPN, GTIN)
-     * 
+     *
      * @param Product $product
      * @return array
      */
@@ -319,7 +320,7 @@ class SchemaOrgGenerator
 
     /**
      * Построение дополнительных свойств товара
-     * 
+     *
      * @param Product $product
      * @return array
      */
@@ -346,7 +347,7 @@ class SchemaOrgGenerator
 
     /**
      * Построение структуры Offer
-     * 
+     *
      * @param Product $product
      * @return array
      */
@@ -398,7 +399,7 @@ class SchemaOrgGenerator
 
     /**
      * Получение статуса наличия товара
-     * 
+     *
      * @param Product $product
      * @return string
      */
@@ -417,7 +418,7 @@ class SchemaOrgGenerator
 
     /**
      * Построение структуры BreadcrumbList
-     * 
+     *
      * @param Product $product
      * @return array
      */
@@ -468,7 +469,7 @@ class SchemaOrgGenerator
 
     /**
      * Рендеринг JSON-LD в HTML
-     * 
+     *
      * @param array $schema Структура Schema.org
      * @param bool $prettyPrint Форматировать JSON
      * @return string HTML тег script с JSON-LD
@@ -487,7 +488,7 @@ class SchemaOrgGenerator
 
     /**
      * Генерация и рендеринг всей разметки для товара
-     * 
+     *
      * @param Product $product
      * @param array $options
      * @return string HTML со всеми script-тегами
@@ -495,9 +496,9 @@ class SchemaOrgGenerator
     public static function render(Product $product, array $options = [])
     {
         $schemas = self::generateProductSchema($product, $options);
-        
+
         $html = '';
-        
+
         // Product Schema
         if (!empty($schemas['product'])) {
             $html .= self::renderJsonLd($schemas['product']);
@@ -652,7 +653,7 @@ class SchemaOrgGenerator
 
     /**
      * Генерация разметки для организации (используется в футере/контактах)
-     * 
+     *
      * @param array $options
      * @return array
      */
@@ -686,7 +687,7 @@ class SchemaOrgGenerator
 
     /**
      * Генерация разметки для каталога (ItemList)
-     * 
+     *
      * @param array $products Массив товаров
      * @param string $categoryName Название категории
      * @return array

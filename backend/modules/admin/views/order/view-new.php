@@ -13,7 +13,7 @@ $canEdit = !$user->isLogist();
 $isEditing = $canEdit && !empty($editing);
 $inputDisabled = ($canEdit && $isEditing) ? '' : 'disabled';
 $logists = $user->isAdmin()
-    ? (function() {
+    ? (function () {
         try {
             return \app\backend\modules\admin\models\User::find()->where(['role' => 'logist'])->orderBy(['username' => SORT_ASC])->all();
         } catch (\Exception $e) {
@@ -42,7 +42,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
             <a class="order-btn" href="<?= Url::to(['/admin/order/index']) ?>">
                 ← Список заказов
             </a>
-            <?php if ($canEdit): ?>
+            <?php if ($canEdit) : ?>
                 <button type="submit" form="orderUpdateForm" class="order-btn order-btn--primary">
                     Сохранить карточку
                 </button>
@@ -68,11 +68,11 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
             </div>
             <div class="order-metric__note"><?= Html::encode($model->comment ?: 'Комментариев нет') ?></div>
         </div>
-        <?php if ($amoDealId): ?>
+        <?php if ($amoDealId) : ?>
         <div class="order-metric">
             <div class="order-metric__label">amoCRM</div>
             <div class="order-metric__value">#<?= Html::encode($amoDealId) ?></div>
-            <?php if ($amoDealUrl): ?>
+            <?php if ($amoDealUrl) : ?>
                 <div class="order-metric__note">
                     <a href="<?= Html::encode($amoDealUrl) ?>" target="_blank" class="order-btn" style="padding:4px 10px;font-weight:500;">
                         Открыть сделку
@@ -85,7 +85,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
 
     <div class="order-body">
         <div class="order-primary">
-            <?php if ($canEdit && $isEditing): ?>
+            <?php if ($canEdit && $isEditing) : ?>
             <form id="orderUpdateForm" method="post" action="<?= Url::to(['/admin/order/update', 'id' => $model->id]) ?>">
                 <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
             <?php endif; ?>
@@ -233,7 +233,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                     </div>
                 </section>
 
-            <?php if ($canEdit && $isEditing): ?>
+            <?php if ($canEdit && $isEditing) : ?>
                 <section class="panel">
                     <div class="panel__header">
                         <div class="panel__title">Позиции заказа</div>
@@ -248,7 +248,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                     <a href="<?= Url::to(['/admin/order/view', 'id' => $model->id]) ?>" class="order-btn">Отменить</a>
                 </div>
             </form>
-            <?php else: ?>
+            <?php else : ?>
                 <section class="panel">
                     <div class="panel__header">
                         <div class="panel__title">Состав заказа (<?= $itemCount ?>)</div>
@@ -265,7 +265,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                                 </tr>
                             </thead>
                             <tbody>
-                            <?php foreach ($model->orderItems as $item): ?>
+                            <?php foreach ($model->orderItems as $item) : ?>
                                 <tr>
                                     <td><?= Html::encode($item->product_name) ?></td>
                                     <td><?= $item->quantity ?></td>
@@ -292,7 +292,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                     <div class="panel__title">Статус заказа</div>
                     <div class="panel__hint"><?= Html::encode($model->getStatusLabel()) ?></div>
                 </div>
-                <?php if ($canEdit): ?>
+                <?php if ($canEdit) : ?>
                 <form method="post" action="<?= Url::to(['/admin/order/change-status', 'id' => $model->id]) ?>">
                     <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
                     <div class="form-field">
@@ -302,7 +302,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                             $statusList = $user->isLogist()
                                 ? Yii::$app->settings->getLogistStatuses()
                                 : $statuses;
-                            foreach ($statusList as $key => $label): ?>
+                            foreach ($statusList as $key => $label) : ?>
                                 <option value="<?= $key ?>" <?= $model->status === $key ? 'selected' : '' ?>>
                                     <?= Html::encode($label) ?>
                                 </option>
@@ -315,7 +315,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                     </div>
                     <button type="submit" class="order-btn order-btn--primary" style="width:100%; margin-top:12px;">Сохранить статус</button>
                 </form>
-                <?php else: ?>
+                <?php else : ?>
                 <div class="status-description" style="font-size:.9rem;color:var(--muted);">
                     У вас нет прав для изменения статуса.
                 </div>
@@ -338,7 +338,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                 </div>
             </section>
 
-            <?php if ($user->isAdmin()): ?>
+            <?php if ($user->isAdmin()) : ?>
             <section class="panel panel--side">
                 <div class="panel__header">
                     <div class="panel__title">Ответственный логист</div>
@@ -350,7 +350,7 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                         <label>Выберите логиста</label>
                         <select name="logist_id">
                             <option value="">—</option>
-                            <?php foreach ($logists as $logist): ?>
+                            <?php foreach ($logists as $logist) : ?>
                                 <option value="<?= $logist->id ?>" <?= $model->assigned_logist == $logist->id ? 'selected' : '' ?>>
                                     <?= Html::encode($logist->username) ?>
                                 </option>
@@ -362,14 +362,14 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
             </section>
             <?php endif; ?>
 
-            <?php if ($amoDealId): ?>
+            <?php if ($amoDealId) : ?>
             <section class="panel panel--side" style="background:linear-gradient(135deg,#1f3d78,#102044);color:#fff;">
                 <div class="panel__header">
                     <div class="panel__title" style="color:#fff;">amoCRM</div>
                     <div class="panel__hint" style="color:rgba(255,255,255,.7);">Сделка привязана</div>
                 </div>
                 <div style="font-size:1.4rem;font-weight:600;">#<?= Html::encode($amoDealId) ?></div>
-                <?php if ($amoDealUrl): ?>
+                <?php if ($amoDealUrl) : ?>
                     <a href="<?= Html::encode($amoDealUrl) ?>" target="_blank" class="order-btn" style="margin-top:14px;">
                         Перейти в amoCRM →
                     </a>
@@ -388,20 +388,22 @@ $amoDealUrl = $amoDealId ? rtrim($amoBase, '/') . '/' . $amoDealId : null;
                 </div>
             </section>
 
-            <?php if ($model->history): ?>
+            <?php if ($model->history) : ?>
             <section class="panel panel--side">
                 <div class="panel__header">
                     <div class="panel__title">История изменений</div>
                     <div class="panel__hint"><?= count($model->history) ?> записей</div>
                 </div>
                 <div class="timeline">
-                    <?php foreach ($model->history as $history): ?>
+                    <?php foreach ($model->history as $history) : ?>
                         <div class="timeline-item">
                             <div class="timeline-status"><?= Html::encode($history->getNewStatusLabel()) ?></div>
                             <div class="timeline-meta">
                                 <?= Yii::$app->formatter->asDatetime($history->created_at, 'short') ?>
-                                <?php if ($history->changer): ?> • <?= Html::encode($history->changer->username) ?><?php endif; ?>
-                                <?php if ($history->comment): ?>
+                                <?php if ($history->changer) :
+                                    ?> • <?= Html::encode($history->changer->username) ?><?php
+                                endif; ?>
+                                <?php if ($history->comment) : ?>
                                     <div><?= Html::encode($history->comment) ?></div>
                                 <?php endif; ?>
                             </div>

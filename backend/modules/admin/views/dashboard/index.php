@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Dashboard — Главная панель администратора
  * Виджеты с реальными данными из БД, графики, топ-товары, складские предупреждения
@@ -76,7 +77,7 @@ $this->params['headerActions'] = [];
             <div class="admin-stat-label">Товары</div>
             <div class="dash-stat-sub">
                 <span class="admin-badge admin-badge-success"><?= $productStats['active'] ?? 0 ?> активных</span>
-                <?php if (($productStats['outOfStock'] ?? 0) > 0): ?>
+                <?php if (($productStats['outOfStock'] ?? 0) > 0) : ?>
                     <span class="admin-badge admin-badge-danger"><?= $productStats['outOfStock'] ?> нет</span>
                 <?php endif ?>
             </div>
@@ -90,7 +91,7 @@ $this->params['headerActions'] = [];
             <div class="dash-stat-sub">
                 <span class="admin-badge admin-badge-info"><?= $userStats['admins'] ?? 0 ?> адм</span>
                 <span class="admin-badge admin-badge-warning"><?= $userStats['managers'] ?? 0 ?> мен</span>
-                <?php if (($userStats['no_role'] ?? 0) > 0): ?>
+                <?php if (($userStats['no_role'] ?? 0) > 0) : ?>
                     <span class="admin-badge admin-badge-danger" title="Сотрудники без роли"><?= $userStats['no_role'] ?> без роли</span>
                 <?php endif; ?>
             </div>
@@ -155,9 +156,9 @@ $opStats = $operationalStats ?? ['unprocessed2h' => 0, 'delayed3d' => 0, 'awaiti
 <?php
 $noCat = $productsNoCategoryCount ?? 0;
 $badBrand = $brandMismatchCount ?? 0;
-if ($noCat > 0 || $badBrand > 0): ?>
+if ($noCat > 0 || $badBrand > 0) : ?>
 <div class="dash-catalog-alerts" style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
-    <?php if ($noCat > 0): ?>
+    <?php if ($noCat > 0) : ?>
     <a href="<?= Url::to(['/admin/catalog/product', 'category_id' => '']) ?>"
        class="dash-op-widget" style="flex:1;min-width:220px;background:#fffbeb;border-color:#fde68a">
         <div class="dash-op-widget-icon warning"><i class="bi bi-tag-fill"></i></div>
@@ -165,7 +166,7 @@ if ($noCat > 0 || $badBrand > 0): ?>
         <div class="dash-op-widget-label">Товаров без<br>категории</div>
     </a>
     <?php endif; ?>
-    <?php if ($badBrand > 0): ?>
+    <?php if ($badBrand > 0) : ?>
     <a href="<?= Url::to(['/admin/catalog', 'brand_mismatch' => '1']) ?>"
        class="dash-op-widget" style="flex:1;min-width:220px;background:#fef2f2;border-color:#fecaca">
         <div class="dash-op-widget-icon danger"><i class="bi bi-exclamation-circle-fill"></i></div>
@@ -224,9 +225,9 @@ $cnyUpdated = $cnyInfo['updated_at'] ?? null;
     <div>
         <div class="dash-cny-rate-main">1 CNY = <?= number_format($cnyRate, 4, '.', '') ?> BYN</div>
         <div class="dash-cny-rate-meta">
-            <?php if ($cnyUpdated): ?>
+            <?php if ($cnyUpdated) : ?>
                 Обновлено: <?= Html::encode($cnyUpdated) ?>
-            <?php else: ?>
+            <?php else : ?>
                 Дата обновления неизвестна
             <?php endif ?>
             &nbsp;·&nbsp; Источник: <?= Html::encode($cnyInfo['source'] ?? '—') ?>
@@ -281,24 +282,24 @@ $cnyUpdated = $cnyInfo['updated_at'] ?? null;
             <h2 class="admin-card-title"><i class="bi bi-trophy-fill"></i> Топ товары</h2>
             <span class="admin-badge admin-badge-info">30 дн</span>
         </div>
-        <?php if (!empty($topProducts)): ?>
+        <?php if (!empty($topProducts)) : ?>
         <div class="dash-top-list">
-            <?php foreach ($topProducts as $i => $p): ?>
+            <?php foreach ($topProducts as $i => $p) : ?>
             <div class="dash-top-item">
                 <span class="dash-top-rank"><?= $i + 1 ?></span>
                 <div class="dash-top-info">
                     <span class="dash-top-name"><?= Html::encode($p['product_name'] ?? '—') ?></span>
                     <span class="dash-top-meta"><?= (int)($p['order_count'] ?? 0) ?> заказов · <?= (int)($p['total_quantity'] ?? 0) ?> шт</span>
                 </div>
-                <?php if (isset($p['avg_price']) && $p['avg_price'] > 0): ?>
+                <?php if (isset($p['avg_price']) && $p['avg_price'] > 0) : ?>
                 <span class="dash-top-price"><?= PriceHelper::formatInt($p['avg_price']) ?></span>
-                <?php else: ?>
+                <?php else : ?>
                 <span class="dash-top-price" style="background:#fef3c7;color:#b45309;font-size:.7rem;padding:2px 7px;border-radius:10px">Цена не указана</span>
                 <?php endif; ?>
             </div>
             <?php endforeach ?>
         </div>
-        <?php else: ?>
+        <?php else : ?>
         <p class="dash-empty">Нет данных о продажах</p>
         <?php endif ?>
     </div>

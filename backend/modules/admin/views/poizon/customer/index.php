@@ -64,7 +64,7 @@ $this->title = 'Покупатели';
     </form>
 
     <div class="customers-table">
-        <?php if ($dataProvider->getCount() > 0): ?>
+        <?php if ($dataProvider->getCount() > 0) : ?>
             <table>
                 <thead>
                     <tr>
@@ -78,7 +78,7 @@ $this->title = 'Покупатели';
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($dataProvider->getModels() as $customer): ?>
+                    <?php foreach ($dataProvider->getModels() as $customer) : ?>
                         <tr>
                             <td>
                                 <div class="customer-info">
@@ -127,7 +127,7 @@ $this->title = 'Покупатели';
                     'linkOptions' => ['class' => 'page-link'],
                 ]) ?>
             </div>
-        <?php else: ?>
+        <?php else : ?>
             <div class="empty-state">
                 <i class="bi bi-people"></i>
                 <h3>Покупатели не найдены</h3>

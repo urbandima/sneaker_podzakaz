@@ -104,7 +104,8 @@ class OrderFromLeadService
         // Post note back to AmoCRM
         try {
             Yii::$app->amocrm->addNote($leadId, "Заказ #{$order->order_number} создан в магазине. " . Yii::$app->urlManager->createAbsoluteUrl(['/admin/order/' . $order->id]));
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         Yii::info("AmoCRM lead #{$leadId} → Order #{$order->id}", 'amocrm');
         return $order;
@@ -119,12 +120,20 @@ class OrderFromLeadService
         $customFields = $this->indexCustomFields($lead['custom_fields_values'] ?? []);
         $fieldMap     = $this->loadFieldMapping();
 
-        if ($name && !$order->client_name) $order->client_name = $name;
-        if ($phone && !$order->client_phone) $order->client_phone = $phone;
-        if ($email && !$order->client_email) $order->client_email = $email;
+        if ($name && !$order->client_name) {
+            $order->client_name = $name;
+        }
+        if ($phone && !$order->client_phone) {
+            $order->client_phone = $phone;
+        }
+        if ($email && !$order->client_email) {
+            $order->client_email = $email;
+        }
 
         $price = $this->resolveField($customFields, $fieldMap, 'total_amount', (float)($lead['price'] ?? 0));
-        if ($price > 0) $order->total_amount = $price;
+        if ($price > 0) {
+            $order->total_amount = $price;
+        }
 
         $order->amocrm_last_sync_at = time();
         $order->save(false);
@@ -145,14 +154,20 @@ class OrderFromLeadService
         $name = $lead['name'] ?? '';
 
         foreach ($contacts as $contact) {
-            if (!empty($contact['name'])) $name = $contact['name'];
+            if (!empty($contact['name'])) {
+                $name = $contact['name'];
+            }
 
             foreach ($contact['custom_fields_values'] ?? [] as $cf) {
                 $fieldCode = $cf['field_code'] ?? '';
                 $value = $cf['values'][0]['value'] ?? '';
 
-                if ($fieldCode === 'PHONE' && !$phone) $phone = $value;
-                if ($fieldCode === 'EMAIL' && !$email) $email = $value;
+                if ($fieldCode === 'PHONE' && !$phone) {
+                    $phone = $value;
+                }
+                if ($fieldCode === 'EMAIL' && !$email) {
+                    $email = $value;
+                }
             }
 
             // Also look in lead-level custom fields for phone/email
@@ -160,12 +175,18 @@ class OrderFromLeadService
                 foreach ($lead['custom_fields_values'] ?? [] as $cf) {
                     $code = $cf['field_code'] ?? '';
                     $val  = $cf['values'][0]['value'] ?? '';
-                    if ($code === 'PHONE' && !$phone) $phone = $val;
-                    if ($code === 'EMAIL' && !$email) $email = $val;
+                    if ($code === 'PHONE' && !$phone) {
+                        $phone = $val;
+                    }
+                    if ($code === 'EMAIL' && !$email) {
+                        $email = $val;
+                    }
                 }
             }
 
-            if ($phone) break; // Found what we need from first contact
+            if ($phone) {
+                break; // Found what we need from first contact
+            }
         }
 
         // If no contacts embedded, try fetching the first contact separately
@@ -176,12 +197,19 @@ class OrderFromLeadService
                     foreach ($fullContact['custom_fields_values'] ?? [] as $cf) {
                         $code = $cf['field_code'] ?? '';
                         $val  = $cf['values'][0]['value'] ?? '';
-                        if ($code === 'PHONE' && !$phone) $phone = $val;
-                        if ($code === 'EMAIL' && !$email) $email = $val;
-                        if (!empty($fullContact['name'])) $name = $fullContact['name'];
+                        if ($code === 'PHONE' && !$phone) {
+                            $phone = $val;
+                        }
+                        if ($code === 'EMAIL' && !$email) {
+                            $email = $val;
+                        }
+                        if (!empty($fullContact['name'])) {
+                            $name = $fullContact['name'];
+                        }
                     }
                 }
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
         }
 
         return [trim($name), trim($phone), strtolower(trim($email))];
@@ -193,13 +221,19 @@ class OrderFromLeadService
     {
         if ($phone) {
             $c = Customer::findOne(['phone' => $phone]);
-            if ($c) return $c;
+            if ($c) {
+                return $c;
+            }
         }
         if ($email) {
             $c = Customer::findOne(['email' => $email]);
-            if ($c) return $c;
+            if ($c) {
+                return $c;
+            }
         }
-        if (!$phone && !$email) return null;
+        if (!$phone && !$email) {
+            return null;
+        }
 
         $parts = preg_split('/\s+/', trim($name), 3);
         $c = new Customer();
@@ -210,7 +244,9 @@ class OrderFromLeadService
         $c->status     = 10; // active
         $c->auth_key   = Yii::$app->security->generateRandomString();
         $c->setPassword(Yii::$app->security->generateRandomString(16));
-        if ($c->save(false)) return $c;
+        if ($c->save(false)) {
+            return $c;
+        }
         return null;
     }
 
@@ -223,7 +259,9 @@ class OrderFromLeadService
             $id   = (int)($cf['field_id'] ?? 0);
             $name = $cf['field_name'] ?? '';
             $val  = $cf['values'][0]['value'] ?? null;
-            if ($id) $indexed[$id] = ['name' => $name, 'value' => $val];
+            if ($id) {
+                $indexed[$id] = ['name' => $name, 'value' => $val];
+            }
         }
         return $indexed;
     }
@@ -238,7 +276,8 @@ class OrderFromLeadService
             foreach ($rows as $row) {
                 $map[$row['local_field']] = (int)$row['amocrm_field_id'];
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
         return $map;
     }
 
@@ -247,7 +286,9 @@ class OrderFromLeadService
         if (isset($fieldMap[$localField])) {
             $amoId = $fieldMap[$localField];
             $val = $cfIndexed[$amoId]['value'] ?? null;
-            if ($val !== null) return $val;
+            if ($val !== null) {
+                return $val;
+            }
         }
         return $default;
     }
@@ -265,7 +306,9 @@ class OrderFromLeadService
 
         // Try to get product name from custom fields
         $notes = $this->resolveField($cfIndexed, $fieldMap, 'notes', null);
-        if ($notes) $parts[] = 'Заметка: ' . $notes;
+        if ($notes) {
+            $parts[] = 'Заметка: ' . $notes;
+        }
 
         return implode("\n", $parts);
     }
@@ -282,7 +325,9 @@ class OrderFromLeadService
             $product = Product::findOne($productId);
             if ($product) {
                 $productName = $product->name;
-                if (!$price) $price = (float)$product->price;
+                if (!$price) {
+                    $price = (float)$product->price;
+                }
             }
         }
 

@@ -35,7 +35,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 </tr>
             </thead>
             <tbody id="sortable-list" data-sort-url="<?= Url::to(['sort']) ?>">
-                <?php if ($dataProvider->getCount() === 0): ?>
+                <?php if ($dataProvider->getCount() === 0) : ?>
                 <tr>
                     <td colspan="8" style="text-align:center;padding:3rem;color:var(--admin-text-secondary)">
                         <i class="bi bi-layout-sidebar" style="font-size:2.5rem;display:block;margin-bottom:0.75rem;opacity:0.4"></i>
@@ -45,7 +45,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     </td>
                 </tr>
                 <?php endif; ?>
-                <?php foreach ($dataProvider->getModels() as $model): ?>
+                <?php foreach ($dataProvider->getModels() as $model) : ?>
                 <tr data-id="<?= $model->id ?>" class="<?= $model->is_active ? '' : 'table-muted' ?>">
                     <td>
                         <span class="drag-handle" title="Перетащите для сортировки">
@@ -54,11 +54,11 @@ $this->params['breadcrumbs'][] = $this->title;
                     </td>
                     <td><?= $model->id ?></td>
                     <td>
-                        <?php if ($model->icon): ?>
+                        <?php if ($model->icon) : ?>
                             <i class="<?= Html::encode($model->getIconClass()) ?>" style="margin-right: 8px; opacity: 0.6;"></i>
                         <?php endif; ?>
                         <?= Html::encode($model->title) ?>
-                        <?php if ($model->parent_id): ?>
+                        <?php if ($model->parent_id) : ?>
                             <small style="color:var(--admin-text-secondary)">(подпункт)</small>
                         <?php endif; ?>
                     </td>
@@ -68,11 +68,11 @@ $this->params['breadcrumbs'][] = $this->title;
                         </span>
                     </td>
                     <td>
-                        <?php if ($model->url): ?>
+                        <?php if ($model->url) : ?>
                             <code><?= Html::encode($model->url) ?></code>
-                        <?php elseif ($model->route): ?>
+                        <?php elseif ($model->route) : ?>
                             <code><?= Html::encode($model->route) ?></code>
-                        <?php else: ?>
+                        <?php else : ?>
                             <span class="text-muted">—</span>
                         <?php endif; ?>
                     </td>

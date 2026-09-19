@@ -203,7 +203,7 @@ class m260325_064616_add_test_orders extends Migration
 
         // Добавляем историю изменений для некоторых заказов
         $orderHistory = [];
-        
+
         // История для заказа 2 (confirmed)
         $orderHistory[] = [
             'order_id' => $orderIds[1],

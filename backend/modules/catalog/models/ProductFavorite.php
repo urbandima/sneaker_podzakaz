@@ -14,7 +14,7 @@ use yii\behaviors\TimestampBehavior;
  * @property int $product_id ID товара
  * @property string|null $session_id ID сессии (для неавторизованных)
  * @property int $created_at
- * 
+ *
  * @property User $user
  * @property Product $product
  */
@@ -95,16 +95,16 @@ class ProductFavorite extends ActiveRecord
             ->where(['product_id' => $productId])
             ->andWhere($userId ? ['user_id' => $userId] : ['session_id' => $sessionId])
             ->exists();
-            
+
         if ($exists) {
             return false;
         }
-        
+
         $favorite = new static();
         $favorite->product_id = $productId;
         $favorite->user_id = $userId;
         $favorite->session_id = $sessionId;
-        
+
         return $favorite->save();
     }
 
@@ -128,13 +128,13 @@ class ProductFavorite extends ActiveRecord
         $query = static::find()
             ->with('product')
             ->orderBy(['created_at' => SORT_DESC]);
-            
+
         if ($userId) {
             $query->where(['user_id' => $userId]);
         } elseif ($sessionId) {
             $query->where(['session_id' => $sessionId]);
         }
-        
+
         return $query->all();
     }
 
@@ -144,13 +144,13 @@ class ProductFavorite extends ActiveRecord
     public static function getCount($userId = null, $sessionId = null)
     {
         $query = static::find();
-        
+
         if ($userId) {
             $query->where(['user_id' => $userId]);
         } elseif ($sessionId) {
             $query->where(['session_id' => $sessionId]);
         }
-        
+
         return $query->count();
     }
 }

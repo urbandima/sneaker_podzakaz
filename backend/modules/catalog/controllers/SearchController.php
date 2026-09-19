@@ -155,13 +155,13 @@ class SearchController extends Controller
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => $canonicalUrl], 'canonical');
 
         $ogImage = Yii::$app->request->hostInfo . '/images/og-default.jpg';
-        $this->view->registerMetaTag(['property' => 'og:title',       'content' => $searchTitle],       'og:title');
+        $this->view->registerMetaTag(['property' => 'og:title',       'content' => $searchTitle], 'og:title');
         $this->view->registerMetaTag(['property' => 'og:description', 'content' => $searchDescription], 'og:description');
-        $this->view->registerMetaTag(['property' => 'og:image',       'content' => $ogImage],            'og:image');
-        $this->view->registerMetaTag(['property' => 'og:url',         'content' => $canonicalUrl],       'og:url');
-        $this->view->registerMetaTag(['property' => 'og:type',        'content' => 'website'],            'og:type');
-        $this->view->registerMetaTag(['property' => 'og:site_name',   'content' => 'СНИКЕРХЭД'],          'og:site_name');
-        $this->view->registerMetaTag(['property' => 'og:locale',      'content' => 'ru_RU'],              'og:locale');
+        $this->view->registerMetaTag(['property' => 'og:image',       'content' => $ogImage], 'og:image');
+        $this->view->registerMetaTag(['property' => 'og:url',         'content' => $canonicalUrl], 'og:url');
+        $this->view->registerMetaTag(['property' => 'og:type',        'content' => 'website'], 'og:type');
+        $this->view->registerMetaTag(['property' => 'og:site_name',   'content' => 'СНИКЕРХЭД'], 'og:site_name');
+        $this->view->registerMetaTag(['property' => 'og:locale',      'content' => 'ru_RU'], 'og:locale');
 
         return $this->render('search/index', [
             'products'         => $products,

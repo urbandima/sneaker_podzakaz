@@ -35,6 +35,7 @@ class m260424_300000_deduplicate_product_characteristics extends Migration
     {
         try {
             $this->dropIndex('idx_pcv_product_characteristic', '{{%product_characteristic_value}}');
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
 }

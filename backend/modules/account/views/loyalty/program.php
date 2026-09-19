@@ -18,10 +18,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-3">
-                        <?php if ($info['level']): ?>
+                        <?php if ($info['level']) : ?>
                             <h2 class="text-primary"><?= Html::encode($info['level']->name) ?></h2>
                             <p class="text-muted">Множитель баллов: <strong>x<?= $info['level']->points_multiplier ?></strong></p>
-                        <?php else: ?>
+                        <?php else : ?>
                             <h2 class="text-secondary">Новичок</h2>
                             <p class="text-muted">Совершите первый заказ!</p>
                         <?php endif; ?>
@@ -32,9 +32,9 @@ $this->params['breadcrumbs'][] = $this->title;
                             <span>Баллов на счёте:</span>
                             <strong><?= $info['balance'] ?></strong>
                         </div>
-                        <?php if ($info['nextLevel']): ?>
+                        <?php if ($info['nextLevel']) : ?>
                             <div class="progress">
-                                <?php 
+                                <?php
                                 $current = $info['level'] ? $info['level']->min_points : 0;
                                 $next = $info['nextLevel']->min_points;
                                 $progress = (($info['balance'] - $current) / ($next - $current)) * 100;
@@ -100,11 +100,11 @@ $this->params['breadcrumbs'][] = $this->title;
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($levels as $level): ?>
+                        <?php foreach ($levels as $level) : ?>
                             <tr class="<?= $info['level'] && $info['level']->id === $level->id ? 'table-primary' : '' ?>">
                                 <td>
                                     <strong><?= Html::encode($level->name) ?></strong>
-                                    <?php if ($info['level'] && $info['level']->id === $level->id): ?>
+                                    <?php if ($info['level'] && $info['level']->id === $level->id) : ?>
                                         <span class="badge bg-primary ms-2">Ваш уровень</span>
                                     <?php endif; ?>
                                 </td>
@@ -113,13 +113,13 @@ $this->params['breadcrumbs'][] = $this->title;
                                     <span class="badge bg-success">x<?= $level->points_multiplier ?></span>
                                 </td>
                                 <td>
-                                    <?php if ($level->discount_percent > 0): ?>
+                                    <?php if ($level->discount_percent > 0) : ?>
                                         <span class="badge bg-info">Скидка <?= $level->discount_percent ?>%</span>
                                     <?php endif; ?>
-                                    <?php if ($level->free_shipping): ?>
+                                    <?php if ($level->free_shipping) : ?>
                                         <span class="badge bg-warning">Бесплатная доставка</span>
                                     <?php endif; ?>
-                                    <?php if ($level->priority_support): ?>
+                                    <?php if ($level->priority_support) : ?>
                                         <span class="badge bg-danger">Приоритетная поддержка</span>
                                     <?php endif; ?>
                                 </td>

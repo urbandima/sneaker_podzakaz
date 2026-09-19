@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Массовое изменение цен товаров
  *
@@ -34,7 +35,7 @@ $this->params['headerActions'] = [
             <label>Бренд</label>
             <select name="brand" class="form-control">
                 <option value="">Все бренды</option>
-                <?php foreach ($brands as $brand): ?>
+                <?php foreach ($brands as $brand) : ?>
                 <option value="<?= $brand->id ?>" <?= $currentBrand == $brand->id ? 'selected' : '' ?>>
                     <?= Html::encode($brand->name) ?>
                 </option>
@@ -45,7 +46,7 @@ $this->params['headerActions'] = [
             <label>Категория</label>
             <select name="category" class="form-control">
                 <option value="">Все категории</option>
-                <?php foreach ($categories as $cat): ?>
+                <?php foreach ($categories as $cat) : ?>
                 <option value="<?= $cat->id ?>" <?= $currentCategory == $cat->id ? 'selected' : '' ?>>
                     <?= Html::encode($cat->name) ?>
                 </option>
@@ -90,9 +91,9 @@ $this->params['headerActions'] = [
         Товары (<?= count($products) ?>)
     </h2>
     <div style="margin-top:1rem;overflow-x:auto;">
-        <?php if (empty($products)): ?>
+        <?php if (empty($products)) : ?>
         <p style="text-align:center;color:var(--admin-text-secondary);padding:2rem;">Товары не найдены</p>
-        <?php else: ?>
+        <?php else : ?>
         <table class="admin-table" id="bulk-price-table">
             <thead>
                 <tr>
@@ -105,12 +106,12 @@ $this->params['headerActions'] = [
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($products as $product): ?>
+                <?php foreach ($products as $product) : ?>
                 <tr data-id="<?= $product->id ?>" data-base-price="<?= (float)($product->price ?? 0) ?>">
                     <td><input type="checkbox" class="row-check" value="<?= $product->id ?>"></td>
                     <td>
                         <strong><?= Html::encode($product->name) ?></strong>
-                        <?php if (!empty($product->sku)): ?>
+                        <?php if (!empty($product->sku)) : ?>
                         <br><small class="text-muted"><?= Html::encode($product->sku) ?></small>
                         <?php endif; ?>
                     </td>

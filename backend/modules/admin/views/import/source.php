@@ -71,7 +71,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="admin-card mb-5">
             <div class="admin-card-header">
                 <h2 class="admin-card-title">Прокси</h2>
-                <?php if ($model->proxy_enabled): ?>
+                <?php if ($model->proxy_enabled) : ?>
                     <span class="admin-badge admin-badge-success">Включено</span>
                 <?php endif; ?>
             </div>
@@ -87,16 +87,16 @@ $this->params['breadcrumbs'][] = $this->title;
                     <div class="form-group">
                         <label class="form-hint">Список прокси (один на строку)</label>
                         <textarea name="proxy_list_text" class="admin-form-input" rows="6" 
-                                  placeholder="http://user:pass@proxy:port&#10;socks5://user:pass@proxy:port"><?= 
-                            implode("\n", $model->getProxyListArray())
-                        ?></textarea>
+                                  placeholder="http://user:pass@proxy:port&#10;socks5://user:pass@proxy:port"><?=
+                                    implode("\n", $model->getProxyListArray())
+                                    ?></textarea>
                         <p style="color: var(--admin-text-secondary); font-size: 0.875rem; margin-top: 0.25rem;">
                             Формат: <code>http://user:pass@proxy:port</code> или <code>socks5://proxy:port</code>
                         </p>
                     </div>
                     
-                    <?php if (!$model->isNewRecord && !empty($model->getProxyListArray())): ?>
-                    <?= Html::a('<i class="bi bi-check-circle"></i> Проверить прокси', ['check-proxies', 'sourceId' => $model->id], [
+                    <?php if (!$model->isNewRecord && !empty($model->getProxyListArray())) : ?>
+                        <?= Html::a('<i class="bi bi-check-circle"></i> Проверить прокси', ['check-proxies', 'sourceId' => $model->id], [
                         'class' => 'admin-btn admin-btn-secondary admin-btn-sm',
                     ]) ?>
                     <?php endif; ?>
@@ -143,7 +143,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <!-- Боковая панель -->
     <div>
         <!-- Статистика -->
-        <?php if (!$model->isNewRecord): ?>
+        <?php if (!$model->isNewRecord) : ?>
         <div class="admin-card mb-5">
             <div class="admin-card-header">
                 <h2 class="admin-card-title">Статистика</h2>
@@ -152,8 +152,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 <table class="admin-table">
                     <tr>
                         <td class="text-muted">Последний запуск:</td>
-                        <td><?= $model->last_run_at 
-                            ? Yii::$app->formatter->asDatetime($model->last_run_at) 
+                        <td><?= $model->last_run_at
+                            ? Yii::$app->formatter->asDatetime($model->last_run_at)
                             : '<span class="text-muted">Никогда</span>' ?>
                         </td>
                     </tr>
@@ -171,8 +171,8 @@ $this->params['breadcrumbs'][] = $this->title;
                     </tr>
                 </table>
                 
-                <?php if ($model->is_active): ?>
-                <?= Html::a('<i class="bi bi-play"></i> Запустить импорт', ['run', 'sourceId' => $model->id], [
+                <?php if ($model->is_active) : ?>
+                    <?= Html::a('<i class="bi bi-play"></i> Запустить импорт', ['run', 'sourceId' => $model->id], [
                     'class' => 'admin-btn admin-btn-success admin-btn-sm',
                     'style' => 'width: 100%; margin-top: 1rem;',
                     'data-method' => 'post',
@@ -183,7 +183,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <?php endif; ?>
 
         <!-- Маппинг категорий -->
-        <?php if (!empty($categoryMaps)): ?>
+        <?php if (!empty($categoryMaps)) : ?>
         <div class="admin-card mb-5">
             <div class="admin-card-header">
                 <h2 class="admin-card-title">Маппинг категорий</h2>
@@ -197,18 +197,18 @@ $this->params['breadcrumbs'][] = $this->title;
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($categoryMaps as $map): ?>
+                        <?php foreach ($categoryMaps as $map) : ?>
                         <tr>
                             <td>
                                 <?= Html::encode($map->source_category_name) ?>
-                                <?php if ($map->is_auto_mapped): ?>
+                                <?php if ($map->is_auto_mapped) : ?>
                                 <span class="admin-badge admin-badge-secondary">авто</span>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <?php if ($map->category): ?>
-                                <?= Html::encode($map->category->name) ?>
-                                <?php else: ?>
+                                <?php if ($map->category) : ?>
+                                    <?= Html::encode($map->category->name) ?>
+                                <?php else : ?>
                                 <span class="text-muted">Не сопоставлена</span>
                                 <?php endif; ?>
                             </td>
@@ -228,8 +228,8 @@ $this->params['breadcrumbs'][] = $this->title;
                         'class' => 'admin-btn admin-btn-primary admin-btn-lg'
                     ]) ?>
                     
-                    <?php if (!$model->isNewRecord): ?>
-                    <?= Html::a('<i class="bi bi-trash"></i> Удалить', ['delete', 'id' => $model->id], [
+                    <?php if (!$model->isNewRecord) : ?>
+                        <?= Html::a('<i class="bi bi-trash"></i> Удалить', ['delete', 'id' => $model->id], [
                         'class' => 'admin-btn admin-btn-danger admin-btn-sm',
                         'data-method' => 'post',
                         'data-confirm' => 'Удалить источник?',

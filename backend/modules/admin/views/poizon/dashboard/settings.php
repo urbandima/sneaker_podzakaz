@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\models\CompanySettings $settings */
 /** @var app\models\OrderStatus[] $statuses */
@@ -104,7 +105,7 @@ $this->title = 'Настройки компании';
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($statuses as $st): ?>
+                                    <?php foreach ($statuses as $st) : ?>
                                         <tr>
                                             <td>
                                                 <code><?= Html::encode($st->key) ?></code>

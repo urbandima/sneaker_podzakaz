@@ -9,7 +9,7 @@ use Yii;
 
 /**
  * BaseParser — Абстрактный класс парсера товаров
- * 
+ *
  * Базовый функционал для всех парсеров (Lamoda, Dewu, Zalando, StockX)
  */
 abstract class BaseParser
@@ -29,7 +29,7 @@ abstract class BaseParser
     {
         $this->source = $source;
         $this->delay = $source->getRandomDelay();
-        
+
         $this->initClient();
     }
 
@@ -100,21 +100,21 @@ abstract class BaseParser
     {
         try {
             $response = $this->client->request($method, $url, $options);
-            
+
             if ($response->getStatusCode() === 200) {
                 return (string) $response->getBody();
             }
-            
+
             return null;
         } catch (GuzzleException $e) {
             Yii::error("Parser request failed: {$url} - " . $e->getMessage(), 'import');
-            
+
             // Если ошибка связана с прокси - пробуем другой
             if ($this->source->proxy_enabled && $this->proxyService) {
                 $this->proxyService->markAsFailed($this->currentProxy);
                 $this->initClient(); // Переинициализируем клиент с новым прокси
             }
-            
+
             return null;
         }
     }
@@ -136,7 +136,7 @@ abstract class BaseParser
         ];
 
         $htmlLower = mb_strtolower($html, 'UTF-8');
-        
+
         foreach ($captchaPatterns as $pattern) {
             if (strpos($htmlLower, $pattern) !== false) {
                 return true;
@@ -160,14 +160,14 @@ abstract class BaseParser
 
         // Определяем тип CAPTCHA
         $captchaType = $this->detectCaptchaType($html);
-        
+
         if (!$captchaType) {
             return null;
         }
 
         // Извлекаем site_key
         $siteKey = $this->extractCaptchaSiteKey($html, $captchaType);
-        
+
         if (!$siteKey) {
             return null;
         }
@@ -186,11 +186,11 @@ abstract class BaseParser
         if (strpos($html, 'g-recaptcha') !== false || strpos($html, 'recaptcha') !== false) {
             return 'recaptcha';
         }
-        
+
         if (strpos($html, 'h-captcha') !== false) {
             return 'hcaptcha';
         }
-        
+
         if (strpos($html, 'cf-turnstile') !== false) {
             return 'turnstile';
         }
@@ -208,7 +208,7 @@ abstract class BaseParser
     {
         $crawler = new Crawler($html);
 
-        $selector = match($type) {
+        $selector = match ($type) {
             'recaptcha' => '.g-recaptcha, [data-sitekey]',
             'hcaptcha' => '.h-captcha, [data-sitekey]',
             'turnstile' => '.cf-turnstile, [data-sitekey]',

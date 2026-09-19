@@ -77,7 +77,7 @@ class AutomationTrigger extends ActiveRecord
             'is_active'       => 'Активен',
             'priority'        => 'Приоритет',
             'execution_count' => 'Выполнений',
-            'last_executed_at'=> 'Последнее выполнение',
+            'last_executed_at' => 'Последнее выполнение',
             'created_at'      => 'Создан',
             'updated_at'      => 'Обновлён',
         ];
@@ -85,16 +85,24 @@ class AutomationTrigger extends ActiveRecord
 
     public function getConditionsArray(): array
     {
-        if (empty($this->conditions)) return [];
-        if (is_array($this->conditions)) return $this->conditions;
+        if (empty($this->conditions)) {
+            return [];
+        }
+        if (is_array($this->conditions)) {
+            return $this->conditions;
+        }
         $decoded = json_decode($this->conditions, true);
         return is_array($decoded) ? $decoded : [];
     }
 
     public function getActionsArray(): array
     {
-        if (empty($this->actions)) return [];
-        if (is_array($this->actions)) return $this->actions;
+        if (empty($this->actions)) {
+            return [];
+        }
+        if (is_array($this->actions)) {
+            return $this->actions;
+        }
         $decoded = json_decode($this->actions, true);
         return is_array($decoded) ? $decoded : [];
     }
@@ -118,7 +126,7 @@ class AutomationTrigger extends ActiveRecord
             'order.status_changed'    => 'Статус заказа изменён',
             'order.payment_uploaded'  => 'Скриншот оплаты загружен',
             'order.payment_confirmed' => 'Оплата подтверждена',
-            'order.passport_submitted'=> 'Паспортные данные заполнены',
+            'order.passport_submitted' => 'Паспортные данные заполнены',
             'order.sent_to_dp'        => 'Заказ отправлен в Таможня:ДП',
             'order.dp_status_changed' => 'Статус ДП изменён',
             'order.local_track_added' => 'Добавлен локальный трек',
@@ -153,7 +161,7 @@ class AutomationTrigger extends ActiveRecord
             'change_status'  => 'Изменить статус заказа',
             'assign_tag'     => 'Присвоить тег клиенту',
             'earn_bonus'     => 'Начислить бонусы',
-            'create_customer'=> 'Создать клиента',
+            'create_customer' => 'Создать клиента',
             'send_to_dp'     => 'Отправить в Таможня:ДП',
             'notify_admin'   => 'Уведомить администратора',
             'webhook'        => 'Вызвать Webhook',

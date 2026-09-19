@@ -6,6 +6,7 @@
  * ENDPOINTS:
  * - POST /api/webhook/dobropost — Webhook от Таможня:ДП (обновление статуса/паспорта)
  */
+
 namespace app\api\controllers;
 
 use Yii;
@@ -101,7 +102,6 @@ class WebhookController extends Controller
 
             // --- Тип 2: Обновление статуса ---
             return $this->handleStatusUpdate($shipmentId, $data);
-
         } catch (\Exception $e) {
             Yii::error('[Webhook DP] Исключение: ' . $e->getMessage() . "\n" . $e->getTraceAsString(), 'dp-webhook');
             Yii::$app->response->statusCode = 500;
@@ -149,7 +149,9 @@ class WebhookController extends Controller
         if (!is_array($data)) {
             parse_str($raw, $data);
         }
-        if (!is_array($data)) $data = [];
+        if (!is_array($data)) {
+            $data = [];
+        }
 
         // Test probe
         if (!empty($data['_test'])) {
@@ -174,7 +176,9 @@ class WebhookController extends Controller
                 if ($createOnAdd) {
                     foreach ($data['leads']['add'] as $lead) {
                         $leadId = (int)($lead['id'] ?? 0);
-                        if (!$leadId) continue;
+                        if (!$leadId) {
+                            continue;
+                        }
                         try {
                             $service->createFromLeadId($leadId);
                         } catch (\Throwable $e) {
@@ -194,7 +198,6 @@ class WebhookController extends Controller
                     }
                 }
             }
-
         } catch (\Exception $e) {
             Yii::error('[Webhook AMO] ' . $e->getMessage(), 'amocrm');
         }
@@ -214,7 +217,9 @@ class WebhookController extends Controller
         $statusId   = (int)($lead['status_id'] ?? 0);
         $pipelineId = (int)($lead['pipeline_id'] ?? 0);
         $statusName = $lead['status_name'] ?? null;
-        if (!$leadId) return;
+        if (!$leadId) {
+            return;
+        }
 
         if (AmocrmOrchestrator::enabled()) {
             try {
@@ -238,7 +243,9 @@ class WebhookController extends Controller
             return;
         }
 
-        if (!$order) return;
+        if (!$order) {
+            return;
+        }
 
         // Map AmoCRM status → our order status (pipeline-aware: same status_id can mean
         // different things across pipelines, so always pass pipeline_id when available).
@@ -250,8 +257,11 @@ class WebhookController extends Controller
             $order->amocrm_last_sync_at = time();
             $order->save(false);
             \app\backend\modules\checkout\models\OrderHistory::log(
-                $order->id, 'status_changed', null,
-                $oldStatus, $newOrderStatus,
+                $order->id,
+                'status_changed',
+                null,
+                $oldStatus,
+                $newOrderStatus,
                 'AmoCRM webhook: pipeline=' . $pipelineId . ' status_id=' . $statusId
             );
             Yii::info('[Webhook AMO] Order #' . $order->id . ' status: ' . $oldStatus . ' → ' . $newOrderStatus, 'amocrm');
@@ -270,7 +280,8 @@ class WebhookController extends Controller
                 'response_ms' => 0,
                 'created_at'  => time(),
             ])->execute();
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
 
     /**

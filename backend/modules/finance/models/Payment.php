@@ -1,4 +1,5 @@
 <?php
+
 namespace app\backend\modules\finance\models;
 
 use Yii;
@@ -6,17 +7,20 @@ use yii\db\ActiveRecord;
 
 class Payment extends ActiveRecord
 {
-    const STATUS_PENDING   = 'pending';
-    const STATUS_CONFIRMED = 'confirmed';
-    const STATUS_CANCELLED = 'cancelled';
-    const STATUS_REFUNDED  = 'refunded';
+    public const STATUS_PENDING   = 'pending';
+    public const STATUS_CONFIRMED = 'confirmed';
+    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_REFUNDED  = 'refunded';
 
-    const METHOD_BANK_TRANSFER = 'bank_transfer';
-    const METHOD_ACQUIRING     = 'acquiring';
-    const METHOD_CASH          = 'cash';
-    const METHOD_ERIP          = 'erip';
+    public const METHOD_BANK_TRANSFER = 'bank_transfer';
+    public const METHOD_ACQUIRING     = 'acquiring';
+    public const METHOD_CASH          = 'cash';
+    public const METHOD_ERIP          = 'erip';
 
-    public static function tableName() { return 'payment'; }
+    public static function tableName()
+    {
+        return 'payment';
+    }
 
     public function rules()
     {

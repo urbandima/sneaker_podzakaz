@@ -2,31 +2,32 @@
 
 /**
  * Cart — Модель корзины покупок
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Корзина покупателя: хранение выбранных товаров до оформления заказа.
  * Поддержка гостевой корзины (по сессии) и авторизованной (по user_id).
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - Идентификация: user_id (для авторизованных), session_id (для гостей)
  * - Товар: product_id, quantity, price
  * - Опции: size, color
- * 
+ *
  * СТАТИЧЕСКИЕ МЕТОДЫ:
  * - getItems(): получение всех товаров корзины
  * - getTotal(): расчёт общей суммы
  * - getItemsCount(): количество позиций
  * - add(): добавление товара
  * - clear(): очистка корзины
- * 
+ *
  * СВЯЗИ:
  * - Product (товар в корзине)
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Автоматическое удаление неактивных товаров
  * - Поддержка гостевой корзины через сессию
  * - Слияние корзин при авторизации
  */
+
 namespace app\backend\modules\cart\models;
 
 use Yii;
@@ -48,7 +49,7 @@ use app\backend\modules\account\models\Customer;
  * @property float $price
  * @property int $created_at
  * @property int $updated_at
- * 
+ *
  * @property Product $product
  */
 class Cart extends ActiveRecord
@@ -92,7 +93,7 @@ class Cart extends ActiveRecord
     public static function add($productId, $quantity = 1, $size = null, $color = null)
     {
         $userId = Customer::getCurrentCustomerId();
-        
+
         // Гарантируем наличие сессии
         if (Yii::$app->session->getIsActive() === false) {
             Yii::$app->session->open();
@@ -103,13 +104,13 @@ class Cart extends ActiveRecord
         if (!$product) {
             return false;
         }
-        
+
         // Проверка наличия товара
         if ($product->stock_status === Product::STOCK_OUT_OF_STOCK) {
             Yii::$app->session->setFlash('error', 'Товар отсутствует на складе');
             return false;
         }
-        
+
         // Валидация размера — только если для товара есть записи в product_size
         if ($size !== null) {
             $hasSizeRecords = \app\backend\modules\catalog\models\ProductSize::find()
@@ -179,7 +180,7 @@ class Cart extends ActiveRecord
         if (Yii::$app->session->getIsActive() === false) {
             Yii::$app->session->open();
         }
-        
+
         $userId = Customer::getCurrentCustomerId();
         $sessionId = Yii::$app->session->id;
 
@@ -219,13 +220,13 @@ class Cart extends ActiveRecord
         $sessionId = Yii::$app->session->id;
 
         $query = self::find();
-        
+
         if ($userId) {
             $query->where(['user_id' => $userId]);
         } else {
             $query->where(['session_id' => $sessionId, 'user_id' => null]);
         }
-        
+
         // Оптимизированный SQL запрос вместо PHP цикла
         return (int) $query->sum('quantity') ?: 0;
     }
@@ -239,13 +240,13 @@ class Cart extends ActiveRecord
         $sessionId = Yii::$app->session->id;
 
         $query = self::find();
-        
+
         if ($userId) {
             $query->where(['user_id' => $userId]);
         } else {
             $query->where(['session_id' => $sessionId, 'user_id' => null]);
         }
-        
+
         // Оптимизированный SQL запрос вместо PHP цикла
         return (float) $query->sum('price * quantity') ?: 0;
     }
@@ -259,7 +260,7 @@ class Cart extends ActiveRecord
         if (Yii::$app->session->getIsActive() === false) {
             Yii::$app->session->open();
         }
-        
+
         $userId = Customer::getCurrentCustomerId();
         $sessionId = Yii::$app->session->id;
 

@@ -21,7 +21,7 @@ class m251101_202000_create_filter_history_table extends Migration
         $this->createIndex('idx-filter-history-user', '{{%filter_history}}', 'user_id');
         $this->createIndex('idx-filter-history-session', '{{%filter_history}}', 'session_id');
         $this->createIndex('idx-filter-history-created', '{{%filter_history}}', 'created_at');
-        
+
         $this->addForeignKey(
             'fk-filter-history-user',
             '{{%filter_history}}',

@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -9,7 +10,9 @@ try {
     $dpTariff  = Yii::$app->dobropost->defaultTariff ?? 26;
     $connected = !empty($dpEmail);
 } catch (\Exception $e) {
-    $dpEmail = ''; $dpTariff = 26; $connected = false;
+    $dpEmail = '';
+    $dpTariff = 26;
+    $connected = false;
 }
 
 $autoSend = Yii::$app->settings->get('dobropost', 'auto_send', 'manual');
@@ -93,7 +96,7 @@ $this->params['headerActions'] = [
             <div class="admin-form-group">
                 <label class="admin-form-label">Авто-отправка в Таможня:ДП</label>
                 <select class="admin-form-input" id="dp-auto-send">
-                    <?php foreach ($autoSendOptions as $val => $label): ?>
+                    <?php foreach ($autoSendOptions as $val => $label) : ?>
                         <option value="<?= $val ?>" <?= $autoSend === $val ? 'selected' : '' ?>><?= $label ?></option>
                     <?php endforeach; ?>
                 </select>
@@ -157,7 +160,7 @@ $this->params['headerActions'] = [
             При отправке шипмента в ДП используется <strong>случайный</strong> телефон из этого списка — реальный телефон клиента не передаётся.
         </p>
         <div id="proxy-phones-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
-            <?php foreach ($proxyPhones as $i => $p): ?>
+            <?php foreach ($proxyPhones as $i => $p) : ?>
             <div class="proxy-phone-row" style="display:flex;gap:8px;align-items:center">
                 <input type="text" class="admin-form-input" style="flex:0 0 180px" placeholder="+375XX..." value="<?= Html::encode($p['phone'] ?? '') ?>">
                 <input type="text" class="admin-form-input" style="flex:1" placeholder="Метка (напр. рабочий)" value="<?= Html::encode($p['label'] ?? '') ?>">
@@ -191,9 +194,9 @@ $this->params['headerActions'] = [
         </div>
     </div>
     <div class="admin-card-body" style="padding:0;overflow-x:auto">
-        <?php if (empty($statusMappings)): ?>
+        <?php if (empty($statusMappings)) : ?>
             <p style="padding:16px;color:var(--admin-text-secondary);font-size:13px">Нет данных. Убедитесь, что таблица delivery_status_mapping заполнена.</p>
-        <?php else: ?>
+        <?php else : ?>
         <table style="width:100%;border-collapse:collapse;font-size:13px">
             <thead>
                 <tr style="background:var(--admin-surface-hover);border-bottom:2px solid var(--admin-border)">
@@ -205,7 +208,7 @@ $this->params['headerActions'] = [
                 </tr>
             </thead>
             <tbody>
-            <?php foreach ($statusMappings as $m): ?>
+            <?php foreach ($statusMappings as $m) : ?>
                 <tr style="border-bottom:1px solid var(--admin-border)" data-id="<?= (int)$m['id'] ?>">
                     <td style="padding:8px 12px;color:var(--admin-text-secondary);font-family:monospace">
                         <?= Html::encode($m['provider_status_id']) ?>
@@ -215,7 +218,7 @@ $this->params['headerActions'] = [
                     </td>
                     <td style="padding:6px 12px">
                         <select class="admin-form-input mapping-internal-status" style="font-size:12px;padding:4px 8px;min-width:160px">
-                            <?php foreach ($internalStatuses as $val => $label): ?>
+                            <?php foreach ($internalStatuses as $val => $label) : ?>
                             <option value="<?= Html::encode($val) ?>" <?= ($m['internal_status'] ?? '') === $val ? 'selected' : '' ?>>
                                 <?= Html::encode($label) ?>
                             </option>

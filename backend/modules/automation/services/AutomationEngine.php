@@ -65,7 +65,6 @@ class AutomationEngine extends Component
                 $log->save(false);
 
                 $results[] = ['trigger' => $trigger->name, 'actions' => $actionResults];
-
             } catch (\Throwable $e) {
                 Yii::error('AutomationEngine: ошибка выполнения триггера #' . $trigger->id . ': ' . $e->getMessage(), 'automation');
             }
@@ -82,7 +81,9 @@ class AutomationEngine extends Component
             ? (json_decode($conditionsJson, true) ?: [])
             : (is_array($conditionsJson) ? $conditionsJson : []);
 
-        if (empty($conditions)) return true;
+        if (empty($conditions)) {
+            return true;
+        }
 
         foreach ($conditions as $cond) {
             $fieldValue = $this->resolveField($cond['field'] ?? '', $context);
@@ -101,9 +102,13 @@ class AutomationEngine extends Component
         $attr  = $parts[1] ?? null;
 
         $obj = $context[$root] ?? null;
-        if ($obj === null) return null;
+        if ($obj === null) {
+            return null;
+        }
 
-        if ($attr === null) return $obj;
+        if ($attr === null) {
+            return $obj;
+        }
 
         if (is_object($obj)) {
             return $obj->$attr ?? null;
@@ -159,16 +164,26 @@ class AutomationEngine extends Component
         $type = $action['type'] ?? 'unknown';
         try {
             switch ($type) {
-                case 'send_sms':      return $this->actionSendSms($action, $context);
-                case 'send_telegram': return $this->actionSendTelegram($action, $context);
-                case 'sync_moysklad': return $this->actionSyncMoysklad($context);
-                case 'change_status': return $this->actionChangeStatus($action, $context);
-                case 'earn_bonus':    return $this->actionEarnBonus($action, $context);
-                case 'create_customer': return $this->actionCreateCustomer($context);
-                case 'send_to_dp':    return $this->actionSendToDP($context);
-                case 'notify_admin':  return $this->actionNotifyAdmin($action, $context);
-                case 'assign_tag':    return $this->actionAssignTag($action, $context);
-                case 'webhook':       return $this->actionWebhook($action, $context);
+                case 'send_sms':
+                    return $this->actionSendSms($action, $context);
+                case 'send_telegram':
+                    return $this->actionSendTelegram($action, $context);
+                case 'sync_moysklad':
+                    return $this->actionSyncMoysklad($context);
+                case 'change_status':
+                    return $this->actionChangeStatus($action, $context);
+                case 'earn_bonus':
+                    return $this->actionEarnBonus($action, $context);
+                case 'create_customer':
+                    return $this->actionCreateCustomer($context);
+                case 'send_to_dp':
+                    return $this->actionSendToDP($context);
+                case 'notify_admin':
+                    return $this->actionNotifyAdmin($action, $context);
+                case 'assign_tag':
+                    return $this->actionAssignTag($action, $context);
+                case 'webhook':
+                    return $this->actionWebhook($action, $context);
                 default:
                     return ['type' => $type, 'status' => 'unknown_action'];
             }

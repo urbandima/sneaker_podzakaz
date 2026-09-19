@@ -8,7 +8,7 @@ $this->title = 'Конверсионная аналитика';
 $period = $period ?? '30';
 
 $this->params['headerActions'] = [
-    Html::a('7 дней',  ['conversions', 'period' => '7'],  ['class' => 'admin-btn admin-btn-secondary admin-btn-sm' . ($period == 7  ? ' active' : '')]),
+    Html::a('7 дней', ['conversions', 'period' => '7'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm' . ($period == 7  ? ' active' : '')]),
     Html::a('30 дней', ['conversions', 'period' => '30'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm' . ($period == 30 ? ' active' : '')]),
     Html::a('90 дней', ['conversions', 'period' => '90'], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm' . ($period == 90 ? ' active' : '')]),
 ];
@@ -70,8 +70,8 @@ $orderFromCartPct = $fCarts > 0 ? round($fOrders / $fCarts * 100, 1) : 0;
                 ['label' => 'В корзину',  'val' => $fCarts,    'pct' => $cartPct,  'color' => '#f59e0b'],
                 ['label' => 'Заказы',    'val' => $fOrders,   'pct' => $orderPct, 'color' => '#10b981'],
             ];
-            foreach ($steps as $step):
-            ?>
+            foreach ($steps as $step) :
+                ?>
             <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px">
                 <div style="font-size:12px;font-weight:700"><?= number_format($step['val']) ?></div>
                 <div style="width:80%;height:<?= max(8, $step['pct']) ?>px;background:<?= $step['color'] ?>;border-radius:4px 4px 0 0;transition:height .3s"></div>
@@ -89,7 +89,7 @@ $orderFromCartPct = $fCarts > 0 ? round($fOrders / $fCarts * 100, 1) : 0;
         <span class="admin-badge admin-badge-secondary"><?= count($products ?? []) ?> товаров</span>
     </div>
     <div style="overflow-x:auto">
-        <?php if (!empty($products)): ?>
+        <?php if (!empty($products)) : ?>
         <table class="admin-table">
             <thead>
                 <tr>
@@ -99,26 +99,26 @@ $orderFromCartPct = $fCarts > 0 ? round($fOrders / $fCarts * 100, 1) : 0;
                     <th style="text-align:right">В корзину</th>
                     <th style="text-align:right">Заказы</th>
                     <th style="text-align:right">Конверсия</th>
-                    <?php if (!empty($products[0]['total_revenue'])): ?>
+                    <?php if (!empty($products[0]['total_revenue'])) : ?>
                     <th style="text-align:right">Выручка</th>
                     <?php endif; ?>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($products as $i => $p): ?>
-                <?php
-                $pViews  = (int)($p['views'] ?? 0);
-                $pCarts  = (int)($p['add_to_cart'] ?? 0);
-                $pOrders = (int)($p['orders'] ?? 0);
-                $pCvr    = $pViews > 0 ? round($pOrders / $pViews * 100, 1) : 0;
-                ?>
+                <?php foreach ($products as $i => $p) : ?>
+                    <?php
+                    $pViews  = (int)($p['views'] ?? 0);
+                    $pCarts  = (int)($p['add_to_cart'] ?? 0);
+                    $pOrders = (int)($p['orders'] ?? 0);
+                    $pCvr    = $pViews > 0 ? round($pOrders / $pViews * 100, 1) : 0;
+                    ?>
                 <tr>
                     <td style="color:var(--admin-text-secondary)"><?= $i + 1 ?></td>
                     <td style="font-weight:500"><?= Html::encode($p['product_name'] ?? '—') ?></td>
                     <td style="text-align:right"><?= number_format($pViews) ?></td>
                     <td style="text-align:right">
                         <?= number_format($pCarts) ?>
-                        <?php if ($pViews > 0): ?>
+                        <?php if ($pViews > 0) : ?>
                         <small style="color:var(--admin-text-secondary)"><?= round($pCarts / $pViews * 100, 1) ?>%</small>
                         <?php endif; ?>
                     </td>
@@ -129,14 +129,14 @@ $orderFromCartPct = $fCarts > 0 ? round($fOrders / $fCarts * 100, 1) : 0;
                         ?>
                         <span class="admin-badge <?= $cvrClass ?>"><?= $pCvr ?>%</span>
                     </td>
-                    <?php if (!empty($products[0]['total_revenue'])): ?>
+                    <?php if (!empty($products[0]['total_revenue'])) : ?>
                     <td style="text-align:right"><?= !empty($p['total_revenue']) ? PriceHelper::formatInt((float)$p['total_revenue']) : '—' ?></td>
                     <?php endif; ?>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
-        <?php else: ?>
+        <?php else : ?>
         <div style="text-align:center;padding:3rem;color:var(--admin-text-secondary)">
             <i class="bi bi-bar-chart" style="font-size:2rem;display:block;margin-bottom:0.75rem"></i>
             Нет данных конверсии за выбранный период.<br>

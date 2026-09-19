@@ -1,9 +1,11 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\PurchaseOrder $po */
 /** @var app\backend\modules\procurement\models\SupplierReturn $returnModel */
 /** @var array $reasons */
 use yii\helpers\Html;
+
 $this->title = 'Возврат поставщику';
 ?>
 <div class="admin-page">
@@ -19,7 +21,7 @@ $this->title = 'Возврат поставщику';
     <div class="text-muted">Закупка: <strong><?= Html::encode($po->purchase_number) ?></strong> — <?= Html::encode($po->supplier->name ?? '') ?></div>
   </div>
 
-  <?php if (Yii::$app->session->hasFlash('error')): ?>
+  <?php if (Yii::$app->session->hasFlash('error')) : ?>
     <div class="alert alert-danger"><?= Html::encode(Yii::$app->session->getFlash('error')) ?></div>
   <?php endif; ?>
 
@@ -42,7 +44,7 @@ $this->title = 'Возврат поставщику';
               <label class="form-label">Общая причина</label>
               <select name="reason" class="form-select">
                 <option value="">— выбрать —</option>
-                <?php foreach ($reasons as $k => $v): ?>
+                <?php foreach ($reasons as $k => $v) : ?>
                   <option value="<?= $k ?>"><?= $v ?></option>
                 <?php endforeach; ?>
               </select>
@@ -66,17 +68,17 @@ $this->title = 'Возврат поставщику';
             </div>
 
             <!-- Quick-add from received items -->
-            <?php if ($po->items): ?>
+            <?php if ($po->items) : ?>
             <div class="mb-3">
               <label class="form-label text-muted" style="font-size:12px">Быстрое добавление из полученных позиций:</label>
               <div class="d-flex flex-wrap gap-2">
-                <?php foreach ($po->items as $item): ?>
-                  <?php if ($item->received_quantity > 0): ?>
+                <?php foreach ($po->items as $item) : ?>
+                    <?php if ($item->received_quantity > 0) : ?>
                   <button type="button" class="btn btn-xs btn-outline-secondary"
                     onclick="addItemFromPO(<?= $item->id ?>, <?= json_encode($item->product_name) ?>, <?= json_encode($item->size) ?>, <?= $item->received_quantity ?>, <?= $item->price_byn ?? 0 ?>)">
-                    <?= Html::encode($item->product_name) ?> <?= $item->size ? '/ '.$item->size : '' ?>
+                        <?= Html::encode($item->product_name) ?> <?= $item->size ? '/ ' . $item->size : '' ?>
                   </button>
-                  <?php endif; ?>
+                    <?php endif; ?>
                 <?php endforeach; ?>
               </div>
             </div>

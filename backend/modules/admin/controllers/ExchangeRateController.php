@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ExchangeRateController — Управление курсом валют
  *
@@ -53,7 +54,6 @@ class ExchangeRateController extends BaseAdminController
                 'rate' => $rate,
                 'message' => 'Курс обновлен',
             ];
-
         } catch (\Exception $e) {
             return [
                 'success' => false,

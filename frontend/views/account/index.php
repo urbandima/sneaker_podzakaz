@@ -28,7 +28,7 @@ $this->title = 'Личный кабинет - СНИКЕРХЭД';
             </aside>
 
             <main class="account-content">
-                <?php if (empty($email)): ?>
+                <?php if (empty($email)) : ?>
                     <div class="welcome-section">
                         <div class="welcome-icon">
                             <i class="bi bi-search"></i>
@@ -50,14 +50,14 @@ $this->title = 'Личный кабинет - СНИКЕРХЭД';
                             </button>
                         </form>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <h2>Добро пожаловать!</h2>
                     <p>Ваш email: <strong><?= Html::encode($email) ?></strong></p>
 
-                    <?php if (!empty($orders)): ?>
+                    <?php if (!empty($orders)) : ?>
                         <h3 class="account-index-title">Последние заказы</h3>
                         <div class="orders-list">
-                            <?php foreach ($orders as $order): ?>
+                            <?php foreach ($orders as $order) : ?>
                                 <a href="<?= Url::to(['/order/view', 'token' => $order->token]) ?>" class="order-card order-card-link">
                                     <div class="order-card-header">
                                         <span class="order-number">Заказ #<?= $order->id ?></span>

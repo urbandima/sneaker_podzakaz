@@ -13,9 +13,9 @@ class LiveDunePlugin extends BasePlugin
     protected $version = '1.0.0';
     protected $author = 'Sneakerhead Team';
 
-    const BASE_URL = 'https://api.livedune.com';
-    const ACCOUNT_ID = '2298447';
-    const CACHE_TTL = 86400;
+    public const BASE_URL = 'https://api.livedune.com';
+    public const ACCOUNT_ID = '2298447';
+    public const CACHE_TTL = 86400;
 
     public function getToken(): string
     {

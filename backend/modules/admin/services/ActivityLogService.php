@@ -28,8 +28,8 @@ class ActivityLogService
         string $targetType,
         $targetId,
         string $targetLabel,
-        array  $changes = [],
-        string $source  = 'web'
+        array $changes = [],
+        string $source = 'web'
     ): void {
         $userId   = null;
         $userName = null;
@@ -87,9 +87,9 @@ class ActivityLogService
      */
     public static function logChange(
         ActiveRecord $model,
-        array        $oldAttrs,
-        ?string      $targetType  = null,
-        ?string      $targetLabel = null
+        array $oldAttrs,
+        ?string $targetType = null,
+        ?string $targetLabel = null
     ): void {
         $currentAttrs = $model->attributes;
         $changes = [];
@@ -122,8 +122,8 @@ class ActivityLogService
      */
     public static function logCreate(
         ActiveRecord $model,
-        ?string      $targetType  = null,
-        ?string      $targetLabel = null
+        ?string $targetType = null,
+        ?string $targetLabel = null
     ): void {
         $type  = $targetType  ?? self::resolveType($model);
         $label = $targetLabel ?? self::resolveLabel($model);
@@ -135,8 +135,8 @@ class ActivityLogService
      */
     public static function logDelete(
         ActiveRecord $model,
-        ?string      $targetType  = null,
-        ?string      $targetLabel = null
+        ?string $targetType = null,
+        ?string $targetLabel = null
     ): void {
         $type  = $targetType  ?? self::resolveType($model);
         $label = $targetLabel ?? self::resolveLabel($model);

@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\catalog\models\Product[] $products */
 /** @var yii\data\Pagination $pagination */
@@ -130,7 +131,7 @@ setTimeout(function() {
         <ul class="breadcrumb">
             <li><a href="/">Главная</a></li>
             <li><a href="/catalog">Каталог</a></li>
-            <?php if (isset($h1) && $h1 !== 'Каталог товаров' && $h1 !== 'Каталог'): ?>
+            <?php if (isset($h1) && $h1 !== 'Каталог товаров' && $h1 !== 'Каталог') : ?>
                 <li class="active"><?= Html::encode($h1) ?></li>
             <?php endif; ?>
         </ul>
@@ -206,19 +207,21 @@ setTimeout(function() {
                     </button>
                     <div class="filter-content filter-content--open">
                         <div class="filter-scroll">
-                            <?php if (!empty($filters['brands'])): foreach ($filters['brands'] as $brand): ?>
+                            <?php if (!empty($filters['brands'])) :
+                                foreach ($filters['brands'] as $brand) : ?>
                                 <label class="filter-checkbox <?= $brand['count'] == 0 ? 'disabled' : '' ?>">
                                     <input type="checkbox" 
                                            name="brands[]" 
                                            value="<?= $brand['id'] ?>" 
                                            data-slug="<?= $brand['slug'] ?>"
-                                           <?= in_array($brand['id'], $currentFilters['brands'] ?? []) ? 'checked' : '' ?>
-                                           <?= $brand['count'] == 0 ? 'disabled' : '' ?>>
+                                                                           <?= in_array($brand['id'], $currentFilters['brands'] ?? []) ? 'checked' : '' ?>
+                                                                           <?= $brand['count'] == 0 ? 'disabled' : '' ?>>
                                     <span class="checkbox-mark"></span>
                                     <span><?= Html::encode($brand['name']) ?></span>
                                     <span class="filter-count"><?= $brand['count'] ?></span>
                                 </label>
-                            <?php endforeach; endif; ?>
+                                <?php endforeach;
+                            endif; ?>
                         </div>
                     </div>
                 </div>
@@ -231,20 +234,22 @@ setTimeout(function() {
                     </button>
                     <div class="filter-content">
                         <div class="filter-scroll">
-                            <?php if (!empty($filters['categories'])): foreach ($filters['categories'] as $cat): ?>
-                                <?php $catCount = isset($cat['count']) ? $cat['count'] : (isset($cat['products_count']) ? $cat['products_count'] : 0); ?>
+                            <?php if (!empty($filters['categories'])) :
+                                foreach ($filters['categories'] as $cat) : ?>
+                                                                    <?php $catCount = isset($cat['count']) ? $cat['count'] : (isset($cat['products_count']) ? $cat['products_count'] : 0); ?>
                                 <label class="filter-checkbox <?= $catCount == 0 ? 'disabled' : '' ?>">
                                     <input type="checkbox" 
                                            name="categories[]" 
                                            value="<?= $cat['id'] ?>" 
                                            data-slug="<?= $cat['slug'] ?>"
-                                           <?= in_array($cat['id'], $currentFilters['categories'] ?? []) ? 'checked' : '' ?>
-                                           <?= $catCount == 0 ? 'disabled' : '' ?>>
+                                                                           <?= in_array($cat['id'], $currentFilters['categories'] ?? []) ? 'checked' : '' ?>
+                                                                           <?= $catCount == 0 ? 'disabled' : '' ?>>
                                     <span class="checkbox-mark"></span>
                                     <span><?= Html::encode($cat['name']) ?></span>
                                     <span class="filter-count"><?= $catCount ?></span>
                                 </label>
-                            <?php endforeach; endif; ?>
+                                <?php endforeach;
+                            endif; ?>
                         </div>
                     </div>
                 </div>
@@ -273,9 +278,9 @@ setTimeout(function() {
                             'uk' => ['3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11','11.5','12'],
                             'cm' => ['22','23','24','25','26','27','28','29','30'],
                         ];
-                        foreach ($staticSizes as $system => $sizes): ?>
+                        foreach ($staticSizes as $system => $sizes) : ?>
                             <div class="size-filter-grid sidebar-size-grid" data-system="<?= $system ?>">
-                                <?php foreach ($sizes as $size): ?>
+                                <?php foreach ($sizes as $size) : ?>
                                     <label class="size-filter-btn">
                                         <input type="checkbox" name="sizes[]" value="<?= Html::encode($size) ?>" data-system="<?= $system ?>">
                                         <span><?= Html::encode($size) ?></span>
@@ -287,17 +292,19 @@ setTimeout(function() {
                 </div>
 
                 <!-- ВАЖНЫЕ ХАРАКТЕРИСТИКИ (Пол, Сезон) в основной секции -->
-                <?php if (!empty($filters['characteristics'])): foreach ($filters['characteristics'] as $characteristic): ?>
-                    <?php if (in_array($characteristic['key'], ['gender', 'season'])): ?>
-                        <?= $this->render('_characteristic_filter', [
-                            'characteristic' => $characteristic,
-                            'currentFilters' => $currentFilters,
+                <?php if (!empty($filters['characteristics'])) :
+                    foreach ($filters['characteristics'] as $characteristic) : ?>
+                                            <?php if (in_array($characteristic['key'], ['gender', 'season'])) : ?>
+                                                <?= $this->render('_characteristic_filter', [
+                                                'characteristic' => $characteristic,
+                                                'currentFilters' => $currentFilters,
                         ]) ?>
-                    <?php endif; ?>
-                <?php endforeach; endif; ?>
+                                            <?php endif; ?>
+                    <?php endforeach;
+                endif; ?>
 
                 <!-- Цвет (основной фильтр) -->
-                <?php if (!empty($filters['colors'])): ?>
+                <?php if (!empty($filters['colors'])) : ?>
                 <div class="filter-group" id="filter-colors">
                     <button type="button" class="filter-title" onclick="toggleFilterGroup(this)" aria-expanded="false">
                         <span>Цвет</span>
@@ -305,7 +312,7 @@ setTimeout(function() {
                     </button>
                     <div class="filter-content">
                         <div class="color-filter-grid">
-                            <?php foreach ($filters['colors'] as $color): ?>
+                            <?php foreach ($filters['colors'] as $color) : ?>
                                 <?php
                                 $count = $color['count'] ?? 0;
                                 $hex = $color['hex'] ?? '#cccccc';
@@ -383,24 +390,30 @@ setTimeout(function() {
                         <i class="bi bi-chevron-down"></i>
                     </button>
                     <div class="filter-content">
-                        <?php if (!empty($filters['conditions'])): foreach ($filters['conditions'] as $condition): ?>
+                        <?php if (!empty($filters['conditions'])) :
+                            foreach ($filters['conditions'] as $condition) : ?>
                             <label class="filter-item">
                                 <input type="checkbox" name="conditions[]" value="<?= $condition['value'] ?>">
-                                <span><?php if (!empty($condition['icon'])): ?><i class="bi <?= $condition['icon'] ?>"></i> <?php endif; ?><?= Html::encode($condition['label']) ?></span>
+                                <span><?php if (!empty($condition['icon'])) :
+                                    ?><i class="bi <?= $condition['icon'] ?>"></i> <?php
+                                      endif; ?><?= Html::encode($condition['label']) ?></span>
                             </label>
-                        <?php endforeach; endif; ?>
+                            <?php endforeach;
+                        endif; ?>
                     </div>
                 </div>
                 
                 <!-- ДИНАМИЧЕСКИЕ ХАРАКТЕРИСТИКИ (кроме Пола и Сезона - они выше) -->
-                <?php if (!empty($filters['characteristics'])): foreach ($filters['characteristics'] as $characteristic): ?>
-                    <?php if (!in_array($characteristic['key'], ['gender', 'season'])): ?>
-                        <?= $this->render('_characteristic_filter', [
-                            'characteristic' => $characteristic,
-                            'currentFilters' => $currentFilters,
+                <?php if (!empty($filters['characteristics'])) :
+                    foreach ($filters['characteristics'] as $characteristic) : ?>
+                                            <?php if (!in_array($characteristic['key'], ['gender', 'season'])) : ?>
+                                                <?= $this->render('_characteristic_filter', [
+                                                'characteristic' => $characteristic,
+                                                'currentFilters' => $currentFilters,
                         ]) ?>
-                    <?php endif; ?>
-                <?php endforeach; else: ?>
+                                            <?php endif; ?>
+                    <?php endforeach;
+                else : ?>
                     <!-- Fallback: если характеристик нет -->
                     <div class="filter-info-notice">
                         <i class="bi bi-info-circle"></i>
@@ -412,7 +425,7 @@ setTimeout(function() {
                 </div><!-- END advanced-filters-wrapper -->
                 
                 <!-- Кнопка "Показать расширенные фильтры" -->
-                <?php 
+                <?php
                 $advancedCount = 2; // Скидка, Рейтинг
                 // Характеристики (кроме Пола и Сезона, которые в основной секции)
                 if (!empty($filters['characteristics'])) {
@@ -451,16 +464,16 @@ setTimeout(function() {
                     <i class="bi bi-sliders" aria-hidden="true"></i>
                     <span>Фильтры</span>
                     <?php $activeFilterCount = count($activeFilters ?? []); ?>
-                    <?php if ($activeFilterCount > 0): ?>
+                    <?php if ($activeFilterCount > 0) : ?>
                         <span class="filters-badge" id="filtersCountBadge"><?= $activeFilterCount ?></span>
-                    <?php else: ?>
+                    <?php else : ?>
                         <span class="filters-badge" id="filtersCountBadge" style="display:none">0</span>
                     <?php endif; ?>
                 </button>
 
                 <div class="content-header">
                     <h1><?= isset($h1) ? Html::encode($h1) : 'Каталог' ?> <span class="products-count">(<span id="productsCount"><?= $pagination->totalCount ?></span>)</span></h1>
-                    <?php if (isset($description) && !empty($description)): ?>
+                    <?php if (isset($description) && !empty($description)) : ?>
                     <div class="category-description">
                         <p><?= Html::encode($description) ?></p>
                     </div>
@@ -472,8 +485,8 @@ setTimeout(function() {
                     <?php
                     // Топ-6 популярных брендов для быстрого доступа
                     $topBrands = !empty($filters['brands']) ? array_slice($filters['brands'], 0, 6) : [];
-                    foreach ($topBrands as $brand):
-                        if ($brand['count'] > 0):
+                    foreach ($topBrands as $brand) :
+                        if ($brand['count'] > 0) :
                             $isActive = in_array($brand['id'], $currentFilters['brands'] ?? []); ?>
                         <button type="button" class="quick-chip brand-chip <?= $isActive ? 'active' : '' ?>"
                                 data-brand="<?= $brand['id'] ?>"
@@ -481,7 +494,8 @@ setTimeout(function() {
                             <span><?= Html::encode($brand['name']) ?></span>
                             <span class="chip-count"><?= $brand['count'] ?></span>
                         </button>
-                    <?php endif; endforeach; ?>
+                        <?php endif;
+                    endforeach; ?>
                 </div>
                 
                 <!-- Quick Filters: Размеры с переключателем систем -->
@@ -502,9 +516,9 @@ setTimeout(function() {
                             'uk' => ['3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11','11.5','12'],
                             'cm' => ['22','23','24','25','26','27','28','29','30'],
                         ];
-                        foreach ($quickSizes as $system => $sizes): ?>
+                        foreach ($quickSizes as $system => $sizes) : ?>
                             <div class="size-group" data-system="<?= $system ?>">
-                                <?php foreach ($sizes as $size): ?>
+                                <?php foreach ($sizes as $size) : ?>
                                     <button type="button" class="quick-chip size-chip"
                                             data-size="<?= Html::encode($size) ?>"
                                             data-system="<?= $system ?>"
@@ -548,9 +562,9 @@ setTimeout(function() {
                     </div>
                 </div>
 
-                <?php if (!empty($activeFilters)): ?>
+                <?php if (!empty($activeFilters)) : ?>
                 <div class="active-filters">
-                    <?php foreach ($activeFilters as $filter): ?>
+                    <?php foreach ($activeFilters as $filter) : ?>
                         <div class="filter-tag">
                             <?= Html::encode($filter['label']) ?>
                             <a href="<?= $filter['removeUrl'] ?>" class="filter-tag-remove"><i class="bi bi-x"></i></a>
@@ -576,7 +590,7 @@ setTimeout(function() {
                     <span class="spinner-border spinner-border-sm" role="status"></span>
                     Загружаем товары…
                 </div>
-                <?php if ($pagination->totalCount > count($products)): ?>
+                <?php if ($pagination->totalCount > count($products)) : ?>
                 <div id="infiniteScrollCounter" class="infinite-scroll-counter">
                     Загружено <span id="loadedCount"><?= count($products) ?></span> из <?= $pagination->totalCount ?>
                 </div>
@@ -589,19 +603,27 @@ setTimeout(function() {
                     $currentPath = Yii::$app->request->getPathInfo();
                     $queryParams = $_GET;
                     unset($queryParams['page']); // Убираем page из query params
-                    
+
                     $queryString = !empty($queryParams) ? '?' . http_build_query($queryParams) : '';
                     $pageUrl = $baseUrl . '/' . $currentPath . $queryString;
-                    
+
                     // Генерируем ссылки на все страницы
-                    for ($i = 1; $i <= $pagination->pageCount; $i++):
+                    for ($i = 1; $i <= $pagination->pageCount; $i++) :
                         $url = $pageUrl . (strpos($pageUrl, '?') !== false ? '&page=' : '?page=') . $i;
                         $rel = '';
-                        if ($i == 1) $rel = ' rel="first"';
-                        if ($i == $pagination->pageCount) $rel .= ' rel="last"';
-                        if ($i == $pagination->page + 1) $rel .= ' rel="next"';
-                        if ($i == $pagination->page - 1) $rel .= ' rel="prev"';
-                    ?>
+                        if ($i == 1) {
+                            $rel = ' rel="first"';
+                        }
+                        if ($i == $pagination->pageCount) {
+                            $rel .= ' rel="last"';
+                        }
+                        if ($i == $pagination->page + 1) {
+                            $rel .= ' rel="next"';
+                        }
+                        if ($i == $pagination->page - 1) {
+                            $rel .= ' rel="prev"';
+                        }
+                        ?>
                         <a href="<?= Html::encode($url) ?>"<?= $rel ?>>Страница <?= $i ?></a>
                     <?php endfor; ?>
                 </div>

@@ -7,8 +7,8 @@ $this->title = 'Редактор страниц';
 
 $this->params['headerActions'] = [];
 
-if (!$available):
-?>
+if (!$available) :
+    ?>
 <div class="admin-card" style="margin-bottom:1.5rem;border-left:4px solid var(--admin-warning,#f59e0b)">
     <div class="admin-card-body" style="display:flex;gap:0.75rem;align-items:flex-start;padding:1rem 1.25rem">
         <i class="bi bi-exclamation-triangle" style="color:var(--admin-warning,#f59e0b);font-size:1.25rem;margin-top:1px;flex-shrink:0"></i>
@@ -40,14 +40,14 @@ if (!$available):
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($pages as $page): ?>
+                <?php foreach ($pages as $page) : ?>
                 <tr>
                     <td style="font-weight:500"><?= Html::encode($page['title']) ?></td>
                     <td><code>/<?= Html::encode($page['slug']) ?></code></td>
                     <td>
-                        <?php if ($page['has_content']): ?>
+                        <?php if ($page['has_content']) : ?>
                         <span class="admin-badge admin-badge-success"><i class="bi bi-check"></i> Есть</span>
-                        <?php else: ?>
+                        <?php else : ?>
                         <span class="admin-badge admin-badge-secondary">Статичный файл</span>
                         <?php endif; ?>
                     </td>
@@ -60,7 +60,7 @@ if (!$available):
                                class="admin-btn admin-btn-sm admin-btn-secondary" title="Открыть страницу">
                                 <i class="bi bi-box-arrow-up-right"></i>
                             </a>
-                            <?php if ($available): ?>
+                            <?php if ($available) : ?>
                             <a href="<?= Url::to(['/admin/page/edit', 'slug' => $page['slug']]) ?>"
                                class="admin-btn admin-btn-sm admin-btn-primary">
                                 <i class="bi bi-pencil"></i> Редактировать

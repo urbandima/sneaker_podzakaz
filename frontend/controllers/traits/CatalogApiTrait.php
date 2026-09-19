@@ -22,7 +22,7 @@ trait CatalogApiTrait
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $request = Yii::$app->request;
-        
+
         // Читаем параметры из POST
         $brands = $this->decodeJsonParam($request->post('brands'));
         $categories = $this->decodeJsonParam($request->post('categories'));
@@ -54,7 +54,7 @@ trait CatalogApiTrait
             }
         }
         Yii::$app->request->setQueryParams($queryParams);
-        
+
         // Строим запрос
         $query = Product::find()
             ->select([
@@ -64,10 +64,10 @@ trait CatalogApiTrait
             ])
             ->where(['product.is_active' => 1])
             ->andWhere(['!=', 'product.stock_status', Product::STOCK_OUT_OF_STOCK]);
-        
+
         $query = $this->applyFilters($query);
         $query = $this->applySorting($query, $sort);
-        
+
         // Пагинация
         $totalCount = (clone $query)->count();
         $pagination = new Pagination([
@@ -75,25 +75,25 @@ trait CatalogApiTrait
             'totalCount' => $totalCount,
             'page' => $page - 1,
         ]);
-        
+
         $products = $query
             ->with(['brand' => fn($q) => $q->select(['id', 'name', 'slug'])])
             ->offset($pagination->offset)
             ->limit($pagination->limit)
             ->all();
-        
+
         // Текущие фильтры
         $currentFilters = $this->buildCurrentFilters($request);
         $filters = $this->getFiltersData($currentFilters);
         $activeFilters = FilterBuilder::formatActiveFilters($currentFilters);
-        
+
         // Рендерим HTML
         $html = $this->renderPartial('_products', ['products' => $products]);
-        $activeFiltersHtml = !empty($activeFilters) 
+        $activeFiltersHtml = !empty($activeFilters)
             ? $this->renderPartial('_active_filters', ['activeFilters' => $activeFilters])
             : '';
-        
-        $paginationHtml = $pagination->pageCount > 1 
+
+        $paginationHtml = $pagination->pageCount > 1
             ? \yii\widgets\LinkPager::widget([
                 'pagination' => $pagination,
                 'prevPageLabel' => '<i class="bi bi-chevron-left"></i>',
@@ -102,7 +102,7 @@ trait CatalogApiTrait
                 'options' => ['class' => 'pagination'],
             ])
             : '';
-        
+
         return [
             'success' => true,
             'html' => $html,
@@ -125,25 +125,25 @@ trait CatalogApiTrait
     public function actionLoadMore()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $page = (int)Yii::$app->request->get('page', 1);
         $perPage = 24;
-        
+
         $query = $this->buildProductQuery();
         $query = $this->applyFilters($query);
-        
+
         $totalCount = $this->getCachedCount($query);
         $totalPages = ceil($totalCount / $perPage);
-        
+
         $products = $query
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)
             ->all();
-        
-        $html = !empty($products) 
+
+        $html = !empty($products)
             ? $this->renderPartial('_products', ['products' => $products])
             : '';
-        
+
         return [
             'success' => true,
             'html' => $html,
@@ -220,7 +220,7 @@ trait CatalogApiTrait
 
         $rawBody = Yii::$app->request->getRawBody();
         $data = json_decode($rawBody, true) ?: Yii::$app->request->post();
-        
+
         if (empty($data['product_id']) || empty($data['name']) || empty($data['phone'])) {
             return [
                 'success' => false,
@@ -240,7 +240,7 @@ trait CatalogApiTrait
         $message .= "📞 Телефон: " . $data['phone'] . "\n\n";
         $message .= "🛍 Товар: " . $product->brand_name . ' ' . $product->name . $sizeInfo . "\n";
         $message .= "💰 Цена: " . Yii::$app->formatter->asCurrency($product->price, 'BYN') . "\n";
-        
+
         if (!empty($data['comment'])) {
             $message .= "\n💬 Комментарий: " . $data['comment'] . "\n";
         }

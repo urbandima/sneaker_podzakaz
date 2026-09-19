@@ -14,9 +14,9 @@ namespace app\backend\shared\helpers;
  */
 class OrderTrackHelper
 {
-    const TRACK_PAYMENT   = 'payment';
-    const TRACK_LOGISTICS = 'logistics';
-    const TRACK_DELIVERY  = 'delivery';
+    public const TRACK_PAYMENT   = 'payment';
+    public const TRACK_LOGISTICS = 'logistics';
+    public const TRACK_DELIVERY  = 'delivery';
 
     private static array $tracks = [
         self::TRACK_PAYMENT => [
@@ -52,8 +52,8 @@ class OrderTrackHelper
     ];
 
     // Statuses requiring buyout gate before logistics can advance past awaiting_buyout
-    const BUYOUT_REQUIRED_AFTER = 'ordered';
-    const BUYOUT_COMPLETE_STATUS = 'awaiting_buyout';
+    public const BUYOUT_REQUIRED_AFTER = 'ordered';
+    public const BUYOUT_COMPLETE_STATUS = 'awaiting_buyout';
 
     /**
      * Returns the track name for a given status, or null if terminal/unknown.

@@ -42,9 +42,13 @@ $dupMap = $dupMap ?? [];
 
 // Sort helpers
 $currentSort = Yii::$app->request->get('sort', '');
-$sortIcon = function(string $col) use ($currentSort): string {
-    if ($currentSort === $col)        return ' <span style="color:var(--admin-primary,#2563eb);font-size:.65rem">▲</span>';
-    if ($currentSort === '-' . $col)  return ' <span style="color:var(--admin-primary,#2563eb);font-size:.65rem">▼</span>';
+$sortIcon = function (string $col) use ($currentSort): string {
+    if ($currentSort === $col) {
+        return ' <span style="color:var(--admin-primary,#2563eb);font-size:.65rem">▲</span>';
+    }
+    if ($currentSort === '-' . $col) {
+        return ' <span style="color:var(--admin-primary,#2563eb);font-size:.65rem">▼</span>';
+    }
     return ' <span style="color:#d1d5db;font-size:.6rem">⇅</span>';
 };
 
@@ -58,7 +62,9 @@ $kanbanColumns = [
     \app\backend\modules\checkout\models\Order::LOGISTICS_AT_WAREHOUSE     => 'На складе',
 ];
 $kanbanGroups = [];
-foreach ($kanbanColumns as $k => $v) $kanbanGroups[$k] = [];
+foreach ($kanbanColumns as $k => $v) {
+    $kanbanGroups[$k] = [];
+}
 foreach ($orders as $order) {
     $ls = $order->logistics_status ?: \app\backend\modules\checkout\models\Order::LOGISTICS_AWAITING_BUYOUT;
     $kanbanGroups[$ls][] = $order;
@@ -66,13 +72,13 @@ foreach ($orders as $order) {
 
 // All filter params (read from GET)
 $filterDelivery   = Yii::$app->request->get('delivery_method', '');
-$filterPayment    = Yii::$app->request->get('payment_method',  '');
-$filterSource     = Yii::$app->request->get('source',          '');
-$filterCity       = Yii::$app->request->get('city',            '');
-$filterChinaTrack = Yii::$app->request->get('china_track',     '');
-$filterDpTrack    = Yii::$app->request->get('dp_track',        '');
-$filterAmountFrom = Yii::$app->request->get('amount_from',     '');
-$filterAmountTo   = Yii::$app->request->get('amount_to',       '');
+$filterPayment    = Yii::$app->request->get('payment_method', '');
+$filterSource     = Yii::$app->request->get('source', '');
+$filterCity       = Yii::$app->request->get('city', '');
+$filterChinaTrack = Yii::$app->request->get('china_track', '');
+$filterDpTrack    = Yii::$app->request->get('dp_track', '');
+$filterAmountFrom = Yii::$app->request->get('amount_from', '');
+$filterAmountTo   = Yii::$app->request->get('amount_to', '');
 $row2Active       = ($filterDelivery || $filterPayment || $filterSource || $filterCity ||
                      $filterChinaTrack || $filterDpTrack || $filterAmountFrom || $filterAmountTo);
 $row2ActiveCount  = count(array_filter([$filterDelivery,$filterPayment,$filterSource,$filterCity,
@@ -145,10 +151,12 @@ try {
             $statusColorMap[$sr['key']] = $sr['color'];
         }
     }
-} catch (\Exception $e) { $statusColorMap = []; }
+} catch (\Exception $e) {
+    $statusColorMap = [];
+}
 
 // Helper: convert Bootstrap color name to hex for inline styles
-$colorToHex = function(string $c): string {
+$colorToHex = function (string $c): string {
     $map = [
         'primary' => '#2563eb', 'secondary' => '#6b7280', 'success' => '#16a34a',
         'danger'  => '#dc2626', 'warning'   => '#d97706', 'info'    => '#0891b2',
@@ -156,7 +164,9 @@ $colorToHex = function(string $c): string {
         'purple'  => '#7c3aed', 'violet'    => '#7c3aed',
     ];
     // If already a hex or rgb value, return as-is
-    if (str_starts_with($c, '#') || str_starts_with($c, 'rgb')) return $c;
+    if (str_starts_with($c, '#') || str_starts_with($c, 'rgb')) {
+        return $c;
+    }
     return $map[strtolower(trim($c))] ?? ('#' . ltrim($c, '#'));
 };
 ?>
@@ -231,11 +241,15 @@ th[data-sort]:hover{background:var(--admin-surface-hover,#f3f4f6)!important}
 <!-- Status filter tabs (sticky, per-status color) -->
 <?php
 // Helper: derive a light bg tint from a hex color for inactive hover / active bg
-$pillBgFromHex = function(string $hex): string {
+$pillBgFromHex = function (string $hex): string {
     $hex = ltrim($hex, '#');
-    if (strlen($hex) === 3) $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
-    $r = hexdec(substr($hex,0,2)); $g = hexdec(substr($hex,2,2)); $b = hexdec(substr($hex,4,2));
-    return 'rgba('.$r.','.$g.','.$b.',.12)';
+    if (strlen($hex) === 3) {
+        $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+    }
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    return 'rgba(' . $r . ',' . $g . ',' . $b . ',.12)';
 };
 ?>
 <div class="order-funnel">
@@ -245,13 +259,13 @@ $pillBgFromHex = function(string $hex): string {
         <span class="funnel-pill-label">Все</span>
         <span class="funnel-pill-count"><?= $totalCount ?></span>
     </a>
-    <?php foreach ($statuses as $sKey => $sLabel):
+    <?php foreach ($statuses as $sKey => $sLabel) :
         $cnt        = $statusCounts[$sKey] ?? 0;
         $isAct      = $filterStatus === $sKey;
         $hexColor   = !empty($statusColorMap[$sKey]) ? $colorToHex($statusColorMap[$sKey])
                         : ($statusPills[$sKey]['color'] ?? ($funnelDots[$sKey] ?? '#6b7280'));
         $hexBg      = $statusPills[$sKey]['bg'] ?? $pillBgFromHex($hexColor);
-    ?>
+        ?>
     <a href="<?= Url::to(['/admin/order', 'status' => $sKey]) ?>"
        class="funnel-pill <?= $isAct ? 'funnel-pill--active' : '' ?>"
        style="--pill-color:<?= $hexColor ?>;--pill-bg:<?= $hexBg ?>">
@@ -260,14 +274,16 @@ $pillBgFromHex = function(string $hex): string {
         <span class="funnel-pill-count"><?= $cnt ?></span>
     </a>
     <?php endforeach; ?>
-    <?php foreach ($extraStatuses as $sKey => $sLabel):
+    <?php foreach ($extraStatuses as $sKey => $sLabel) :
         $cnt      = $statusCounts[$sKey] ?? 0;
-        if ($cnt === 0) continue;
+        if ($cnt === 0) {
+            continue;
+        }
         $isAct    = $filterStatus === $sKey;
         $hexColor = !empty($statusColorMap[$sKey]) ? $colorToHex($statusColorMap[$sKey])
                       : ($funnelDots[$sKey] ?? '#6b7280');
         $hexBg    = $pillBgFromHex($hexColor);
-    ?>
+        ?>
     <a href="<?= Url::to(['/admin/order', 'status' => $sKey]) ?>"
        class="funnel-pill <?= $isAct ? 'funnel-pill--active' : '' ?>"
        style="--pill-color:<?= $hexColor ?>;--pill-bg:<?= $hexBg ?>">
@@ -290,10 +306,18 @@ $pillBgFromHex = function(string $hex): string {
         $monthEnd   = date('Y-m-t');
         // Detect which preset is currently active
         $activePreset = '';
-        if ($filterDateFrom === $today     && $filterDateTo === $today)      $activePreset = 'today';
-        if ($filterDateFrom === $yesterday && $filterDateTo === $yesterday)  $activePreset = 'yesterday';
-        if ($filterDateFrom === $weekStart && $filterDateTo === $weekEnd)    $activePreset = 'week';
-        if ($filterDateFrom === $monthStart && $filterDateTo === $monthEnd)  $activePreset = 'month';
+    if ($filterDateFrom === $today     && $filterDateTo === $today) {
+        $activePreset = 'today';
+    }
+    if ($filterDateFrom === $yesterday && $filterDateTo === $yesterday) {
+        $activePreset = 'yesterday';
+    }
+    if ($filterDateFrom === $weekStart && $filterDateTo === $weekEnd) {
+        $activePreset = 'week';
+    }
+    if ($filterDateFrom === $monthStart && $filterDateTo === $monthEnd) {
+        $activePreset = 'month';
+    }
     ?>
     <div class="preset-bar">
         <span class="preset-bar-label"><i class="bi bi-lightning-fill"></i> Период:</span>
@@ -305,7 +329,7 @@ $pillBgFromHex = function(string $hex): string {
                 onclick="applyDatePreset('<?= $weekStart ?>','<?= $weekEnd ?>')">Эта неделя</button>
         <button type="button" class="preset-btn <?= $activePreset === 'month'     ? 'is-active' : '' ?>"
                 onclick="applyDatePreset('<?= $monthStart ?>','<?= $monthEnd ?>')">Этот месяц</button>
-        <?php if ($filterDateFrom || $filterDateTo): ?>
+        <?php if ($filterDateFrom || $filterDateTo) : ?>
         <button type="button" class="preset-btn" style="margin-left:4px;border-color:#fecaca;color:#dc2626"
                 onclick="applyDatePreset('','')"><i class="bi bi-x"></i> Сбросить период</button>
         <?php endif; ?>
@@ -325,7 +349,7 @@ $pillBgFromHex = function(string $hex): string {
                 class="compact-filter-btn compact-filter-btn--expand <?= $row2Active ? 'is-active' : '' ?>"
                 onclick="toggleFilterRow2()">
             <i class="bi bi-sliders"></i> Ещё фильтры
-            <?php if ($row2ActiveCount > 0): ?>
+            <?php if ($row2ActiveCount > 0) : ?>
             <span style="background:var(--admin-primary,#2563eb);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700"><?= $row2ActiveCount ?></span>
             <?php endif; ?>
         </button>
@@ -371,7 +395,9 @@ $pillBgFromHex = function(string $hex): string {
                placeholder="Сумма от" value="<?= Html::encode($filterAmountFrom) ?>" step="0.01" min="0">
         <input type="number" name="amount_to"   class="compact-filter-input"
                placeholder="Сумма до" value="<?= Html::encode($filterAmountTo) ?>"   step="0.01" min="0">
-        <?php $fpt = $filterPaymentTrack ?? ''; $flt = $filterLogisticsTrack ?? ''; $fdt = $filterDeliveryTrack ?? ''; ?>
+        <?php $fpt = $filterPaymentTrack ?? '';
+        $flt = $filterLogisticsTrack ?? '';
+        $fdt = $filterDeliveryTrack ?? ''; ?>
         <select name="payment_track" class="compact-filter-select">
             <option value="">Оплата (трек) ▾</option>
             <option value="not_paid"  <?= $fpt === 'not_paid'  ? 'selected' : '' ?>>Не оплачен</option>
@@ -400,20 +426,20 @@ $pillBgFromHex = function(string $hex): string {
     <select id="bulkActionSelect" class="form-control" style="width:auto;">
         <option value="">— Действие —</option>
         <option value="change_status">Сменить статус</option>
-        <?php if (!$user->isLogist()): ?>
+        <?php if (!$user->isLogist()) : ?>
         <option value="assign_logist">Назначить логиста</option>
         <?php endif; ?>
         <option value="export_csv">Выгрузить Excel</option>
     </select>
     <select id="bulkStatusExtra" class="form-control" style="width:auto;display:none;">
         <option value="">— Выберите статус —</option>
-        <?php foreach ($statuses as $sk => $sl): ?>
+        <?php foreach ($statuses as $sk => $sl) : ?>
             <option value="<?= $sk ?>"><?= Html::encode($sl) ?></option>
         <?php endforeach; ?>
     </select>
     <select id="bulkLogistExtra" class="form-control" style="width:auto;display:none;">
         <option value="">— Выберите логиста —</option>
-        <?php foreach ($logists as $l): ?>
+        <?php foreach ($logists as $l) : ?>
             <option value="<?= $l->id ?>"><?= Html::encode($l->username) ?></option>
         <?php endforeach; ?>
     </select>
@@ -456,8 +482,8 @@ $pillBgFromHex = function(string $hex): string {
                         'source'      => 'Источник',
                         'comment'     => 'Комментарий',
                     ];
-                    foreach ($toggleCols as $col => $label):
-                    ?>
+                    foreach ($toggleCols as $col => $label) :
+                        ?>
                     <label style="display:flex;align-items:center;gap:8px;padding:5px 14px;cursor:pointer;font-size:.8125rem;font-weight:500;color:var(--admin-text-primary,#111);white-space:nowrap" onmousedown="event.preventDefault()">
                         <input type="checkbox" data-col-toggle="<?= $col ?>" onchange="toggleColumn('<?= $col ?>', this.checked)" style="cursor:pointer">
                         <?= Html::encode($label) ?>
@@ -477,7 +503,7 @@ $pillBgFromHex = function(string $hex): string {
                 </button>
             </div>
             <select id="pageSizeSelect" onchange="changePageSize(this.value)" class="form-control" style="width:auto;">
-                <?php foreach ($pageSizeOptions as $size): ?>
+                <?php foreach ($pageSizeOptions as $size) : ?>
                     <option value="<?= $size ?>" <?= $pageSize === $size ? 'selected' : '' ?>><?= $size ?></option>
                 <?php endforeach; ?>
             </select>
@@ -515,8 +541,8 @@ $pillBgFromHex = function(string $hex): string {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (!empty($orders)): ?>
-                        <?php foreach ($orders as $order):
+                    <?php if (!empty($orders)) : ?>
+                        <?php foreach ($orders as $order) :
                             $daysSince = (int)floor((time() - $order->created_at) / 86400);
                             $firstItem = $order->orderItems[0] ?? null;
                             // Z12: build pill colors from DB first, then fall back to hardcoded map
@@ -527,7 +553,7 @@ $pillBgFromHex = function(string $hex): string {
                                 $sp = $statusPills[$order->status] ?? ['bg' => '#f3f4f6', 'color' => '#6b7280'];
                             }
                             $statusLabel = \app\backend\modules\checkout\models\Order::statusLabel($order->status);
-                        ?>
+                            ?>
                         <tr>
                             <td style="padding:6px"><input type="checkbox" class="order-checkbox" value="<?= $order->id ?>"></td>
                             <td style="white-space:nowrap;padding:6px 8px">
@@ -541,7 +567,9 @@ $pillBgFromHex = function(string $hex): string {
                                 </a>
                                 <div style="font-size:.7rem;color:var(--admin-text-secondary,#9ca3af);margin-top:1px">
                                     <?= date('d.m.Y', $order->created_at) ?>
-                                    <?php if ($daysSince > 0): ?><span style="opacity:.7"> · <?= $daysSince ?>д</span><?php endif; ?>
+                                    <?php if ($daysSince > 0) :
+                                        ?><span style="opacity:.7"> · <?= $daysSince ?>д</span><?php
+                                    endif; ?>
                                 </div>
                             </td>
                             <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
@@ -571,8 +599,8 @@ $pillBgFromHex = function(string $hex): string {
                             $ptColors = \app\backend\modules\checkout\models\Order::paymentTrackColors();
                             $ltColors = \app\backend\modules\checkout\models\Order::logisticsTrackColors();
                             $dtColors = \app\backend\modules\checkout\models\Order::deliveryTrackColors();
-                            $ptC = $ptColors[$order->payment_status ?? ''] ?? ['bg'=>'#f3f4f6','color'=>'#6b7280'];
-                            $ltC = $ltColors[$order->logistics_status ?? ''] ?? ['bg'=>'#f3f4f6','color'=>'#6b7280'];
+                            $ptC = $ptColors[$order->payment_status ?? ''] ?? ['bg' => '#f3f4f6','color' => '#6b7280'];
+                            $ltC = $ltColors[$order->logistics_status ?? ''] ?? ['bg' => '#f3f4f6','color' => '#6b7280'];
                             ?>
                             <td data-col="pay_track" style="padding:6px 8px;white-space:nowrap">
                                 <span class="status-pill" style="background:<?= $ptC['bg'] ?>;color:<?= $ptC['color'] ?>">
@@ -585,12 +613,14 @@ $pillBgFromHex = function(string $hex): string {
                                 </span>
                             </td>
                             <td data-col="del_track" style="padding:6px 8px;white-space:nowrap">
-                                <?php if (!empty($order->delivery_status)):
-                                    $dtC = $dtColors[$order->delivery_status] ?? ['bg'=>'#f3f4f6','color'=>'#6b7280']; ?>
+                                <?php if (!empty($order->delivery_status)) :
+                                    $dtC = $dtColors[$order->delivery_status] ?? ['bg' => '#f3f4f6','color' => '#6b7280']; ?>
                                 <span class="status-pill" style="background:<?= $dtC['bg'] ?>;color:<?= $dtC['color'] ?>">
                                     <?= Html::encode($order->getDeliveryStatusLabel()) ?>
                                 </span>
-                                <?php else: ?><span style="color:#9ca3af">—</span><?php endif; ?>
+                                <?php else :
+                                    ?><span style="color:#9ca3af">—</span><?php
+                                endif; ?>
                             </td>
                             <td data-col="amount" style="font-weight:700;white-space:nowrap"
                                 class="tbl-editable" onclick="tblEdit(this,'total_amount',<?= $order->id ?>)"
@@ -604,22 +634,28 @@ $pillBgFromHex = function(string $hex): string {
                                 <?= Html::encode($dmLabels[$order->delivery_method ?? ''] ?? ($order->delivery_method ?: '—')) ?>
                             </td>
                             <td data-col="china_track">
-                                <?php if (!empty($order->china_track_number)): ?>
+                                <?php if (!empty($order->china_track_number)) : ?>
                                 <span class="track-badge" title="<?= Html::encode($order->china_track_number) ?>"><?= Html::encode($order->china_track_number) ?></span>
-                                <?php if (!empty($dupMap[$order->china_track_number]) && $dupMap[$order->china_track_number] > 1): ?>
+                                    <?php if (!empty($dupMap[$order->china_track_number]) && $dupMap[$order->china_track_number] > 1) : ?>
                                 <span class="dup-badge" title="Трек встречается в <?= $dupMap[$order->china_track_number] ?> заказах">×<?= $dupMap[$order->china_track_number] ?></span>
-                                <?php endif; ?>
-                                <?php else: ?><span style="color:var(--admin-text-secondary,#9ca3af)">—</span><?php endif; ?>
+                                    <?php endif; ?>
+                                <?php else :
+                                    ?><span style="color:var(--admin-text-secondary,#9ca3af)">—</span><?php
+                                endif; ?>
                             </td>
                             <td data-col="dp_track">
-                                <?php if (!empty($order->dp_track_number)): ?>
+                                <?php if (!empty($order->dp_track_number)) : ?>
                                 <span class="track-badge" title="<?= Html::encode($order->dp_track_number) ?>"><?= Html::encode($order->dp_track_number) ?></span>
-                                <?php else: ?><span style="color:var(--admin-text-secondary,#9ca3af)">—</span><?php endif; ?>
+                                <?php else :
+                                    ?><span style="color:var(--admin-text-secondary,#9ca3af)">—</span><?php
+                                endif; ?>
                             </td>
                             <td data-col="local_track">
-                                <?php if (!empty($order->local_track_number)): ?>
+                                <?php if (!empty($order->local_track_number)) : ?>
                                 <span class="track-badge" title="<?= Html::encode($order->local_track_number) ?>"><?= Html::encode($order->local_track_number) ?></span>
-                                <?php else: ?><span style="color:var(--admin-text-secondary,#9ca3af)">—</span><?php endif; ?>
+                                <?php else :
+                                    ?><span style="color:var(--admin-text-secondary,#9ca3af)">—</span><?php
+                                endif; ?>
                             </td>
                             <td data-col="dp_status" style="white-space:nowrap;color:var(--admin-text-secondary,#6b7280);font-size:.75rem">
                                 <?= Html::encode($order->dp_status ?: '—') ?>
@@ -648,7 +684,7 @@ $pillBgFromHex = function(string $hex): string {
                             </td>
                         </tr>
                         <?php endforeach; ?>
-                    <?php else: ?>
+                    <?php else : ?>
                         <tr>
                             <td colspan="22" style="padding:0">
                                 <div class="empty-state" style="padding:2.5rem">
@@ -675,7 +711,7 @@ $pillBgFromHex = function(string $hex): string {
     <!-- KANBAN VIEW -->
     <div id="kanbanView" class="d-none">
         <div class="kanban-board" id="kanbanBoard">
-            <?php foreach ($kanbanColumns as $colKey => $colLabel): ?>
+            <?php foreach ($kanbanColumns as $colKey => $colLabel) : ?>
                 <?php $colOrders = $kanbanGroups[$colKey] ?? []; ?>
                 <div class="kanban-col" data-status="<?= $colKey ?>">
                     <div class="kanban-col-header">
@@ -688,12 +724,12 @@ $pillBgFromHex = function(string $hex): string {
                          ondrop="onDrop(event, '<?= $colKey ?>')">
                         <?php
                         $kcPtColors = \app\backend\modules\checkout\models\Order::paymentTrackColors();
-                        $kcPtColorDef = ['bg'=>'#f3f4f6','color'=>'#6b7280'];
-                        foreach ($colOrders as $ord):
+                        $kcPtColorDef = ['bg' => '#f3f4f6','color' => '#6b7280'];
+                        foreach ($colOrders as $ord) :
                             $daysSince = (int)floor((time() - $ord->created_at) / 86400);
                             $firstItem = $ord->orderItems[0] ?? null;
                             $kcPtC = $kcPtColors[$ord->payment_status ?? ''] ?? $kcPtColorDef;
-                        ?>
+                            ?>
                             <div class="kanban-card"
                                  draggable="true"
                                  data-id="<?= $ord->id ?>"
@@ -701,14 +737,18 @@ $pillBgFromHex = function(string $hex): string {
                                  ondragstart="onDragStart(event)"
                                  ondragend="onDragEnd(event)">
                                 <?php $kcNum = $ord->order_number ?: (string)$ord->id; ?>
-                                <div class="kc-num"><?= Html::encode(ctype_digit(ltrim($kcNum, '#')) ? '#' . ltrim($kcNum, '#') : $kcNum) ?><?php if ($daysSince >= 7): ?><span class="kc-overdue-badge" title="Заказ в статусе <?= $daysSince ?> дн.">&#9888; <?= $daysSince ?> дн.</span><?php endif; ?><?php if ($ord->isOverdue()): ?><span class="kc-overdue-badge" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca" title="Просрочено (SLA)">&#9201; SLA</span><?php endif; ?></div>
+                                <div class="kc-num"><?= Html::encode(ctype_digit(ltrim($kcNum, '#')) ? '#' . ltrim($kcNum, '#') : $kcNum) ?><?php if ($daysSince >= 7) :
+                                    ?><span class="kc-overdue-badge" title="Заказ в статусе <?= $daysSince ?> дн.">&#9888; <?= $daysSince ?> дн.</span><?php
+                                                    endif; ?><?php if ($ord->isOverdue()) :
+    ?><span class="kc-overdue-badge" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca" title="Просрочено (SLA)">&#9201; SLA</span><?php
+                                                    endif; ?></div>
                                 <div class="kc-client"><?= Html::encode($ord->client_name) ?></div>
-                                <?php if ($firstItem): ?>
+                                <?php if ($firstItem) : ?>
                                     <div class="kc-product" title="<?= Html::encode($firstItem->product_name) ?>"><?= Html::encode($firstItem->product_name) ?></div>
                                 <?php endif; ?>
                                 <div class="kc-meta">
                                     <span class="kc-amount"><?= PriceHelper::format($ord->total_amount) ?></span>
-                                    <span><?= $daysSince > 0 ? $daysSince.' дн.' : 'сегодня' ?></span>
+                                    <span><?= $daysSince > 0 ? $daysSince . ' дн.' : 'сегодня' ?></span>
                                 </div>
                                 <div style="margin-top:.35rem;display:flex;align-items:center;gap:5px;flex-wrap:wrap">
                                     <span style="background:<?= $kcPtC['bg'] ?>;color:<?= $kcPtC['color'] ?>;font-size:.65rem;font-weight:700;padding:1px 6px;border-radius:4px">

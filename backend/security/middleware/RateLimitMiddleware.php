@@ -44,7 +44,7 @@ class RateLimitMiddleware extends ActionFilter
         $ip = \Yii::$app->request->userIP;
         $userId = \Yii::$app->user->id ?? 'guest';
         $action = \Yii::$app->controller->action->id;
-        
+
         return "{$this->keyPrefix}:{$ip}:{$userId}:{$action}";
     }
 

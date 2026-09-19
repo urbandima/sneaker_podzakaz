@@ -102,12 +102,12 @@ $filtersExpanded = $activeFilterCount > 0;
                         <label class="page-size-control">
                             <span>Показывать</span>
                             <select id="pageSizeSelect" onchange="changePageSize(this.value)">
-                                <?php foreach ($pageSizeOptions as $size): ?>
+                                <?php foreach ($pageSizeOptions as $size) : ?>
                                     <option value="<?= $size ?>" <?= $pageSize === $size ? 'selected' : '' ?>><?= $size ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </label>
-                        <?php if (!$user->isLogist()): ?>
+                        <?php if (!$user->isLogist()) : ?>
                             <a href="<?= Url::to(['/admin/order/create']) ?>" class="btn-action btn-primary-action">
                                 <i class="bi bi-plus-lg"></i> Новый заказ
                             </a>
@@ -121,7 +121,7 @@ $filtersExpanded = $activeFilterCount > 0;
                                 data-has-active="<?= $activeFilterCount ? '1' : '0' ?>">
                             <i class="bi bi-funnel"></i>
                             <span>Фильтр</span>
-                            <?php if ($activeFilterCount): ?>
+                            <?php if ($activeFilterCount) : ?>
                                 <span class="filters-badge"><?= $activeFilterCount ?></span>
                             <?php endif; ?>
                         </button>
@@ -146,18 +146,18 @@ $filtersExpanded = $activeFilterCount > 0;
                                     </button>
                                 </div>
                             </div>
-                            <?php if ($activeFilterCount > 0): ?>
+                            <?php if ($activeFilterCount > 0) : ?>
                                 <div class="filters-summary">
                                     <span class="filters-summary__label">Активные фильтры:</span>
                                     <div class="filter-chips">
-                                        <?php foreach ($activeFilters as $chip): ?>
+                                        <?php foreach ($activeFilters as $chip) : ?>
                                             <span class="filter-chip">
                                                 <?= Html::encode($chip['label']) ?>: <strong><?= Html::encode($chip['value']) ?></strong>
                                             </span>
                                         <?php endforeach; ?>
                                     </div>
                                 </div>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <div class="filters-summary filters-summary--empty">
                                     Точните выдачу при необходимости — фильтр раскрывается по клику.
                                 </div>
@@ -175,7 +175,7 @@ $filtersExpanded = $activeFilterCount > 0;
                                         <label for="logistFilter">Логист</label>
                                         <select id="logistFilter">
                                             <option value="">Все</option>
-                                            <?php foreach ($logists as $logist): ?>
+                                            <?php foreach ($logists as $logist) : ?>
                                                 <option value="<?= $logist->id ?>" <?= $filterLogist == $logist->id ? 'selected' : '' ?>>
                                                     <?= Html::encode($logist->username) ?>
                                                 </option>
@@ -224,7 +224,7 @@ $filtersExpanded = $activeFilterCount > 0;
                         <span>Все</span>
                         <strong><?= $formatter->asInteger($totalCount) ?></strong>
                     </a>
-                    <?php foreach ($statuses as $key => $label): ?>
+                    <?php foreach ($statuses as $key => $label) : ?>
                         <a href="<?= Url::to(array_merge(['/admin/order/index'], array_merge($requestParams, ['status' => $key, $pageParam => null]))) ?>"
                            class="hero-status-pill <?= $filterStatus === $key ? 'is-active' : '' ?>"
                            data-status="<?= Html::encode($key) ?>">
@@ -242,7 +242,7 @@ $filtersExpanded = $activeFilterCount > 0;
                     Все
                     <span class="count"><?= $totalCount ?></span>
                 </a>
-                <?php foreach ($statuses as $key => $label): ?>
+                <?php foreach ($statuses as $key => $label) : ?>
                     <a href="<?= Url::to(array_merge(['/admin/order/index'], array_merge($requestParams, ['status' => $key, $pageParam => null]))) ?>"
                        class="status-pill <?= $filterStatus === $key ? 'active' : '' ?>">
                         <?= Html::encode($label) ?>
@@ -255,9 +255,9 @@ $filtersExpanded = $activeFilterCount > 0;
         <section class="orders-table-card orders-surface">
             <div class="table-toolbar">
                 <p class="summary">
-                    <?php if ($totalCount > 0): ?>
+                    <?php if ($totalCount > 0) : ?>
                         Показано <?= $formatter->asInteger($showingFrom) ?>–<?= $formatter->asInteger($showingTo) ?> из <?= $formatter->asInteger($totalCount) ?> заказов
-                    <?php else: ?>
+                    <?php else : ?>
                         Нет данных по текущим фильтрам
                     <?php endif; ?>
                 </p>
@@ -354,11 +354,11 @@ $filtersExpanded = $activeFilterCount > 0;
             </div>
         </section>
 
-        <?php if (empty($orders)): ?>
+        <?php if (empty($orders)) : ?>
             <div class="empty-state orders-surface">
                 <h3>Нет заказов по текущим фильтрам</h3>
                 <p>Измените параметры поиска или создайте новый заказ, чтобы увидеть данные.</p>
-                <?php if (!$user->isLogist()): ?>
+                <?php if (!$user->isLogist()) : ?>
                     <a href="<?= Url::to(['/admin/order/create']) ?>" class="btn-action btn-primary-action" style="margin-top:0.75rem;">
                         <i class="bi bi-plus-circle"></i> Создать заказ
                     </a>

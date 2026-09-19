@@ -2,11 +2,11 @@
 
 /**
  * CustomerSocialAccount — Модель социального аккаунта покупателя
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Привязка социальных сетей к аккаунту покупателя:
  * авторизация через Google, VK, Facebook и т.д.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - customer_id: ID покупателя
  * - provider: провайдер (google, vk, facebook)
@@ -14,18 +14,19 @@
  * - access_token: токен доступа
  * - refresh_token: токен обновления
  * - expires_at: время истечения токена
- * 
+ *
  * СВЯЗИ:
  * - Customer (покупатель)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - AccountController (авторизация через соцсети)
  * - OAuth callback handlers
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Один покупатель может иметь несколько соцсетей
  * - Автоматическое обновление токенов
  */
+
 namespace app\backend\modules\account\models;
 
 use Yii;

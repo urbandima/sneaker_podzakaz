@@ -25,12 +25,12 @@ $this->title = $return->return_number;
       <div class="dropdown">
         <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">Изменить статус</button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <?php foreach (\app\backend\modules\procurement\models\SupplierReturn::getStatuses() as $k => $v): ?>
-            <?php if ($k !== $return->status): ?>
+          <?php foreach (\app\backend\modules\procurement\models\SupplierReturn::getStatuses() as $k => $v) : ?>
+                <?php if ($k !== $return->status) : ?>
             <li><a class="dropdown-item" href="#" onclick="updateStatus('<?= $k ?>'); return false">
-              <?= $v ?><?= $k === 'refunded' ? ' (создаст запись расхода)' : '' ?>
+                    <?= $v ?><?= $k === 'refunded' ? ' (создаст запись расхода)' : '' ?>
             </a></li>
-            <?php endif; ?>
+                <?php endif; ?>
           <?php endforeach; ?>
         </ul>
       </div>
@@ -48,9 +48,11 @@ $this->title = $return->return_number;
             <tr>
               <th>Закупка</th>
               <td>
-                <?php if ($return->purchaseOrder): ?>
+                <?php if ($return->purchaseOrder) : ?>
                   <a href="/admin/procurement/view/<?= $return->purchase_order_id ?>"><?= htmlspecialchars($return->purchaseOrder->purchase_number) ?></a>
-                <?php else: ?>—<?php endif; ?>
+                <?php else :
+                    ?>—<?php
+                endif; ?>
               </td>
             </tr>
             <tr><th>Общая причина</th><td><?= $return->getReasonLabel() ?></td></tr>
@@ -60,7 +62,7 @@ $this->title = $return->return_number;
         </div>
       </div>
 
-      <?php if ($return->notes): ?>
+      <?php if ($return->notes) : ?>
       <div class="card">
         <div class="card-body">
           <h6 class="card-title">Примечания</h6>
@@ -69,7 +71,7 @@ $this->title = $return->return_number;
       </div>
       <?php endif; ?>
 
-      <?php if ($return->status === 'refunded'): ?>
+      <?php if ($return->status === 'refunded') : ?>
       <div class="alert alert-success mt-3">
         Возврат денег получен. Запись в расходах создана автоматически.
       </div>
@@ -94,8 +96,9 @@ $this->title = $return->return_number;
               </thead>
               <tbody>
                 <?php $total = 0; ?>
-                <?php foreach ($return->items as $item): ?>
-                <?php $rowTotal = $item->getTotalByn(); $total += $rowTotal; ?>
+                <?php foreach ($return->items as $item) : ?>
+                    <?php $rowTotal = $item->getTotalByn();
+                    $total += $rowTotal; ?>
                 <tr>
                   <td><?= htmlspecialchars($item->product_name) ?></td>
                   <td><?= htmlspecialchars($item->size ?? '—') ?></td>

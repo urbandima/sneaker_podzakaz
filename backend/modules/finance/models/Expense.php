@@ -1,4 +1,5 @@
 <?php
+
 namespace app\backend\modules\finance\models;
 
 use Yii;
@@ -6,15 +7,18 @@ use yii\db\ActiveRecord;
 
 class Expense extends ActiveRecord
 {
-    const CAT_PURCHASE        = 'purchase';
-    const CAT_DELIVERY_CHINA  = 'delivery_china';
-    const CAT_CUSTOMS         = 'customs';
-    const CAT_DELIVERY_LOCAL  = 'delivery_local';
-    const CAT_RENT            = 'rent';
-    const CAT_SALARY          = 'salary';
-    const CAT_OTHER           = 'other';
+    public const CAT_PURCHASE        = 'purchase';
+    public const CAT_DELIVERY_CHINA  = 'delivery_china';
+    public const CAT_CUSTOMS         = 'customs';
+    public const CAT_DELIVERY_LOCAL  = 'delivery_local';
+    public const CAT_RENT            = 'rent';
+    public const CAT_SALARY          = 'salary';
+    public const CAT_OTHER           = 'other';
 
-    public static function tableName() { return 'expense'; }
+    public static function tableName()
+    {
+        return 'expense';
+    }
 
     public function rules()
     {
@@ -39,7 +43,7 @@ class Expense extends ActiveRecord
             'amount'           => 'Сумма (BYN)',
             'currency'         => 'Валюта',
             'amount_original'  => 'Сумма (ориг.)',
-            'currency_original'=> 'Валюта (ориг.)',
+            'currency_original' => 'Валюта (ориг.)',
             'exchange_rate'    => 'Курс',
             'description'      => 'Описание',
             'document_number'  => 'Номер документа',

@@ -25,7 +25,10 @@ class m260503_130000_add_moysklad_id_to_order extends Migration
     {
         $schema = $this->db->getTableSchema('{{%order}}', true);
         if ($schema && $schema->getColumn('moysklad_id') !== null) {
-            try { $this->dropIndex('idx_order_moysklad_id', '{{%order}}'); } catch (\Throwable $e) {}
+            try {
+                $this->dropIndex('idx_order_moysklad_id', '{{%order}}');
+            } catch (\Throwable $e) {
+            }
             $this->dropColumn('{{%order}}', 'moysklad_id');
         }
     }

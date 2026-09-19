@@ -28,10 +28,10 @@ class m260504_150000_create_ai_chat_log extends Migration
             'created_at'     => $this->integer()->notNull(),
         ]);
 
-        $this->createIndex('idx_ai_chat_log_lead',       '{{%ai_chat_log}}', 'lead_id');
-        $this->createIndex('idx_ai_chat_log_pipeline',   '{{%ai_chat_log}}', 'pipeline_id');
-        $this->createIndex('idx_ai_chat_log_created',    '{{%ai_chat_log}}', 'created_at');
-        $this->createIndex('idx_ai_chat_log_escalated',  '{{%ai_chat_log}}', 'escalated');
+        $this->createIndex('idx_ai_chat_log_lead', '{{%ai_chat_log}}', 'lead_id');
+        $this->createIndex('idx_ai_chat_log_pipeline', '{{%ai_chat_log}}', 'pipeline_id');
+        $this->createIndex('idx_ai_chat_log_created', '{{%ai_chat_log}}', 'created_at');
+        $this->createIndex('idx_ai_chat_log_escalated', '{{%ai_chat_log}}', 'escalated');
     }
 
     public function safeDown()

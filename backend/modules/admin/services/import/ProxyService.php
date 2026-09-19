@@ -7,7 +7,7 @@ use yii\base\Component;
 
 /**
  * ProxyService — Сервис управления прокси
- * 
+ *
  * Ротация, проверка, мониторинг прокси
  */
 class ProxyService extends Component
@@ -32,27 +32,27 @@ class ProxyService extends Component
     public function getProxy($sourceId)
     {
         $source = \app\backend\modules\admin\models\import\ImportSource::findOne($sourceId);
-        
+
         if (!$source || !$source->proxy_enabled) {
             return null;
         }
 
         $proxyList = $source->getProxyListArray();
-        
+
         if (empty($proxyList)) {
             return null;
         }
 
         // Фильтруем только рабочие прокси
         $workingList = $this->filterWorkingProxies($proxyList, $sourceId);
-        
+
         if (empty($workingList)) {
             // Если нет рабочих - пробуем все
             $workingList = $proxyList;
         }
 
         // Выбираем прокси по типу ротации
-        return match($source->proxy_rotation) {
+        return match ($source->proxy_rotation) {
             \app\backend\modules\admin\models\import\ImportSource::PROXY_ROTATION_RANDOM => $this->selectRandom($workingList),
             \app\backend\modules\admin\models\import\ImportSource::PROXY_ROTATION_SEQUENTIAL => $this->selectSequential($workingList, $sourceId),
             default => $this->selectRandom($workingList),
@@ -78,7 +78,7 @@ class ProxyService extends Component
     protected function selectSequential(array $proxyList, $sourceId)
     {
         $key = "proxy_index_{$sourceId}";
-        
+
         if (!isset($this->currentIndex[$key])) {
             $this->currentIndex[$key] = 0;
         }
@@ -98,10 +98,10 @@ class ProxyService extends Component
     protected function filterWorkingProxies(array $proxyList, $sourceId)
     {
         $key = "working_proxies_{$sourceId}";
-        
+
         if (!isset($this->workingProxies[$key])) {
             $this->workingProxies[$key] = [];
-            
+
             foreach ($proxyList as $proxy) {
                 if ($this->checkProxy($proxy)) {
                     $this->workingProxies[$key][] = $proxy;
@@ -130,7 +130,7 @@ class ProxyService extends Component
 
             // Проверяем через простой запрос
             $response = $client->get('https://api.ipify.org?format=json');
-            
+
             return $response->getStatusCode() === 200;
         } catch (\Exception $e) {
             Yii::warning("Proxy check failed: {$proxy} - " . $e->getMessage(), 'import');
@@ -172,7 +172,7 @@ class ProxyService extends Component
         }
 
         $key = "working_proxies_{$sourceId}";
-        
+
         if (!isset($this->workingProxies[$key])) {
             $this->workingProxies[$key] = [];
         }
@@ -190,7 +190,7 @@ class ProxyService extends Component
     public function checkAllProxies($sourceId)
     {
         $source = \app\backend\modules\admin\models\import\ImportSource::findOne($sourceId);
-        
+
         if (!$source) {
             return [];
         }
@@ -217,7 +217,7 @@ class ProxyService extends Component
     public function getStats($sourceId)
     {
         $source = \app\backend\modules\admin\models\import\ImportSource::findOne($sourceId);
-        
+
         if (!$source) {
             return [];
         }
@@ -230,8 +230,8 @@ class ProxyService extends Component
             'total' => count($proxyList),
             'working' => count($workingList),
             'failed' => count($proxyList) - count($workingList),
-            'success_rate' => count($proxyList) > 0 
-                ? round((count($workingList) / count($proxyList)) * 100, 1) 
+            'success_rate' => count($proxyList) > 0
+                ? round((count($workingList) / count($proxyList)) * 100, 1)
                 : 0,
         ];
     }

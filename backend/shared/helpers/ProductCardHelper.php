@@ -2,30 +2,31 @@
 
 /**
  * ProductCardHelper — Хелпер для подготовки данных карточки товара
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Подготовка данных для отображения карточки товара:
  * размеры, цены, бейджи, галерея. Оптимизация для фронтенда.
- * 
+ *
  * МЕТОДЫ:
  * - normalizeSelectedSizes(): нормализация параметра размеров
  * - resolveSizeField(): определение поля размера по системе
  * - prepareCardData(): подготовка данных карточки
  * - getBadges(): получение бейджей (новинка, скидка)
  * - getGallery(): получение галереи изображений
- * 
+ *
  * КОНСТАНТЫ:
  * - LAZY_PLACEHOLDER: placeholder для lazy loading
  * - MAX_SIZE_BADGES: максимум бейджей размеров
  * - MAX_GALLERY_IMAGES: максимум изображений в галерее
  * - NEW_BADGE_PERIOD: период для бейджа "новинка"
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * ```php
  * $cardData = ProductCardHelper::prepareCardData($product);
  * $badges = ProductCardHelper::getBadges($product);
  * ```
  */
+
 namespace app\backend\shared\helpers;
 
 use app\backend\modules\catalog\models\Product;
@@ -261,14 +262,14 @@ class ProductCardHelper
 
     /**
      * Возвращает доступные размеры товара в формате [размер => доступность]
-     * 
+     *
      * @param Product $product
      * @return array
      */
     public static function getAvailableSizes(Product $product): array
     {
         $availableSizes = [];
-        
+
         if (empty($product->sizes) || !is_array($product->sizes)) {
             // Если размеров нет, возвращаем стандартные размеры
             return [
@@ -285,9 +286,9 @@ class ProductCardHelper
                 '46' => true,
             ];
         }
-        
+
         $sizeField = self::resolveSizeField(self::DEFAULT_SIZE_SYSTEM);
-        
+
         foreach ($product->sizes as $size) {
             if (!empty($size->$sizeField)) {
                 $sizeValue = (string)$size->$sizeField;
@@ -302,7 +303,7 @@ class ProductCardHelper
                 $availableSizes[$sizeValue] = !empty($size->is_available);
             }
         }
-        
+
         return $availableSizes;
     }
 }

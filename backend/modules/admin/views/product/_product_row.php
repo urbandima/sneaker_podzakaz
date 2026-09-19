@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Partial: single product table row (used by index + infinite scroll)
  * @var app\backend\modules\catalog\models\Product $product
@@ -28,9 +29,9 @@ if ($isActive && !$isOutOfStock) {
 <tr data-href="<?= Url::to(['/admin/product/view', 'id' => $product->id]) ?>">
     <td style="padding:6px 8px">
         <div class="product-thumb-cell">
-            <?php if ($imageUrl): ?>
+            <?php if ($imageUrl) : ?>
                 <img src="<?= Html::encode($imageUrl) ?>" alt="" class="product-thumb" loading="lazy">
-            <?php else: ?>
+            <?php else : ?>
                 <div class="product-thumb product-thumb--empty"><i class="bi bi-image"></i></div>
             <?php endif; ?>
         </div>
@@ -44,7 +45,9 @@ if ($isActive && !$isOutOfStock) {
     <td data-col="brand" style="white-space:nowrap">
         <?php
             $brandName = $product->brand->name ?? null;
-            if (!$brandName || $brandName === '-') $brandName = null;
+        if (!$brandName || $brandName === '-') {
+            $brandName = null;
+        }
             echo $brandName ? Html::encode($brandName) : '—';
         ?>
     </td>

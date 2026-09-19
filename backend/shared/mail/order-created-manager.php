@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Email шаблон: Уведомление менеджеру о новом заказе
  *
@@ -163,7 +164,7 @@ $adminUrl = Url::to(['/admin/order/view', 'id' => $order->id], true);
                     </a>
                 </div>
             </div>
-            <?php if ($order->client_email): ?>
+            <?php if ($order->client_email) : ?>
             <div class="info-row">
                 <div class="info-label">Email:</div>
                 <div class="info-value">
@@ -187,19 +188,23 @@ $adminUrl = Url::to(['/admin/order/view', 'id' => $order->id], true);
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($order->orderItems as $item): ?>
+                <?php foreach ($order->orderItems as $item) : ?>
                 <tr>
                     <td>
                         <?= Html::encode($item->product_name) ?>
-                        <?php if ($item->product_article): ?>
+                        <?php if ($item->product_article) : ?>
                             <br><span style="color:#888;font-size:12px;"><?= Html::encode($item->product_article) ?></span>
                         <?php endif; ?>
                     </td>
                     <td>
                         <?php
                         $attrs = [];
-                        if ($item->size)  $attrs[] = 'р. ' . Html::encode($item->size);
-                        if ($item->color) $attrs[] = Html::encode($item->color);
+                        if ($item->size) {
+                            $attrs[] = 'р. ' . Html::encode($item->size);
+                        }
+                        if ($item->color) {
+                            $attrs[] = Html::encode($item->color);
+                        }
                         echo implode(' / ', $attrs) ?: '—';
                         ?>
                     </td>
@@ -236,13 +241,13 @@ $adminUrl = Url::to(['/admin/order/view', 'id' => $order->id], true);
                 <div class="info-label">Способ доставки:</div>
                 <div class="info-value"><?= $deliveryLabel ?></div>
             </div>
-            <?php if ($countryLabel): ?>
+            <?php if ($countryLabel) : ?>
             <div class="info-row">
                 <div class="info-label">Страна:</div>
                 <div class="info-value"><?= $countryLabel ?></div>
             </div>
             <?php endif; ?>
-            <?php if ($order->delivery_address): ?>
+            <?php if ($order->delivery_address) : ?>
             <div class="info-row">
                 <div class="info-label">Адрес:</div>
                 <div class="info-value"><?= Html::encode($order->delivery_address) ?></div>
@@ -254,7 +259,7 @@ $adminUrl = Url::to(['/admin/order/view', 'id' => $order->id], true);
             </div>
         </div>
 
-        <?php if ($order->comment): ?>
+        <?php if ($order->comment) : ?>
         <h2 class="section-title">Комментарий клиента</h2>
         <div class="info-block">
             <p style="margin:0;"><?= Html::encode($order->comment) ?></p>

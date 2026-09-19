@@ -12,7 +12,7 @@ $this->title = 'Новый заказ';
 $user = Yii::$app->user->identity;
 $statuses = Yii::$app->settings->getStatuses();
 $logists = $user->isAdmin()
-    ? (function() {
+    ? (function () {
         try {
             return \app\backend\modules\admin\models\User::find()->where(['role' => 'logist'])->orderBy(['username' => SORT_ASC])->all();
         } catch (\Exception $e) {
@@ -164,16 +164,16 @@ $logists = $user->isAdmin()
                                     data-validation="required"
                                     data-field="delivery_method">
                                 <option value="">— Выберите способ доставки —</option>
-                                <?php foreach ($shippingMethods as $sm): ?>
+                                <?php foreach ($shippingMethods as $sm) : ?>
                                     <option value="<?= Html::encode($sm['id']) ?>"
                                             <?= $model->delivery_method === $sm['id'] ? 'selected' : '' ?>
                                             data-plugin="<?= Html::encode($sm['plugin'] ?? '') ?>"
                                             data-cost="<?= Html::encode($sm['base_cost'] ?? 0) ?>">
                                         <?= Html::encode($sm['name']) ?>
-                                        <?php if (!empty($sm['carrier'])): ?>
+                                        <?php if (!empty($sm['carrier'])) : ?>
                                             (<?= Html::encode($sm['carrier']) ?>)
                                         <?php endif; ?>
-                                        <?php if (!empty($sm['delivery_time'])): ?>
+                                        <?php if (!empty($sm['delivery_time'])) : ?>
                                             — <?= Html::encode($sm['delivery_time']) ?>
                                         <?php endif; ?>
                                     </option>
@@ -548,7 +548,7 @@ $logists = $user->isAdmin()
                         <div class="form-field">
                             <label>Статус заказа</label>
                             <select name="Order[status]" data-field="status">
-                                <?php foreach ($statuses as $key => $label): ?>
+                                <?php foreach ($statuses as $key => $label) : ?>
                                     <option value="<?= Html::encode($key) ?>"><?= Html::encode($label) ?></option>
                                 <?php endforeach; ?>
                             </select>
@@ -567,12 +567,12 @@ $logists = $user->isAdmin()
                                 'placeholder' => 'ID сделки в CRM и т.д.'
                             ]) ?>
                         </div>
-                        <?php if ($user->isAdmin()): ?>
+                        <?php if ($user->isAdmin()) : ?>
                         <div class="form-field">
                             <label>Ответственный логист</label>
                             <select name="Order[assigned_logist]" data-field="assigned_logist">
                                 <option value="">—</option>
-                                <?php foreach ($logists as $logist): ?>
+                                <?php foreach ($logists as $logist) : ?>
                                     <option value="<?= $logist->id ?>"><?= Html::encode($logist->username) ?></option>
                                 <?php endforeach; ?>
                             </select>
@@ -586,12 +586,14 @@ $logists = $user->isAdmin()
                         🏁 Флаги процесса
                     </h3>
                     <div class="form-grid form-grid--2">
-                        <?php foreach ([
+                        <?php foreach (
+                        [
                             'offer_accepted' => 'Оферта принята',
                             'is_processed' => 'Обработано',
                             'is_shipped' => 'Отправлено',
                             'customs_cleared' => 'Таможня пройдена',
-                        ] as $field => $label): ?>
+                        ] as $field => $label
+) : ?>
                             <label style="display: flex; align-items: center; gap: 8px;">
                                 <?= Html::activeCheckbox($model, $field, [
                                     'label' => false,

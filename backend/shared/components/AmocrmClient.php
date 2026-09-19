@@ -21,7 +21,7 @@ class AmocrmClient extends Component
     private ?string $clientSecret  = null;
     private ?string $accessToken   = null;
     private ?string $refreshToken  = null;
-    private bool    $usingLongToken = false;
+    private bool $usingLongToken = false;
 
     public function init(): void
     {
@@ -123,7 +123,9 @@ class AmocrmClient extends Component
     public function getPipelinesWithStatuses(): ?array
     {
         $raw = $this->request('GET', '/api/v4/leads/pipelines', ['limit' => 50]);
-        if ($raw === null) return null;
+        if ($raw === null) {
+            return null;
+        }
 
         $out = [];
         foreach ($raw['_embedded']['pipelines'] ?? [] as $p) {
@@ -213,7 +215,7 @@ class AmocrmClient extends Component
             $this->accessToken  = $data['access_token'];
             $this->refreshToken = $data['refresh_token'];
             $s = Yii::$app->settings;
-            $s->set('amocrm', 'access_token',  $data['access_token']);
+            $s->set('amocrm', 'access_token', $data['access_token']);
             $s->set('amocrm', 'refresh_token', $data['refresh_token']);
             $expAt = time() + ((int)($data['expires_in'] ?? 86400));
             $s->set('amocrm', 'token_expires_at', (string)$expAt);
@@ -265,9 +267,13 @@ class AmocrmClient extends Component
 
     private function request(string $method, string $path, array $query = [], $body = null, bool $retry = true): ?array
     {
-        if (!$this->domain) return null;
+        if (!$this->domain) {
+            return null;
+        }
         $url = 'https://' . $this->domain . $path;
-        if ($query) $url .= '?' . http_build_query($query);
+        if ($query) {
+            $url .= '?' . http_build_query($query);
+        }
 
         $t0 = microtime(true);
         $headers = [

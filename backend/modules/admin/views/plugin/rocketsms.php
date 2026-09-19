@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var array $config */
 /** @var array|null $balance */
@@ -70,7 +71,7 @@ $this->params['headerActions'] = [
             <h2 class="admin-card-title"><i class="bi bi-cash-coin"></i> Баланс и статус</h2>
         </div>
         <div class="admin-card-body">
-            <?php if ($balance !== null): ?>
+            <?php if ($balance !== null) : ?>
                 <div style="display:flex;flex-direction:column;gap:12px">
                     <div>
                         <div style="font-size:0.78rem;color:var(--admin-text-secondary);margin-bottom:4px">Доступных SMS (кредиты)</div>
@@ -78,18 +79,18 @@ $this->params['headerActions'] = [
                             <?= Html::encode(number_format((float)$balance['credits'], 0, '.', ' ')) ?>
                         </div>
                     </div>
-                    <?php if (isset($balance['balance']) || isset($balance['currency'])): ?>
+                    <?php if (isset($balance['balance']) || isset($balance['currency'])) : ?>
                     <div>
                         <div style="font-size:0.78rem;color:var(--admin-text-secondary);margin-bottom:4px">Остаток на счёте</div>
                         <div style="font-size:1.25rem;font-weight:600"><?= Html::encode($balance['currency'] ?? 'BYN') ?></div>
                     </div>
                     <?php endif; ?>
                 </div>
-            <?php elseif (empty($username) || empty($password)): ?>
+            <?php elseif (empty($username) || empty($password)) : ?>
                 <p style="color:var(--admin-text-secondary);font-size:0.875rem">
                     Заполните username / password — и после сохранения здесь отобразится актуальный баланс.
                 </p>
-            <?php else: ?>
+            <?php else : ?>
                 <p style="color:#b91c1c;font-size:0.875rem">
                     <i class="bi bi-exclamation-triangle"></i>
                     Не удалось получить баланс. Проверьте правильность username / password.

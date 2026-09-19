@@ -39,13 +39,13 @@ $this->params['breadcrumbs'][] = 'Профиль';
             ]) ?>
 
             <main class="account-content">
-                <?php if (Yii::$app->session->hasFlash('success')): ?>
+                <?php if (Yii::$app->session->hasFlash('success')) : ?>
                     <div class="alert alert-success" style="background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;padding:12px 16px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
                         <i class="bi bi-check-circle-fill"></i>
                         <?= Html::encode(Yii::$app->session->getFlash('success')) ?>
                     </div>
                 <?php endif; ?>
-                <?php if (Yii::$app->session->hasFlash('error')): ?>
+                <?php if (Yii::$app->session->hasFlash('error')) : ?>
                     <div class="alert alert-error" style="background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:12px 16px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
                         <i class="bi bi-exclamation-circle-fill"></i>
                         <?= Html::encode(Yii::$app->session->getFlash('error')) ?>

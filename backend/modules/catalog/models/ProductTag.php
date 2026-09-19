@@ -2,11 +2,11 @@
 
 /**
  * ProductTag — Модель тега товара
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Теги для группировки товаров по произвольным меткам:
  * "Новинка", "Хит продаж", "Скидка", "Эксклюзив" и т.д.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - name: название тега
  * - slug: SEO-friendly URL
@@ -14,14 +14,14 @@
  * - description: описание тега
  * - is_active: активность
  * - sort_order: порядок сортировки
- * 
+ *
  * СВЯЗИ:
  * - Product[] через ProductTagAssignment: товары с этим тегом
- * 
+ *
  * ПОВЕДЕНИЯ:
  * - TimestampBehavior (created_at, updated_at)
  * - SluggableBehavior (генерация slug из name)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - ProductTagController (CRUD в админке)
  * - CatalogController (фильтрация по тегам)
@@ -47,7 +47,7 @@ use yii\behaviors\SluggableBehavior;
  * @property int $sort_order Порядок сортировки
  * @property int $created_at
  * @property int $updated_at
- * 
+ *
  * @property Product[] $products Товары с этим тегом
  * @property ProductTagAssignment[] $assignments
  */

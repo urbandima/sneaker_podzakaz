@@ -17,9 +17,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 <div class="card-body">
                     <h2 class="text-primary mb-0"><?= $info['balance'] ?></h2>
                     <p class="text-muted mb-0">Баллов на счёте</p>
-                    <?php if ($info['canRedeem']): ?>
+                    <?php if ($info['canRedeem']) : ?>
                         <small class="text-success">≈ <?= Yii::$app->formatter->asCurrency($info['redeemValue']) ?></small>
-                    <?php else: ?>
+                    <?php else : ?>
                         <small class="text-muted">Минимум для списания: <?= $info['minPoints'] ?? 100 ?> баллов</small>
                     <?php endif; ?>
                 </div>
@@ -30,14 +30,14 @@ $this->params['breadcrumbs'][] = $this->title;
             <div class="card text-center">
                 <div class="card-body">
                     <h5 class="mb-2">
-                        <?php if ($info['level']): ?>
+                        <?php if ($info['level']) : ?>
                             <span class="badge bg-success"><?= Html::encode($info['level']->name) ?></span>
-                        <?php else: ?>
+                        <?php else : ?>
                             <span class="badge bg-secondary">Новичок</span>
                         <?php endif; ?>
                     </h5>
                     <p class="text-muted mb-0">Ваш уровень</p>
-                    <?php if ($info['level']): ?>
+                    <?php if ($info['level']) : ?>
                         <small class="text-info">Множитель: x<?= $info['level']->points_multiplier ?></small>
                     <?php endif; ?>
                 </div>
@@ -47,11 +47,11 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
-                    <?php if ($info['nextLevel']): ?>
+                    <?php if ($info['nextLevel']) : ?>
                         <h5 class="mb-2"><?= Html::encode($info['nextLevel']->name) ?></h5>
                         <p class="text-muted mb-0">Следующий уровень</p>
                         <small class="text-warning">Ещё <?= $info['pointsToNextLevel'] ?> баллов</small>
-                    <?php else: ?>
+                    <?php else : ?>
                         <h5 class="mb-2">🏆</h5>
                         <p class="text-muted mb-0">Максимальный уровень</p>
                         <small class="text-success">Поздравляем!</small>
@@ -113,7 +113,9 @@ $this->params['breadcrumbs'][] = $this->title;
                         'attribute' => 'expires_at',
                         'format' => 'date',
                         'value' => function ($model) {
-                            if (!$model->expires_at) return '—';
+                            if (!$model->expires_at) {
+                                return '—';
+                            }
                             $date = strtotime($model->expires_at);
                             $now = time();
                             if ($date < $now) {

@@ -18,18 +18,27 @@ class m260424_410000_feedback_reply_status extends Migration
         }
 
         if (!in_array('status', $schema->columnNames, true)) {
-            $this->addColumn('{{%feedback}}', 'status',
-                $this->string(20)->notNull()->defaultValue('new')->after('is_read'));
+            $this->addColumn(
+                '{{%feedback}}',
+                'status',
+                $this->string(20)->notNull()->defaultValue('new')->after('is_read')
+            );
             $this->update('{{%feedback}}', ['status' => 'read'], ['is_read' => 1]);
             $this->update('{{%feedback}}', ['status' => 'new'], ['is_read' => 0]);
         }
         if (!in_array('reply_text', $schema->columnNames, true)) {
-            $this->addColumn('{{%feedback}}', 'reply_text',
-                $this->text()->null()->after('status'));
+            $this->addColumn(
+                '{{%feedback}}',
+                'reply_text',
+                $this->text()->null()->after('status')
+            );
         }
         if (!in_array('replied_at', $schema->columnNames, true)) {
-            $this->addColumn('{{%feedback}}', 'replied_at',
-                $this->integer()->null()->after('reply_text'));
+            $this->addColumn(
+                '{{%feedback}}',
+                'replied_at',
+                $this->integer()->null()->after('reply_text')
+            );
         }
         try {
             $this->createIndex('idx_feedback_status', '{{%feedback}}', 'status');

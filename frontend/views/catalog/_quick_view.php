@@ -21,14 +21,14 @@ $priceView = ProductCardHelper::calculatePriceView($product, null, [], $sizeFiel
         <div class="qv-gallery">
             <div class="qv-main-image">
                 <img src="<?= Html::encode($mainImage) ?>" alt="<?= Html::encode($product->name) ?>" id="qvMainImg">
-                <?php if ($priceView['discountPercent'] !== null): ?>
+                <?php if ($priceView['discountPercent'] !== null) : ?>
                     <span class="qv-discount-badge">-<?= $priceView['discountPercent'] ?>%</span>
                 <?php endif; ?>
             </div>
             
-            <?php if (count($thumbImages) > 1): ?>
+            <?php if (count($thumbImages) > 1) : ?>
                 <div class="qv-thumbs">
-                    <?php foreach ($thumbImages as $index => $imgUrl): ?>
+                    <?php foreach ($thumbImages as $index => $imgUrl) : ?>
                         <img
                             src="<?= Html::encode($imgUrl) ?>"
                             alt=""
@@ -41,25 +41,25 @@ $priceView = ProductCardHelper::calculatePriceView($product, null, [], $sizeFiel
         
         <!-- Информация -->
         <div class="qv-info">
-            <?php if ($product->brand): ?>
+            <?php if ($product->brand) : ?>
                 <div class="qv-brand"><?= Html::encode($product->brand->name) ?></div>
             <?php endif; ?>
             <h2 class="qv-title"><?= Html::encode($product->getDisplayTitle()) ?></h2>
             
             <!-- Рейтинг -->
-            <?php if ($product->rating > 0): ?>
+            <?php if ($product->rating > 0) : ?>
                 <div class="qv-rating">
                     <div class="stars">
-                        <?php 
+                        <?php
                         $fullStars = floor($product->rating);
                         $hasHalf = ($product->rating - $fullStars) >= 0.5;
-                        for ($i = 0; $i < $fullStars; $i++): ?>
+                        for ($i = 0; $i < $fullStars; $i++) : ?>
                             <i class="bi bi-star-fill"></i>
                         <?php endfor; ?>
-                        <?php if ($hasHalf): ?>
+                        <?php if ($hasHalf) : ?>
                             <i class="bi bi-star-half"></i>
                         <?php endif; ?>
-                        <?php for ($i = $fullStars + ($hasHalf ? 1 : 0); $i < 5; $i++): ?>
+                        <?php for ($i = $fullStars + ($hasHalf ? 1 : 0); $i < 5; $i++) : ?>
                             <i class="bi bi-star"></i>
                         <?php endfor; ?>
                     </div>
@@ -69,14 +69,14 @@ $priceView = ProductCardHelper::calculatePriceView($product, null, [], $sizeFiel
             <?php endif; ?>
             
             <div class="qv-price">
-                <?php if ($priceView['showRange'] && $priceView['minPrice'] !== null && $priceView['maxPrice'] !== null): ?>
+                <?php if ($priceView['showRange'] && $priceView['minPrice'] !== null && $priceView['maxPrice'] !== null) : ?>
                     <span class="current-price">
                         <?= Yii::$app->formatter->asCurrency($priceView['minPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
                         <span class="price-separator"> - </span>
                         <?= Yii::$app->formatter->asCurrency($priceView['maxPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
                     </span>
-                <?php else: ?>
-                    <?php if ($priceView['showOldPrice'] && $priceView['oldPrice'] !== null): ?>
+                <?php else : ?>
+                    <?php if ($priceView['showOldPrice'] && $priceView['oldPrice'] !== null) : ?>
                         <span class="old-price">
                             <?= Yii::$app->formatter->asCurrency($priceView['oldPrice'], ProductCardHelper::PRICE_CURRENCY) ?>
                         </span>
@@ -92,28 +92,28 @@ $priceView = ProductCardHelper::calculatePriceView($product, null, [], $sizeFiel
                 <span><?= $product->getStockStatusLabel() ?></span>
             </div>
             
-            <?php if ($product->description): ?>
+            <?php if ($product->description) : ?>
                 <div class="qv-description">
                     <?= nl2br(Html::encode(mb_substr($product->description, 0, 200))) ?>
-                    <?php if (mb_strlen($product->description) > 200): ?>
+                    <?php if (mb_strlen($product->description) > 200) : ?>
                         <span>...</span>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
             
             <!-- Размеры -->
-            <?php if (!empty($sizeBadges['badges'])): ?>
+            <?php if (!empty($sizeBadges['badges'])) : ?>
                 <div class="qv-sizes">
                     <h4>Выберите размер</h4>
                     <div class="size-grid">
-                        <?php foreach ($sizeBadges['badges'] as $badge): ?>
+                        <?php foreach ($sizeBadges['badges'] as $badge) : ?>
                             <label class="size-option">
                                 <input type="radio" name="qv_size" value="<?= Html::encode($badge['value']) ?>">
                                 <span><?= Html::encode($badge['value']) ?></span>
                             </label>
                         <?php endforeach; ?>
                     </div>
-                    <?php if ($sizeBadges['remaining'] > 0): ?>
+                    <?php if ($sizeBadges['remaining'] > 0) : ?>
                         <p class="size-more">+<?= $sizeBadges['remaining'] ?> размеров доступно на странице товара</p>
                     <?php endif; ?>
                 </div>
@@ -126,13 +126,13 @@ $priceView = ProductCardHelper::calculatePriceView($product, null, [], $sizeFiel
                     <span class="detail-label">Артикул:</span>
                     <span class="detail-value"><?= $product->id ?></span>
                 </div>
-                <?php if ($product->material): ?>
+                <?php if ($product->material) : ?>
                     <div class="detail-row">
                         <span class="detail-label">Материал:</span>
                         <span class="detail-value"><?= Html::encode($product->material) ?></span>
                     </div>
                 <?php endif; ?>
-                <?php if ($product->season): ?>
+                <?php if ($product->season) : ?>
                     <div class="detail-row">
                         <span class="detail-label">Сезон:</span>
                         <span class="detail-value"><?= Html::encode($product->season) ?></span>

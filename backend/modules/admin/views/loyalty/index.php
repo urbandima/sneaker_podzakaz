@@ -11,9 +11,9 @@ $loyaltyEnabled = Yii::$app->settings->get('loyalty', 'enabled', 0);
 $publicEnabled  = Yii::$app->settings->get('loyalty', 'public_page', 0);
 
 $levels = [
-    'bronze'   => ['label' => 'Bronze',   'icon' => 'award',        'color' => '#cd7f32', 'min' => Yii::$app->settings->get('loyalty', 'bronze_min',   0),     'multiplier' => Yii::$app->settings->get('loyalty', 'bronze_mult',   1.0)],
-    'silver'   => ['label' => 'Silver',   'icon' => 'award-fill',   'color' => '#c0c0c0', 'min' => Yii::$app->settings->get('loyalty', 'silver_min',   5000),  'multiplier' => Yii::$app->settings->get('loyalty', 'silver_mult',   1.5)],
-    'gold'     => ['label' => 'Gold',     'icon' => 'trophy',       'color' => '#ffd700', 'min' => Yii::$app->settings->get('loyalty', 'gold_min',     15000), 'multiplier' => Yii::$app->settings->get('loyalty', 'gold_mult',     2.0)],
+    'bronze'   => ['label' => 'Bronze',   'icon' => 'award',        'color' => '#cd7f32', 'min' => Yii::$app->settings->get('loyalty', 'bronze_min', 0),     'multiplier' => Yii::$app->settings->get('loyalty', 'bronze_mult', 1.0)],
+    'silver'   => ['label' => 'Silver',   'icon' => 'award-fill',   'color' => '#c0c0c0', 'min' => Yii::$app->settings->get('loyalty', 'silver_min', 5000),  'multiplier' => Yii::$app->settings->get('loyalty', 'silver_mult', 1.5)],
+    'gold'     => ['label' => 'Gold',     'icon' => 'trophy',       'color' => '#ffd700', 'min' => Yii::$app->settings->get('loyalty', 'gold_min', 15000), 'multiplier' => Yii::$app->settings->get('loyalty', 'gold_mult', 2.0)],
     'platinum' => ['label' => 'Platinum', 'icon' => 'trophy-fill',  'color' => '#e5e4e2', 'min' => Yii::$app->settings->get('loyalty', 'platinum_min', 50000), 'multiplier' => Yii::$app->settings->get('loyalty', 'platinum_mult', 3.0)],
 ];
 ?>
@@ -76,7 +76,7 @@ $this->params['headerActions'] = [
     <p style="color: var(--admin-text-secondary); font-size: 0.875rem; margin: 0.5rem 0 1.5rem;">Укажите минимальную сумму покупок (BYN) для достижения уровня и коэффициент начисления баллов.</p>
 
     <div class="loyalty-levels-grid">
-        <?php foreach ($levels as $key => $level): ?>
+        <?php foreach ($levels as $key => $level) : ?>
         <div class="loyalty-level-card">
             <div class="loyalty-level-header" style="border-color: <?= $level['color'] ?>; background: <?= $level['color'] ?>20;">
                 <i class="bi bi-<?= $level['icon'] ?>" style="color: <?= $level['color'] ?>; font-size: 1.75rem;"></i>
@@ -91,7 +91,7 @@ $this->params['headerActions'] = [
                            value="<?= Html::encode($level['min']) ?>"
                            min="0" step="100"
                            <?= $key === 'bronze' ? 'readonly' : '' ?>>
-                    <?php if ($key === 'bronze'): ?>
+                    <?php if ($key === 'bronze') : ?>
                         <small class="text-muted">Стартовый уровень — всегда 0</small>
                     <?php endif; ?>
                 </div>

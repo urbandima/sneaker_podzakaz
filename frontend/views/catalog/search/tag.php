@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Страница товаров по тегу
- * 
+ *
  * @var ProductTag $tag
  * @var array $products
  * @var Pagination $pagination
@@ -27,17 +28,17 @@ $this->registerMetaTag(['name' => 'description', 'content' => 'Товары с �
         <!-- Заголовок тега -->
         <div class="tag-header" <?= $tag->color ? 'style="background-color: ' . $tag->color . '20"' : '' ?>>
             <div class="tag-header-content">
-                <?php if ($tag->color): ?>
+                <?php if ($tag->color) : ?>
                     <span class="tag-badge" style="background-color: <?= $tag->color ?>">
                         <?= Html::encode($tag->name) ?>
                     </span>
-                <?php else: ?>
+                <?php else : ?>
                     <span class="tag-badge"><?= Html::encode($tag->name) ?></span>
                 <?php endif; ?>
                 
                 <h1 class="tag-title">Товары с тегом «<?= Html::encode($tag->name) ?>»</h1>
                 
-                <?php if ($tag->description): ?>
+                <?php if ($tag->description) : ?>
                     <p class="tag-description"><?= Html::encode($tag->description) ?></p>
                 <?php endif; ?>
                 
@@ -47,12 +48,12 @@ $this->registerMetaTag(['name' => 'description', 'content' => 'Товары с �
 
         <div class="tag-layout">
             <!-- Боковая панель с похожими тегами -->
-            <?php if (!empty($relatedTags)): ?>
+            <?php if (!empty($relatedTags)) : ?>
                 <aside class="tag-sidebar">
                     <div class="tag-sidebar-section">
                         <h3 class="tag-sidebar-title">Другие теги</h3>
                         <div class="tag-list">
-                            <?php foreach ($relatedTags as $relatedTag): ?>
+                            <?php foreach ($relatedTags as $relatedTag) : ?>
                                 <a href="<?= Url::to(['/catalog/search/tag', 'slug' => $relatedTag->slug]) ?>" 
                                    class="tag-item"
                                    <?= $relatedTag->color ? 'style="border-left-color: ' . $relatedTag->color . '"' : '' ?>>
@@ -66,16 +67,16 @@ $this->registerMetaTag(['name' => 'description', 'content' => 'Товары с �
 
             <!-- Список товаров -->
             <div class="tag-content">
-                <?php if (empty($products)): ?>
+                <?php if (empty($products)) : ?>
                     <div class="tag-empty">
                         <p>В данный момент нет товаров с этим тегом.</p>
                         <a href="<?= Url::to(['/catalog']) ?>" class="btn btn-primary">
                             Перейти в каталог
                         </a>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="products-grid">
-                        <?php foreach ($products as $product): ?>
+                        <?php foreach ($products as $product) : ?>
                             <?= $this->render('_product_card', ['product' => $product]) ?>
                         <?php endforeach; ?>
                     </div>

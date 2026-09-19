@@ -30,7 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <div class="account-content">
                 <h1><?= Html::encode($this->title) ?></h1>
                 
-                <?php if ($customer): ?>
+                <?php if ($customer) : ?>
                     <div class="card">
                         <div class="card-header">
                             <h5 class="mb-0">Личные данные</h5>
@@ -86,7 +86,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         </div>
                     </div>
                     
-                <?php else: ?>
+                <?php else : ?>
                     <div class="alert alert-warning">
                         <h5>Профиль не найден</h5>
                         <p>Ваши данные не найдены в системе. Пожалуйста, войдите или зарегистрируйтесь.</p>

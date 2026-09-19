@@ -1,0 +1,22 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 5
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+    paths:
+        - backend
+        - frontend
+        - api
+        - infrastructure
+    excludePaths:
+        - */vendor/*
+        - */runtime/*
+        - */web/assets/*
+        - */tests/*
+        # yii2-queue scaffolding: implements yii\queue\JobInterface, but
+        # yiisoft/yii2-queue is not in composer.json and no component wires
+        # it up anywhere — the interface doesn't exist, and PHPStan treats
+        # "implements unknown interface" as unignorable (can't baseline it).
+        - infrastructure/jobs/SendEmailJob.php

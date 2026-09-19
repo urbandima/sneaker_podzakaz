@@ -37,12 +37,12 @@ $this->registerCss('
             <main class="account-content">
                 <div class="content-header">
                     <h2><i class="bi bi-bag-check"></i> История заказов</h2>
-                    <?php if (!empty($orders)): ?>
+                    <?php if (!empty($orders)) : ?>
                         <span class="orders-count"><?= count($orders) ?> <?= Yii::t('app', '{n, plural, =1{заказ} =2{заказа} =3{заказа} =4{заказа} other{заказов}}', ['n' => count($orders)]) ?></span>
                     <?php endif; ?>
                 </div>
 
-                <?php if (empty($orders)): ?>
+                <?php if (empty($orders)) : ?>
                     <div class="empty-orders">
                         <i class="bi bi-bag-x"></i>
                         <h3>Заказов пока нет</h3>
@@ -51,15 +51,15 @@ $this->registerCss('
                             <i class="bi bi-grid"></i> Перейти в каталог
                         </a>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="orders-list">
-                        <?php foreach ($orders as $order): ?>
+                        <?php foreach ($orders as $order) : ?>
                             <a href="<?= Url::to(['/account/order-view', 'id' => $order->id]) ?>" class="order-card">
                                 <div class="order-card-header">
                                     <span class="order-number">Заказ #<?= $order->order_number ?: $order->id ?></span>
                                     <div class="order-card-badges">
                                         <span class="order-status <?= $order->status ?>"><?= $order->getStatusLabel() ?></span>
-                                        <?php if (!empty($order->dp_status)): ?>
+                                        <?php if (!empty($order->dp_status)) : ?>
                                             <?php
                                             $dpColors = [
                                                 'delivered' => 'dp-badge-green',
@@ -107,7 +107,7 @@ $this->registerCss('
                                         <span class="order-info-label">Сумма</span>
                                         <span class="order-info-value"><?= Yii::$app->formatter->asCurrency($order->total_amount, 'BYN') ?></span>
                                     </div>
-                                    <?php if (!empty($order->estimated_delivery_date)): ?>
+                                    <?php if (!empty($order->estimated_delivery_date)) : ?>
                                     <div class="order-info order-info-eta">
                                         <span class="order-info-label"><i class="bi bi-calendar-check"></i> Ожидается</span>
                                         <span class="order-info-value order-info-value-eta">

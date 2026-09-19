@@ -2,11 +2,11 @@
 
 /**
  * Product — Модель товара
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Основная сущность интернет-магазина: товары с ценами, характеристиками,
  * изображениями, размерами, интеграцией с Poizon.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - Базовые: name, slug, price, old_price, description
  * - Категоризация: category_id, brand_id, category_name, brand_name
@@ -15,7 +15,7 @@
  * - Фильтры: material, season, gender, height, fastening, country
  * - Poizon: poizon_id, poizon_spu_id, sku
  * - Статистика: views_count, rating, reviews_count
- * 
+ *
  * СВЯЗИ:
  * - Brand (принадлежит бренду)
  * - Category (принадлежит категории)
@@ -25,16 +25,17 @@
  * - ProductCharacteristicValue[] (характеристики)
  * - ProductFavorite[] (избранное)
  * - ProductReview[] (отзывы)
- * 
+ *
  * ПОВЕДЕНИЯ:
  * - TimestampBehavior (автоматическое обновление created_at, updated_at)
  * - SluggableBehavior (генерация slug из name)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - CatalogController (отображение каталога и карточки товара)
  * - ProductController/admin (управление товарами)
  * - PoizonController (импорт из Poizon)
  */
+
 namespace app\backend\modules\catalog\models;
 
 use Yii;
@@ -69,7 +70,7 @@ use app\backend\modules\admin\behaviors\LogBehavior;
  * @property string|null $meta_keywords SEO ключевые слова
  * @property int $created_at
  * @property int $updated_at
- * 
+ *
  * NEW FILTER FIELDS:
  * @property string|null $material Материал
  * @property string|null $season Сезон
@@ -82,7 +83,7 @@ use app\backend\modules\admin\behaviors\LogBehavior;
  * @property int $is_exclusive Эксклюзив
  * @property float $rating Рейтинг
  * @property int $reviews_count Количество отзывов
- * 
+ *
  * POIZON INTEGRATION FIELDS:
  * @property string|null $sku Уникальный SKU товара
  * @property string|null $poizon_id ID товара в Poizon
@@ -101,7 +102,7 @@ use app\backend\modules\admin\behaviors\LogBehavior;
  * @property int|null $delivery_time_min Минимальный срок доставки
  * @property int|null $delivery_time_max Максимальный срок доставки
  * @property string|null $related_products_json Связанные товары JSON
- * 
+ *
  * @property Category $category
  * @property Brand $brand
  * @property ProductImage[] $images
@@ -113,9 +114,9 @@ use app\backend\modules\admin\behaviors\LogBehavior;
  */
 class Product extends ActiveRecord
 {
-    const STOCK_IN_STOCK = 'in_stock';
-    const STOCK_OUT_OF_STOCK = 'out_of_stock';
-    const STOCK_PREORDER = 'preorder';
+    public const STOCK_IN_STOCK = 'in_stock';
+    public const STOCK_OUT_OF_STOCK = 'out_of_stock';
+    public const STOCK_PREORDER = 'preorder';
 
     /**
      * Тестовый seam для unit-тестов (tests/unit/CartTest.php), позволяющий подменить findOne()
@@ -181,14 +182,14 @@ class Product extends ActiveRecord
                     $this->brand_name = $brand->name;
                 }
             }
-            
+
             if ($this->category_id && !$this->category_name) {
                 $category = Category::findOne($this->category_id);
                 if ($category) {
                     $this->category_name = $category->name;
                 }
             }
-            
+
             if ($this->main_image && !$this->main_image_url) {
                 $this->main_image_url = $this->main_image;
             }
@@ -199,11 +200,13 @@ class Product extends ActiveRecord
             }
 
             // A14: placeholder name guard — force draft if name is placeholder or too short
-            if ($this->is_active && (
+            if (
+                $this->is_active && (
                 !$this->name ||
                 mb_strlen(trim($this->name)) < 3 ||
                 strtolower(trim($this->name)) === 'товар'
-            )) {
+                )
+            ) {
                 $this->is_active = false;
             }
 
@@ -218,7 +221,7 @@ class Product extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        
+
         // Обновляем денормализованные поля если изменились связанные данные
         $needsUpdate = false;
         if (isset($changedAttributes['brand_id'])) {
@@ -228,7 +231,7 @@ class Product extends ActiveRecord
                 $needsUpdate = true;
             }
         }
-        
+
         if (isset($changedAttributes['category_id'])) {
             $category = $this->category;
             if ($category) {
@@ -236,12 +239,12 @@ class Product extends ActiveRecord
                 $needsUpdate = true;
             }
         }
-        
+
         if (isset($changedAttributes['main_image'])) {
             $this->updateAttributes(['main_image_url' => $this->main_image]);
             $needsUpdate = true;
         }
-        
+
         $this->invalidateCatalogCache();
         SitemapNotifier::scheduleRegeneration();
     }
@@ -310,7 +313,7 @@ class Product extends ActiveRecord
             [['stock_status'], 'string'],
             [['stock_status'], 'in', 'range' => [self::STOCK_IN_STOCK, self::STOCK_OUT_OF_STOCK, self::STOCK_PREORDER]],
             [['stock_status'], 'default', 'value' => self::STOCK_IN_STOCK],
-            
+
             // NEW FILTER FIELDS
             [['material', 'season', 'gender', 'height', 'fastening', 'country'], 'string', 'max' => 50],
             [['material'], 'in', 'range' => ['leather', 'textile', 'synthetic', 'suede', 'mesh', 'canvas']],
@@ -318,28 +321,28 @@ class Product extends ActiveRecord
             [['gender'], 'in', 'range' => ['male', 'female', 'unisex']],
             [['height'], 'in', 'range' => ['low', 'mid', 'high']],
             [['fastening'], 'in', 'range' => ['laces', 'velcro', 'zipper', 'slip_on']],
-            
+
             // POIZON INTEGRATION FIELDS
             [['sku', 'style_code', 'vendor_code'], 'string', 'max' => 100],
             // poizon_id и poizon_variant_id могут приходить как числа - конвертируем в строки
-            [['poizon_id', 'poizon_spu_id', 'poizon_variant_id'], 'filter', 'filter' => function($value) {
+            [['poizon_id', 'poizon_spu_id', 'poizon_variant_id'], 'filter', 'filter' => function ($value) {
                 return $value !== null ? (string)$value : null;
             }],
             [['poizon_id', 'poizon_spu_id', 'poizon_variant_id'], 'string', 'max' => 100],
             [['sku'], 'unique'],
-            
+
             // БЕЗОПАСНОСТЬ: Валидация Poizon URL от XSS
             [['poizon_url'], 'string', 'max' => 500],
             [['poizon_url'], 'url'],
             [['poizon_url'], 'validatePoizonUrl'],
-            
+
             // ОТКЛЮЧЕНО: Разрешаем дубликаты vendor_code для разных вариаций товара (цвета, модели)
             // Основная идентификация через sku или poizon_id
-            // [['vendor_code'], 'unique', 
+            // [['vendor_code'], 'unique',
             //     'targetAttribute' => ['vendor_code', 'brand_id'],
             //     'message' => 'Товар с таким артикулом уже существует у данного бренда'
             // ],
-            
+
             [['poizon_price_cny', 'purchase_price'], 'number', 'min' => 0],
             [['last_sync_at'], 'safe'],
             [['upper_material', 'sole_material', 'color_description', 'series_name'], 'string', 'max' => 255],
@@ -356,7 +359,7 @@ class Product extends ActiveRecord
             [['ms_attributes_json', 'ms_images_json'], 'safe'],
             [['ms_price_full', 'ms_price_rub', 'ms_price_sale'], 'number'],
             [['ms_archived', 'ms_no_export'], 'boolean'],
-            
+
             [['category_id'], 'exist', 'targetClass' => Category::class, 'targetAttribute' => 'id'],
             [['brand_id'], 'exist', 'targetClass' => Brand::class, 'targetAttribute' => 'id'],
         ];
@@ -386,7 +389,7 @@ class Product extends ActiveRecord
             'meta_keywords' => 'SEO ключевые слова',
             'created_at' => 'Создан',
             'updated_at' => 'Обновлен',
-            
+
             // NEW LABELS
             'material' => 'Материал',
             'season' => 'Сезон',
@@ -399,7 +402,7 @@ class Product extends ActiveRecord
             'is_exclusive' => 'Эксклюзив',
             'rating' => 'Рейтинг',
             'reviews_count' => 'Количество отзывов',
-            
+
             // POIZON LABELS
             'sku' => 'SKU',
             'poizon_id' => 'Poizon ID',
@@ -428,7 +431,7 @@ class Product extends ActiveRecord
             'ms_path_name'      => 'Группа МС',
             'ms_supplier_name'  => 'Поставщик МС',
             'ms_size_grid'      => 'Размерная сетка МС',
-            'ms_attributes_json'=> 'Атрибуты МС',
+            'ms_attributes_json' => 'Атрибуты МС',
             'ms_images_json'    => 'Изображения МС',
             'ms_price_full'     => 'Цена полная МС',
             'ms_price_rub'      => 'Цена руб МС',
@@ -462,13 +465,13 @@ class Product extends ActiveRecord
         return $this->hasMany(ProductImage::class, ['product_id' => 'id'])
             ->orderBy(['is_main' => SORT_DESC, 'sort_order' => SORT_ASC]);
     }
-    
+
     /**
      * УДАЛЕНО: getCharacteristics() - связь со старой таблицей product_characteristic
      * ПРИЧИНА: Таблица не существует, модель удалена
      * ДАТА: 2025-11-10
      */
-    
+
     /**
      * Связь со значениями характеристик
      */
@@ -476,7 +479,7 @@ class Product extends ActiveRecord
     {
         return $this->hasMany(ProductCharacteristicValue::class, ['product_id' => 'id']);
     }
-    
+
     /**
      * Цвета товара
      */
@@ -484,7 +487,7 @@ class Product extends ActiveRecord
     {
         return $this->hasMany(ProductColor::class, ['product_id' => 'id']);
     }
-    
+
     /**
      * Все размеры товара
      */
@@ -493,7 +496,7 @@ class Product extends ActiveRecord
         return $this->hasMany(ProductSize::class, ['product_id' => 'id'])
             ->orderBy(['sort_order' => SORT_ASC, 'size' => SORT_ASC]);
     }
-    
+
     /**
      * Доступные размеры
      */
@@ -630,7 +633,7 @@ class Product extends ActiveRecord
             if (strpos($this->main_image_url, 'http://') === 0 || strpos($this->main_image_url, 'https://') === 0) {
                 return $this->main_image_url;
             }
-            
+
             // Если это относительный путь — проверяем существование файла
             $path = ltrim($this->main_image_url, '/');
             $fullPath = Yii::getAlias('@webroot') . '/' . $path;
@@ -639,14 +642,14 @@ class Product extends ActiveRecord
             }
             // Файл не существует — продолжаем проверку других источников
         }
-        
+
         // 2. Проверяем старое поле main_image
         if (!empty($this->main_image)) {
             // Если это внешний URL (http/https)
             if (strpos($this->main_image, 'http://') === 0 || strpos($this->main_image, 'https://') === 0) {
                 return $this->main_image;
             }
-            
+
             // Если это локальный файл — проверяем существование
             $path = ltrim($this->main_image, '/');
             $fullPath = Yii::getAlias('@webroot') . '/' . $path;
@@ -654,7 +657,7 @@ class Product extends ActiveRecord
                 return Yii::$app->request->baseUrl . '/' . $path;
             }
         }
-        
+
         // 3. Проверяем связанные изображения
         if (!empty($this->images) && isset($this->images[0])) {
             $imgUrl = $this->images[0]->getUrl();
@@ -668,7 +671,7 @@ class Product extends ActiveRecord
                 return $imgUrl;
             }
         }
-        
+
         // 4. Placeholder через data URI (SVG) - красивый placeholder с иконкой
         return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"%3E%3Crect width="400" height="400" fill="%23f3f4f6"/%3E%3Cg transform="translate(200,180)"%3E%3Cpath d="M-30,-20 L-20,-30 L20,-30 L30,-20 L30,10 L20,20 L-20,20 L-30,10 Z" fill="%23d1d5db" stroke="%23a0a0a0" stroke-width="2"/%3E%3Cellipse cx="0" cy="0" rx="15" ry="10" fill="%23e5e7eb"/%3E%3C/g%3E%3Ctext x="200" y="260" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="14" fill="%239ca3af"%3EИзображение скоро появится%3C/text%3E%3C/svg%3E';
     }
@@ -771,7 +774,7 @@ class Product extends ActiveRecord
             ],
         ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
-    
+
     /**
      * Валидация Poizon URL от XSS атак
      * Проверяет что URL безопасен и ведет на легитимный домен
@@ -781,26 +784,26 @@ class Product extends ActiveRecord
         if (empty($this->$attribute)) {
             return;
         }
-        
+
         $url = $this->$attribute;
-        
+
         // 1. Базовая валидация URL
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
             $this->addError($attribute, 'Некорректный URL');
             return;
         }
-        
+
         // 2. Проверка на опасные протоколы (защита от javascript:, data:, file:)
         $parsedUrl = parse_url($url);
         if (!isset($parsedUrl['scheme']) || !in_array(strtolower($parsedUrl['scheme']), ['http', 'https'])) {
             $this->addError($attribute, 'Разрешены только HTTP/HTTPS протоколы');
             return;
         }
-        
+
         // 3. Проверка домена (только poizon.com и dewu.com)
         $allowedDomains = ['poizon.com', 'dewu.com', 'du.com'];
         $host = strtolower($parsedUrl['host'] ?? '');
-        
+
         $isAllowed = false;
         foreach ($allowedDomains as $domain) {
             if ($host === $domain || str_ends_with($host, '.' . $domain)) {
@@ -808,19 +811,19 @@ class Product extends ActiveRecord
                 break;
             }
         }
-        
+
         if (!$isAllowed) {
             $this->addError($attribute, 'URL должен вести на poizon.com или dewu.com');
             return;
         }
-        
+
         // 4. Санитизация: удаляем опасные символы
         $this->$attribute = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
-        
+
         // 5. Устанавливаем флаг валидации
         $this->validated_url = 1;
     }
-    
+
     /**
      * Получить диапазон цен из размеров товара
      * ОПТИМИЗИРОВАНО: работает с уже загруженными sizes, не делает дополнительный запрос
@@ -836,17 +839,17 @@ class Product extends ActiveRecord
                     $prices[] = $size->price_byn;
                 }
             }
-            
+
             if (empty($prices)) {
                 return null;
             }
-            
+
             return [
                 'min' => min($prices),
                 'max' => max($prices),
             ];
         }
-        
+
         // Fallback: делаем запрос если sizes не загружены
         $sizes = $this->getSizes()
             ->select(['price_byn'])
@@ -854,19 +857,19 @@ class Product extends ActiveRecord
             ->andWhere(['>', 'price_byn', 0])
             ->asArray()
             ->all();
-        
+
         if (empty($sizes)) {
             return null;
         }
-        
+
         $prices = array_column($sizes, 'price_byn');
-        
+
         return [
             'min' => min($prices),
             'max' => max($prices),
         ];
     }
-    
+
     /**
      * Проверить - есть ли диапазон цен (разные цены у размеров)
      * @return bool
@@ -874,25 +877,25 @@ class Product extends ActiveRecord
     public function hasPriceRange()
     {
         $range = $this->getPriceRange();
-        
+
         if (!$range) {
             return false;
         }
-        
+
         // Если разница больше 1 BYN - считаем что есть диапазон
         return ($range['max'] - $range['min']) > 1;
     }
-    
+
     /**
      * Получить заголовок товара в формате: Бренд + Модель + Артикул
      * Например: "Nike Dunk Low 355152-106"
-     * 
+     *
      * @return string
      */
     public function getDisplayTitle()
     {
         $parts = [];
-        
+
         // 1. Бренд (ОПТИМИЗИРОВАНО: сначала проверяем денормализованное поле)
         if (!empty($this->brand_name)) {
             $parts[] = $this->brand_name;
@@ -900,7 +903,7 @@ class Product extends ActiveRecord
             // Fallback: если brand загружен через eager loading
             $parts[] = $this->brand->name;
         }
-        
+
         // 2. Модель (из поля model_name или извлекаем из name)
         if (!empty($this->model_name)) {
             $parts[] = $this->model_name;
@@ -910,26 +913,26 @@ class Product extends ActiveRecord
                 $parts[] = $model;
             }
         }
-        
+
         // 3. Артикул (vendor_code или style_code)
         $article = $this->vendor_code ?: $this->style_code;
         if ($article) {
             $parts[] = $article;
         }
-        
+
         // Если собрали части - возвращаем их
         if (!empty($parts)) {
             return implode(' ', $parts);
         }
-        
+
         // Fallback - текущее название
         return $this->name;
     }
-    
+
     /**
      * Извлечь название модели из текущего названия товара
      * Убирает бренд, общие слова типа "кроссовки", характеристики
-     * 
+     *
      * @return string|null
      */
     protected function extractModelName()
@@ -937,9 +940,9 @@ class Product extends ActiveRecord
         if (empty($this->name)) {
             return null;
         }
-        
+
         $name = $this->name;
-        
+
         // Список слов для удаления (в нижнем регистре)
         $wordsToRemove = [
             'кроссовки',
@@ -961,7 +964,7 @@ class Product extends ActiveRecord
             'высокие',
             'средние',
         ];
-        
+
         // Транслитерированные варианты брендов (Nike -> Найк)
         $translitVariants = [
             'Nike' => ['Найк', 'найк'],
@@ -969,55 +972,55 @@ class Product extends ActiveRecord
             'Puma' => ['Пума', 'пума'],
             'New Balance' => ['Нью Баланс', 'нью баланс'],
         ];
-        
+
         // Убираем бренд из начала строки (если есть) - ОПТИМИЗИРОВАНО
         $brandName = $this->brand_name;
         if (!$brandName && $this->isRelationPopulated('brand') && $this->brand) {
             $brandName = $this->brand->name;
         }
-        
+
         if ($brandName) {
             // Убираем бренд в разных вариантах (в начале и внутри строки)
             $name = preg_replace('/^' . preg_quote($brandName, '/') . '\s+/ui', '', $name);
-            
+
             if (isset($translitVariants[$brandName])) {
                 foreach ($translitVariants[$brandName] as $variant) {
                     $name = preg_replace('/^' . preg_quote($variant, '/') . '\s+/ui', '', $name);
                 }
             }
         }
-        
+
         // Разбиваем на слова
         $words = preg_split('/[\s,]+/u', trim($name), -1, PREG_SPLIT_NO_EMPTY);
-        
+
         // Получаем артикул для фильтрации
         $articleCode = $this->vendor_code ?: $this->style_code;
-        
+
         // Фильтруем слова
         $filteredWords = [];
         foreach ($words as $word) {
             $wordLower = mb_strtolower($word, 'UTF-8');
-            
+
             // Пропускаем общие слова
             if (in_array($wordLower, $wordsToRemove)) {
                 continue;
             }
-            
+
             // Пропускаем артикул (vendor_code/style_code) - он будет добавлен отдельно
             if ($articleCode && stripos($word, $articleCode) !== false) {
                 continue;
             }
-            
+
             // Пропускаем слова похожие на артикул (содержат цифры и тире, например "355152-106")
             if (preg_match('/^[A-Z0-9\-]+$/i', $word) && strlen($word) > 5 && strpos($word, '-') !== false) {
                 continue;
             }
-            
+
             // Пропускаем дубли бренда внутри названия
             if ($brandName && mb_strtolower($word, 'UTF-8') === mb_strtolower($brandName, 'UTF-8')) {
                 continue;
             }
-            
+
             // Пропускаем транслитерированные варианты бренда
             if ($brandName && isset($translitVariants[$brandName])) {
                 $isBrandVariant = false;
@@ -1031,32 +1034,32 @@ class Product extends ActiveRecord
                     continue;
                 }
             }
-            
+
             $filteredWords[] = $word;
         }
-        
+
         // Берем первые 4-5 значащих слов как модель (увеличено для полных названий)
         $modelWords = array_slice($filteredWords, 0, 5);
-        
+
         return !empty($modelWords) ? implode(' ', $modelWords) : null;
     }
-    
+
     /**
      * Сгенерировать и сохранить правильное название товара
      * Обновляет поле name в формате: Бренд + Модель + Артикул
-     * 
+     *
      * @return bool успешность сохранения
      */
     public function generateAndSaveName()
     {
         $displayTitle = $this->getDisplayTitle();
-        
+
         // Если заголовок изменился - обновляем
         if ($displayTitle !== $this->name) {
             $this->name = $displayTitle;
             return $this->save(false); // false чтобы не запускать валидацию повторно
         }
-        
+
         return true;
     }
 

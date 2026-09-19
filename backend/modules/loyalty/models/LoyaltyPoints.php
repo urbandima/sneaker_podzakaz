@@ -2,10 +2,10 @@
 
 /**
  * LoyaltyPoints — Модель баллов лояльности
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * История баллов лояльности: начисление, списание, баланс.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - customer_id: ID клиента
  * - points: количество баллов (положительные - начисление, отрицательные - списание)
@@ -13,7 +13,7 @@
  * - type: тип операции
  * - description: описание
  * - order_id: связанный заказ
- * 
+ *
  * ТИПЫ ОПЕРАЦИЙ:
  * - purchase: начисление за покупку
  * - redeem: списание при оплате
@@ -21,11 +21,12 @@
  * - referral: начисление за реферала
  * - expired: списание просроченных
  * - admin: ручное начисление/списание
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * LoyaltyPoints::earn($customerId, 100, 'purchase', $orderId);
  * LoyaltyPoints::redeem($customerId, 50, $orderId);
  */
+
 namespace app\backend\modules\loyalty\models;
 
 use Yii;
@@ -52,14 +53,14 @@ use app\backend\modules\account\models\Customer;
 class LoyaltyPoints extends ActiveRecord
 {
     // Типы операций
-    const TYPE_PURCHASE = 'purchase';
-    const TYPE_REDEEM = 'redeem';
-    const TYPE_BONUS = 'bonus';
-    const TYPE_REFERRAL = 'referral';
-    const TYPE_EXPIRED = 'expired';
-    const TYPE_ADMIN = 'admin';
-    const TYPE_SIGNUP = 'signup';
-    const TYPE_REVIEW = 'review';
+    public const TYPE_PURCHASE = 'purchase';
+    public const TYPE_REDEEM = 'redeem';
+    public const TYPE_BONUS = 'bonus';
+    public const TYPE_REFERRAL = 'referral';
+    public const TYPE_EXPIRED = 'expired';
+    public const TYPE_ADMIN = 'admin';
+    public const TYPE_SIGNUP = 'signup';
+    public const TYPE_REVIEW = 'review';
 
     public static function tableName()
     {
@@ -71,7 +72,9 @@ class LoyaltyPoints extends ActiveRecord
         return [
             [
                 'class' => TimestampBehavior::class,
-                'value' => function() { return date('Y-m-d H:i:s'); },
+                'value' => function () {
+                    return date('Y-m-d H:i:s');
+                },
                 'updatedAtAttribute' => false,
             ],
         ];
@@ -138,7 +141,7 @@ class LoyaltyPoints extends ActiveRecord
 
     /**
      * Начислить баллы
-     * 
+     *
      * @param int $customerId ID клиента
      * @param int $points Количество баллов
      * @param string $type Тип операции
@@ -190,7 +193,7 @@ class LoyaltyPoints extends ActiveRecord
 
     /**
      * Списать баллы
-     * 
+     *
      * @param int $customerId ID клиента
      * @param int $points Количество баллов
      * @param int|null $orderId ID заказа
@@ -240,7 +243,7 @@ class LoyaltyPoints extends ActiveRecord
 
     /**
      * Начислить баллы за покупку
-     * 
+     *
      * @param int $customerId
      * @param float $orderAmount
      * @param int $orderId
@@ -251,7 +254,7 @@ class LoyaltyPoints extends ActiveRecord
     {
         // 10 баллов за 1 BYN * множитель уровня
         $points = (int)($orderAmount * 10 * $multiplier);
-        
+
         return self::earn(
             $customerId,
             $points,
@@ -264,7 +267,7 @@ class LoyaltyPoints extends ActiveRecord
 
     /**
      * Начислить бонус за регистрацию
-     * 
+     *
      * @param int $customerId
      * @param int $points
      * @return bool
@@ -283,7 +286,7 @@ class LoyaltyPoints extends ActiveRecord
 
     /**
      * Начислить за отзыв
-     * 
+     *
      * @param int $customerId
      * @param int $points
      * @return bool
@@ -301,7 +304,7 @@ class LoyaltyPoints extends ActiveRecord
 
     /**
      * Начислить за реферала
-     * 
+     *
      * @param int $customerId Кто привёл
      * @param int $referralId Кого привели
      * @param int $points
@@ -321,7 +324,7 @@ class LoyaltyPoints extends ActiveRecord
 
     /**
      * Списать просроченные баллы
-     * 
+     *
      * @return int Количество списаний
      */
     public static function expireOldPoints(): int
@@ -330,19 +333,21 @@ class LoyaltyPoints extends ActiveRecord
             ->where(['<', 'expires_at', date('Y-m-d H:i:s')])
             ->andWhere(['>', 'points', 0])
             ->all();
-        
+
         $count = 0;
         foreach ($expired as $record) {
-            if (self::redeem(
-                $record->customer_id,
-                $record->points,
-                null,
-                'Списание просроченных баллов'
-            )) {
+            if (
+                self::redeem(
+                    $record->customer_id,
+                    $record->points,
+                    null,
+                    'Списание просроченных баллов'
+                )
+            ) {
                 $count++;
             }
         }
-        
+
         return $count;
     }
 
@@ -394,13 +399,13 @@ class LoyaltyPoints extends ActiveRecord
             self::TYPE_SIGNUP => 'Бонус за регистрацию',
             self::TYPE_REVIEW => 'Бонус за отзыв',
         ];
-        
+
         return $descriptions[$type] ?? '';
     }
 
     /**
      * История баллов клиента
-     * 
+     *
      * @param int $customerId
      * @param int $limit
      * @return LoyaltyPoints[]

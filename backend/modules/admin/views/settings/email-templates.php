@@ -1,5 +1,7 @@
 <?php
+
 use yii\helpers\Html;
+
 $this->title = 'Email шаблоны';
 $events = [
     'confirmed_and_paid' => 'Подтвержден и оплачен',
@@ -12,9 +14,9 @@ $events = [
 $templates = $templates ?? [];
 $this->params['headerActions'][] = '<a href="/admin/settings" class="admin-btn admin-btn-secondary"><i class="bi bi-arrow-left"></i> Настройки</a>';
 ?>
-<?php foreach ($events as $key => $label):
+<?php foreach ($events as $key => $label) :
     $tpl = $templates[$key] ?? [];
-?>
+    ?>
 <div class="admin-card" style="margin-bottom:1rem">
     <div class="admin-card-header" style="display:flex;align-items:center;justify-content:space-between;">
         <h3 class="admin-card-title"><?= Html::encode($label) ?></h3>

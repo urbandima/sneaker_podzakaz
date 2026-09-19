@@ -13,23 +13,23 @@ use app\backend\modules\admin\behaviors\LogBehavior;
 class Buyout extends ActiveRecord
 {
     // ── Sources ───────────────────────────────────────────────────────────────
-    const SOURCE_POIZON   = 'poizon';
-    const SOURCE_LAMODA   = 'lamoda';
-    const SOURCE_ALIEXPRESS = 'aliexpress';
-    const SOURCE_SUPPLIER = 'supplier';
-    const SOURCE_MANUAL   = 'manual';
+    public const SOURCE_POIZON   = 'poizon';
+    public const SOURCE_LAMODA   = 'lamoda';
+    public const SOURCE_ALIEXPRESS = 'aliexpress';
+    public const SOURCE_SUPPLIER = 'supplier';
+    public const SOURCE_MANUAL   = 'manual';
 
     // ── Statuses ──────────────────────────────────────────────────────────────
-    const STATUS_DRAFT      = 'draft';
-    const STATUS_ORDERED    = 'ordered';
-    const STATUS_IN_TRANSIT = 'in_transit';
-    const STATUS_ARRIVED    = 'arrived';
-    const STATUS_ACCEPTED   = 'accepted';
-    const STATUS_CANCELLED  = 'cancelled';
-    const STATUS_REFUNDED   = 'refunded';
+    public const STATUS_DRAFT      = 'draft';
+    public const STATUS_ORDERED    = 'ordered';
+    public const STATUS_IN_TRANSIT = 'in_transit';
+    public const STATUS_ARRIVED    = 'arrived';
+    public const STATUS_ACCEPTED   = 'accepted';
+    public const STATUS_CANCELLED  = 'cancelled';
+    public const STATUS_REFUNDED   = 'refunded';
 
     // Mapping: buyout status → order status
-    const ORDER_STATUS_MAP = [
+    public const ORDER_STATUS_MAP = [
         self::STATUS_ORDERED    => 'bought_at_source',
         self::STATUS_IN_TRANSIT => 'in_transit_from_source',
         self::STATUS_ARRIVED    => 'arrived_at_warehouse',

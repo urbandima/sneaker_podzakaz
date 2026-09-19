@@ -110,7 +110,9 @@ class AmocrmStatusMapper
                     [':s' => $statusId]
                 )->queryOne();
             }
-            if ($row) return $row['our_status'];
+            if ($row) {
+                return $row['our_status'];
+            }
         } catch (\Throwable $e) {
             Yii::warning('[AmocrmStatusMapper] fromAmocrm error: ' . $e->getMessage(), 'amocrm');
         }
@@ -260,12 +262,16 @@ class AmocrmStatusMapper
     public static function shouldCreateOrder(int $statusId, ?string $statusName): bool
     {
         $triggerId = (int) Yii::$app->settings->get('amocrm', 'create_order_status_id', 0);
-        if ($triggerId && $statusId === $triggerId) return true;
+        if ($triggerId && $statusId === $triggerId) {
+            return true;
+        }
 
         if ($statusName) {
             $lower = mb_strtolower(trim($statusName));
             foreach (['купили', 'создать заказ', 'оформить заказ', 'готов к выкупу', 'в работе'] as $t) {
-                if (str_contains($lower, $t)) return true;
+                if (str_contains($lower, $t)) {
+                    return true;
+                }
             }
         }
         return false;

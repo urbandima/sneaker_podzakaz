@@ -29,7 +29,7 @@ echo $this->render('_auth-style');
             </div>
 
             <div class="auth-body">
-                <?php if ($sent): ?>
+                <?php if ($sent) : ?>
                     <div class="success-message">
                         <div class="success-icon">
                             <i class="bi bi-envelope-check"></i>
@@ -40,7 +40,7 @@ echo $this->render('_auth-style');
                             <i class="bi bi-arrow-left"></i> Вернуться ко входу
                         </a>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <p class="info-text">
                         Введите email, указанный при регистрации. Мы отправим вам инструкции по восстановлению пароля.
                     </p>

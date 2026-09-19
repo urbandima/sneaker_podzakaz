@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\Buyout $buyout */
 /** @var array $statuses */
@@ -39,7 +40,9 @@ textarea.form-control { height:auto; padding:8px 10px; resize:vertical; }
 
 <form id="buyout-form" method="POST" action="<?= Html::encode($action) ?>">
     <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
-    <?php if (!$isNew): ?><input type="hidden" name="_method" value="POST"><?php endif; ?>
+    <?php if (!$isNew) :
+        ?><input type="hidden" name="_method" value="POST"><?php
+    endif; ?>
 
 <div class="buyout-form-grid" style="padding:16px">
 
@@ -81,7 +84,7 @@ textarea.form-control { height:auto; padding:8px 10px; resize:vertical; }
                 <div class="form-group" style="grid-column:1/-1">
                     <label class="form-label">Источник *</label>
                     <select name="source" class="form-control" id="source-select">
-                        <?php foreach ($sources as $k => $v): ?>
+                        <?php foreach ($sources as $k => $v) : ?>
                         <option value="<?= $k ?>" <?= ($buyout->source ?? '') === $k ? 'selected' : '' ?>><?= Html::encode($v) ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -111,7 +114,7 @@ textarea.form-control { height:auto; padding:8px 10px; resize:vertical; }
                 <div class="form-group">
                     <label class="form-label">Валюта</label>
                     <select name="source_currency" class="form-control" id="fin-currency">
-                        <?php foreach (['CNY','USD','EUR','RUB','BYN'] as $c): ?>
+                        <?php foreach (['CNY','USD','EUR','RUB','BYN'] as $c) : ?>
                         <option <?= ($buyout->source_currency ?? 'CNY') === $c ? 'selected' : '' ?>><?= $c ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -151,7 +154,7 @@ textarea.form-control { height:auto; padding:8px 10px; resize:vertical; }
     </div>
 
     <!-- Linked orders (create mode) -->
-    <?php if ($isNew): ?>
+    <?php if ($isNew) : ?>
     <div class="crm-card">
         <div class="crm-card-head"><h3><i class="bi bi-link-45deg"></i> Привязать заказы</h3></div>
         <div class="crm-card-body">
@@ -181,7 +184,7 @@ textarea.form-control { height:auto; padding:8px 10px; resize:vertical; }
         <div class="crm-card-head"><h3><i class="bi bi-flag"></i> Статус</h3></div>
         <div class="crm-card-body">
             <select name="status" class="form-control">
-                <?php foreach ($statuses as $k => $v): ?>
+                <?php foreach ($statuses as $k => $v) : ?>
                 <option value="<?= $k ?>" <?= ($buyout->status ?? 'draft') === $k ? 'selected' : '' ?>><?= Html::encode($v) ?></option>
                 <?php endforeach; ?>
             </select>

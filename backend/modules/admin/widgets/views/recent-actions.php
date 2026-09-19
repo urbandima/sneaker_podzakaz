@@ -23,7 +23,7 @@ if (empty($logs)) {
     </div>
     <div class="admin-card-body" style="padding:0">
         <div class="recent-actions-list">
-            <?php foreach ($logs as $log): ?>
+            <?php foreach ($logs as $log) : ?>
                 <?php $url = $log->getEntityUrl(); ?>
                 <div class="recent-action-item">
                     <div class="recent-action-icon <?= $log->getActionClass() ?>">
@@ -37,25 +37,25 @@ if (empty($logs)) {
                             </span>
                         </div>
                         <div class="recent-action-body">
-                            <?php if ($url): ?>
+                            <?php if ($url) : ?>
                                 <a href="<?= $url ?>" class="recent-action-link">
                                     <span class="recent-action-badge <?= $log->getActionClass() ?>">
                                         <?= $log->getActionLabel() ?>
                                     </span>
-                                    <?php if ($log->entity_name): ?>
+                                    <?php if ($log->entity_name) : ?>
                                         <span class="recent-action-entity"><?= Html::encode($log->entity_name) ?></span>
                                     <?php endif; ?>
                                 </a>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <span class="recent-action-badge <?= $log->getActionClass() ?>">
                                     <?= $log->getActionLabel() ?>
                                 </span>
-                                <?php if ($log->entity_name): ?>
+                                <?php if ($log->entity_name) : ?>
                                     <span class="recent-action-entity"><?= Html::encode($log->entity_name) ?></span>
                                 <?php endif; ?>
                             <?php endif; ?>
                         </div>
-                        <?php if ($log->description): ?>
+                        <?php if ($log->description) : ?>
                             <div class="recent-action-description">
                                 <?= Html::encode($log->description) ?>
                             </div>

@@ -19,7 +19,7 @@ $this->params['headerActions'] = [
 <div class="admin-card">
     <div class="admin-card-header">
         <h2 class="admin-card-title">
-            <?php if ($model->icon): ?>
+            <?php if ($model->icon) : ?>
                 <i class="<?= Html::encode($model->getIconClass()) ?>"></i>
             <?php endif; ?>
             <?= Html::encode($model->title) ?>
@@ -50,9 +50,9 @@ $this->params['headerActions'] = [
             <tr>
                 <th>Родитель</th>
                 <td>
-                    <?php if ($model->parent): ?>
+                    <?php if ($model->parent) : ?>
                         <?= Html::a(Html::encode($model->parent->title), ['view', 'id' => $model->parent_id], ['class' => 'admin-link']) ?>
-                    <?php else: ?>
+                    <?php else : ?>
                         <span style="color:var(--admin-text-secondary)">Корневой элемент</span>
                     <?php endif; ?>
                 </td>
@@ -60,9 +60,9 @@ $this->params['headerActions'] = [
             <tr>
                 <th>URL</th>
                 <td>
-                    <?php if ($model->url): ?>
+                    <?php if ($model->url) : ?>
                         <?= Html::a(Html::encode($model->url), $model->url, ['target' => '_blank', 'class' => 'admin-link']) ?>
-                    <?php else: ?>
+                    <?php else : ?>
                         <span style="color:var(--admin-text-secondary)">—</span>
                     <?php endif; ?>
                 </td>
@@ -74,15 +74,15 @@ $this->params['headerActions'] = [
             <tr>
                 <th>Иконка</th>
                 <td>
-                    <?php if ($model->icon): ?>
+                    <?php if ($model->icon) : ?>
                         <i class="<?= Html::encode($model->getIconClass()) ?>" style="font-size:1.25em;margin-right:8px"></i>
                         <code><?= Html::encode($model->icon) ?></code>
-                    <?php else: ?>
+                    <?php else : ?>
                         <span style="color:var(--admin-text-secondary)">—</span>
                     <?php endif; ?>
                 </td>
             </tr>
-            <?php if ($model->image): ?>
+            <?php if ($model->image) : ?>
             <tr>
                 <th>Изображение</th>
                 <td><img src="<?= Html::encode($model->image) ?>" alt="" style="max-width:300px;max-height:100px;border-radius:6px"></td>
@@ -125,7 +125,7 @@ $this->params['headerActions'] = [
     </div>
 </div>
 
-<?php if (!empty($model->children)): ?>
+<?php if (!empty($model->children)) : ?>
 <div class="admin-card" style="margin-top:1.25rem">
     <div class="admin-card-header">
         <h3 class="admin-card-title"><i class="bi bi-list-nested"></i> Подпункты</h3>
@@ -144,11 +144,11 @@ $this->params['headerActions'] = [
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($model->children as $child): ?>
+                <?php foreach ($model->children as $child) : ?>
                 <tr>
                     <td style="color:var(--admin-text-secondary)"><?= $child->id ?></td>
                     <td>
-                        <?php if ($child->icon): ?>
+                        <?php if ($child->icon) : ?>
                             <i class="<?= Html::encode($child->getIconClass()) ?>" style="margin-right:6px;opacity:0.6"></i>
                         <?php endif; ?>
                         <?= Html::encode($child->title) ?>

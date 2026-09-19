@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Контроллер для создания тестовых товаров
  */
@@ -49,7 +50,7 @@ class ProductController extends Controller
             $brandName = $brands[array_rand($brands)];
             $modelName = $models[array_rand($models)];
             $color = $colors[array_rand($colors)];
-            
+
             $product = new Product([
                 'name' => "{$brandName} {$modelName} {$color} - Тест {$i}",
                 'slug' => "test-{$brandName}-" . strtolower($modelName) . "-{$i}-" . time(),
@@ -79,7 +80,7 @@ class ProductController extends Controller
                 $this->addProductSizes($product);
                 // Добавляем характеристики
                 $this->addProductCharacteristics($product);
-                
+
                 $this->stdout("✓ Создан товар #{$product->id}: {$product->name}\n");
             } else {
                 $this->stdout("✗ Ошибка создания товара: " . print_r($product->errors, true) . "\n");

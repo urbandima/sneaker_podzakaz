@@ -1,8 +1,10 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\PurchaseOrder $po */
 /** @var app\backend\modules\procurement\models\Supplier[] $suppliers */
 use yii\helpers\Html;
+
 $this->title = 'Новая закупка';
 ?>
 <div class="admin-page">
@@ -16,7 +18,7 @@ $this->title = 'Новая закупка';
     <h1 class="page-title">Новая закупка</h1>
   </div>
 
-  <?php if (Yii::$app->session->hasFlash('error')): ?>
+  <?php if (Yii::$app->session->hasFlash('error')) : ?>
     <div class="alert alert-danger"><?= Html::encode(Yii::$app->session->getFlash('error')) ?></div>
   <?php endif; ?>
 
@@ -39,7 +41,7 @@ $this->title = 'Новая закупка';
               <label class="form-label">Поставщик *</label>
               <select name="supplier_id" class="form-select" required>
                 <option value="">— выбрать —</option>
-                <?php foreach ($suppliers as $s): ?>
+                <?php foreach ($suppliers as $s) : ?>
                   <option value="<?= $s->id ?>"><?= Html::encode($s->name) ?></option>
                 <?php endforeach; ?>
               </select>
@@ -48,7 +50,7 @@ $this->title = 'Новая закупка';
             <div class="mb-3">
               <label class="form-label">Тип</label>
               <select name="order_type" class="form-select">
-                <?php foreach (\app\backend\modules\procurement\models\PurchaseOrder::getTypes() as $k => $v): ?>
+                <?php foreach (\app\backend\modules\procurement\models\PurchaseOrder::getTypes() as $k => $v) : ?>
                   <option value="<?= $k ?>" <?= $po->order_type === $k ? 'selected' : '' ?>><?= $v ?></option>
                 <?php endforeach; ?>
               </select>
@@ -57,7 +59,7 @@ $this->title = 'Новая закупка';
             <div class="mb-3">
               <label class="form-label">Статус</label>
               <select name="status" class="form-select">
-                <?php foreach (\app\backend\modules\procurement\models\PurchaseOrder::getStatuses() as $k => $v): ?>
+                <?php foreach (\app\backend\modules\procurement\models\PurchaseOrder::getStatuses() as $k => $v) : ?>
                   <option value="<?= $k ?>" <?= $po->status === $k ? 'selected' : '' ?>><?= $v ?></option>
                 <?php endforeach; ?>
               </select>

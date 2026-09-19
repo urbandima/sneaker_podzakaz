@@ -2,13 +2,14 @@
 
 /**
  * LoyaltyBalanceWidget — Виджет баланса баллов лояльности
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Отображение баланса баллов лояльности в header сайта.
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * <?= LoyaltyBalanceWidget::widget() ?>
  */
+
 namespace app\frontend\widgets;
 
 use Yii;
@@ -37,7 +38,7 @@ class LoyaltyBalanceWidget extends Widget
         }
 
         $loyaltyService = new LoyaltyService();
-        
+
         try {
             $balance = $loyaltyService->getCustomerBalance($customerId);
             $level = $loyaltyService->getCustomerLevel($customerId);

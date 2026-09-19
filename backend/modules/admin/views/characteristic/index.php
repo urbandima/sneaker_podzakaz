@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var yii\web\View $this
  * @var yii\data\ActiveDataProvider $characteristicsProvider
@@ -30,7 +31,7 @@ $this->params['headerActions'] = [
     </a>
 </div>
 
-<?php if ($tab === 'sizes'): ?>
+<?php if ($tab === 'sizes') : ?>
 <!-- SIZE GRIDS -->
 <div class="admin-card">
     <div class="admin-card-body" style="padding:0">
@@ -48,7 +49,7 @@ $this->params['headerActions'] = [
                 </tr>
             </thead>
             <tbody>
-            <?php foreach ($sizeGridProvider->getModels() as $grid): ?>
+            <?php foreach ($sizeGridProvider->getModels() as $grid) : ?>
             <tr>
                 <td style="color:var(--admin-text-secondary);font-size:12px">#<?= $grid->id ?></td>
                 <td>
@@ -57,16 +58,16 @@ $this->params['headerActions'] = [
                     </a>
                 </td>
                 <td>
-                    <?php if ($grid->brand): ?>
+                    <?php if ($grid->brand) : ?>
                         <span class="admin-badge admin-badge-secondary"><?= Html::encode($grid->brand->name) ?></span>
-                    <?php else: ?>
+                    <?php else : ?>
                         <span style="color:var(--admin-text-secondary);font-size:12px">Универсальная</span>
                     <?php endif; ?>
                 </td>
                 <td>
                     <?php
-                    $genderLabels = ['male'=>'Мужской','female'=>'Женский','unisex'=>'Унисекс','kids'=>'Детский'];
-                    $genderBadge = ['male'=>'admin-badge-primary','female'=>'admin-badge-danger','unisex'=>'admin-badge-info','kids'=>'admin-badge-success'];
+                    $genderLabels = ['male' => 'Мужской','female' => 'Женский','unisex' => 'Унисекс','kids' => 'Детский'];
+                    $genderBadge = ['male' => 'admin-badge-primary','female' => 'admin-badge-danger','unisex' => 'admin-badge-info','kids' => 'admin-badge-success'];
                     $g = $grid->gender ?? 'unisex';
                     ?>
                     <span class="admin-badge <?= $genderBadge[$g] ?? 'admin-badge-secondary' ?>"><?= $genderLabels[$g] ?? $g ?></span>
@@ -86,7 +87,7 @@ $this->params['headerActions'] = [
                 </td>
             </tr>
             <?php endforeach; ?>
-            <?php if (!$sizeGridProvider->getModels()): ?>
+            <?php if (!$sizeGridProvider->getModels()) : ?>
             <tr>
                 <td colspan="8" style="text-align:center;padding:3rem;color:var(--admin-text-secondary)">
                     <i class="bi bi-rulers" style="font-size:2rem;display:block;margin-bottom:0.5rem"></i>
@@ -99,7 +100,7 @@ $this->params['headerActions'] = [
     </div>
 </div>
 
-<?php else: ?>
+<?php else : ?>
 <!-- CHARACTERISTICS -->
 <!-- Z34: note about sizes being in a separate section -->
 <div style="margin-bottom:12px;padding:10px 14px;background:var(--admin-surface-hover,#f6f6f7);border-radius:8px;font-size:12px;color:var(--admin-text-secondary,#6d7175);border:1px solid var(--admin-border,#e1e3e5)">
@@ -109,12 +110,12 @@ $this->params['headerActions'] = [
     Здесь хранятся прочие характеристики товара (цвет, материал, пол и т.д.).
 </div>
 
-<?php if (empty($characteristicsProvider->getModels())): ?>
+    <?php if (empty($characteristicsProvider->getModels())) : ?>
 <div style="text-align:center;padding:3rem;color:var(--admin-text-secondary,#6d7175)">
     <i class="bi bi-list-ul" style="font-size:2.5rem;display:block;margin-bottom:.75rem;opacity:.3"></i>
     <p>Характеристики не созданы. <?= Html::a('Создать первую', ['create']) ?></p>
 </div>
-<?php else: ?>
+    <?php else : ?>
 <div class="admin-card">
     <div class="admin-card-body" style="padding:0">
         <table class="admin-table">
@@ -132,7 +133,7 @@ $this->params['headerActions'] = [
                 </tr>
             </thead>
             <tbody>
-            <?php foreach ($characteristicsProvider->getModels() as $char): ?>
+                <?php foreach ($characteristicsProvider->getModels() as $char) : ?>
             <tr>
                 <td style="color:var(--admin-text-secondary);font-size:12px">#<?= $char->id ?></td>
                 <td><code style="font-size:12px;background:var(--admin-surface-hover);padding:2px 6px;border-radius:4px"><?= Html::encode($char->key) ?></code></td>
@@ -143,20 +144,24 @@ $this->params['headerActions'] = [
                 </td>
                 <td>
                     <?php
-                    $typeLabels = ['select'=>'Список','multiselect'=>'Мультивыбор','boolean'=>'Да/Нет','color'=>'Цвет','size'=>'Размер','text'=>'Текст','number'=>'Число'];
+                    $typeLabels = ['select' => 'Список','multiselect' => 'Мультивыбор','boolean' => 'Да/Нет','color' => 'Цвет','size' => 'Размер','text' => 'Текст','number' => 'Число'];
                     ?>
                     <span class="admin-badge admin-badge-secondary" style="font-size:11px"><?= $typeLabels[$char->type] ?? Html::encode($char->type) ?></span>
                 </td>
                 <td>
-                    <?php if ($char->is_filter): ?>
+                    <?php if ($char->is_filter) : ?>
                         <span class="admin-badge admin-badge-info"><i class="bi bi-funnel"></i></span>
-                    <?php else: ?>
+                    <?php else : ?>
                         <span style="color:var(--admin-text-secondary);font-size:12px">—</span>
                     <?php endif; ?>
                 </td>
                 <td>
                     <?php
-                    try { $valCount = $char->getValues()->count(); } catch (\Exception $e) { $valCount = '?'; }
+                    try {
+                        $valCount = $char->getValues()->count();
+                    } catch (\Exception $e) {
+                        $valCount = '?';
+                    }
                     ?>
                     <span class="admin-badge admin-badge-secondary"><?= $valCount ?></span>
                 </td>
@@ -173,10 +178,10 @@ $this->params['headerActions'] = [
                     </div>
                 </td>
             </tr>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
 </div>
-<?php endif; ?>
+    <?php endif; ?>
 <?php endif; ?>

@@ -7,7 +7,7 @@ use yii\web\ErrorHandler;
 
 /**
  * SentryErrorHandler - Интеграция с Sentry для отслеживания ошибок
- * 
+ *
  * Использование: добавить в config/web.php:
  * 'errorHandler' => [
  *     'class' => 'app\components\SentryErrorHandler',
@@ -27,9 +27,9 @@ class SentryErrorHandler extends ErrorHandler
     public function init(): void
     {
         parent::init();
-        
+
         $dsn = env('SENTRY_DSN');
-        
+
         if ($dsn && !YII_ENV_DEV && class_exists('\Sentry\SentrySdk')) {
             \Sentry\init([
                 'dsn' => $dsn,
@@ -47,18 +47,20 @@ class SentryErrorHandler extends ErrorHandler
                     foreach ($exceptions as $exception) {
                         $type = $exception->getType();
                         // Не отправляем 404 и подобные
-                        if (in_array($type, [
+                        if (
+                            in_array($type, [
                             'yii\web\NotFoundHttpException',
                             'yii\web\ForbiddenHttpException',
                             'yii\web\UnauthorizedHttpException',
-                        ])) {
+                            ])
+                        ) {
                             return null;
                         }
                     }
                     return $event;
                 },
             ]);
-            
+
             $this->sentryEnabled = true;
         }
     }
@@ -114,7 +116,9 @@ class SentryErrorHandler extends ErrorHandler
             $_COOKIE[$k] = '[masked]';
         }
         if (isset($_SESSION) && is_array($_SESSION)) {
-            array_walk_recursive($_SESSION, function (&$val) { $val = '[masked]'; });
+            array_walk_recursive($_SESSION, function (&$val) {
+                $val = '[masked]';
+            });
         }
     }
 
@@ -129,7 +133,7 @@ class SentryErrorHandler extends ErrorHandler
                 \Sentry\captureLastError();
             }
         }
-        
+
         parent::handleFatalError();
     }
 
@@ -143,14 +147,14 @@ class SentryErrorHandler extends ErrorHandler
         if ($gitVersion) {
             return trim($gitVersion);
         }
-        
+
         // Fallback на версию из composer.json
         $composerFile = Yii::getAlias('@app/composer.json');
         if (file_exists($composerFile)) {
             $composer = json_decode(file_get_contents($composerFile), true);
             return $composer['version'] ?? '1.0.0';
         }
-        
+
         return '1.0.0';
     }
 }

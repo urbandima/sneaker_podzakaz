@@ -2,7 +2,7 @@
 
 /**
  * Landing Page - Главная страница
- * 
+ *
  * Секции:
  * - Hero с УТП
  * - Популярные товары
@@ -78,7 +78,7 @@ $brands = $brands ?? [];
 </section>
 
 <!-- Popular Products -->
-<?php if (!empty($popularProducts)): ?>
+<?php if (!empty($popularProducts)) : ?>
 <section id="popular" class="popular-section">
     <div class="container">
         <div class="section-header">
@@ -89,7 +89,7 @@ $brands = $brands ?? [];
         </div>
 
         <div class="products-grid">
-            <?php foreach ($popularProducts as $product): ?>
+            <?php foreach ($popularProducts as $product) : ?>
                 <?= $this->render('//catalog/_product_card', ['product' => $product]) ?>
             <?php endforeach; ?>
         </div>
@@ -98,7 +98,7 @@ $brands = $brands ?? [];
 <?php endif; ?>
 
 <!-- Categories -->
-<?php if (!empty($categories)): ?>
+<?php if (!empty($categories)) : ?>
 <section class="categories-section">
     <div class="container">
         <div class="section-header">
@@ -106,7 +106,7 @@ $brands = $brands ?? [];
         </div>
 
         <div class="categories-grid">
-            <?php foreach ($categories as $category):
+            <?php foreach ($categories as $category) :
                 $catImg = '';
                 if (!empty($category->image)) {
                     $catImg = '/' . ltrim($category->image, '/');
@@ -119,15 +119,18 @@ $brands = $brands ?? [];
                             ->andWhere(['<>', 'main_image_url', ''])
                             ->orderBy(['sort_order' => SORT_ASC])
                             ->limit(1)->one();
-                        if ($fp) $catImg = $fp->main_image_url;
-                    } catch (\Throwable $e) {}
+                        if ($fp) {
+                            $catImg = $fp->main_image_url;
+                        }
+                    } catch (\Throwable $e) {
+                    }
                 }
-            ?>
+                ?>
             <a href="<?= $category->getUrl() ?>" class="category-card">
                 <div class="category-image">
-                    <?php if ($catImg): ?>
+                    <?php if ($catImg) : ?>
                         <img src="<?= Html::encode($catImg) ?>" alt="<?= Html::encode($category->name) ?>" loading="lazy">
-                    <?php else: ?>
+                    <?php else : ?>
                         <div class="category-placeholder" role="img" aria-label="<?= Html::encode($category->name) ?>"></div>
                     <?php endif; ?>
                 </div>
@@ -143,7 +146,7 @@ $brands = $brands ?? [];
 <?php endif; ?>
 
 <!-- Brands -->
-<?php if (!empty($brands)): ?>
+<?php if (!empty($brands)) : ?>
 <section class="brands-section">
     <div class="container">
         <div class="section-header">
@@ -154,10 +157,13 @@ $brands = $brands ?? [];
         </div>
 
         <div class="brands-grid">
-            <?php foreach ($brands as $brand):
+            <?php foreach ($brands as $brand) :
                 $logoUrl = '';
-                if (!empty($brand->logo_url)) $logoUrl = $brand->logo_url;
-                elseif (!empty($brand->logo))  $logoUrl = '/' . ltrim($brand->logo, '/');
+                if (!empty($brand->logo_url)) {
+                    $logoUrl = $brand->logo_url;
+                } elseif (!empty($brand->logo)) {
+                    $logoUrl = '/' . ltrim($brand->logo, '/');
+                }
                 if (!$logoUrl) {
                     // Fallback: first active product image for this brand
                     try {
@@ -167,15 +173,18 @@ $brands = $brands ?? [];
                             ->andWhere(['<>', 'main_image_url', ''])
                             ->orderBy(['sort_order' => SORT_ASC])
                             ->limit(1)->one();
-                        if ($fb) $logoUrl = $fb->main_image_url;
-                    } catch (\Throwable $e) {}
+                        if ($fb) {
+                            $logoUrl = $fb->main_image_url;
+                        }
+                    } catch (\Throwable $e) {
+                    }
                 }
                 $brandInitial = mb_strtoupper(mb_substr($brand->name, 0, 1));
-            ?>
+                ?>
             <a href="/catalog?brand=<?= Html::encode($brand->slug) ?>" class="brand-card">
-                <?php if ($logoUrl): ?>
+                <?php if ($logoUrl) : ?>
                     <img src="<?= Html::encode($logoUrl) ?>" alt="<?= Html::encode($brand->name) ?>" loading="lazy">
-                <?php else: ?>
+                <?php else : ?>
                     <div class="brand-placeholder"><?= Html::encode($brandInitial) ?></div>
                 <?php endif; ?>
                 <span class="brand-label"><?= Html::encode($brand->name) ?></span>
@@ -264,15 +273,15 @@ $brands = $brands ?? [];
 </section>
 
 <!-- Reviews Section -->
-<?php if (!empty($siteReviews) && count($siteReviews) >= 3): ?>
+<?php if (!empty($siteReviews) && count($siteReviews) >= 3) : ?>
 <section class="reviews-section">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Отзывы покупателей</h2>
         </div>
         <div class="reviews-grid">
-            <?php foreach ($siteReviews as $review): ?>
-            <?php
+            <?php foreach ($siteReviews as $review) : ?>
+                <?php
                 $rawName = $review->user->name ?? 'Покупатель';
                 $authorName = \yii\helpers\Html::encode($rawName);
                 $words = array_filter(explode(' ', $rawName));
@@ -280,17 +289,19 @@ $brands = $brands ?? [];
                 $ts = is_int($review->created_at) ? $review->created_at : (is_string($review->created_at) ? strtotime($review->created_at) : 0);
                 $date = $ts > 0 ? date('j.m.Y', $ts) : '';
                 $rating = min(5, max(1, (int)($review->rating ?? 5)));
-            ?>
+                ?>
             <div class="review-card">
                 <div class="review-header">
                     <div class="review-avatar"><?= $initials ?: 'П' ?></div>
                     <div class="review-meta">
                         <div class="review-author"><?= $authorName ?></div>
-                        <?php if ($date): ?><div class="review-city"><?= $date ?></div><?php endif; ?>
+                        <?php if ($date) :
+                            ?><div class="review-city"><?= $date ?></div><?php
+                        endif; ?>
                     </div>
                 </div>
                 <div class="review-rating">
-                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                    <?php for ($i = 1; $i <= 5; $i++) : ?>
                     <i class="bi <?= $i <= $rating ? 'bi-star-fill' : 'bi-star' ?>"></i>
                     <?php endfor; ?>
                 </div>
@@ -342,15 +353,15 @@ $brands = $brands ?? [];
                         '/images/instagram/air-jordan-1-low-wolf-grey-69073581c7e1b.jpg',
                         '/images/instagram/jordan-1-retro-high.jpg',
                     ];
-                    foreach ($instagramImages as $i => $img):
+                    foreach ($instagramImages as $i => $img) :
                         $exists = is_file($webRoot . $img);
-                    ?>
+                        ?>
                     <a href="https://www.instagram.com/sneakerhead_belarus/" target="_blank" rel="noopener noreferrer" class="instagram-item">
-                        <?php if ($exists): ?>
+                        <?php if ($exists) : ?>
                             <img src="<?= $img ?>" alt="Sneakerhead Belarus в Instagram"
                                  class="instagram-image" loading="lazy"
                                  onerror="this.parentElement.classList.add('instagram-item--empty');this.remove()">
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="instagram-item__placeholder" role="img" aria-label="Sneakerhead Belarus"></div>
                         <?php endif; ?>
                         <div class="instagram-overlay"><i class="bi bi-instagram"></i></div>

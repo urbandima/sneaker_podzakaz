@@ -2,11 +2,11 @@
 
 /**
  * CustomerRegisterForm — Форма регистрации покупателя
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Форма регистрации нового покупателя в интернет-магазине.
  * Валидация данных, проверка уникальности email.
- * 
+ *
  * ПОЛЯ:
  * - email: email (уникальный)
  * - phone: телефон (опционально)
@@ -16,20 +16,21 @@
  * - last_name: фамилия
  * - agree_terms: согласие с условиями
  * - subscribe_news: подписка на новости
- * 
+ *
  * МЕТОДЫ:
  * - register(): создание покупателя
  * - sendEmail(): отправка приветственного письма
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - AccountController (actionRegister)
- * 
+ *
  * ВАЛИДАЦИЯ:
  * - Уникальность email
  * - Минимум 6 символов пароля
  * - Совпадение паролей
  * - Обязательное согласие с условиями
  */
+
 namespace app\backend\modules\account\models;
 
 use Yii;
@@ -59,16 +60,16 @@ class CustomerRegisterForm extends Model
             ['email', 'email'],
             ['email', 'string', 'max' => 255],
             ['email', 'unique', 'targetClass' => Customer::class, 'message' => 'Этот email уже зарегистрирован'],
-            
+
             ['phone', 'string', 'max' => 50],
             ['phone', 'match', 'pattern' => '/^[\+]?[0-9\s\-\(\)]+$/', 'message' => 'Неверный формат телефона'],
-            
+
             [['first_name', 'last_name'], 'string', 'max' => 100],
             [['first_name', 'last_name'], 'trim'],
-            
+
             ['password', 'string', 'min' => 6, 'message' => 'Пароль должен содержать минимум 6 символов'],
             ['password_confirm', 'compare', 'compareAttribute' => 'password', 'message' => 'Пароли не совпадают'],
-            
+
             ['agree_terms', 'required', 'requiredValue' => 1, 'message' => 'Необходимо принять условия'],
             ['subscribe_news', 'boolean'],
         ];
@@ -112,10 +113,10 @@ class CustomerRegisterForm extends Model
             Yii::$app->session->set('customer_email', $customer->email);
             Yii::$app->session->set('customer_phone', $customer->phone);
             Yii::$app->session->set('customer_name', $customer->getFullName());
-            
+
             // Связываем существующие заказы с этим покупателем
             $this->linkExistingOrders($customer);
-            
+
             return $customer;
         }
 
@@ -140,7 +141,7 @@ class CustomerRegisterForm extends Model
                 ['customer_id' => $customer->id],
                 ['and', ['customer_id' => null], $conditions]
             );
-            
+
             // Обновляем статистику
             $customer->updateOrderStats();
         }

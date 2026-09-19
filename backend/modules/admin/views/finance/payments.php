@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\finance\models\Payment[] $payments */
 /** @var array $totals */
@@ -12,9 +13,13 @@ use app\backend\shared\helpers\PriceHelper;
 $this->title = 'Платежи';
 
 $currentSort = Yii::$app->request->get('sort', '');
-$sortIcon = function(string $col) use ($currentSort): string {
-    if ($currentSort === $col)       return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▲</span>';
-    if ($currentSort === '-' . $col) return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▼</span>';
+$sortIcon = function (string $col) use ($currentSort): string {
+    if ($currentSort === $col) {
+        return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▲</span>';
+    }
+    if ($currentSort === '-' . $col) {
+        return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▼</span>';
+    }
     return ' <span style="color:#d1d5db;font-size:.6rem">⇅</span>';
 };
 
@@ -51,13 +56,13 @@ $storageKey = 'paymentsColumns';
     <div class="compact-filter-bar filter-row1">
         <select name="status" class="compact-filter-select">
             <option value="">Все статусы</option>
-            <?php foreach ($statuses as $k => $v): ?>
+            <?php foreach ($statuses as $k => $v) : ?>
             <option value="<?= htmlspecialchars($k) ?>" <?= $filterStatus === $k ? 'selected' : '' ?>><?= htmlspecialchars($v) ?></option>
             <?php endforeach; ?>
         </select>
         <select name="method" class="compact-filter-select" style="min-width:160px">
             <option value="">Все методы</option>
-            <?php foreach ($methods as $k => $v): ?>
+            <?php foreach ($methods as $k => $v) : ?>
             <option value="<?= htmlspecialchars($k) ?>" <?= $filterMethod === $k ? 'selected' : '' ?>><?= htmlspecialchars($v) ?></option>
             <?php endforeach; ?>
         </select>
@@ -71,7 +76,7 @@ $storageKey = 'paymentsColumns';
             </button>
             <div id="colSelector" class="col-selector-dropdown" style="display:none">
                 <div style="font-weight:700;margin-bottom:8px;font-size:.8125rem">Показать столбцы:</div>
-                <?php foreach ($columnDefs as $colKey => $colLabel): ?>
+                <?php foreach ($columnDefs as $colKey => $colLabel) : ?>
                 <label class="col-selector-item">
                     <input type="checkbox" data-col="<?= $colKey ?>"
                            onchange="AdminTable.toggleColumn('<?= $colKey ?>', this.checked, '<?= $storageKey ?>')" checked>
@@ -112,12 +117,12 @@ $storageKey = 'paymentsColumns';
                 </tr>
             </thead>
             <tbody>
-                <?php if (!$payments): ?>
+                <?php if (!$payments) : ?>
                     <tr><td colspan="9" style="text-align:center;padding:2.5rem;color:var(--admin-text-secondary,#6d7175)">Платежей нет</td></tr>
                 <?php endif; ?>
-                <?php foreach ($payments as $p):
+                <?php foreach ($payments as $p) :
                     $sp = $statusPills[$p->status] ?? ['bg' => '#f3f4f6', 'color' => '#6d7175'];
-                ?>
+                    ?>
                 <tr>
                     <td style="color:var(--admin-text-secondary,#6d7175);font-size:11px"><?= $p->id ?></td>
                     <td data-col="order">
@@ -142,7 +147,7 @@ $storageKey = 'paymentsColumns';
                         <?= $p->created_at ? date('d.m.Y H:i', strtotime($p->created_at)) : '—' ?>
                     </td>
                     <td style="padding:4px 6px">
-                        <?php if ($p->status !== 'confirmed'): ?>
+                        <?php if ($p->status !== 'confirmed') : ?>
                         <button class="admin-btn admin-btn-sm admin-btn-secondary" onclick="confirmPayment(<?= $p->id ?>)" title="Подтвердить">
                             <i class="bi bi-check-lg"></i>
                         </button>
@@ -205,13 +210,17 @@ $storageKey = 'paymentsColumns';
     <div class="mb-3">
       <label class="form-label">Метод</label>
       <select id="cp_method" class="form-control">
-        <?php foreach ($methods as $k => $v): ?><option value="<?= $k ?>"><?= Html::encode($v) ?></option><?php endforeach; ?>
+        <?php foreach ($methods as $k => $v) :
+            ?><option value="<?= $k ?>"><?= Html::encode($v) ?></option><?php
+        endforeach; ?>
       </select>
     </div>
     <div class="mb-3">
       <label class="form-label">Статус</label>
       <select id="cp_status" class="form-control">
-        <?php foreach ($statuses as $k => $v): ?><option value="<?= $k ?>"><?= Html::encode($v) ?></option><?php endforeach; ?>
+        <?php foreach ($statuses as $k => $v) :
+            ?><option value="<?= $k ?>"><?= Html::encode($v) ?></option><?php
+        endforeach; ?>
       </select>
     </div>
     <div class="mb-3"><label class="form-label">Реквизит банка</label><input type="text" id="cp_bank_ref" class="form-control"></div>

@@ -79,7 +79,7 @@ $csrfToken = Yii::$app->request->csrfToken;
                     </div>
                 </div>
 
-                <?php if (empty($favorites)): ?>
+                <?php if (empty($favorites)) : ?>
                 <div class="wishlist-empty" id="wishlistEmpty">
                     <i class="bi bi-heart"></i>
                     <h3>В избранном пусто</h3>
@@ -88,16 +88,18 @@ $csrfToken = Yii::$app->request->csrfToken;
                         <i class="bi bi-grid-3x3-gap"></i> Перейти в каталог
                     </a>
                 </div>
-                <?php else: ?>
+                <?php else : ?>
                 <div class="wishlist-grid" id="wishlistGrid">
-                    <?php foreach ($favorites as $fav):
+                    <?php foreach ($favorites as $fav) :
                         $p = $fav->product;
-                        if (!$p) continue;
+                        if (!$p) {
+                            continue;
+                        }
                         $imgUrl   = $p->getMainImageUrl() ?: '/images/placeholder.png';
                         $price    = PriceHelper::format((float)$p->price);
                         $oldPrice = $p->old_price ? PriceHelper::format((float)$p->old_price) : null;
                         $brand    = $p->brand ? Html::encode($p->brand->name) : '';
-                    ?>
+                        ?>
                     <div class="wishlist-card"
                          data-product-id="<?= $p->id ?>"
                          data-price="<?= (float)$p->price ?>"
@@ -117,7 +119,7 @@ $csrfToken = Yii::$app->request->csrfToken;
                             </button>
                         </div>
                         <div class="wishlist-card-body">
-                            <?php if ($brand): ?>
+                            <?php if ($brand) : ?>
                             <div class="wishlist-card-brand"><?= $brand ?></div>
                             <?php endif; ?>
                             <div class="wishlist-card-name">
@@ -126,7 +128,7 @@ $csrfToken = Yii::$app->request->csrfToken;
                             <div class="wishlist-card-footer">
                                 <div>
                                     <div class="wishlist-card-price"><?= $price ?></div>
-                                    <?php if ($oldPrice): ?>
+                                    <?php if ($oldPrice) : ?>
                                     <div class="wishlist-card-price-old"><?= $oldPrice ?></div>
                                     <?php endif; ?>
                                 </div>

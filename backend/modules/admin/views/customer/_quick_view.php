@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\account\models\Customer $customer */
 /** @var int $loyaltyBalance */
@@ -11,7 +12,9 @@ use yii\helpers\Url;
 use app\backend\shared\helpers\PriceHelper;
 
 $fullName = trim(($customer->last_name ?? '') . ' ' . ($customer->first_name ?? '') . ' ' . ($customer->middle_name ?? ''));
-if (!$fullName) $fullName = $customer->email;
+if (!$fullName) {
+    $fullName = $customer->email;
+}
 
 $statusColors = [
     'new' => '#6b7280', 'created' => '#6b7280',
@@ -40,19 +43,19 @@ try {
     <div style="flex:1;min-width:0">
         <div style="font-weight:800;font-size:1rem;color:var(--admin-text-primary,#111);margin-bottom:2px"><?= Html::encode($fullName) ?></div>
         <div style="font-size:0.75rem;color:var(--admin-text-secondary,#6b7280);display:flex;flex-wrap:wrap;gap:10px;align-items:center">
-            <?php if ($customer->email): ?>
+            <?php if ($customer->email) : ?>
             <a href="mailto:<?= Html::encode($customer->email) ?>" style="color:inherit;text-decoration:none"><i class="bi bi-envelope"></i> <?= Html::encode($customer->email) ?></a>
             <?php endif; ?>
-            <?php if ($customer->phone): ?>
+            <?php if ($customer->phone) : ?>
             <a href="tel:<?= Html::encode($customer->phone) ?>" style="color:inherit;text-decoration:none"><i class="bi bi-telephone"></i> <?= Html::encode($customer->phone) ?></a>
             <?php endif; ?>
         </div>
         <div style="margin-top:4px">
             <?php
-            $statusBadge = $customer->status == 1 ? ['bg'=>'#d1fae5','color'=>'#065f46','label'=>'Активен'] : ['bg'=>'#fee2e2','color'=>'#991b1b','label'=>'Заблокирован'];
+            $statusBadge = $customer->status == 1 ? ['bg' => '#d1fae5','color' => '#065f46','label' => 'Активен'] : ['bg' => '#fee2e2','color' => '#991b1b','label' => 'Заблокирован'];
             ?>
             <span style="font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:6px;background:<?= $statusBadge['bg'] ?>;color:<?= $statusBadge['color'] ?>"><?= $statusBadge['label'] ?></span>
-            <?php if ($customer->email_verified): ?>
+            <?php if ($customer->email_verified) : ?>
             <span style="font-size:0.65rem;font-weight:600;padding:2px 7px;border-radius:6px;background:#dbeafe;color:#1e40af;margin-left:3px"><i class="bi bi-patch-check"></i> Email</span>
             <?php endif; ?>
         </div>
@@ -87,7 +90,7 @@ try {
             <div class="cqv-label">Пол</div>
             <div class="cqv-val"><?= $customer->gender === 'male' ? 'Мужской' : ($customer->gender === 'female' ? 'Женский' : '—') ?></div>
         </div>
-        <?php if ($customer->default_city || $customer->default_country): ?>
+        <?php if ($customer->default_city || $customer->default_country) : ?>
         <div class="cqv-field">
             <div class="cqv-label">Город</div>
             <div class="cqv-val"><?= Html::encode($customer->default_city ?? '—') ?></div>
@@ -97,7 +100,7 @@ try {
             <div class="cqv-val"><?= Html::encode($customer->default_country ?? '—') ?></div>
         </div>
         <?php endif; ?>
-        <?php if ($customer->default_address): ?>
+        <?php if ($customer->default_address) : ?>
         <div class="cqv-field" style="grid-column:span 2">
             <div class="cqv-label">Адрес</div>
             <div class="cqv-val"><?= Html::encode($customer->default_address) ?><?= $customer->default_postal_code ? ', ' . Html::encode($customer->default_postal_code) : '' ?></div>
@@ -107,7 +110,7 @@ try {
             <div class="cqv-label">Регистрация</div>
             <div class="cqv-val"><?= $customer->created_at ? date('d.m.Y', is_numeric($customer->created_at) ? $customer->created_at : strtotime($customer->created_at)) : '—' ?></div>
         </div>
-        <?php if ($customer->last_login_at): ?>
+        <?php if ($customer->last_login_at) : ?>
         <div class="cqv-field">
             <div class="cqv-label">Последний вход</div>
             <div class="cqv-val"><?= date('d.m.Y H:i', is_numeric($customer->last_login_at) ? $customer->last_login_at : strtotime($customer->last_login_at)) ?></div>
@@ -116,12 +119,12 @@ try {
     </div>
 </div>
 
-<?php if (!empty($tags)): ?>
+<?php if (!empty($tags)) : ?>
 <!-- Tags -->
 <div class="cqv-section">
     <div class="cqv-section-title">Теги</div>
     <div>
-        <?php foreach ($tags as $tag): ?>
+        <?php foreach ($tags as $tag) : ?>
         <span class="cqv-tag"><?= Html::encode($tag) ?></span>
         <?php endforeach; ?>
     </div>
@@ -131,14 +134,14 @@ try {
 <!-- Recent orders -->
 <div class="cqv-section">
     <div class="cqv-section-title">Последние заказы</div>
-    <?php if (empty($recentOrders)): ?>
+    <?php if (empty($recentOrders)) : ?>
     <div style="color:var(--admin-text-secondary,#9ca3af);font-size:0.8125rem">Заказов нет.</div>
-    <?php else: ?>
-    <?php foreach ($recentOrders as $order):
-        $sc = $statusColors[$order->status] ?? '#6b7280';
-        $sb = $statusBgColors[$order->status] ?? '#f3f4f6';
-        $sl = $statuses[$order->status] ?? (method_exists($order, 'getStatusLabel') ? $order->getStatusLabel() : $order->status);
-    ?>
+    <?php else : ?>
+        <?php foreach ($recentOrders as $order) :
+            $sc = $statusColors[$order->status] ?? '#6b7280';
+            $sb = $statusBgColors[$order->status] ?? '#f3f4f6';
+            $sl = $statuses[$order->status] ?? (method_exists($order, 'getStatusLabel') ? $order->getStatusLabel() : $order->status);
+            ?>
     <div class="cqv-order-row">
         <div style="flex:1;min-width:0">
             <a href="<?= Url::to(['/admin/order/view', 'id' => $order->id]) ?>" style="font-weight:600;color:var(--admin-text-primary,#111);text-decoration:none">
@@ -149,15 +152,15 @@ try {
         <div style="font-weight:700;font-size:0.875rem;margin-right:8px"><?= Yii::$app->formatter->asDecimal($order->total_amount, 2) ?> Br</div>
         <span style="font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:6px;background:<?= $sb ?>;color:<?= $sc ?>;white-space:nowrap"><?= Html::encode($sl) ?></span>
     </div>
-    <?php endforeach; ?>
+        <?php endforeach; ?>
     <?php endif; ?>
 </div>
 
-<?php if (!empty($notes)): ?>
+<?php if (!empty($notes)) : ?>
 <!-- Notes -->
 <div class="cqv-section">
     <div class="cqv-section-title">Заметки</div>
-    <?php foreach (array_slice($notes, 0, 3) as $note): ?>
+    <?php foreach (array_slice($notes, 0, 3) as $note) : ?>
     <div style="background:var(--admin-surface-hover,#f9fafb);border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:0.8125rem">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
             <strong style="font-size:0.75rem"><?= Html::encode($note['author'] ?? 'Менеджер') ?></strong>

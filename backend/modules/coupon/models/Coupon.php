@@ -2,10 +2,10 @@
 
 /**
  * Coupon — Модель купона
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Купоны и промо-коды: создание, валидация, применение скидок.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - code: код купона (уникальный)
  * - type: тип скидки (percentage, fixed, free_shipping, buy_x_get_y)
@@ -16,25 +16,26 @@
  * - valid_from: дата начала действия
  * - valid_until: дата окончания действия
  * - is_active: активность купона
- * 
+ *
  * ТИПЫ СКИДОК:
  * - percentage: процентная скидка (value = 10 = 10%)
  * - fixed: фиксированная сумма (value = 500 = 500 BYN)
  * - free_shipping: бесплатная доставка
  * - buy_x_get_y: купи X получи Y бесплатно
- * 
+ *
  * ПРАВИЛА:
  * - Ограничение по сумме заказа
  * - Ограничение по количеству использований
  * - Ограничение по дате
  * - Ограничение по товарам/категориям
  * - Ограничение по пользователям
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * $coupon = Coupon::findByCode('SUMMER2024');
  * $isValid = $coupon->isValid($orderAmount, $userId);
  * $discount = $coupon->calculateDiscount($orderAmount);
  */
+
 namespace app\backend\modules\coupon\models;
 
 use Yii;
@@ -71,14 +72,14 @@ use yii\behaviors\TimestampBehavior;
 class Coupon extends ActiveRecord
 {
     // Типы скидок
-    const TYPE_PERCENTAGE = 'percentage';
-    const TYPE_FIXED = 'fixed';
-    const TYPE_FREE_SHIPPING = 'free_shipping';
-    const TYPE_BUY_X_GET_Y = 'buy_x_get_y';
-    
+    public const TYPE_PERCENTAGE = 'percentage';
+    public const TYPE_FIXED = 'fixed';
+    public const TYPE_FREE_SHIPPING = 'free_shipping';
+    public const TYPE_BUY_X_GET_Y = 'buy_x_get_y';
+
     // Статусы
-    const STATUS_INACTIVE = 0;
-    const STATUS_ACTIVE = 1;
+    public const STATUS_INACTIVE = 0;
+    public const STATUS_ACTIVE = 1;
 
     public static function tableName()
     {
@@ -149,7 +150,7 @@ class Coupon extends ActiveRecord
 
     /**
      * Найти купон по коду
-     * 
+     *
      * @param string $code
      * @return Coupon|null
      */
@@ -162,7 +163,7 @@ class Coupon extends ActiveRecord
 
     /**
      * Проверить валидность купона для заказа
-     * 
+     *
      * @param float $orderAmount Сумма заказа
      * @param int|null $userId ID пользователя
      * @return array [isValid, errorMessage]
@@ -173,7 +174,7 @@ class Coupon extends ActiveRecord
         if (!$this->is_active) {
             return [false, 'Купон неактивен'];
         }
-        
+
         // Проверка даты
         $now = time();
         if ($this->valid_from && strtotime($this->valid_from) > $now) {
@@ -182,17 +183,17 @@ class Coupon extends ActiveRecord
         if ($this->valid_until && strtotime($this->valid_until) < $now) {
             return [false, 'Срок действия купона истёк'];
         }
-        
+
         // Проверка минимальной суммы
         if ($this->min_order_amount && $orderAmount < $this->min_order_amount) {
             return [false, "Минимальная сумма заказа: {$this->min_order_amount} BYN"];
         }
-        
+
         // Проверка общего лимита использований
         if ($this->max_uses && $this->current_uses >= $this->max_uses) {
             return [false, 'Лимит использований купона исчерпан'];
         }
-        
+
         // Проверка лимита на пользователя
         if ($userId && $this->max_uses_per_user) {
             $userUses = CouponUsage::find()
@@ -202,7 +203,7 @@ class Coupon extends ActiveRecord
                 return [false, 'Вы уже использовали этот купон максимальное количество раз'];
             }
         }
-        
+
         // Проверка первого заказа
         if ($this->is_first_order && $userId) {
             $ordersCount = \app\backend\modules\checkout\models\Order::find()
@@ -212,13 +213,13 @@ class Coupon extends ActiveRecord
                 return [false, 'Купон действует только для первого заказа'];
             }
         }
-        
+
         return [true, null];
     }
 
     /**
      * Рассчитать скидку
-     * 
+     *
      * @param float $orderAmount Сумма заказа
      * @param float $shippingCost Стоимость доставки
      * @return float Сумма скидки
@@ -226,7 +227,7 @@ class Coupon extends ActiveRecord
     public function calculateDiscount(float $orderAmount, float $shippingCost = 0): float
     {
         $discount = 0;
-        
+
         switch ($this->type) {
             case self::TYPE_PERCENTAGE:
                 $discount = $orderAmount * ($this->value / 100);
@@ -235,7 +236,7 @@ class Coupon extends ActiveRecord
                     $discount = $this->max_discount;
                 }
                 break;
-                
+
             case self::TYPE_FIXED:
                 $discount = $this->value;
                 // Скидка не может превышать сумму заказа
@@ -243,17 +244,17 @@ class Coupon extends ActiveRecord
                     $discount = $orderAmount;
                 }
                 break;
-                
+
             case self::TYPE_FREE_SHIPPING:
                 $discount = $shippingCost;
                 break;
-                
+
             case self::TYPE_BUY_X_GET_Y:
                 // Логика "купи X получи Y" реализуется в CouponService
                 $discount = 0;
                 break;
         }
-        
+
         return round($discount, 2);
     }
 
@@ -295,7 +296,7 @@ class Coupon extends ActiveRecord
 
     /**
      * Получить список типов скидок
-     * 
+     *
      * @return array
      */
     public static function getTypeList(): array
@@ -310,7 +311,7 @@ class Coupon extends ActiveRecord
 
     /**
      * Получить название типа
-     * 
+     *
      * @return string
      */
     public function getTypeName(): string
@@ -320,7 +321,7 @@ class Coupon extends ActiveRecord
 
     /**
      * Получить описание скидки
-     * 
+     *
      * @return string
      */
     public function getDiscountDescription(): string
@@ -349,7 +350,7 @@ class Coupon extends ActiveRecord
 
     /**
      * Проверить применимость к товару
-     * 
+     *
      * @param int $productId
      * @param int|null $categoryId
      * @return bool
@@ -361,7 +362,7 @@ class Coupon extends ActiveRecord
         if (in_array($productId, $excludedProducts)) {
             return false;
         }
-        
+
         // Проверяем исключённые категории
         if ($categoryId) {
             $excludedCategories = $this->getExcludedCategories();
@@ -369,31 +370,31 @@ class Coupon extends ActiveRecord
                 return false;
             }
         }
-        
+
         // Если нет ограничений, купон применим ко всем товарам
         $applicableProducts = $this->getApplicableProducts();
         $applicableCategories = $this->getApplicableCategories();
-        
+
         if (empty($applicableProducts) && empty($applicableCategories)) {
             return true;
         }
-        
+
         // Проверяем применимые товары
         if (in_array($productId, $applicableProducts)) {
             return true;
         }
-        
+
         // Проверяем применимые категории
         if ($categoryId && in_array($categoryId, $applicableCategories)) {
             return true;
         }
-        
+
         return false;
     }
 
     /**
      * Получить применимые товары
-     * 
+     *
      * @return array
      */
     public function getApplicableProducts(): array
@@ -406,7 +407,7 @@ class Coupon extends ActiveRecord
 
     /**
      * Получить применимые категории
-     * 
+     *
      * @return array
      */
     public function getApplicableCategories(): array
@@ -419,7 +420,7 @@ class Coupon extends ActiveRecord
 
     /**
      * Получить исключённые товары
-     * 
+     *
      * @return array
      */
     public function getExcludedProducts(): array
@@ -432,7 +433,7 @@ class Coupon extends ActiveRecord
 
     /**
      * Получить исключённые категории
-     * 
+     *
      * @return array
      */
     public function getExcludedCategories(): array

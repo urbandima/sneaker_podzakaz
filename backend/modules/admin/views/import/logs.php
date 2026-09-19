@@ -18,16 +18,16 @@ $this->params['headerActions'] = [
 ];
 ?>
 
-<?php if ($task && $task->status === 'running'): ?>
+<?php if ($task && $task->status === 'running') : ?>
 <div id="logs-config" class="d-none" data-task-id="<?= $task->id ?>"></div>
 <?php endif; ?>
 
 <!-- Информация о задаче -->
-<?php if ($task): ?>
+<?php if ($task) : ?>
 <div class="admin-card mb-5">
     <div class="admin-card-header">
         <h2 class="admin-card-title">Информация о задаче</h2>
-        <?php if ($task->status === 'running'): ?>
+        <?php if ($task->status === 'running') : ?>
             <span class="admin-badge admin-badge-warning"><i class="bi bi-arrow-repeat"></i> Выполняется</span>
         <?php endif; ?>
     </div>
@@ -69,7 +69,7 @@ $this->params['headerActions'] = [
             </div>
         </div>
         
-        <?php if ($task->status === 'running'): ?>
+        <?php if ($task->status === 'running') : ?>
         <div class="mt-4">
             <?= Html::button('<i class="bi bi-stop-circle"></i> Остановить задачу', [
                 'class' => 'admin-btn admin-btn-danger admin-btn-sm btn-stop-task',
@@ -88,7 +88,7 @@ $this->params['headerActions'] = [
     </div>
     <div class="admin-card-body">
         <form method="get" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; align-items: end;">
-            <?php if ($task): ?>
+            <?php if ($task) : ?>
             <input type="hidden" name="taskId" value="<?= $task->id ?>">
             <?php endif; ?>
             
@@ -136,11 +136,11 @@ $this->params['headerActions'] = [
     <div class="admin-card-header flex-between">
         <h2 class="admin-card-title">
             <i class="bi bi-list-ul"></i> Логи
-            <?php if ($task): ?>
+            <?php if ($task) : ?>
             <small style="color: var(--admin-text-secondary); font-weight: normal;">(Задача #<?= $task->id ?>)</small>
             <?php endif; ?>
         </h2>
-        <?php if ($task && $task->status === 'running'): ?>
+        <?php if ($task && $task->status === 'running') : ?>
         <span class="admin-badge admin-badge-warning">
             <i class="bi bi-arrow-repeat"></i> Обновление...
         </span>
@@ -158,7 +158,7 @@ $this->params['headerActions'] = [
                     'attribute' => 'created_at',
                     'label' => 'Время',
                     'format' => 'raw',
-                    'value' => function($model) {
+                    'value' => function ($model) {
                         return '<small>' . date('H:i:s', strtotime($model->created_at)) . '</small>';
                     },
                     'headerOptions' => ['style' => 'width: 80px'],
@@ -167,7 +167,7 @@ $this->params['headerActions'] = [
                     'attribute' => 'action',
                     'label' => 'Действие',
                     'format' => 'raw',
-                    'value' => function($model) {
+                    'value' => function ($model) {
                         $colors = [
                             'created' => 'success',
                             'updated' => 'info',
@@ -189,7 +189,7 @@ $this->params['headerActions'] = [
                     'attribute' => 'product_name',
                     'label' => 'Товар',
                     'format' => 'raw',
-                    'value' => function($model) {
+                    'value' => function ($model) {
                         $name = Html::encode($model->product_name);
                         if ($model->product_id) {
                             return Html::a($name, ['/catalog/product/view', 'id' => $model->product_id], [
@@ -208,7 +208,7 @@ $this->params['headerActions'] = [
                     'attribute' => 'error_details',
                     'label' => 'Ошибка',
                     'format' => 'raw',
-                    'value' => function($model) {
+                    'value' => function ($model) {
                         if ($model->error_details) {
                             return '<code style="color: var(--admin-danger); font-size: 0.875rem;">' . Html::encode($model->error_details) . '</code>';
                         }

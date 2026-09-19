@@ -16,7 +16,7 @@ class m260412_170000_fix_sidebar_menu_table extends Migration
 
         // Проверяем существование колонки title
         $tableSchema = $this->db->getTableSchema('{{%sidebar_menu}}');
-        
+
         if ($tableSchema) {
             // Добавляем колонки если их нет
             if (!$tableSchema->getColumn('parent_id')) {

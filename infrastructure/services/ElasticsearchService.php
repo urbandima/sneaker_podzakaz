@@ -9,13 +9,13 @@ use app\backend\modules\catalog\models\Product;
 
 /**
  * ElasticsearchService - Сервис для работы с Elasticsearch
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * - Индексация товаров в Elasticsearch
  * - Полнотекстовый поиск с поддержкой морфологии
  * - Фасетный поиск (фильтры по брендам, категориям, ценам)
  * - Автодополнение и подсказки
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * $esService = new ElasticsearchService();
  * $results = $esService->search('nike air max', ['brand' => 'Nike']);
@@ -24,10 +24,10 @@ class ElasticsearchService
 {
     /** @var Client */
     private $client;
-    
+
     /** @var string Название индекса */
     private $indexName = 'products';
-    
+
     /**
      * Конструктор
      */
@@ -36,15 +36,15 @@ class ElasticsearchService
         $hosts = [
             env('ELASTICSEARCH_HOST', 'localhost:9200')
         ];
-        
+
         $this->client = ClientBuilder::create()
             ->setHosts($hosts)
             ->build();
     }
-    
+
     /**
      * Создать индекс для товаров
-     * 
+     *
      * @return bool
      */
     public function createIndex(): bool
@@ -55,7 +55,7 @@ class ElasticsearchService
                 Yii::info("Индекс {$this->indexName} уже существует", 'elasticsearch');
                 return true;
             }
-            
+
             // Создаём индекс с маппингом
             $params = [
                 'index' => $this->indexName,
@@ -131,21 +131,20 @@ class ElasticsearchService
                     ]
                 ]
             ];
-            
+
             $response = $this->client->indices()->create($params);
-            
+
             Yii::info("Индекс {$this->indexName} создан успешно", 'elasticsearch');
             return true;
-            
         } catch (\Exception $e) {
             Yii::error("Ошибка создания индекса: " . $e->getMessage(), 'elasticsearch');
             return false;
         }
     }
-    
+
     /**
      * Индексировать товар
-     * 
+     *
      * @param Product $product
      * @return bool
      */
@@ -178,31 +177,30 @@ class ElasticsearchService
                     'updated_at' => $product->updated_at
                 ]
             ];
-            
+
             $this->client->index($params);
-            
+
             return true;
-            
         } catch (\Exception $e) {
             Yii::error("Ошибка индексации товара #{$product->id}: " . $e->getMessage(), 'elasticsearch');
             return false;
         }
     }
-    
+
     /**
      * Индексировать все товары
-     * 
+     *
      * @return array ['success' => int, 'failed' => int]
      */
     public function indexAllProducts(): array
     {
         $success = 0;
         $failed = 0;
-        
+
         $products = Product::find()
             ->with(['brand', 'category', 'colors', 'sizes'])
             ->batch(100);
-        
+
         foreach ($products as $batch) {
             foreach ($batch as $product) {
                 if ($this->indexProduct($product)) {
@@ -212,15 +210,15 @@ class ElasticsearchService
                 }
             }
         }
-        
+
         Yii::info("Индексация завершена: успешно {$success}, ошибок {$failed}", 'elasticsearch');
-        
+
         return ['success' => $success, 'failed' => $failed];
     }
-    
+
     /**
      * Поиск товаров
-     * 
+     *
      * @param string $query Поисковый запрос
      * @param array $filters Фильтры ['brand_id' => 1, 'category_id' => 2, 'price_min' => 1000, 'price_max' => 5000]
      * @param int $from Смещение
@@ -232,7 +230,7 @@ class ElasticsearchService
         try {
             $must = [];
             $filter = [];
-            
+
             // Полнотекстовый поиск
             if (!empty($query)) {
                 $must[] = [
@@ -244,20 +242,20 @@ class ElasticsearchService
                     ]
                 ];
             }
-            
+
             // Фильтр по активности
             $filter[] = ['term' => ['is_active' => true]];
-            
+
             // Фильтр по бренду
             if (!empty($filters['brand_id'])) {
                 $filter[] = ['term' => ['brand_id' => $filters['brand_id']]];
             }
-            
+
             // Фильтр по категории
             if (!empty($filters['category_id'])) {
                 $filter[] = ['term' => ['category_id' => $filters['category_id']]];
             }
-            
+
             // Фильтр по цене
             if (isset($filters['price_min']) || isset($filters['price_max'])) {
                 $priceFilter = ['range' => ['price' => []]];
@@ -269,12 +267,12 @@ class ElasticsearchService
                 }
                 $filter[] = $priceFilter;
             }
-            
+
             // Фильтр по наличию
             if (!empty($filters['in_stock'])) {
                 $filter[] = ['term' => ['stock_status' => 'in_stock']];
             }
-            
+
             // Формируем запрос
             $params = [
                 'index' => $this->indexName,
@@ -316,30 +314,29 @@ class ElasticsearchService
                     ]
                 ]
             ];
-            
+
             $response = $this->client->search($params);
-            
+
             // Извлекаем результаты
             $hits = [];
             foreach ($response['hits']['hits'] as $hit) {
                 $hits[] = array_merge($hit['_source'], ['score' => $hit['_score']]);
             }
-            
+
             return [
                 'hits' => $hits,
                 'total' => $response['hits']['total']['value'],
                 'aggregations' => $response['aggregations'] ?? []
             ];
-            
         } catch (\Exception $e) {
             Yii::error("Ошибка поиска в Elasticsearch: " . $e->getMessage(), 'elasticsearch');
             return ['hits' => [], 'total' => 0, 'aggregations' => []];
         }
     }
-    
+
     /**
      * Автодополнение (suggest)
-     * 
+     *
      * @param string $query
      * @param int $size
      * @return array
@@ -362,25 +359,24 @@ class ElasticsearchService
                     ]
                 ]
             ];
-            
+
             $response = $this->client->search($params);
-            
+
             $suggestions = [];
             foreach ($response['suggest']['product-suggest'][0]['options'] as $option) {
                 $suggestions[] = $option['text'];
             }
-            
+
             return $suggestions;
-            
         } catch (\Exception $e) {
             Yii::error("Ошибка автодополнения: " . $e->getMessage(), 'elasticsearch');
             return [];
         }
     }
-    
+
     /**
      * Удалить товар из индекса
-     * 
+     *
      * @param int $productId
      * @return bool
      */
@@ -391,20 +387,19 @@ class ElasticsearchService
                 'index' => $this->indexName,
                 'id' => $productId
             ];
-            
+
             $this->client->delete($params);
-            
+
             return true;
-            
         } catch (\Exception $e) {
             Yii::error("Ошибка удаления товара #{$productId}: " . $e->getMessage(), 'elasticsearch');
             return false;
         }
     }
-    
+
     /**
      * Получить цвета товара
-     * 
+     *
      * @param Product $product
      * @return array
      */
@@ -413,18 +408,18 @@ class ElasticsearchService
         if (!$product->isRelationPopulated('colors')) {
             return [];
         }
-        
+
         $colors = [];
         foreach ($product->colors as $color) {
             $colors[] = $color->name;
         }
-        
+
         return $colors;
     }
-    
+
     /**
      * Получить размеры товара
-     * 
+     *
      * @param Product $product
      * @return array
      */
@@ -433,14 +428,14 @@ class ElasticsearchService
         if (!$product->isRelationPopulated('sizes')) {
             return [];
         }
-        
+
         $sizes = [];
         foreach ($product->sizes as $size) {
             if ($size->is_available) {
                 $sizes[] = $size->size_value;
             }
         }
-        
+
         return $sizes;
     }
 }

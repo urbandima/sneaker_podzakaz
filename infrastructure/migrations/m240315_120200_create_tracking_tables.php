@@ -25,9 +25,9 @@ class m240315_120200_create_tracking_tables extends Migration
             'created_at' => $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP'),
             'updated_at' => $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         ]);
-        
+
         // Skip foreign key for now - will be added after order table is created
-        
+
         // Add index for tracking number
         $this->createIndex('idx_delivery_tracking_number', '{{%delivery_tracking}}', 'tracking_number');
     }

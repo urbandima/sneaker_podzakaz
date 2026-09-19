@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Форма создания/редактирования тега
- * 
+ *
  * @var ProductTag $model
  * @var string $title
  */
@@ -62,7 +63,7 @@ $this->params['breadcrumbs'][] = $isCreate ? 'Создание' : 'Редакт�
                     'class' => 'form-control',
                 ])->hint('Порядок отображения (меньше = выше)') ?>
 
-                <?php if (!$isCreate): ?>
+                <?php if (!$isCreate) : ?>
                     <div class="tag-stats">
                         <h4>Статистика</h4>
                         <p><strong>Товаров с тегом:</strong> <?= $model->getProductsCount() ?></p>
@@ -78,7 +79,7 @@ $this->params['breadcrumbs'][] = $isCreate ? 'Создание' : 'Редакт�
                 'class' => 'btn btn-primary',
             ]) ?>
             
-            <?php if (!$isCreate): ?>
+            <?php if (!$isCreate) : ?>
                 <?= Html::a('Удалить', ['delete', 'id' => $model->id], [
                     'class' => 'btn btn-danger',
                     'data-confirm' => 'Удалить этот тег?',

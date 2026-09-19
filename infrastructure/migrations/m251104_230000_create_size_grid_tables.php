@@ -153,7 +153,7 @@ class m251104_230000_create_size_grid_tables extends Migration
     public function safeDown()
     {
         $this->dropColumn('{{%product_size}}', 'price');
-        
+
         $this->dropForeignKey('fk-size_grid_item-size_grid_id', '{{%size_grid_item}}');
         $this->dropTable('{{%size_grid_item}}');
 

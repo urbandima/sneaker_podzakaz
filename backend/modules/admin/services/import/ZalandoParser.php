@@ -7,7 +7,7 @@ use Yii;
 
 /**
  * ZalandoParser — Парсер товаров с Zalando.com
- * 
+ *
  * Европейский маркетплейс, цены в EUR
  */
 class ZalandoParser extends BaseParser
@@ -35,7 +35,7 @@ class ZalandoParser extends BaseParser
     public function parseProduct($url)
     {
         $html = $this->request($url);
-        
+
         if (!$html) {
             return null;
         }
@@ -44,7 +44,7 @@ class ZalandoParser extends BaseParser
         if ($this->hasCaptcha($html)) {
             Yii::warning("CAPTCHA detected on Zalando: {$url}", 'import');
             $token = $this->solveCaptcha($html, $url);
-            
+
             if ($token) {
                 $html = $this->request($url, 'GET', [
                     'headers' => ['captcha-token' => $token],
@@ -54,7 +54,7 @@ class ZalandoParser extends BaseParser
 
         // Zalando использует JSON-LD для данных о товаре
         $data = $this->extractJsonLd($html);
-        
+
         if ($data) {
             return $data;
         }
@@ -74,10 +74,10 @@ class ZalandoParser extends BaseParser
 
         try {
             $jsonLd = $crawler->filter('script[type="application/ld+json"]')->first()->text('');
-            
+
             if ($jsonLd) {
                 $data = json_decode($jsonLd, true);
-                
+
                 if ($data && isset($data['@type']) && $data['@type'] === 'Product') {
                     return $this->parseJsonLdProduct($data, $html);
                 }
@@ -98,7 +98,7 @@ class ZalandoParser extends BaseParser
     protected function parseJsonLdProduct($data, $html)
     {
         $crawler = new Crawler($html);
-        
+
         $product = [
             'url' => $data['url'] ?? null,
             'name' => $data['name'] ?? '',
@@ -116,7 +116,7 @@ class ZalandoParser extends BaseParser
         // Извлекаем изображения
         if (isset($data['image'])) {
             $images = is_array($data['image']) ? $data['image'] : [$data['image']];
-            $product['images'] = array_map(function($img) {
+            $product['images'] = array_map(function ($img) {
                 // Увеличиваем размер
                 return str_replace(['_1.jpg', '_2.jpg'], '_9.jpg', $img);
             }, $images);
@@ -171,7 +171,7 @@ class ZalandoParser extends BaseParser
         // Zalando использует пагинацию в URL
         $urlWithPage = $url . '?p=' . $page;
         $html = $this->request($urlWithPage);
-        
+
         if (!$html) {
             return [];
         }
@@ -182,10 +182,10 @@ class ZalandoParser extends BaseParser
         try {
             $crawler->filter('[data-testid="product-card"]')->each(function (Crawler $node) use (&$products) {
                 $link = $node->filter('a');
-                
+
                 if ($link->count() > 0) {
                     $href = $link->attr('href');
-                    
+
                     $products[] = [
                         'url' => 'https://www.zalando.com' . $href,
                         'name' => trim($node->filter('[data-testid="product-card-name"]')->text('')),
@@ -208,7 +208,7 @@ class ZalandoParser extends BaseParser
     {
         $url = 'https://www.zalando.com/catalog/?q=' . urlencode($query);
         $html = $this->request($url);
-        
+
         if (!$html) {
             return [];
         }
@@ -219,10 +219,10 @@ class ZalandoParser extends BaseParser
         try {
             $crawler->filter('[data-testid="product-card"]')->slice(0, $limit)->each(function (Crawler $node) use (&$products) {
                 $link = $node->filter('a');
-                
+
                 if ($link->count() > 0) {
                     $href = $link->attr('href');
-                    
+
                     $products[] = [
                         'url' => 'https://www.zalando.com' . $href,
                         'name' => trim($node->filter('[data-testid="product-card-name"]')->text('')),
@@ -249,7 +249,7 @@ class ZalandoParser extends BaseParser
 
         while ($page <= $maxPages) {
             $products = $this->parseCategory($categoryUrl, $page);
-            
+
             if (empty($products)) {
                 break;
             }
@@ -285,7 +285,7 @@ class ZalandoParser extends BaseParser
         // Нормализуем характеристики
         if (!empty($rawData['characteristics'])) {
             $chars = $rawData['characteristics'];
-            
+
             $normalized['material'] = $chars['Material'] ?? $chars['material'] ?? null;
             $normalized['season'] = $this->normalizeSeason($chars['Season'] ?? $chars['season'] ?? null);
             $normalized['gender'] = $this->normalizeGender($chars['Gender'] ?? $chars['gender'] ?? null);
@@ -382,7 +382,7 @@ class ZalandoParser extends BaseParser
         try {
             $crawler->filter('[data-testid="size-option"]')->each(function (Crawler $node) use (&$sizes) {
                 $sizeText = trim($node->text(''));
-                
+
                 if ($sizeText) {
                     $sizes[] = [
                         'size' => $sizeText,
@@ -414,7 +414,7 @@ class ZalandoParser extends BaseParser
             $crawler->filter('[data-testid="breadcrumb"] a')->each(function (Crawler $node) use (&$categories) {
                 $categories[] = trim($node->text(''));
             });
-            
+
             return end($categories) ?: null;
         } catch (\Exception $e) {
             return null;
@@ -429,7 +429,7 @@ class ZalandoParser extends BaseParser
             $crawler->filter('[data-testid="product-characteristic"]')->each(function (Crawler $node) use (&$characteristics) {
                 $label = trim($node->filter('[data-testid="characteristic-label"]')->text(''));
                 $value = trim($node->filter('[data-testid="characteristic-value"]')->text(''));
-                
+
                 if ($label && $value) {
                     $characteristics[$label] = $value;
                 }
@@ -449,25 +449,39 @@ class ZalandoParser extends BaseParser
 
     protected function normalizeSeason($season)
     {
-        if (!$season) return null;
+        if (!$season) {
+            return null;
+        }
 
         $seasonLower = mb_strtolower($season, 'UTF-8');
 
-        if (strpos($seasonLower, 'summer') !== false) return 'summer';
-        if (strpos($seasonLower, 'winter') !== false) return 'winter';
-        if (strpos($seasonLower, 'spring') !== false || strpos($seasonLower, 'autumn') !== false) return 'demi';
+        if (strpos($seasonLower, 'summer') !== false) {
+            return 'summer';
+        }
+        if (strpos($seasonLower, 'winter') !== false) {
+            return 'winter';
+        }
+        if (strpos($seasonLower, 'spring') !== false || strpos($seasonLower, 'autumn') !== false) {
+            return 'demi';
+        }
 
         return 'all';
     }
 
     protected function normalizeGender($gender)
     {
-        if (!$gender) return null;
+        if (!$gender) {
+            return null;
+        }
 
         $genderLower = mb_strtolower($gender, 'UTF-8');
 
-        if (strpos($genderLower, 'men') !== false || strpos($genderLower, 'male') !== false) return 'male';
-        if (strpos($genderLower, 'women') !== false || strpos($genderLower, 'female') !== false) return 'female';
+        if (strpos($genderLower, 'men') !== false || strpos($genderLower, 'male') !== false) {
+            return 'male';
+        }
+        if (strpos($genderLower, 'women') !== false || strpos($genderLower, 'female') !== false) {
+            return 'female';
+        }
 
         return 'unisex';
     }

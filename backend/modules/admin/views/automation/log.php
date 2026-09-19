@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\backend\modules\automation\models\AutomationTrigger;
@@ -6,7 +7,8 @@ use app\backend\modules\automation\models\AutomationTrigger;
 $this->title = 'Лог автоматизации';
 
 $this->params['headerActions'] = [
-    Html::a('<i class="bi bi-lightning-charge"></i> Триггеры',
+    Html::a(
+        '<i class="bi bi-lightning-charge"></i> Триггеры',
         Url::to(['/admin/settings/triggers']),
         ['class' => 'admin-btn admin-btn-secondary']
     ),
@@ -20,9 +22,13 @@ $filterFrom  = Yii::$app->request->get('date_from', '');
 $filterTo    = Yii::$app->request->get('date_to', '');
 
 $currentSort = Yii::$app->request->get('sort', '-created_at');
-$sortIcon = function(string $col) use ($currentSort): string {
-    if ($currentSort === $col)       return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▲</span>';
-    if ($currentSort === '-' . $col) return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▼</span>';
+$sortIcon = function (string $col) use ($currentSort): string {
+    if ($currentSort === $col) {
+        return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▲</span>';
+    }
+    if ($currentSort === '-' . $col) {
+        return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▼</span>';
+    }
     return ' <span style="color:#d1d5db;font-size:.6rem">⇅</span>';
 };
 ?>
@@ -31,7 +37,7 @@ $sortIcon = function(string $col) use ($currentSort): string {
     <div class="compact-filter-bar filter-row1">
         <select name="event" class="compact-filter-select" style="min-width:160px">
             <option value="">Все события</option>
-            <?php foreach ($eventCodes as $k => $v): ?>
+            <?php foreach ($eventCodes as $k => $v) : ?>
             <option value="<?= Html::encode($k) ?>" <?= $filterEvent === $k ? 'selected' : '' ?>><?= Html::encode($v) ?></option>
             <?php endforeach; ?>
         </select>
@@ -59,13 +65,13 @@ $sortIcon = function(string $col) use ($currentSort): string {
         </h2>
     </div>
 
-    <?php if (empty($logs)): ?>
+    <?php if (empty($logs)) : ?>
         <div class="empty-state" style="padding:2.5rem">
             <div class="empty-state-icon"><i class="bi bi-journal"></i></div>
             <h3 class="empty-state-title">Лог пуст</h3>
             <p class="empty-state-description">Выполнения триггеров ещё не зафиксированы</p>
         </div>
-    <?php else: ?>
+    <?php else : ?>
     <div style="overflow-x:auto">
         <table class="admin-table" style="font-size:.8125rem">
             <thead>
@@ -81,16 +87,19 @@ $sortIcon = function(string $col) use ($currentSort): string {
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($logs as $log):
+                <?php foreach ($logs as $log) :
                     $status = $log->getStatusSummary();
                     if ($status === 'успех') {
-                        $statusBg = '#d1f7e5'; $statusColor = '#008060';
+                        $statusBg = '#d1f7e5';
+                        $statusColor = '#008060';
                     } elseif ($status === 'ошибка') {
-                        $statusBg = '#fbeae5'; $statusColor = '#d72c0d';
+                        $statusBg = '#fbeae5';
+                        $statusColor = '#d72c0d';
                     } else {
-                        $statusBg = '#f3f4f6'; $statusColor = '#6d7175';
+                        $statusBg = '#f3f4f6';
+                        $statusColor = '#6d7175';
                     }
-                ?>
+                    ?>
                 <tr>
                     <td style="color:var(--admin-text-secondary,#6d7175);font-size:11px">#<?= $log->id ?></td>
                     <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
@@ -102,14 +111,16 @@ $sortIcon = function(string $col) use ($currentSort): string {
                         </span>
                     </td>
                     <td>
-                        <?php if ($log->order_id): ?>
+                        <?php if ($log->order_id) : ?>
                         <a href="<?= Url::to(['/admin/order/' . $log->order_id]) ?>" style="color:var(--admin-info,#0078d4)">#<?= $log->order_id ?></a>
-                        <?php else: ?>—<?php endif; ?>
+                        <?php else :
+                            ?>—<?php
+                        endif; ?>
                     </td>
                     <td>
-                        <?php if ($log->conditions_met): ?>
+                        <?php if ($log->conditions_met) : ?>
                             <span class="status-pill" style="background:#d1f7e5;color:#008060">Выполнены</span>
-                        <?php else: ?>
+                        <?php else : ?>
                             <span class="status-pill" style="background:#f3f4f6;color:#6d7175">Не выполнены</span>
                         <?php endif; ?>
                     </td>

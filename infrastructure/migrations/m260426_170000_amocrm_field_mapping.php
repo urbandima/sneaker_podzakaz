@@ -16,7 +16,7 @@ class m260426_170000_amocrm_field_mapping extends Migration
             'entity_type'      => "ENUM('lead','contact','company') NOT NULL DEFAULT 'lead'",
             'local_field'      => $this->string(64)->notNull(),
             'amocrm_field_id'  => $this->integer()->notNull(),
-            'amocrm_field_name'=> $this->string(255)->null(),
+            'amocrm_field_name' => $this->string(255)->null(),
             'direction'        => "ENUM('to_amocrm','from_amocrm','both') NOT NULL DEFAULT 'both'",
             'created_at'       => $this->dateTime()->notNull()->defaultExpression('CURRENT_TIMESTAMP'),
         ]);
@@ -42,7 +42,8 @@ class m260426_170000_amocrm_field_mapping extends Migration
         if (!in_array('idx_order_amocrm_lead', $indexNames)) {
             try {
                 $this->createIndex('idx_order_amocrm_lead', 'order', 'amocrm_lead_id');
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
         }
     }
 

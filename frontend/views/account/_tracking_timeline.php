@@ -5,13 +5,11 @@
 
 use yii\helpers\Html;
 
-/**
- * DP status color coding:
- * green = delivered
- * blue  = in transit
- * yellow = customs / pending
- * red   = problem / rejected
- */
+// DP status color coding:
+// green = delivered
+// blue  = in transit
+// yellow = customs / pending
+// red   = problem / rejected
 $dpStatusMap = [
     'created'            => ['label' => 'Создан в ДП',          'color' => 'blue'],
     'accepted'           => ['label' => 'Принят',               'color' => 'blue'],
@@ -35,7 +33,7 @@ $orderStatusSteps = [
     'confirmed_and_paid'    => 2,
     'ordered'               => 2,
     'awaiting_warehouse'    => 3,
-    'international_delivery'=> 4,
+    'international_delivery' => 4,
     'at_warehouse'          => 5,
     'local_delivery'        => 6,
     'delivered'             => 7,
@@ -49,23 +47,23 @@ $dpCurrentInfo = $dpStatus && isset($dpStatusMap[$dpStatus]) ? $dpStatusMap[$dpS
 ?>
 
 <div class="dp-timeline">
-    <?php if ($order->estimated_delivery_date): ?>
+    <?php if ($order->estimated_delivery_date) : ?>
     <div class="dp-eta-badge">
         <i class="bi bi-calendar-check"></i>
         Ожидаемая доставка: <strong><?= Html::encode(date('d.m.Y', strtotime($order->estimated_delivery_date))) ?></strong>
     </div>
     <?php endif; ?>
 
-    <?php if ($order->dp_track_number || $order->local_track_number): ?>
+    <?php if ($order->dp_track_number || $order->local_track_number) : ?>
     <div class="dp-track-numbers">
-        <?php if ($order->dp_track_number): ?>
+        <?php if ($order->dp_track_number) : ?>
         <div class="dp-track-item">
             <i class="bi bi-box-seam"></i>
             <span class="dp-track-label">Трек Таможня:ДП:</span>
             <span class="dp-track-value"><?= Html::encode($order->dp_track_number) ?></span>
         </div>
         <?php endif; ?>
-        <?php if ($order->local_track_number): ?>
+        <?php if ($order->local_track_number) : ?>
         <div class="dp-track-item">
             <i class="bi bi-truck"></i>
             <span class="dp-track-label">Локальный трек:</span>
@@ -88,10 +86,13 @@ $dpCurrentInfo = $dpStatus && isset($dpStatusMap[$dpStatus]) ? $dpStatusMap[$dpS
             ['icon' => 'bi-check-circle',   'label' => 'Доставлен',           'desc' => 'Заказ получен',                  'step' => 7],
         ];
 
-        foreach ($steps as $step):
+        foreach ($steps as $step) :
             $state = '';
-            if ($currentStep > $step['step']) $state = 'completed';
-            elseif ($currentStep === $step['step']) $state = 'active';
+            if ($currentStep > $step['step']) {
+                $state = 'completed';
+            } elseif ($currentStep === $step['step']) {
+                $state = 'active';
+            }
 
             // For DP step (step 3/4): show special DP sub-status
             $isDpStep = ($step['step'] === 4);
@@ -99,7 +100,7 @@ $dpCurrentInfo = $dpStatus && isset($dpStatusMap[$dpStatus]) ? $dpStatusMap[$dpS
             if ($isDpStep && $dpCurrentInfo) {
                 $dpColor = $dpCurrentInfo['color'];
             }
-        ?>
+            ?>
         <div class="timeline-item <?= $state ?><?= $isDpStep && $dpColor ? ' dp-step-' . $dpColor : '' ?>">
             <div class="timeline-dot">
                 <i class="bi <?= $step['icon'] ?>"></i>
@@ -108,23 +109,23 @@ $dpCurrentInfo = $dpStatus && isset($dpStatusMap[$dpStatus]) ? $dpStatusMap[$dpS
                 <h4><?= $step['label'] ?></h4>
                 <p><?= $step['desc'] ?></p>
 
-                <?php if ($isDpStep && $dpCurrentInfo && $state !== ''): ?>
+                <?php if ($isDpStep && $dpCurrentInfo && $state !== '') : ?>
                 <div class="dp-substatus dp-substatus--<?= $dpCurrentInfo['color'] ?>">
                     <?= Html::encode($dpCurrentInfo['label']) ?>
-                    <?php if ($order->dp_status_date): ?>
+                    <?php if ($order->dp_status_date) : ?>
                     <span class="dp-substatus-date"><?= date('d.m.Y', strtotime($order->dp_status_date)) ?></span>
                     <?php endif; ?>
                 </div>
                 <?php endif; ?>
 
-                <?php if ($isDpStep && $dpSent && !$dpCurrentInfo): ?>
+                <?php if ($isDpStep && $dpSent && !$dpCurrentInfo) : ?>
                 <div class="dp-substatus dp-substatus--blue">Ожидаем статус от Таможня:ДП</div>
                 <?php endif; ?>
             </div>
         </div>
         <?php endforeach; ?>
 
-        <?php if ($order->status === 'canceled'): ?>
+        <?php if ($order->status === 'canceled') : ?>
         <div class="timeline-item canceled">
             <div class="timeline-dot"><i class="bi bi-x-circle"></i></div>
             <div class="timeline-content">

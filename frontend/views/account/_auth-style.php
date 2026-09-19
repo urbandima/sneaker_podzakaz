@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Shared auth page styles for login/register flows.
  *

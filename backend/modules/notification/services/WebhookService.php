@@ -2,10 +2,11 @@
 
 /**
  * WebhookService — Сервис webhook-уведомлений для внешних систем
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Отправка webhook-уведомлений при событиях: заказ создан, статус изменён, возврат
  */
+
 namespace app\backend\modules\notification\services;
 
 use Yii;
@@ -22,7 +23,7 @@ class WebhookService extends Component
 
     /**
      * Отправить webhook о событии
-     * 
+     *
      * @param string $event Тип события
      * @param array $data Данные
      * @return array Результаты отправки

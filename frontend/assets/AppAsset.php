@@ -8,7 +8,7 @@ class AppAsset extends AssetBundle
 {
     public $basePath = '@webroot';
     public $baseUrl = '@web';
-    
+
     // Модульная CSS архитектура - версии добавятся автоматически в init()
     // Google Fonts загружается async в layouts/main.php чтобы не блокировать рендер
     public $css = [
@@ -44,15 +44,15 @@ class AppAsset extends AssetBundle
         'js/mobile-menu.js',
         'js/passport-format.js',
     ];
-    
+
     public $jsOptions = [
         'defer' => true,
     ];
-    
+
     public $depends = [
         'yii\web\YiiAsset',
     ];
-    
+
     /**
      * АВТОМАТИЧЕСКОЕ ВЕРСИОНИРОВАНИЕ
      * При изменении файла версия обновляется автоматически на основе времени изменения.
@@ -60,36 +60,36 @@ class AppAsset extends AssetBundle
     public function init()
     {
         parent::init();
-        
+
         // Автоматическое версионирование для всех CSS файлов
         foreach ($this->css as $index => $cssFile) {
             // Пропускаем внешние ссылки (CDN)
             if (strpos($cssFile, 'http') === 0) {
                 continue;
             }
-            
+
             // Убираем старую версию если есть
             $cleanFile = preg_replace('/\?v=.*$/', '', $cssFile);
             $filePath = \Yii::getAlias('@webroot/' . $cleanFile);
-            
+
             // Добавляем версию на основе времени изменения файла
             if (file_exists($filePath)) {
                 $version = filemtime($filePath);
                 $this->css[$index] = $cleanFile . '?v=' . $version;
             }
         }
-        
+
         // Автоматическое версионирование для всех JS файлов
         foreach ($this->js as $index => $jsFile) {
             // Пропускаем внешние ссылки (CDN)
             if (strpos($jsFile, 'http') === 0) {
                 continue;
             }
-            
+
             // Убираем старую версию если есть
             $cleanFile = preg_replace('/\?v=.*$/', '', $jsFile);
             $filePath = \Yii::getAlias('@webroot/' . $cleanFile);
-            
+
             // Добавляем версию на основе времени изменения файла
             if (file_exists($filePath)) {
                 $version = filemtime($filePath);

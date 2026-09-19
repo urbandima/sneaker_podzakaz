@@ -35,7 +35,7 @@ class AutomationController extends BaseAdminController
             'model'      => $model,
             'eventCodes' => AutomationTrigger::getEventCodes(),
             'operators'  => AutomationTrigger::getOperators(),
-            'actionTypes'=> AutomationTrigger::getActionTypes(),
+            'actionTypes' => AutomationTrigger::getActionTypes(),
         ]);
     }
 
@@ -51,7 +51,7 @@ class AutomationController extends BaseAdminController
             'model'      => $model,
             'eventCodes' => AutomationTrigger::getEventCodes(),
             'operators'  => AutomationTrigger::getOperators(),
-            'actionTypes'=> AutomationTrigger::getActionTypes(),
+            'actionTypes' => AutomationTrigger::getActionTypes(),
         ]);
     }
 
@@ -102,7 +102,9 @@ class AutomationController extends BaseAdminController
         $condVals     = $post['cond_value']    ?? [];
         $conditions = [];
         foreach ($condFields as $i => $field) {
-            if (empty($field)) continue;
+            if (empty($field)) {
+                continue;
+            }
             $conditions[] = [
                 'field'    => $field,
                 'operator' => $condOps[$i] ?? 'equals',
@@ -116,7 +118,9 @@ class AutomationController extends BaseAdminController
         $actParams = $post['act_params']  ?? [];
         $actions = [];
         foreach ($actTypes as $i => $type) {
-            if (empty($type)) continue;
+            if (empty($type)) {
+                continue;
+            }
             $raw = $actParams[$i] ?? '{}';
             $params = json_decode($raw, true) ?? [];
             $actions[] = array_merge(['type' => $type], $params);

@@ -8,7 +8,7 @@ use yii\httpclient\Client;
 
 /**
  * CaptchaService — Сервис решения CAPTCHA
- * 
+ *
  * Поддержка: 2Captcha, Anti-Captcha, CapMonster
  * Автоматический fallback на резервный сервис
  */
@@ -80,7 +80,7 @@ class CaptchaService extends Component
         // Пробуем сервисы по приоритету
         foreach ($this->priority as $service) {
             $token = $this->solveWithService($service, $type, $siteKey, $pageUrl, $options);
-            
+
             if ($token) {
                 Yii::info("CAPTCHA solved with {$service}", 'import');
                 return $token;
@@ -103,7 +103,7 @@ class CaptchaService extends Component
     protected function solveWithService($service, $type, $siteKey, $pageUrl, array $options = [])
     {
         $apiKey = $this->getApiKey($service);
-        
+
         if (!$apiKey) {
             return null;
         }
@@ -111,7 +111,7 @@ class CaptchaService extends Component
         try {
             // Создаем задачу
             $taskId = $this->createTask($service, $apiKey, $type, $siteKey, $pageUrl, $options);
-            
+
             if (!$taskId) {
                 return null;
             }
@@ -131,7 +131,7 @@ class CaptchaService extends Component
      */
     protected function getApiKey($service)
     {
-        return match($service) {
+        return match ($service) {
             '2captcha' => $this->apiKey2Captcha,
             'anticaptcha' => $this->apiKeyAntiCaptcha,
             'capmonster' => $this->apiKeyCapMonster,
@@ -155,9 +155,9 @@ class CaptchaService extends Component
 
         try {
             $response = $this->clients[$service]->post($this->getCreateEndpoint($service), $requestData)->send();
-            
+
             $data = $response->getData();
-            
+
             if ($this->isSuccessResponse($service, $data)) {
                 return $this->extractTaskId($service, $data);
             }
@@ -194,7 +194,7 @@ class CaptchaService extends Component
 
         // Anti-Captcha и CapMonster используют одинаковый API
         $taskType = $this->getTaskType($service, $type);
-        
+
         return [
             'clientKey' => $apiKey,
             'task' => [
@@ -213,7 +213,7 @@ class CaptchaService extends Component
      */
     protected function getTaskType($service, $type)
     {
-        return match($type) {
+        return match ($type) {
             'recaptcha' => 'RecaptchaV2TaskProxyless',
             'recaptcha_v3' => 'RecaptchaV3TaskProxyless',
             'hcaptcha' => 'HCaptchaTaskProxyless',
@@ -230,7 +230,7 @@ class CaptchaService extends Component
      */
     protected function getCreateEndpoint($service)
     {
-        return match($service) {
+        return match ($service) {
             '2captcha' => '/in.php',
             'anticaptcha' => '/createTask',
             'capmonster' => '/createTask',
@@ -245,7 +245,7 @@ class CaptchaService extends Component
      */
     protected function getResultEndpoint($service)
     {
-        return match($service) {
+        return match ($service) {
             '2captcha' => '/res.php',
             'anticaptcha' => '/getTaskResult',
             'capmonster' => '/getTaskResult',
@@ -298,7 +298,7 @@ class CaptchaService extends Component
             sleep($this->pollInterval);
 
             $result = $this->getTaskResult($service, $apiKey, $taskId);
-            
+
             if ($result !== null) {
                 return $result;
             }
@@ -321,7 +321,7 @@ class CaptchaService extends Component
 
         try {
             $response = $this->clients[$service]->post($this->getResultEndpoint($service), $requestData)->send();
-            
+
             $data = $response->getData();
 
             if ($service === '2captcha') {
@@ -329,12 +329,12 @@ class CaptchaService extends Component
                 if (isset($data['status']) && $data['status'] === 1) {
                     return $data['request'];
                 }
-                
+
                 // Если еще не готово
                 if (isset($data['request']) && $data['request'] === 'CAPCHA_NOT_READY') {
                     return null;
                 }
-                
+
                 return null;
             }
 
@@ -386,13 +386,13 @@ class CaptchaService extends Component
 
         foreach (['2captcha', 'anticaptcha', 'capmonster'] as $service) {
             $apiKey = $this->getApiKey($service);
-            
+
             if (!$apiKey) {
                 continue;
             }
 
             $balance = $this->getBalance($service, $apiKey);
-            
+
             if ($balance !== null) {
                 $balances[$service] = $balance;
             }
@@ -410,19 +410,19 @@ class CaptchaService extends Component
     protected function getBalance($service, $apiKey)
     {
         try {
-            $endpoint = match($service) {
+            $endpoint = match ($service) {
                 '2captcha' => '/res.php?action=getbalance&json=1&key=' . $apiKey,
                 'anticaptcha' => '/getBalance',
                 'capmonster' => '/getBalance',
                 default => '/getBalance',
             };
 
-            $requestData = $service === '2captcha' 
-                ? [] 
+            $requestData = $service === '2captcha'
+                ? []
                 : ['clientKey' => $apiKey];
 
             $response = $this->clients[$service]->post($endpoint, $requestData)->send();
-            
+
             $data = $response->getData();
 
             if ($service === '2captcha') {
@@ -450,7 +450,7 @@ class CaptchaService extends Component
         // Резервный сервис
         if ($source->captcha_fallback_service && $source->captcha_fallback_api_key) {
             $this->setApiKey($source->captcha_fallback_service, $source->captcha_fallback_api_key);
-            
+
             // Добавляем в приоритет после основного
             if (!in_array($source->captcha_fallback_service, $this->priority)) {
                 $this->priority[] = $source->captcha_fallback_service;
@@ -460,7 +460,7 @@ class CaptchaService extends Component
         // Устанавливаем приоритет: основной -> резервный -> остальные
         $mainService = $source->captcha_service;
         $fallbackService = $source->captcha_fallback_service;
-        
+
         $this->priority = array_filter([
             $mainService,
             $fallbackService,

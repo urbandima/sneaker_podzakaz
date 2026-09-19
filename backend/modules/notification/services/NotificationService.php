@@ -2,16 +2,17 @@
 
 /**
  * NotificationService — Сервис уведомлений
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Централизованная отправка уведомлений пользователям через различные каналы.
- * 
+ *
  * ФУНКЦИИ:
  * - sendEmail() - отправка email
  * - sendPush() - отправка push уведомления
  * - createInternal() - создание внутреннего уведомления
  * - markAsRead() - отметить как прочитанное
  */
+
 namespace app\backend\modules\notification\services;
 
 use Yii;
@@ -22,7 +23,7 @@ class NotificationService extends Component
 {
     /**
      * Отправить email уведомление
-     * 
+     *
      * @param string $to Email получателя
      * @param string $subject Тема письма
      * @param string $body Текст письма
@@ -46,7 +47,7 @@ class NotificationService extends Component
 
     /**
      * Создать внутреннее уведомление
-     * 
+     *
      * @param int $customerId ID покупателя
      * @param string $type Тип уведомления
      * @param string $title Заголовок
@@ -64,17 +65,17 @@ class NotificationService extends Component
         $notification->data = json_encode($data);
         $notification->is_read = 0;
         $notification->created_at = date('Y-m-d H:i:s');
-        
+
         if ($notification->save()) {
             return $notification;
         }
-        
+
         return null;
     }
 
     /**
      * Отметить уведомление как прочитанное
-     * 
+     *
      * @param int $notificationId
      * @return bool
      */
@@ -86,13 +87,13 @@ class NotificationService extends Component
             $notification->read_at = date('Y-m-d H:i:s');
             return $notification->save(false);
         }
-        
+
         return false;
     }
 
     /**
      * Отметить все уведомления пользователя как прочитанные
-     * 
+     *
      * @param int $customerId
      * @return int Количество обновлённых записей
      */
@@ -106,7 +107,7 @@ class NotificationService extends Component
 
     /**
      * Получить непрочитанные уведомления
-     * 
+     *
      * @param int $customerId
      * @param int $limit
      * @return array
@@ -122,7 +123,7 @@ class NotificationService extends Component
 
     /**
      * Отправить уведомление о новом заказе
-     * 
+     *
      * @param int $orderId
      * @param int $customerId
      */
@@ -139,7 +140,7 @@ class NotificationService extends Component
 
     /**
      * Отправить уведомление об изменении статуса заказа
-     * 
+     *
      * @param int $orderId
      * @param int $customerId
      * @param string $status
@@ -152,9 +153,9 @@ class NotificationService extends Component
             'delivered' => 'Ваш заказ доставлен',
             'cancelled' => 'Ваш заказ отменён',
         ];
-        
+
         $message = $statusMessages[$status] ?? 'Статус заказа изменён';
-        
+
         $this->createInternal(
             $customerId,
             'order_status',
@@ -166,7 +167,7 @@ class NotificationService extends Component
 
     /**
      * Отправить уведомление о начислении баллов лояльности
-     * 
+     *
      * @param int $customerId
      * @param int $points
      * @param string $reason

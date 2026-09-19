@@ -2,10 +2,11 @@
 
 /**
  * SeoController — SEO инструменты
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Управление редиректами, sitemap, robots.txt, массовое редактирование meta-тегов
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -127,16 +128,17 @@ class SeoController extends BaseAdminController
     public function actionSitemap()
     {
         $generator = new \app\backend\modules\seo\components\SitemapGenerator();
-        
+
         if (Yii::$app->request->post('regenerate')) {
             $result = $generator->generate();
-            Yii::$app->session->setFlash('success', 
+            Yii::$app->session->setFlash(
+                'success',
                 "Sitemap сгенерирован: {$result['urls']} URL, файл: {$result['file']}"
             );
         }
 
         $sitemapExists = file_exists(Yii::getAlias('@frontend/web/sitemap.xml'));
-        $lastModified = $sitemapExists 
+        $lastModified = $sitemapExists
             ? date('d.m.Y H:i', filemtime(Yii::getAlias('@frontend/web/sitemap.xml')))
             : null;
 
@@ -160,8 +162,8 @@ class SeoController extends BaseAdminController
             Yii::$app->session->setFlash('success', 'robots.txt обновлён');
         }
 
-        $content = file_exists($robotsPath) 
-            ? file_get_contents($robotsPath) 
+        $content = file_exists($robotsPath)
+            ? file_get_contents($robotsPath)
             : $defaultContent;
 
         return $this->render('robots', [
@@ -175,7 +177,7 @@ class SeoController extends BaseAdminController
     public function actionUpdateProductMeta()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
+
         $id = Yii::$app->request->post('id');
         $field = Yii::$app->request->post('field');
         $value = Yii::$app->request->post('value');
@@ -235,7 +237,7 @@ class SeoController extends BaseAdminController
     public function actionUpdateImageAlt()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
+
         $id = Yii::$app->request->post('id');
         $altText = Yii::$app->request->post('alt_text');
 

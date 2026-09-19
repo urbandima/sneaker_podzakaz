@@ -19,10 +19,27 @@ $points = (int)($loyaltyBalance ?? 0);
 $totalSpent = $customer->total_spent ?? 0;
 $earned = (int)($loyaltyTotalEarned ?? $points);
 $totalForLevel = max($earned, $totalSpent);
-if ($totalForLevel >= 50000)      { $level = 'Platinum'; $levelColor = '#e5e4e2'; $levelText = '#555'; $nextThreshold = 50000; }
-elseif ($totalForLevel >= 15000)  { $level = 'Gold';     $levelColor = '#ffd700'; $levelText = '#7a6000'; $nextThreshold = 50000; }
-elseif ($totalForLevel >= 5000)   { $level = 'Silver';   $levelColor = '#c0c0c0'; $levelText = '#444';    $nextThreshold = 15000; }
-else                              { $level = 'Bronze';   $levelColor = '#cd7f32'; $levelText = '#fff';    $nextThreshold = 5000; }
+if ($totalForLevel >= 50000) {
+    $level = 'Platinum';
+    $levelColor = '#e5e4e2';
+    $levelText = '#555';
+    $nextThreshold = 50000;
+} elseif ($totalForLevel >= 15000) {
+    $level = 'Gold';
+    $levelColor = '#ffd700';
+    $levelText = '#7a6000';
+    $nextThreshold = 50000;
+} elseif ($totalForLevel >= 5000) {
+    $level = 'Silver';
+    $levelColor = '#c0c0c0';
+    $levelText = '#444';
+    $nextThreshold = 15000;
+} else {
+    $level = 'Bronze';
+    $levelColor = '#cd7f32';
+    $levelText = '#fff';
+    $nextThreshold = 5000;
+}
 $progress = ($level !== 'Platinum' && $nextThreshold > 0) ? min(100, round($totalForLevel / $nextThreshold * 100)) : 100;
 
 $history = $loyaltyHistory ?? [];
@@ -33,7 +50,9 @@ if (empty($history)) {
             ->orderBy(['created_at' => SORT_DESC])
             ->limit(50)
             ->all();
-    } catch (\Exception $e) { $history = []; }
+    } catch (\Exception $e) {
+        $history = [];
+    }
 }
 ?>
 
@@ -425,7 +444,7 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                     <i class="bi bi-circle-fill" style="font-size:7px"></i>
                     <?= $customer->getStatusLabel() ?>
                 </span>
-                <?php if ($customer->created_at): ?>
+                <?php if ($customer->created_at) : ?>
                 <span class="crm-hero-since">С <?= date('Y', $customer->created_at) ?> года</span>
                 <?php endif ?>
             </div>
@@ -562,9 +581,9 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                         <i class="bi bi-<?= $customer->email_verified ? 'check-circle-fill' : 'x-circle' ?>" style="color:<?= $customer->email_verified ? 'var(--admin-success)' : 'var(--admin-text-subdued)' ?>"></i>
                         <div>
                             <div class="crm-verify-label">Email</div>
-                            <?php if ($customer->email_verified): ?>
+                            <?php if ($customer->email_verified) : ?>
                                 <div class="crm-verify-yes">Подтверждён</div>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <div class="crm-verify-no">Не подтверждён</div>
                             <?php endif ?>
                         </div>
@@ -573,9 +592,9 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                         <i class="bi bi-<?= $customer->phone_verified ? 'check-circle-fill' : 'x-circle' ?>" style="color:<?= $customer->phone_verified ? 'var(--admin-success)' : 'var(--admin-text-subdued)' ?>"></i>
                         <div>
                             <div class="crm-verify-label">Телефон</div>
-                            <?php if ($customer->phone_verified): ?>
+                            <?php if ($customer->phone_verified) : ?>
                                 <div class="crm-verify-yes">Подтверждён</div>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <div class="crm-verify-no">Не подтверждён</div>
                             <?php endif ?>
                         </div>
@@ -584,9 +603,9 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                         <i class="bi bi-<?= $customer->subscribe_news ? 'bell-fill' : 'bell-slash' ?>" style="color:<?= $customer->subscribe_news ? 'var(--admin-info)' : 'var(--admin-text-subdued)' ?>"></i>
                         <div>
                             <div class="crm-verify-label">Рассылка новостей</div>
-                            <?php if ($customer->subscribe_news): ?>
+                            <?php if ($customer->subscribe_news) : ?>
                                 <div class="crm-verify-yes">Подписан</div>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <div class="crm-verify-no">Нет</div>
                             <?php endif ?>
                         </div>
@@ -595,9 +614,9 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                         <i class="bi bi-<?= $customer->subscribe_promo ? 'tag-fill' : 'tag' ?>" style="color:<?= $customer->subscribe_promo ? 'var(--admin-info)' : 'var(--admin-text-subdued)' ?>"></i>
                         <div>
                             <div class="crm-verify-label">Рассылка акций</div>
-                            <?php if ($customer->subscribe_promo): ?>
+                            <?php if ($customer->subscribe_promo) : ?>
                                 <div class="crm-verify-yes">Подписан</div>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <div class="crm-verify-no">Нет</div>
                             <?php endif ?>
                         </div>
@@ -606,7 +625,7 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
             </div>
 
             <!-- Passport data -->
-            <?php if ($customer->passport_series || $customer->passport_number || $customer->inn): ?>
+            <?php if ($customer->passport_series || $customer->passport_number || $customer->inn) : ?>
             <div class="crm-card">
                 <div class="crm-card-header">
                     <div class="crm-card-title"><i class="bi bi-person-vcard-fill"></i> Паспортные данные</div>
@@ -616,9 +635,9 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                     <div>
                         <div class="crm-passport-label">Серия и номер</div>
                         <div class="crm-passport-value">
-                            <?php if ($isAdmin): ?>
+                            <?php if ($isAdmin) : ?>
                                 <?= Html::encode(trim(($customer->passport_series ?? '') . ' ' . ($customer->passport_number ?? ''))) ?: '—' ?>
-                            <?php else: ?>
+                            <?php else : ?>
                                 АВ **** *****
                             <?php endif ?>
                         </div>
@@ -629,9 +648,9 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                     <div>
                         <div class="crm-passport-label">Идентификационный номер</div>
                         <div class="crm-passport-value">
-                            <?php if ($isAdmin): ?>
+                            <?php if ($isAdmin) : ?>
                                 <?= Html::encode($customer->inn ?? '—') ?>
-                            <?php else: ?>
+                            <?php else : ?>
                                 * * * * * * * * * * *
                             <?php endif ?>
                         </div>
@@ -650,17 +669,19 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                     <!-- Tags -->
                     <div class="crm-section-label">Теги</div>
                     <div id="customer-tags" class="crm-tags">
-                        <?php foreach (($tags ?? []) as $tag): ?>
+                        <?php foreach (($tags ?? []) as $tag) : ?>
                         <span class="crm-tag" onclick="removeTag(<?= $customer->id ?>, '<?= Html::encode($tag) ?>')">
                             <?= Html::encode($tag) ?> <i class="bi bi-x"></i>
                         </span>
                         <?php endforeach ?>
                         <?php $presetTags = ['VIP', 'Оптовик', 'Проблемный'] ?>
-                        <?php foreach ($presetTags as $pt): if (!in_array($pt, ($tags ?? []))): ?>
+                        <?php foreach ($presetTags as $pt) :
+                            if (!in_array($pt, ($tags ?? []))) : ?>
                         <button class="crm-tag-add" onclick="addTag(<?= $customer->id ?>, '<?= $pt ?>')">
                             <i class="bi bi-plus"></i> <?= $pt ?>
                         </button>
-                        <?php endif; endforeach ?>
+                            <?php endif;
+                        endforeach ?>
                     </div>
                     <div class="crm-tag-input-row">
                         <input type="text" id="custom-tag-input" class="form-control" placeholder="Новый тег...">
@@ -674,7 +695,7 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                     <!-- Notes -->
                     <div class="crm-section-label">Заметки команды</div>
                     <div id="customer-notes-list" style="margin-bottom:10px">
-                        <?php foreach (($notes ?? []) as $note): ?>
+                        <?php foreach (($notes ?? []) as $note) : ?>
                         <div class="crm-note">
                             <div class="crm-note-meta">
                                 <span class="crm-note-author"><i class="bi bi-person-circle"></i> <?= Html::encode($note->author->username ?? 'Система') ?></span>
@@ -683,7 +704,7 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                             <p class="crm-note-text"><?= Html::encode($note->text) ?></p>
                         </div>
                         <?php endforeach ?>
-                        <?php if (empty($notes)): ?>
+                        <?php if (empty($notes)) : ?>
                         <div style="font-size:13px;color:var(--admin-text-secondary);padding:8px 0">Заметок пока нет</div>
                         <?php endif ?>
                     </div>
@@ -758,7 +779,7 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
             <div class="crm-card" style="overflow:hidden">
                 <div class="crm-card-header" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
                     <div class="crm-card-title"><i class="bi bi-bag-check-fill"></i> Заказы</div>
-                    <?php if ($totalOrdersCount > 0): ?>
+                    <?php if ($totalOrdersCount > 0) : ?>
                     <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
                         <span style="font-size:12px;color:var(--admin-text-secondary)">
                             <strong style="color:var(--admin-text);font-size:14px"><?= $totalOrdersCount ?></strong>
@@ -774,25 +795,25 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                     <?php endif ?>
                 </div>
 
-                <?php if (!empty($allOrders)): ?>
+                <?php if (!empty($allOrders)) : ?>
                 <!-- Status funnel bar -->
-                <?php if (count($statusCounts) > 1): ?>
+                    <?php if (count($statusCounts) > 1) : ?>
                 <div class="co-funnel-bar" id="customerOrderFunnel">
                     <div class="co-funnel-pill active" data-filter="all" onclick="filterCustomerOrders('all',this)">
                         <span class="count"><?= $totalOrdersCount ?></span> Все
                     </div>
-                    <?php foreach ($statusCounts as $st => $cnt):
-                        $dotColor = $funnelDotColors[$st] ?? '#6b7280';
-                        $stLabel = $allStatuses[$st] ?? ucfirst($st);
-                    ?>
+                        <?php foreach ($statusCounts as $st => $cnt) :
+                            $dotColor = $funnelDotColors[$st] ?? '#6b7280';
+                            $stLabel = $allStatuses[$st] ?? ucfirst($st);
+                            ?>
                     <div class="co-funnel-pill" data-filter="<?= Html::encode($st) ?>" onclick="filterCustomerOrders('<?= Html::encode($st) ?>',this)">
                         <span class="dot" style="background:<?= $dotColor ?>"></span>
                         <span class="count"><?= $cnt ?></span>
-                        <?= Html::encode($stLabel) ?>
+                            <?= Html::encode($stLabel) ?>
                     </div>
-                    <?php endforeach; ?>
+                        <?php endforeach; ?>
                 </div>
-                <?php endif; ?>
+                    <?php endif; ?>
 
                 <!-- Full orders table -->
                 <div style="overflow-x:auto;max-height:600px;overflow-y:auto">
@@ -815,22 +836,24 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($allOrders as $order):
+                            <?php foreach ($allOrders as $order) :
                                 $sp = $statusPillMap[$order->status] ?? ['bg' => '#f3f4f6', 'color' => '#6b7280'];
                                 $statusLabel = $allStatuses[$order->status] ?? (method_exists($order, 'getStatusLabel') ? $order->getStatusLabel() : $order->status);
                                 $firstItem = method_exists($order, 'getOrderItems') ? $order->orderItems[0] ?? null : null;
                                 $daysSince = (int)floor((time() - $order->created_at) / 86400);
-                            ?>
+                                ?>
                             <tr data-status="<?= Html::encode($order->status) ?>" style="cursor:pointer"
                                 onclick="if(!event.target.closest('a'))window.location='<?= Url::to(['/admin/order/view', 'id' => $order->id]) ?>'">
                                 <td style="white-space:nowrap;padding:7px 10px">
                                     <a href="<?= Url::to(['/admin/order/view', 'id' => $order->id]) ?>"
                                        style="font-weight:700;color:var(--admin-text-primary,#111);text-decoration:none">
-                                        <?= Html::encode($order->order_number ?: '#'.$order->id) ?>
+                                        <?= Html::encode($order->order_number ?: '#' . $order->id) ?>
                                     </a>
                                     <div style="font-size:.7rem;color:var(--admin-text-secondary,#9ca3af);margin-top:1px">
                                         <?= date('d.m.Y', $order->created_at) ?>
-                                        <?php if ($daysSince > 0): ?><span style="opacity:.7"> &middot; <?= $daysSince ?>д</span><?php endif; ?>
+                                        <?php if ($daysSince > 0) :
+                                            ?><span style="opacity:.7"> &middot; <?= $daysSince ?>д</span><?php
+                                        endif; ?>
                                     </div>
                                 </td>
                                 <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
@@ -849,19 +872,25 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                                     <?= Html::encode($order->delivery_method ?? $order->shipping_method ?? '—') ?>
                                 </td>
                                 <td>
-                                    <?php if (!empty($order->china_track_number)): ?>
+                                    <?php if (!empty($order->china_track_number)) : ?>
                                     <span class="co-track-badge" title="<?= Html::encode($order->china_track_number) ?>"><?= Html::encode($order->china_track_number) ?></span>
-                                    <?php else: ?><span style="color:var(--admin-text-secondary,#9ca3af)">—</span><?php endif; ?>
+                                    <?php else :
+                                        ?><span style="color:var(--admin-text-secondary,#9ca3af)">—</span><?php
+                                    endif; ?>
                                 </td>
                                 <td>
-                                    <?php if (!empty($order->dp_track_number)): ?>
+                                    <?php if (!empty($order->dp_track_number)) : ?>
                                     <span class="co-track-badge" title="<?= Html::encode($order->dp_track_number) ?>"><?= Html::encode($order->dp_track_number) ?></span>
-                                    <?php else: ?><span style="color:var(--admin-text-secondary,#9ca3af)">—</span><?php endif; ?>
+                                    <?php else :
+                                        ?><span style="color:var(--admin-text-secondary,#9ca3af)">—</span><?php
+                                    endif; ?>
                                 </td>
                                 <td>
-                                    <?php if (!empty($order->local_track_number)): ?>
+                                    <?php if (!empty($order->local_track_number)) : ?>
                                     <span class="co-track-badge" title="<?= Html::encode($order->local_track_number) ?>"><?= Html::encode($order->local_track_number) ?></span>
-                                    <?php else: ?><span style="color:var(--admin-text-secondary,#9ca3af)">—</span><?php endif; ?>
+                                    <?php else :
+                                        ?><span style="color:var(--admin-text-secondary,#9ca3af)">—</span><?php
+                                    endif; ?>
                                 </td>
                                 <td style="white-space:nowrap;font-size:.75rem">
                                     <?= Html::encode($order->city ?: '—') ?>
@@ -885,7 +914,7 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                         </tbody>
                     </table>
                 </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="crm-empty">
                         <i class="bi bi-bag-x"></i>
                         Заказов не найдено
@@ -961,7 +990,7 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                         <span class="crm-info-row-label">IP входа</span>
                         <span class="crm-info-row-value"><?= Html::encode($customer->last_login_ip ?: '—') ?></span>
                     </div>
-                    <?php if (!empty($customer->ms_external_code)): ?>
+                    <?php if (!empty($customer->ms_external_code)) : ?>
                     <div class="crm-info-row">
                         <span class="crm-info-row-label">Код МС</span>
                         <span class="crm-info-row-value" style="font-family:monospace;font-size:11px"><?= Html::encode($customer->ms_external_code) ?></span>
@@ -971,7 +1000,7 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
             </div>
 
             <!-- МойСклад -->
-            <?php if (!empty($customer->moysklad_id)): ?>
+            <?php if (!empty($customer->moysklad_id)) : ?>
             <div class="crm-card">
                 <div class="crm-card-header">
                     <div class="crm-card-title"><i class="bi bi-cloud-check"></i> МойСклад</div>
@@ -982,26 +1011,26 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                         <i class="bi bi-box-arrow-up-right"></i> Открыть контрагента в МС
                     </a>
                     <div style="font-size:11px;color:var(--admin-text-secondary);font-family:monospace;word-break:break-all"><?= Html::encode($customer->moysklad_id) ?></div>
-                    <?php if (!empty($customer->moysklad_extra)): ?>
-                    <?php $msExtra = is_string($customer->moysklad_extra) ? json_decode($customer->moysklad_extra, true) : $customer->moysklad_extra; ?>
-                    <?php if (!empty($msExtra['companyType'])): ?>
+                    <?php if (!empty($customer->moysklad_extra)) : ?>
+                        <?php $msExtra = is_string($customer->moysklad_extra) ? json_decode($customer->moysklad_extra, true) : $customer->moysklad_extra; ?>
+                        <?php if (!empty($msExtra['companyType'])) : ?>
                     <div style="font-size:12px"><span style="color:var(--admin-text-secondary)">Тип:</span> <?= Html::encode($msExtra['companyType']) ?></div>
-                    <?php endif; ?>
-                    <?php if (!empty($msExtra['legalTitle'])): ?>
+                        <?php endif; ?>
+                        <?php if (!empty($msExtra['legalTitle'])) : ?>
                     <div style="font-size:12px"><span style="color:var(--admin-text-secondary)">Юр. наименование:</span> <?= Html::encode($msExtra['legalTitle']) ?></div>
-                    <?php endif; ?>
-                    <?php if (!empty($msExtra['inn'])): ?>
+                        <?php endif; ?>
+                        <?php if (!empty($msExtra['inn'])) : ?>
                     <div style="font-size:12px"><span style="color:var(--admin-text-secondary)">ИНН:</span> <code><?= Html::encode($msExtra['inn']) ?></code></div>
-                    <?php endif; ?>
-                    <?php if (!empty($msExtra['kpp'])): ?>
+                        <?php endif; ?>
+                        <?php if (!empty($msExtra['kpp'])) : ?>
                     <div style="font-size:12px"><span style="color:var(--admin-text-secondary)">КПП:</span> <code><?= Html::encode($msExtra['kpp']) ?></code></div>
-                    <?php endif; ?>
-                    <?php if (!empty($msExtra['ogrn'])): ?>
+                        <?php endif; ?>
+                        <?php if (!empty($msExtra['ogrn'])) : ?>
                     <div style="font-size:12px"><span style="color:var(--admin-text-secondary)">ОГРН:</span> <code><?= Html::encode($msExtra['ogrn']) ?></code></div>
-                    <?php endif; ?>
-                    <?php if (!empty($msExtra['okpo'])): ?>
+                        <?php endif; ?>
+                        <?php if (!empty($msExtra['okpo'])) : ?>
                     <div style="font-size:12px"><span style="color:var(--admin-text-secondary)">ОКПО:</span> <code><?= Html::encode($msExtra['okpo']) ?></code></div>
-                    <?php endif; ?>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -1043,12 +1072,12 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
             <button onclick="closeBonusHistory()" class="crm-modal-close">&times;</button>
         </div>
         <div class="crm-modal-body">
-            <?php if (empty($history)): ?>
+            <?php if (empty($history)) : ?>
                 <div class="crm-empty" style="padding:40px">
                     <i class="bi bi-inbox"></i>
                     История операций пуста
                 </div>
-            <?php else: ?>
+            <?php else : ?>
             <table class="crm-bonus-table">
                 <thead>
                     <tr>
@@ -1058,11 +1087,11 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($history as $h):
+                    <?php foreach ($history as $h) :
                         $pts = (int)($h->points ?? $h['points'] ?? 0);
                         $createdAt = $h->created_at ?? $h['created_at'] ?? 0;
                         $desc = Html::encode($h->description ?? $h['description'] ?? '—');
-                    ?>
+                        ?>
                     <tr>
                         <td style="white-space:nowrap;font-size:12px;color:var(--admin-text-secondary)"><?= Yii::$app->formatter->asDatetime($createdAt, 'short') ?></td>
                         <td style="text-align:center"><span class="bonus-pts <?= $pts >= 0 ? 'pos' : 'neg' ?>"><?= $pts >= 0 ? '+' : '' ?><?= $pts ?></span></td>

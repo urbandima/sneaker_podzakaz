@@ -9,7 +9,6 @@ class m251102_104112_add_vendor_code_to_product extends Migration
      */
     public function safeUp()
     {
-
     }
 
     /**

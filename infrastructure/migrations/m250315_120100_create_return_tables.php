@@ -27,7 +27,7 @@ class m250315_120100_create_return_tables extends Migration
             'created_at' => $this->dateTime()->notNull(),
             'updated_at' => $this->dateTime()->notNull(),
         ]);
-        
+
         // Таблица заявок на возврат
         $this->createTable('{{%return_request}}', [
             'id' => $this->primaryKey(),
@@ -50,15 +50,15 @@ class m250315_120100_create_return_tables extends Migration
             'created_at' => $this->dateTime()->notNull(),
             'updated_at' => $this->dateTime()->notNull(),
         ]);
-        
+
         $this->createIndex('idx-return_request-order', '{{%return_request}}', 'order_id');
         $this->createIndex('idx-return_request-customer', '{{%return_request}}', 'customer_id');
         $this->createIndex('idx-return_request-status', '{{%return_request}}', 'status');
         $this->createIndex('idx-return_request-number', '{{%return_request}}', 'return_number', true);
-        
+
         $this->addForeignKey('fk-return_request-order', '{{%return_request}}', 'order_id', '{{%order}}', 'id', 'CASCADE');
         $this->addForeignKey('fk-return_request-customer', '{{%return_request}}', 'customer_id', '{{%customer}}', 'id', 'SET NULL');
-        
+
         // Вставляем политику по умолчанию
         $this->insert('{{%return_policy}}', [
             'name' => 'Стандартная политика возврата',

@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\Supplier[] $suppliers */
 /** @var app\backend\modules\catalog\models\Brand[] $allBrands */
@@ -22,9 +23,11 @@ foreach ($allBrands as $b) {
 }
 
 // ── Helper: brand chips HTML for a supplier ────────────────────────────────
-$brandChips = function(Supplier $s) use ($brandMap): string {
+$brandChips = function (Supplier $s) use ($brandMap): string {
     $ids = $s->getBrandIds();
-    if (!$ids) return '<span style="color:#9ca3af;font-size:11px;font-style:italic">Нет</span>';
+    if (!$ids) {
+        return '<span style="color:#9ca3af;font-size:11px;font-style:italic">Нет</span>';
+    }
     $html = '';
     foreach ($ids as $id) {
         $name = $brandMap[$id] ?? "Бренд #$id";
@@ -34,7 +37,7 @@ $brandChips = function(Supplier $s) use ($brandMap): string {
 };
 
 // ── Helper: contract badge ─────────────────────────────────────────────────
-$contractBadge = function(Supplier $s): string {
+$contractBadge = function (Supplier $s): string {
     if (!$s->contract_type) {
         return '<span class="sp-contract-badge" style="background:#f3f4f6;color:#9ca3af">Нет</span>';
     }
@@ -46,15 +49,17 @@ $contractBadge = function(Supplier $s): string {
 };
 
 // ── Helper: geo cell ───────────────────────────────────────────────────────
-$geoCell = function(Supplier $s): string {
-    if (!$s->country) return '<span style="color:#9ca3af">—</span>';
+$geoCell = function (Supplier $s): string {
+    if (!$s->country) {
+        return '<span style="color:#9ca3af">—</span>';
+    }
     $flag = Supplier::getCountryFlagEmoji($s->country);
     $name = $s->getCountryName();
     return $flag . ' ' . htmlspecialchars($name) . ($s->region ? '<span style="color:#9ca3af;font-size:11px;display:block">' . htmlspecialchars($s->region) . '</span>' : '');
 };
 
 // ── Supplier row HTML ──────────────────────────────────────────────────────
-$supplierRow = function(Supplier $s) use ($brandChips, $contractBadge, $geoCell): string {
+$supplierRow = function (Supplier $s) use ($brandChips, $contractBadge, $geoCell): string {
     $isActive = $s->is_active;
     return '<tr data-supplier-id="' . $s->id . '">
         <td style="width:22px;padding-left:12px"><input type="checkbox" class="sp-row-check" value="' . $s->id . '"></td>
@@ -78,7 +83,7 @@ $supplierRow = function(Supplier $s) use ($brandChips, $contractBadge, $geoCell)
                     onclick=\'editSupplier(' . json_encode([
                         'id'            => $s->id,
                         'name'          => $s->name,
-                        'contact_person'=> $s->contact_person,
+                        'contact_person' => $s->contact_person,
                         'phone'         => $s->phone,
                         'email'         => $s->email,
                         'address'       => $s->address,
@@ -88,7 +93,7 @@ $supplierRow = function(Supplier $s) use ($brandChips, $contractBadge, $geoCell)
                         'notes'         => $s->notes,
                         'brands'        => $s->brands,
                         'contract_type' => $s->contract_type,
-                        'contract_terms'=> $s->contract_terms,
+                        'contract_terms' => $s->contract_terms,
                         'is_active'     => $s->is_active,
                     ]) . ')\'>
                 <i class="bi bi-pencil"></i>
@@ -102,8 +107,10 @@ $supplierRow = function(Supplier $s) use ($brandChips, $contractBadge, $geoCell)
 };
 
 // ── Group table wrapper ────────────────────────────────────────────────────
-$groupTable = function(string $title, array $rows, int $count) use ($supplierRow): string {
-    if (!$rows) return '';
+$groupTable = function (string $title, array $rows, int $count) use ($supplierRow): string {
+    if (!$rows) {
+        return '';
+    }
     $rowsHtml = implode('', array_map($supplierRow, $rows));
     $safeId   = preg_replace('/[^a-z0-9]/i', '_', $title);
     return '<details class="sp-group" open>
@@ -301,36 +308,51 @@ $groupTable = function(string $title, array $rows, int $count) use ($supplierRow
 // ── Collect unique countries ────────────────────────────────────────────
 $usedCountries = [];
 foreach ($suppliers as $s) {
-    if ($s->country) $usedCountries[$s->country] = true;
+    if ($s->country) {
+        $usedCountries[$s->country] = true;
+    }
 }
 ksort($usedCountries);
 
 // ── Filter suppliers in PHP (search / brands / countries / contracts) ──
-$visible = array_filter($suppliers, function(Supplier $s) use ($filterSearch, $filterBrands, $filterCountries, $filterContracts) {
+$visible = array_filter($suppliers, function (Supplier $s) use ($filterSearch, $filterBrands, $filterCountries, $filterContracts) {
     if ($filterSearch) {
         $hay = mb_strtolower($s->name . ' ' . $s->contact_person . ' ' . $s->email . ' ' . $s->phone);
-        if (strpos($hay, mb_strtolower($filterSearch)) === false) return false;
+        if (strpos($hay, mb_strtolower($filterSearch)) === false) {
+            return false;
+        }
     }
     if ($filterBrands) {
         $ids = $s->getBrandIds();
         $match = false;
         foreach ($filterBrands as $bid) {
-            if (in_array((int)$bid, $ids)) { $match = true; break; }
+            if (in_array((int)$bid, $ids)) {
+                $match = true;
+                break;
+            }
         }
-        if (!$match) return false;
+        if (!$match) {
+            return false;
+        }
     }
     if ($filterCountries) {
         $country = $s->country ?: '__other__';
         if (in_array('other', $filterCountries)) {
             $mainCountries = ['BY','RU','CN','IT'];
-            if (in_array($country, $mainCountries) && !in_array($country, $filterCountries)) return false;
+            if (in_array($country, $mainCountries) && !in_array($country, $filterCountries)) {
+                return false;
+            }
         } else {
-            if (!in_array($country, $filterCountries)) return false;
+            if (!in_array($country, $filterCountries)) {
+                return false;
+            }
         }
     }
     if ($filterContracts) {
         $ct = $s->contract_type ?: 'none';
-        if (!in_array($ct, $filterContracts)) return false;
+        if (!in_array($ct, $filterContracts)) {
+            return false;
+        }
     }
     return true;
 });
@@ -361,11 +383,11 @@ $visible = array_values($visible);
            value="<?= htmlspecialchars($filterSearch) ?>"
            oninput="SpPage.debouncedSubmit()">
 
-    <?php if ($allBrands): ?>
+    <?php if ($allBrands) : ?>
     <div class="sp-divider"></div>
     <span class="sp-filter-label">Бренды:</span>
     <div class="sp-chip-wrap" id="filterBrands">
-        <?php foreach ($allBrands as $b): ?>
+        <?php foreach ($allBrands as $b) : ?>
         <label class="sp-chip <?= in_array($b->id, $filterBrands) ? 'active' : '' ?>">
             <input type="checkbox" name="brands[]" value="<?= $b->id ?>"
                    <?= in_array($b->id, $filterBrands) ? 'checked' : '' ?>
@@ -380,9 +402,9 @@ $visible = array_values($visible);
     <span class="sp-filter-label">ГЕО:</span>
     <div class="sp-chip-wrap">
         <?php
-        $geoChips = ['BY'=>'BY','RU'=>'RU','CN'=>'CN','IT'=>'IT'];
-        foreach ($geoChips as $code => $label):
-        ?>
+        $geoChips = ['BY' => 'BY','RU' => 'RU','CN' => 'CN','IT' => 'IT'];
+        foreach ($geoChips as $code => $label) :
+            ?>
         <label class="sp-chip <?= in_array($code, $filterCountries) ? 'active' : '' ?>">
             <input type="checkbox" name="countries[]" value="<?= $code ?>"
                    <?= in_array($code, $filterCountries) ? 'checked' : '' ?>
@@ -401,7 +423,7 @@ $visible = array_values($visible);
     <div class="sp-divider"></div>
     <span class="sp-filter-label">Договор:</span>
     <div class="sp-chip-wrap">
-        <?php foreach ($contractTypes as $k => $v): ?>
+        <?php foreach ($contractTypes as $k => $v) : ?>
         <label class="sp-chip <?= in_array($k, $filterContracts) ? 'active' : '' ?>">
             <input type="checkbox" name="contracts[]" value="<?= $k ?>"
                    <?= in_array($k, $filterContracts) ? 'checked' : '' ?>
@@ -428,7 +450,7 @@ $visible = array_values($visible);
     </select>
     <select id="spBulkContract" class="compact-filter-select" style="min-width:160px;display:none">
         <option value="">Выберите тип…</option>
-        <?php foreach ($contractTypes as $k => $v): ?>
+        <?php foreach ($contractTypes as $k => $v) : ?>
         <option value="<?= $k ?>"><?= htmlspecialchars($v) ?></option>
         <?php endforeach; ?>
     </select>
@@ -462,17 +484,17 @@ foreach ($visible as $s) {
     }
 }
 // Sort by brand name
-uasort($byBrand, fn($a,$b) => strcmp($a['name'], $b['name']));
+uasort($byBrand, fn($a, $b) => strcmp($a['name'], $b['name']));
 
-foreach ($byBrand as $bid => $data):
+foreach ($byBrand as $bid => $data) :
     echo $groupTable($data['name'], $data['suppliers'], count($data['suppliers']));
 endforeach;
 
-if ($noBrand):
+if ($noBrand) :
     echo $groupTable('Без бренда', $noBrand, count($noBrand));
 endif;
 
-if (!$visible): ?>
+if (!$visible) : ?>
     <div class="admin-card" style="text-align:center;padding:2.5rem;color:var(--admin-text-secondary,#6d7175)">
         Поставщики не найдены
     </div>
@@ -486,20 +508,24 @@ if (!$visible): ?>
 ?>
 <div id="spViewGeo" class="sp-view-panel" style="display:none">
 <?php
-$geoGroups  = ['BY'=>[],'RU'=>[],'CN'=>[],'IT'=>[],'__other__'=>[]];
+$geoGroups  = ['BY' => [],'RU' => [],'CN' => [],'IT' => [],'__other__' => []];
 foreach ($visible as $s) {
     $c = $s->country ?: '__other__';
-    if (!array_key_exists($c, $geoGroups)) $c = '__other__';
+    if (!array_key_exists($c, $geoGroups)) {
+        $c = '__other__';
+    }
     $geoGroups[$c][] = $s;
 }
 $geoLabels = array_merge($countryMap, ['__other__' => 'Прочие']);
-foreach ($geoGroups as $code => $rows):
-    if (!$rows) continue;
+foreach ($geoGroups as $code => $rows) :
+    if (!$rows) {
+        continue;
+    }
     $flag  = ($code !== '__other__') ? Supplier::getCountryFlagEmoji($code) . ' ' : '';
     $label = $geoLabels[$code] ?? $code;
     echo $groupTable($flag . $label, $rows, count($rows));
 endforeach;
-if (!$visible): ?>
+if (!$visible) : ?>
     <div class="admin-card" style="text-align:center;padding:2.5rem;color:var(--admin-text-secondary,#6d7175)">Поставщики не найдены</div>
 <?php endif; ?>
 </div>
@@ -511,17 +537,19 @@ if (!$visible): ?>
 ?>
 <div id="spViewContract" class="sp-view-panel" style="display:none">
 <?php
-$ctGroups = ['commission'=>[],'stock'=>[],'to_order'=>[],'mixed'=>[],'__none__'=>[]];
+$ctGroups = ['commission' => [],'stock' => [],'to_order' => [],'mixed' => [],'__none__' => []];
 foreach ($visible as $s) {
     $ct = $s->contract_type ?: '__none__';
     $ctGroups[$ct][] = $s;
 }
 $ctLabels = array_merge($contractTypes, ['__none__' => 'Без договора']);
-foreach ($ctGroups as $ct => $rows):
-    if (!$rows) continue;
+foreach ($ctGroups as $ct => $rows) :
+    if (!$rows) {
+        continue;
+    }
     echo $groupTable($ctLabels[$ct] ?? $ct, $rows, count($rows));
 endforeach;
-if (!$visible): ?>
+if (!$visible) : ?>
     <div class="admin-card" style="text-align:center;padding:2.5rem;color:var(--admin-text-secondary,#6d7175)">Поставщики не найдены</div>
 <?php endif; ?>
 </div>
@@ -550,7 +578,7 @@ if (!$visible): ?>
             <label class="form-label">Страна (ISO-2)</label>
             <select id="s_country" class="form-control">
               <option value="">—</option>
-              <?php foreach ($countryMap as $code => $name): ?>
+              <?php foreach ($countryMap as $code => $name) : ?>
               <option value="<?= $code ?>"><?= $code ?> — <?= htmlspecialchars($name) ?></option>
               <?php endforeach; ?>
             </select>
@@ -569,7 +597,7 @@ if (!$visible): ?>
             <label class="form-label">Тип договора</label>
             <select id="s_contract_type" class="form-control">
               <option value="">—</option>
-              <?php foreach ($contractTypes as $k => $v): ?>
+              <?php foreach ($contractTypes as $k => $v) : ?>
               <option value="<?= $k ?>"><?= htmlspecialchars($v) ?></option>
               <?php endforeach; ?>
             </select>
@@ -603,7 +631,7 @@ if (!$visible): ?>
       <div class="modal-body">
         <select id="bulkNewContract" class="form-control">
           <option value="">—</option>
-          <?php foreach ($contractTypes as $k => $v): ?>
+          <?php foreach ($contractTypes as $k => $v) : ?>
           <option value="<?= $k ?>"><?= htmlspecialchars($v) ?></option>
           <?php endforeach; ?>
         </select>

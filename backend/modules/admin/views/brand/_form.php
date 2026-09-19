@@ -51,7 +51,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <?php
                 $currentLogo = $model->logo ?: $model->logo_url;
                 ?>
-                <?php if (!$model->isNewRecord && $currentLogo): ?>
+                <?php if (!$model->isNewRecord && $currentLogo) : ?>
                     <div class="mb-3 text-center">
                         <img src="<?= Html::encode($currentLogo) ?>"
                              alt="Логотип"
@@ -84,7 +84,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-transparent fw-bold">Обложка (cover_image)</div>
             <div class="card-body">
-                <?php if (!$model->isNewRecord && !empty($model->cover_image)): ?>
+                <?php if (!$model->isNewRecord && !empty($model->cover_image)) : ?>
                     <div class="mb-3 text-center">
                         <img src="<?= Html::encode($model->cover_image) ?>"
                              alt="Обложка"

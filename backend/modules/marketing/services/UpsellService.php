@@ -22,11 +22,11 @@ class UpsellService
             ->orderBy(['views_count' => SORT_DESC])
             ->limit($limit)
             ->all();
-        
+
         if (count($sameCategory) >= $limit) {
             return $sameCategory;
         }
-        
+
         // Стратегия 2: Товары того же бренда
         $sameBrand = Product::find()
             ->where(['brand_id' => $product->brand_id])
@@ -35,10 +35,10 @@ class UpsellService
             ->orderBy(['views_count' => SORT_DESC])
             ->limit($limit - count($sameCategory))
             ->all();
-        
+
         return array_merge($sameCategory, $sameBrand);
     }
-    
+
     /**
      * Получить товары "Часто покупают вместе"
      */
@@ -49,11 +49,11 @@ class UpsellService
             ->select('order_id')
             ->where(['product_id' => $product->id])
             ->column();
-        
+
         if (empty($orderIds)) {
             return [];
         }
-        
+
         // Находим другие товары из этих заказов
         $productIds = OrderItem::find()
             ->select(['product_id', 'COUNT(*) as frequency'])
@@ -63,13 +63,13 @@ class UpsellService
             ->orderBy(['frequency' => SORT_DESC])
             ->limit($limit)
             ->column();
-        
+
         return Product::find()
             ->where(['id' => $productIds])
             ->andWhere(['is_active' => true])
             ->all();
     }
-    
+
     /**
      * Получить персональные рекомендации для клиента
      */
@@ -81,7 +81,7 @@ class UpsellService
             ->innerJoin('order', 'order.id = order_item.order_id')
             ->where(['order.customer_id' => $customerId])
             ->column();
-        
+
         if (empty($purchasedProductIds)) {
             // Если нет истории, показываем популярные товары
             return Product::find()
@@ -90,15 +90,15 @@ class UpsellService
                 ->limit($limit)
                 ->all();
         }
-        
+
         // Получаем категории и бренды из истории
         $products = Product::find()
             ->where(['id' => $purchasedProductIds])
             ->all();
-        
+
         $categoryIds = [];
         $brandIds = [];
-        
+
         foreach ($products as $product) {
             if ($product->category_id) {
                 $categoryIds[] = $product->category_id;
@@ -107,7 +107,7 @@ class UpsellService
                 $brandIds[] = $product->brand_id;
             }
         }
-        
+
         // Рекомендуем товары из тех же категорий/брендов, которые клиент еще не покупал
         return Product::find()
             ->where(['is_active' => true])
@@ -121,7 +121,7 @@ class UpsellService
             ->limit($limit)
             ->all();
     }
-    
+
     /**
      * Получить товары для upsell (более дорогие альтернативы)
      */
@@ -129,7 +129,7 @@ class UpsellService
     {
         $minPrice = $product->price * 1.2; // На 20% дороже
         $maxPrice = $product->price * 2.0; // Не более чем в 2 раза
-        
+
         return Product::find()
             ->where(['category_id' => $product->category_id])
             ->andWhere(['!=', 'id', $product->id])
@@ -139,7 +139,7 @@ class UpsellService
             ->limit($limit)
             ->all();
     }
-    
+
     /**
      * Получить статистику эффективности рекомендаций
      */

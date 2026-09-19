@@ -128,9 +128,11 @@ $statusMeta = [
         </div>
 
         <div class="admin-grid admin-grid--2 admin-gap-6">
-            <?php foreach ($sections as $key => $meta): ?>
+            <?php foreach ($sections as $key => $meta) : ?>
                 <?php $section = $diagnostics[$key] ?? null; ?>
-                <?php if ($section === null) continue; ?>
+                <?php if ($section === null) {
+                    continue;
+                } ?>
                 <?php $status = $statusMeta[$section['status']] ?? $statusMeta['warning']; ?>
                 <div class="admin-card diagnostic-card <?= $status['card'] ?>">
                     <div class="admin-card-header admin-flex admin-flex--between admin-flex--wrap">
@@ -148,10 +150,12 @@ $statusMeta = [
                         </span>
                     </div>
                     <div class="admin-card-body">
-                        <?php if (!empty($section['stats'])): ?>
+                        <?php if (!empty($section['stats'])) : ?>
                             <div class="dev-tools-stat-grid">
-                                <?php foreach ($section['stats'] as $label => $value): ?>
-                                    <?php if (is_array($value)) continue; ?>
+                                <?php foreach ($section['stats'] as $label => $value) : ?>
+                                    <?php if (is_array($value)) {
+                                        continue;
+                                    } ?>
                                     <div>
                                         <span class="dev-tools-stat-label">
                                             <?= Html::encode(str_replace('_', ' ', ucfirst($label))) ?>
@@ -162,9 +166,9 @@ $statusMeta = [
                             </div>
                         <?php endif; ?>
 
-                        <?php if (!empty($section['stats']['tables']) && is_array($section['stats']['tables'])): ?>
+                        <?php if (!empty($section['stats']['tables']) && is_array($section['stats']['tables'])) : ?>
                             <div class="dev-table-list">
-                                <?php foreach ($section['stats']['tables'] as $label => $count): ?>
+                                <?php foreach ($section['stats']['tables'] as $label => $count) : ?>
                                     <div class="dev-table-item">
                                         <span><?= Html::encode($label) ?></span>
                                         <strong><?= Html::encode(number_format($count)) ?></strong>
@@ -173,9 +177,9 @@ $statusMeta = [
                             </div>
                         <?php endif; ?>
 
-                        <?php if (!empty($section['stats']['error_samples'])): ?>
+                        <?php if (!empty($section['stats']['error_samples'])) : ?>
                             <div class="dev-log-samples">
-                                <?php foreach ($section['stats']['error_samples'] as $sample): ?>
+                                <?php foreach ($section['stats']['error_samples'] as $sample) : ?>
                                     <div class="dev-log-line" onclick="copyText(this.textContent)">
                                         <code><?= Html::encode(mb_substr(trim($sample), 0, 220)) ?></code>
                                         <i class="bi bi-clipboard"></i>
@@ -185,15 +189,15 @@ $statusMeta = [
                         <?php endif; ?>
 
                         <div class="dev-issues-list">
-                            <?php if (!empty($section['issues'])): ?>
-                                <?php foreach ($section['issues'] as $issue): ?>
+                            <?php if (!empty($section['issues'])) : ?>
+                                <?php foreach ($section['issues'] as $issue) : ?>
                                     <div class="dev-issue" onclick="copyText(this.dataset.issue)" data-issue="<?= Html::encode($issue) ?>">
                                         <i class="bi bi-exclamation-octagon"></i>
                                         <span><?= Html::encode($issue) ?></span>
                                         <i class="bi bi-clipboard"></i>
                                     </div>
                                 <?php endforeach; ?>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <div class="dev-success-row">
                                     <i class="bi bi-check-circle"></i>
                                     <span>Проблем не обнаружено</span>

@@ -2,11 +2,11 @@
 
 /**
  * OrderController — Управление заказами в админ-панели
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Полное управление заказами: создание, редактирование, смена статусов,
  * назначение логистов, экспорт в Excel, отслеживание доставки.
- * 
+ *
  * ФУНКЦИИ:
  * - Список заказов с фильтрацией и статистикой (index)
  * - Создание заказа вручную (create)
@@ -18,24 +18,25 @@
  * - Отмена заказа (cancel)
  * - История изменений заказа (history)
  * - Управление товарами в заказе (add-item, remove-item, update-item)
- * 
+ *
  * СВЯЗИ:
  * - Order (модель заказа)
  * - OrderItem (модель позиции заказа)
  * - OrderHistory (модель истории заказа)
  * - User (модель пользователя)
  * - DeliveryTracking (модель отслеживания доставки)
- * 
+ *
  * ДОСТУП:
  * - Админы: все заказы
  * - Менеджеры: все заказы
  * - Логисты: только назначенные им заказы
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Экспорт в Excel с форматированием (PhpSpreadsheet)
  * - Автоматическое логирование всех изменений статуса
  * - Email-уведомления при смене статуса
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -399,8 +400,13 @@ class OrderController extends BaseAdminController
         $model->client_name  = 'Новый заказ';
         $model->total_amount = 0;
 
-        if ($source)     $model->source = $source;
-        if ($phone)      { $model->client_phone = $phone; $model->client_name = 'Новый клиент'; }
+        if ($source) {
+            $model->source = $source;
+        }
+        if ($phone) {
+            $model->client_phone = $phone;
+            $model->client_name = 'Новый клиент';
+        }
 
         if ($customerId) {
             $model->customer_id = $customerId;
@@ -451,7 +457,7 @@ class OrderController extends BaseAdminController
 
     /**
      * Просмотр заказа
-     * 
+     *
      * @param int $id
      */
     public function actionView($id)
@@ -501,7 +507,7 @@ class OrderController extends BaseAdminController
 
     /**
      * Редактирование заказа
-     * 
+     *
      * @param int $id
      */
     public function actionUpdate($id)
@@ -552,7 +558,7 @@ class OrderController extends BaseAdminController
 
         // Загружаем динамические статусы
         $statuses = Yii::$app->settings->getStatuses();
-        
+
         // Определяем, можно ли редактировать заказ
         $canEdit = $this->canEditOrder($model);
 
@@ -570,7 +576,7 @@ class OrderController extends BaseAdminController
 
     /**
      * Изменение статуса заказа
-     * 
+     *
      * @param int $id
      */
     public function actionChangeStatus($id)
@@ -598,12 +604,12 @@ class OrderController extends BaseAdminController
 
             if (!$model->canChangeStatus($newStatus)) {
                 Yii::warning('Попытка изменить статус без прав: пользователь #' . $user->id . ', заказ #' . $id . ', статус: ' . $newStatus, 'security');
-                
+
                 if (Yii::$app->request->isAjax) {
                     Yii::$app->response->format = Response::FORMAT_JSON;
                     return ['success' => false, 'message' => 'Нет прав на изменение этого статуса'];
                 }
-                
+
                 $this->flashError('У вас нет прав на изменение этого статуса.');
                 return $this->redirect(['/admin/order/view', 'id' => $model->id]);
             }
@@ -618,7 +624,7 @@ class OrderController extends BaseAdminController
                         ->where(['order_id' => $model->id])
                         ->orderBy(['created_at' => SORT_DESC])
                         ->one();
-                    
+
                     if ($history && $history->new_status == $newStatus) {
                         $history->comment = $comment;
                         $history->save(false);
@@ -648,16 +654,16 @@ class OrderController extends BaseAdminController
                     Yii::$app->response->format = Response::FORMAT_JSON;
                     return ['success' => true, 'message' => 'Статус изменен'];
                 }
-                
+
                 $this->flashSuccess('Статус заказа изменен.');
             } else {
                 Yii::error('Ошибка изменения статуса заказа #' . $id . ': ' . json_encode($model->errors), 'order');
-                
+
                 if (Yii::$app->request->isAjax) {
                     Yii::$app->response->format = Response::FORMAT_JSON;
                     return ['success' => false, 'message' => 'Ошибка при изменении статуса'];
                 }
-                
+
                 $this->flashError('Ошибка при изменении статуса.');
             }
         }
@@ -685,11 +691,21 @@ class OrderController extends BaseAdminController
 
         $post = Yii::$app->request->post();
 
-        if (isset($post['purchase_cost']))     { $model->purchase_cost     = $post['purchase_cost']; }
-        if (isset($post['purchase_currency'])) { $model->purchase_currency = $post['purchase_currency']; }
-        if (isset($post['purchase_date']))     { $model->purchase_date     = $post['purchase_date']; }
-        if (isset($post['purchase_user_id']))  { $model->purchase_user_id  = (int)$post['purchase_user_id']; }
-        if (!empty($post['china_track_number'])) { $model->china_track_number = $post['china_track_number']; }
+        if (isset($post['purchase_cost'])) {
+            $model->purchase_cost     = $post['purchase_cost'];
+        }
+        if (isset($post['purchase_currency'])) {
+            $model->purchase_currency = $post['purchase_currency'];
+        }
+        if (isset($post['purchase_date'])) {
+            $model->purchase_date     = $post['purchase_date'];
+        }
+        if (isset($post['purchase_user_id'])) {
+            $model->purchase_user_id  = (int)$post['purchase_user_id'];
+        }
+        if (!empty($post['china_track_number'])) {
+            $model->china_track_number = $post['china_track_number'];
+        }
 
         // File upload for receipt — whitelist by extension + real MIME type (RCE prevention)
         $receipt = \yii\web\UploadedFile::getInstanceByName('purchase_receipt');
@@ -906,7 +922,7 @@ class OrderController extends BaseAdminController
                     $itemsList[] = $item->product_name . ' (' . $item->quantity . ' шт × ' . number_format($item->price, 2) . ' BYN)';
                 }
             }
-            
+
             $data = [
                 $index + 1,
                 $order->order_number,
@@ -920,11 +936,11 @@ class OrderController extends BaseAdminController
                 $order->logist ? $order->logist->username : 'Не назначен',
                 !empty($itemsList) ? implode("\n", $itemsList) : '-'
             ];
-            
+
             $sheet->fromArray($data, null, 'A' . $row);
             $sheet->getStyle('A' . $row . ':K' . $row)->getAlignment()->setWrapText(true);
             $sheet->getStyle('A' . $row . ':K' . $row)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-            
+
             $totalAmount += $order->total_amount;
             $row++;
         }
@@ -949,11 +965,11 @@ class OrderController extends BaseAdminController
 
         // Отправляем файл пользователю
         Yii::info('Экспорт заказов за ' . $monthName . ' (пользователь #' . $user->id . ')', 'order');
-        
+
         return Yii::$app->response->sendFile($tempFile, $fileName, [
             'mimeType' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'inline' => false
-        ])->on(\yii\web\Response::EVENT_AFTER_SEND, function($event) use ($tempFile) {
+        ])->on(\yii\web\Response::EVENT_AFTER_SEND, function ($event) use ($tempFile) {
             if (file_exists($tempFile)) {
                 unlink($tempFile);
             }
@@ -962,7 +978,7 @@ class OrderController extends BaseAdminController
 
     /**
      * Найти модель заказа по ID
-     * 
+     *
      * @param int $id
      * @return Order
      * @throws NotFoundHttpException
@@ -970,11 +986,11 @@ class OrderController extends BaseAdminController
     protected function findModel($id)
     {
         $model = Order::findOne($id);
-        
+
         if ($model === null) {
             throw new NotFoundHttpException('Заказ не найден.');
         }
-        
+
         return $model;
     }
 
@@ -1224,11 +1240,21 @@ class OrderController extends BaseAdminController
             $filterDateFrom = Yii::$app->request->get('date_from');
             $filterDateTo  = Yii::$app->request->get('date_to');
 
-            if ($filterStatus)  $query->andWhere(['status' => $filterStatus]);
-            if ($filterLogist)  $query->andWhere(['assigned_logist' => $filterLogist]);
-            if ($filterSearch)  $query->andWhere(['or', ['like', 'order_number', $filterSearch], ['like', 'client_name', $filterSearch], ['like', 'client_phone', $filterSearch]]);
-            if ($filterDateFrom) $query->andWhere(['>=', 'created_at', strtotime($filterDateFrom . ' 00:00:00')]);
-            if ($filterDateTo)  $query->andWhere(['<=', 'created_at', strtotime($filterDateTo . ' 23:59:59')]);
+            if ($filterStatus) {
+                $query->andWhere(['status' => $filterStatus]);
+            }
+            if ($filterLogist) {
+                $query->andWhere(['assigned_logist' => $filterLogist]);
+            }
+            if ($filterSearch) {
+                $query->andWhere(['or', ['like', 'order_number', $filterSearch], ['like', 'client_name', $filterSearch], ['like', 'client_phone', $filterSearch]]);
+            }
+            if ($filterDateFrom) {
+                $query->andWhere(['>=', 'created_at', strtotime($filterDateFrom . ' 00:00:00')]);
+            }
+            if ($filterDateTo) {
+                $query->andWhere(['<=', 'created_at', strtotime($filterDateTo . ' 23:59:59')]);
+            }
         }
 
         $orders   = $query->orderBy(['created_at' => SORT_ASC])->all();
@@ -1265,7 +1291,7 @@ class OrderController extends BaseAdminController
         $filename = 'orders_export_' . date('Y-m-d') . '.csv';
         $csvContent = "\xEF\xBB\xBF"; // UTF-8 BOM
         foreach ($rows as $row) {
-            $escaped = array_map(function($cell) {
+            $escaped = array_map(function ($cell) {
                 $cell = str_replace('"', '""', (string)$cell);
                 return '"' . $cell . '"';
             }, $row);
@@ -1319,7 +1345,7 @@ class OrderController extends BaseAdminController
 
     /**
      * Получить месячную статистику (с кешированием)
-     * 
+     *
      * @param User $user
      * @return array
      */
@@ -1359,24 +1385,24 @@ class OrderController extends BaseAdminController
 
     /**
      * Обновление отдельного поля заказа (AJAX inline редактирование)
-     * 
+     *
      * @param int $id
      */
     public function actionUpdateField($id)
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
+
         $model = $this->findModel($id);
         $user = $this->getCurrentUser();
-        
+
         // Проверка прав доступа
         if ($this->isLogist() && $model->assigned_logist != $user->id) {
             return ['success' => false, 'message' => 'Доступ запрещен'];
         }
-        
+
         $field = Yii::$app->request->post('field');
         $value = Yii::$app->request->post('value');
-        
+
         // Разрешенные поля для inline редактирования
         $allowedFields = [
             'client_name', 'client_phone', 'client_email', 'delivery_date', 'comment',
@@ -1392,21 +1418,21 @@ class OrderController extends BaseAdminController
             'is_processed', 'is_shipped', 'customs_cleared',
             'product_price', 'logistics_price', 'commission_price'
         ];
-        
+
         if (!in_array($field, $allowedFields)) {
             return ['success' => false, 'message' => 'Недопустимое поле: ' . $field];
         }
-        
+
         // Логист может менять только определенные поля
         $logistFields = [
             'china_track_number', 'is_processed', 'is_shipped', 'customs_cleared',
             'ms_number', 'status', 'comment', 'delivery_date'
         ];
-        
+
         if ($this->isLogist() && !in_array($field, $logistFields)) {
             return ['success' => false, 'message' => 'Недостаточно прав для изменения этого поля'];
         }
-        
+
         // Преобразование типов
         if (in_array($field, ['is_processed', 'is_shipped', 'customs_cleared'])) {
             $value = (bool)$value;
@@ -1417,7 +1443,7 @@ class OrderController extends BaseAdminController
         if ($field === 'item_quantity') {
             $value = $value ? (int)$value : null;
         }
-        
+
         // CMP-50: defense-in-depth для серии паспорта BY (save(false) ниже пропускает валидаторы Order::rules()).
         if ($field === 'passport_series' && $value !== null && trim((string)$value) !== '') {
             $value = mb_strtoupper(trim((string)$value));
@@ -1445,15 +1471,15 @@ class OrderController extends BaseAdminController
                 $history->changed_by = $user->id;
                 $history->save();
             }
-            
+
             // Инвалидируем кеш
             \yii\caching\TagDependency::invalidate(Yii::$app->cache, ['orders-stats']);
-            
+
             Yii::info("Поле '$field' заказа #{$id} изменено: '$oldValue' -> '$value' (пользователь #{$user->id})", 'order');
-            
+
             return ['success' => true, 'value' => $value];
         }
-        
+
         return ['success' => false, 'message' => 'Ошибка сохранения', 'errors' => $model->errors];
     }
 
@@ -1463,28 +1489,28 @@ class OrderController extends BaseAdminController
     public function actionBulkUpdateStatus()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
+
         if (!$this->isAdmin() && !$this->isManager()) {
             return ['success' => false, 'message' => 'Доступ запрещен'];
         }
-        
+
         $ids = Yii::$app->request->post('ids', []);
         $status = Yii::$app->request->post('status');
-        
+
         if (empty($ids) || !$status) {
             return ['success' => false, 'message' => 'Не указаны заказы или статус'];
         }
-        
+
         $updated = Order::updateAll(['status' => $status], ['id' => $ids]);
-        
+
         \yii\caching\TagDependency::invalidate(Yii::$app->cache, ['orders-stats']);
-        
+
         return ['success' => true, 'updated' => $updated];
     }
 
     /**
      * Проверяет, может ли текущий пользователь редактировать заказ
-     * 
+     *
      * @param Order $model
      * @return bool
      */
@@ -1494,13 +1520,13 @@ class OrderController extends BaseAdminController
         if ($this->isAdmin() || $this->isManager()) {
             return true;
         }
-        
+
         // Логист может редактировать только свои заказы
         if ($this->isLogist()) {
             $user = $this->getCurrentUser();
             return $model->assigned_logist == $user->id;
         }
-        
+
         return false;
     }
 
@@ -1510,14 +1536,14 @@ class OrderController extends BaseAdminController
     public function actionBulkAssignLogist()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
+
         if (!$this->isAdmin()) {
             return ['success' => false, 'message' => 'Доступ запрещен'];
         }
-        
+
         $ids = Yii::$app->request->post('ids', []);
         $logistId = Yii::$app->request->post('logist_id');
-        
+
         if (empty($ids)) {
             return ['success' => false, 'message' => 'Не указаны заказы'];
         }
@@ -1533,26 +1559,26 @@ class OrderController extends BaseAdminController
     public function actionBulkUpdateField()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
+
         if (!$this->isAdmin() && !$this->isManager()) {
             return ['success' => false, 'message' => 'Доступ запрещен'];
         }
-        
+
         $ids = json_decode(Yii::$app->request->post('ids', []), true);
         $field = Yii::$app->request->post('field');
         $value = Yii::$app->request->post('value');
-        
+
         if (empty($ids) || !$field) {
             return ['success' => false, 'message' => 'Не указаны заказы или поле'];
         }
-        
+
         // Разрешенные поля для массового обновления
         $allowedFields = ['is_processed', 'is_shipped', 'customs_cleared'];
-        
+
         if (!in_array($field, $allowedFields)) {
             return ['success' => false, 'message' => 'Недопустимое поле'];
         }
-        
+
         $updated = Order::updateAll([$field => $value], ['id' => $ids]);
 
         \yii\caching\TagDependency::invalidate(Yii::$app->cache, ['orders-stats']);
@@ -1576,9 +1602,13 @@ class OrderController extends BaseAdminController
             'citizenship','birth_date','inn',
             'passport_series','passport_number','passport_issue_date',
             'passport_issued_by','passport_unp','passport_division_code'];
-        if (!in_array($field, $allowed)) return ['success' => false, 'message' => 'Недопустимое поле'];
+        if (!in_array($field, $allowed)) {
+            return ['success' => false, 'message' => 'Недопустимое поле'];
+        }
         $order = Order::findOne($id);
-        if (!$order) return ['success' => false, 'message' => 'Не найден'];
+        if (!$order) {
+            return ['success' => false, 'message' => 'Не найден'];
+        }
         // CMP-50: та же защита для actionSaveField (save(false) ниже пропускает валидаторы).
         if ($field === 'passport_series' && $value !== null && trim((string)$value) !== '') {
             $value = mb_strtoupper(trim((string)$value));
@@ -1610,7 +1640,9 @@ class OrderController extends BaseAdminController
         $data  = json_decode(Yii::$app->request->getRawBody(), true) ?: [];
         $id    = (int)($data['id'] ?? Yii::$app->request->post('id', 0));
         $order = Order::findOne($id);
-        if (!$order) return ['success' => false, 'message' => 'Заказ не найден'];
+        if (!$order) {
+            return ['success' => false, 'message' => 'Заказ не найден'];
+        }
 
         try {
             $result = Yii::$app->moysklad->pushOrder($order);
@@ -1977,7 +2009,9 @@ class OrderController extends BaseAdminController
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $request = Yii::$app->request;
-        if (!$request->isPost) return ['success' => false, 'message' => 'POST required'];
+        if (!$request->isPost) {
+            return ['success' => false, 'message' => 'POST required'];
+        }
 
         $body = json_decode($request->rawBody, true);
         $itemId = (int)($body['item_id'] ?? 0);
@@ -1990,10 +2024,16 @@ class OrderController extends BaseAdminController
         }
 
         $item = OrderItem::findOne($itemId);
-        if (!$item) return ['success' => false, 'message' => 'Item not found'];
+        if (!$item) {
+            return ['success' => false, 'message' => 'Item not found'];
+        }
 
-        if ($field === 'quantity') $value = max(1, (int)$value);
-        if ($field === 'price')    $value = max(0, (float)$value);
+        if ($field === 'quantity') {
+            $value = max(1, (int)$value);
+        }
+        if ($field === 'price') {
+            $value = max(0, (float)$value);
+        }
 
         $item->$field = $value;
 
@@ -2012,7 +2052,9 @@ class OrderController extends BaseAdminController
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $request = Yii::$app->request;
-        if (!$request->isPost) return ['success' => false, 'message' => 'POST required'];
+        if (!$request->isPost) {
+            return ['success' => false, 'message' => 'POST required'];
+        }
 
         $body    = json_decode($request->rawBody, true);
         $orderId = (int)($body['order_id'] ?? 0);
@@ -2026,7 +2068,9 @@ class OrderController extends BaseAdminController
         }
 
         $order = Order::findOne($orderId);
-        if (!$order) return ['success' => false, 'message' => 'Заказ не найден'];
+        if (!$order) {
+            return ['success' => false, 'message' => 'Заказ не найден'];
+        }
 
         $item = new OrderItem();
         $item->order_id     = $orderId;
@@ -2047,7 +2091,9 @@ class OrderController extends BaseAdminController
     public function actionDeleteItem($id)
     {
         $item = OrderItem::findOne((int)$id);
-        if (!$item) throw new NotFoundHttpException('Item not found');
+        if (!$item) {
+            throw new NotFoundHttpException('Item not found');
+        }
         $orderId = $item->order_id;
         $item->delete();
         return $this->redirect(['/admin/order/view', 'id' => $orderId]);
@@ -2057,7 +2103,9 @@ class OrderController extends BaseAdminController
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $q = Yii::$app->request->get('q', '');
-        if (strlen($q) < 2) return [];
+        if (strlen($q) < 2) {
+            return [];
+        }
 
         $rows = Order::find()
             ->select(['id', 'order_number', 'client_name'])

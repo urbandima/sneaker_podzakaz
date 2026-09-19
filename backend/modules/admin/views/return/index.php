@@ -36,11 +36,11 @@ $this->params['headerActions'] = [
 <!-- Фильтр-табы -->
 <div class="admin-card" style="margin-bottom: 1.5rem; padding: 0;">
     <div style="display: flex; gap: 0; border-bottom: 1px solid var(--admin-border);">
-        <?php foreach ($tabs as $key => $label): ?>
+        <?php foreach ($tabs as $key => $label) : ?>
             <a href="<?= Url::to(['index', 'status' => $key, 'search' => Yii::$app->request->get('search')]) ?>"
                style="display:inline-flex;align-items:center;gap:6px;padding: 0.875rem 1.5rem; font-weight: 600; font-size: 0.9rem; text-decoration: none; border-bottom: 3px solid <?= $currentStatus === $key ? 'var(--admin-accent, #2563eb)' : 'transparent' ?>; color: <?= $currentStatus === $key ? 'var(--admin-accent, #2563eb)' : 'var(--admin-text-secondary)' ?>; transition: color 0.2s; white-space:nowrap;">
                 <?= Html::encode($label) ?>
-                <?php if (isset($tabCounts[$key]) && $tabCounts[$key] > 0): ?>
+                <?php if (isset($tabCounts[$key]) && $tabCounts[$key] > 0) : ?>
                 <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;background:<?= $currentStatus === $key ? 'var(--admin-accent,#2563eb)' : 'var(--admin-border,#e5e7eb)' ?>;color:<?= $currentStatus === $key ? '#fff' : 'var(--admin-text-secondary,#6b7280)' ?>;border-radius:9px;font-size:0.7rem;font-weight:700"><?= $tabCounts[$key] ?></span>
                 <?php endif; ?>
             </a>
@@ -76,8 +76,8 @@ $this->params['headerActions'] = [
                 </tr>
             </thead>
             <tbody>
-                <?php if (!empty($dataProvider->getModels())): ?>
-                    <?php foreach ($dataProvider->getModels() as $model): ?>
+                <?php if (!empty($dataProvider->getModels())) : ?>
+                    <?php foreach ($dataProvider->getModels() as $model) : ?>
                         <tr>
                             <td>
                                 <?= Html::a(
@@ -88,7 +88,7 @@ $this->params['headerActions'] = [
                             </td>
                             <td>
                                 <?= Html::encode($model->order->client_name ?? $model->client_name ?? '—') ?>
-                                <?php if (!empty($model->order->client_email ?? $model->client_email ?? null)): ?>
+                                <?php if (!empty($model->order->client_email ?? $model->client_email ?? null)) : ?>
                                     <div style="font-size: 0.75rem; color: var(--admin-text-secondary);"><?= Html::encode($model->order->client_email ?? $model->client_email) ?></div>
                                 <?php endif; ?>
                             </td>
@@ -123,7 +123,7 @@ $this->params['headerActions'] = [
                             </td>
                         </tr>
                     <?php endforeach; ?>
-                <?php else: ?>
+                <?php else : ?>
                     <tr>
                         <td colspan="7" style="text-align: center; padding: 2rem; color: var(--admin-text-secondary);">
                             Нет заявок на возврат
@@ -134,7 +134,7 @@ $this->params['headerActions'] = [
         </table>
     </div>
 
-    <?php if ($dataProvider->pagination->pageCount > 1): ?>
+    <?php if ($dataProvider->pagination->pageCount > 1) : ?>
         <div style="margin-top: 1.5rem; display: flex; justify-content: center;">
             <?= \yii\widgets\LinkPager::widget([
                 'pagination' => $dataProvider->pagination,
@@ -145,7 +145,7 @@ $this->params['headerActions'] = [
     <?php endif; ?>
 </div>
 
-<?php if (!empty($implicitReturns)): ?>
+<?php if (!empty($implicitReturns)) : ?>
 <div class="admin-card" style="margin-top:1.5rem">
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-exclamation-circle text-warning"></i> Заказы со статусом "Возврат" (без заявки)</h2>
@@ -155,7 +155,7 @@ $this->params['headerActions'] = [
             <th>№ Заказа</th><th>Клиент</th><th>Телефон</th><th>Сумма</th><th>Дата</th><th></th>
         </tr></thead>
         <tbody>
-            <?php foreach ($implicitReturns as $ord): ?>
+            <?php foreach ($implicitReturns as $ord) : ?>
             <tr>
                 <td><strong><?= Html::encode($ord->order_number) ?></strong></td>
                 <td><?= Html::encode($ord->client_name) ?></td>

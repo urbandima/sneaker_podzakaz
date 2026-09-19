@@ -8,7 +8,7 @@ use app\backend\modules\catalog\models\Product;
 
 /**
  * ImportProductPrice — Модель истории цен из разных источников
- * 
+ *
  * @property int $id
  * @property int|null $product_id ID товара
  * @property int $source_id ID источника
@@ -21,7 +21,7 @@ use app\backend\modules\catalog\models\Product;
  * @property bool $is_available Доступен ли товар
  * @property string|null $url URL товара в источнике
  * @property string $parsed_at Время парсинга
- * 
+ *
  * @property \app\backend\modules\catalog\models\Product $product Товар
  * @property ImportSource $source Источник
  */
@@ -106,13 +106,13 @@ class ImportProductPrice extends ActiveRecord
     {
         $query = self::find()
             ->where(['source_id' => $sourceId, 'external_sku' => $sku]);
-        
+
         if ($size) {
             $query->andWhere(['size' => $size]);
         } else {
             $query->andWhere(['size' => null]);
         }
-        
+
         return $query->one();
     }
 
@@ -133,14 +133,14 @@ class ImportProductPrice extends ActiveRecord
     public static function updatePrice($sourceId, $sku, $price, $currency, $priceByn, $rate, $size = null, $available = true, $url = null, $productId = null)
     {
         $record = self::findOrCreate($sourceId, $sku, $size);
-        
+
         if (!$record) {
             $record = new self([
                 'source_id' => $sourceId,
                 'external_sku' => $sku,
             ]);
         }
-        
+
         $record->product_id = $productId;
         $record->price_original = $price;
         $record->price_byn = $priceByn;
@@ -150,9 +150,9 @@ class ImportProductPrice extends ActiveRecord
         $record->is_available = $available;
         $record->url = $url;
         $record->parsed_at = date('Y-m-d H:i:s');
-        
+
         $record->save(false);
-        
+
         return $record;
     }
 
@@ -167,13 +167,13 @@ class ImportProductPrice extends ActiveRecord
         $query = self::find()
             ->where(['external_sku' => $sku])
             ->with('source');
-        
+
         if ($size) {
             $query->andWhere(['size' => $size]);
         } else {
             $query->andWhere(['size' => null]);
         }
-        
+
         return $query->orderBy(['price_byn' => SORT_ASC])->all();
     }
 
@@ -186,20 +186,20 @@ class ImportProductPrice extends ActiveRecord
     public static function getBestPrice($sku, $size = null)
     {
         $prices = self::getAllPrices($sku, $size);
-        
+
         if (empty($prices)) {
             return null;
         }
-        
+
         // Фильтруем только доступные
-        $available = array_filter($prices, function($p) {
+        $available = array_filter($prices, function ($p) {
             return $p->is_available && $p->price_byn > 0;
         });
-        
+
         if (empty($available)) {
             return null;
         }
-        
+
         // Возвращаем первую (с минимальной ценой)
         return reset($available);
     }
@@ -228,7 +228,7 @@ class ImportProductPrice extends ActiveRecord
     public static function cleanOldPrices($daysOld = 30)
     {
         $date = date('Y-m-d H:i:s', strtotime("-{$daysOld} days"));
-        
+
         return self::deleteAll(['<', 'parsed_at', $date]);
     }
 }

@@ -2,34 +2,35 @@
 
 /**
  * SitemapGenerator — Генератор sitemap.xml
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Генерация sitemap.xml для всех страниц сайта.
  * Поддержка товаров, категорий, брендов, статических страниц.
- * 
+ *
  * ФУНКЦИИ:
  * - generate(): основная генерация sitemap
  * - generateProducts(): генерация URL товаров
  * - generateCategories(): генерация URL категорий
  * - generateBrands(): генерация URL брендов
  * - generateStaticPages(): генерация статических страниц
- * 
+ *
  * КОНСТАНТЫ:
  * - BASE_URL: базовый URL сайта
  * - SITEMAP_PATH: путь к файлу sitemap.xml
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * ```php
  * $generator = new SitemapGenerator();
  * $generator->generate();
  * ```
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Валидный XML формат
  * - Поддержка lastmod, changefreq, priority
  * - Кэширование результатов
  * - Обработка больших объемов данных
  */
+
 namespace app\backend\services\Sitemap;
 
 use Yii;
@@ -44,20 +45,20 @@ class SitemapGenerator
 {
     private const BASE_URL = 'https://sneakerhead.by';
     private const SITEMAP_PATH = '@webroot/sitemap.xml';
-    
+
     private $dom;
     private $urlset;
-    
+
     public function __construct()
     {
         $this->dom = new DOMDocument('1.0', 'UTF-8');
         $this->dom->formatOutput = true;
-        
+
         $this->urlset = $this->dom->createElement('urlset');
         $this->urlset->setAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
         $this->dom->appendChild($this->urlset);
     }
-    
+
     /**
      * Динамическая генерация sitemap для web-запроса
      */
@@ -68,14 +69,14 @@ class SitemapGenerator
             $this->generateCategories();
             $this->generateBrands();
             $this->generateProducts();
-            
+
             return $this->dom->saveXML();
         } catch (\Throwable $e) {
             Yii::error('Sitemap generation failed: ' . $e->getMessage(), __METHOD__);
             return $this->getEmptySitemap();
         }
     }
-    
+
     /**
      * Возвращает пустой sitemap в случае ошибки
      */
@@ -83,18 +84,18 @@ class SitemapGenerator
     {
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
-        
+
         $urlset = $dom->createElement('urlset');
         $urlset->setAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
         $dom->appendChild($urlset);
-        
+
         $url = $dom->createElement('url');
         $urlset->appendChild($url);
-        
+
         $loc = $dom->createElement('loc');
         $loc->appendChild($dom->createTextNode(self::BASE_URL));
         $url->appendChild($loc);
-        
+
         return $dom->saveXML();
     }
 
@@ -108,14 +109,14 @@ class SitemapGenerator
             $this->generateCategories();
             $this->generateBrands();
             $this->generateProducts();
-            
+
             return $this->save();
         } catch (\Throwable $e) {
             Yii::error('Sitemap generation failed: ' . $e->getMessage(), __METHOD__);
             return false;
         }
     }
-    
+
     /**
      * Генерация статических страниц
      */
@@ -137,7 +138,7 @@ class SitemapGenerator
             $this->addUrl($page['loc'], $page['changefreq'], $page['priority']);
         }
     }
-    
+
     /**
      * Генерация категорий
      */
@@ -149,7 +150,7 @@ class SitemapGenerator
                 ->from('category')
                 ->where(['is_active' => 1])
                 ->all();
-                
+
             foreach ($categories as $category) {
                 $this->addUrl(
                     'catalog/' . $category['slug'],
@@ -162,7 +163,7 @@ class SitemapGenerator
             Yii::error('Failed to generate categories: ' . $e->getMessage(), __METHOD__);
         }
     }
-    
+
     /**
      * Генерация брендов
      */
@@ -174,7 +175,7 @@ class SitemapGenerator
                 ->from('brand')
                 ->where(['is_active' => 1])
                 ->all();
-                
+
             foreach ($brands as $brand) {
                 $this->addUrl(
                     'brands/' . $brand['slug'],
@@ -187,7 +188,7 @@ class SitemapGenerator
             Yii::error('Failed to generate brands: ' . $e->getMessage(), __METHOD__);
         }
     }
-    
+
     /**
      * Генерация товаров
      */
@@ -200,7 +201,7 @@ class SitemapGenerator
                 ->where(['is_active' => 1])
                 ->orderBy(['updated_at' => SORT_DESC])
                 ->all();
-                
+
             foreach ($products as $product) {
                 $this->addUrl(
                     'product/' . $product['slug'],
@@ -213,18 +214,18 @@ class SitemapGenerator
             Yii::error('Failed to generate products: ' . $e->getMessage(), __METHOD__);
         }
     }
-    
+
     /**
      * Добавление URL в sitemap
      */
     private function addUrl(string $path, string $changefreq, string $priority, ?string $lastmod = null): void
     {
         $url = $this->dom->createElement('url');
-        
+
         $loc = $this->dom->createElement('loc');
         $loc->appendChild($this->dom->createTextNode(rtrim(self::BASE_URL, '/') . '/' . ltrim($path, '/')));
         $url->appendChild($loc);
-        
+
         if ($lastmod) {
             $lastmodEl = $this->dom->createElement('lastmod');
             // updated_at хранится как Unix timestamp (int) через TimestampBehavior
@@ -234,18 +235,18 @@ class SitemapGenerator
                 $url->appendChild($lastmodEl);
             }
         }
-        
+
         $changefreqEl = $this->dom->createElement('changefreq');
         $changefreqEl->appendChild($this->dom->createTextNode($changefreq));
         $url->appendChild($changefreqEl);
-        
+
         $priorityEl = $this->dom->createElement('priority');
         $priorityEl->appendChild($this->dom->createTextNode($priority));
         $url->appendChild($priorityEl);
-        
+
         $this->urlset->appendChild($url);
     }
-    
+
     /**
      * Сохранение sitemap в файл
      */
@@ -253,11 +254,11 @@ class SitemapGenerator
     {
         $sitemapPath = Yii::getAlias(self::SITEMAP_PATH);
         $sitemapDir = dirname($sitemapPath);
-        
+
         if (!is_dir($sitemapDir)) {
             mkdir($sitemapDir, 0755, true);
         }
-        
+
         return $this->dom->save($sitemapPath);
     }
 }

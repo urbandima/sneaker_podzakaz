@@ -42,17 +42,20 @@ use yii\helpers\Url;
             'class' => 'btn-import-main'
         ]) ?>
         
-        <?php if (!empty($sources)): ?>
+        <?php if (!empty($sources)) : ?>
         <div class="sources-list">
-            <?php foreach (array_slice($sources, 0, 2) as $source): ?>
-            <?= Html::a('<i class="bi bi-play-fill"></i> ' . Html::encode($source->name), 
-                ['/admin/import/run', 'sourceId' => $source->id], [
-                'class' => 'btn-source',
-                'data-method' => 'post'
-            ]) ?>
+            <?php foreach (array_slice($sources, 0, 2) as $source) : ?>
+                <?= Html::a(
+                    '<i class="bi bi-play-fill"></i> ' . Html::encode($source->name),
+                    ['/admin/import/run', 'sourceId' => $source->id],
+                    [
+                    'class' => 'btn-source',
+                    'data-method' => 'post'
+                    ]
+                ) ?>
             <?php endforeach; ?>
-            <?php if (count($sources) > 2): ?>
-            <?= Html::a('<i class="bi bi-three-dots"></i>', ['/admin/import'], [
+            <?php if (count($sources) > 2) : ?>
+                <?= Html::a('<i class="bi bi-three-dots"></i>', ['/admin/import'], [
                 'class' => 'btn-more',
                 'title' => 'Все источники'
             ]) ?>
@@ -62,11 +65,11 @@ use yii\helpers\Url;
     </div>
 
     <!-- Последние задачи -->
-    <?php if (!empty($recentTasks)): ?>
+    <?php if (!empty($recentTasks)) : ?>
     <div class="recent-tasks">
         <h6>Последние импорты</h6>
         <div class="task-list">
-            <?php foreach ($recentTasks as $task): ?>
+            <?php foreach ($recentTasks as $task) : ?>
             <div class="task-item">
                 <div class="task-info">
                     <span class="task-name"><?= Html::encode($task->source->name) ?></span>

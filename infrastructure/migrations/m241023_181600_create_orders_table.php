@@ -10,7 +10,7 @@ class m241023_181600_create_orders_table extends Migration
             'id' => $this->primaryKey(),
             'order_number' => $this->string(50)->notNull()->unique(),
             'token' => $this->string(100)->notNull()->unique(),
-            
+
             // Информация о клиенте
             'client_name' => $this->string(255)->notNull(),
             'client_phone' => $this->string(50),
@@ -18,24 +18,24 @@ class m241023_181600_create_orders_table extends Migration
 
             // Доставка
             'delivery_country' => $this->string(50),
-            
+
             // Финансы
             'total_amount' => $this->decimal(10, 2)->notNull()->defaultValue(0),
-            
+
             // Статус и сроки
             'status' => $this->string(50)->notNull()->defaultValue('created'),
             'delivery_date' => $this->string(255),
-            
+
             // Файлы и подтверждение
             'payment_proof' => $this->string(255),
             'payment_uploaded_at' => $this->integer(),
             'offer_accepted' => $this->boolean()->defaultValue(false),
             'offer_accepted_at' => $this->integer(),
-            
+
             // Связи
             'created_by' => $this->integer()->notNull(),
             'assigned_logist' => $this->integer(),
-            
+
             // Временные метки
             'created_at' => $this->integer()->notNull(),
             'updated_at' => $this->integer()->notNull(),

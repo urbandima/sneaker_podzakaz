@@ -8,7 +8,7 @@ use app\backend\modules\catalog\models\Category;
 
 /**
  * ImportCategoryMap — Модель маппинга категорий
- * 
+ *
  * @property int $id
  * @property int $source_id ID источника
  * @property string $source_category_name Название категории в источнике
@@ -18,7 +18,7 @@ use app\backend\modules\catalog\models\Category;
  * @property int $priority Приоритет (обувь = высокий)
  * @property string $created_at
  * @property string $updated_at
- * 
+ *
  * @property ImportSource $source Источник
  * @property \app\backend\modules\catalog\models\Category $category Категория
  */
@@ -113,13 +113,13 @@ class ImportCategoryMap extends ActiveRecord
             // Обувь (высокий приоритет)
             'кроссовки' => ['кроссовки', 'sneakers', 'кеды', 'ботинки', 'обувь', 'shoes', 'boots'],
             'кеды' => ['кеды', 'canvas', 'espadrilles'],
-            
+
             // Одежда
             'футболки' => ['футболка', 't-shirt', 'shirt', 'поло'],
             'худи' => ['худи', 'hoodie', 'sweatshirt', 'свитшот'],
             'куртки' => ['куртка', 'jacket', 'coat', 'пальто', 'windbreaker'],
             'штаны' => ['штаны', 'pants', 'jeans', 'джинсы', 'trousers'],
-            
+
             // Аксессуары
             'сумки' => ['сумка', 'bag', 'рюкзак', 'backpack'],
             'шапки' => ['шапка', 'hat', 'cap', 'beanie', 'кепка'],
@@ -135,7 +135,7 @@ class ImportCategoryMap extends ActiveRecord
                     $category = \app\backend\modules\catalog\models\Category::find()
                         ->where(['like', 'name', $categoryName, false])
                         ->one();
-                    
+
                     if ($category) {
                         // Создаем маппинг
                         $map = new self([
@@ -146,7 +146,7 @@ class ImportCategoryMap extends ActiveRecord
                             'priority' => ($categoryName === 'кроссовки' || $categoryName === 'кеды') ? 10 : 5,
                         ]);
                         $map->save(false);
-                        
+
                         return $category->id;
                     }
                 }
@@ -181,19 +181,19 @@ class ImportCategoryMap extends ActiveRecord
     public static function createOrUpdate($sourceId, $sourceCategoryName, $categoryId, $sourceCategoryUrl = null)
     {
         $map = self::findByCategoryName($sourceId, $sourceCategoryName);
-        
+
         if (!$map) {
             $map = new self([
                 'source_id' => $sourceId,
                 'source_category_name' => $sourceCategoryName,
             ]);
         }
-        
+
         $map->category_id = $categoryId;
         $map->source_category_url = $sourceCategoryUrl;
         $map->is_auto_mapped = false;
         $map->save(false);
-        
+
         return $map;
     }
 }

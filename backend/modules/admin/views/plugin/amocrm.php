@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\backend\shared\helpers\PriceHelper;
@@ -30,7 +31,7 @@ $widgetApiKey = Yii::$app->settings->get('amocrm', 'widget_api_key', '');
 
 <!-- Tab nav -->
 <nav class="amo-tabs-nav" style="margin-bottom:20px">
-    <?php foreach ($tabs as $key => $t): ?>
+    <?php foreach ($tabs as $key => $t) : ?>
     <a href="?tab=<?= $key ?>"
        class="amo-tab-btn <?= $tab === $key ? 'active' : '' ?>">
         <i class="bi <?= $t['icon'] ?>"></i> <?= $t['label'] ?>
@@ -38,18 +39,18 @@ $widgetApiKey = Yii::$app->settings->get('amocrm', 'widget_api_key', '');
     <?php endforeach; ?>
 </nav>
 
-<?php if ($tab === 'dashboard'): ?>
+<?php if ($tab === 'dashboard') : ?>
 <!-- ══════════════════════════════════════════════════════════════════════
      TAB: DASHBOARD
      ════════════════════════════════════════════════════════════════════ -->
 
-<?php
-$recentOrders = \app\backend\modules\checkout\models\Order::find()
+    <?php
+    $recentOrders = \app\backend\modules\checkout\models\Order::find()
     ->where(['source' => 'amoCRM'])
     ->orderBy(['created_at' => SORT_DESC])
     ->limit(25)
     ->all();
-?>
+    ?>
 
 <div class="amo-stats-grid" style="margin-bottom:20px">
     <div class="amo-stat-card">
@@ -72,12 +73,12 @@ $recentOrders = \app\backend\modules\checkout\models\Order::find()
         <span class="admin-badge admin-badge-primary"><?= count($recentOrders) ?></span>
     </div>
     <div class="admin-card-body" style="padding:0">
-        <?php if (empty($recentOrders)): ?>
+        <?php if (empty($recentOrders)) : ?>
             <div style="padding:32px;text-align:center;color:var(--admin-text-secondary)">
                 <i class="bi bi-inbox" style="font-size:32px;display:block;margin-bottom:8px;opacity:.5"></i>
                 <p style="margin:0">Заказов из AmoCRM пока нет</p>
             </div>
-        <?php else: ?>
+        <?php else : ?>
             <table class="admin-table" style="margin:0">
                 <thead>
                     <tr>
@@ -91,7 +92,7 @@ $recentOrders = \app\backend\modules\checkout\models\Order::find()
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($recentOrders as $order): ?>
+                    <?php foreach ($recentOrders as $order) : ?>
                         <tr>
                             <td><strong>#<?= Html::encode($order->order_number) ?></strong></td>
                             <td><?= Html::encode($order->client_name) ?></td>
@@ -112,7 +113,7 @@ $recentOrders = \app\backend\modules\checkout\models\Order::find()
     </div>
 </div>
 
-<?php elseif ($tab === 'settings'): ?>
+<?php elseif ($tab === 'settings') : ?>
 <!-- ══════════════════════════════════════════════════════════════════════
      TAB: SETTINGS
      ════════════════════════════════════════════════════════════════════ -->
@@ -232,7 +233,7 @@ window.SNEAKERHEAD_API_KEY = '<?= Html::encode($apiKey) ?>';
     </div>
 </div>
 
-<?php elseif ($tab === 'webhooks'): ?>
+<?php elseif ($tab === 'webhooks') : ?>
 <!-- ══════════════════════════════════════════════════════════════════════
      TAB: WEBHOOKS
      ════════════════════════════════════════════════════════════════════ -->
@@ -328,19 +329,19 @@ window.SNEAKERHEAD_API_KEY = '<?= Html::encode($apiKey) ?>';
     </div>
 </div>
 
-<?php elseif ($tab === 'statuses'): ?>
+<?php elseif ($tab === 'statuses') : ?>
 <!-- ══════════════════════════════════════════════════════════════════════
      TAB: STATUSES — bidirectional mapping AmoCRM ↔ our statuses
      ════════════════════════════════════════════════════════════════════ -->
 
-<?php
-$existingMappings = [];
-foreach (\app\backend\modules\admin\services\AmocrmStatusMapper::getAllMappings() as $m) {
-    $existingMappings[$m['our_track'] . ':' . $m['our_status']] = $m;
-}
-$ourStatusList = \app\backend\modules\admin\services\AmocrmStatusMapper::ourStatusList();
-$trackLabels = ['order' => 'Статус заказа', 'payment' => 'Трек оплаты', 'logistics' => 'Трек логистики', 'delivery' => 'Трек доставки'];
-?>
+    <?php
+    $existingMappings = [];
+    foreach (\app\backend\modules\admin\services\AmocrmStatusMapper::getAllMappings() as $m) {
+        $existingMappings[$m['our_track'] . ':' . $m['our_status']] = $m;
+    }
+    $ourStatusList = \app\backend\modules\admin\services\AmocrmStatusMapper::ourStatusList();
+    $trackLabels = ['order' => 'Статус заказа', 'payment' => 'Трек оплаты', 'logistics' => 'Трек логистики', 'delivery' => 'Трек доставки'];
+    ?>
 
 <div class="admin-card" style="margin-bottom:16px">
     <div class="admin-card-header">
@@ -367,9 +368,9 @@ $trackLabels = ['order' => 'Статус заказа', 'payment' => 'Трек �
                 </tr>
             </thead>
             <tbody>
-            <?php foreach ($ourStatusList as $track => $statuses): ?>
-                <?php foreach ($statuses as $st): ?>
-                <?php $saved = $existingMappings[$track . ':' . $st] ?? null; ?>
+            <?php foreach ($ourStatusList as $track => $statuses) : ?>
+                <?php foreach ($statuses as $st) : ?>
+                    <?php $saved = $existingMappings[$track . ':' . $st] ?? null; ?>
                 <tr data-our-status="<?= Html::encode($st) ?>" data-our-track="<?= Html::encode($track) ?>"
                     data-saved-pipeline="<?= $saved ? (int)$saved['amocrm_pipeline_id'] : '' ?>"
                     data-saved-status="<?= $saved ? (int)$saved['amocrm_status_id'] : '' ?>">
@@ -407,9 +408,9 @@ $trackLabels = ['order' => 'Статус заказа', 'payment' => 'Трек �
     </div>
 </div>
 
-<?php $this->registerCss('.sm-inp{height:30px;padding:3px 8px;font-size:.75rem}'); ?>
+    <?php $this->registerCss('.sm-inp{height:30px;padding:3px 8px;font-size:.75rem}'); ?>
 
-<?php elseif ($tab === 'logs'): ?>
+<?php elseif ($tab === 'logs') : ?>
 <!-- ══════════════════════════════════════════════════════════════════════
      TAB: LOGS
      ════════════════════════════════════════════════════════════════════ -->
@@ -451,7 +452,7 @@ $trackLabels = ['order' => 'Статус заказа', 'payment' => 'Трек �
     <div style="display:flex;gap:8px;margin-top:12px" id="amo-log-pager"></div>
 </div>
 
-<?php elseif ($tab === 'fields'): ?>
+<?php elseif ($tab === 'fields') : ?>
 <!-- ══════════════════════════════════════════════════════════════════════
      TAB: FIELDS — Field mapping AmoCRM ↔ our order fields
      ════════════════════════════════════════════════════════════════════ -->
@@ -519,7 +520,7 @@ $trackLabels = ['order' => 'Статус заказа', 'payment' => 'Трек �
                     <?php
                     try {
                         $mappings = Yii::$app->db->createCommand('SELECT * FROM {{%amocrm_field_mapping}} WHERE entity_type="lead" ORDER BY local_field')->queryAll();
-                        foreach ($mappings as $m): ?>
+                        foreach ($mappings as $m) : ?>
                         <tr id="amo-mapping-row-<?= $m['id'] ?>">
                             <td><code><?= Html::encode($m['local_field']) ?></code></td>
                             <td><?= (int)$m['amocrm_field_id'] ?></td>
@@ -533,7 +534,7 @@ $trackLabels = ['order' => 'Статус заказа', 'payment' => 'Трек �
                             </td>
                         </tr>
                         <?php endforeach; ?>
-                        <?php if (empty($mappings)): ?>
+                        <?php if (empty($mappings)) : ?>
                         <tr id="amo-saved-empty"><td colspan="5" style="text-align:center;padding:20px;color:var(--admin-text-muted)">Нет сохранённых маппингов</td></tr>
                         <?php endif; ?>
                     <?php } catch (\Exception $e) { ?>
@@ -545,7 +546,7 @@ $trackLabels = ['order' => 'Статус заказа', 'payment' => 'Трек �
     </div>
 </div>
 
-<?php elseif ($tab === 'stats'): ?>
+<?php elseif ($tab === 'stats') : ?>
 <!-- ══════════════════════════════════════════════════════════════════════
      TAB: STATS
      ════════════════════════════════════════════════════════════════════ -->

@@ -45,18 +45,34 @@ try {
         ->where(['product_id' => $product->id])
         ->with(['characteristic', 'characteristicValue'])
         ->all();
-} catch (\Exception $e) { $characteristicsFromRegistry = []; }
+} catch (\Exception $e) {
+    $characteristicsFromRegistry = [];
+}
 
 $hasPoizonChars = !empty($properties);
 
 $_msCharRows = [];
-if ($product->brand_name)        $_msCharRows[] = ['label' => 'Бренд',          'value' => $product->brand_name,        'field' => 'brand_name'];
-if ($product->model_name)        $_msCharRows[] = ['label' => 'Модель',          'value' => $product->model_name,        'field' => 'model_name'];
-if ($product->gender)            $_msCharRows[] = ['label' => 'Пол',             'value' => $product->gender,            'field' => null];
-if ($product->season)            $_msCharRows[] = ['label' => 'Сезон',           'value' => $product->season,            'field' => null];
-if ($product->upper_material)    $_msCharRows[] = ['label' => 'Материал верха',  'value' => $product->upper_material,    'field' => null];
-if ($product->color_description) $_msCharRows[] = ['label' => 'Цвет',           'value' => $product->color_description, 'field' => null];
-if ($product->ms_size_grid)      $_msCharRows[] = ['label' => 'Размерная сетка', 'value' => $product->ms_size_grid,      'field' => 'ms_size_grid'];
+if ($product->brand_name) {
+    $_msCharRows[] = ['label' => 'Бренд',          'value' => $product->brand_name,        'field' => 'brand_name'];
+}
+if ($product->model_name) {
+    $_msCharRows[] = ['label' => 'Модель',          'value' => $product->model_name,        'field' => 'model_name'];
+}
+if ($product->gender) {
+    $_msCharRows[] = ['label' => 'Пол',             'value' => $product->gender,            'field' => null];
+}
+if ($product->season) {
+    $_msCharRows[] = ['label' => 'Сезон',           'value' => $product->season,            'field' => null];
+}
+if ($product->upper_material) {
+    $_msCharRows[] = ['label' => 'Материал верха',  'value' => $product->upper_material,    'field' => null];
+}
+if ($product->color_description) {
+    $_msCharRows[] = ['label' => 'Цвет',           'value' => $product->color_description, 'field' => null];
+}
+if ($product->ms_size_grid) {
+    $_msCharRows[] = ['label' => 'Размерная сетка', 'value' => $product->ms_size_grid,      'field' => 'ms_size_grid'];
+}
 
 $_msAttrs = $product->ms_attributes_json
     ? (is_array($product->ms_attributes_json) ? $product->ms_attributes_json : json_decode($product->ms_attributes_json, true))
@@ -75,7 +91,9 @@ try {
         ->orderBy(['id' => SORT_DESC])
         ->limit(20)
         ->all();
-} catch (\Exception $e) { $productOrders = []; }
+} catch (\Exception $e) {
+    $productOrders = [];
+}
 
 // Similar products — by model_name match or brand+category
 try {
@@ -98,15 +116,20 @@ try {
         $spQuery->andWhere(['brand_id' => $product->brand_id, 'category_id' => $product->category_id]);
     }
     $similarProducts = $spQuery->all();
-} catch (\Exception $e) { $similarProducts = []; }
+} catch (\Exception $e) {
+    $similarProducts = [];
+}
 
 $recentOrders = array_slice($productOrders, 0, 5);
 
 // Brands & categories for inline selects
 try {
-    $allBrands     = \app\backend\modules\catalog\models\Brand::find()->select(['id','name'])->orderBy(['name'=>SORT_ASC])->asArray()->all();
-    $allCategories = \app\backend\modules\catalog\models\Category::find()->select(['id','name'])->orderBy(['name'=>SORT_ASC])->asArray()->all();
-} catch (\Exception $e) { $allBrands = []; $allCategories = []; }
+    $allBrands     = \app\backend\modules\catalog\models\Brand::find()->select(['id','name'])->orderBy(['name' => SORT_ASC])->asArray()->all();
+    $allCategories = \app\backend\modules\catalog\models\Category::find()->select(['id','name'])->orderBy(['name' => SORT_ASC])->asArray()->all();
+} catch (\Exception $e) {
+    $allBrands = [];
+    $allCategories = [];
+}
 
 // Margin calc
 $marginPct = 0;
@@ -223,12 +246,16 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
         </span>
         <span class="crm-order-date">
             #<?= $product->id ?>
-            <?php if ($product->sku): ?> · <?= Html::encode($product->sku) ?><?php endif; ?>
-            <?php if ($product->brand): ?> · <?= Html::encode($product->brand->name) ?><?php endif; ?>
+            <?php if ($product->sku) :
+                ?> · <?= Html::encode($product->sku) ?><?php
+            endif; ?>
+            <?php if ($product->brand) :
+                ?> · <?= Html::encode($product->brand->name) ?><?php
+            endif; ?>
         </span>
     </div>
     <div class="crm-topbar-actions">
-        <?php if ($product->poizon_id): ?>
+        <?php if ($product->poizon_id) : ?>
         <a href="<?= Url::to(['/admin/product/sync', 'id' => $product->id]) ?>"
            class="crm-int-btn" data-method="post" title="Синхронизация Poizon">
             <i class="bi bi-arrow-clockwise"></i> Poizon
@@ -287,7 +314,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                          onclick="startEdit(this)"><?= $product->sku ? Html::encode($product->sku) : '<span class="crm-editable-empty">не задан</span>' ?></div>
                 </div>
             </div>
-            <?php if ($product->hasAttribute('vendor_code') && ($product->vendor_code !== $product->sku)): ?>
+            <?php if ($product->hasAttribute('vendor_code') && ($product->vendor_code !== $product->sku)) : ?>
             <div class="ir-row">
                 <div class="ir-label">Артикул</div>
                 <div class="ir-val">
@@ -296,7 +323,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                 </div>
             </div>
             <?php endif; ?>
-            <?php if ($product->hasAttribute('slug')): ?>
+            <?php if ($product->hasAttribute('slug')) : ?>
             <div class="ir-row">
                 <div class="ir-label">Slug</div>
                 <div class="ir-val">
@@ -321,7 +348,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                          onclick="startEditSelect(this)"><?= Html::encode($product->category ? $product->category->name : '—') ?></div>
                 </div>
             </div>
-            <?php if ($product->hasAttribute('model_name')): ?>
+            <?php if ($product->hasAttribute('model_name')) : ?>
             <div class="ir-row">
                 <div class="ir-label">Модель</div>
                 <div class="ir-val">
@@ -330,7 +357,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                 </div>
             </div>
             <?php endif; ?>
-            <?php if ($product->hasAttribute('slug') && $product->slug): ?>
+            <?php if ($product->hasAttribute('slug') && $product->slug) : ?>
             <div class="ir-row">
                 <div class="ir-label">URL фронта</div>
                 <div class="ir-val">
@@ -341,7 +368,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                 </div>
             </div>
             <?php endif; ?>
-            <?php if ($product->created_at): ?>
+            <?php if ($product->created_at) : ?>
             <div class="ir-row">
                 <div class="ir-label">Добавлен</div>
                 <div class="ir-val" style="color:var(--admin-text-secondary);font-size:.78rem">
@@ -352,12 +379,12 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
         </div>
     </div>
 
-    <?php if ($product->poizon_id): ?>
+    <?php if ($product->poizon_id) : ?>
     <!-- Данные Poizon -->
     <div class="crm-card">
         <div class="crm-card-head">
             <h3><i class="bi bi-cloud-check"></i> Данные Poizon</h3>
-            <?php if ($product->poizon_url): ?>
+            <?php if ($product->poizon_url) : ?>
             <a href="<?= Html::encode($product->poizon_url) ?>" target="_blank" class="crm-int-btn">
                 <i class="bi bi-box-arrow-up-right"></i> Открыть
             </a>
@@ -369,7 +396,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                     <div class="crm-field-label">Poizon ID</div>
                     <div class="crm-field-val"><code><?= Html::encode($product->poizon_id) ?></code></div>
                 </div>
-                <?php if ($product->poizon_spu_id): ?>
+                <?php if ($product->poizon_spu_id) : ?>
                 <div class="crm-field">
                     <div class="crm-field-label">SPU ID</div>
                     <div class="crm-field-val"><code><?= Html::encode($product->poizon_spu_id) ?></code></div>
@@ -390,7 +417,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
     </div>
     <?php endif; ?>
 
-    <?php if ($product->description): ?>
+    <?php if ($product->description) : ?>
     <!-- Описание -->
     <div class="crm-card">
         <div class="crm-card-head"><h3><i class="bi bi-text-paragraph"></i> Описание</h3></div>
@@ -415,48 +442,50 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
         $hasMsChars = !empty($_msCharRows) || !empty($_msAttrs);
         $hasAnyChars = count($characteristicsFromRegistry) > 0 || $hasPoizonChars || $hasMsChars;
         ?>
-        <?php if ($hasAnyChars): ?>
+        <?php if ($hasAnyChars) : ?>
         <div style="overflow-x:auto">
             <table class="crm-tbl">
                 <thead>
                     <tr><th style="width:40%">Характеристика</th><th>Значение</th><th style="width:18%;text-align:center">Источник</th></tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($characteristicsFromRegistry as $pcv): ?>
+                    <?php foreach ($characteristicsFromRegistry as $pcv) : ?>
                     <tr>
                         <td style="font-weight:600"><?= Html::encode($pcv->characteristic ? $pcv->characteristic->name : '—') ?></td>
                         <td>
-                            <?php if ($pcv->characteristicValue): ?>
+                            <?php if ($pcv->characteristicValue) : ?>
                                 <span class="admin-badge admin-badge-primary"><?= Html::encode($pcv->characteristicValue->value) ?></span>
-                            <?php elseif ($pcv->value_text): ?>
+                            <?php elseif ($pcv->value_text) : ?>
                                 <?= Html::encode($pcv->value_text) ?>
-                            <?php elseif ($pcv->value_number !== null): ?>
+                            <?php elseif ($pcv->value_number !== null) : ?>
                                 <?= Html::encode($pcv->value_number) ?>
                             <?php endif; ?>
                         </td>
                         <td style="text-align:center"><span class="admin-badge admin-badge-success" style="font-size:.65rem"><i class="bi bi-database"></i> Справочник</span></td>
                     </tr>
                     <?php endforeach; ?>
-                    <?php foreach ($properties as $prop): ?>
+                    <?php foreach ($properties as $prop) : ?>
                     <tr>
                         <td style="font-weight:600"><?= Html::encode($prop['key'] ?? '') ?></td>
                         <td><?= Html::encode($prop['value'] ?? '') ?></td>
                         <td style="text-align:center"><span class="admin-badge admin-badge-info" style="font-size:.65rem"><i class="bi bi-cloud"></i> Poizon</span></td>
                     </tr>
                     <?php endforeach; ?>
-                    <?php foreach ($_msCharRows as $_mcr): ?>
+                    <?php foreach ($_msCharRows as $_mcr) : ?>
                     <tr>
                         <td style="font-weight:600"><?= Html::encode($_mcr['label']) ?></td>
                         <td>
-                            <?php if ($_mcr['field']): ?>
+                            <?php if ($_mcr['field']) : ?>
                             <span class="inline-editable" data-entity="product" data-id="<?= $product->id ?>"
                                   data-field="<?= Html::encode($_mcr['field']) ?>"><?= Html::encode($_mcr['value']) ?></span>
-                            <?php else: ?><?= Html::encode($_mcr['value']) ?><?php endif; ?>
+                            <?php else :
+                                ?><?= Html::encode($_mcr['value']) ?><?php
+                            endif; ?>
                         </td>
                         <td style="text-align:center"><span class="admin-badge" style="background:#dbeafe;color:#1e40af;font-size:.65rem"><i class="bi bi-cloud-check"></i> МС</span></td>
                     </tr>
                     <?php endforeach; ?>
-                    <?php foreach ($_msAttrs as $_ma): ?>
+                    <?php foreach ($_msAttrs as $_ma) : ?>
                     <tr>
                         <td style="font-weight:600"><?= Html::encode($_ma['name'] ?? '') ?></td>
                         <td><?= Html::encode(is_array($_ma['value'] ?? '') ? ($_ma['value']['name'] ?? json_encode($_ma['value'])) : ($_ma['value'] ?? '')) ?></td>
@@ -466,7 +495,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                 </tbody>
             </table>
         </div>
-        <?php else: ?>
+        <?php else : ?>
         <div class="crm-card-body" style="text-align:center;color:var(--admin-text-secondary);padding:2rem">
             <i class="bi bi-info-circle" style="font-size:1.75rem"></i>
             <p style="margin-top:.75rem;font-size:.8125rem">Характеристики не заполнены.</p>
@@ -478,14 +507,16 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
     <div class="crm-card">
         <div class="crm-card-head">
             <h3><i class="bi bi-rulers"></i> Размеры
-                <?php if ($product->poizon_id): ?><span class="admin-badge admin-badge-info" style="font-size:.65rem;margin-left:4px">Poizon sync</span><?php endif; ?>
+                <?php if ($product->poizon_id) :
+                    ?><span class="admin-badge admin-badge-info" style="font-size:.65rem;margin-left:4px">Poizon sync</span><?php
+                endif; ?>
             </h3>
             <button type="button" class="admin-btn admin-btn-success admin-btn-sm"
                     data-bs-toggle="modal" data-bs-target="#addSizeModal">
                 <i class="bi bi-plus-circle"></i> Добавить
             </button>
         </div>
-        <?php if (count($sizes) > 0): ?>
+        <?php if (count($sizes) > 0) : ?>
         <div style="overflow-x:auto">
             <table class="crm-tbl">
                 <thead>
@@ -496,7 +527,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                         <th>Цена клиента</th>
                         <th>МС вариант</th>
                         <th>Штрихкод</th>
-                        <?php if ($product->poizon_id): ?>
+                        <?php if ($product->poizon_id) : ?>
                         <th>SKU</th><th>Артикул</th><th>Фото</th><th>Pzn Ост.</th>
                         <?php endif; ?>
                         <th>Остаток <i class="bi bi-pencil-fill" style="font-size:.5rem;color:var(--admin-primary,#3b82f6)"></i></th>
@@ -505,19 +536,21 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($sizes as $size): ?>
+                    <?php foreach ($sizes as $size) : ?>
                     <tr>
                         <td style="font-weight:600"><?= Html::encode($size->us_size ?: $size->size) ?></td>
                         <td><?= Html::encode($size->eu_size ?: '—') ?></td>
                         <td><?= Html::encode($size->uk_size ?: '—') ?></td>
                         <td><?= Html::encode($size->cm_size ?: '—') ?></td>
                         <td>
-                            <?php if ($size->price_cny): ?>
+                            <?php if ($size->price_cny) : ?>
                             <span class="admin-badge admin-badge-info" style="cursor:pointer"
                                   onclick="copyToClipboard('<?= $size->price_cny ?>', this)" title="Копировать">
                                 ¥<?= number_format($size->price_cny, 2) ?> <i class="bi bi-clipboard"></i>
                             </span>
-                            <?php else: ?><span style="color:var(--admin-text-secondary)">—</span><?php endif; ?>
+                            <?php else :
+                                ?><span style="color:var(--admin-text-secondary)">—</span><?php
+                            endif; ?>
                         </td>
                         <td>
                             <span class="inline-editable-size" data-id="<?= $size->id ?>" data-field="price_byn" data-type="number" title="Редактировать">
@@ -530,12 +563,14 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                                 : '<span style="color:var(--admin-text-secondary)">—</span>' ?>
                         </td>
                         <td>
-                            <?php if (!empty($size->ms_variant_id)): ?>
+                            <?php if (!empty($size->ms_variant_id)) : ?>
                             <code style="font-size:.65rem;color:#6b7280" title="<?= Html::encode($size->ms_variant_id) ?>"><?= Html::encode(substr($size->ms_variant_id, 0, 8)) ?>…</code>
-                            <?php else: ?><span style="color:var(--admin-text-secondary)">—</span><?php endif; ?>
+                            <?php else :
+                                ?><span style="color:var(--admin-text-secondary)">—</span><?php
+                            endif; ?>
                         </td>
                         <td><?= !empty($size->ms_barcode) ? '<code style="font-size:.7rem">' . Html::encode($size->ms_barcode) . '</code>' : '<span style="color:var(--admin-text-secondary)">—</span>' ?></td>
-                        <?php if ($product->poizon_id): ?>
+                        <?php if ($product->poizon_id) : ?>
                         <td><small><?= Html::encode($size->poizon_sku_id ?: '—') ?></small></td>
                         <td>
                             <?= $size->variant_vendor_code
@@ -546,12 +581,14 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                             <?php
                             $variantImages = $size->images_json ? (is_array($size->images_json) ? $size->images_json : json_decode($size->images_json, true)) : [];
                             ?>
-                            <?php if (!empty($variantImages)): ?>
+                            <?php if (!empty($variantImages)) : ?>
                             <button type="button" class="admin-btn admin-btn-secondary admin-btn-xs"
                                     data-bs-toggle="modal" data-bs-target="#imagesModal<?= $size->id ?>">
                                 <i class="bi bi-images"></i> <?= count($variantImages) ?>
                             </button>
-                            <?php else: ?><span style="color:var(--admin-text-secondary)">—</span><?php endif; ?>
+                            <?php else :
+                                ?><span style="color:var(--admin-text-secondary)">—</span><?php
+                            endif; ?>
                         </td>
                         <td>
                             <?= ($size->poizon_stock ?? 0) > 0
@@ -567,10 +604,10 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                             </span>
                         </td>
                         <td>
-                            <?php if ($size->is_available): ?>
+                            <?php if ($size->is_available) : ?>
                             <span class="admin-badge admin-badge-success" style="cursor:pointer"
                                   onclick="toggleSizeAvailable(<?= $size->id ?>, 0, this)">Доступен</span>
-                            <?php else: ?>
+                            <?php else : ?>
                             <span class="admin-badge admin-badge-secondary" style="cursor:pointer"
                                   onclick="toggleSizeAvailable(<?= $size->id ?>, 1, this)">Недоступен</span>
                             <?php endif; ?>
@@ -587,7 +624,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                 </tbody>
             </table>
         </div>
-        <?php else: ?>
+        <?php else : ?>
         <div class="crm-card-body" style="text-align:center;color:var(--admin-text-secondary);padding:2rem">
             <i class="bi bi-rulers" style="font-size:1.75rem"></i>
             <p style="margin-top:.75rem;font-size:.8125rem">Размеры не добавлены.</p>
@@ -596,19 +633,19 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
     </div>
 
     <!-- Похожие товары -->
-    <?php if (!empty($similarProducts)): ?>
+    <?php if (!empty($similarProducts)) : ?>
     <div class="crm-card">
         <div class="crm-card-head">
             <h3><i class="bi bi-grid-3x3-gap"></i> Похожие товары по модели</h3>
             <span style="font-size:.75rem;color:var(--admin-text-secondary)"><?= count($similarProducts) ?></span>
         </div>
         <div class="similar-grid">
-            <?php foreach ($similarProducts as $sp): ?>
+            <?php foreach ($similarProducts as $sp) : ?>
             <div class="similar-card">
                 <?php $spImg = $sp->getMainImageUrl(); ?>
-                <?php if ($spImg): ?>
+                <?php if ($spImg) : ?>
                 <img src="<?= Html::encode($spImg) ?>" alt="">
-                <?php else: ?>
+                <?php else : ?>
                 <div class="similar-nophoto"><i class="bi bi-image" style="font-size:1.5rem"></i></div>
                 <?php endif; ?>
                 <div style="padding:7px 8px">
@@ -641,7 +678,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
         <div class="crm-card-head">
             <h3><i class="bi bi-images"></i> Изображения</h3>
             <div style="display:flex;gap:5px">
-                <?php if ($hasCollectionUrl): ?>
+                <?php if ($hasCollectionUrl) : ?>
                 <button id="ms-load-btn" class="admin-btn admin-btn-secondary admin-btn-sm"
                         onclick="loadMsImages(<?= $product->id ?>)" title="МойСклад">
                     <i class="bi bi-cloud-download"></i>
@@ -654,16 +691,16 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                 </button>
             </div>
         </div>
-        <?php if ($product->images && count($product->images) > 0): ?>
+        <?php if ($product->images && count($product->images) > 0) : ?>
         <div class="prod-img-compact">
-            <?php foreach ($product->images as $image): ?>
+            <?php foreach ($product->images as $image) : ?>
             <div class="prod-img-thumb" onclick="openLightbox('<?= Html::encode($image->getImageUrl()) ?>')">
                 <img src="<?= Html::encode($image->getImageUrl()) ?>" loading="lazy" alt="">
-                <?php if ($image->is_main): ?>
+                <?php if ($image->is_main) : ?>
                 <span class="t-badge" style="background:#059669;color:#fff">&#9733;</span>
                 <?php endif; ?>
                 <div class="t-actions">
-                    <?php if (!$image->is_main): ?>
+                    <?php if (!$image->is_main) : ?>
                     <a href="<?= Url::to(['/admin/product/set-main-image', 'id' => $image->id]) ?>"
                        class="admin-btn admin-btn-warning admin-btn-xs"
                        data-method="post" title="Главное" onclick="event.stopPropagation()">
@@ -683,7 +720,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                 <i class="bi bi-plus-lg"></i>
             </div>
         </div>
-        <?php else: ?>
+        <?php else : ?>
         <div class="crm-card-body" style="text-align:center;padding:1.5rem;color:var(--admin-text-secondary)">
             <i class="bi bi-image" style="font-size:2rem"></i>
             <p style="margin:.5rem 0 0;font-size:.8rem">Нет изображений</p>
@@ -693,7 +730,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
             </div>
         </div>
         <?php endif; ?>
-        <?php if ($hasCollectionUrl): ?>
+        <?php if ($hasCollectionUrl) : ?>
         <div id="ms-images-container" style="display:none">
             <div style="padding:0 14px;font-size:.7rem;color:var(--admin-text-secondary,#6b7280);display:flex;align-items:center;gap:4px">
                 <span class="admin-badge" style="background:#dbeafe;color:#1e40af;font-size:.55rem"><i class="bi bi-cloud-check"></i> МС</span>
@@ -720,7 +757,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                 <i class="bi bi-toggle-<?= $product->is_active ? 'on' : 'off' ?>"></i>
                 <?= $product->is_active ? 'Деактивировать' : 'Активировать' ?>
             </button>
-            <?php if ($product->hasAttribute('is_limited')): ?>
+            <?php if ($product->hasAttribute('is_limited')) : ?>
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.8125rem;padding:2px 0">
                 <input type="checkbox" <?= $product->is_limited ? 'checked' : '' ?>
                        onchange="saveProductField('is_limited', this.checked ? 1 : 0)">
@@ -746,20 +783,20 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                     <?= ($product->price ?? 0) ? PriceHelper::format($product->price) : '<span style="color:var(--admin-danger,#dc2626)">Не задана</span>' ?>
                 </div>
             </div>
-            <?php if (($product->purchase_price ?? 0) > 0): ?>
+            <?php if (($product->purchase_price ?? 0) > 0) : ?>
             <div class="crm-field">
                 <div class="crm-field-label">Закупка</div>
                 <div class="crm-editable" data-field="purchase_price" data-id="<?= $product->id ?>"
                      onclick="startEdit(this)"><?= PriceHelper::format($product->purchase_price) ?></div>
             </div>
-            <?php if ($marginPct != 0): ?>
+                <?php if ($marginPct != 0) : ?>
             <div class="crm-field">
                 <div class="crm-field-label">Маржа</div>
                 <div style="font-weight:700;color:<?= $marginColor ?>"><?= $marginPct ?>%
                     <span style="font-weight:400;font-size:.75rem;color:var(--admin-text-secondary)">(<?= PriceHelper::format($product->price - $product->purchase_price) ?>)</span>
                 </div>
             </div>
-            <?php endif; ?>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>
@@ -790,7 +827,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
     </div>
 
     <!-- История заказов -->
-    <?php if (!empty($recentOrders)): ?>
+    <?php if (!empty($recentOrders)) : ?>
     <div class="crm-card">
         <div class="crm-card-head">
             <h3><i class="bi bi-clock-history"></i> История заказов</h3>
@@ -798,13 +835,16 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                class="crm-int-btn" style="font-size:.7rem">Все &rarr;</a>
         </div>
         <div class="crm-card-body" style="padding:8px 14px">
-            <?php foreach ($recentOrders as $oi): if (!$oi->order) continue; ?>
-            <?php
+            <?php foreach ($recentOrders as $oi) :
+                if (!$oi->order) {
+                    continue;
+                } ?>
+                <?php
                 $st = $oi->order->status;
                 $stRu = $orderStatusMap[$st] ?? $st;
                 $stClass = in_array($st, ['delivered','paid','confirmed_and_paid']) ? '#059669'
                     : (in_array($st, ['cancelled','returned','refunded']) ? '#dc2626' : '#6b7280');
-            ?>
+                ?>
             <div class="order-hist-item">
                 <div class="order-hist-dot" style="background:<?= $stClass ?>"></div>
                 <div style="flex:1;min-width:0">
@@ -814,7 +854,9 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
                             #<?= Html::encode($oi->order->order_number ?: $oi->order->id) ?>
                         </a>
                         <span style="color:<?= $stClass ?>;font-weight:600;font-size:.75rem"><?= Html::encode($stRu) ?></span>
-                        <?php if ($oi->quantity > 1): ?><span style="color:var(--admin-text-secondary);font-size:.75rem">&times;<?= (int)$oi->quantity ?></span><?php endif; ?>
+                        <?php if ($oi->quantity > 1) :
+                            ?><span style="color:var(--admin-text-secondary);font-size:.75rem">&times;<?= (int)$oi->quantity ?></span><?php
+                        endif; ?>
                     </div>
                     <div style="color:var(--admin-text-secondary,#6b7280);margin-top:1px;font-size:.72rem">
                         <?= Html::encode($oi->order->client_name ?: '—') ?>
@@ -825,7 +867,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
             </div>
             <?php endforeach; ?>
         </div>
-        <?php if (count($productOrders) > 5): ?>
+        <?php if (count($productOrders) > 5) : ?>
         <div style="padding:6px 14px 12px;text-align:center">
             <a href="<?= Url::to(['/admin/order', 'product_id' => $product->id]) ?>"
                class="admin-btn admin-btn-secondary admin-btn-sm" style="font-size:.75rem;width:100%;justify-content:center">
@@ -837,32 +879,52 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
     <?php endif; ?>
 
     <!-- МойСклад -->
-    <?php if ($product->moysklad_id || $product->ms_code || $product->ms_external_code): ?>
+    <?php if ($product->moysklad_id || $product->ms_code || $product->ms_external_code) : ?>
     <div class="crm-card">
         <div class="crm-card-head">
             <h3><i class="bi bi-cloud-check"></i> МойСклад</h3>
-            <?php if ($product->moysklad_id): ?>
+            <?php if ($product->moysklad_id) : ?>
             <a href="https://online.moysklad.ru/app/#good/edit?id=<?= Html::encode($product->moysklad_id) ?>"
                target="_blank" class="crm-int-btn"><i class="bi bi-box-arrow-up-right"></i> Открыть</a>
             <?php endif; ?>
         </div>
         <div class="crm-card-body" style="display:flex;flex-direction:column;gap:6px;font-size:.8125rem">
-            <?php if ($product->ms_code): ?><div><span style="color:var(--admin-text-secondary)">Код МС:</span> <code><?= Html::encode($product->ms_code) ?></code></div><?php endif; ?>
-            <?php if ($product->ms_external_code): ?><div><span style="color:var(--admin-text-secondary)">Внешний:</span> <code><?= Html::encode($product->ms_external_code) ?></code></div><?php endif; ?>
-            <?php if ($product->ms_path_name): ?><div><span style="color:var(--admin-text-secondary)">Группа:</span> <?= Html::encode($product->ms_path_name) ?></div><?php endif; ?>
-            <?php if ($product->ms_supplier_name): ?><div><span style="color:var(--admin-text-secondary)">Поставщик:</span> <strong><?= Html::encode($product->ms_supplier_name) ?></strong></div><?php endif; ?>
-            <?php if ($product->ms_price_full || $product->ms_price_rub): ?>
+            <?php if ($product->ms_code) :
+                ?><div><span style="color:var(--admin-text-secondary)">Код МС:</span> <code><?= Html::encode($product->ms_code) ?></code></div><?php
+            endif; ?>
+            <?php if ($product->ms_external_code) :
+                ?><div><span style="color:var(--admin-text-secondary)">Внешний:</span> <code><?= Html::encode($product->ms_external_code) ?></code></div><?php
+            endif; ?>
+            <?php if ($product->ms_path_name) :
+                ?><div><span style="color:var(--admin-text-secondary)">Группа:</span> <?= Html::encode($product->ms_path_name) ?></div><?php
+            endif; ?>
+            <?php if ($product->ms_supplier_name) :
+                ?><div><span style="color:var(--admin-text-secondary)">Поставщик:</span> <strong><?= Html::encode($product->ms_supplier_name) ?></strong></div><?php
+            endif; ?>
+            <?php if ($product->ms_price_full || $product->ms_price_rub) : ?>
             <div style="border-top:1px solid var(--admin-border,#e5e7eb);padding-top:6px;margin-top:2px;display:flex;flex-wrap:wrap;gap:8px">
-                <?php if ($product->ms_price_full): ?><span><span style="color:var(--admin-text-secondary)">Полная:</span> <strong><?= PriceHelper::format($product->ms_price_full) ?></strong></span><?php endif; ?>
-                <?php if ($product->ms_price_rub): ?><span><span style="color:var(--admin-text-secondary)">₽:</span> <strong><?= number_format($product->ms_price_rub, 2) ?></strong></span><?php endif; ?>
-                <?php if ($product->ms_price_sale): ?><span><span style="color:var(--admin-text-secondary)">Акц.:</span> <strong style="color:#059669"><?= PriceHelper::format($product->ms_price_sale) ?></strong></span><?php endif; ?>
+                <?php if ($product->ms_price_full) :
+                    ?><span><span style="color:var(--admin-text-secondary)">Полная:</span> <strong><?= PriceHelper::format($product->ms_price_full) ?></strong></span><?php
+                endif; ?>
+                <?php if ($product->ms_price_rub) :
+                    ?><span><span style="color:var(--admin-text-secondary)">₽:</span> <strong><?= number_format($product->ms_price_rub, 2) ?></strong></span><?php
+                endif; ?>
+                <?php if ($product->ms_price_sale) :
+                    ?><span><span style="color:var(--admin-text-secondary)">Акц.:</span> <strong style="color:#059669"><?= PriceHelper::format($product->ms_price_sale) ?></strong></span><?php
+                endif; ?>
             </div>
             <?php endif; ?>
             <?php
             $msFlags = [];
-            if (!empty($product->ms_archived))  $msFlags[] = '<span class="admin-badge" style="background:#fee2e2;color:#991b1b;font-size:.65rem">Архив МС</span>';
-            if (!empty($product->ms_no_export)) $msFlags[] = '<span class="admin-badge" style="background:#fef3c7;color:#92400e;font-size:.65rem">Не экспортировать</span>';
-            if (!empty($msFlags)): ?><div style="display:flex;gap:4px"><?= implode('', $msFlags) ?></div><?php endif; ?>
+            if (!empty($product->ms_archived)) {
+                $msFlags[] = '<span class="admin-badge" style="background:#fee2e2;color:#991b1b;font-size:.65rem">Архив МС</span>';
+            }
+            if (!empty($product->ms_no_export)) {
+                $msFlags[] = '<span class="admin-badge" style="background:#fef3c7;color:#92400e;font-size:.65rem">Не экспортировать</span>';
+            }
+            if (!empty($msFlags)) :
+                ?><div style="display:flex;gap:4px"><?= implode('', $msFlags) ?></div><?php
+            endif; ?>
         </div>
     </div>
     <?php endif; ?>
@@ -955,10 +1017,12 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
 
 <!-- Фото вариантов (Poizon) -->
 <?php
-foreach ($sizes as $size):
+foreach ($sizes as $size) :
     $variantImages = $size->images_json ? (is_array($size->images_json) ? $size->images_json : json_decode($size->images_json, true)) : [];
-    if (empty($variantImages)) continue;
-?>
+    if (empty($variantImages)) {
+        continue;
+    }
+    ?>
 <div class="modal fade" id="imagesModal<?= $size->id ?>" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -968,7 +1032,7 @@ foreach ($sizes as $size):
             </div>
             <div class="modal-body">
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem">
-                    <?php foreach ($variantImages as $img): ?>
+                    <?php foreach ($variantImages as $img) : ?>
                     <img src="<?= Html::encode($img) ?>" style="width:100%;border-radius:8px" alt="">
                     <?php endforeach; ?>
                 </div>

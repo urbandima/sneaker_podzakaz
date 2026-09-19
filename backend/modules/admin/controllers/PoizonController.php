@@ -2,11 +2,11 @@
 
 /**
  * PoizonController — Управление импортом из Poizon (Dewu)
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Управление импортом товаров с китайской платформы Poizon/Dewu:
  * запуск импорта, просмотр истории, логов, управление батчами.
- * 
+ *
  * ФУНКЦИИ:
  * - Dashboard импорта со статистикой (index)
  * - Запуск нового импорта (run)
@@ -14,21 +14,22 @@
  * - Просмотр лога импорта (view-log)
  * - Удаление батча (delete)
  * - Отмена активного импорта (cancel)
- * 
+ *
  * СВЯЗИ:
  * - ImportBatch (модель батча импорта)
  * - ImportLog (модель лога импорта)
  * - Product (модель товара)
  * - PoizonApiService (сервис API Poizon)
- * 
+ *
  * ДОСТУП:
  * - Только администраторы
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Асинхронный импорт через консольную команду
  * - Логирование всех операций импорта
  * - Автоматическое создание товаров из данных Poizon
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -81,7 +82,7 @@ class PoizonController extends BaseAdminController
         if (Yii::$app->request->isPost) {
             // Проверяем импорт из URL
             $importUrl = Yii::$app->request->post('import_url');
-            
+
             if ($importUrl) {
                 // Импорт из URL
                 $logFile = Yii::getAlias('@runtime/logs/poizon-url-import-' . time() . '.log');
@@ -89,15 +90,15 @@ class PoizonController extends BaseAdminController
                 if (!is_dir($logDir)) {
                     mkdir($logDir, 0777, true);
                 }
-                
+
                 // Запускаем импорт из URL с verbose
                 $command = 'php ' . escapeshellarg(Yii::getAlias('@app') . '/yii') . ' poizon-import-json/run ' . escapeshellarg($importUrl) . ' --verbose=1 > ' . escapeshellarg($logFile) . ' 2>&1 &';
-                
+
                 exec($command);
-                
+
                 $this->flashSuccess('Импорт запущен в фоновом режиме');
                 $this->flashInfo('Лог файл: ' . basename($logFile));
-                
+
                 return $this->redirect(['/admin/poizon/index']);
             }
         }
@@ -107,38 +108,40 @@ class PoizonController extends BaseAdminController
 
     /**
      * Просмотр батча импорта
-     * 
+     *
      * @param int $id
      */
     public function actionView($id)
     {
         $batch = $this->findModel($id);
-        
+
         // Ищем файл лога для этого батча
         $logContent = '';
         $logDir = Yii::getAlias('@runtime/logs');
-        
+
         if (is_dir($logDir)) {
             // Ищем лог по дате батча
             $batchDate = date('Y-m-d', strtotime($batch->created_at));
             $possibleLogFiles = glob($logDir . '/poizon-*' . $batchDate . '*.log');
-            
+
             // Если не найден по дате, ищем по ID или времени создания
             if (empty($possibleLogFiles)) {
                 $possibleLogFiles = glob($logDir . '/poizon-*.log');
                 // Сортируем по времени изменения
-                usort($possibleLogFiles, function($a, $b) {
+                usort($possibleLogFiles, function ($a, $b) {
                     return filemtime($b) - filemtime($a);
                 });
             }
-            
+
             // Читаем первый подходящий файл
             if (!empty($possibleLogFiles)) {
                 foreach ($possibleLogFiles as $logFile) {
                     $content = file_get_contents($logFile);
                     // Проверяем, содержит ли лог информацию о нашем батче
-                    if (strpos($content, 'Batch #' . $batch->id) !== false || 
-                        strpos($content, $batch->created_at) !== false) {
+                    if (
+                        strpos($content, 'Batch #' . $batch->id) !== false ||
+                        strpos($content, $batch->created_at) !== false
+                    ) {
                         $logContent = $content;
                         break;
                     }
@@ -170,13 +173,13 @@ class PoizonController extends BaseAdminController
 
     /**
      * Просмотр лога импорта
-     * 
+     *
      * @param string|null $file
      */
     public function actionViewLog($file = null)
     {
         $logDir = Yii::getAlias('@runtime/logs');
-        
+
         // Создаем список всех логов
         $logsList = [];
         if (is_dir($logDir)) {
@@ -189,22 +192,22 @@ class PoizonController extends BaseAdminController
                 ];
             }
             // Сортируем по времени (новые первыми)
-            usort($logsList, function($a, $b) {
+            usort($logsList, function ($a, $b) {
                 return $b['time'] - $a['time'];
             });
         }
-        
+
         // Если файл не указан, берем последний
         if (!$file && !empty($logsList)) {
             $file = $logsList[0]['name'];
         }
-        
+
         // Читаем выбранный файл
         $content = '';
         $fileName = $file ?? '';
         $fileSize = 0;
         $lastModified = 0;
-        
+
         if ($file) {
             $logFile = $logDir . '/' . basename($file);
             if (file_exists($logFile)) {
@@ -226,19 +229,19 @@ class PoizonController extends BaseAdminController
 
     /**
      * Удаление батча
-     * 
+     *
      * @param int $id
      */
     public function actionDelete($id)
     {
         $batch = $this->findModel($id);
-        
+
         if ($batch->delete()) {
             $this->flashSuccess('Батч импорта успешно удален');
         } else {
             $this->flashError('Ошибка при удалении батча');
         }
-        
+
         return $this->redirect(['/admin/poizon/index']);
     }
 
@@ -263,7 +266,7 @@ class PoizonController extends BaseAdminController
 
     /**
      * Получить статистику импорта
-     * 
+     *
      * @return array
      */
     protected function getImportStats()
@@ -271,19 +274,19 @@ class PoizonController extends BaseAdminController
         $totalBatches = ImportBatch::find()->count();
         $successfulBatches = ImportBatch::find()->where(['status' => 'completed'])->count();
         $failedBatches = ImportBatch::find()->where(['status' => 'failed'])->count();
-        
+
         // Подсчет общего количества импортированных товаров
         $totalProductsImported = Product::find()->where(['not', ['poizon_id' => null]])->count();
-        
+
         // Подсчет общего количества ошибок из всех батчей
         $totalErrors = ImportBatch::find()->sum('error_count') ?? 0;
-        
+
         // Процент успешности
         $successRate = $totalBatches > 0 ? round(($successfulBatches / $totalBatches) * 100, 1) : 0;
-        
+
         // Последний батч
         $lastBatch = ImportBatch::find()->orderBy(['created_at' => SORT_DESC])->one();
-        
+
         return [
             'total_products_imported' => $totalProductsImported,
             'total_batches' => $totalBatches,
@@ -297,7 +300,7 @@ class PoizonController extends BaseAdminController
 
     /**
      * Найти модель батча
-     * 
+     *
      * @param int $id
      * @return ImportBatch
      * @throws NotFoundHttpException
@@ -305,11 +308,11 @@ class PoizonController extends BaseAdminController
     protected function findModel($id)
     {
         $model = ImportBatch::findOne($id);
-        
+
         if ($model === null) {
             throw new NotFoundHttpException('Батч импорта не найден');
         }
-        
+
         return $model;
     }
 }

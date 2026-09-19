@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Массовое назначение тегов товарам
- * 
+ *
  * @var array $products
  * @var array $tags
  */
@@ -37,12 +38,12 @@ $this->params['breadcrumbs'][] = $this->title;
                 </div>
 
                 <div class="products-list" id="products-list">
-                    <?php foreach ($products as $product): ?>
+                    <?php foreach ($products as $product) : ?>
                         <label class="product-item" data-name="<?= strtolower(Html::encode($product['name'])) ?>" data-sku="<?= strtolower(Html::encode($product['sku'] ?? '')) ?>">
                             <input type="checkbox" name="product_ids[]" value="<?= $product['id'] ?>" class="product-checkbox">
                             <span class="product-info">
                                 <span class="product-name"><?= Html::encode($product['name']) ?></span>
-                                <?php if ($product['sku']): ?>
+                                <?php if ($product['sku']) : ?>
                                     <span class="product-sku">SKU: <?= Html::encode($product['sku']) ?></span>
                                 <?php endif; ?>
                             </span>
@@ -59,7 +60,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 </h2>
 
                 <div class="tags-list">
-                    <?php foreach ($tags as $tag): ?>
+                    <?php foreach ($tags as $tag) : ?>
                         <label class="tag-item" <?= $tag->color ? 'style="--tag-color: ' . $tag->color . '"' : '' ?>">
                             <input type="checkbox" name="tag_ids[]" value="<?= $tag->id ?>" class="tag-checkbox">
                             <span class="tag-name"><?= Html::encode($tag->name) ?></span>

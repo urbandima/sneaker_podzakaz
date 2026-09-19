@@ -89,7 +89,7 @@ class m250102_150000_create_size_feedback_table extends Migration
     {
         // Удаляем внешние ключи
         $this->dropForeignKey('fk-size_feedback-product_id', '{{%size_feedback}}');
-        
+
         if ($this->db->schema->getTableSchema('{{%user}}') !== null) {
             $this->dropForeignKey('fk-size_feedback-user_id', '{{%size_feedback}}');
         }

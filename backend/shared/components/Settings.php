@@ -2,29 +2,30 @@
 
 /**
  * Settings — Компонент настроек приложения
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Централизованный доступ к настройкам системы: реквизиты компании,
  * статусы заказов, глобальные параметры. Кэширование данных.
- * 
+ *
  * МЕТОДЫ:
  * - getCompany(): реквизиты компании (название, УНП, адрес, контакты)
  * - getStatuses(): список статусов заказов
  * - getLogistStatuses(): статусы, доступные логистам
  * - get($key, $default): получение настройки по ключу
- * 
+ *
  * КЭШИРОВАНИЕ:
  * - Реквизиты компании кэшируются в памяти
  * - Статусы кэшируются в памяти
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - Yii::$app->settings->getCompany()
  * - Yii::$app->settings->getStatuses()
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Singleton pattern для настроек
  * - Автоматическое кэширование
  */
+
 namespace app\backend\shared\components;
 
 use Yii;
@@ -34,18 +35,18 @@ use app\backend\modules\checkout\models\OrderStatus;
 
 class Settings extends Component
 {
-    private $_company;
-    private $_statuses;
+    private $company;
+    private $statuses;
     private static $storage = [];
 
     public function getCompany(): array
     {
-        if ($this->_company === null) {
+        if ($this->company === null) {
             // B0.5: Загружаем настройки из БД
             $row = CompanySettings::find()->orderBy(['id' => SORT_ASC])->asArray()->one();
-            
+
             // Fallback на значения по умолчанию если таблица пуста
-            $this->_company = $row ?: [
+            $this->company = $row ?: [
                 'name' => 'СНИКЕРХЭД',
                 'address' => 'Минск, Беларусь',
                 'phone' => '+375 (29) 123-45-67',
@@ -53,23 +54,23 @@ class Settings extends Component
                 'work_time' => 'Пн-Вс: 10:00-22:00'
             ];
         }
-        return $this->_company;
+        return $this->company;
     }
 
     public function getStatuses(bool $onlyKeys = false, bool $includeInactive = false): array
     {
-        if ($this->_statuses === null) {
+        if ($this->statuses === null) {
             $query = OrderStatus::find()->orderBy(['sort' => SORT_ASC]);
             if (!$includeInactive) {
                 $query->where(['is_active' => true]);
             }
-            $this->_statuses = $query->asArray()->all();
+            $this->statuses = $query->asArray()->all();
         }
         if ($onlyKeys) {
-            return array_column($this->_statuses, 'key');
+            return array_column($this->statuses, 'key');
         }
         $map = [];
-        foreach ($this->_statuses as $s) {
+        foreach ($this->statuses as $s) {
             if (!$includeInactive && !$s['is_active']) {
                 continue;
             }
@@ -90,7 +91,7 @@ class Settings extends Component
 
     public function resetStatusesCache()
     {
-        $this->_statuses = null;
+        $this->statuses = null;
     }
 
     /**
@@ -214,6 +215,6 @@ class Settings extends Component
 
     public function invalidateCompanyCache()
     {
-        $this->_company = null;
+        $this->company = null;
     }
 }

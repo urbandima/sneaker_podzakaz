@@ -26,27 +26,27 @@ use yii\db\ActiveRecord;
 class AdminLog extends ActiveRecord
 {
     // Типы действий
-    const ACTION_CREATE = 'create';
-    const ACTION_UPDATE = 'update';
-    const ACTION_DELETE = 'delete';
-    const ACTION_VIEW = 'view';
-    const ACTION_LOGIN = 'login';
-    const ACTION_LOGOUT = 'logout';
-    const ACTION_EXPORT = 'export';
-    const ACTION_IMPORT = 'import';
-    const ACTION_STATUS_CHANGE = 'status_change';
-    const ACTION_BULK_ACTION = 'bulk_action';
+    public const ACTION_CREATE = 'create';
+    public const ACTION_UPDATE = 'update';
+    public const ACTION_DELETE = 'delete';
+    public const ACTION_VIEW = 'view';
+    public const ACTION_LOGIN = 'login';
+    public const ACTION_LOGOUT = 'logout';
+    public const ACTION_EXPORT = 'export';
+    public const ACTION_IMPORT = 'import';
+    public const ACTION_STATUS_CHANGE = 'status_change';
+    public const ACTION_BULK_ACTION = 'bulk_action';
 
     // Типы сущностей
-    const ENTITY_ORDER = 'order';
-    const ENTITY_PRODUCT = 'product';
-    const ENTITY_CUSTOMER = 'customer';
-    const ENTITY_COUPON = 'coupon';
-    const ENTITY_USER = 'user';
-    const ENTITY_SETTING = 'setting';
-    const ENTITY_IMPORT = 'import';
-    const ENTITY_SHIPPING = 'shipping';
-    const ENTITY_RETURN = 'return';
+    public const ENTITY_ORDER = 'order';
+    public const ENTITY_PRODUCT = 'product';
+    public const ENTITY_CUSTOMER = 'customer';
+    public const ENTITY_COUPON = 'coupon';
+    public const ENTITY_USER = 'user';
+    public const ENTITY_SETTING = 'setting';
+    public const ENTITY_IMPORT = 'import';
+    public const ENTITY_SHIPPING = 'shipping';
+    public const ENTITY_RETURN = 'return';
 
     /**
      * {@inheritdoc}
@@ -182,9 +182,9 @@ class AdminLog extends ActiveRecord
             self::ENTITY_SHIPPING => ['/admin/shipping'],
             self::ENTITY_RETURN => ['/admin/return/view', 'id' => $this->entity_id],
         ];
-        
-        return isset($routes[$this->entity_type]) 
-            ? Yii::$app->urlManager->createUrl($routes[$this->entity_type]) 
+
+        return isset($routes[$this->entity_type])
+            ? Yii::$app->urlManager->createUrl($routes[$this->entity_type])
             : null;
     }
 

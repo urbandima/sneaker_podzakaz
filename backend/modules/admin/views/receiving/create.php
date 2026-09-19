@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\Receiving $receiving */
 /** @var app\backend\modules\procurement\models\Supplier[] $suppliers */
@@ -62,7 +63,7 @@ textarea.form-control{height:80px;padding:8px 10px;resize:vertical}
                 <label class="form-label">Поставщик</label>
                 <select name="supplier_id" class="form-control">
                     <option value="">— Без поставщика —</option>
-                    <?php foreach ($suppliers as $s): ?>
+                    <?php foreach ($suppliers as $s) : ?>
                         <option value="<?= $s->id ?>"><?= htmlspecialchars($s->name) ?></option>
                     <?php endforeach; ?>
                 </select>

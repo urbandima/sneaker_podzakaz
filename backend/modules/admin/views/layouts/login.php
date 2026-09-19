@@ -21,16 +21,16 @@ use yii\helpers\Url;
     <?php
     $webroot = \Yii::getAlias('@webroot');
     $cssFiles = ['css/core/design-tokens.css', 'css/admin-tokens.css', 'css/admin-shopify-2026.css'];
-    foreach ($cssFiles as $css):
+    foreach ($cssFiles as $css) :
         $v = @filemtime($webroot . '/' . $css) ?: '';
-    ?>
+        ?>
     <link rel="stylesheet" href="/<?= $css . ($v ? '?v=' . $v : '') ?>">
     <?php endforeach; ?>
 
     <?php $this->head() ?>
     
     <?php // Отключаем debug toolbar для страницы входа ?>
-    <?php if (class_exists('yii\debug\Module')): ?>
+    <?php if (class_exists('yii\debug\Module')) : ?>
         <style>
             .yii-debug-toolbar { display: none !important; }
         </style>

@@ -2,11 +2,11 @@
 
 /**
  * ProductTagController — Контроллер управления тегами товаров
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * CRUD операции для тегов товаров в админ-панели.
  * Управление тегами, массовое назначение тегов товарам.
- * 
+ *
  * ФУНКЦИИ:
  * - Список тегов (index)
  * - Создание тега (create)
@@ -14,7 +14,7 @@
  * - Удаление тега (delete)
  * - Массовое назначение тегов товарам (assign)
  * - Получение тегов товара AJAX (get-product-tags)
- * 
+ *
  * СВЯЗИ:
  * - ProductTag (модель тега)
  * - ProductTagSearch (модель поиска)
@@ -104,7 +104,7 @@ class ProductTagController extends BaseAdminController
     {
         $model = $this->findModel($id);
         $name = $model->name;
-        
+
         if ($model->delete()) {
             Yii::$app->session->setFlash('success', 'Тег «' . $name . '» удален');
         } else {
@@ -154,8 +154,10 @@ class ProductTagController extends BaseAdminController
                 }
             }
 
-            Yii::$app->session->setFlash('success', 
-                'Теги назначены для ' . $assignedCount . ' товаров');
+            Yii::$app->session->setFlash(
+                'success',
+                'Теги назначены для ' . $assignedCount . ' товаров'
+            );
             return $this->redirect(['index']);
         }
 
@@ -171,14 +173,14 @@ class ProductTagController extends BaseAdminController
     public function actionGetProductTags($productId)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $product = Product::findOne($productId);
         if (!$product) {
             return ['success' => false, 'message' => 'Товар не найден'];
         }
 
         $tags = $product->getTags()->all();
-        $tagData = array_map(function($tag) {
+        $tagData = array_map(function ($tag) {
             return [
                 'id' => $tag->id,
                 'name' => $tag->name,
@@ -201,10 +203,10 @@ class ProductTagController extends BaseAdminController
     public function actionToggleActive($id)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $model = $this->findModel($id);
         $model->is_active = !$model->is_active;
-        
+
         if ($model->save(false)) {
             return [
                 'success' => true,
@@ -225,7 +227,7 @@ class ProductTagController extends BaseAdminController
     protected function findModel($id)
     {
         $model = ProductTag::findOne($id);
-        
+
         if ($model === null) {
             throw new \yii\web\NotFoundHttpException('Тег не найден');
         }

@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -92,14 +93,14 @@ $this->params['headerActions'] = [
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($statusMappings as $m): ?>
+                <?php foreach ($statusMappings as $m) : ?>
                 <tr>
                     <td><?= Html::encode($m->provider_status_name) ?></td>
                     <td><code><?= Html::encode($m->internal_status) ?></code></td>
                     <td><?= Html::encode($m->display_name) ?></td>
                 </tr>
                 <?php endforeach; ?>
-                <?php if (empty($statusMappings)): ?>
+                <?php if (empty($statusMappings)) : ?>
                 <tr><td colspan="3" style="color:var(--admin-text-secondary);text-align:center">Статусы не настроены</td></tr>
                 <?php endif; ?>
             </tbody>

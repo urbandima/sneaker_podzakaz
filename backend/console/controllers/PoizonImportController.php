@@ -16,7 +16,7 @@ use app\backend\shared\components\PoizonApiService;
 
 /**
  * Импорт товаров из Poizon/Dewu
- * 
+ *
  * Usage:
  *   php yii poizon-import/run [--limit=100]
  *   php yii poizon-import/update-prices
@@ -28,22 +28,22 @@ class PoizonImportController extends Controller
      * @var int Лимит товаров за один запуск (0 = без лимита)
      */
     public $limit = 0;
-    
+
     /**
      * @var bool Тестовый режим (не сохраняет в БД)
      */
     public $dryRun = false;
-    
+
     /**
      * @var int ID пользователя, запустившего импорт
      */
     public $userId = null;
-    
+
     /**
      * @var PoizonApiService
      */
     private $poizonApi;
-    
+
     /**
      * @var ImportBatch
      */
@@ -68,7 +68,7 @@ class PoizonImportController extends Controller
 
     /**
      * Полный импорт товаров из Poizon
-     * 
+     *
      * @return int
      */
     public function actionRun()
@@ -78,11 +78,11 @@ class PoizonImportController extends Controller
         $this->stdout("║  🚀 ИМПОРТ ТОВАРОВ ИЗ POIZON/DEWU                  ║\n", \yii\helpers\Console::BOLD);
         $this->stdout("╚══════════════════════════════════════════════════════╝\n", \yii\helpers\Console::BOLD);
         $this->stdout("\n");
-        
+
         if ($this->dryRun) {
             $this->stdout("⚠️  ТЕСТОВЫЙ РЕЖИМ (изменения не сохраняются)\n\n", \yii\helpers\Console::FG_YELLOW);
         }
-        
+
         // Создаем batch
         $this->batch = new ImportBatch();
         $this->batch->source = ImportBatch::SOURCE_POIZON;
@@ -93,33 +93,33 @@ class PoizonImportController extends Controller
             'dry_run' => $this->dryRun,
         ]);
         $this->batch->save(false);
-        
+
         $this->batch->start();
-        
+
         try {
             // Получаем товары из Poizon
             $this->stdout("📡 Загружаю данные из Poizon...\n");
             $result = $this->poizonApi->getPopularShoes([
                 'limit' => $this->limit > 0 ? $this->limit : 10000,
             ]);
-            
+
             if (isset($result['error'])) {
                 throw new \Exception('Poizon API Error: ' . $result['error']);
             }
-            
+
             $products = $result['items'] ?? [];
             $total = count($products);
-            
+
             $this->stdout("✅ Получено товаров: {$total}\n\n");
             $this->batch->total_items = $total;
             $this->batch->save(false);
-            
+
             if ($total === 0) {
                 $this->stdout("⚠️  Товары не найдены\n", \yii\helpers\Console::FG_YELLOW);
                 $this->batch->complete(true);
                 return ExitCode::OK;
             }
-            
+
             // Прогресс бар
             $this->stdout("🔄 Импортирую товары...\n\n");
             $processed = 0;
@@ -127,13 +127,13 @@ class PoizonImportController extends Controller
             $updated = 0;
             $skipped = 0;
             $errors = 0;
-            
+
             foreach ($products as $productData) {
                 $processed++;
-                
+
                 try {
                     $result = $this->importProduct($productData);
-                    
+
                     if ($result['status'] === 'created') {
                         $created++;
                         $this->stdout("✅ ", \yii\helpers\Console::FG_GREEN);
@@ -144,17 +144,16 @@ class PoizonImportController extends Controller
                         $skipped++;
                         $this->stdout("⏭️  ", \yii\helpers\Console::FG_YELLOW);
                     }
-                    
+
                     // Прогресс
                     if ($processed % 50 == 0) {
                         $percent = round(($processed / $total) * 100, 1);
                         $this->stdout(" {$processed}/{$total} ({$percent}%)\n");
                     }
-                    
                 } catch (\Exception $e) {
                     $errors++;
                     $this->stdout("❌ ", \yii\helpers\Console::FG_RED);
-                    
+
                     ImportLog::log(
                         $this->batch->id,
                         ImportLog::ACTION_ERROR,
@@ -167,9 +166,9 @@ class PoizonImportController extends Controller
                     );
                 }
             }
-            
+
             $this->stdout("\n\n");
-            
+
             // Обновляем статистику batch
             $this->batch->created_count = $created;
             $this->batch->updated_count = $updated;
@@ -180,26 +179,25 @@ class PoizonImportController extends Controller
                 'categories_processed' => $this->getCategoriesProcessedCount(),
             ]);
             $this->batch->complete(true);
-            
+
             // Выводим итоги
             $this->printSummary($created, $updated, $skipped, $errors, $total);
-            
+
             return ExitCode::OK;
-            
         } catch (\Exception $e) {
             $this->stderr("\n❌ КРИТИЧЕСКАЯ ОШИБКА: " . $e->getMessage() . "\n", \yii\helpers\Console::FG_RED);
             $this->stderr($e->getTraceAsString() . "\n");
-            
+
             $this->batch->error_message = $e->getMessage();
             $this->batch->complete(false);
-            
+
             return ExitCode::UNSPECIFIED_ERROR;
         }
     }
 
     /**
      * Импортировать один товар
-     * 
+     *
      * @param array $data
      * @return array ['status' => 'created'|'updated'|'skipped', 'product' => Product]
      */
@@ -207,18 +205,18 @@ class PoizonImportController extends Controller
     {
         $poizonId = $data['poizon_id'];
         $sku = $this->generateSKU($data);
-        
+
         // Ищем существующий товар по SKU или Poizon ID
         $product = Product::find()
             ->where(['sku' => $sku])
             ->orWhere(['poizon_id' => $poizonId])
             ->one();
-        
+
         $isNew = !$product;
         if ($isNew) {
             $product = new Product();
         }
-        
+
         // Базовые поля
         $product->name = $data['name'];
         $product->sku = $sku;
@@ -227,35 +225,35 @@ class PoizonImportController extends Controller
         $product->poizon_url = $data['url'] ?? null;
         $product->poizon_price_cny = $data['price_cny'];
         $product->description = $data['description'] ?? '';
-        
+
         // Цена (формула: CNY * курс * 1.5 + 40 BYN) с красивым округлением
         $currencyService = Yii::$app->currency;
         $product->price = $currencyService->calculatePoizonPriceByn($data['price_cny']);
         $product->old_price = null; // Без скидки, все товары по одной цене
-        
+
         // Бренд
         $brand = $this->getOrCreateBrand($data['brand']);
         $product->brand_id = $brand->id;
-        
+
         // Категория (все в "Кроссовки")
         $category = $this->getOrCreateCategory('Кроссовки', 'sneakers');
         $product->category_id = $category->id;
-        
+
         // Статус: все товары "Под заказ"
         $product->stock_status = Product::STOCK_PREORDER;
         $product->is_active = 1;
-        
+
         // Главное изображение (используем CDN Poizon)
         if (!empty($data['images'])) {
             $product->main_image = $data['images'][0];
         }
-        
+
         // Характеристики обуви
         $this->setProductCharacteristics($product, $data);
-        
+
         // Последняя синхронизация
         $product->last_sync_at = date('Y-m-d H:i:s');
-        
+
         if ($this->dryRun) {
             // В тестовом режиме только валидируем
             if (!$product->validate()) {
@@ -267,15 +265,15 @@ class PoizonImportController extends Controller
             if (!$product->save()) {
                 throw new \Exception('Save error: ' . json_encode($product->errors));
             }
-            
+
             // Импортируем размеры
             if (!empty($data['sizes'])) {
                 $this->importProductSizes($product, $data['sizes'], $data);
             }
-            
+
             $status = $isNew ? 'created' : 'updated';
         }
-        
+
         // Логируем
         ImportLog::log(
             $this->batch->id,
@@ -293,7 +291,7 @@ class PoizonImportController extends Controller
                 ],
             ]
         );
-        
+
         return ['status' => $status, 'product' => $product];
     }
 
@@ -303,41 +301,41 @@ class PoizonImportController extends Controller
     private function setProductCharacteristics(Product $product, array $data)
     {
         $params = $data['params'] ?? [];
-        
+
         // Материал верха
         if (isset($params['Материал верха']) || isset($params['Upper Material'])) {
             $product->upper_material = $params['Материал верха'] ?? $params['Upper Material'];
         }
-        
+
         // Материал подошвы
         if (isset($params['Материал подошвы']) || isset($params['Sole Material'])) {
             $product->sole_material = $params['Материал подошвы'] ?? $params['Sole Material'];
         }
-        
+
         // Цвет
         if (isset($params['Цвет']) || isset($params['Color'])) {
             $product->color_description = $params['Цвет'] ?? $params['Color'];
         }
-        
+
         // Код модели
         if (isset($data['vendor_code']) || isset($params['Артикул'])) {
             $product->style_code = $data['vendor_code'] ?? $params['Артикул'];
         }
-        
+
         // Год выпуска
         if (isset($params['Год выпуска']) || isset($params['Release Year'])) {
             $product->release_year = (int) ($params['Год выпуска'] ?? $params['Release Year']);
         }
-        
+
         // Пол (определяем из названия)
         $product->gender = $this->detectGender($data['name']);
-        
+
         // Сезон (определяем из названия/описания)
         $product->season = $this->detectSeason($data['name'], $data['description'] ?? '');
-        
+
         // Высота (по умолчанию low)
         $product->height = $this->detectHeight($data['name']);
-        
+
         // Вес
         if (isset($params['Вес']) || isset($params['Weight'])) {
             $weightStr = $params['Вес'] ?? $params['Weight'];
@@ -364,36 +362,36 @@ class PoizonImportController extends Controller
                 $stock = $sizeData['stock'] ?? 1;
                 $priceCny = $sizeData['price_cny'] ?? $productData['price_cny'];
             }
-            
+
             // Ищем существующий размер
             $productSize = ProductSize::find()
                 ->where(['product_id' => $product->id])
-                ->andWhere(['or', 
+                ->andWhere(['or',
                     ['size' => $sizeValue],
                     ['poizon_sku_id' => $poizonSkuId]
                 ])
                 ->one();
-            
+
             if (!$productSize) {
                 $productSize = new ProductSize();
                 $productSize->product_id = $product->id;
             }
-            
+
             $productSize->size = $sizeValue;
             $productSize->poizon_sku_id = $poizonSkuId;
             $productSize->poizon_stock = $stock;
             $productSize->poizon_price_cny = $priceCny;
             $productSize->price_cny = $priceCny;
             $productSize->is_available = $stock > 0 ? 1 : 0;
-            
+
             // КАЛЬКУЛЯЦИЯ ЦЕНЫ ДЛЯ КЛИЕНТА
             // Используем CurrencyService для расчета цены в BYN
             $currencyService = Yii::$app->currency;
             $productSize->price_byn = $currencyService->calculatePoizonPriceByn($priceCny);
-            
+
             // Конвертируем размерные сетки
             $this->convertSizeGrids($productSize, $sizeValue, $product->gender);
-            
+
             $productSize->save(false);
         }
     }
@@ -407,7 +405,7 @@ class PoizonImportController extends Controller
         // Если размер вида "42", "43" - это EU
         // Если "7.5", "8.5" - это US
         // Если "26", "27" - это CM
-        
+
         if (is_numeric($sizeValue)) {
             if ($sizeValue >= 35 && $sizeValue <= 50) {
                 // EU размер
@@ -439,7 +437,7 @@ class PoizonImportController extends Controller
         // Формат: POIZON-{BRAND_CODE}-{STYLE_CODE}
         $brandCode = strtoupper(substr($data['brand'], 0, 3));
         $styleCode = $data['vendor_code'] ?? $data['poizon_id'];
-        
+
         return "POIZON-{$brandCode}-{$styleCode}";
     }
 
@@ -449,7 +447,7 @@ class PoizonImportController extends Controller
     private function getOrCreateBrand($brandName)
     {
         $brand = Brand::find()->where(['name' => $brandName])->one();
-        
+
         if (!$brand) {
             $brand = new Brand();
             $brand->name = $brandName;
@@ -457,10 +455,10 @@ class PoizonImportController extends Controller
             $brand->is_active = 1;
             $brand->created_at = time();
             $brand->save(false);
-            
+
             $this->stdout("✨ Создан бренд: {$brandName}\n", \yii\helpers\Console::FG_CYAN);
         }
-        
+
         return $brand;
     }
 
@@ -470,7 +468,7 @@ class PoizonImportController extends Controller
     private function getOrCreateCategory($name, $slug)
     {
         $category = Category::find()->where(['slug' => $slug])->one();
-        
+
         if (!$category) {
             $category = new Category();
             $category->name = $name;
@@ -478,10 +476,10 @@ class PoizonImportController extends Controller
             $category->is_active = 1;
             $category->created_at = time();
             $category->save(false);
-            
+
             $this->stdout("✨ Создана категория: {$name}\n", \yii\helpers\Console::FG_CYAN);
         }
-        
+
         return $category;
     }
 
@@ -491,14 +489,14 @@ class PoizonImportController extends Controller
     private function detectGender($name)
     {
         $nameLower = mb_strtolower($name);
-        
+
         if (preg_match('/(wmns|women|女)/iu', $nameLower)) {
             return 'female';
         }
         if (preg_match('/(men|男)/iu', $nameLower)) {
             return 'male';
         }
-        
+
         return 'unisex';
     }
 
@@ -508,7 +506,7 @@ class PoizonImportController extends Controller
     private function detectSeason($name, $description)
     {
         $text = mb_strtolower($name . ' ' . $description);
-        
+
         if (preg_match('/(winter|зима|утеплен)/iu', $text)) {
             return 'winter';
         }
@@ -518,7 +516,7 @@ class PoizonImportController extends Controller
         if (preg_match('/(demi|демисезон|весна|осень)/iu', $text)) {
             return 'demi';
         }
-        
+
         return 'all';
     }
 
@@ -528,14 +526,14 @@ class PoizonImportController extends Controller
     private function detectHeight($name)
     {
         $nameLower = mb_strtolower($name);
-        
+
         if (preg_match('/(high|высок|hi)/iu', $nameLower)) {
             return 'high';
         }
         if (preg_match('/(mid|средн)/iu', $nameLower)) {
             return 'mid';
         }
-        
+
         return 'low';
     }
 
@@ -572,7 +570,7 @@ class PoizonImportController extends Controller
         $this->stdout(sprintf("║  ⏱️  Время:        %-32s ║\n", $this->batch->getFormattedDuration()), \yii\helpers\Console::BOLD);
         $this->stdout("╚══════════════════════════════════════════════════════╝\n", \yii\helpers\Console::BOLD);
         $this->stdout("\n");
-        
+
         if ($errors > 0) {
             $this->stdout("⚠️  Есть ошибки! Смотрите логи: php yii poizon-import/logs {$this->batch->id}\n", \yii\helpers\Console::FG_YELLOW);
         }
@@ -589,52 +587,52 @@ class PoizonImportController extends Controller
         $this->stdout("║  🔄 ПЕРЕСЧЕТ ЦЕН ТОВАРОВ                           ║\n", \yii\helpers\Console::BOLD);
         $this->stdout("╚══════════════════════════════════════════════════════╝\n", \yii\helpers\Console::BOLD);
         $this->stdout("\n");
-        
+
         $currencyService = Yii::$app->currency;
         $currentRate = $currencyService->getCnyToBynRate();
-        
+
         $this->stdout("📊 Текущий курс CNY → BYN: {$currentRate}\n");
         $this->stdout("📐 Формула: (CNY × курс × 1.5) + 40 BYN\n\n");
-        
+
         // Пересчитываем цены товаров
         $products = Product::find()
             ->where(['not', ['poizon_price_cny' => null]])
             ->all();
-        
+
         $productsUpdated = 0;
         foreach ($products as $product) {
             $oldPrice = $product->price;
             $product->price = $currencyService->calculatePoizonPriceByn($product->poizon_price_cny);
-            
+
             if ($product->save(false, ['price'])) {
                 $productsUpdated++;
                 $this->stdout("✅ Товар #{$product->id}: {$oldPrice} → {$product->price} BYN\n");
             }
         }
-        
+
         $this->stdout("\n");
-        
+
         // Пересчитываем цены размеров
         $sizes = ProductSize::find()
             ->where(['not', ['price_cny' => null]])
             ->orWhere(['not', ['poizon_price_cny' => null]])
             ->all();
-        
+
         $sizesUpdated = 0;
         foreach ($sizes as $size) {
             $priceCny = $size->price_cny ?? $size->poizon_price_cny;
-            
+
             if ($priceCny) {
                 $oldPrice = $size->price_byn;
                 $size->price_byn = $currencyService->calculatePoizonPriceByn($priceCny);
-                
+
                 if ($size->save(false, ['price_byn'])) {
                     $sizesUpdated++;
                     $this->stdout("✅ Размер #{$size->id} (товар #{$size->product_id}): {$oldPrice} → {$size->price_byn} BYN\n");
                 }
             }
         }
-        
+
         $this->stdout("\n");
         $this->stdout("╔══════════════════════════════════════════════════════╗\n", \yii\helpers\Console::BOLD);
         $this->stdout("║  ✅ ПЕРЕСЧЕТ ЗАВЕРШЕН                              ║\n", \yii\helpers\Console::BOLD);
@@ -643,7 +641,7 @@ class PoizonImportController extends Controller
         $this->stdout(sprintf("║  Размеров обновлено: %-29s ║\n", $sizesUpdated), \yii\helpers\Console::FG_GREEN);
         $this->stdout("╚══════════════════════════════════════════════════════╝\n", \yii\helpers\Console::BOLD);
         $this->stdout("\n");
-        
+
         return ExitCode::OK;
     }
 
@@ -653,37 +651,36 @@ class PoizonImportController extends Controller
     public function actionUpdateSizes()
     {
         $this->stdout("🔄 Обновление размеров товаров из Poizon...\n\n");
-        
+
         $products = Product::find()
             ->where(['!=', 'poizon_id', ''])
             ->andWhere(['IS NOT', 'poizon_id', null])
             ->limit($this->limit ?: 100)
             ->all();
-        
+
         $updated = 0;
         $errors = 0;
-        
+
         foreach ($products as $product) {
             try {
                 // Получаем данные о размерах из API Poizon
                 // В реальности здесь должен быть API запрос
                 $this->stdout("  Обновление размеров для: {$product->name}...", Console::FG_CYAN);
-                
+
                 // Пока просто помечаем как обработанное
                 $updated++;
                 $this->stdout(" ✓\n", Console::FG_GREEN);
-                
             } catch (\Exception $e) {
                 $errors++;
                 $this->stdout(" ✗ {$e->getMessage()}\n", Console::FG_RED);
             }
         }
-        
+
         $this->stdout("\n✅ Обновлено размеров: {$updated}\n", Console::FG_GREEN);
         if ($errors > 0) {
             $this->stdout("❌ Ошибок: {$errors}\n", Console::FG_RED);
         }
-        
+
         return ExitCode::OK;
     }
 
@@ -698,17 +695,17 @@ class PoizonImportController extends Controller
                 $this->stderr("❌ Batch #{$batchId} не найден\n");
                 return ExitCode::DATAERR;
             }
-            
+
             $this->stdout("\n📋 Логи импорта #{$batch->id}\n");
             $this->stdout("Статус: {$batch->getStatusLabel()}\n");
             $this->stdout("Время: {$batch->started_at} - {$batch->finished_at}\n\n");
-            
+
             $logs = ImportLog::find()
                 ->where(['batch_id' => $batchId])
                 ->orderBy(['created_at' => SORT_DESC])
                 ->limit(50)
                 ->all();
-            
+
             foreach ($logs as $log) {
                 $icon = $log->action === ImportLog::ACTION_ERROR ? '❌' : '✅';
                 $this->stdout("{$icon} [{$log->created_at}] {$log->message}\n");
@@ -719,15 +716,15 @@ class PoizonImportController extends Controller
                 ->orderBy(['created_at' => SORT_DESC])
                 ->limit(10)
                 ->all();
-            
+
             $this->stdout("\n📋 Последние импорты:\n\n");
-            
+
             foreach ($batches as $batch) {
                 $this->stdout("#{$batch->id} - {$batch->getStatusLabel()} - {$batch->created_at}\n");
                 $this->stdout("  Создано: {$batch->created_count}, Обновлено: {$batch->updated_count}, Ошибок: {$batch->error_count}\n\n");
             }
         }
-        
+
         return ExitCode::OK;
     }
 
@@ -737,22 +734,22 @@ class PoizonImportController extends Controller
     public function actionTest()
     {
         $this->stdout("🧪 Тестирование подключения к Poizon API...\n\n");
-        
+
         $result = $this->poizonApi->testConnection();
-        
+
         if ($result['success']) {
             $this->stdout("✅ Подключение успешно!\n", \yii\helpers\Console::FG_GREEN);
             $this->stdout("Найдено товаров: " . ($result['items_found'] ?? 0) . "\n");
         } else {
             $this->stderr("❌ Ошибка подключения: " . $result['message'] . "\n", \yii\helpers\Console::FG_RED);
         }
-        
+
         return ExitCode::OK;
     }
 
     /**
      * Импорт товаров из файла (JSON, CSV, Excel)
-     * 
+     *
      * @param string $file Путь к файлу импорта
      */
     public function actionFromFile($file)
@@ -777,12 +774,12 @@ class PoizonImportController extends Controller
             'import_type' => 'file_upload',
             'full_path' => $file
         ]);
-        
+
         if (!$this->batch->save()) {
             $this->stderr("❌ Ошибка создания batch: " . json_encode($this->batch->errors) . "\n");
             return ExitCode::DATAERR;
         }
-        
+
         $this->stdout("✅ Создан batch импорта #{$this->batch->id}\n");
         $this->stdout("   Пользователь: " . ($this->userId ?: 'system') . "\n\n");
 
@@ -819,7 +816,7 @@ class PoizonImportController extends Controller
             foreach ($products as $index => $productData) {
                 try {
                     $result = $this->importProductFromData($productData);
-                    
+
                     if ($result['created']) {
                         $imported++;
                         $this->stdout("✅ Импортирован: " . $productData['name'] . "\n");
@@ -830,7 +827,7 @@ class PoizonImportController extends Controller
                 } catch (\Exception $e) {
                     $errors++;
                     $this->stderr("❌ Ошибка: " . $e->getMessage() . "\n");
-                    
+
                     $log = new ImportLog();
                     $log->batch_id = $this->batch->id;
                     $log->action = ImportLog::ACTION_ERROR;
@@ -846,14 +843,14 @@ class PoizonImportController extends Controller
             $this->batch->error_count = $errors;
             $this->batch->status = ImportBatch::STATUS_COMPLETED;
             $this->batch->finished_at = date('Y-m-d H:i:s');
-            
+
             // Считаем длительность
             if ($this->batch->started_at) {
                 $start = strtotime($this->batch->started_at);
                 $end = strtotime($this->batch->finished_at);
                 $this->batch->duration_seconds = $end - $start;
             }
-            
+
             // Создаем summary
             $this->batch->summary = json_encode([
                 'total' => $totalProducts,
@@ -864,7 +861,7 @@ class PoizonImportController extends Controller
                 'file' => basename($file),
                 'format' => $extension
             ]);
-            
+
             $this->batch->save(false);
 
             $this->stdout("\n✅ Импорт завершен!\n");
@@ -877,7 +874,6 @@ class PoizonImportController extends Controller
             $this->stdout("═══════════════════════════════════\n");
 
             return ExitCode::OK;
-
         } catch (\Exception $e) {
             $this->batch->status = ImportBatch::STATUS_FAILED;
             $this->batch->error_message = $e->getMessage();
@@ -920,7 +916,7 @@ class PoizonImportController extends Controller
     private function parsePoizonFormat($data)
     {
         $products = [];
-        
+
         // Создаем маппинг брендов
         $brandsMap = [];
         if (isset($data['brands'])) {
@@ -946,11 +942,11 @@ class PoizonImportController extends Controller
                 'poizon_id' => $product['productId'] ?? null,
                 'description' => $product['description'] ?? '',
                 'price' => $product['price'] ?? 0,
-                'brand' => isset($product['vendorId']) && isset($brandsMap[$product['vendorId']]) 
-                    ? $brandsMap[$product['vendorId']] 
+                'brand' => isset($product['vendorId']) && isset($brandsMap[$product['vendorId']])
+                    ? $brandsMap[$product['vendorId']]
                     : ($product['vendor'] ?? null),
-                'category' => isset($product['categoryId']) && isset($categoriesMap[$product['categoryId']]) 
-                    ? $categoriesMap[$product['categoryId']] 
+                'category' => isset($product['categoryId']) && isset($categoriesMap[$product['categoryId']])
+                    ? $categoriesMap[$product['categoryId']]
                     : 'Кроссовки и кеды',
                 'is_active' => true,
                 'images' => $product['images'] ?? [],
@@ -1088,7 +1084,7 @@ class PoizonImportController extends Controller
         $product->slug = $data['slug'] ?? \yii\helpers\Inflector::slug($product->name);
         $product->sku = $data['sku'] ?? $product->sku ?? 'SKU-' . time();
         $product->description = $data['description'] ?? $product->description;
-        
+
         // Цена: если есть price_cny - калькулируем, иначе берем из данных
         if (!empty($data['poizon_price_cny'])) {
             $currencyService = Yii::$app->currency;
@@ -1198,21 +1194,21 @@ class PoizonImportController extends Controller
         if ($cmSize === null || $cmSize === '') {
             return null;
         }
-        
+
         $cmSize = (float) $cmSize;
-        
+
         // Если размер трехзначный (165, 265, 270) - делим на 10
         if ($cmSize >= 100) {
             $cmSize = $cmSize / 10;
         }
-        
+
         // ВАЛИДАЦИЯ: Корректный диапазон размеров обуви в см: 20-35
         // Если размер выходит за пределы - возвращаем null (некорректные данные)
         if ($cmSize < 20 || $cmSize > 35) {
             \Yii::warning("Некорректный размер CM: {$cmSize}, пропускаем", 'import');
             return null;
         }
-        
+
         return $cmSize;
     }
 
@@ -1235,11 +1231,11 @@ class PoizonImportController extends Controller
         $size->us_size = $sizeData['us'] ?? $sizeData['us_size'] ?? null;
         $size->eu_size = $sizeData['eu'] ?? $sizeData['eu_size'] ?? null;
         $size->uk_size = $sizeData['uk'] ?? $sizeData['uk_size'] ?? null;
-        
+
         // ИСПРАВЛЕНИЕ: Нормализуем размер в см (265 → 26.5)
         $cmSize = $sizeData['cm'] ?? $sizeData['cm_size'] ?? null;
         $size->cm_size = $this->normalizeCmSize($cmSize);
-        
+
         $size->stock = $sizeData['stock'] ?? 0;
         $size->is_available = $sizeData['is_available'] ?? 1;
 
@@ -1249,7 +1245,7 @@ class PoizonImportController extends Controller
         if (!empty($sizeData['poizon_price_cny'])) {
             $size->poizon_price_cny = $sizeData['poizon_price_cny'];
             $size->price_cny = $sizeData['poizon_price_cny'];
-            
+
             // КАЛЬКУЛЯЦИЯ ЦЕНЫ ДЛЯ КЛИЕНТА
             $currencyService = Yii::$app->currency;
             $size->price_byn = $currencyService->calculatePoizonPriceByn($sizeData['poizon_price_cny']);

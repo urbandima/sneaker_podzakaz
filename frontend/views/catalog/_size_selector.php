@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
  * Компонент выбора размера с множественной сеткой (EU, CM, UK, US)
  * @var $product app\backend\modules\catalog\models\Product
  */
@@ -18,9 +18,9 @@
     <div class="size-grid" id="sizeGrid">
         <!-- EU sizes (default) -->
         <div class="size-system active" data-system="eu">
-            <?php 
+            <?php
             $euSizes = ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46'];
-            foreach ($euSizes as $size): ?>
+            foreach ($euSizes as $size) : ?>
                 <button class="size-option" data-size-eu="<?= $size ?>" data-size-cm="<?= $size + 15 ?>" data-size-uk="<?= $size - 33 ?>" data-size-us="<?= $size - 32 ?>">
                     <?= $size ?>
                 </button>
@@ -29,9 +29,9 @@
         
         <!-- CM sizes -->
         <div class="size-system" data-system="cm">
-            <?php 
+            <?php
             $cmSizes = ['22', '23', '24', '25', '26', '27', '28', '29', '30', '31'];
-            foreach ($cmSizes as $size): ?>
+            foreach ($cmSizes as $size) : ?>
                 <button class="size-option" data-size-cm="<?= $size ?>">
                     <?= $size ?>
                 </button>
@@ -40,9 +40,9 @@
         
         <!-- UK sizes -->
         <div class="size-system" data-system="uk">
-            <?php 
+            <?php
             $ukSizes = ['3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
-            foreach ($ukSizes as $size): ?>
+            foreach ($ukSizes as $size) : ?>
                 <button class="size-option" data-size-uk="<?= $size ?>">
                     <?= $size ?>
                 </button>
@@ -51,9 +51,9 @@
         
         <!-- US sizes -->
         <div class="size-system" data-system="us">
-            <?php 
+            <?php
             $usSizes = ['4', '5', '6', '7', '8', '9', '10', '11', '12', '13'];
-            foreach ($usSizes as $size): ?>
+            foreach ($usSizes as $size) : ?>
                 <button class="size-option" data-size-us="<?= $size ?>">
                     <?= $size ?>
                 </button>

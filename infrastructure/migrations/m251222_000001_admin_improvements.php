@@ -23,7 +23,7 @@ class m251222_000001_admin_improvements extends Migration
                 'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
                 'updated_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
             ]);
-            
+
             $this->addForeignKey(
                 'fk_product_stock_product',
                 '{{%product_stock}}',
@@ -32,7 +32,7 @@ class m251222_000001_admin_improvements extends Migration
                 'id',
                 'CASCADE'
             );
-            
+
             $this->createIndex('idx_product_stock_product', '{{%product_stock}}', 'product_id');
             $this->createIndex('idx_product_stock_size', '{{%product_stock}}', 'size_id');
         } catch (\Exception $e) {
@@ -49,7 +49,7 @@ class m251222_000001_admin_improvements extends Migration
                 'sort_order' => $this->integer()->defaultValue(0),
                 'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
             ]);
-            
+
             $this->addForeignKey(
                 'fk_product_related_product',
                 '{{%product_related}}',
@@ -58,7 +58,7 @@ class m251222_000001_admin_improvements extends Migration
                 'id',
                 'CASCADE'
             );
-            
+
             $this->addForeignKey(
                 'fk_product_related_related',
                 '{{%product_related}}',
@@ -67,7 +67,7 @@ class m251222_000001_admin_improvements extends Migration
                 'id',
                 'CASCADE'
             );
-            
+
             $this->createIndex('idx_product_related_product', '{{%product_related}}', 'product_id');
         } catch (\Exception $e) {
             echo "⚠ Таблица product_related уже существует\n";
@@ -265,14 +265,14 @@ class m251222_000001_admin_improvements extends Migration
             'meta_json' => $this->text(),
             'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
         ]);
-        
+
         $this->addPrimaryKey('pk_daily_stats_unique', '{{%daily_stats}}', ['date', 'stat_type']);
         $this->createIndex('idx_daily_stats_date', '{{%daily_stats}}', 'date');
         $this->createIndex('idx_daily_stats_type', '{{%daily_stats}}', 'stat_type');
 
         // 8. Добавляем SEO поля в product если их нет
         $tableSchema = Yii::$app->db->schema->getTableSchema('{{%product}}');
-        
+
         if (!isset($tableSchema->columns['seo_title'])) {
             $this->addColumn('{{%product}}', 'seo_title', $this->string(255));
         }
@@ -316,7 +316,7 @@ class m251222_000001_admin_improvements extends Migration
         $this->dropTable('{{%tariff}}');
         $this->dropTable('{{%product_related}}');
         $this->dropTable('{{%product_stock}}');
-        
+
         return true;
     }
 }

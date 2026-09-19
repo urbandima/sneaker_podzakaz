@@ -36,7 +36,7 @@ $statusLabels = ['active' => ['label' => 'Активна', 'class' => 'admin-bad
             <div class="admin-stat-label">Брошенных корзин</div>
         </div>
     </div>
-    <?php if ((int)$abandonedStats['total_abandoned'] > 0): ?>
+    <?php if ((int)$abandonedStats['total_abandoned'] > 0) : ?>
     <div class="admin-stat-card">
         <div class="admin-stat-icon success"><i class="bi bi-check-circle-fill"></i></div>
         <div class="admin-stat-content">
@@ -44,7 +44,7 @@ $statusLabels = ['active' => ['label' => 'Активна', 'class' => 'admin-bad
             <div class="admin-stat-label">Восстановление корзин</div>
         </div>
     </div>
-    <?php else: ?>
+    <?php else : ?>
     <div class="admin-stat-card">
         <div class="admin-stat-icon success"><i class="bi bi-check-circle-fill"></i></div>
         <div class="admin-stat-content">
@@ -76,7 +76,7 @@ $statusLabels = ['active' => ['label' => 'Активна', 'class' => 'admin-bad
             <a href="<?= Url::to(['/admin/marketing', 'tab' => 'abandoned']) ?>"
                class="admin-btn admin-btn-sm <?= $tab === 'abandoned' ? 'admin-btn-primary' : 'admin-btn-secondary' ?>">
                 <i class="bi bi-cart-x"></i> Брошенные корзины
-                <?php if (!empty($abandonedStats['total_abandoned'])): ?>
+                <?php if (!empty($abandonedStats['total_abandoned'])) : ?>
                 <span class="admin-badge <?= $tab === 'abandoned' ? 'admin-badge-light' : 'admin-badge-secondary' ?>" style="margin-left:4px"><?= (int)$abandonedStats['total_abandoned'] ?></span>
                 <?php endif; ?>
             </a>
@@ -93,8 +93,7 @@ $statusLabels = ['active' => ['label' => 'Активна', 'class' => 'admin-bad
     </div>
 </div>
 
-<?php if ($tab === 'abandoned'): ?>
-
+<?php if ($tab === 'abandoned') : ?>
 <!-- ═══ БРОШЕННЫЕ КОРЗИНЫ ═══ -->
 <div class="admin-card">
     <div class="admin-card-header">
@@ -107,9 +106,9 @@ $statusLabels = ['active' => ['label' => 'Активна', 'class' => 'admin-bad
         </button>
     </div>
     <div class="admin-card-body">
-        <?php if (!empty($abandonedCarts)): ?>
+        <?php if (!empty($abandonedCarts)) : ?>
         <div class="abandoned-cart-list">
-            <?php foreach ($abandonedCarts as $cart): ?>
+            <?php foreach ($abandonedCarts as $cart) : ?>
             <div class="abandoned-cart-item">
                 <div>
                     <div class="cart-customer">
@@ -131,12 +130,12 @@ $statusLabels = ['active' => ['label' => 'Активна', 'class' => 'admin-bad
             </div>
             <?php endforeach; ?>
         </div>
-        <?php if (count($abandonedCarts) >= 10): ?>
+            <?php if (count($abandonedCarts) >= 10) : ?>
         <div style="margin-top:1.5rem;text-align:center">
             <a href="<?= Url::to(['marketing/abandoned-carts']) ?>" class="admin-btn admin-btn-secondary">Показать все</a>
         </div>
-        <?php endif; ?>
-        <?php else: ?>
+            <?php endif; ?>
+        <?php else : ?>
         <div style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">
             <i class="bi bi-cart-check" style="font-size:3rem;display:block;margin-bottom:1rem"></i>
             Нет брошенных корзин
@@ -145,8 +144,7 @@ $statusLabels = ['active' => ['label' => 'Активна', 'class' => 'admin-bad
     </div>
 </div>
 
-<?php else: ?>
-
+<?php else : ?>
 <!-- ═══ КАМПАНИИ ═══ -->
 <div class="admin-card">
     <div class="admin-card-header">
@@ -174,12 +172,12 @@ $statusLabels = ['active' => ['label' => 'Активна', 'class' => 'admin-bad
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($campaigns as $campaign): ?>
-                <?php
+                <?php foreach ($campaigns as $campaign) : ?>
+                    <?php
                     $type   = $typeLabels[$campaign['type']] ?? $typeLabels['email'];
                     $status = $statusLabels[$campaign['status']] ?? $statusLabels['draft'];
                     $ctr    = $campaign['recipients'] > 0 ? round(($campaign['clicked'] / $campaign['recipients']) * 100, 1) : 0;
-                ?>
+                    ?>
                 <tr>
                     <td><i class="bi <?= $type['icon'] ?>" style="color:<?= $type['color'] ?>;font-size:18px"></i></td>
                     <td><strong><?= Html::encode($campaign['name']) ?></strong></td>
@@ -196,7 +194,7 @@ $statusLabels = ['active' => ['label' => 'Активна', 'class' => 'admin-bad
                         <div class="admin-actions">
                             <button class="admin-btn admin-btn-sm admin-btn-secondary" title="Редактировать"><i class="bi bi-pencil"></i></button>
                             <button class="admin-btn admin-btn-sm admin-btn-secondary" title="Статистика"><i class="bi bi-graph-up"></i></button>
-                            <?php if ($campaign['status'] === 'draft'): ?>
+                            <?php if ($campaign['status'] === 'draft') : ?>
                             <button class="admin-btn admin-btn-sm admin-btn-primary" title="Запустить"><i class="bi bi-play-fill"></i></button>
                             <?php endif; ?>
                         </div>

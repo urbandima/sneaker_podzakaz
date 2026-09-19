@@ -12,14 +12,14 @@ class ProductionCacheService extends Component
 {
     private $cache;
     private $redis;
-    
+
     public function init()
     {
         parent::init();
         $this->cache = Yii::$app->cache;
         $this->redis = Yii::$app->redis;
     }
-    
+
     /**
      * Кэширование каталога товаров
      */
@@ -28,7 +28,7 @@ class ProductionCacheService extends Component
         $key = 'catalog:products:' . md5(serialize($products));
         return $this->cache->set($key, $products, $duration);
     }
-    
+
     /**
      * Кэширование фильтров
      */
@@ -37,7 +37,7 @@ class ProductionCacheService extends Component
         $key = 'catalog:filters:' . md5(json_encode($filters));
         return $this->cache->set($key, $filters, $duration);
     }
-    
+
     /**
      * Кэширование корзины
      */
@@ -46,7 +46,7 @@ class ProductionCacheService extends Component
         $key = "cart:user:{$userId}";
         return $this->redis->setex($key, $duration, serialize($cart));
     }
-    
+
     /**
      * Очистка кэша каталога
      */
@@ -58,7 +58,7 @@ class ProductionCacheService extends Component
         }
         return true;
     }
-    
+
     /**
      * Статистика кэша
      */
@@ -70,14 +70,14 @@ class ProductionCacheService extends Component
             'cache_hit_rate' => $this->getCacheHitRate()
         ];
     }
-    
+
     private function getCacheHitRate()
     {
         $info = $this->redis->info('stats');
         $hits = $info['keyspace_hits'] ?? 0;
         $misses = $info['keyspace_misses'] ?? 0;
         $total = $hits + $misses;
-        
+
         return $total > 0 ? round(($hits / $total) * 100, 2) : 0;
     }
 }

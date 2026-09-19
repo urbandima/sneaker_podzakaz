@@ -67,10 +67,22 @@ class m260503_140000_complete_admin_log_table extends Migration
             }
         }
 
-        try { $this->createIndex('idx_admin_log_user',    'admin_log', ['user_id',     'created_at']); } catch (\Exception $e) {}
-        try { $this->createIndex('idx_admin_log_entity',  'admin_log', ['entity_type', 'entity_id', 'created_at']); } catch (\Exception $e) {}
-        try { $this->createIndex('idx_admin_log_action',  'admin_log', 'action'); } catch (\Exception $e) {}
-        try { $this->createIndex('idx_admin_log_created', 'admin_log', 'created_at'); } catch (\Exception $e) {}
+        try {
+            $this->createIndex('idx_admin_log_user', 'admin_log', ['user_id',     'created_at']);
+        } catch (\Exception $e) {
+        }
+        try {
+            $this->createIndex('idx_admin_log_entity', 'admin_log', ['entity_type', 'entity_id', 'created_at']);
+        } catch (\Exception $e) {
+        }
+        try {
+            $this->createIndex('idx_admin_log_action', 'admin_log', 'action');
+        } catch (\Exception $e) {
+        }
+        try {
+            $this->createIndex('idx_admin_log_created', 'admin_log', 'created_at');
+        } catch (\Exception $e) {
+        }
     }
 
     public function safeDown()

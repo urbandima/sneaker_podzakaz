@@ -28,7 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <div class="account-content">
                 <h1><?= Html::encode($this->title) ?></h1>
                 
-                <?php if (Yii::$app->user->isGuest): ?>
+                <?php if (Yii::$app->user->isGuest) : ?>
                     <!-- Для неавторизованных пользователей -->
                     <div class="row">
                         <div class="col-md-6">
@@ -58,7 +58,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <?= Html::a('Найти заказы', ['account/find-orders'], ['class' => 'btn btn-secondary']) ?>
                     </div>
                     
-                <?php else: ?>
+                <?php else : ?>
                     <!-- Для авторизованных пользователей -->
                     <div class="welcome-section">
                         <h3>Добро пожаловать в личный кабинет!</h3>

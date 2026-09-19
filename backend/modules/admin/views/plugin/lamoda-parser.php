@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\backend\shared\helpers\PriceHelper;
@@ -69,7 +70,7 @@ $this->params['headerActions'] = [
 
             <hr style="border-color:var(--admin-border);margin:14px 0">
 
-            <?php if (!empty($lastResult)): ?>
+            <?php if (!empty($lastResult)) : ?>
                 <div style="font-size:13px">
                     <div style="margin-bottom:6px;color:var(--admin-text-secondary)">
                         Последний запуск: <strong><?= Html::encode($lastResult['date'] ?? $lastResult['finished_at'] ?? '—') ?></strong>
@@ -93,7 +94,7 @@ $this->params['headerActions'] = [
                         </div>
                     </div>
                 </div>
-            <?php else: ?>
+            <?php else : ?>
                 <p style="font-size:13px;color:var(--admin-text-secondary)">Парсинг ещё не запускался.</p>
             <?php endif; ?>
 
@@ -114,11 +115,11 @@ $this->params['headerActions'] = [
         </h2>
     </div>
     <div class="admin-card-body">
-        <?php if (empty($products)): ?>
+        <?php if (empty($products)) : ?>
             <p style="font-size:13px;color:var(--admin-text-secondary)">
                 Товаров из Lamoda пока нет. Запустите парсинг.
             </p>
-        <?php else: ?>
+        <?php else : ?>
             <table class="admin-table" style="width:100%">
                 <thead>
                     <tr>
@@ -133,14 +134,14 @@ $this->params['headerActions'] = [
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($products as $p): ?>
+                    <?php foreach ($products as $p) : ?>
                         <tr>
                             <td>
-                                <?php if ($p->main_image): ?>
+                                <?php if ($p->main_image) : ?>
                                     <img src="<?= Html::encode($p->main_image) ?>"
                                          style="width:48px;height:48px;object-fit:cover;border-radius:4px"
                                          loading="lazy">
-                                <?php else: ?>
+                                <?php else : ?>
                                     <div style="width:48px;height:48px;background:var(--admin-bg-secondary);border-radius:4px"></div>
                                 <?php endif; ?>
                             </td>
@@ -151,12 +152,14 @@ $this->params['headerActions'] = [
                                 <?= $p->old_price ? PriceHelper::format($p->old_price) : '—' ?>
                             </td>
                             <td>
-                                <?php if ($p->source_url): ?>
+                                <?php if ($p->source_url) : ?>
                                     <a href="<?= Html::encode($p->source_url) ?>" target="_blank" rel="noopener"
                                        style="color:var(--admin-accent);font-size:12px">
                                         lamoda.by <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
-                                <?php else: ?>—<?php endif; ?>
+                                <?php else :
+                                    ?>—<?php
+                                endif; ?>
                             </td>
                             <td style="font-size:12px;color:var(--admin-text-secondary)">
                                 <?= date('d.m.Y', $p->created_at) ?>
@@ -170,7 +173,7 @@ $this->params['headerActions'] = [
                     <?php endforeach; ?>
                 </tbody>
             </table>
-            <?php if (count($products) >= 50): ?>
+            <?php if (count($products) >= 50) : ?>
                 <div style="margin-top:10px;text-align:center">
                     <?= Html::a('Все товары из Lamoda →', ['/admin/product', 'source' => 'lamoda'], [
                         'class' => 'admin-btn admin-btn-secondary admin-btn-sm'

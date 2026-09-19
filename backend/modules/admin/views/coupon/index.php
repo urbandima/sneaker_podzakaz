@@ -41,7 +41,7 @@ $this->params['headerActions'] = [
             <label>Тип</label>
             <select name="type" class="form-control">
                 <option value="">Все типы</option>
-                <?php foreach (Coupon::getTypeList() as $key => $label): ?>
+                <?php foreach (Coupon::getTypeList() as $key => $label) : ?>
                     <option value="<?= $key ?>" <?= Yii::$app->request->get('type') === $key ? 'selected' : '' ?>><?= $label ?></option>
                 <?php endforeach; ?>
             </select>
@@ -84,7 +84,7 @@ $this->params['headerActions'] = [
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($dataProvider->getModels() as $model): ?>
+                    <?php foreach ($dataProvider->getModels() as $model) : ?>
                         <tr>
                             <td class="fw-600">
                                 <a href="<?= \yii\helpers\Url::to(['view', 'id' => $model->id]) ?>" style="color: var(--admin-primary);">
@@ -123,15 +123,15 @@ $this->params['headerActions'] = [
                             <td>
                                 <?php
                                 $expiryField = $model->valid_until ?? $model->expires_at ?? $model->expiry ?? null;
-                                if (!$expiryField): ?>
+                                if (!$expiryField) : ?>
                                     <span style="color:var(--admin-text-secondary,#6d7175)">Бессрочный</span>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <?php
                                     $date = is_numeric($expiryField) ? $expiryField : strtotime($expiryField);
                                     $now = time();
-                                    if ($date < $now): ?>
+                                    if ($date < $now) : ?>
                                         <span class="text-danger"><?= date('d.m.Y', $date) ?> (истёк)</span>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <?= date('d.m.Y', $date) ?>
                                     <?php endif; ?>
                                 <?php endif; ?>
@@ -142,14 +142,14 @@ $this->params['headerActions'] = [
                                 $maxUsesV = $model->max_uses ?? null;
                                 $usedV = $model->current_uses ?? $model->used_count ?? 0;
                                 $isActive = $model->is_active ?? true;
-                                if ($expiryTs && $expiryTs < time()):
-                                ?>
+                                if ($expiryTs && $expiryTs < time()) :
+                                    ?>
                                     <span class="admin-badge admin-badge-secondary">Истёк</span>
-                                <?php elseif ($maxUsesV && $usedV >= $maxUsesV): ?>
+                                <?php elseif ($maxUsesV && $usedV >= $maxUsesV) : ?>
                                     <span class="admin-badge admin-badge-danger">Лимит исчерпан</span>
-                                <?php elseif ($isActive): ?>
+                                <?php elseif ($isActive) : ?>
                                     <span class="admin-badge admin-badge-success">Активный</span>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <span class="admin-badge admin-badge-secondary">Неактивен</span>
                                 <?php endif; ?>
                             </td>
@@ -179,7 +179,7 @@ $this->params['headerActions'] = [
         </div>
         
         <!-- Пагинация -->
-        <?php if ($dataProvider->pagination->pageCount > 1): ?>
+        <?php if ($dataProvider->pagination->pageCount > 1) : ?>
             <div style="margin-top: 1.5rem; display: flex; justify-content: center;">
                 <?= \yii\widgets\LinkPager::widget([
                     'pagination' => $dataProvider->pagination,

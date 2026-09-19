@@ -132,7 +132,7 @@ $this->params['headerActions'] = [
                         <div style="font-size:.65rem;text-transform:uppercase;color:var(--admin-text-secondary,#6b7280);letter-spacing:.04em">Потрачено</div>
                     </div>
                 </div>
-                <?php if ($customer->created_at): ?>
+                <?php if ($customer->created_at) : ?>
                 <div style="margin-top:10px;font-size:.75rem;color:var(--admin-text-secondary,#6b7280)">
                     <i class="bi bi-calendar3"></i>
                     Зарегистрирован <?= date('d.m.Y', is_numeric($customer->created_at) ? $customer->created_at : strtotime($customer->created_at)) ?>

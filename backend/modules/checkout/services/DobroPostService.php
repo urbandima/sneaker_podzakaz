@@ -125,9 +125,12 @@ class DobroPostService extends Component
         $this->handleCreateResponse($order, $response);
 
         Yii::info(
-            sprintf('Таможня:ДП: создан шипмент #%s для заказа #%d, DP ID: %s, трек: %s',
-                $order->order_number, $order->id,
-                $response['id'] ?? '-', $response['dptrackNumber'] ?? '-'
+            sprintf(
+                'Таможня:ДП: создан шипмент #%s для заказа #%d, DP ID: %s, трек: %s',
+                $order->order_number,
+                $order->id,
+                $response['id'] ?? '-',
+                $response['dptrackNumber'] ?? '-'
             ),
             'dp-api'
         );
@@ -483,8 +486,11 @@ class DobroPostService extends Component
                     $errorMsg = $decoded['message'] ?? $decoded['error'] ?? $safeResponseBody;
                     $errorMsg = $this->redactSensitiveValuesInText((string) $errorMsg, $body);
                     Yii::error(
-                        sprintf('Таможня:ДП HTTP %d для %s %s. Payload: %s. Ответ: %s',
-                            $httpCode, $method, $path,
+                        sprintf(
+                            'Таможня:ДП HTTP %d для %s %s. Payload: %s. Ответ: %s',
+                            $httpCode,
+                            $method,
+                            $path,
                             json_encode($this->redactSensitivePayload($body), JSON_UNESCAPED_UNICODE),
                             $safeResponseBody
                         ),
@@ -505,21 +511,27 @@ class DobroPostService extends Component
                 }
 
                 return $decoded;
-
             } catch (\RuntimeException $e) {
                 $lastException = $e;
 
                 // Не повторяем при 401 или клиентских ошибках (4xx)
-                if (str_contains($e->getMessage(), '401')
-                    || preg_match('/HTTP 4\d\d/', $e->getMessage())) {
+                if (
+                    str_contains($e->getMessage(), '401')
+                    || preg_match('/HTTP 4\d\d/', $e->getMessage())
+                ) {
                     throw $e;
                 }
 
                 if ($attempt < $this->retryAttempts) {
                     Yii::warning(
-                        sprintf('Таможня:ДП: попытка %d/%d не удалась (%s %s): %s. Повтор через %d с.',
-                            $attempt, $this->retryAttempts, $method, $path,
-                            $e->getMessage(), $this->retryDelay
+                        sprintf(
+                            'Таможня:ДП: попытка %d/%d не удалась (%s %s): %s. Повтор через %d с.',
+                            $attempt,
+                            $this->retryAttempts,
+                            $method,
+                            $path,
+                            $e->getMessage(),
+                            $this->retryDelay
                         ),
                         'dp-api'
                     );
@@ -529,8 +541,12 @@ class DobroPostService extends Component
         }
 
         Yii::error(
-            sprintf('Таможня:ДП: все %d попытки исчерпаны для %s %s: %s',
-                $this->retryAttempts, $method, $path, $lastException?->getMessage()
+            sprintf(
+                'Таможня:ДП: все %d попытки исчерпаны для %s %s: %s',
+                $this->retryAttempts,
+                $method,
+                $path,
+                $lastException?->getMessage()
             ),
             'dp-api'
         );

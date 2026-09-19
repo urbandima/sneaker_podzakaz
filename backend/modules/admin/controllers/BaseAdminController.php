@@ -2,18 +2,18 @@
 
 /**
  * BaseAdminController — Базовый контроллер админ-панели
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Абстрактный базовый класс для всех контроллеров админ-панели.
  * Содержит общую логику доступа, хелперы и утилиты.
- * 
+ *
  * ФУНКЦИИ:
  * - AccessControl: только авторизованные пользователи
  * - VerbFilter: ограничения HTTP методов (DELETE только через POST)
  * - Проверка прав доступа (adminOnly, isAdmin, isManager, isLogist)
  * - Хелперы для flash-сообщений (success, error, warning)
  * - Получение текущего пользователя (getCurrentUser)
- * 
+ *
  * НАСЛЕДНИКИ:
  * - DashboardController
  * - OrderController
@@ -28,10 +28,11 @@
  * - SearchController
  * - StatisticsController
  * - DevToolsController
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * Установить protected $adminOnly = true; в наследнике для ограничения только админам
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -70,19 +71,25 @@ abstract class BaseAdminController extends Controller
                         'roles' => ['@'], // Только авторизованные
                         'matchCallback' => function ($rule, $action) {
                             // ИСПРАВЛЕНО: Явная проверка демо-режима через конфиг
-                            $isDemoMode = defined('YII_ENV') && YII_ENV === 'demo' 
+                            $isDemoMode = defined('YII_ENV') && YII_ENV === 'demo'
                                 || (Yii::$app->params['demoMode'] ?? false);
-                            
+
                             // В демо-режиме разрешаем доступ всем
                             if ($isDemoMode) {
                                 return true;
                             }
-                            
+
                             // В проде: проверяем права
                             try {
-                                if ($this->adminOnly && !$this->isAdmin()) return false;
-                                if ($this->financeOnly && !$this->canAccessFinance()) return false;
-                                if ($this->procureOnly && !$this->canAccessProcurement()) return false;
+                                if ($this->adminOnly && !$this->isAdmin()) {
+                                    return false;
+                                }
+                                if ($this->financeOnly && !$this->canAccessFinance()) {
+                                    return false;
+                                }
+                                if ($this->procureOnly && !$this->canAccessProcurement()) {
+                                    return false;
+                                }
                                 return true;
                             } catch (\Exception $e) {
                                 // При ошибке - доступ запрещён (безопасно по умолчанию)
@@ -110,7 +117,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Установить flash-сообщение об успехе
-     * 
+     *
      * @param string $message
      */
     protected function flashSuccess($message)
@@ -120,7 +127,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Установить flash-сообщение об ошибке
-     * 
+     *
      * @param string $message
      */
     protected function flashError($message)
@@ -130,7 +137,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Установить flash-сообщение с предупреждением
-     * 
+     *
      * @param string $message
      */
     protected function flashWarning($message)
@@ -140,7 +147,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Установить flash-сообщение с информацией
-     * 
+     *
      * @param string $message
      */
     protected function flashInfo($message)
@@ -151,7 +158,7 @@ abstract class BaseAdminController extends Controller
     /**
      * Проверить, является ли текущий пользователь администратором
      * ИСПРАВЛЕНО: При ошибке возвращаем false вместо true
-     * 
+     *
      * @return bool
      */
     protected function isAdmin()
@@ -166,7 +173,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Проверить, является ли текущий пользователь логистом
-     * 
+     *
      * @return bool
      */
     protected function isLogist()
@@ -180,7 +187,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Проверить, является ли текущий пользователь менеджером
-     * 
+     *
      * @return bool
      */
     protected function isManager(): bool
@@ -227,7 +234,9 @@ abstract class BaseAdminController extends Controller
      */
     protected function canDo(string $permission): bool
     {
-        if (Yii::$app->user->isGuest) return false;
+        if (Yii::$app->user->isGuest) {
+            return false;
+        }
         try {
             if (Yii::$app->user->can($permission)) {
                 return true;
@@ -249,7 +258,9 @@ abstract class BaseAdminController extends Controller
      */
     protected function requirePermission(string $permission): void
     {
-        if ($this->canDo($permission)) return;
+        if ($this->canDo($permission)) {
+            return;
+        }
         if (Yii::$app->request->isAjax || Yii::$app->request->isOptions) {
             Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
             Yii::$app->response->statusCode = 403;
@@ -262,7 +273,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Получить текущего пользователя
-     * 
+     *
      * @return \app\backend\modules\admin\models\User|null
      */
     protected function getCurrentUser()
@@ -281,7 +292,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Логировать создание сущности
-     * 
+     *
      * @param string $entityType Тип сущности (order, product, customer и т.д.)
      * @param int $entityId ID сущности
      * @param string $entityName Название/имя сущности
@@ -294,7 +305,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Логировать обновление сущности
-     * 
+     *
      * @param string $entityType Тип сущности
      * @param int $entityId ID сущности
      * @param string $entityName Название сущности
@@ -308,7 +319,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Логировать удаление сущности
-     * 
+     *
      * @param string $entityType Тип сущности
      * @param int $entityId ID сущности
      * @param string $entityName Название сущности
@@ -321,7 +332,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Логировать просмотр сущности (для важных операций)
-     * 
+     *
      * @param string $entityType Тип сущности
      * @param int $entityId ID сущности
      * @param string $entityName Название сущности
@@ -333,7 +344,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Логировать смену статуса
-     * 
+     *
      * @param string $entityType Тип сущности
      * @param int $entityId ID сущности
      * @param string $entityName Название сущности
@@ -347,7 +358,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Логировать экспорт
-     * 
+     *
      * @param string $entityType Тип экспортируемых данных
      * @param int $count Количество записей
      * @param string|null $format Формат файла
@@ -359,7 +370,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Логировать импорт
-     * 
+     *
      * @param string $entityType Тип импортируемых данных
      * @param int $successCount Успешно импортировано
      * @param int $errorCount Ошибок
@@ -371,7 +382,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Логировать массовое действие
-     * 
+     *
      * @param string $action Действие (delete, update, activate и т.д.)
      * @param string $entityType Тип сущности
      * @param int $count Количество
@@ -384,7 +395,7 @@ abstract class BaseAdminController extends Controller
 
     /**
      * Логировать произвольное действие
-     * 
+     *
      * @param string $action Тип действия
      * @param string $entityType Тип сущности
      * @param int|null $entityId ID сущности

@@ -11,7 +11,7 @@ use yii\helpers\Html;
 
     <p>Вы (или кто-то от вашего имени) запросили ссылки для отслеживания заказов, оформленных на этот email.</p>
 
-    <?php foreach ($orders as $order): ?>
+    <?php foreach ($orders as $order) : ?>
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
             <p><strong>Номер заказа:</strong> <?= Html::encode($order->order_number) ?></p>
             <p><strong>Сумма:</strong> <?= Yii::$app->formatter->asDecimal($order->total_amount, 2) ?> BYN</p>

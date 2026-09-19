@@ -2,11 +2,11 @@
 
 /**
  * ReturnController — Контроллер возвратов для админки
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Управление возвратами в админ-панели: обработка заявок,
  * одобрение/отклонение, завершение возврата.
- * 
+ *
  * ФУНКЦИИ:
  * - index() - список всех заявок
  * - view() - просмотр заявки
@@ -15,6 +15,7 @@
  * - process() - начало обработки
  * - complete() - завершение возврата
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -140,9 +141,9 @@ class ReturnController extends BaseAdminController
     {
         $model = $this->findModel($id);
         $comment = Yii::$app->request->post('comment');
-        
+
         $returnService = new ReturnService();
-        
+
         if ($returnService->processReturn($model, true, $comment)) {
             Yii::$app->session->setFlash('success', 'Заявка одобрена');
         } else {
@@ -159,14 +160,14 @@ class ReturnController extends BaseAdminController
     {
         $model = $this->findModel($id);
         $comment = Yii::$app->request->post('comment');
-        
+
         if (empty($comment)) {
             Yii::$app->session->setFlash('error', 'Укажите причину отклонения');
             return $this->redirect(['view', 'id' => $id]);
         }
-        
+
         $returnService = new ReturnService();
-        
+
         if ($returnService->processReturn($model, false, $comment)) {
             Yii::$app->session->setFlash('success', 'Заявка отклонена');
         } else {
@@ -182,7 +183,7 @@ class ReturnController extends BaseAdminController
     public function actionProcess($id)
     {
         $model = $this->findModel($id);
-        
+
         if ($model->startProcessing()) {
             Yii::$app->session->setFlash('success', 'Возврат переведён в обработку');
         } else {
@@ -198,9 +199,9 @@ class ReturnController extends BaseAdminController
     public function actionComplete($id)
     {
         $model = $this->findModel($id);
-        
+
         $returnService = new ReturnService();
-        
+
         if ($returnService->completeReturn($model)) {
             Yii::$app->session->setFlash('success', 'Возврат завершён. Средства возвращены клиенту.');
         } else {

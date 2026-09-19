@@ -1,4 +1,5 @@
 <?php
+
 /**
  * TelegramBotController — Интеграция с Telegram
  *
@@ -22,7 +23,9 @@ class TelegramBotController extends BaseAdminController
     public function actionWebhook()
     {
         $update = json_decode(Yii::$app->request->getRawBody(), true);
-        if (!$update) return;
+        if (!$update) {
+            return;
+        }
 
         $message = $update['message'] ?? null;
         $callback = $update['callback_query'] ?? null;
@@ -47,12 +50,14 @@ class TelegramBotController extends BaseAdminController
 
         switch ($command) {
             case '/start':
-                $this->sendMessage($chatId, 
+                $this->sendMessage(
+                    $chatId,
                     "👋 Добро пожаловать в СНИКЕРХЭД!\n\n" .
                     "Отправьте номер заказа для проверки статуса\n" .
                     "или используйте команды:\n" .
                     "/status НОМЕР — проверить статус заказа\n" .
-                    "/support — связаться с поддержкой");
+                    "/support — связаться с поддержкой"
+                );
                 break;
 
             case '/status':
@@ -61,11 +66,13 @@ class TelegramBotController extends BaseAdminController
                 break;
 
             case '/support':
-                $this->sendMessage($chatId,
+                $this->sendMessage(
+                    $chatId,
                     "📞 Контакты поддержки:\n" .
                     "Телефон: +375 (29) 123-45-67\n" .
                     "Email: info@sneakerhead.by\n" .
-                    "Время работы: Пн-Вс 10:00-22:00");
+                    "Время работы: Пн-Вс 10:00-22:00"
+                );
                 break;
 
             default:
@@ -73,9 +80,11 @@ class TelegramBotController extends BaseAdminController
                 if (preg_match('/^\d+$/', $text)) {
                     $this->sendOrderStatus($chatId, $text);
                 } else {
-                    $this->sendMessage($chatId,
+                    $this->sendMessage(
+                        $chatId,
                         "❓ Не понял команду.\n" .
-                        "Отправьте номер заказа или используйте /start");
+                        "Отправьте номер заказа или используйте /start"
+                    );
                 }
         }
     }
@@ -119,7 +128,7 @@ class TelegramBotController extends BaseAdminController
         $message .= "Статус: {$statusLabel}\n";
         $message .= "Клиент: {$order->client_name}\n";
         $message .= "Сумма: " . Yii::$app->formatter->asCurrency($order->total_amount, 'BYN') . "\n";
-        
+
         if ($order->track_number) {
             $message .= "\nТрек-номер: {$order->track_number}\n";
             $message .= "Отслеживание: https://t.belpost.by/#{$order->track_number}";
@@ -134,7 +143,9 @@ class TelegramBotController extends BaseAdminController
     public function sendMessage($chatId, $text, $keyboard = null)
     {
         $botToken = Yii::$app->settings->get('telegram', 'bot_token', '');
-        if (empty($botToken)) return false;
+        if (empty($botToken)) {
+            return false;
+        }
 
         $url = "https://api.telegram.org/bot{$botToken}/sendMessage";
         $data = [
@@ -164,7 +175,9 @@ class TelegramBotController extends BaseAdminController
     public function actionNotifyStatus($orderId, $newStatus)
     {
         $order = Order::findOne($orderId);
-        if (!$order || empty($order->client_telegram)) return;
+        if (!$order || empty($order->client_telegram)) {
+            return;
+        }
 
         $statusMessages = [
             'paid' => '💰 Оплата получена. Ожидаем паспортные данные.',

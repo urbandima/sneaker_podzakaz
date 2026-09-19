@@ -44,19 +44,19 @@ $allKeywords = array_unique(array_filter($allKeywords));
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="mb-1"><?= Html::encode($this->title) ?></h1>
-            <?php if ($product->poizon_id): ?>
+            <?php if ($product->poizon_id) : ?>
                 <span class="badge bg-info"><i class="bi bi-cloud-download"></i> Товар из Poizon</span>
             <?php endif; ?>
-            <?php if ($product->is_limited): ?>
+            <?php if ($product->is_limited) : ?>
                 <span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> Limited Edition</span>
             <?php endif; ?>
-            <?php if ($product->parent_product_id): ?>
+            <?php if ($product->parent_product_id) : ?>
                 <span class="badge bg-secondary"><i class="bi bi-link"></i> Вариант товара</span>
             <?php endif; ?>
         </div>
         <div class="btn-group">
             <?= Html::a('<i class="bi bi-arrow-left"></i> Назад', ['/admin/product/index'], ['class' => 'btn btn-secondary']) ?>
-            <?php if ($product->poizon_id): ?>
+            <?php if ($product->poizon_id) : ?>
                 <?= Html::a('<i class="bi bi-arrow-repeat"></i> Синхронизировать', ['/admin/product/sync', 'id' => $product->id], [
                     'class' => 'btn btn-info',
                     'data-method' => 'post',
@@ -105,17 +105,17 @@ $allKeywords = array_unique(array_filter($allKeywords));
                     </button>
                 </div>
                 <div class="card-body">
-                    <?php if ($product->images && count($product->images) > 0): ?>
+                    <?php if ($product->images && count($product->images) > 0) : ?>
                         <div class="row g-2">
-                            <?php foreach ($product->images as $image): ?>
+                            <?php foreach ($product->images as $image) : ?>
                                 <div class="col-6">
                                     <div class="position-relative">
                                         <img src="<?= $image->getImageUrl() ?>" class="img-fluid rounded" alt="<?= Html::encode($product->name) ?>">
-                                        <?php if ($image->is_main): ?>
+                                        <?php if ($image->is_main) : ?>
                                             <span class="badge bg-success position-absolute top-0 start-0 m-2">Главное</span>
                                         <?php endif; ?>
                                         <div class="position-absolute top-0 end-0 m-2">
-                                            <?php if (!$image->is_main): ?>
+                                            <?php if (!$image->is_main) : ?>
                                                 <?= Html::a('<i class="bi bi-star"></i>', ['/admin/product/set-main-image', 'id' => $image->id], [
                                                     'class' => 'btn btn-sm btn-warning',
                                                     'title' => 'Сделать главным',
@@ -132,7 +132,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                    <?php else: ?>
+                    <?php else : ?>
                         <div class="text-center text-muted py-5">
                             <i class="bi bi-image" style="font-size: 48px;"></i>
                             <p class="mt-2">Нет изображений</p>
@@ -141,7 +141,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                 </div>
             </div>
 
-            <?php if ($product->poizon_id): ?>
+            <?php if ($product->poizon_id) : ?>
             <div class="card">
                 <div class="card-header bg-info text-white">
                     <h5 class="mb-0"><i class="bi bi-cloud-download"></i> Данные Poizon</h5>
@@ -156,7 +156,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                             <th>SPU ID:</th>
                             <td><?= Html::encode($product->poizon_spu_id) ?></td>
                         </tr>
-                        <?php if ($product->poizon_url): ?>
+                        <?php if ($product->poizon_url) : ?>
                         <tr>
                             <th>Ссылка:</th>
                             <td><?= Html::a('Открыть', $product->poizon_url, ['target' => '_blank']) ?></td>
@@ -169,9 +169,9 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         <tr>
                             <th>Последняя синхр.:</th>
                             <td>
-                                <?php if ($product->last_sync_at): ?>
+                                <?php if ($product->last_sync_at) : ?>
                                     <?= Yii::$app->formatter->asDatetime($product->last_sync_at) ?>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <span class="text-danger">Не синхронизирован</span>
                                 <?php endif; ?>
                             </td>
@@ -190,17 +190,17 @@ $allKeywords = array_unique(array_filter($allKeywords));
                     <h5 class="mb-0"><i class="bi bi-info-circle"></i> Основная информация</h5>
                 </div>
                 <div class="card-body">
-                    <?php 
+                    <?php
                     $attributes = [
                         'id',
                         'name',
                         'sku',
                     ];
-                    
+
                     if ($product->hasAttribute('vendor_code')) {
                         $attributes[] = 'vendor_code';
                     }
-                    
+
                     $attributes = array_merge($attributes, [
                         [
                             'attribute' => 'brand_id',
@@ -216,7 +216,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                             'value' => '<strong>' . PriceHelper::format($product->price) . '</strong>',
                         ],
                     ]);
-                    
+
                     if ($product->hasAttribute('purchase_price') && $product->purchase_price > 0) {
                         $attributes[] = [
                             'attribute' => 'purchase_price',
@@ -224,32 +224,32 @@ $allKeywords = array_unique(array_filter($allKeywords));
                             'value' => PriceHelper::format($product->purchase_price),
                         ];
                     }
-                    
+
                     $attributes[] = [
                         'attribute' => 'is_active',
                         'format' => 'raw',
-                        'value' => $product->is_active 
-                            ? '<span class="badge bg-success">Активен</span>' 
+                        'value' => $product->is_active
+                            ? '<span class="badge bg-success">Активен</span>'
                             : '<span class="badge bg-secondary">Неактивен</span>',
                     ];
-                    
+
                     if ($product->hasAttribute('is_limited')) {
                         $attributes[] = [
                             'attribute' => 'is_limited',
                             'format' => 'raw',
-                            'value' => $product->is_limited 
-                                ? '<span class="badge bg-warning">Limited Edition</span>' 
+                            'value' => $product->is_limited
+                                ? '<span class="badge bg-warning">Limited Edition</span>'
                                 : 'Нет',
                         ];
                     }
-                    
+
                     // Добавляем ключевые слова (объединенные)
                     if (!empty($allKeywords)) {
                         $attributes[] = [
                             'attribute' => 'meta_keywords',
                             'label' => 'Ключевые слова (SEO)',
                             'format' => 'raw',
-                            'value' => implode(' ', array_map(function($kw) {
+                            'value' => implode(' ', array_map(function ($kw) {
                                 return '<span class="badge bg-secondary me-1 mb-1">' . Html::encode($kw) . '</span>';
                             }, $allKeywords)),
                         ];
@@ -278,12 +278,12 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         ->where(['product_id' => $product->id])
                         ->with(['characteristic', 'characteristicValue'])
                         ->all();
-                    
+
                     // Получаем характеристики Poizon
                     $hasPoizonChars = !empty($properties);
-                    
+
                     // Показываем объединенную таблицу, если есть данные
-                    if (count($characteristicsFromRegistry) > 0 || $hasPoizonChars): ?>
+                    if (count($characteristicsFromRegistry) > 0 || $hasPoizonChars) : ?>
                         <div class="table-responsive">
                             <table class="table table-sm table-hover mb-0">
                                 <thead class="table-light">
@@ -296,15 +296,15 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                 <tbody>
                                     <?php
                                     // 1. Характеристики из справочников
-                                    foreach ($characteristicsFromRegistry as $pcv): ?>
+                                    foreach ($characteristicsFromRegistry as $pcv) : ?>
                                         <tr>
                                             <td><strong><?= Html::encode($pcv->characteristic->name) ?></strong></td>
                                             <td>
-                                                <?php if ($pcv->characteristicValue): ?>
+                                                <?php if ($pcv->characteristicValue) : ?>
                                                     <span class="badge bg-primary"><?= Html::encode($pcv->characteristicValue->value) ?></span>
-                                                <?php elseif ($pcv->value_text): ?>
+                                                <?php elseif ($pcv->value_text) : ?>
                                                     <?= Html::encode($pcv->value_text) ?>
-                                                <?php elseif ($pcv->value_number !== null): ?>
+                                                <?php elseif ($pcv->value_number !== null) : ?>
                                                     <?= Html::encode($pcv->value_number) ?>
                                                 <?php endif; ?>
                                             </td>
@@ -316,8 +316,8 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                     
                                     <?php
                                     // 2. Характеристики из Poizon
-                                    if ($hasPoizonChars):
-                                        foreach ($properties as $prop): ?>
+                                    if ($hasPoizonChars) :
+                                        foreach ($properties as $prop) : ?>
                                             <tr>
                                                 <td><strong><?= Html::encode($prop['key'] ?? '') ?></strong></td>
                                                 <td><?= Html::encode($prop['value'] ?? '') ?></td>
@@ -330,10 +330,10 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                 </tbody>
                             </table>
                         </div>
-                    <?php else: ?>
+                    <?php else : ?>
                         <!-- Фолбэк на старый формат -->
                         <div class="row">
-                        <?php if ($product->hasAttribute('upper_material') && $product->upper_material): ?>
+                        <?php if ($product->hasAttribute('upper_material') && $product->upper_material) : ?>
                         <div class="col-md-6 mb-3">
                             <div class="spec-item">
                                 <span class="spec-label">Материал верха:</span>
@@ -342,7 +342,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         </div>
                         <?php endif; ?>
 
-                        <?php if ($product->hasAttribute('sole_material') && $product->sole_material): ?>
+                        <?php if ($product->hasAttribute('sole_material') && $product->sole_material) : ?>
                         <div class="col-md-6 mb-3">
                             <div class="spec-item">
                                 <span class="spec-label">Материал подошвы:</span>
@@ -351,7 +351,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         </div>
                         <?php endif; ?>
 
-                        <?php if ($product->hasAttribute('color_description') && $product->color_description): ?>
+                        <?php if ($product->hasAttribute('color_description') && $product->color_description) : ?>
                         <div class="col-md-6 mb-3">
                             <div class="spec-item">
                                 <span class="spec-label">Цвет:</span>
@@ -360,7 +360,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         </div>
                         <?php endif; ?>
 
-                        <?php if ($product->style_code): ?>
+                        <?php if ($product->style_code) : ?>
                         <div class="col-md-6 mb-3">
                             <div class="spec-item">
                                 <span class="spec-label">Артикул:</span>
@@ -369,7 +369,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         </div>
                         <?php endif; ?>
 
-                        <?php if ($product->hasAttribute('release_year') && $product->release_year): ?>
+                        <?php if ($product->hasAttribute('release_year') && $product->release_year) : ?>
                         <div class="col-md-6 mb-3">
                             <div class="spec-item">
                                 <span class="spec-label">Дата релиза:</span>
@@ -378,7 +378,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         </div>
                         <?php endif; ?>
 
-                        <?php if ($product->hasAttribute('weight') && $product->weight): ?>
+                        <?php if ($product->hasAttribute('weight') && $product->weight) : ?>
                         <div class="col-md-6 mb-3">
                             <div class="spec-item">
                                 <span class="spec-label">Вес:</span>
@@ -387,7 +387,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         </div>
                         <?php endif; ?>
 
-                        <?php if ($product->hasAttribute('material') && $product->material): ?>
+                        <?php if ($product->hasAttribute('material') && $product->material) : ?>
                         <div class="col-md-6 mb-3">
                             <div class="spec-item">
                                 <span class="spec-label">Материал:</span>
@@ -396,7 +396,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         </div>
                         <?php endif; ?>
 
-                        <?php if ($product->hasAttribute('season') && $product->season): ?>
+                        <?php if ($product->hasAttribute('season') && $product->season) : ?>
                         <div class="col-md-6 mb-3">
                             <div class="spec-item">
                                 <span class="spec-label">Сезон:</span>
@@ -405,7 +405,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         </div>
                         <?php endif; ?>
 
-                        <?php if ($product->hasAttribute('gender') && $product->gender): ?>
+                        <?php if ($product->hasAttribute('gender') && $product->gender) : ?>
                         <div class="col-md-6 mb-3">
                             <div class="spec-item">
                                 <span class="spec-label">Пол:</span>
@@ -414,7 +414,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                         </div>
                         <?php endif; ?>
 
-                        <?php if ($product->hasAttribute('country_of_origin') && $product->country_of_origin): ?>
+                        <?php if ($product->hasAttribute('country_of_origin') && $product->country_of_origin) : ?>
                         <div class="col-md-6 mb-3">
                             <div class="spec-item">
                                 <span class="spec-label">Страна производства:</span>
@@ -425,7 +425,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                     </div>
                     
                         </div>
-                        <?php if (!$product->upper_material && !$product->sole_material && !$product->color_description && !$product->style_code): ?>
+                        <?php if (!$product->upper_material && !$product->sole_material && !$product->color_description && !$product->style_code) : ?>
                         <div class="alert alert-info mb-0">
                             <i class="bi bi-info-circle"></i> Характеристики не заполнены. Добавьте их при редактировании товара.
                         </div>
@@ -435,7 +435,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
             </div>
 
             <!-- Описание -->
-            <?php if ($product->description): ?>
+            <?php if ($product->description) : ?>
             <div class="card mb-3">
                 <div class="card-header bg-light">
                     <h5 class="mb-0"><i class="bi bi-text-paragraph"></i> Описание</h5>
@@ -453,7 +453,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="bi bi-rulers"></i> Размеры</h5>
                     <div>
-                        <?php if ($product->poizon_id): ?>
+                        <?php if ($product->poizon_id) : ?>
                             <span class="badge bg-info me-2">Синхронизация с Poizon</span>
                         <?php endif; ?>
                         <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addSizeModal">
@@ -462,7 +462,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <?php 
+                    <?php
                     $sizes = $product->getSizes()
                         ->orderBy([
                             'sort_order' => SORT_ASC,
@@ -470,8 +470,8 @@ $allKeywords = array_unique(array_filter($allKeywords));
                             'us_size' => SORT_ASC
                         ])
                         ->all();
-                    if (count($sizes) > 0): 
-                    ?>
+                    if (count($sizes) > 0) :
+                        ?>
                         <div class="table-responsive">
                             <table class="table table-sm table-hover mb-0">
                                 <thead class="table-light">
@@ -486,7 +486,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                         </th>
                                         <th>Цена BYN</th>
                                         <th>Цена клиента</th>
-                                        <?php if ($product->poizon_id): ?>
+                                        <?php if ($product->poizon_id) : ?>
                                             <th>Poizon SKU</th>
                                             <th>Артикул варианта</th>
                                             <th>Фото варианта</th>
@@ -498,14 +498,14 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($sizes as $size): ?>
+                                    <?php foreach ($sizes as $size) : ?>
                                     <tr>
                                         <td><strong><?= Html::encode($size->us_size ?: $size->size) ?></strong></td>
                                         <td><?= Html::encode($size->eu_size ?: '-') ?></td>
                                         <td><?= Html::encode($size->uk_size ?: '-') ?></td>
                                         <td><?= Html::encode($size->cm_size ?: '-') ?></td>
                                         <td>
-                                            <?php if ($size->price_cny): ?>
+                                            <?php if ($size->price_cny) : ?>
                                                 <span class="badge bg-info price-cny-badge" 
                                                       style="cursor: pointer;" 
                                                       onclick="copyToClipboard('<?= $size->price_cny ?>', this)"
@@ -513,65 +513,65 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                                     ¥<?= number_format($size->price_cny, 2) ?>
                                                     <i class="bi bi-clipboard ms-1"></i>
                                                 </span>
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <?php if ($size->price_byn): ?>
+                                            <?php if ($size->price_byn) : ?>
                                                 <?= PriceHelper::format($size->price_byn) ?>
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <?php if ($size->price_client_byn): ?>
+                                            <?php if ($size->price_client_byn) : ?>
                                                 <strong class="text-success"><?= PriceHelper::format($size->price_client_byn) ?></strong>
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>
                                         </td>
-                                        <?php if ($product->poizon_id): ?>
+                                        <?php if ($product->poizon_id) : ?>
                                             <td><small><?= Html::encode($size->poizon_sku_id ?: '-') ?></small></td>
                                             <td>
-                                                <?php if ($size->variant_vendor_code): ?>
+                                                <?php if ($size->variant_vendor_code) : ?>
                                                     <code class="text-primary"><?= Html::encode($size->variant_vendor_code) ?></code>
-                                                <?php else: ?>
+                                                <?php else : ?>
                                                     <span class="text-muted">-</span>
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <?php 
+                                                <?php
                                                 $variantImages = $size->images_json ? (is_array($size->images_json) ? $size->images_json : json_decode($size->images_json, true)) : [];
-                                                if (!empty($variantImages)): ?>
+                                                if (!empty($variantImages)) : ?>
                                                     <button type="button" class="btn btn-sm btn-outline-info" 
                                                             data-bs-toggle="modal" 
                                                             data-bs-target="#imagesModal<?= $size->id ?>">
                                                         <i class="bi bi-images"></i> <?= count($variantImages) ?>
                                                     </button>
-                                                <?php else: ?>
+                                                <?php else : ?>
                                                     <span class="text-muted">-</span>
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <?php if ($size->poizon_stock > 0): ?>
+                                                <?php if ($size->poizon_stock > 0) : ?>
                                                     <span class="badge bg-success"><?= $size->poizon_stock ?></span>
-                                                <?php else: ?>
+                                                <?php else : ?>
                                                     <span class="badge bg-secondary">0</span>
                                                 <?php endif; ?>
                                             </td>
                                         <?php endif; ?>
                                         <td>
-                                            <?php if ($size->stock > 0): ?>
+                                            <?php if ($size->stock > 0) : ?>
                                                 <span class="badge bg-primary"><?= $size->stock ?></span>
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <span class="badge bg-secondary">0</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <?php if ($size->is_available): ?>
+                                            <?php if ($size->is_available) : ?>
                                                 <span class="badge bg-success">Доступен</span>
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <span class="badge bg-secondary">Недоступен</span>
                                             <?php endif; ?>
                                         </td>
@@ -596,7 +596,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
                                 </tbody>
                             </table>
                         </div>
-                    <?php else: ?>
+                    <?php else : ?>
                         <div class="text-center text-muted py-4">
                             <i class="bi bi-rulers" style="font-size: 48px;"></i>
                             <p class="mt-2">Размеры не добавлены</p>
@@ -714,7 +714,7 @@ $allKeywords = array_unique(array_filter($allKeywords));
 </div>
 
 <!-- Modals: Редактирование размеров -->
-<?php foreach ($product->getSizes()->all() as $size): ?>
+<?php foreach ($product->getSizes()->all() as $size) : ?>
 <div class="modal fade" id="editSizeModal<?= $size->id ?>" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -841,12 +841,12 @@ $allKeywords = array_unique(array_filter($allKeywords));
 <?php endforeach; ?>
 
 <!-- Модальные окна для просмотра изображений вариантов -->
-<?php 
+<?php
 $sizes = $product->getSizes()->all();
-foreach ($sizes as $size):
+foreach ($sizes as $size) :
     $variantImages = $size->images_json ? (is_array($size->images_json) ? $size->images_json : json_decode($size->images_json, true)) : [];
-    if (!empty($variantImages)):
-?>
+    if (!empty($variantImages)) :
+        ?>
 <div class="modal fade" id="imagesModal<?= $size->id ?>" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -859,7 +859,7 @@ foreach ($sizes as $size):
             </div>
             <div class="modal-body">
                 <div class="row g-3">
-                    <?php foreach ($variantImages as $imgUrl): ?>
+                    <?php foreach ($variantImages as $imgUrl) : ?>
                     <div class="col-md-4">
                         <div class="card h-100">
                             <img src="<?= Html::encode($imgUrl) ?>" class="card-img-top" alt="Variant image" 
@@ -880,7 +880,7 @@ foreach ($sizes as $size):
         </div>
     </div>
 </div>
-<?php 
+        <?php
     endif;
 endforeach;
 ?>

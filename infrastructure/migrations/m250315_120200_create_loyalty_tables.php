@@ -23,9 +23,9 @@ class m250315_120200_create_loyalty_tables extends Migration
             'is_active' => $this->boolean()->notNull()->defaultValue(true),
             'sort_order' => $this->integer()->notNull()->defaultValue(0),
         ]);
-        
+
         $this->createIndex('idx-loyalty_program-level', '{{%loyalty_program}}', 'level', true);
-        
+
         // Таблица баллов лояльности
         $this->createTable('{{%loyalty_points}}', [
             'id' => $this->primaryKey(),
@@ -39,25 +39,26 @@ class m250315_120200_create_loyalty_tables extends Migration
             'expires_at' => $this->dateTime(),
             'created_at' => $this->dateTime()->notNull(),
         ]);
-        
+
         $this->createIndex('idx-loyalty_points-customer', '{{%loyalty_points}}', 'customer_id');
         $this->createIndex('idx-loyalty_points-order', '{{%loyalty_points}}', 'order_id');
         $this->createIndex('idx-loyalty_points-type', '{{%loyalty_points}}', 'type');
         $this->createIndex('idx-loyalty_points-expires', '{{%loyalty_points}}', 'expires_at');
-        
+
         $this->addForeignKey('fk-loyalty_points-customer', '{{%loyalty_points}}', 'customer_id', '{{%customer}}', 'id', 'CASCADE');
         $this->addForeignKey('fk-loyalty_points-order', '{{%loyalty_points}}', 'order_id', '{{%order}}', 'id', 'SET NULL');
-        
+
         // Добавляем поле реферала в таблицу клиентов
         $this->addColumn('{{%customer}}', 'referral_code', $this->string(50)->unique());
         $this->addColumn('{{%customer}}', 'referred_by', $this->integer());
         $this->addColumn('{{%customer}}', 'loyalty_level', $this->string(50));
-        
+
         $this->createIndex('idx-customer-referral', '{{%customer}}', 'referral_code', true);
         $this->addForeignKey('fk-customer-referred', '{{%customer}}', 'referred_by', '{{%customer}}', 'id', 'SET NULL');
-        
+
         // Вставляем уровни программы лояльности
-        $this->batchInsert('{{%loyalty_program}}', 
+        $this->batchInsert(
+            '{{%loyalty_program}}',
             ['name', 'level', 'min_points', 'points_multiplier', 'discount_percent', 'benefits', 'color', 'icon', 'sort_order'],
             [
                 ['Бронза', 'bronze', 0, 1.0, 0, json_encode(['Базовое начисление баллов']), '#CD7F32', 'medal-bronze', 1],
@@ -73,7 +74,7 @@ class m250315_120200_create_loyalty_tables extends Migration
         $this->dropColumn('{{%customer}}', 'loyalty_level');
         $this->dropColumn('{{%customer}}', 'referred_by');
         $this->dropColumn('{{%customer}}', 'referral_code');
-        
+
         $this->dropTable('{{%loyalty_points}}');
         $this->dropTable('{{%loyalty_program}}');
     }

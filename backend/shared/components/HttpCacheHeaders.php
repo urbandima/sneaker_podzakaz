@@ -2,36 +2,37 @@
 
 /**
  * HttpCacheHeaders — Компонент управления HTTP кэш-заголовками
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Управление HTTP кэшированием: Cache-Control, ETag,
  * Last-Modified. Оптимизация производительности.
- * 
+ *
  * ФУНКЦИИ:
  * - Cache-Control headers для статических ресурсов
  * - ETag генерация и валидация
  * - Last-Modified handling
  * - CDN-friendly настройки
  * - Vary headers для адаптивного контента
- * 
+ *
  * ПРОФИЛИ:
  * - PROFILE_NO_CACHE: без кэша
  * - PROFILE_PRIVATE_SHORT: приватный, 5 мин
  * - PROFILE_PUBLIC_SHORT: публичный, 5 мин
  * - PROFILE_PUBLIC_LONG: публичный, 24 часа
  * - PROFILE_PUBLIC_IMMUTABLE: иммутабельный, 1 год
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * ```php
  * HttpCacheHeaders::setCacheHeaders($this->response, HttpCacheHeaders::PROFILE_PUBLIC_LONG);
  * HttpCacheHeaders::setETag($this->response, $content);
  * ```
- * 
+ *
  * ОСОБЕННОСТИ:
  * - Готовые профили кэширования
  * - Поддержка CDN
  * - Conditional requests (304 Not Modified)
  */
+
 namespace app\backend\shared\components;
 
 use Yii;
@@ -40,14 +41,14 @@ use yii\web\Response;
 
 /**
  * HttpCacheHeaders - Управление HTTP кэш-заголовками
- * 
+ *
  * Функции:
  * - Cache-Control headers для статических ресурсов
  * - ETag генерация и валидация
  * - Last-Modified handling
  * - CDN-friendly настройки
  * - Vary headers для адаптивного контента
- * 
+ *
  * Использование:
  * ```php
  * HttpCacheHeaders::setCacheHeaders($this->response, HttpCacheHeaders::PROFILE_PUBLIC_LONG);
@@ -58,14 +59,14 @@ class HttpCacheHeaders extends Component
     /**
      * Профили кэширования
      */
-    const PROFILE_NO_CACHE = 'no-cache';           // Без кэша
-    const PROFILE_PRIVATE_SHORT = 'private-short';  // Приватный, 5 мин
-    const PROFILE_PRIVATE_MEDIUM = 'private-medium'; // Приватный, 30 мин
-    const PROFILE_PUBLIC_SHORT = 'public-short';    // Публичный, 5 мин
-    const PROFILE_PUBLIC_MEDIUM = 'public-medium';  // Публичный, 1 час
-    const PROFILE_PUBLIC_LONG = 'public-long';      // Публичный, 24 часа
-    const PROFILE_PUBLIC_IMMUTABLE = 'immutable';   // Иммутабельный, 1 год
-    
+    public const PROFILE_NO_CACHE = 'no-cache';           // Без кэша
+    public const PROFILE_PRIVATE_SHORT = 'private-short';  // Приватный, 5 мин
+    public const PROFILE_PRIVATE_MEDIUM = 'private-medium'; // Приватный, 30 мин
+    public const PROFILE_PUBLIC_SHORT = 'public-short';    // Публичный, 5 мин
+    public const PROFILE_PUBLIC_MEDIUM = 'public-medium';  // Публичный, 1 час
+    public const PROFILE_PUBLIC_LONG = 'public-long';      // Публичный, 24 часа
+    public const PROFILE_PUBLIC_IMMUTABLE = 'immutable';   // Иммутабельный, 1 год
+
     /**
      * Конфигурация профилей
      */
@@ -93,10 +94,10 @@ class HttpCacheHeaders extends Component
             'cache-control' => 'public, max-age=31536000, immutable', // 1 год, иммутабельный
         ],
     ];
-    
+
     /**
      * Установить заголовки кэша по профилю
-     * 
+     *
      * @param Response $response
      * @param string $profile
      * @param array $options Дополнительные опции (etag, last-modified, vary)
@@ -106,62 +107,62 @@ class HttpCacheHeaders extends Component
         if (!isset(self::$profiles[$profile])) {
             $profile = self::PROFILE_PUBLIC_MEDIUM;
         }
-        
+
         $config = self::$profiles[$profile];
-        
+
         // Cache-Control
         if (isset($config['cache-control'])) {
             $response->headers->set('Cache-Control', $config['cache-control']);
         }
-        
+
         // Pragma (для старых браузеров)
         if (isset($config['pragma'])) {
             $response->headers->set('Pragma', $config['pragma']);
         }
-        
+
         // ETag
         if (isset($options['etag'])) {
             $response->headers->set('ETag', self::generateETag($options['etag']));
         }
-        
+
         // Last-Modified
         if (isset($options['last_modified'])) {
-            $lastModified = is_int($options['last_modified']) 
-                ? $options['last_modified'] 
+            $lastModified = is_int($options['last_modified'])
+                ? $options['last_modified']
                 : strtotime($options['last_modified']);
             $response->headers->set('Last-Modified', gmdate('D, d M Y H:i:s', $lastModified) . ' GMT');
         }
-        
+
         // Vary (для адаптивного контента)
         if (isset($options['vary'])) {
             $vary = is_array($options['vary']) ? implode(', ', $options['vary']) : $options['vary'];
             $response->headers->set('Vary', $vary);
         }
-        
+
         // CDN headers
         if (isset($options['cdn']) && $options['cdn']) {
             self::setCdnHeaders($response);
         }
     }
-    
+
     /**
      * Установить заголовки для статических ресурсов
-     * 
+     *
      * @param Response $response
      * @param string $fileExtension
      */
     public static function setStaticAssetHeaders($response, $fileExtension)
     {
         $profile = self::getProfileForExtension($fileExtension);
-        
+
         self::setCacheHeaders($response, $profile, [
             'cdn' => true,
         ]);
     }
-    
+
     /**
      * Установить заголовки для API ответов
-     * 
+     *
      * @param Response $response
      * @param bool $cacheable Можно ли кэшировать
      * @param int $maxAge Время жизни в секундах
@@ -172,15 +173,15 @@ class HttpCacheHeaders extends Component
             self::setCacheHeaders($response, self::PROFILE_NO_CACHE);
             return;
         }
-        
+
         // Для кэшируемых API используем кастомный Cache-Control
         $response->headers->set('Cache-Control', "private, max-age=$maxAge");
         $response->headers->set('Vary', 'Accept, Accept-Encoding');
     }
-    
+
     /**
      * Установить заголовки для страниц каталога
-     * 
+     *
      * @param Response $response
      * @param array $options
      */
@@ -192,10 +193,10 @@ class HttpCacheHeaders extends Component
             'cdn' => true,
         ], $options));
     }
-    
+
     /**
      * Установить заголовки для страницы товара
-     * 
+     *
      * @param Response $response
      * @param int $productId
      * @param int $updatedAt Timestamp обновления
@@ -206,18 +207,18 @@ class HttpCacheHeaders extends Component
             'vary' => ['Accept-Encoding', 'Cookie'],
             'cdn' => true,
         ];
-        
+
         if ($updatedAt) {
             $options['last_modified'] = $updatedAt;
             $options['etag'] = "product-{$productId}-{$updatedAt}";
         }
-        
+
         self::setCacheHeaders($response, self::PROFILE_PUBLIC_MEDIUM, $options);
     }
-    
+
     /**
      * Проверить условный GET запрос (304 Not Modified)
-     * 
+     *
      * @param string $etag
      * @param int|null $lastModified Timestamp
      * @return bool true если нужно вернуть 304
@@ -225,7 +226,7 @@ class HttpCacheHeaders extends Component
     public static function checkNotModified($etag = null, $lastModified = null)
     {
         $request = Yii::$app->request;
-        
+
         // Проверка If-None-Match (ETag)
         if ($etag !== null) {
             $clientEtag = $request->headers->get('If-None-Match');
@@ -233,7 +234,7 @@ class HttpCacheHeaders extends Component
                 return true;
             }
         }
-        
+
         // Проверка If-Modified-Since
         if ($lastModified !== null) {
             $clientTime = $request->headers->get('If-Modified-Since');
@@ -244,13 +245,13 @@ class HttpCacheHeaders extends Component
                 }
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Вернуть 304 Not Modified
-     * 
+     *
      * @param Response $response
      * @param string|null $etag
      * @param int|null $lastModified
@@ -259,19 +260,19 @@ class HttpCacheHeaders extends Component
     {
         $response->statusCode = 304;
         $response->content = null;
-        
+
         if ($etag) {
             $response->headers->set('ETag', self::generateETag($etag));
         }
-        
+
         if ($lastModified) {
             $response->headers->set('Last-Modified', gmdate('D, d M Y H:i:s', $lastModified) . ' GMT');
         }
     }
-    
+
     /**
      * Генерация ETag
-     * 
+     *
      * @param mixed $data Данные для хэширования
      * @return string
      */
@@ -280,13 +281,13 @@ class HttpCacheHeaders extends Component
         if (is_string($data)) {
             return '"' . md5($data) . '"';
         }
-        
+
         return '"' . md5(serialize($data)) . '"';
     }
-    
+
     /**
      * Определить профиль по расширению файла
-     * 
+     *
      * @param string $extension
      * @return string
      */
@@ -297,42 +298,42 @@ class HttpCacheHeaders extends Component
         if (in_array($extension, $immutable)) {
             return self::PROFILE_PUBLIC_IMMUTABLE;
         }
-        
+
         // Долгое кэширование
         $longCache = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'ico'];
         if (in_array($extension, $longCache)) {
             return self::PROFILE_PUBLIC_LONG;
         }
-        
+
         // Среднее кэширование (JS, CSS)
         $mediumCache = ['js', 'css'];
         if (in_array($extension, $mediumCache)) {
             return self::PROFILE_PUBLIC_MEDIUM;
         }
-        
+
         return self::PROFILE_PUBLIC_SHORT;
     }
-    
+
     /**
      * Установить специфичные заголовки для CDN
-     * 
+     *
      * @param Response $response
      */
     protected static function setCdnHeaders($response)
     {
         // Cloudflare
         $response->headers->set('CDN-Cache-Control', 'public, max-age=31536000');
-        
+
         // Fastly
         $response->headers->set('Surrogate-Control', 'max-age=31536000');
-        
+
         // Общий Surrogate-Key для групповой инвалидации
         $response->headers->set('Surrogate-Key', 'static-assets');
     }
-    
+
     /**
      * Очистить все заголовки кэша
-     * 
+     *
      * @param Response $response
      */
     public static function clearCacheHeaders($response)
@@ -344,10 +345,10 @@ class HttpCacheHeaders extends Component
         $response->headers->remove('Last-Modified');
         $response->headers->remove('Vary');
     }
-    
+
     /**
      * Получить рекомендации по настройке веб-сервера
-     * 
+     *
      * @return array
      */
     public static function getServerConfigRecommendations()

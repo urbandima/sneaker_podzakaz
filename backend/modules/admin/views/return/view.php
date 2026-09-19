@@ -56,9 +56,9 @@ $this->params['headerActions'] = $actions;
                 <div class="return-info-row">
                     <span class="return-info-label">Тип возврата</span>
                     <span class="return-info-value">
-                        <?php if ($isCommission): ?>
+                        <?php if ($isCommission) : ?>
                             <span class="admin-badge admin-badge-info"><i class="bi bi-handshake"></i> Комиссионный договор</span>
-                        <?php else: ?>
+                        <?php else : ?>
                             <span class="admin-badge admin-badge-warning"><i class="bi bi-cash-coin"></i> Возврат денег</span>
                         <?php endif; ?>
                     </span>
@@ -83,7 +83,7 @@ $this->params['headerActions'] = $actions;
                     <span class="return-info-label">Причина</span>
                     <span class="return-info-value"><?= Html::encode($model->getReasonName()) ?></span>
                 </div>
-                <?php if ($model->refund_amount): ?>
+                <?php if ($model->refund_amount) : ?>
                 <div class="return-info-row">
                     <span class="return-info-label">Сумма возврата</span>
                     <span class="return-info-value" style="font-weight: 700; font-size: 1.1rem;">
@@ -95,7 +95,7 @@ $this->params['headerActions'] = $actions;
                     <span class="return-info-label">Создана</span>
                     <span class="return-info-value"><?= Yii::$app->formatter->asDatetime($model->created_at) ?></span>
                 </div>
-                <?php if (!empty($model->description)): ?>
+                <?php if (!empty($model->description)) : ?>
                 <div class="return-info-row" style="flex-direction: column; gap: 0.5rem;">
                     <span class="return-info-label">Описание</span>
                     <span class="return-info-value"><?= nl2br(Html::encode($model->description)) ?></span>
@@ -105,7 +105,7 @@ $this->params['headerActions'] = $actions;
         </div>
 
         <!-- Commission checklist -->
-        <?php if ($isCommission): ?>
+        <?php if ($isCommission) : ?>
         <div class="admin-card">
             <h2 class="admin-card-title">
                 <i class="bi bi-list-check"></i>
@@ -115,13 +115,13 @@ $this->params['headerActions'] = $actions;
                 Отмечайте шаги по мере выполнения. Каждый шаг фиксируется с датой и исполнителем.
             </p>
             <div class="checklist-steps">
-                <?php $stepIdx = 0; foreach ($steps as $stepKey => $step):
+                <?php $stepIdx = 0; foreach ($steps as $stepKey => $step) :
                     $stepData   = $checklistData[$stepKey] ?? [];
                     $done       = !empty($stepData['done']);
                     $doneDate   = $stepData['date'] ?? null;
                     $doneAuthor = $stepData['author'] ?? null;
                     $stepIdx++;
-                ?>
+                    ?>
                 <div class="checklist-step <?= $done ? 'checklist-step--done' : '' ?>" id="step-<?= $stepKey ?>">
                     <div class="checklist-step-number"><?= $stepIdx ?></div>
                     <div class="checklist-step-icon">
@@ -129,24 +129,24 @@ $this->params['headerActions'] = $actions;
                     </div>
                     <div class="checklist-step-content">
                         <div class="checklist-step-label"><?= Html::encode($step['label']) ?></div>
-                        <?php if ($done && $doneDate): ?>
+                        <?php if ($done && $doneDate) : ?>
                             <div class="checklist-step-meta">
                                 <i class="bi bi-calendar3"></i> <?= Html::encode($doneDate) ?>
-                                <?php if ($doneAuthor): ?>
+                                <?php if ($doneAuthor) : ?>
                                     &nbsp;&bull;&nbsp;<i class="bi bi-person"></i> <?= Html::encode($doneAuthor) ?>
                                 <?php endif; ?>
                             </div>
                         <?php endif; ?>
                     </div>
                     <div class="checklist-step-action">
-                        <?php if (!$done): ?>
+                        <?php if (!$done) : ?>
                             <button class="admin-btn admin-btn-primary"
                                     style="padding: 0.35rem 0.9rem; font-size: 0.8rem;"
                                     onclick="markStepDone(<?= $model->id ?>, '<?= $stepKey ?>', this)"
                                     data-update-url="<?= \yii\helpers\Url::to(['/admin/return/update-step']) ?>">
                                 <i class="bi bi-check2"></i> Выполнено
                             </button>
-                        <?php else: ?>
+                        <?php else : ?>
                             <span class="admin-badge admin-badge-success"><i class="bi bi-check2-circle"></i> Готово</span>
                         <?php endif; ?>
                     </div>
@@ -157,7 +157,7 @@ $this->params['headerActions'] = $actions;
         <?php endif; ?>
 
         <!-- Admin comment -->
-        <?php if (!empty($model->admin_comment)): ?>
+        <?php if (!empty($model->admin_comment)) : ?>
         <div class="admin-card">
             <h2 class="admin-card-title"><i class="bi bi-chat-text"></i> Комментарий</h2>
             <p style="margin-top: 1rem; line-height: 1.6;"><?= nl2br(Html::encode($model->admin_comment)) ?></p>
@@ -167,7 +167,7 @@ $this->params['headerActions'] = $actions;
 
     <!-- Right column: actions -->
     <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-        <?php if ($model->status === 'pending'): ?>
+        <?php if ($model->status === 'pending') : ?>
         <div class="admin-card">
             <h3 class="admin-card-title" style="font-size: 0.95rem;"><i class="bi bi-lightning"></i> Действия</h3>
             <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
@@ -194,7 +194,7 @@ $this->params['headerActions'] = $actions;
         </div>
         <?php endif; ?>
 
-        <?php if ($model->status === 'approved'): ?>
+        <?php if ($model->status === 'approved') : ?>
         <div class="admin-card">
             <h3 class="admin-card-title" style="font-size: 0.95rem;"><i class="bi bi-play-circle"></i> Обработка</h3>
             <?= Html::beginForm(['process', 'id' => $model->id], 'post', ['style' => 'margin-top: 1rem;']) ?>
@@ -205,7 +205,7 @@ $this->params['headerActions'] = $actions;
         </div>
         <?php endif; ?>
 
-        <?php if ($model->status === 'processing'): ?>
+        <?php if ($model->status === 'processing') : ?>
         <div class="admin-card">
             <h3 class="admin-card-title" style="font-size: 0.95rem;"><i class="bi bi-flag-fill"></i> Завершение</h3>
             <?= Html::beginForm(['complete', 'id' => $model->id], 'post', ['style' => 'margin-top: 1rem;']) ?>
@@ -230,7 +230,7 @@ $this->params['headerActions'] = $actions;
                         <div style="font-size: 0.75rem; color: var(--admin-text-secondary);"><?= Yii::$app->formatter->asDatetime($model->created_at) ?></div>
                     </div>
                 </div>
-                <?php if (!empty($model->updated_at) && $model->updated_at !== $model->created_at): ?>
+                <?php if (!empty($model->updated_at) && $model->updated_at !== $model->created_at) : ?>
                 <div class="timeline-item">
                     <div class="timeline-dot" style="background: <?= $statusColor === 'success' ? '#22c55e' : '#f59e0b' ?>;"></div>
                     <div class="timeline-body">

@@ -50,9 +50,9 @@ $this->title = 'Импорт товаров из Poizon';
         <div class="import-batches-section">
             <h2>Последние импорты</h2>
             
-            <?php if ($dataProvider->count > 0): ?>
+            <?php if ($dataProvider->count > 0) : ?>
                 <div class="import-batches-list">
-                    <?php foreach ($dataProvider->getModels() as $batch): ?>
+                    <?php foreach ($dataProvider->getModels() as $batch) : ?>
                         <div class="import-batch-card">
                             <div class="import-batch-header">
                                 <div class="import-batch-title">
@@ -96,7 +96,7 @@ $this->title = 'Импорт товаров из Poizon';
                     'linkOptions' => ['class' => 'page-link'],
                     'activePageCssClass' => 'active',
                 ]) ?>
-            <?php else: ?>
+            <?php else : ?>
                 <div class="alert alert-info">
                     Импорты еще не запускались. Нажмите "Запустить импорт" для начала.
                 </div>

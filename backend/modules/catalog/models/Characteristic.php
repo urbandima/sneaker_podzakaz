@@ -2,11 +2,11 @@
 
 /**
  * Characteristic — Модель типа характеристики
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Типы характеристик товаров: цвет, материал, сезон и т.д.
  * Поддержка разных типов значений: select, multiselect, text, number, boolean.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - key: ключ характеристики (для кода)
  * - name: название (для отображения)
@@ -15,23 +15,24 @@
  * - is_required: обязательная характеристика
  * - sort_order: порядок сортировки
  * - is_active: активна
- * 
+ *
  * ТИПЫ:
  * - TYPE_SELECT: одиночный выбор
  * - TYPE_MULTISELECT: множественный выбор
  * - TYPE_TEXT: текстовое значение
  * - TYPE_NUMBER: числовое значение
  * - TYPE_BOOLEAN: да/нет
- * 
+ *
  * СВЯЗИ:
  * - CharacteristicValue[] (возможные значения)
  * - ProductCharacteristicValue[] (значения товаров)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - CharacteristicController/admin (управление характеристиками)
  * - CatalogController (фильтрация по характеристикам)
  * - ProductController/admin (заполнение характеристик товара)
  */
+
 namespace app\backend\modules\catalog\models;
 
 use Yii;
@@ -52,17 +53,17 @@ use app\backend\modules\catalog\models\history\CharacteristicHistory;
  * @property int $is_active Активна
  * @property string $created_at
  * @property string $updated_at
- * 
+ *
  * @property CharacteristicValue[] $values
  * @property ProductCharacteristicValue[] $productCharacteristicValues
  */
 class Characteristic extends ActiveRecord
 {
-    const TYPE_SELECT = 'select';
-    const TYPE_MULTISELECT = 'multiselect';
-    const TYPE_TEXT = 'text';
-    const TYPE_NUMBER = 'number';
-    const TYPE_BOOLEAN = 'boolean';
+    public const TYPE_SELECT = 'select';
+    public const TYPE_MULTISELECT = 'multiselect';
+    public const TYPE_TEXT = 'text';
+    public const TYPE_NUMBER = 'number';
+    public const TYPE_BOOLEAN = 'boolean';
 
     public static function tableName()
     {

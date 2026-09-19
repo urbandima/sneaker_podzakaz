@@ -30,11 +30,21 @@ class BuyoutController extends BaseAdminController
             ->with(['orderLinks'])
             ->orderBy(['created_at' => SORT_DESC]);
 
-        if ($filterStatus) $query->andWhere(['status' => $filterStatus]);
-        if ($filterSource) $query->andWhere(['source' => $filterSource]);
-        if ($filterBuyer)  $query->andWhere(['buyer_user_id' => (int)$filterBuyer]);
-        if ($filterFrom)   $query->andWhere(['>=', 'created_at', $filterFrom . ' 00:00:00']);
-        if ($filterTo)     $query->andWhere(['<=', 'created_at', $filterTo . ' 23:59:59']);
+        if ($filterStatus) {
+            $query->andWhere(['status' => $filterStatus]);
+        }
+        if ($filterSource) {
+            $query->andWhere(['source' => $filterSource]);
+        }
+        if ($filterBuyer) {
+            $query->andWhere(['buyer_user_id' => (int)$filterBuyer]);
+        }
+        if ($filterFrom) {
+            $query->andWhere(['>=', 'created_at', $filterFrom . ' 00:00:00']);
+        }
+        if ($filterTo) {
+            $query->andWhere(['<=', 'created_at', $filterTo . ' 23:59:59']);
+        }
 
         $all     = $query->limit(500)->all();
         $buyouts = $all;
@@ -180,7 +190,9 @@ class BuyoutController extends BaseAdminController
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $url = trim(Yii::$app->request->post('url', ''));
-        if (!$url) return ['success' => false, 'message' => 'URL не указан'];
+        if (!$url) {
+            return ['success' => false, 'message' => 'URL не указан'];
+        }
 
         $service = new BuyoutUrlParserService();
         $data    = $service->parse($url);
@@ -204,13 +216,17 @@ class BuyoutController extends BaseAdminController
 
         $buyout = Buyout::findOne($buyoutId);
         $order  = Order::findOne($orderId);
-        if (!$buyout || !$order) return ['success' => false, 'message' => 'Не найдено'];
+        if (!$buyout || !$order) {
+            return ['success' => false, 'message' => 'Не найдено'];
+        }
 
         $existing = BuyoutOrderLink::find()
             ->where(['buyout_id' => $buyoutId, 'order_id' => $orderId, 'order_item_id' => null])
             ->one();
 
-        if ($existing) return ['success' => false, 'message' => 'Заказ уже привязан'];
+        if ($existing) {
+            return ['success' => false, 'message' => 'Заказ уже привязан'];
+        }
 
         $link             = new BuyoutOrderLink();
         $link->buyout_id  = $buyoutId;
@@ -291,7 +307,6 @@ class BuyoutController extends BaseAdminController
 
             $tx->commit();
             return ['success' => true, 'receiving_id' => $po->id, 'redirect' => '/admin/procurement/view/' . $po->id];
-
         } catch (\Throwable $e) {
             $tx->rollBack();
             Yii::error('BuyoutAccept error: ' . $e->getMessage(), 'buyout');
@@ -313,7 +328,9 @@ class BuyoutController extends BaseAdminController
 
         $old = $buyout->status;
         $buyout->status = Buyout::STATUS_CANCELLED;
-        if ($notes) $buyout->notes = trim(($buyout->notes ? $buyout->notes . "\n" : '') . '[Отмена] ' . $notes);
+        if ($notes) {
+            $buyout->notes = trim(($buyout->notes ? $buyout->notes . "\n" : '') . '[Отмена] ' . $notes);
+        }
         $buyout->save(false);
 
         return ['success' => true, 'status_label' => $buyout->getStatusLabel()];
@@ -378,16 +395,24 @@ class BuyoutController extends BaseAdminController
         $status = $data['status'] ?? '';
 
         $buyout = Buyout::findOne($id);
-        if (!$buyout) return ['success' => false, 'message' => 'Не найдено'];
+        if (!$buyout) {
+            return ['success' => false, 'message' => 'Не найдено'];
+        }
 
         if (!$buyout->canTransitionTo($status)) {
             return ['success' => false, 'message' => 'Переход недоступен из статуса: ' . $buyout->getStatusLabel()];
         }
 
         $buyout->status = $status;
-        if ($status === Buyout::STATUS_ORDERED)  $buyout->ordered_at  = date('Y-m-d H:i:s');
-        if ($status === Buyout::STATUS_ARRIVED)   $buyout->arrived_at  = date('Y-m-d H:i:s');
-        if ($status === Buyout::STATUS_ACCEPTED)  $buyout->accepted_at = date('Y-m-d H:i:s');
+        if ($status === Buyout::STATUS_ORDERED) {
+            $buyout->ordered_at  = date('Y-m-d H:i:s');
+        }
+        if ($status === Buyout::STATUS_ARRIVED) {
+            $buyout->arrived_at  = date('Y-m-d H:i:s');
+        }
+        if ($status === Buyout::STATUS_ACCEPTED) {
+            $buyout->accepted_at = date('Y-m-d H:i:s');
+        }
         $buyout->save(false);
 
         return [
@@ -403,7 +428,9 @@ class BuyoutController extends BaseAdminController
     private function findBuyout(int $id): Buyout
     {
         $buyout = Buyout::find()->with(['orderLinks', 'histories'])->where(['id' => $id])->one();
-        if (!$buyout) throw new NotFoundHttpException('Выкуп не найден.');
+        if (!$buyout) {
+            throw new NotFoundHttpException('Выкуп не найден.');
+        }
         return $buyout;
     }
 }

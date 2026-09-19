@@ -2,11 +2,12 @@
 
 /**
  * AnalyticsEvent — Временная заглушка для модели аналитики
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Временная реализация для предотвращения ошибок.
  * TODO: Создать полную реализацию модели.
  */
+
 namespace app\backend\modules\catalog\models;
 
 use Yii;
@@ -18,10 +19,10 @@ class AnalyticsEvent extends ActiveRecord
     {
         return '{{%analytics_event}}';
     }
-    
+
     /**
      * Проверить доступность таблицы аналитики
-     * 
+     *
      * @return bool
      */
     public static function isAvailable(): bool
@@ -34,7 +35,7 @@ class AnalyticsEvent extends ActiveRecord
             return false;
         }
     }
-    
+
     public static function getConversionStats($dateFrom, $dateTo)
     {
         if (!self::isAvailable()) {

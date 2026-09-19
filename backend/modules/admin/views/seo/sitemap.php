@@ -20,10 +20,10 @@ $this->title = 'Sitemap.xml';
         <div class="card-body">
             <h5 class="card-title">Статус sitemap</h5>
             <p class="card-text">
-                <?php if ($exists): ?>
+                <?php if ($exists) : ?>
                     <span class="badge bg-success">Существует</span><br>
                     Последнее обновление: <?= $lastModified ?>
-                <?php else: ?>
+                <?php else : ?>
                     <span class="badge bg-warning">Не создан</span>
                 <?php endif; ?>
             </p>
@@ -33,7 +33,7 @@ $this->title = 'Sitemap.xml';
                 <?= Html::submitButton('Сгенерировать sitemap.xml', ['class' => 'btn btn-primary']) ?>
             <?= Html::endForm() ?>
             
-            <?php if ($exists): ?>
+            <?php if ($exists) : ?>
                 <?= Html::a('Открыть sitemap.xml', '/sitemap.xml', ['class' => 'btn btn-outline-secondary ms-2', 'target' => '_blank']) ?>
             <?php endif; ?>
         </div>

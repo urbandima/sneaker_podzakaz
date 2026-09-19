@@ -11,7 +11,7 @@ class m250102_120000_add_catalog_indexes extends Migration
     public function safeUp()
     {
         echo "Создание индексов для оптимизации каталога...\n";
-        
+
         // Составной индекс для фильтрации (is_active + brand_id + category_id + price)
         // Используется в 90% запросов каталога
         try {
@@ -24,7 +24,7 @@ class m250102_120000_add_catalog_indexes extends Migration
         } catch (\Exception $e) {
             echo "⚠ idx-product-filter уже существует, пропускаем\n";
         }
-        
+
         // Индекс для сортировки по дате создания
         try {
             $this->createIndex(
@@ -36,7 +36,7 @@ class m250102_120000_add_catalog_indexes extends Migration
         } catch (\Exception $e) {
             echo "⚠ idx-product-created уже существует, пропускаем\n";
         }
-        
+
         // Индекс для сортировки по просмотрам (популярность)
         try {
             $this->createIndex(
@@ -48,7 +48,7 @@ class m250102_120000_add_catalog_indexes extends Migration
         } catch (\Exception $e) {
             echo "⚠ idx-product-views уже существует, пропускаем\n";
         }
-        
+
         // Индекс для сортировки по рейтингу - пропускаем, поле не существует
         // $this->createIndex(
         //     'idx-product-rating',
@@ -56,7 +56,7 @@ class m250102_120000_add_catalog_indexes extends Migration
         //     ['rating']
         // );
         echo "⚠ Поле rating не существует, индекс idx-product-rating пропущен\n";
-        
+
         // Индекс для поиска по названию
         try {
             $this->createIndex(
@@ -68,7 +68,7 @@ class m250102_120000_add_catalog_indexes extends Migration
         } catch (\Exception $e) {
             echo "⚠ idx-product-name уже существует, пропускаем\n";
         }
-        
+
         // Индекс для фильтра по slug (для страницы товара)
         try {
             $this->createIndex(
@@ -81,20 +81,20 @@ class m250102_120000_add_catalog_indexes extends Migration
         } catch (\Exception $e) {
             echo "⚠ idx-product-slug уже существует, пропускаем\n";
         }
-        
+
         // Индексы для новых полей фильтров - пропускаем несуществующие поля
         // $this->createIndex('idx-product-material', '{{%product}}', ['material']);
         echo "⚠ Поле material не существует, индекс idx-product-material пропущен\n";
-        
+
         // $this->createIndex('idx-product-season', '{{%product}}', ['season']);
         echo "⚠ Поле season не существует, индекс idx-product-season пропущен\n";
-        
+
         // $this->createIndex('idx-product-gender', '{{%product}}', ['gender']);
         echo "⚠ Поле gender не существует, индекс idx-product-gender пропущен\n";
-        
+
         $this->createIndex('idx-product-stock', '{{%product}}', ['stock_status']);
         echo "✓ Создан idx-product-stock\n";
-        
+
         // Индекс для старой цены (для фильтра скидок)
         try {
             $this->createIndex('idx-product-old-price', '{{%product}}', ['old_price']);
@@ -102,9 +102,9 @@ class m250102_120000_add_catalog_indexes extends Migration
         } catch (\Exception $e) {
             echo "⚠ idx-product-old-price уже существует, пропускаем\n";
         }
-        
+
         // Индексы для связанных таблиц
-        
+
         // Brand
         try {
             $this->createIndex('idx-brand-slug', '{{%brand}}', ['slug'], true);
@@ -113,7 +113,7 @@ class m250102_120000_add_catalog_indexes extends Migration
         } catch (\Exception $e) {
             echo "⚠ Индексы brand уже существуют, пропускаем\n";
         }
-        
+
         // Category
         try {
             $this->createIndex('idx-category-slug', '{{%category}}', ['slug'], true);
@@ -123,7 +123,7 @@ class m250102_120000_add_catalog_indexes extends Migration
         } catch (\Exception $e) {
             echo "⚠ Индексы category уже существуют, пропускаем\n";
         }
-        
+
         // ProductImage
         try {
             $this->createIndex('idx-product-image-main', '{{%product_image}}', ['product_id', 'is_main']);
@@ -132,7 +132,7 @@ class m250102_120000_add_catalog_indexes extends Migration
         } catch (\Exception $e) {
             echo "⚠ Индексы product_image уже существуют, пропускаем\n";
         }
-        
+
         echo "\n✅ Все индексы успешно созданы!\n";
         echo "Ожидаемое улучшение производительности: +200%\n";
     }
@@ -140,7 +140,7 @@ class m250102_120000_add_catalog_indexes extends Migration
     public function safeDown()
     {
         echo "Удаление индексов каталога...\n";
-        
+
         // Product
         $this->dropIndex('idx-product-filter', '{{%product}}');
         $this->dropIndex('idx-product-created', '{{%product}}');
@@ -153,20 +153,20 @@ class m250102_120000_add_catalog_indexes extends Migration
         // $this->dropIndex('idx-product-gender', '{{%product}}'); // поле не существует
         $this->dropIndex('idx-product-stock', '{{%product}}');
         $this->dropIndex('idx-product-old-price', '{{%product}}');
-        
+
         // Brand
         $this->dropIndex('idx-brand-slug', '{{%brand}}');
         $this->dropIndex('idx-brand-active', '{{%brand}}');
-        
+
         // Category
         $this->dropIndex('idx-category-slug', '{{%category}}');
         $this->dropIndex('idx-category-active', '{{%category}}');
         $this->dropIndex('idx-category-parent', '{{%category}}');
-        
+
         // ProductImage
         $this->dropIndex('idx-product-image-main', '{{%product_image}}');
         $this->dropIndex('idx-product-image-sort', '{{%product_image}}');
-        
+
         echo "✓ Индексы удалены\n";
     }
 }

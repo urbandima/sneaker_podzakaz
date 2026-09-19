@@ -18,7 +18,9 @@ $regionGroups = [
 ];
 foreach ($methods as $i => $method) {
     $region = $method['region'] ?? (($method['type'] ?? '') === 'international' ? 'international' : 'belarus');
-    if (!isset($regionGroups[$region])) $region = 'belarus';
+    if (!isset($regionGroups[$region])) {
+        $region = 'belarus';
+    }
     $regionGroups[$region]['methods'][] = ['_idx' => $i, 'data' => $method];
 }
 ?>
@@ -27,7 +29,7 @@ foreach ($methods as $i => $method) {
 <div class="admin-card" style="margin-bottom:24px">
     <div class="admin-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
         <div style="display:flex;gap:0">
-            <?php foreach ($regionGroups as $regionKey => $group): ?>
+            <?php foreach ($regionGroups as $regionKey => $group) : ?>
             <button class="shipping-tab-btn" data-region="<?= $regionKey ?>" onclick="switchRegionTab('<?= $regionKey ?>')" style="<?= $regionKey === 'international' ? 'border-bottom-color:var(--admin-accent);color:var(--admin-accent);' : '' ?>">
                 <i class="bi <?= $group['icon'] ?>"></i> <?= $group['label'] ?>
                 <span class="admin-badge admin-badge-secondary" style="font-size:10px;margin-left:4px"><?= count($group['methods']) ?></span>
@@ -39,16 +41,18 @@ foreach ($methods as $i => $method) {
         </button>
     </div>
 
-    <?php foreach ($regionGroups as $regionKey => $group): ?>
+    <?php foreach ($regionGroups as $regionKey => $group) : ?>
     <div class="shipping-region-panel" id="region-panel-<?= $regionKey ?>" style="<?= $regionKey !== 'international' ? 'display:none' : '' ?>;padding:0">
         <div id="delivery-types-list-<?= $regionKey ?>">
-        <?php if (empty($group['methods'])): ?>
+        <?php if (empty($group['methods'])) : ?>
         <div style="padding:2rem;text-align:center;color:var(--admin-text-secondary);font-size:0.875rem">
             <i class="bi <?= $group['icon'] ?>" style="font-size:1.5rem;display:block;margin-bottom:0.5rem"></i>
             Нет методов доставки для этого региона
         </div>
         <?php endif; ?>
-        <?php foreach ($group['methods'] as $entry): $i = $entry['_idx']; $method = $entry['data']; ?>
+        <?php foreach ($group['methods'] as $entry) :
+            $i = $entry['_idx'];
+            $method = $entry['data']; ?>
         <div class="delivery-type-row" id="delivery-row-<?= $i ?>" data-id="<?= htmlspecialchars($method['id']) ?>">
             <div class="delivery-type-info">
                 <div class="delivery-type-drag"><i class="bi bi-grip-vertical"></i></div>
@@ -84,7 +88,7 @@ foreach ($methods as $i => $method) {
                                placeholder="Плагин (europochta, belpochta...)"
                                data-field="plugin" data-idx="<?= $i ?>"
                                style="max-width:180px;font-size:12px">
-                        <?php if (empty($method['plugin']) && ($method['status'] ?? '') === 'active'): ?>
+                        <?php if (empty($method['plugin']) && ($method['status'] ?? '') === 'active') : ?>
                         <span class="admin-badge admin-badge-warning" style="font-size:11px;white-space:nowrap" title="Провайдер не выбран — метод деактивирован при сохранении">
                             <i class="bi bi-exclamation-triangle"></i> Провайдер не выбран — метод деактивирован
                         </span>

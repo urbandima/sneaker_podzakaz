@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
@@ -68,7 +69,7 @@ use app\backend\modules\catalog\models\Characteristic;
         </div>
         <div class="card-body">
             <div id="values-container" class="row g-3">
-                <?php foreach ($values as $index => $value): ?>
+                <?php foreach ($values as $index => $value) : ?>
                     <div class="col-md-6 value-row" data-index="<?= $index ?>">
                         <?= Html::activeHiddenInput($value, "[$index]id") ?>
                         <div class="card shadow-sm">

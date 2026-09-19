@@ -1,4 +1,5 @@
 <?php
+
 namespace app\backend\modules\procurement\models;
 
 use yii\db\ActiveRecord;
@@ -23,7 +24,10 @@ use app\backend\modules\catalog\models\Brand;
  */
 class Supplier extends ActiveRecord
 {
-    public static function tableName() { return 'supplier'; }
+    public static function tableName()
+    {
+        return 'supplier';
+    }
 
     public function rules()
     {
@@ -73,7 +77,9 @@ class Supplier extends ActiveRecord
      */
     public function getBrandIds(): array
     {
-        if (empty($this->brands)) return [];
+        if (empty($this->brands)) {
+            return [];
+        }
         $decoded = json_decode($this->brands, true);
         return is_array($decoded) ? array_map('intval', $decoded) : [];
     }
@@ -85,7 +91,9 @@ class Supplier extends ActiveRecord
     public function getBrandsList(): array
     {
         $ids = $this->getBrandIds();
-        if (empty($ids)) return [];
+        if (empty($ids)) {
+            return [];
+        }
         return Brand::find()->where(['id' => $ids])->orderBy(['name' => SORT_ASC])->all();
     }
 
@@ -119,7 +127,9 @@ class Supplier extends ActiveRecord
 
     public static function getCountryFlagEmoji(string $iso): string
     {
-        if (!$iso || strlen($iso) !== 2) return '';
+        if (!$iso || strlen($iso) !== 2) {
+            return '';
+        }
         $code = strtoupper($iso);
         $flag = '';
         foreach (str_split($code) as $char) {
@@ -147,7 +157,7 @@ class Supplier extends ActiveRecord
 
     public function getContractTypeBadgeColor(): string
     {
-        return match($this->contract_type) {
+        return match ($this->contract_type) {
             'commission' => '#5c6ef8',
             'stock'      => '#00a651',
             'to_order'   => '#e07b00',

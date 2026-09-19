@@ -32,8 +32,10 @@ $this->title = 'ALT тексты изображений';
     </p>
     
     <div class="row">
-        <?php foreach ($products as $product): ?>
-            <?php if (empty($product->images)) continue; ?>
+        <?php foreach ($products as $product) : ?>
+            <?php if (empty($product->images)) {
+                continue;
+            } ?>
             <div class="col-md-6 mb-4">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -41,7 +43,7 @@ $this->title = 'ALT тексты изображений';
                         <small class="text-muted">ID: <?= $product->id ?></small>
                     </div>
                     <div class="card-body">
-                        <?php foreach ($product->images as $image): ?>
+                        <?php foreach ($product->images as $image) : ?>
                             <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
                                 <img src="<?= $image->getUrl() ?>" alt="" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;" class="me-3">
                                 <div class="flex-grow-1">
@@ -51,9 +53,9 @@ $this->title = 'ALT тексты изображений';
                                            value="<?= Html::encode($image->alt_text) ?>"
                                            placeholder="Опишите изображение..."
                                            onchange="updateImageAlt(<?= $image->id ?>, this.value)">
-                                    <?php if (empty($image->alt_text)): ?>
+                                    <?php if (empty($image->alt_text)) : ?>
                                         <div class="invalid-feedback small">ALT текст не заполнен</div>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <div class="valid-feedback small">✓ Заполнено</div>
                                     <?php endif; ?>
                                 </div>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Печатный шаблон счёта/накладной заказа (для window.print() и TCPDF)
  * @var yii\web\View $this
@@ -7,6 +8,7 @@
  */
 use yii\helpers\Html;
 use app\backend\shared\helpers\PriceHelper;
+
 $company = Yii::$app->settings->getCompany() ?? [];
 ?>
 <html lang="ru"><head><meta charset="UTF-8"><title>Заказ №<?= Html::encode($model->order_number ?: $model->id) ?></title>
@@ -32,7 +34,9 @@ tfoot td{font-weight:700;border-top:2px solid #000;font-size:13px}
         <h1><?= Html::encode($company['name'] ?? 'СНИКЕРХЭД') ?></h1>
         <p><?= Html::encode($company['address'] ?? '') ?></p>
         <p><?= Html::encode($company['phone'] ?? '') ?> | <?= Html::encode($company['email'] ?? '') ?></p>
-        <?php if (!empty($company['unp'])): ?><p>УНП: <?= Html::encode($company['unp']) ?></p><?php endif ?>
+        <?php if (!empty($company['unp'])) :
+            ?><p>УНП: <?= Html::encode($company['unp']) ?></p><?php
+        endif ?>
     </div>
     <div class="meta text-right">
         <h2>Заказ №<?= Html::encode($model->order_number ?: $model->id) ?></h2>
@@ -50,15 +54,17 @@ tfoot td{font-weight:700;border-top:2px solid #000;font-size:13px}
     <div class="col">
         <h3>Доставка</h3>
         <p><?= Html::encode($model->delivery_address ?? 'Не указан') ?></p>
-        <?php if ($model->china_track_number): ?><p>Трек: <?= Html::encode($model->china_track_number) ?></p><?php endif ?>
+        <?php if ($model->china_track_number) :
+            ?><p>Трек: <?= Html::encode($model->china_track_number) ?></p><?php
+        endif ?>
     </div>
 </div>
 <table>
 <thead><tr><th>#</th><th>Товар</th><th>Размер</th><th>Кол-во</th><th>Цена</th><th>Итого</th></tr></thead>
 <tbody>
-<?php foreach ($model->orderItems as $i => $item): ?>
+<?php foreach ($model->orderItems as $i => $item) : ?>
 <tr>
-    <td><?= $i+1 ?></td>
+    <td><?= $i + 1 ?></td>
     <td><?= Html::encode($item->product_name ?? '') ?></td>
     <td><?= Html::encode($item->size ?? '—') ?></td>
     <td><?= (int)($item->quantity ?? 1) ?></td>
@@ -69,7 +75,7 @@ tfoot td{font-weight:700;border-top:2px solid #000;font-size:13px}
 </tbody>
 <tfoot><tr><td colspan="5" class="text-right">ИТОГО:</td><td><?= PriceHelper::format($model->total_amount ?? 0) ?></td></tr></tfoot>
 </table>
-<?php if (!empty($company['bank_details'])): ?>
+<?php if (!empty($company['bank_details'])) : ?>
 <div style="margin-top:20px;font-size:11px;color:#555">
     <strong>Банковские реквизиты:</strong> <?= Html::encode($company['bank_details']) ?>
 </div>

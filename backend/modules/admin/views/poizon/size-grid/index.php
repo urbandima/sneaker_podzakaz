@@ -71,7 +71,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <span>Пол</span>
                         <select name="gender">
                             <option value="">Все</option>
-                            <?php foreach ($genderOptions as $key => $label): ?>
+                            <?php foreach ($genderOptions as $key => $label) : ?>
                                 <option value="<?= Html::encode($key) ?>" <?= $gender === $key ? 'selected' : '' ?>>
                                     <?= Html::encode($label) ?>
                                 </option>
@@ -82,7 +82,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <span>Бренд</span>
                         <select name="brand">
                             <option value="">Все</option>
-                            <?php foreach ($brandOptions as $id => $label): ?>
+                            <?php foreach ($brandOptions as $id => $label) : ?>
                                 <option value="<?= Html::encode($id) ?>" <?= (string)$brandId === (string)$id ? 'selected' : '' ?>>
                                     <?= Html::encode($label) ?>
                                 </option>

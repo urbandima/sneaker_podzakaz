@@ -15,7 +15,8 @@ $this->params['breadcrumbs'][] = ['label' => 'Импорт Poizon', 'url' => ['/
 $this->params['breadcrumbs'][] = $this->title;
 
 // Форматирование размера
-function formatSize($bytes) {
+function formatSize($bytes)
+{
     $units = ['B', 'KB', 'MB', 'GB'];
     $i = floor(log($bytes) / log(1024));
     return round($bytes / pow(1024, $i), 2) . ' ' . $units[$i];
@@ -36,8 +37,8 @@ function formatSize($bytes) {
                     <h6 class="mb-0"><i class="bi bi-list"></i> Все логи</h6>
                 </div>
                 <div class="list-group list-group-flush" style="max-height: 600px; overflow-y: auto;">
-                    <?php if (!empty($logsList)): ?>
-                        <?php foreach ($logsList as $log): ?>
+                    <?php if (!empty($logsList)) : ?>
+                        <?php foreach ($logsList as $log) : ?>
                             <a href="<?= Url::to(['/admin/poizon/view-log', 'file' => $log['name']]) ?>" 
                                class="list-group-item list-group-item-action <?= $log['name'] === $fileName ? 'active' : '' ?>">
                                 <div class="d-flex w-100 justify-content-between">
@@ -49,7 +50,7 @@ function formatSize($bytes) {
                                 </small>
                             </a>
                         <?php endforeach; ?>
-                    <?php else: ?>
+                    <?php else : ?>
                         <div class="list-group-item text-muted">
                             <small>Нет доступных логов</small>
                         </div>
@@ -67,10 +68,10 @@ function formatSize($bytes) {
                             <i class="bi bi-file-text"></i> <?= Html::encode($fileName) ?>
                         </h6>
                         <div>
-                            <?php if ($fileSize > 0): ?>
+                            <?php if ($fileSize > 0) : ?>
                                 <span class="badge bg-secondary"><?= formatSize($fileSize) ?></span>
                             <?php endif; ?>
-                            <?php if ($lastModified > 0): ?>
+                            <?php if ($lastModified > 0) : ?>
                                 <span class="badge bg-info"><?= date('d.m.Y H:i:s', $lastModified) ?></span>
                             <?php endif; ?>
                         </div>
@@ -79,40 +80,35 @@ function formatSize($bytes) {
                 <div class="card-body p-0">
                     <div style="background: #1e1e1e; color: #d4d4d4; padding: 20px; max-height: 600px; overflow-y: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; line-height: 1.6;">
                         <?php
-                        if (empty($content)):
+                        if (empty($content)) :
                             echo '<div style="color: #888;">Лог пустой или файл не найден</div>';
-                        else:
+                        else :
                         // Подсветка важных строк
-                        $lines = explode("\n", $content);
-                        foreach ($lines as $line) {
-                            $line = Html::encode($line);
-                            
-                            // Подсветка ошибок
-                            if (strpos($line, 'ОШИБКА') !== false || strpos($line, '❌') !== false) {
-                                echo '<div style="color: #f48771; background: rgba(244, 135, 113, 0.1); padding: 2px 5px; margin: 2px 0;">' . $line . '</div>';
+                            $lines = explode("\n", $content);
+                            foreach ($lines as $line) {
+                                $line = Html::encode($line);
+
+                                // Подсветка ошибок
+                                if (strpos($line, 'ОШИБКА') !== false || strpos($line, '❌') !== false) {
+                                    echo '<div style="color: #f48771; background: rgba(244, 135, 113, 0.1); padding: 2px 5px; margin: 2px 0;">' . $line . '</div>';
+                                } elseif (strpos($line, '✅') !== false || strpos($line, 'Успешно') !== false) {
+                                    // Подсветка успехов
+                                    echo '<div style="color: #89d185;">' . $line . '</div>';
+                                } elseif (strpos($line, '⚠️') !== false || strpos($line, 'ВНИМАНИЕ') !== false) {
+                                    // Подсветка предупреждений
+                                    echo '<div style="color: #e5c07b;">' . $line . '</div>';
+                                } elseif (strpos($line, '═══') !== false || strpos($line, '╔══') !== false || strpos($line, '║') !== false) {
+                                    // Подсветка заголовков
+                                    echo '<div style="color: #61afef; font-weight: bold;">' . $line . '</div>';
+                                } elseif (preg_match('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/', $line, $matches)) {
+                                    // Подсветка timestamp
+                                    $line = preg_replace('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/', '<span style="color: #98c379;">[$1]</span>', $line);
+                                    echo '<div>' . $line . '</div>';
+                                } else {
+                                    // Обычная строка
+                                    echo '<div>' . $line . '</div>';
+                                }
                             }
-                            // Подсветка успехов
-                            elseif (strpos($line, '✅') !== false || strpos($line, 'Успешно') !== false) {
-                                echo '<div style="color: #89d185;">' . $line . '</div>';
-                            }
-                            // Подсветка предупреждений
-                            elseif (strpos($line, '⚠️') !== false || strpos($line, 'ВНИМАНИЕ') !== false) {
-                                echo '<div style="color: #e5c07b;">' . $line . '</div>';
-                            }
-                            // Подсветка заголовков
-                            elseif (strpos($line, '═══') !== false || strpos($line, '╔══') !== false || strpos($line, '║') !== false) {
-                                echo '<div style="color: #61afef; font-weight: bold;">' . $line . '</div>';
-                            }
-                            // Подсветка timestamp
-                            elseif (preg_match('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/', $line, $matches)) {
-                                $line = preg_replace('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/', '<span style="color: #98c379;">[$1]</span>', $line);
-                                echo '<div>' . $line . '</div>';
-                            }
-                            // Обычная строка
-                            else {
-                                echo '<div>' . $line . '</div>';
-                            }
-                        }
                         endif;
                         ?>
                     </div>
@@ -141,9 +137,9 @@ function formatSize($bytes) {
             $errors = substr_count($content, 'ОШИБКА');
             $success = substr_count($content, '✅');
             $warnings = substr_count($content, '⚠️');
-            
-            if ($errors > 0 || $success > 0 || $warnings > 0):
-            ?>
+
+            if ($errors > 0 || $success > 0 || $warnings > 0) :
+                ?>
             <div class="card mt-3">
                 <div class="card-header">
                     <h6 class="mb-0"><i class="bi bi-bar-chart"></i> Статистика лога</h6>

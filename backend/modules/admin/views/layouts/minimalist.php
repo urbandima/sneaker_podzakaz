@@ -29,7 +29,7 @@ $controllerId = Yii::$app->controller->id;
     </script>
     
 <?php // Отключаем debug toolbar для админки ?>
-    <?php if (class_exists('yii\debug\Module')): ?>
+    <?php if (class_exists('yii\debug\Module')) : ?>
     <style>.yii-debug-toolbar{display:none!important}</style>
     <?php endif ?>
 </head>
@@ -65,7 +65,7 @@ $controllerId = Yii::$app->controller->id;
                     'ids' => ['dashboard'],
                     'items' => []
                 ],
-                
+
                 // 📦 ПРОДАЖИ
                 [
                     'label' => 'Продажи',
@@ -76,7 +76,7 @@ $controllerId = Yii::$app->controller->id;
                         ['label' => 'Отправка заказов', 'url' => '/admin/shipping/dispatch', 'ids' => ['dispatch']]
                     ]
                 ],
-                
+
                 // 📊 АНАЛИТИКА
                 [
                     'label' => 'Аналитика',
@@ -87,7 +87,7 @@ $controllerId = Yii::$app->controller->id;
                         ['label' => 'Маркетинг', 'url' => '/admin/marketing', 'ids' => ['marketing']]
                     ]
                 ],
-                
+
                 // 🛍️ КАТАЛОГ
                 [
                     'label' => 'Каталог',
@@ -98,7 +98,7 @@ $controllerId = Yii::$app->controller->id;
                         ['label' => 'Отзывы', 'url' => '/admin/review', 'ids' => ['review']]
                     ]
                 ],
-                
+
                 // 👥 КЛИЕНТЫ
                 [
                     'label' => 'Клиенты',
@@ -107,7 +107,7 @@ $controllerId = Yii::$app->controller->id;
                     'ids' => ['customer'],
                     'items' => []
                 ],
-                
+
                 // 🎟️ ПРОМО
                 [
                     'label' => 'Промо',
@@ -117,7 +117,7 @@ $controllerId = Yii::$app->controller->id;
                         ['label' => 'Маркетинговые кампании', 'url' => '/admin/marketing/campaigns', 'ids' => ['marketing']]
                     ]
                 ],
-                
+
                 // 💻 ИНТЕГРАЦИИ
                 [
                     'label' => 'Интеграции',
@@ -128,7 +128,7 @@ $controllerId = Yii::$app->controller->id;
                         ['label' => 'Импорт/Экспорт', 'url' => '/admin/import', 'ids' => ['import']]
                     ]
                 ],
-                
+
                 // ⚙️ УПРАВЛЕНИЕ
                 [
                     'label' => 'Управление',
@@ -141,12 +141,12 @@ $controllerId = Yii::$app->controller->id;
                     ]
                 ]
             ];
-            
-            foreach ($navItems as $item): 
+
+            foreach ($navItems as $item) :
                 $hasSubmenu = !empty($item['items']);
                 $isActive = isset($item['ids']) && in_array($controllerId, $item['ids']);
                 $isSubmenuActive = false;
-                
+
                 if ($hasSubmenu) {
                     foreach ($item['items'] as $subItem) {
                         if (isset($subItem['ids']) && in_array($controllerId, $subItem['ids'])) {
@@ -155,9 +155,9 @@ $controllerId = Yii::$app->controller->id;
                         }
                     }
                 }
-            ?>
+                ?>
             
-            <?php if ($hasSubmenu): ?>
+                <?php if ($hasSubmenu) : ?>
                 <!-- Menu item with submenu -->
                 <div class="admin-nav-group <?= $isSubmenuActive ? 'active' : '' ?>">
                     <button class="admin-nav-item admin-nav-toggle" onclick="toggleSubmenu(this)">
@@ -166,20 +166,21 @@ $controllerId = Yii::$app->controller->id;
                         <i class="bi bi-chevron-down admin-nav-chevron"></i>
                     </button>
                     <div class="admin-nav-submenu <?= $isSubmenuActive ? 'open' : '' ?>">
-                        <?php foreach ($item['items'] as $subItem): ?>
+                        <?php foreach ($item['items'] as $subItem) : ?>
                             <a href="<?= Url::to([$subItem['url']]) ?>" class="admin-nav-subitem <?= (isset($subItem['ids']) && in_array($controllerId, $subItem['ids'])) ? 'active' : '' ?>">
                                 <?= $subItem['label'] ?>
                             </a>
                         <?php endforeach; ?>
                     </div>
                 </div>
-            <?php else: ?>
+                <?php else : ?>
                 <!-- Simple menu item -->
                 <a href="<?= Url::to([$item['url']]) ?>" class="admin-nav-item <?= $isActive ? 'active' : '' ?>">
                     <i class="bi <?= $item['icon'] ?>"></i>
                     <span><?= $item['label'] ?></span>
                 </a>
-            <?php endif; endforeach ?>
+                <?php endif;
+            endforeach ?>
 
             <div class="admin-nav-divider" style="margin-top: auto; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);"></div>
             <a href="<?= Url::to(['/']) ?>" class="admin-nav-item" target="_blank">
@@ -222,7 +223,7 @@ $controllerId = Yii::$app->controller->id;
                             ->andWhere(['>', 'created_at', time() - 86400])
                             ->count();
                         ?>
-                        <?php if ($newOrdersCount > 0): ?>
+                        <?php if ($newOrdersCount > 0) : ?>
                             <span class="admin-notif-badge"><?= $newOrdersCount ?></span>
                         <?php endif; ?>
                     </button>
@@ -239,8 +240,8 @@ $controllerId = Yii::$app->controller->id;
                                 ->limit(5)
                                 ->all();
                             ?>
-                            <?php if (!empty($newOrders)): ?>
-                                <?php foreach ($newOrders as $order): ?>
+                            <?php if (!empty($newOrders)) : ?>
+                                <?php foreach ($newOrders as $order) : ?>
                                     <a href="<?= \yii\helpers\Url::to(['/admin/order/view', 'id' => $order->id]) ?>" class="admin-notif-item">
                                         <div class="admin-notif-icon">
                                             <i class="bi bi-bag-check-fill"></i>
@@ -255,7 +256,7 @@ $controllerId = Yii::$app->controller->id;
                                 <a href="<?= \yii\helpers\Url::to(['/admin/order', 'status' => 'new']) ?>" class="admin-notif-footer">
                                     Показать все заказы
                                 </a>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <div class="admin-notif-empty">
                                     <i class="bi bi-check-circle"></i>
                                     <p>Нет новых уведомлений</p>

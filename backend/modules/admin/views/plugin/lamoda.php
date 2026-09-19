@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\backend\shared\helpers\PriceHelper;
@@ -95,7 +96,7 @@ $this->params['headerActions'] = [
 </div>
 
 <!-- 3. Последний результат -->
-<?php if (!empty($lastParse)): ?>
+<?php if (!empty($lastParse)) : ?>
 <div class="admin-card" style="max-width:640px;margin-bottom:20px">
     <div class="admin-card-header">
         <h2 class="admin-card-title"><i class="bi bi-clock-history"></i> Последний запуск</h2>
@@ -121,12 +122,12 @@ $this->params['headerActions'] = [
         <span class="admin-badge admin-badge-primary"><?= $totalLamodaProducts ?></span>
     </div>
     <div class="admin-card-body" style="padding:0">
-        <?php if (empty($recentProducts)): ?>
+        <?php if (empty($recentProducts)) : ?>
             <div style="padding:32px;text-align:center;color:var(--admin-text-secondary)">
                 <i class="bi bi-inbox" style="font-size:32px;display:block;margin-bottom:8px;opacity:.5"></i>
                 <p style="margin:0">Товаров из Lamoda пока нет. Запустите парсинг.</p>
             </div>
-        <?php else: ?>
+        <?php else : ?>
             <table class="admin-table" style="margin:0">
                 <thead>
                     <tr>
@@ -140,12 +141,12 @@ $this->params['headerActions'] = [
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($recentProducts as $product): ?>
+                    <?php foreach ($recentProducts as $product) : ?>
                         <tr>
                             <td>
-                                <?php if ($product->main_image): ?>
+                                <?php if ($product->main_image) : ?>
                                     <img src="<?= Html::encode($product->getMainImageUrl()) ?>" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:4px">
-                                <?php else: ?>
+                                <?php else : ?>
                                     <div style="width:40px;height:40px;background:var(--admin-bg);border-radius:4px;display:flex;align-items:center;justify-content:center">
                                         <i class="bi bi-image" style="color:var(--admin-text-secondary)"></i>
                                     </div>
@@ -153,14 +154,14 @@ $this->params['headerActions'] = [
                             </td>
                             <td>
                                 <strong><?= Html::encode(mb_substr($product->name, 0, 50)) ?></strong>
-                                <?php if ($product->sku): ?>
+                                <?php if ($product->sku) : ?>
                                     <br><small style="color:var(--admin-text-secondary)"><?= Html::encode($product->sku) ?></small>
                                 <?php endif; ?>
                             </td>
                             <td><?= Html::encode($product->brand_name ?? '-') ?></td>
                             <td>
                                 <?= PriceHelper::format($product->price) ?>
-                                <?php if ($product->old_price): ?>
+                                <?php if ($product->old_price) : ?>
                                     <br><small style="text-decoration:line-through;color:var(--admin-text-secondary)"><?= PriceHelper::format($product->old_price) ?></small>
                                 <?php endif; ?>
                             </td>
@@ -170,7 +171,7 @@ $this->params['headerActions'] = [
                                 <a href="<?= Url::to(['/admin/product/' . $product->id]) ?>" class="admin-btn admin-btn-secondary admin-btn-sm" title="Открыть">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <?php if ($product->source_url): ?>
+                                <?php if ($product->source_url) : ?>
                                     <a href="<?= Html::encode($product->source_url) ?>" target="_blank" rel="noopener" class="admin-btn admin-btn-secondary admin-btn-sm" title="Lamoda">
                                         <i class="bi bi-box-arrow-up-right"></i>
                                     </a>

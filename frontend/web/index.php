@@ -17,9 +17,15 @@ require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../infrastructure/config/bootstrap.php';
 
 // Совместимость с Yii2 env-константами (bootstrap может не определить их)
-if (!defined('YII_ENV_DEV'))  define('YII_ENV_DEV',  YII_ENV === 'dev');
-if (!defined('YII_ENV_PROD')) define('YII_ENV_PROD', YII_ENV === 'prod');
-if (!defined('YII_ENV_TEST')) define('YII_ENV_TEST', YII_ENV === 'test');
+if (!defined('YII_ENV_DEV')) {
+    define('YII_ENV_DEV', YII_ENV === 'dev');
+}
+if (!defined('YII_ENV_PROD')) {
+    define('YII_ENV_PROD', YII_ENV === 'prod');
+}
+if (!defined('YII_ENV_TEST')) {
+    define('YII_ENV_TEST', YII_ENV === 'test');
+}
 
 require __DIR__ . '/../../vendor/yiisoft/yii2/Yii.php';
 

@@ -7,10 +7,10 @@ use yii\db\ActiveRecord;
 
 class ReceivingDocument extends ActiveRecord
 {
-    const TYPE_INVOICE      = 'invoice';
-    const TYPE_CUSTOMS      = 'customs_declaration';
-    const TYPE_PHOTO        = 'photo';
-    const TYPE_OTHER        = 'other';
+    public const TYPE_INVOICE      = 'invoice';
+    public const TYPE_CUSTOMS      = 'customs_declaration';
+    public const TYPE_PHOTO        = 'photo';
+    public const TYPE_OTHER        = 'other';
 
     public static function tableName(): string
     {
@@ -71,8 +71,12 @@ class ReceivingDocument extends ActiveRecord
     public function getFormattedSize(): string
     {
         $bytes = (int)$this->size_bytes;
-        if ($bytes < 1024) return $bytes . ' B';
-        if ($bytes < 1048576) return round($bytes / 1024, 1) . ' KB';
+        if ($bytes < 1024) {
+            return $bytes . ' B';
+        }
+        if ($bytes < 1048576) {
+            return round($bytes / 1024, 1) . ' KB';
+        }
         return round($bytes / 1048576, 1) . ' MB';
     }
 }

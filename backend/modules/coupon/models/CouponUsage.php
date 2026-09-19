@@ -2,22 +2,23 @@
 
 /**
  * CouponUsage — История использования купонов
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Отслеживание использования купонов: кто, когда, какой заказ.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - coupon_id: ID купона
  * - order_id: ID заказа
  * - user_id: ID пользователя
  * - discount_amount: сумма скидки
  * - used_at: дата использования
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - Отчёты по использованию купонов
  * - Проверка лимитов на пользователя
  * - Аналитика эффективности купонов
  */
+
 namespace app\backend\modules\coupon\models;
 
 use Yii;
@@ -85,7 +86,7 @@ class CouponUsage extends ActiveRecord
 
     /**
      * Зафиксировать использование купона
-     * 
+     *
      * @param int $couponId
      * @param int $orderId
      * @param float $discountAmount
@@ -100,7 +101,7 @@ class CouponUsage extends ActiveRecord
         $usage->discount_amount = $discountAmount;
         $usage->user_id = $userId;
         $usage->used_at = date('Y-m-d H:i:s');
-        
+
         return $usage->save();
     }
 }

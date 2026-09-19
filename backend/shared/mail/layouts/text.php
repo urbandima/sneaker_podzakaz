@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 
 /* @var $this \yii\web\View view component instance */
@@ -9,4 +10,4 @@ use yii\helpers\Html;
 <?php $this->beginBody() ?>
 <?= $content ?>
 <?php $this->endBody() ?>
-<?php $this->endPage() ?>
+<?php $this->endPage();

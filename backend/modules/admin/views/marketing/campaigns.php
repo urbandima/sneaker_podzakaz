@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -130,12 +131,12 @@ $this->params['headerActions'] = [
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($campaigns as $campaign): ?>
-                <?php
+                <?php foreach ($campaigns as $campaign) : ?>
+                    <?php
                     $type = $typeLabels[$campaign['type']] ?? $typeLabels['email'];
                     $status = $statusLabels[$campaign['status']] ?? $statusLabels['draft'];
                     $ctr = $campaign['recipients'] > 0 ? round(($campaign['clicked'] / $campaign['recipients']) * 100, 1) : 0;
-                ?>
+                    ?>
                 <tr>
                     <td>
                         <i class="bi <?= $type['icon'] ?>" style="color: <?= $type['color'] ?>; font-size: 18px;"></i>
@@ -176,7 +177,7 @@ $this->params['headerActions'] = [
                             <button class="admin-btn admin-btn-sm admin-btn-secondary" title="Статистика">
                                 <i class="bi bi-graph-up"></i>
                             </button>
-                            <?php if ($campaign['status'] === 'draft'): ?>
+                            <?php if ($campaign['status'] === 'draft') : ?>
                             <button class="admin-btn admin-btn-sm admin-btn-primary" title="Запустить">
                                 <i class="bi bi-play-fill"></i>
                             </button>

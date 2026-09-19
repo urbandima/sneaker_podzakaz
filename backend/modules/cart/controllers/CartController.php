@@ -8,6 +8,7 @@
  * - Демо-режим (если БД недоступна) в actionIndex
  * - Поиск Customer через сессию вместо Yii::$app->user
  */
+
 namespace app\backend\modules\cart\controllers;
 
 use Yii;

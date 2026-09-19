@@ -10,15 +10,15 @@ use app\backend\modules\admin\behaviors\LogBehavior;
 class Receiving extends ActiveRecord
 {
     // ── Statuses ───────────────────────────────────────────────────────────────
-    const STATUS_DRAFT      = 'draft';
-    const STATUS_IN_TRANSIT = 'in_transit';
-    const STATUS_ARRIVED    = 'arrived';
-    const STATUS_INSPECTING = 'inspecting';
-    const STATUS_ACCEPTED   = 'accepted';
-    const STATUS_PARTIAL    = 'partial';
-    const STATUS_CANCELLED  = 'cancelled';
+    public const STATUS_DRAFT      = 'draft';
+    public const STATUS_IN_TRANSIT = 'in_transit';
+    public const STATUS_ARRIVED    = 'arrived';
+    public const STATUS_INSPECTING = 'inspecting';
+    public const STATUS_ACCEPTED   = 'accepted';
+    public const STATUS_PARTIAL    = 'partial';
+    public const STATUS_CANCELLED  = 'cancelled';
 
-    const ALLOWED_TRANSITIONS = [
+    public const ALLOWED_TRANSITIONS = [
         self::STATUS_DRAFT      => [self::STATUS_IN_TRANSIT, self::STATUS_CANCELLED],
         self::STATUS_IN_TRANSIT => [self::STATUS_ARRIVED,    self::STATUS_CANCELLED],
         self::STATUS_ARRIVED    => [self::STATUS_INSPECTING, self::STATUS_CANCELLED],
@@ -28,7 +28,7 @@ class Receiving extends ActiveRecord
         self::STATUS_CANCELLED  => [],
     ];
 
-    const FINAL_STATUSES = [self::STATUS_ACCEPTED, self::STATUS_PARTIAL, self::STATUS_CANCELLED];
+    public const FINAL_STATUSES = [self::STATUS_ACCEPTED, self::STATUS_PARTIAL, self::STATUS_CANCELLED];
 
     public static function tableName(): string
     {
@@ -195,7 +195,8 @@ class Receiving extends ActiveRecord
         $this->total_qty_arrived  = array_sum(array_column($items, 'qty_arrived'));
         $this->total_qty_defected = array_sum(array_column($items, 'qty_defected'));
         $this->subtotal_byn       = array_sum(array_map(
-            fn($i) => $i->unit_cost_byn * $i->qty_arrived, $items
+            fn($i) => $i->unit_cost_byn * $i->qty_arrived,
+            $items
         ));
         $this->expenses_total_byn     = array_sum(array_column($this->expenses, 'amount_byn'));
         $this->total_with_expenses_byn = array_sum(array_column($items, 'final_cost_byn'));
@@ -220,7 +221,7 @@ class Receiving extends ActiveRecord
             $totalValue   = array_sum(array_map(fn($i) => $i->unit_cost_byn * max($i->qty_arrived, 1), $items)) ?: 1;
 
             foreach ($items as $item) {
-                $share = match($expense->distribution_method) {
+                $share = match ($expense->distribution_method) {
                     'equal'    => $expense->amount_byn / count($items),
                     'by_qty'   => ($item->qty_arrived / $totalArrived) * $expense->amount_byn,
                     'by_value' => (($item->unit_cost_byn * max($item->qty_arrived, 1)) / $totalValue) * $expense->amount_byn,

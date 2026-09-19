@@ -2,7 +2,7 @@
 
 /**
  * Миграция: Nested Set Model для категорий
- * 
+ *
  * Рекомендация #25: Category Tree
  */
 class m260330_223000_add_nested_set_to_category extends \yii\db\Migration
@@ -14,19 +14,19 @@ class m260330_223000_add_nested_set_to_category extends \yii\db\Migration
         $this->addColumn('{{%category}}', 'lft', $this->integer()->notNull());
         $this->addColumn('{{%category}}', 'rgt', $this->integer()->notNull());
         $this->addColumn('{{%category}}', 'depth', $this->integer()->notNull()->defaultValue(0));
-        
+
         // Индексы для быстрого поиска
         $this->createIndex('idx-category-tree', '{{%category}}', 'tree');
         $this->createIndex('idx-category-lft', '{{%category}}', 'lft');
         $this->createIndex('idx-category-rgt', '{{%category}}', 'rgt');
         $this->createIndex('idx-category-lft-rgt', '{{%category}}', ['lft', 'rgt']);
-        
+
         // Инициализация корневых категорий
         $this->initializeTree();
-        
+
         echo "Nested Set Model добавлена в category\n";
     }
-    
+
     public function safeDown()
     {
         $this->dropColumn('{{%category}}', 'tree');
@@ -34,7 +34,7 @@ class m260330_223000_add_nested_set_to_category extends \yii\db\Migration
         $this->dropColumn('{{%category}}', 'rgt');
         $this->dropColumn('{{%category}}', 'depth');
     }
-    
+
     /**
      * Инициализация дерева
      */
@@ -44,7 +44,7 @@ class m260330_223000_add_nested_set_to_category extends \yii\db\Migration
             ->from('{{%category}}')
             ->orderBy('id')
             ->all();
-        
+
         // Простая инициализация: все как корневые
         $counter = 1;
         foreach ($categories as $category) {

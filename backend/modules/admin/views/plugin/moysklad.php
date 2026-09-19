@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -247,26 +248,27 @@ $this->params['headerActions'] = [
             <button class="admin-btn admin-btn-sm admin-btn-secondary" onclick="switchTab('log')">Все записи →</button>
         </div>
         <div class="admin-card-body">
-            <?php if (empty($syncLog)): ?>
+            <?php if (empty($syncLog)) : ?>
             <p style="color:var(--admin-text-secondary);font-size:13px">Синхронизаций ещё не было</p>
-            <?php else: ?>
+            <?php else : ?>
             <table class="admin-table" style="font-size:12px">
                 <thead><tr><th style="width:140px">Время</th><th style="width:110px">Операция</th><th>Результат</th></tr></thead>
                 <tbody>
-                <?php foreach (array_slice($syncLog, 0, 5) as $entry): ?>
+                <?php foreach (array_slice($syncLog, 0, 5) as $entry) : ?>
                 <tr>
                     <td style="color:var(--admin-text-secondary)"><?= Html::encode($entry['at'] ?? '') ?></td>
                     <td>
-                        <?php $op = $entry['operation'] ?? ''; $pillClass = 'ms-pill-' . ($opColors[$op] ?? 'gray'); ?>
+                        <?php $op = $entry['operation'] ?? '';
+                        $pillClass = 'ms-pill-' . ($opColors[$op] ?? 'gray'); ?>
                         <span class="ms-pill <?= $pillClass ?>"><?= Html::encode($op) ?></span>
                     </td>
                     <td>
                         <?php $r = $entry['result'] ?? []; ?>
-                        <?php if (isset($r['pushed'])): ?>
+                        <?php if (isset($r['pushed'])) : ?>
                             Отправлено: <?= $r['pushed'] ?>, ошибок: <?= $r['errors'] ?? 0 ?>
-                        <?php elseif (isset($r['synced'])): ?>
+                        <?php elseif (isset($r['synced'])) : ?>
                             Синхронизировано: <?= $r['synced'] ?>, всего: <?= $r['ms_total'] ?? '?' ?>
-                        <?php else: ?>
+                        <?php else : ?>
                             <?= Html::encode(json_encode($r, JSON_UNESCAPED_UNICODE)) ?>
                         <?php endif; ?>
                     </td>
@@ -291,7 +293,7 @@ $this->params['headerActions'] = [
         </div>
         <div class="admin-card-body">
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:2px">
-                <?php foreach ($siteStatuses as $key => $label): ?>
+                <?php foreach ($siteStatuses as $key => $label) : ?>
                 <div class="ms-map-row">
                     <div>
                         <span class="ms-pill ms-pill-blue" style="font-size:12px"><?= Html::encode($key) ?></span>
@@ -347,7 +349,7 @@ $this->params['headerActions'] = [
                     </tr>
                 </thead>
                 <tbody id="order-fields-tbody">
-                <?php foreach ($orderMsFields as $col => $info): ?>
+                <?php foreach ($orderMsFields as $col => $info) : ?>
                 <tr>
                     <td><span class="ms-field-dot <?= !empty($savedMappingOrders[$col]) ? 'active' : 'inactive' ?>" title="<?= !empty($savedMappingOrders[$col]) ? 'Смаппировано: ' . Html::encode($savedMappingOrders[$col]) : 'Не смаппировано' ?>"></span></td>
                     <td><code style="background:var(--admin-bg-secondary);padding:2px 6px;border-radius:4px;font-size:12px"><?= Html::encode($col) ?></code></td>
@@ -399,7 +401,7 @@ $this->params['headerActions'] = [
                     </tr>
                 </thead>
                 <tbody id="product-fields-tbody">
-                <?php foreach ($productMsFields as $col => $info): ?>
+                <?php foreach ($productMsFields as $col => $info) : ?>
                 <tr>
                     <td><span class="ms-field-dot <?= !empty($savedMappingProducts[$col]) ? 'active' : 'inactive' ?>" title="<?= !empty($savedMappingProducts[$col]) ? 'Смаппировано: ' . Html::encode($savedMappingProducts[$col]) : 'Не смаппировано' ?>"></span></td>
                     <td><code style="background:var(--admin-bg-secondary);padding:2px 6px;border-radius:4px;font-size:12px"><?= Html::encode($col) ?></code></td>
@@ -451,7 +453,7 @@ $this->params['headerActions'] = [
                     </tr>
                 </thead>
                 <tbody id="customer-fields-tbody">
-                <?php foreach ($customerMsFields as $col => $info): ?>
+                <?php foreach ($customerMsFields as $col => $info) : ?>
                 <tr>
                     <td><span class="ms-field-dot <?= !empty($savedMappingCustomers[$col]) ? 'active' : 'inactive' ?>" title="<?= !empty($savedMappingCustomers[$col]) ? 'Смаппировано: ' . Html::encode($savedMappingCustomers[$col]) : 'Не смаппировано' ?>"></span></td>
                     <td><code style="background:var(--admin-bg-secondary);padding:2px 6px;border-radius:4px;font-size:12px"><?= Html::encode($col) ?></code></td>
@@ -496,7 +498,7 @@ $this->params['headerActions'] = [
                 <div style="margin-bottom:12px">
                     <label class="admin-label">API-ключ (Bearer token)</label>
                     <input type="password" class="admin-input" id="ms-api-key"
-                           value="<?= Html::encode(Yii::$app->settings->get('moysklad','api_key','')) ?>"
+                           value="<?= Html::encode(Yii::$app->settings->get('moysklad', 'api_key', '')) ?>"
                            placeholder="Токен из МойСклад → Профиль → Безопасность">
                     <div style="font-size:11px;color:var(--admin-text-secondary);margin-top:4px">
                         Если указан — используется вместо логина/пароля
@@ -506,12 +508,12 @@ $this->params['headerActions'] = [
                     <div>
                         <label class="admin-label">Логин</label>
                         <input type="text" class="admin-input" id="ms-login"
-                               value="<?= Html::encode(Yii::$app->settings->get('moysklad','login','')) ?>">
+                               value="<?= Html::encode(Yii::$app->settings->get('moysklad', 'login', '')) ?>">
                     </div>
                     <div>
                         <label class="admin-label">Пароль</label>
                         <input type="password" class="admin-input" id="ms-password"
-                               value="<?= Html::encode(Yii::$app->settings->get('moysklad','password','')) ?>">
+                               value="<?= Html::encode(Yii::$app->settings->get('moysklad', 'password', '')) ?>">
                     </div>
                 </div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -535,27 +537,27 @@ $this->params['headerActions'] = [
                 <div style="display:grid;gap:10px;margin-bottom:16px">
                     <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
                         <input type="checkbox" id="ms-toggle-orders"
-                            <?= Yii::$app->settings->get('moysklad','sync_orders','1') === '1' ? 'checked' : '' ?>>
+                            <?= Yii::$app->settings->get('moysklad', 'sync_orders', '1') === '1' ? 'checked' : '' ?>>
                         <i class="bi bi-cart3"></i> Синхронизация заказов
                     </label>
                     <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
                         <input type="checkbox" id="ms-toggle-products"
-                            <?= Yii::$app->settings->get('moysklad','sync_products','1') === '1' ? 'checked' : '' ?>>
+                            <?= Yii::$app->settings->get('moysklad', 'sync_products', '1') === '1' ? 'checked' : '' ?>>
                         <i class="bi bi-box-seam"></i> Синхронизация товаров
                     </label>
                     <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
                         <input type="checkbox" id="ms-toggle-customers"
-                            <?= Yii::$app->settings->get('moysklad','sync_customers','1') === '1' ? 'checked' : '' ?>>
+                            <?= Yii::$app->settings->get('moysklad', 'sync_customers', '1') === '1' ? 'checked' : '' ?>>
                         <i class="bi bi-people"></i> Синхронизация клиентов
                     </label>
                     <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
                         <input type="checkbox" id="ms-toggle-stock"
-                            <?= Yii::$app->settings->get('moysklad','sync_stock','1') === '1' ? 'checked' : '' ?>>
+                            <?= Yii::$app->settings->get('moysklad', 'sync_stock', '1') === '1' ? 'checked' : '' ?>>
                         <i class="bi bi-box2"></i> Синхронизация остатков
                     </label>
                     <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
                         <input type="checkbox" id="ms-toggle-prices"
-                            <?= Yii::$app->settings->get('moysklad','sync_prices','1') === '1' ? 'checked' : '' ?>>
+                            <?= Yii::$app->settings->get('moysklad', 'sync_prices', '1') === '1' ? 'checked' : '' ?>>
                         <i class="bi bi-currency-exchange"></i> Синхронизация цен
                     </label>
                 </div>
@@ -563,12 +565,12 @@ $this->params['headerActions'] = [
                 <div style="display:flex;gap:16px;margin-bottom:16px;padding:12px;background:var(--admin-bg-secondary);border-radius:8px">
                     <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
                         <input type="checkbox" id="ms-dir-ms-to-site"
-                            <?= Yii::$app->settings->get('moysklad','sync_ms_to_site','1') ? 'checked' : '' ?>>
+                            <?= Yii::$app->settings->get('moysklad', 'sync_ms_to_site', '1') ? 'checked' : '' ?>>
                         <i class="bi bi-cloud-download"></i> МС → Сайт
                     </label>
                     <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
                         <input type="checkbox" id="ms-dir-site-to-ms"
-                            <?= Yii::$app->settings->get('moysklad','sync_site_to_ms','1') ? 'checked' : '' ?>>
+                            <?= Yii::$app->settings->get('moysklad', 'sync_site_to_ms', '1') ? 'checked' : '' ?>>
                         <i class="bi bi-cloud-upload"></i> Сайт → МС
                     </label>
                 </div>
@@ -577,9 +579,9 @@ $this->params['headerActions'] = [
                     <label class="admin-label">Интервал авто-синхронизации (минуты)</label>
                     <select class="admin-input" id="ms-auto-interval" style="width:auto">
                         <?php
-                        $curInterval = Yii::$app->settings->get('moysklad','auto_sync_interval','0');
-                        foreach ([0 => 'Выключена', 15 => '15 мин', 30 => '30 мин', 60 => '1 час', 120 => '2 часа', 360 => '6 часов', 720 => '12 часов', 1440 => '24 часа'] as $v => $l):
-                        ?>
+                        $curInterval = Yii::$app->settings->get('moysklad', 'auto_sync_interval', '0');
+                        foreach ([0 => 'Выключена', 15 => '15 мин', 30 => '30 мин', 60 => '1 час', 120 => '2 часа', 360 => '6 часов', 720 => '12 часов', 1440 => '24 часа'] as $v => $l) :
+                            ?>
                         <option value="<?= $v ?>" <?= $curInterval == $v ? 'selected' : '' ?>><?= $l ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -667,9 +669,9 @@ $this->params['headerActions'] = [
             </div>
 
             <div id="ms-log-table-wrap">
-                <?php if (empty($syncLog)): ?>
+                <?php if (empty($syncLog)) : ?>
                 <p style="color:var(--admin-text-secondary);font-size:13px">Записей нет</p>
-                <?php else: ?>
+                <?php else : ?>
                 <table class="admin-table" style="font-size:12px" id="ms-log-table">
                     <thead>
                         <tr>
@@ -679,7 +681,7 @@ $this->params['headerActions'] = [
                         </tr>
                     </thead>
                     <tbody>
-                    <?php foreach ($syncLog as $entry): ?>
+                    <?php foreach ($syncLog as $entry) : ?>
                     <tr data-op="<?= Html::encode($entry['operation'] ?? '') ?>">
                         <td style="color:var(--admin-text-secondary)"><?= Html::encode($entry['at'] ?? '') ?></td>
                         <td>
@@ -691,19 +693,19 @@ $this->params['headerActions'] = [
                         </td>
                         <td>
                             <?php $r = $entry['result'] ?? []; ?>
-                            <?php if (isset($r['pushed'])): ?>
+                            <?php if (isset($r['pushed'])) : ?>
                                 <span class="ms-pill ms-pill-green">Отправлено: <?= $r['pushed'] ?></span>
-                                <?php if (($r['errors'] ?? 0) > 0): ?>
+                                <?php if (($r['errors'] ?? 0) > 0) : ?>
                                     <span class="ms-pill ms-pill-red">Ошибок: <?= $r['errors'] ?></span>
                                 <?php endif; ?>
                                 <span style="color:var(--admin-text-secondary);font-size:11px">из <?= $r['total'] ?? '?' ?></span>
-                            <?php elseif (isset($r['synced'])): ?>
+                            <?php elseif (isset($r['synced'])) : ?>
                                 <span class="ms-pill ms-pill-green">Синхронизировано: <?= $r['synced'] ?></span>
-                                <?php if (isset($r['new_links']) && $r['new_links'] > 0): ?>
+                                <?php if (isset($r['new_links']) && $r['new_links'] > 0) : ?>
                                     <span class="ms-pill ms-pill-blue">Новых связей: <?= $r['new_links'] ?></span>
                                 <?php endif; ?>
                                 <span style="color:var(--admin-text-secondary);font-size:11px">всего в МС: <?= $r['ms_total'] ?? '?' ?></span>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <code style="font-size:11px;word-break:break-all"><?= Html::encode(json_encode($r, JSON_UNESCAPED_UNICODE)) ?></code>
                             <?php endif; ?>
                         </td>

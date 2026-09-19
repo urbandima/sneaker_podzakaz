@@ -77,7 +77,7 @@ $this->params['breadcrumbs'][] = $model->name;
                     </button>
                 </div>
                 <div class="card-body p-0">
-                    <?php if ($model->items): ?>
+                    <?php if ($model->items) : ?>
                         <div class="table-responsive">
                             <table class="table table-sm table-hover mb-0">
                                 <thead class="table-light">
@@ -91,7 +91,7 @@ $this->params['breadcrumbs'][] = $model->name;
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($model->items as $item): ?>
+                                    <?php foreach ($model->items as $item) : ?>
                                         <tr>
                                             <td><?= Html::encode($item->us_size ?: '-') ?></td>
                                             <td><?= Html::encode($item->eu_size ?: '-') ?></td>
@@ -111,7 +111,7 @@ $this->params['breadcrumbs'][] = $model->name;
                                 </tbody>
                             </table>
                         </div>
-                    <?php else: ?>
+                    <?php else : ?>
                         <div class="text-center text-muted py-4">
                             <i class="bi bi-rulers" style="font-size: 48px;"></i>
                             <p class="mt-2">Размеры еще не добавлены</p>

@@ -67,7 +67,7 @@ $company = Yii::$app->settings->getCompany();
                 <div class="footer-column">
                     <h3 class="footer-title">Контакты</h3>
                     <ul class="footer-contacts">
-                        <?php if (!empty($company['phone'])): ?>
+                        <?php if (!empty($company['phone'])) : ?>
                         <li>
                             <i class="bi bi-telephone"></i>
                             <a href="tel:<?= preg_replace('/[^0-9+]/', '', $company['phone']) ?>">
@@ -75,7 +75,7 @@ $company = Yii::$app->settings->getCompany();
                             </a>
                         </li>
                         <?php endif; ?>
-                        <?php if (!empty($company['email'])): ?>
+                        <?php if (!empty($company['email'])) : ?>
                         <li>
                             <i class="bi bi-envelope"></i>
                             <a href="mailto:<?= Html::encode($company['email']) ?>">
@@ -83,13 +83,13 @@ $company = Yii::$app->settings->getCompany();
                             </a>
                         </li>
                         <?php endif; ?>
-                        <?php if (!empty($company['address'])): ?>
+                        <?php if (!empty($company['address'])) : ?>
                         <li>
                             <i class="bi bi-geo-alt"></i>
                             <span><?= Html::encode($company['address']) ?></span>
                         </li>
                         <?php endif; ?>
-                        <?php if (!empty($company['work_time'])): ?>
+                        <?php if (!empty($company['work_time'])) : ?>
                         <li>
                             <i class="bi bi-clock"></i>
                             <span><?= Html::encode($company['work_time']) ?></span>
@@ -109,13 +109,18 @@ $company = Yii::$app->settings->getCompany();
                     $hasSocial = false;
                     foreach ($socialLinks as $key => $meta) {
                         $url = $s->get('social', $key, '');
-                        if (!empty($url) && $url !== '#' && strlen($url) > 5) { $hasSocial = true; break; }
+                        if (!empty($url) && $url !== '#' && strlen($url) > 5) {
+                            $hasSocial = true;
+                            break;
+                        }
                     }
-                    if ($hasSocial): ?>
+                    if ($hasSocial) : ?>
                     <div class="footer-social">
-                        <?php foreach ($socialLinks as $key => $meta):
+                        <?php foreach ($socialLinks as $key => $meta) :
                             $url = $s->get('social', $key, '');
-                            if (empty($url) || $url === '#' || strlen($url) <= 5) continue; ?>
+                            if (empty($url) || $url === '#' || strlen($url) <= 5) {
+                                continue;
+                            } ?>
                             <a href="<?= Html::encode($url) ?>" target="_blank" rel="noopener noreferrer"
                                class="social-link" aria-label="<?= $meta['label'] ?>">
                                 <i class="bi <?= $meta['icon'] ?>"></i>

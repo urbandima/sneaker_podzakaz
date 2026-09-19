@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use app\backend\shared\helpers\TextHelper;
 
@@ -11,14 +12,14 @@ $this->title = 'Все бренды - СНИКЕРХЭД';
         <p class="page-subtitle">Оригинальные товары от мировых производителей</p>
 
         <div class="brands-grid">
-            <?php if (!empty($brands)): ?>
-                <?php foreach ($brands as $brand): ?>
+            <?php if (!empty($brands)) : ?>
+                <?php foreach ($brands as $brand) : ?>
                     <a href="/brands/<?= $brand->slug ?>" class="brand-card-link">
                         <div class="brand-card">
                             <?php $logoUrl = $brand->getLogoUrl(); ?>
-                            <?php if ($logoUrl && strpos($logoUrl, 'no-brand-logo') === false): ?>
+                            <?php if ($logoUrl && strpos($logoUrl, 'no-brand-logo') === false) : ?>
                                 <img src="<?= Html::encode($logoUrl) ?>" alt="<?= Html::encode($brand->name) ?>" class="brand-card__logo" loading="lazy" decoding="async">
-                            <?php else: ?>
+                            <?php else : ?>
                                 <div class="brand-card__icon"><i class="bi bi-circle"></i></div>
                             <?php endif; ?>
                             <h3 class="brand-card__name"><?= Html::encode($brand->name) ?></h3>
@@ -27,7 +28,7 @@ $this->title = 'Все бренды - СНИКЕРХЭД';
                         </div>
                     </a>
                 <?php endforeach; ?>
-            <?php else: ?>
+            <?php else : ?>
                 <div class="brands-empty">
                     <div class="brands-empty__icon"><i class="bi bi-box-seam"></i></div>
                     <h3 class="brands-empty__title">Бренды не найдены</h3>

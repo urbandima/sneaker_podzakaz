@@ -137,7 +137,7 @@ $this->params['headerActions'] = [
                         <span style="font-size:13px;font-weight:500">Активен (опубликован)</span>
                     </label>
                 </div>
-                <?php if ($model->hasAttribute('is_featured')): ?>
+                <?php if ($model->hasAttribute('is_featured')) : ?>
                 <div class="admin-form-group">
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 12px;background:var(--admin-surface-hover);border-radius:var(--admin-radius-sm)">
                         <?= Html::activeCheckbox($model, 'is_featured', ['label' => false]) ?>

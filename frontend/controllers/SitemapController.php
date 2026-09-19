@@ -15,7 +15,7 @@ use yii\web\NotFoundHttpException;
 class SitemapController extends Controller
 {
     public $layout = 'main'; // Единый layout
-    
+
     /**
      * Генерация sitemap.xml
      */
@@ -23,10 +23,10 @@ class SitemapController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_RAW;
         Yii::$app->response->headers->set('Content-Type', 'application/xml; charset=UTF-8');
-        
+
         $generator = new SitemapGenerator();
         $xml = $generator->generateDynamic();
-        
+
         return $xml;
     }
 }

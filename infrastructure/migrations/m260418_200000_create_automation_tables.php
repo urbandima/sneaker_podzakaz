@@ -20,12 +20,12 @@ class m260418_200000_create_automation_tables extends Migration
             'is_active'       => $this->tinyInteger(1)->defaultValue(1)->comment('Активен ли триггер'),
             'priority'        => $this->integer()->defaultValue(0)->comment('Приоритет выполнения (меньше — раньше)'),
             'execution_count' => $this->integer()->defaultValue(0)->comment('Количество выполнений'),
-            'last_executed_at'=> $this->dateTime()->null()->comment('Последнее выполнение'),
+            'last_executed_at' => $this->dateTime()->null()->comment('Последнее выполнение'),
             'created_at'      => $this->integer()->notNull(),
             'updated_at'      => $this->integer()->notNull(),
         ]);
         $this->createIndex('idx-automation_trigger-event_code', '{{%automation_trigger}}', 'event_code');
-        $this->createIndex('idx-automation_trigger-is_active',  '{{%automation_trigger}}', 'is_active');
+        $this->createIndex('idx-automation_trigger-is_active', '{{%automation_trigger}}', 'is_active');
 
         // 2. Execution log
         $this->createTable('{{%automation_log}}', [
@@ -36,17 +36,19 @@ class m260418_200000_create_automation_tables extends Migration
             'customer_id'      => $this->integer()->null(),
             'conditions_met'   => $this->tinyInteger(1)->defaultValue(1),
             'actions_executed' => $this->json()->comment('Результаты выполнения действий'),
-            'execution_time_ms'=> $this->integer()->null()->comment('Время выполнения в мс'),
+            'execution_time_ms' => $this->integer()->null()->comment('Время выполнения в мс'),
             'created_at'       => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
         ]);
-        $this->createIndex('idx-automation_log-trigger_id',  '{{%automation_log}}', 'trigger_id');
-        $this->createIndex('idx-automation_log-event_code',  '{{%automation_log}}', 'event_code');
-        $this->createIndex('idx-automation_log-order_id',    '{{%automation_log}}', 'order_id');
-        $this->createIndex('idx-automation_log-created_at',  '{{%automation_log}}', 'created_at');
+        $this->createIndex('idx-automation_log-trigger_id', '{{%automation_log}}', 'trigger_id');
+        $this->createIndex('idx-automation_log-event_code', '{{%automation_log}}', 'event_code');
+        $this->createIndex('idx-automation_log-order_id', '{{%automation_log}}', 'order_id');
+        $this->createIndex('idx-automation_log-created_at', '{{%automation_log}}', 'created_at');
         $this->addForeignKey(
             'fk-automation_log-trigger_id',
-            '{{%automation_log}}', 'trigger_id',
-            '{{%automation_trigger}}', 'id',
+            '{{%automation_log}}',
+            'trigger_id',
+            '{{%automation_trigger}}',
+            'id',
             'CASCADE'
         );
 
@@ -73,7 +75,8 @@ class m260418_200000_create_automation_tables extends Migration
         ]);
 
         // Seed default triggers
-        $this->batchInsert('{{%automation_trigger}}',
+        $this->batchInsert(
+            '{{%automation_trigger}}',
             ['name','description','event_code','conditions','actions','is_active','priority','execution_count','created_at','updated_at'],
             [
                 [

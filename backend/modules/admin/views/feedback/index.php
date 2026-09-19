@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var yii\web\View $this
  * @var app\backend\modules\common\models\Feedback[] $feedbacks
@@ -15,16 +16,18 @@ $csrf = Yii::$app->request->csrfToken;
 
 <!-- Status filter tabs -->
 <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">
-    <?php foreach ([
+    <?php foreach (
+    [
         ''         => ['label' => 'Все',           'count' => array_sum($counts)],
         'new'      => ['label' => 'Новые',          'count' => $counts['new']],
         'read'     => ['label' => 'Прочитанные',    'count' => $counts['read']],
         'replied'  => ['label' => 'Отвечено',       'count' => $counts['replied']],
-    ] as $st => $meta): ?>
+    ] as $st => $meta
+) : ?>
     <a href="<?= Url::to(['feedback/index', 'status' => $st]) ?>"
        class="admin-btn admin-btn-sm <?= $activeStatus === $st ? 'admin-btn-primary' : 'admin-btn-outline' ?>">
         <?= $meta['label'] ?>
-        <?php if ($meta['count']): ?>
+        <?php if ($meta['count']) : ?>
         <span class="admin-badge <?= $activeStatus === $st ? '' : ($st === 'new' ? 'admin-badge-danger' : 'admin-badge-secondary') ?>"
               style="margin-left:4px;font-size:10px"><?= $meta['count'] ?></span>
         <?php endif; ?>
@@ -37,12 +40,12 @@ $csrf = Yii::$app->request->csrfToken;
         <h2 class="admin-card-title"><i class="bi bi-envelope-heart"></i> Сообщения директору</h2>
     </div>
 
-    <?php if (empty($feedbacks)): ?>
+    <?php if (empty($feedbacks)) : ?>
     <div class="admin-card-body" style="text-align:center;padding:3rem">
         <i class="bi bi-envelope-heart" style="font-size:3rem;color:var(--admin-text-muted);display:block;margin-bottom:1rem"></i>
         <p style="color:var(--admin-text-secondary);margin:0">Сообщений нет</p>
     </div>
-    <?php else: ?>
+    <?php else : ?>
     <div class="admin-card-body" style="padding:0">
         <table class="admin-table">
             <thead>
@@ -56,14 +59,14 @@ $csrf = Yii::$app->request->csrfToken;
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($feedbacks as $fb): ?>
+                <?php foreach ($feedbacks as $fb) : ?>
                 <tr id="fb-row-<?= $fb->id ?>">
                     <td style="color:var(--admin-text-secondary);font-size:0.85rem;white-space:nowrap">
                         <?= Yii::$app->formatter->asDatetime($fb->created_at, 'medium') ?>
                     </td>
                     <td>
                         <div style="font-weight:600"><?= Html::encode($fb->customer_name ?: 'Аноним') ?></div>
-                        <?php if ($fb->customer_email): ?>
+                        <?php if ($fb->customer_email) : ?>
                             <div style="font-size:0.8rem;color:var(--admin-text-secondary)"><?= Html::encode($fb->customer_email) ?></div>
                         <?php endif; ?>
                     </td>
@@ -74,7 +77,7 @@ $csrf = Yii::$app->request->csrfToken;
                     </td>
                     <td style="max-width:340px">
                         <p style="margin:0;line-height:1.5"><?= Html::encode($fb->message) ?></p>
-                        <?php if ($fb->reply_text): ?>
+                        <?php if ($fb->reply_text) : ?>
                         <div style="margin-top:6px;padding:6px 10px;background:rgba(37,99,235,.07);border-left:3px solid #2563eb;font-size:.8rem;color:#1e40af;border-radius:0 4px 4px 0">
                             <strong>Ответ:</strong> <?= Html::encode($fb->reply_text) ?>
                         </div>
@@ -92,7 +95,7 @@ $csrf = Yii::$app->request->csrfToken;
                         <span class="admin-badge <?= $cls ?>"><?= $lbl ?></span>
                     </td>
                     <td style="white-space:nowrap">
-                        <?php if ($fb->status !== 'replied'): ?>
+                        <?php if ($fb->status !== 'replied') : ?>
                         <button class="admin-btn admin-btn-xs admin-btn-primary"
                                 style="margin-bottom:4px"
                                 onclick="openReply(<?= $fb->id ?>, '<?= Html::encode(addslashes($fb->customer_name ?: 'Аноним')) ?>')">

@@ -32,7 +32,7 @@ $this->params['headerActions'] = [
                 <?= $form->field($model, 'order_id')->dropDownList(
                     array_combine(
                         array_column($orders, 'id'),
-                        array_map(function($o) {
+                        array_map(function ($o) {
                             return ($o['order_number'] ?: '#' . $o['id']) . ' — ' . ($o['client_name'] ?: 'Клиент') . ' — ' . PriceHelper::format($o['total_amount']);
                         }, $orders)
                     ),

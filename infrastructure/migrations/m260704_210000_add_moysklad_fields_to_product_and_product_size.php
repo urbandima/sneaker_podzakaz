@@ -128,7 +128,10 @@ class m260704_210000_add_moysklad_fields_to_product_and_product_size extends Mig
     {
         $schema = $this->db->getTableSchema('{{%product}}', true);
         if ($schema !== null) {
-            try { $this->dropIndex('idx_ms_product', '{{%product}}'); } catch (\Throwable $e) {}
+            try {
+                $this->dropIndex('idx_ms_product', '{{%product}}');
+            } catch (\Throwable $e) {
+            }
             foreach (array_keys($this->productColumns()) as $column) {
                 if ($schema->getColumn($column) !== null) {
                     $this->dropColumn('{{%product}}', $column);
@@ -138,7 +141,10 @@ class m260704_210000_add_moysklad_fields_to_product_and_product_size extends Mig
 
         $sizeSchema = $this->db->getTableSchema('{{%product_size}}', true);
         if ($sizeSchema !== null) {
-            try { $this->dropIndex('idx_ms_variant', '{{%product_size}}'); } catch (\Throwable $e) {}
+            try {
+                $this->dropIndex('idx_ms_variant', '{{%product_size}}');
+            } catch (\Throwable $e) {
+            }
             foreach (array_keys($this->productSizeColumns()) as $column) {
                 if ($sizeSchema->getColumn($column) !== null) {
                     $this->dropColumn('{{%product_size}}', $column);

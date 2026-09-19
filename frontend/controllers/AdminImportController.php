@@ -69,7 +69,7 @@ class AdminImportController extends Controller
             $command = "php " . escapeshellarg(Yii::getAlias('@app') . "/yii") . " poizon-import/run --limit=" . escapeshellarg((string) $limit) . " > /dev/null 2>&1 &";
 
             exec($command);
-            
+
             Yii::$app->session->setFlash('success', 'Импорт запущен в фоновом режиме');
             return $this->redirect(['index']);
         }
@@ -154,7 +154,7 @@ class AdminImportController extends Controller
 
     /**
      * API: Проверить наличие размера в реальном времени
-     * 
+     *
      * Используется на странице товара, когда пользователь выбирает размер
      */
     public function actionCheckSize($poizonSkuId)
@@ -172,7 +172,6 @@ class AdminImportController extends Controller
                 'price_cny' => $result['price_cny'] ?? null,
                 'delivery_days' => '14-30', // Срок доставки
             ];
-
         } catch (\Exception $e) {
             return [
                 'success' => false,
@@ -207,7 +206,7 @@ class AdminImportController extends Controller
         $successfulBatches = ImportBatch::find()
             ->where(['status' => ImportBatch::STATUS_COMPLETED])
             ->count();
-        
+
         $totalProductsImported = ImportBatch::find()
             ->sum('created_count + updated_count');
 

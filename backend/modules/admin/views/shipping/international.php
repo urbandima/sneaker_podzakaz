@@ -24,9 +24,9 @@ $this->params['breadcrumbs'][] = $this->title;
         </a>
     </div>
 
-    <?php if (!empty($methods)): ?>
+    <?php if (!empty($methods)) : ?>
     <div class="methods-grid">
-        <?php foreach ($methods as $method): ?>
+        <?php foreach ($methods as $method) : ?>
         <div class="method-card">
             <div class="method-header">
                 <h3 class="method-title"><?= Html::encode($method['name']) ?></h3>
@@ -51,9 +51,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 <div class="detail-item">
                     <span class="detail-label">Стоимость</span>
                     <span class="detail-value">
-                        <?php if ($method['base_cost'] > 0): ?>
+                        <?php if ($method['base_cost'] > 0) : ?>
                             <?= number_format($method['base_cost'], 2) ?> <?= $method['currency'] ?>
-                        <?php else: ?>
+                        <?php else : ?>
                             <span style="color: #10b981;">Бесплатно</span>
                         <?php endif; ?>
                     </span>
@@ -79,7 +79,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
         <?php endforeach; ?>
     </div>
-    <?php else: ?>
+    <?php else : ?>
     <div class="empty-state">
         <i class="bi bi-globe"></i>
         <h3>Нет методов международной доставки</h3>

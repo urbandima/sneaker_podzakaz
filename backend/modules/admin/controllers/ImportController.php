@@ -19,7 +19,7 @@ use app\backend\modules\admin\services\import\NbrbRateService;
 
 /**
  * ImportController — Управление импортом товаров
- * 
+ *
  * Actions:
  * - index: Дашборд импорта
  * - source: Настройка источника
@@ -67,7 +67,7 @@ class ImportController extends BaseAdminController
 
         // Регистрируем CSS/JS для админки
         $this->view->params['bodyClass'] = 'import-page';
-        
+
         return true;
     }
 
@@ -122,13 +122,13 @@ class ImportController extends BaseAdminController
 
         if (Yii::$app->request->isPost) {
             $post = Yii::$app->request->post();
-            
+
             // Обрабатываем proxy_list как JSON
             if (isset($post['proxy_list_text']) && !empty($post['proxy_list_text'])) {
                 $proxies = array_filter(array_map('trim', explode("\n", $post['proxy_list_text'])));
                 $model->setProxyListArray($proxies);
             }
-            
+
             if ($model->load($post) && $model->save()) {
                 Yii::$app->session->setFlash('success', 'Источник сохранен');
                 return $this->redirect(['source', 'id' => $model->id]);
@@ -159,7 +159,7 @@ class ImportController extends BaseAdminController
     public function actionRun($sourceId)
     {
         $source = ImportSource::findOne($sourceId);
-        
+
         if (!$source || !$source->is_active) {
             Yii::$app->session->setFlash('error', 'Источник не найден или неактивен');
             return $this->redirect(['index']);
@@ -175,7 +175,7 @@ class ImportController extends BaseAdminController
             ]);
 
             Yii::$app->session->setFlash('success', "Импорт запущен (Задача #{$task->id})");
-            
+
             return $this->redirect(['logs', 'taskId' => $task->id]);
         } catch (\Exception $e) {
             Yii::$app->session->setFlash('error', 'Ошибка запуска: ' . $e->getMessage());
@@ -190,7 +190,7 @@ class ImportController extends BaseAdminController
     public function actionRunAll()
     {
         $sources = ImportSource::getActiveSources();
-        
+
         if (empty($sources)) {
             Yii::$app->session->setFlash('warning', 'Нет активных источников');
             return $this->redirect(['index']);
@@ -237,15 +237,15 @@ class ImportController extends BaseAdminController
 
         // Фильтры
         $filters = Yii::$app->request->get();
-        
+
         if (!empty($filters['action'])) {
             $query->andWhere(['action' => $filters['action']]);
         }
-        
+
         if (!empty($filters['level'])) {
             $query->andWhere(['level' => $filters['level']]);
         }
-        
+
         if (!empty($filters['search'])) {
             $search = $filters['search'];
             $query->andWhere([
@@ -395,7 +395,7 @@ class ImportController extends BaseAdminController
     protected function createImportService()
     {
         $service = new ImportService();
-        
+
         $service->proxyService = new ProxyService();
         $service->captchaService = new CaptchaService();
         $service->currencyService = new NbrbRateService();
@@ -478,11 +478,11 @@ class ImportController extends BaseAdminController
 
         if (Yii::$app->request->isPost) {
             $model->load(Yii::$app->request->post());
-            
+
             if ($model->upload()) {
                 try {
                     $result = $this->processUploadedFile($model);
-                    
+
                     if ($result['success']) {
                         Yii::$app->session->setFlash('success', "Файл обработан. Импортировано: {$result['imported']}, обновлено: {$result['updated']}, ошибок: {$result['errors']}");
                         return $this->redirect(['logs']);
@@ -555,7 +555,6 @@ class ImportController extends BaseAdminController
             $task->save();
 
             return ['success' => true, 'imported' => $imported, 'updated' => $updated, 'errors' => $errors];
-
         } catch (\Exception $e) {
             $task->error_message = $e->getMessage();
             $task->status = ImportTask::STATUS_FAILED;
@@ -643,7 +642,6 @@ class ImportController extends BaseAdminController
             }
 
             return $this->importProductsFromArray($products, $task);
-
         } catch (\Exception $e) {
             Yii::error('Ошибка обработки Excel: ' . $e->getMessage(), 'import');
             throw $e;
@@ -727,7 +725,6 @@ class ImportController extends BaseAdminController
                     $this->createProductFromData($productData, $task);
                     $imported++;
                 }
-
             } catch (\Exception $e) {
                 $this->logError($task, "Строка " . ($index + 2) . ": " . $e->getMessage());
                 $errors++;
@@ -743,13 +740,13 @@ class ImportController extends BaseAdminController
     protected function createProductFromData($data, $task)
     {
         $product = new \app\backend\modules\catalog\models\Product();
-        
+
         $product->name = $data['name'];
         $product->sku = $data['sku'];
         $product->description = $data['description'] ?? '';
         $product->price = $data['price'] ?? 0;
         $product->is_active = $data['is_active'] ?? true;
-        
+
         if (isset($data['brand_id'])) {
             $product->brand_id = $data['brand_id'];
         } elseif (isset($data['brand_name'])) {

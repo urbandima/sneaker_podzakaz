@@ -33,8 +33,8 @@ if ($prevRevenue > 0) {
 // Z80: active date range button uses admin-btn-primary when selected
 $this->params['headerActions'] = [
     Html::a('Сегодня', ['index', 'period' => 'today', 'tab' => $activeTab], ['class' => 'admin-btn admin-btn-sm ' . ($activePeriod === 'today' ? 'admin-btn-primary' : 'admin-btn-ghost')]),
-    Html::a('Неделя',  ['index', 'period' => 'week',  'tab' => $activeTab], ['class' => 'admin-btn admin-btn-sm ' . ($activePeriod === 'week'  ? 'admin-btn-primary' : 'admin-btn-ghost')]),
-    Html::a('Месяц',   ['index', 'period' => 'month', 'tab' => $activeTab], ['class' => 'admin-btn admin-btn-sm ' . ($activePeriod === 'month' ? 'admin-btn-primary' : 'admin-btn-ghost')]),
+    Html::a('Неделя', ['index', 'period' => 'week',  'tab' => $activeTab], ['class' => 'admin-btn admin-btn-sm ' . ($activePeriod === 'week'  ? 'admin-btn-primary' : 'admin-btn-ghost')]),
+    Html::a('Месяц', ['index', 'period' => 'month', 'tab' => $activeTab], ['class' => 'admin-btn admin-btn-sm ' . ($activePeriod === 'month' ? 'admin-btn-primary' : 'admin-btn-ghost')]),
 ];
 ?>
 
@@ -106,7 +106,7 @@ $this->params['headerActions'] = [
     </h2>
     
     <div style="margin-top: 1.5rem; overflow-x: auto;">
-        <?php if (!empty($salesByDay)): ?>
+        <?php if (!empty($salesByDay)) : ?>
         <table class="admin-table">
             <thead>
                 <tr>
@@ -117,7 +117,7 @@ $this->params['headerActions'] = [
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($salesByDay as $day): ?>
+                <?php foreach ($salesByDay as $day) : ?>
                 <tr>
                     <td><?= $day['date'] ?? '—' ?></td>
                     <td style="text-align: right; font-weight: 600;"><?= $day['orders_count'] ?? $day['count'] ?? 0 ?></td>
@@ -127,7 +127,7 @@ $this->params['headerActions'] = [
                 <?php endforeach; ?>
             </tbody>
         </table>
-        <?php else: ?>
+        <?php else : ?>
         <p style="text-align: center; color: var(--admin-text-secondary); padding: 2rem;">Нет данных за выбранный период</p>
         <?php endif; ?>
     </div>
@@ -141,7 +141,7 @@ $this->params['headerActions'] = [
     </h2>
     
     <div style="margin-top: 1.5rem; overflow-x: auto;">
-        <?php if (!empty($topProducts)): ?>
+        <?php if (!empty($topProducts)) : ?>
         <table class="admin-table">
             <thead>
                 <tr>
@@ -152,7 +152,7 @@ $this->params['headerActions'] = [
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($topProducts as $product): ?>
+                <?php foreach ($topProducts as $product) : ?>
                 <tr>
                     <td><?= Html::encode($product['product_name']) ?></td>
                     <td class="text-right fw-600"><?= $product['views'] ?? 0 ?></td>
@@ -162,14 +162,14 @@ $this->params['headerActions'] = [
                 <?php endforeach; ?>
             </tbody>
         </table>
-        <?php else: ?>
+        <?php else : ?>
         <p style="text-align: center; color: var(--admin-text-secondary); padding: 2rem;">Нет данных о продажах</p>
         <?php endif; ?>
     </div>
 </div>
 
 <!-- Device Stats -->
-<?php if (!empty($deviceStats)): ?>
+<?php if (!empty($deviceStats)) : ?>
 <div class="admin-card">
     <h2 class="admin-card-title">
         <i class="bi bi-phone"></i>
@@ -177,7 +177,7 @@ $this->params['headerActions'] = [
     </h2>
 
     <div style="margin-top: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
-        <?php foreach ($deviceStats as $device): ?>
+        <?php foreach ($deviceStats as $device) : ?>
         <div style="text-align: center; padding: 1rem; background: var(--admin-primary-soft); border-radius: 0.5rem;">
             <i class="bi bi-<?= $device['device_type'] === 'mobile' ? 'phone' : ($device['device_type'] === 'tablet' ? 'tablet' : 'laptop') ?>" style="font-size: 2rem; color: var(--admin-primary);"></i>
             <p style="margin: 0.5rem 0 0; font-weight: 600;"><?= ucfirst($device['device_type']) ?></p>
@@ -202,9 +202,9 @@ $this->params['headerActions'] = [
             ['label' => 'Заказы',    'value' => (int)($conversionFunnel['orders'] ?? 0), 'color' => '#10b981'],
         ];
         $maxVal = max(array_column($funnelSteps, 'value')) ?: 1;
-        foreach ($funnelSteps as $step):
+        foreach ($funnelSteps as $step) :
             $pct = round($step['value'] / $maxVal * 100);
-        ?>
+            ?>
         <div style="flex:1;min-width:120px;text-align:center;">
             <div style="height:<?= max($pct, 5) ?>px;background:<?= $step['color'] ?>;border-radius:0.5rem 0.5rem 0 0;transition:height 0.3s;"></div>
             <div style="padding:0.5rem 0;font-weight:700;font-size:1.1rem;"><?= number_format($step['value']) ?></div>
@@ -256,9 +256,9 @@ $this->params['headerActions'] = [
                 'Lost'     => '#ef4444',
                 'New'      => '#8b5cf6',
             ];
-            foreach ($rfmSegments as $seg):
+            foreach ($rfmSegments as $seg) :
                 $color = $segmentColors[$seg['segment']] ?? '#64748b';
-            ?>
+                ?>
             <tr>
                 <td>
                     <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:<?= $color ?>;margin-right:0.4rem;"></span>
@@ -291,7 +291,7 @@ $this->params['headerActions'] = [
         Отчёт по команде
     </h2>
     <div style="margin-top:1.5rem;overflow-x:auto;">
-        <?php if (!empty($teamStats)): ?>
+        <?php if (!empty($teamStats)) : ?>
         <table class="admin-table">
             <thead>
                 <tr>
@@ -302,7 +302,7 @@ $this->params['headerActions'] = [
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($teamStats as $row): ?>
+                <?php foreach ($teamStats as $row) : ?>
                 <tr>
                     <td><?= Html::encode($row['manager'] ?? 'Не назначен') ?></td>
                     <td style="text-align:right;font-weight:700;"><?= (int)$row['order_count'] ?></td>
@@ -312,7 +312,7 @@ $this->params['headerActions'] = [
                 <?php endforeach; ?>
             </tbody>
         </table>
-        <?php else: ?>
+        <?php else : ?>
         <p style="text-align:center;color:var(--admin-text-secondary);padding:2rem;">
             Нет данных по команде (проверьте наличие полей assigned_logist / created_by в таблице order)
         </p>

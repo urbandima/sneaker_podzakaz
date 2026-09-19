@@ -38,7 +38,7 @@ $this->params['headerActions'] = [
             <label>Источник импорта *</label>
             <select name="Import[source_id]" class="form-control">
                 <option value="">Выберите источник импорта</option>
-                <?php foreach ($sources as $source): ?>
+                <?php foreach ($sources as $source) : ?>
                     <option value="<?= $source->id ?>"><?= Html::encode($source->name) ?></option>
                 <?php endforeach; ?>
             </select>

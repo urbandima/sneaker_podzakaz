@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PdfController — Генерация PDF документов
  *

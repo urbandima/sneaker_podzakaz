@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Псевдоним для обратной совместимости.
  * Каноническая модель: app\backend\modules\account\models\Customer

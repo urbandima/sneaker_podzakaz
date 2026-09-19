@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Настройки интеграций — AmoCRM, МойСклад, Telegram
  */
@@ -159,7 +160,9 @@ $this->params['headerActions'] = [];
                 $dpTariff    = Yii::$app->dobropost->defaultTariff ?? 26;
                 $dpConnected = !empty($dpEmail);
             } catch (\Exception $e) {
-                $dpEmail = ''; $dpTariff = 26; $dpConnected = false;
+                $dpEmail = '';
+                $dpTariff = 26;
+                $dpConnected = false;
             }
             ?>
             <span class="admin-badge <?= $dpConnected ? 'admin-badge-success' : 'admin-badge-secondary' ?>">
@@ -196,8 +199,8 @@ $this->params['headerActions'] = [];
                         'on_passport'       => 'При получении паспортных данных',
                         'on_confirmed_paid' => 'При статусе "Подтвержден и оплачен"',
                     ];
-                    foreach ($autoSendOptions as $val => $label):
-                    ?>
+                    foreach ($autoSendOptions as $val => $label) :
+                        ?>
                     <option value="<?= $val ?>" <?= $autoSend === $val ? 'selected' : '' ?>><?= $label ?></option>
                     <?php endforeach; ?>
                 </select>

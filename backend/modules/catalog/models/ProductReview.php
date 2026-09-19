@@ -2,11 +2,12 @@
 
 /**
  * ProductReview — Временная заглушка для модели отзыва
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Временная реализация для предотвращения ошибок.
  * TODO: Создать полную реализацию модели.
  */
+
 namespace app\backend\modules\catalog\models;
 
 use yii\db\ActiveRecord;
@@ -18,7 +19,7 @@ class ProductReview extends ActiveRecord
     {
         return '{{%product_review}}';
     }
-    
+
     public function rules()
     {
         return [
@@ -28,12 +29,12 @@ class ProductReview extends ActiveRecord
             [['created_at'], 'safe'],
         ];
     }
-    
+
     public function getProduct()
     {
         return $this->hasOne(Product::class, ['id' => 'product_id']);
     }
-    
+
     public function getUser()
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);

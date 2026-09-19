@@ -16,7 +16,7 @@ class ImageOptimizationService extends Component
     public $jpegQuality = 85;
     public $maxWidth = 1200;
     public $maxHeight = 1200;
-    
+
     /**
      * Оптимизация изображения
      */
@@ -25,10 +25,10 @@ class ImageOptimizationService extends Component
         if (!file_exists($sourcePath)) {
             return false;
         }
-        
+
         $destPath = $destPath ?: $sourcePath;
         $extension = strtolower(pathinfo($sourcePath, PATHINFO_EXTENSION));
-        
+
         switch ($extension) {
             case 'jpg':
             case 'jpeg':
@@ -41,7 +41,7 @@ class ImageOptimizationService extends Component
                 return false;
         }
     }
-    
+
     /**
      * Создание WebP версии
      */
@@ -50,9 +50,9 @@ class ImageOptimizationService extends Component
         if (!file_exists($sourcePath)) {
             return false;
         }
-        
+
         $webpPath = $webpPath ?? preg_replace('/\.(jpg|jpeg|png)$/i', '.webp', $sourcePath);
-        
+
         try {
             $image = Image::getImagine()->open($sourcePath);
             $image->save($webpPath, [
@@ -65,7 +65,7 @@ class ImageOptimizationService extends Component
             return false;
         }
     }
-    
+
     /**
      * Оптимизация JPEG
      */
@@ -73,25 +73,25 @@ class ImageOptimizationService extends Component
     {
         try {
             $image = Image::getImagine()->open($sourcePath);
-            
+
             // Ресайз если превышает максимальные размеры
             $size = $image->getSize();
             if ($size->getWidth() > $this->maxWidth || $size->getHeight() > $this->maxHeight) {
                 $image = Image::resize($image, $this->maxWidth, $this->maxHeight);
             }
-            
+
             $image->save($destPath, [
                 'quality' => $this->jpegQuality,
                 'format' => 'jpeg'
             ]);
-            
+
             return true;
         } catch (\Exception $e) {
             Yii::error("JPEG optimization failed: {$e->getMessage()}");
             return false;
         }
     }
-    
+
     /**
      * Оптимизация PNG
      */
@@ -99,25 +99,25 @@ class ImageOptimizationService extends Component
     {
         try {
             $image = Image::getImagine()->open($sourcePath);
-            
+
             // Ресайз если превышает максимальные размеры
             $size = $image->getSize();
             if ($size->getWidth() > $this->maxWidth || $size->getHeight() > $this->maxHeight) {
                 $image = Image::resize($image, $this->maxWidth, $this->maxHeight);
             }
-            
+
             $image->save($destPath, [
                 'format' => 'png',
                 'png_compression_level' => 6
             ]);
-            
+
             return true;
         } catch (\Exception $e) {
             Yii::error("PNG optimization failed: {$e->getMessage()}");
             return false;
         }
     }
-    
+
     /**
      * Оптимизация WebP
      */
@@ -125,25 +125,25 @@ class ImageOptimizationService extends Component
     {
         try {
             $image = Image::getImagine()->open($sourcePath);
-            
+
             // Ресайз если превышает максимальные размеры
             $size = $image->getSize();
             if ($size->getWidth() > $this->maxWidth || $size->getHeight() > $this->maxHeight) {
                 $image = Image::resize($image, $this->maxWidth, $this->maxHeight);
             }
-            
+
             $image->save($destPath, [
                 'quality' => $this->webpQuality,
                 'format' => 'webp'
             ]);
-            
+
             return true;
         } catch (\Exception $e) {
             Yii::error("WebP optimization failed: {$e->getMessage()}");
             return false;
         }
     }
-    
+
     /**
      * Массовая оптимизация папки
      */
@@ -153,7 +153,7 @@ class ImageOptimizationService extends Component
             'only' => ['*.jpg', '*.jpeg', '*.png', '*.webp'],
             'recursive' => $recursive
         ]);
-        
+
         $optimized = 0;
         foreach ($files as $file) {
             if ($this->optimizeImage($file)) {
@@ -162,10 +162,10 @@ class ImageOptimizationService extends Component
                 $this->createWebpVersion($file);
             }
         }
-        
+
         return $optimized;
     }
-    
+
     /**
      * Получение размера файла
      */
@@ -173,7 +173,7 @@ class ImageOptimizationService extends Component
     {
         return file_exists($path) ? filesize($path) : 0;
     }
-    
+
     /**
      * Статистика оптимизации
      */
@@ -181,7 +181,7 @@ class ImageOptimizationService extends Component
     {
         $beforeSize = $this->getFileSize($beforePath);
         $afterSize = $this->getFileSize($afterPath);
-        
+
         return [
             'before_size' => $beforeSize,
             'after_size' => $afterSize,

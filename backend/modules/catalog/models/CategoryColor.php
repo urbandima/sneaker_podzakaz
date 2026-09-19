@@ -2,20 +2,20 @@
 
 /**
  * CategoryColor — Модель цвета категории
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Цветовая маркировка категорий для визуального выделения в меню,
  * навигации, карточках товаров.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - category_id: ID категории
  * - color_code: HEX код цвета (#FF5733)
  * - label: подпись/название цвета
  * - is_active: активность
- * 
+ *
  * СВЯЗИ:
  * - Category: категория
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - CategoryController (выбор цвета в форме)
  * - MenuWidget (цветные метки в меню)
@@ -38,7 +38,7 @@ use yii\behaviors\TimestampBehavior;
  * @property int $is_active Активен
  * @property int $created_at
  * @property int $updated_at
- * 
+ *
  * @property Category $category
  */
 class CategoryColor extends ActiveRecord

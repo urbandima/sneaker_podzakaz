@@ -2,11 +2,11 @@
 
 /**
  * Brand — Модель бренда
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Бренды товаров: Nike, Adidas, Puma и т.д. Используются для
  * фильтрации, навигации и SEO-страниц брендов.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - name: название бренда
  * - slug: SEO-friendly URL
@@ -15,20 +15,21 @@
  * - sort_order: порядок сортировки
  * - is_active: активность бренда
  * - meta_title, meta_description, meta_keywords: SEO
- * 
+ *
  * СВЯЗИ:
  * - Product[] (товары бренда)
  * - SizeGrid[] (размерные сетки бренда)
- * 
+ *
  * ПОВЕДЕНИЯ:
  * - TimestampBehavior (created_at, updated_at)
  * - SluggableBehavior (генерация slug из name)
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * - CatalogController (страница бренда /catalog/brand/{slug})
  * - ProductController/admin (привязка товара к бренду)
  * - Фильтрация в каталоге
  */
+
 namespace app\backend\modules\catalog\models;
 
 use Yii;
@@ -54,7 +55,7 @@ use app\backend\shared\components\SitemapNotifier;
  * @property string|null $meta_keywords SEO ключевые слова
  * @property int $created_at
  * @property int $updated_at
- * 
+ *
  * @property Product[] $products
  */
 class Brand extends ActiveRecord
@@ -87,7 +88,9 @@ class Brand extends ActiveRecord
         return [
             [
                 'class' => TimestampBehavior::class,
-                'value' => function() { return date('Y-m-d H:i:s'); },
+                'value' => function () {
+                    return date('Y-m-d H:i:s');
+                },
             ],
             [
                 'class' => SluggableBehavior::class,
@@ -193,14 +196,14 @@ class Brand extends ActiveRecord
     {
         return (int)$this->getProducts()->where(['is_active' => true])->count();
     }
-    
+
     /**
      * Добавляем виртуальное поле для API и array access
      */
     public function fields()
     {
         $fields = parent::fields();
-        $fields['products_count'] = function($model) {
+        $fields['products_count'] = function ($model) {
             return $model->getProductsCount();
         };
         return $fields;
@@ -257,7 +260,7 @@ class Brand extends ActiveRecord
         if ($this->logo_url) {
             return $this->logo_url;
         }
-        
+
         if ($this->logo) {
             // Если это уже полный URL
             if (strpos($this->logo, 'http') === 0) {
@@ -266,7 +269,7 @@ class Brand extends ActiveRecord
             // Иначе это локальный путь
             return \Yii::getAlias('@web') . '/' . ltrim($this->logo, '/');
         }
-        
+
         // Дефолтный placeholder
         return \Yii::getAlias('@web') . '/images/no-brand-logo.png';
     }

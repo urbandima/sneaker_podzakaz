@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use app\backend\shared\helpers\PriceHelper;
 
@@ -18,29 +19,36 @@ $statusChain = [
     'canceled' => 'Отменен',
 ];
 $currentIdx = array_search($order->status ?? '', array_keys($statusChain));
-if ($currentIdx === false) $currentIdx = -1;
+if ($currentIdx === false) {
+    $currentIdx = -1;
+}
 ?>
 <div class="order-track">
     <h1>Заказ #<?= Html::encode($order->order_number ?? '') ?></h1>
 
     <!-- Status chain -->
     <div class="status-chain">
-        <?php $i = 0; foreach ($statusChain as $key => $label): if ($key === 'cancelled') continue; ?>
+        <?php $i = 0;
+        foreach ($statusChain as $key => $label) :
+            if ($key === 'cancelled') {
+                continue;
+            } ?>
         <div class="status-step">
             <div class="status-dot <?= $i <= $currentIdx ? 'status-dot--active' : 'status-dot--inactive' ?>"><?= $i + 1 ?></div>
             <div class="status-label <?= $i <= $currentIdx ? 'status-label--active' : 'status-label--inactive' ?>"><?= Html::encode($label) ?></div>
         </div>
-        <?php if ($i < count($statusChain) - 2): ?>
+                    <?php if ($i < count($statusChain) - 2) : ?>
         <div class="status-connector <?= $i < $currentIdx ? 'status-connector--active' : '' ?>"></div>
-        <?php endif ?>
-        <?php $i++; endforeach ?>
+                    <?php endif ?>
+                <?php $i++;
+        endforeach ?>
     </div>
 
     <!-- Order info -->
-    <?php if (!empty($order->orderItems)): ?>
+    <?php if (!empty($order->orderItems)) : ?>
     <div class="order-items-box">
         <h3>Состав заказа</h3>
-        <?php foreach ($order->orderItems as $item): ?>
+        <?php foreach ($order->orderItems as $item) : ?>
         <div class="order-item-row">
             <span><?= Html::encode($item->product_name ?? '') ?><?= $item->size ? ' (EU ' . Html::encode($item->size) . ')' : '' ?></span>
             <span class="order-item-price"><?= PriceHelper::format((float)($item->price ?? 0)) ?></span>
@@ -50,18 +58,18 @@ if ($currentIdx === false) $currentIdx = -1;
     </div>
     <?php endif ?>
 
-    <?php if (!empty($order->china_track_number)): ?>
+    <?php if (!empty($order->china_track_number)) : ?>
     <p>Трек-номер (Китай): <b><?= Html::encode($order->china_track_number) ?></b></p>
     <?php endif ?>
 
-    <?php if (!empty($order->local_track_number)): ?>
+    <?php if (!empty($order->local_track_number)) : ?>
     <p>Трек-номер (РБ): <b><?= Html::encode($order->local_track_number) ?></b></p>
     <?php endif ?>
 
-    <?php if ($order->status === 'cancelled'): ?>
+    <?php if ($order->status === 'cancelled') : ?>
     <div class="order-cancelled">
         <b>Заказ отменён</b>
-        <?php if (!empty($order->cancel_reason)): ?>
+        <?php if (!empty($order->cancel_reason)) : ?>
             — <?= Html::encode($order->cancel_reason) ?>
         <?php endif ?>
     </div>

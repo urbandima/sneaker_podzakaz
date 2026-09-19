@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var \yii\web\View $this
  * @var \app\backend\modules\catalog\models\Product[] $products
@@ -39,8 +40,12 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
         'price_from' => $priceFrom,
         'price_to'   => $priceTo,
     ], $extra));
-    foreach ($currentBrandIds as $id) { $params['brand'][] = $id; }
-    foreach ($currentCatIds as $id) { $params['category'][] = $id; }
+    foreach ($currentBrandIds as $id) {
+        $params['brand'][] = $id;
+    }
+    foreach ($currentCatIds as $id) {
+        $params['category'][] = $id;
+    }
     return Url::to($params);
 };
 ?>
@@ -51,15 +56,15 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
         <!-- Search header -->
         <div class="search-header">
             <h1 class="search-title">
-                <?php if ($query): ?>
+                <?php if ($query) : ?>
                     Результаты поиска: <em>"<?= Html::encode($query) ?>"</em>
-                <?php elseif ($currentTag): ?>
+                <?php elseif ($currentTag) : ?>
                     Товары с тегом: <?= Html::encode($currentTag->name) ?>
-                <?php else: ?>
+                <?php else : ?>
                     Поиск товаров
                 <?php endif; ?>
             </h1>
-            <?php if ($totalCount > 0): ?>
+            <?php if ($totalCount > 0) : ?>
                 <p class="search-count">Найдено: <strong><?= $totalCount ?></strong></p>
             <?php endif; ?>
         </div>
@@ -79,11 +84,11 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
                 </form>
 
                 <!-- Popular searches -->
-                <?php if (!empty($popularSearches)): ?>
+                <?php if (!empty($popularSearches)) : ?>
                 <div class="search-sidebar-section">
                     <h3 class="search-sidebar-title">Популярные запросы</h3>
                     <div class="search-tags-cloud">
-                        <?php foreach ($popularSearches as $ps): ?>
+                        <?php foreach ($popularSearches as $ps) : ?>
                             <a href="<?= Url::to(['/catalog/search/index', 'q' => $ps['query']]) ?>"
                                class="search-tag<?= $ps['query'] === $query ? ' active' : '' ?>">
                                 <?= Html::encode($ps['query']) ?>
@@ -94,11 +99,13 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
                 <?php endif; ?>
 
                 <!-- Brand facets -->
-                <?php if (!empty($facets['brands'])): ?>
+                <?php if (!empty($facets['brands'])) : ?>
                 <div class="search-sidebar-section">
                     <h3 class="search-sidebar-title">Бренд</h3>
-                    <?php foreach ($facets['brands'] as $b):
-                        if (empty($b['brand_id'])) continue;
+                    <?php foreach ($facets['brands'] as $b) :
+                        if (empty($b['brand_id'])) {
+                            continue;
+                        }
                         $active  = in_array($b['brand_id'], $currentBrandIds);
                         $newIds  = $active
                             ? array_values(array_diff($currentBrandIds, [$b['brand_id']]))
@@ -107,7 +114,7 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
                             ['/catalog/search/index', 'q' => $query, 'sort' => $sort !== 'relevance' ? $sort : null],
                             array_map(fn($id) => ['brand[]' => $id], $newIds)
                         ));
-                    ?>
+                        ?>
                         <label class="filter-checkbox">
                             <input type="checkbox" <?= $active ? 'checked' : '' ?>
                                    onchange="window.location='<?= Url::to(array_merge(
@@ -123,13 +130,15 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
                 <?php endif; ?>
 
                 <!-- Category facets -->
-                <?php if (!empty($facets['categories'])): ?>
+                <?php if (!empty($facets['categories'])) : ?>
                 <div class="search-sidebar-section">
                     <h3 class="search-sidebar-title">Категория</h3>
-                    <?php foreach ($facets['categories'] as $cat):
-                        if (empty($cat['category_id'])) continue;
+                    <?php foreach ($facets['categories'] as $cat) :
+                        if (empty($cat['category_id'])) {
+                            continue;
+                        }
                         $active = in_array($cat['category_id'], $currentCatIds);
-                    ?>
+                        ?>
                         <label class="filter-checkbox">
                             <input type="checkbox" <?= $active ? 'checked' : '' ?>
                                    onchange="searchFacetToggle('category', <?= (int)$cat['category_id'] ?>, this.checked)">
@@ -146,13 +155,13 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
                     <h3 class="search-sidebar-title">Цена (BYN)</h3>
                     <form method="get" action="<?= Url::to(['/catalog/search/index']) ?>" class="price-range-form">
                         <input type="hidden" name="q" value="<?= Html::encode($query) ?>">
-                        <?php if ($sort !== 'relevance'): ?>
+                        <?php if ($sort !== 'relevance') : ?>
                             <input type="hidden" name="sort" value="<?= Html::encode($sort) ?>">
                         <?php endif; ?>
-                        <?php foreach ($currentBrandIds as $id): ?>
+                        <?php foreach ($currentBrandIds as $id) : ?>
                             <input type="hidden" name="brand[]" value="<?= (int)$id ?>">
                         <?php endforeach; ?>
-                        <?php foreach ($currentCatIds as $id): ?>
+                        <?php foreach ($currentCatIds as $id) : ?>
                             <input type="hidden" name="category[]" value="<?= (int)$id ?>">
                         <?php endforeach; ?>
                         <div class="price-inputs">
@@ -170,11 +179,11 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
                 </div>
 
                 <!-- Popular tags -->
-                <?php if (!empty($popularTags)): ?>
+                <?php if (!empty($popularTags)) : ?>
                 <div class="search-sidebar-section">
                     <h3 class="search-sidebar-title">Популярные теги</h3>
                     <div class="search-tags-cloud">
-                        <?php foreach ($popularTags as $tag): ?>
+                        <?php foreach ($popularTags as $tag) : ?>
                             <a href="<?= Url::to(['/catalog/search/tag', 'slug' => $tag->slug]) ?>"
                                class="search-tag<?= $currentTag && $currentTag->id === $tag->id ? ' active' : '' ?>"
                                <?= $tag->color ? 'style="background-color:' . Html::encode($tag->color) . '"' : '' ?>>
@@ -191,7 +200,7 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
             <div class="search-content">
 
                 <!-- Sort toolbar -->
-                <?php if ($totalCount > 0): ?>
+                <?php if ($totalCount > 0) : ?>
                 <div class="search-sort">
                     <span class="search-sort-label">Сортировка:</span>
                     <?php
@@ -202,7 +211,7 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
                         'new'        => 'Новинки',
                         'popular'    => 'Популярные',
                     ];
-                    foreach ($sortOptions as $key => $label): ?>
+                    foreach ($sortOptions as $key => $label) : ?>
                         <a href="<?= Url::to(array_filter([
                                 '/catalog/search/index',
                                 'q'    => $query,
@@ -216,16 +225,18 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
                 <?php endif; ?>
 
                 <!-- Active filters -->
-                <?php if (!empty($currentBrandIds) || !empty($currentCatIds) || $priceFrom || $priceTo): ?>
+                <?php if (!empty($currentBrandIds) || !empty($currentCatIds) || $priceFrom || $priceTo) : ?>
                 <div class="active-filters" style="margin-bottom:12px">
-                    <?php foreach ($facets['brands'] as $b):
-                        if (!in_array($b['brand_id'], $currentBrandIds)) continue; ?>
+                    <?php foreach ($facets['brands'] as $b) :
+                        if (!in_array($b['brand_id'], $currentBrandIds)) {
+                            continue;
+                        } ?>
                         <span class="filter-tag">
                             <?= Html::encode($b['brand_name']) ?>
                             <a href="<?= Url::to(['/catalog/search/index', 'q' => $query]) ?>" class="filter-tag-remove"><i class="bi bi-x"></i></a>
                         </span>
                     <?php endforeach; ?>
-                    <?php if ($priceFrom || $priceTo): ?>
+                    <?php if ($priceFrom || $priceTo) : ?>
                         <span class="filter-tag">
                             <?= Html::encode($priceFrom ?? '0') ?> — <?= Html::encode($priceTo ?? '∞') ?> BYN
                             <a href="<?= Url::to(['/catalog/search/index', 'q' => $query]) ?>" class="filter-tag-remove"><i class="bi bi-x"></i></a>
@@ -236,25 +247,25 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
                 <?php endif; ?>
 
                 <!-- Results grid -->
-                <?php if (empty($products)): ?>
+                <?php if (empty($products)) : ?>
                     <div class="search-empty">
                         <div class="search-empty-icon"><i class="bi bi-search"></i></div>
                         <h2>Ничего не найдено</h2>
-                        <?php if ($suggestion): ?>
+                        <?php if ($suggestion) : ?>
                             <p class="search-suggestion">
                                 Возможно, вы имели в виду:
                                 <a href="<?= Url::to(['/catalog/search/index', 'q' => $suggestion]) ?>">
                                     <strong><?= Html::encode($suggestion) ?></strong>
                                 </a>?
                             </p>
-                        <?php else: ?>
+                        <?php else : ?>
                             <p>По запросу <strong>"<?= Html::encode($query) ?>"</strong> ничего не найдено. Попробуйте изменить запрос или выбрать другую категорию.</p>
                         <?php endif; ?>
 
-                        <?php if (!empty($popularSearches)): ?>
+                        <?php if (!empty($popularSearches)) : ?>
                         <div class="search-empty-popular">
                             <p>Популярные запросы:</p>
-                            <?php foreach (array_slice($popularSearches, 0, 6) as $ps): ?>
+                            <?php foreach (array_slice($popularSearches, 0, 6) as $ps) : ?>
                                 <a href="<?= Url::to(['/catalog/search/index', 'q' => $ps['query']]) ?>"
                                    class="search-tag">
                                     <?= Html::encode($ps['query']) ?>
@@ -263,15 +274,15 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
                         </div>
                         <?php endif; ?>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="products-grid search-products-grid">
-                        <?php foreach ($products as $product):
+                        <?php foreach ($products as $product) :
                             // Pass highlighted name via a wrapper; cards use $product->name internally.
                             // For highlighting, we overlay a custom title in the card area below.
-                        ?>
+                            ?>
                             <div class="search-result-card">
                                 <?= $this->render('//catalog/_product_card', ['product' => $product]) ?>
-                                <?php if (!empty($highlightedNames[$product->id])): ?>
+                                <?php if (!empty($highlightedNames[$product->id])) : ?>
                                 <div class="search-highlighted-name" aria-hidden="true">
                                     <?= $highlightedNames[$product->id] ?>
                                 </div>
@@ -287,7 +298,7 @@ $filterUrl = function (array $extra = []) use ($query, $sort, $currentBrandIds, 
                             'options'             => ['class' => 'pagination'],
                             'linkOptions'         => ['class' => 'page-link'],
                             'activePageCssClass'  => 'active',
-                            'disabledPageCssClass'=> 'disabled',
+                            'disabledPageCssClass' => 'disabled',
                             'prevPageLabel'       => '←',
                             'nextPageLabel'       => '→',
                         ]) ?>

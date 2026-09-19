@@ -3,6 +3,7 @@
 /**
  * SitemapGenerator — Генератор sitemap.xml
  */
+
 namespace app\backend\modules\seo\components;
 
 use Yii;

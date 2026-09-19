@@ -16,7 +16,7 @@ use app\backend\shared\helpers\SlugHelper;
 class ParserController extends Controller
 {
     private $baseUrl = 'https://poizonshop.ru';
-    
+
     /**
      * Парсинг товаров с poizonshop.ru
      * Usage: php yii parser/poizon <limit>
@@ -40,13 +40,13 @@ class ParserController extends Controller
         $skipped = 0;
         $errors = 0;
         $page = 1;
-        
+
         while ($imported < $limit && $page <= 10) { // Максимум 10 страниц
             $this->stdout("\n📄 Страница {$page}...\n");
-            
+
             $url = $this->baseUrl . '/sneakers?page=' . $page;
             $html = @file_get_contents($url);
-            
+
             if (!$html) {
                 $this->stderr("❌ Ошибка загрузки страницы {$page}\n");
                 break;
@@ -54,7 +54,7 @@ class ParserController extends Controller
 
             // Парсим товары из HTML
             $products = $this->parseProducts($html);
-            
+
             if (empty($products)) {
                 $this->stdout("⚠️  Товары не найдены на странице {$page}\n");
                 break;
@@ -71,7 +71,7 @@ class ParserController extends Controller
                     // Проверяем существующий товар
                     $slug = $this->generateSlug($productData['name']);
                     $existing = Product::findOne(['slug' => $slug]);
-                    
+
                     if ($existing) {
                         $skipped++;
                         continue;
@@ -105,7 +105,6 @@ class ParserController extends Controller
                         $errors++;
                         $this->stderr("❌ Ошибка: {$productData['name']}\n");
                     }
-
                 } catch (\Exception $e) {
                     $errors++;
                     $this->stderr("❌ Exception: {$e->getMessage()}\n");
@@ -132,15 +131,15 @@ class ParserController extends Controller
     private function parseProducts($html)
     {
         $products = [];
-        
+
         // Используем DOMDocument для парсинга
         libxml_use_internal_errors(true);
         $dom = new \DOMDocument();
         @$dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
         libxml_clear_errors();
-        
+
         $xpath = new \DOMXPath($dom);
-        
+
         // Ищем карточки товаров (нужно адаптировать под реальную структуру)
         // Попробуем разные варианты селекторов
         $selectors = [
@@ -149,7 +148,7 @@ class ParserController extends Controller
             "//div[contains(@class, 'item')]//a[contains(@href, '/product/')]",
             "//a[contains(@href, '/product/')]",
         ];
-        
+
         $nodes = null;
         foreach ($selectors as $selector) {
             $nodes = $xpath->query($selector);
@@ -157,7 +156,7 @@ class ParserController extends Controller
                 break;
             }
         }
-        
+
         if (!$nodes || $nodes->length == 0) {
             return $products;
         }
@@ -260,11 +259,11 @@ class ParserController extends Controller
     private function extractBrand($name)
     {
         $brands = [
-            'Nike', 'Adidas', 'New Balance', 'Puma', 'Reebok', 'Converse', 
-            'Vans', 'Asics', 'Jordan', 'Yeezy', 'Salomon', 'Hoka', 
+            'Nike', 'Adidas', 'New Balance', 'Puma', 'Reebok', 'Converse',
+            'Vans', 'Asics', 'Jordan', 'Yeezy', 'Salomon', 'Hoka',
             'Brooks', 'Saucony', 'Mizuno', 'Under Armour', 'Fila'
         ];
-        
+
         foreach ($brands as $brand) {
             if (stripos($name, $brand) !== false) {
                 return $brand;

@@ -100,7 +100,7 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 
     <!-- Конфигурация -->
-    <?php if ($batch->config): ?>
+    <?php if ($batch->config) : ?>
     <div class="card mb-4">
         <div class="card-header bg-light">
             <h5 class="mb-0"><i class="bi bi-gear"></i> Конфигурация</h5>
@@ -112,7 +112,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php endif; ?>
 
     <!-- Полный лог с подсветкой -->
-    <?php if (!empty($logContent)): ?>
+    <?php if (!empty($logContent)) : ?>
     <div class="card mb-4">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="bi bi-terminal"></i> Полный лог импорта</h5>
@@ -132,11 +132,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 $lines = explode("\n", $logContent);
                 $errorCount = 0;
                 $successCount = 0;
-                
+
                 foreach ($lines as $line) {
                     $originalLine = $line;
                     $line = Html::encode($line);
-                    
+
                     // Считаем ошибки и успехи
                     if (strpos($originalLine, 'ОШИБКА') !== false || strpos($originalLine, '❌') !== false) {
                         $errorCount++;
@@ -144,35 +144,31 @@ $this->params['breadcrumbs'][] = $this->title;
                     if (strpos($originalLine, '✅') !== false || strpos($originalLine, 'Успешно') !== false) {
                         $successCount++;
                     }
-                    
+
                     // Подсветка ошибок
                     if (strpos($line, 'ОШИБКА') !== false || strpos($line, '❌') !== false || strpos($line, 'ERROR') !== false) {
                         echo '<div style="color: #f48771; background: rgba(244, 135, 113, 0.1); padding: 2px 5px; margin: 2px 0; border-left: 3px solid #f48771;">' . $line . '</div>';
-                    }
-                    // Подсветка успехов
-                    elseif (strpos($line, '✅') !== false || strpos($line, 'Успешно') !== false || strpos($line, 'SUCCESS') !== false) {
+                    } elseif (strpos($line, '✅') !== false || strpos($line, 'Успешно') !== false || strpos($line, 'SUCCESS') !== false) {
+                        // Подсветка успехов
                         echo '<div style="color: #89d185;">' . $line . '</div>';
-                    }
-                    // Подсветка предупреждений
-                    elseif (strpos($line, '⚠️') !== false || strpos($line, 'ВНИМАНИЕ') !== false || strpos($line, 'WARNING') !== false) {
+                    } elseif (strpos($line, '⚠️') !== false || strpos($line, 'ВНИМАНИЕ') !== false || strpos($line, 'WARNING') !== false) {
+                        // Подсветка предупреждений
                         echo '<div style="color: #e5c07b; background: rgba(229, 192, 123, 0.1); padding: 2px 5px; margin: 2px 0;">' . $line . '</div>';
-                    }
-                    // Подсветка заголовков
-                    elseif (strpos($line, '═══') !== false || strpos($line, '╔══') !== false || strpos($line, '║') !== false) {
+                    } elseif (strpos($line, '═══') !== false || strpos($line, '╔══') !== false || strpos($line, '║') !== false) {
+                        // Подсветка заголовков
                         echo '<div style="color: #61afef; font-weight: bold;">' . $line . '</div>';
-                    }
-                    // Подсветка статистики
-                    elseif (strpos($line, 'Создано:') !== false || strpos($line, 'Обновлено:') !== false || 
-                            strpos($line, 'Пропущено:') !== false || strpos($line, 'Ошибок:') !== false) {
+                    } elseif (
+                        strpos($line, 'Создано:') !== false || strpos($line, 'Обновлено:') !== false ||
+                            strpos($line, 'Пропущено:') !== false || strpos($line, 'Ошибок:') !== false
+                    ) {
+                        // Подсветка статистики
                         echo '<div style="color: #c678dd; font-weight: bold;">' . $line . '</div>';
-                    }
-                    // Подсветка timestamp
-                    elseif (preg_match('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/', $line, $matches)) {
+                    } elseif (preg_match('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/', $line, $matches)) {
+                        // Подсветка timestamp
                         $line = preg_replace('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/', '<span style="color: #98c379;">[$1]</span>', $line);
                         echo '<div>' . $line . '</div>';
-                    }
-                    // Обычная строка
-                    else {
+                    } else {
+                        // Обычная строка
                         echo '<div>' . $line . '</div>';
                     }
                 }

@@ -19,9 +19,9 @@ class m251106_070100_security_and_architecture_improvements extends Migration
             ['vendor_code', 'brand_id'],
             true // unique
         );
-        
+
         echo "✅ Создан уникальный индекс для (vendor_code, brand_id)\n";
-        
+
         // 2. АРХИТЕКТУРА: Таблица для изображений вариантов размеров
         $this->createTable('{{%product_size_image}}', [
             'id' => $this->primaryKey(),
@@ -32,7 +32,7 @@ class m251106_070100_security_and_architecture_improvements extends Migration
             'created_at' => $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP'),
             'updated_at' => $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         ], 'ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
-        
+
         $this->createIndex('idx_product_size_id', '{{%product_size_image}}', 'product_size_id');
         $this->addForeignKey(
             'fk_product_size_image_size',
@@ -43,9 +43,9 @@ class m251106_070100_security_and_architecture_improvements extends Migration
             'CASCADE',
             'CASCADE'
         );
-        
+
         echo "✅ Создана таблица product_size_image\n";
-        
+
         // 3. МУЛЬТИВАЛЮТНОСТЬ: Таблица настроек валют
         $this->createTable('{{%currency_setting}}', [
             'id' => $this->primaryKey(),
@@ -58,11 +58,12 @@ class m251106_070100_security_and_architecture_improvements extends Migration
             'delivery_fee' => $this->decimal(10, 2)->defaultValue(0)->comment('Фиксированная доставка'),
             'updated_at' => $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         ], 'ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
-        
+
         $this->createIndex('idx_currency_code', '{{%currency_setting}}', 'currency_code', true);
-        
+
         // Заполняем дефолтные настройки
-        $this->batchInsert('{{%currency_setting}}', 
+        $this->batchInsert(
+            '{{%currency_setting}}',
             ['currency_code', 'currency_symbol', 'exchange_rate', 'is_base', 'markup_percent', 'delivery_fee'],
             [
                 ['BYN', '₽', 1.0000, 1, 0, 0],           // Базовая валюта
@@ -71,12 +72,12 @@ class m251106_070100_security_and_architecture_improvements extends Migration
                 ['USD', '$', 3.2000, 0, 20, 0],          // Доллар: курс ~3.2, наценка 20%
             ]
         );
-        
+
         echo "✅ Создана таблица currency_setting с дефолтными настройками\n";
-        
+
         // 4. Добавляем поле validated_url в product для безопасности
         $this->addColumn('{{%product}}', 'validated_url', $this->boolean()->defaultValue(0)->after('poizon_url')->comment('URL прошел валидацию'));
-        
+
         echo "✅ Добавлено поле validated_url в product\n";
     }
 

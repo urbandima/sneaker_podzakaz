@@ -2,26 +2,27 @@
 
 /**
  * AccountController — Контроллер личного кабинета покупателя
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Управление аккаунтом покупателя: регистрация, авторизация, профиль, история заказов.
- * 
+ *
  * ФУНКЦИИ:
  * - Регистрация и авторизация покупателей (login, register, logout)
  * - Личный кабинет: просмотр профиля, редактирование данных (profile, settings)
  * - История заказов покупателя (orders, order-view)
  * - Восстановление пароля (forgot-password)
  * - Быстрый доступ к заказам по email/телефону без регистрации (find-orders, quick-access)
- * 
+ *
  * СВЯЗИ:
  * - Customer (модель покупателя)
  * - Order (модель заказа)
  * - CustomerLoginForm / CustomerRegisterForm (формы авторизации/регистрации)
- * 
+ *
  * БЕЗОПАСНОСТЬ:
  * - Доступ к профилю только для авторизованных покупателей
  * - Проверка владельца заказа при просмотре
  */
+
 namespace app\backend\modules\account\controllers;
 
 use Yii;
@@ -174,10 +175,10 @@ class AccountController extends Controller
         Yii::$app->session->remove('customer_email');
         Yii::$app->session->remove('customer_phone');
         Yii::$app->session->remove('customer_name');
-        
+
         // Удаляем cookie
         Yii::$app->response->cookies->remove('customer_token');
-        
+
         Yii::$app->session->setFlash('success', 'Вы успешно вышли из аккаунта');
         return $this->redirect(['account/login']);
     }
@@ -198,7 +199,7 @@ class AccountController extends Controller
             // Обновляем имя в сессии
             Yii::$app->session->set('customer_name', $customer->getFullName());
             Yii::$app->session->set('customer_phone', $customer->phone);
-            
+
             Yii::$app->session->setFlash('success', 'Профиль успешно обновлен');
             return $this->refresh();
         }
@@ -421,7 +422,7 @@ class AccountController extends Controller
             'message' => count($orders) > 0
                 ? 'Ссылка на отслеживание заказа отправлена на email, указанный при оформлении.'
                 : 'Заказы не найдены.',
-            'orders' => array_map(function($order) {
+            'orders' => array_map(function ($order) {
                 return [
                     'id' => $order->id,
                     'order_number' => $order->order_number,

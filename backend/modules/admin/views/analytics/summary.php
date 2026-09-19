@@ -35,8 +35,8 @@ $funnelOrders = (int)($funnel['orders'] ?? 0);
         $maxVal = max(array_column($steps, 'value')) ?: 1;
         ?>
         <div style="display:flex;gap:0;align-items:flex-end;justify-content:center;height:160px;margin-bottom:1rem;">
-            <?php foreach ($steps as $step): ?>
-            <?php $h = $maxVal > 0 ? max(10, round($step['value'] / $maxVal * 140)) : 10; ?>
+            <?php foreach ($steps as $step) : ?>
+                <?php $h = $maxVal > 0 ? max(10, round($step['value'] / $maxVal * 140)) : 10; ?>
             <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:0.25rem;">
                 <span style="font-weight:700;font-size:0.95rem;color:<?= $step['color'] ?>;">
                     <?= number_format($step['value']) ?>
@@ -46,7 +46,7 @@ $funnelOrders = (int)($funnel['orders'] ?? 0);
             <?php endforeach; ?>
         </div>
         <div style="display:flex;gap:0;">
-            <?php foreach ($steps as $step): ?>
+            <?php foreach ($steps as $step) : ?>
             <div style="flex:1;text-align:center;">
                 <i class="<?= $step['icon'] ?>" style="color:<?= $step['color'] ?>;"></i>
                 <div style="font-size:0.75rem;color:var(--admin-text-secondary);margin-top:0.25rem;">
@@ -55,7 +55,7 @@ $funnelOrders = (int)($funnel['orders'] ?? 0);
             </div>
             <?php endforeach; ?>
         </div>
-        <?php if ($amoStatus === 'error'): ?>
+        <?php if ($amoStatus === 'error') : ?>
         <p style="margin-top:0.75rem;font-size:0.8rem;color:var(--admin-warning);">
             <i class="bi bi-exclamation-triangle"></i>
             Данные AmoCRM недоступны — показано 0 лидов. Проверьте токен.
@@ -95,9 +95,9 @@ $funnelOrders = (int)($funnel['orders'] ?? 0);
         <span style="font-size:0.8rem;color:var(--admin-text-secondary);">Последние 6 месяцев · маржа 30%</span>
     </div>
     <div class="admin-card-body" style="padding:0;overflow-x:auto;">
-        <?php if (empty($marginByMonth)): ?>
+        <?php if (empty($marginByMonth)) : ?>
             <p style="color:var(--admin-text-secondary);text-align:center;padding:2rem;">Нет данных</p>
-        <?php else: ?>
+        <?php else : ?>
         <table class="admin-table">
             <thead>
                 <tr>
@@ -111,7 +111,7 @@ $funnelOrders = (int)($funnel['orders'] ?? 0);
                 <?php
                 $maxRev = max(array_column($marginByMonth, 'revenue')) ?: 1;
                 ?>
-                <?php foreach ($marginByMonth as $m): ?>
+                <?php foreach ($marginByMonth as $m) : ?>
                 <tr>
                     <td style="font-weight:600;"><?= Html::encode($m['month']) ?></td>
                     <td style="text-align:right;font-weight:700;">

@@ -7,9 +7,9 @@ use app\backend\modules\checkout\models\OrderItem;
 
 /**
  * OrderTotalCalculator — сервис расчета суммы заказа
- * 
+ *
  * Рекомендация #15: Order Total Calculator
- * 
+ *
  * Учитывает:
  * - Стоимость товаров
  * - Скидки (купоны)
@@ -24,22 +24,22 @@ class OrderTotalCalculator
     public function calculate(Order $order): array
     {
         $items = $order->orderItems;
-        
+
         // Сумма товаров
         $subtotal = $this->calculateSubtotal($items);
-        
+
         // Скидка по купону
         $discount = $this->calculateDiscount($order, $subtotal);
-        
+
         // Доставка
         $shipping = $this->calculateShipping($order);
-        
+
         // Налог (если применимо)
         $tax = $this->calculateTax($subtotal - $discount);
-        
+
         // Итого
         $total = $subtotal - $discount + $shipping + $tax;
-        
+
         return [
             'subtotal' => round($subtotal, 2),
             'discount' => round($discount, 2),
@@ -49,7 +49,7 @@ class OrderTotalCalculator
             'total' => round($total, 2),
         ];
     }
-    
+
     /**
      * Сумма товаров
      */
@@ -61,7 +61,7 @@ class OrderTotalCalculator
         }
         return $subtotal;
     }
-    
+
     /**
      * Расчет скидки
      */
@@ -70,17 +70,17 @@ class OrderTotalCalculator
         // Если применен купон
         if ($order->coupon_id && $order->coupon) {
             $coupon = $order->coupon;
-            
+
             if ($coupon->type === 'percent') {
                 return $subtotal * ($coupon->value / 100);
             } else {
                 return min($coupon->value, $subtotal);
             }
         }
-        
+
         return 0;
     }
-    
+
     /**
      * Расчет доставки
      */
@@ -90,10 +90,10 @@ class OrderTotalCalculator
         if ($order->total_amount >= 500) {
             return 0;
         }
-        
+
         return $order->delivery_cost ?? 15;
     }
-    
+
     /**
      * Расчет налога
      */
@@ -102,17 +102,17 @@ class OrderTotalCalculator
         // НДС 20%
         return $amount * 0.2;
     }
-    
+
     /**
      * Обновить сумму заказа
      */
     public function updateOrderTotal(Order $order): void
     {
         $calculated = $this->calculate($order);
-        
+
         $order->total_amount = $calculated['total'];
         $order->discount_amount = $calculated['discount'];
-        
+
         // Сохраняем детали в meta
         $order->calculation_details = json_encode($calculated);
     }

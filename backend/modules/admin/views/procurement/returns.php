@@ -42,7 +42,7 @@ $statusPills = [
     <div class="compact-filter-bar filter-row1">
         <select name="status" class="compact-filter-select" style="min-width:180px">
             <option value="">Все статусы</option>
-            <?php foreach ($statuses as $k => $v): ?>
+            <?php foreach ($statuses as $k => $v) : ?>
             <option value="<?= htmlspecialchars($k) ?>" <?= $filterStatus === $k ? 'selected' : '' ?>><?= htmlspecialchars($v) ?></option>
             <?php endforeach; ?>
         </select>
@@ -61,7 +61,7 @@ $statusPills = [
     </span>
 </div>
 
-<?php if (!$returns): ?>
+<?php if (!$returns) : ?>
 <div class="empty-state" style="padding:3rem;text-align:center;margin-top:16px">
     <div class="empty-state-icon"><i class="bi bi-arrow-return-left" style="font-size:2.5rem;color:var(--admin-text-secondary,#9ca3af)"></i></div>
     <h3 style="margin:12px 0 6px;font-size:1rem">Возвратов нет</h3>
@@ -70,11 +70,11 @@ $statusPills = [
         <i class="bi bi-plus-lg"></i> Создать возврат
     </a>
 </div>
-<?php else: ?>
+<?php else : ?>
 <div class="returns-grid">
-    <?php foreach ($returns as $r):
+    <?php foreach ($returns as $r) :
         $sp = $statusPills[$r->status] ?? ['bg' => '#f3f4f6', 'color' => '#6b7280', 'icon' => 'bi-circle'];
-    ?>
+        ?>
     <div class="return-card crm-card">
         <div class="return-card-head">
             <div>
@@ -88,7 +88,7 @@ $statusPills = [
                     </span>
                 </div>
             </div>
-            <?php if ($r->total_amount): ?>
+            <?php if ($r->total_amount) : ?>
             <div class="return-card-amount">
                 <?= PriceHelper::format($r->total_amount) ?>
             </div>
@@ -96,13 +96,13 @@ $statusPills = [
         </div>
 
         <div class="return-card-meta">
-            <?php if ($r->supplier): ?>
+            <?php if ($r->supplier) : ?>
             <div class="return-card-meta-row">
                 <i class="bi bi-building"></i>
                 <span><?= htmlspecialchars($r->supplier->name) ?></span>
             </div>
             <?php endif; ?>
-            <?php if ($r->purchaseOrder): ?>
+            <?php if ($r->purchaseOrder) : ?>
             <div class="return-card-meta-row">
                 <i class="bi bi-receipt"></i>
                 <a href="/admin/procurement/view/<?= $r->purchase_order_id ?>"
@@ -111,7 +111,7 @@ $statusPills = [
                 </a>
             </div>
             <?php endif; ?>
-            <?php if (!empty($r->reason)): ?>
+            <?php if (!empty($r->reason)) : ?>
             <div class="return-card-meta-row">
                 <i class="bi bi-exclamation-circle"></i>
                 <span><?= $r->getReasonLabel() ?></span>
@@ -133,7 +133,7 @@ $statusPills = [
                     <i class="bi bi-arrow-repeat"></i> Статус
                 </button>
                 <div id="rt-dd-<?= $r->id ?>" style="display:none;position:absolute;left:0;top:calc(100% + 4px);background:var(--admin-surface,#fff);border:1.5px solid var(--admin-border,#e1e3e5);border-radius:8px;padding:4px;z-index:200;min-width:150px;box-shadow:0 4px 16px rgba(0,0,0,.1)">
-                    <?php foreach ($statuses as $k => $v): ?>
+                    <?php foreach ($statuses as $k => $v) : ?>
                         <?php $ddSp = $statusPills[$k] ?? ['bg' => '#f3f4f6', 'color' => '#6b7280', 'icon' => 'bi-circle']; ?>
                         <a href="#" onclick="updateReturnStatus(<?= $r->id ?>, '<?= $k ?>'); return false"
                            style="display:flex;align-items:center;gap:6px;padding:6px 10px;font-size:.8125rem;color:var(--admin-text-primary,#202223);text-decoration:none;border-radius:5px;white-space:nowrap<?= $k === $r->status ? ';font-weight:700' : '' ?>"
@@ -141,7 +141,9 @@ $statusPills = [
                            onmouseout="this.style.background=''">
                             <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:<?= $ddSp['color'] ?>;flex-shrink:0"></span>
                             <?= htmlspecialchars($v) ?>
-                            <?php if ($k === $r->status): ?> <i class="bi bi-check" style="margin-left:auto"></i><?php endif; ?>
+                            <?php if ($k === $r->status) :
+                                ?> <i class="bi bi-check" style="margin-left:auto"></i><?php
+                            endif; ?>
                         </a>
                     <?php endforeach; ?>
                 </div>

@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\finance\models\Expense[] $expenses */
 /** @var array $byCategory */
@@ -10,9 +11,13 @@ use app\backend\shared\helpers\PriceHelper;
 $this->title = 'Расходы';
 
 $currentSort = Yii::$app->request->get('sort', '');
-$sortIcon = function(string $col) use ($currentSort): string {
-    if ($currentSort === $col)       return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▲</span>';
-    if ($currentSort === '-' . $col) return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▼</span>';
+$sortIcon = function (string $col) use ($currentSort): string {
+    if ($currentSort === $col) {
+        return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▲</span>';
+    }
+    if ($currentSort === '-' . $col) {
+        return ' <span style="color:var(--admin-primary,#202223);font-size:.65rem">▼</span>';
+    }
     return ' <span style="color:#d1d5db;font-size:.6rem">⇅</span>';
 };
 
@@ -37,9 +42,9 @@ $storageKey = 'expensesColumns';
 
 <!-- KPI cards by category -->
 <div class="atu-kpi-bar" style="flex-wrap:wrap">
-    <?php foreach ($categories as $k => $label):
+    <?php foreach ($categories as $k => $label) :
         $color = $catColors[$k] ?? ['bg' => '#f3f4f6', 'color' => '#6d7175'];
-    ?>
+        ?>
     <div class="atu-kpi-card" style="border-color:<?= $color['color'] ?>22">
         <div class="atu-kpi-label"><?= htmlspecialchars($label) ?></div>
         <div class="atu-kpi-value" style="font-size:1.125rem;color:<?= $color['color'] ?>"><?= PriceHelper::formatInt((float)($byCategory[$k] ?? 0)) ?></div>
@@ -52,7 +57,7 @@ $storageKey = 'expensesColumns';
     <div class="compact-filter-bar filter-row1">
         <select name="category" class="compact-filter-select" style="min-width:180px">
             <option value="">Все категории</option>
-            <?php foreach ($categories as $k => $v): ?>
+            <?php foreach ($categories as $k => $v) : ?>
             <option value="<?= htmlspecialchars($k) ?>" <?= $filterCat === $k ? 'selected' : '' ?>><?= htmlspecialchars($v) ?></option>
             <?php endforeach; ?>
         </select>
@@ -66,7 +71,7 @@ $storageKey = 'expensesColumns';
             </button>
             <div id="colSelector" class="col-selector-dropdown" style="display:none">
                 <div style="font-weight:700;margin-bottom:8px;font-size:.8125rem">Показать столбцы:</div>
-                <?php foreach ($columnDefs as $colKey => $colLabel): ?>
+                <?php foreach ($columnDefs as $colKey => $colLabel) : ?>
                 <label class="col-selector-item">
                     <input type="checkbox" data-col="<?= $colKey ?>"
                            onchange="AdminTable.toggleColumn('<?= $colKey ?>', this.checked, '<?= $storageKey ?>')" checked>
@@ -107,13 +112,13 @@ $storageKey = 'expensesColumns';
                 </tr>
             </thead>
             <tbody>
-                <?php if (!$expenses): ?>
+                <?php if (!$expenses) : ?>
                     <tr><td colspan="9" style="text-align:center;padding:2.5rem;color:var(--admin-text-secondary,#6d7175)">Расходов нет</td></tr>
                 <?php endif; ?>
-                <?php foreach ($expenses as $e):
+                <?php foreach ($expenses as $e) :
                     $catKey = $e->category ?? 'other';
                     $cp = $catColors[$catKey] ?? $catColors['other'];
-                ?>
+                    ?>
                 <tr>
                     <td style="color:var(--admin-text-secondary,#6d7175);font-size:11px"><?= $e->id ?></td>
                     <td>
@@ -158,7 +163,9 @@ $storageKey = 'expensesColumns';
         <div class="mb-3">
           <label class="form-label">Категория *</label>
           <select id="ae_category" class="form-control">
-            <?php foreach ($categories as $k => $v): ?><option value="<?= $k ?>"><?= $v ?></option><?php endforeach; ?>
+            <?php foreach ($categories as $k => $v) :
+                ?><option value="<?= $k ?>"><?= $v ?></option><?php
+            endforeach; ?>
           </select>
         </div>
         <div class="mb-3"><label class="form-label">Сумма (BYN) *</label><input type="number" step="0.01" id="ae_amount" class="form-control"></div>

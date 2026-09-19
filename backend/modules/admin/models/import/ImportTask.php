@@ -7,7 +7,7 @@ use yii\db\ActiveRecord;
 
 /**
  * ImportTask — Модель задачи импорта
- * 
+ *
  * @property int $id
  * @property int $source_id ID источника
  * @property string $status Статус (pending, running, completed, failed, cancelled)
@@ -24,17 +24,17 @@ use yii\db\ActiveRecord;
  * @property string|null $error_message Сообщение об ошибке
  * @property int|null $created_by Кто запустил
  * @property string $created_at
- * 
+ *
  * @property ImportSource $source Источник
  * @property ImportLog[] $logs Логи импорта
  */
 class ImportTask extends ActiveRecord
 {
-    const STATUS_PENDING = 'pending';
-    const STATUS_RUNNING = 'running';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_FAILED = 'failed';
-    const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_RUNNING = 'running';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_FAILED = 'failed';
+    public const STATUS_CANCELLED = 'cancelled';
 
     /**
      * {@inheritdoc}
@@ -144,13 +144,13 @@ class ImportTask extends ActiveRecord
     {
         $this->status = self::STATUS_COMPLETED;
         $this->finished_at = date('Y-m-d H:i:s');
-        
+
         if ($this->started_at) {
             $this->duration_seconds = strtotime($this->finished_at) - strtotime($this->started_at);
         }
-        
+
         $this->save(false, ['status', 'finished_at', 'duration_seconds']);
-        
+
         // Обновляем статистику источника
         $this->source->updateStats(true, $this->imported_count + $this->updated_count);
     }
@@ -164,13 +164,13 @@ class ImportTask extends ActiveRecord
         $this->status = self::STATUS_FAILED;
         $this->finished_at = date('Y-m-d H:i:s');
         $this->error_message = $message;
-        
+
         if ($this->started_at) {
             $this->duration_seconds = strtotime($this->finished_at) - strtotime($this->started_at);
         }
-        
+
         $this->save(false, ['status', 'finished_at', 'duration_seconds', 'error_message']);
-        
+
         // Обновляем статистику источника
         $this->source->updateStats(false);
     }
@@ -182,11 +182,11 @@ class ImportTask extends ActiveRecord
     {
         $this->status = self::STATUS_CANCELLED;
         $this->finished_at = date('Y-m-d H:i:s');
-        
+
         if ($this->started_at) {
             $this->duration_seconds = strtotime($this->finished_at) - strtotime($this->started_at);
         }
-        
+
         $this->save(false, ['status', 'finished_at', 'duration_seconds']);
     }
 

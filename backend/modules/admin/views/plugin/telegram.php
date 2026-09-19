@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -65,7 +66,7 @@ $this->params['headerActions'] = [
                 Выберите события, о которых бот будет присылать уведомления
             </p>
             <div style="display:flex;flex-direction:column;gap:10px">
-                <?php foreach ($notifMap as $key => $label): ?>
+                <?php foreach ($notifMap as $key => $label) : ?>
                 <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px;border-radius:8px;border:1px solid var(--admin-border)">
                     <input type="checkbox" id="<?= $key ?>"
                            <?= Yii::$app->settings->get('telegram', $key, '1') ? 'checked' : '' ?>

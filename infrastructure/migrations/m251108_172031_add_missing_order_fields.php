@@ -10,11 +10,11 @@ class m251108_172031_add_missing_order_fields extends Migration
     public function safeUp()
     {
         $tableSchema = $this->db->getTableSchema('{{%order}}');
-        
+
         if (!isset($tableSchema->columns['source'])) {
             $this->addColumn('{{%order}}', 'source', $this->string(50)->comment('Источник заказа (catalog, manual)'));
         }
-        
+
         if (!isset($tableSchema->columns['source_id'])) {
             $this->addColumn('{{%order}}', 'source_id', $this->integer()->comment('ID источника'));
         }

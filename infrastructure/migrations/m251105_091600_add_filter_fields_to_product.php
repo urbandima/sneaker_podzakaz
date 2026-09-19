@@ -17,14 +17,14 @@ class m251105_091600_add_filter_fields_to_product extends Migration
         $this->addColumn('{{%product}}', 'height', $this->string(50)->comment('Высота (low, mid, high)'));
         $this->addColumn('{{%product}}', 'fastening', $this->string(50)->comment('Застежка (laces, velcro, zipper, slip_on)'));
         $this->addColumn('{{%product}}', 'country', $this->string(100)->comment('Страна производства'));
-        
+
         // Добавляем дополнительные поля для функционала
         $this->addColumn('{{%product}}', 'has_bonus', $this->boolean()->defaultValue(0)->comment('Есть бонусы'));
         $this->addColumn('{{%product}}', 'promo_2for1', $this->boolean()->defaultValue(0)->comment('Акция 2+1'));
         $this->addColumn('{{%product}}', 'is_exclusive', $this->boolean()->defaultValue(0)->comment('Эксклюзив'));
         $this->addColumn('{{%product}}', 'rating', $this->decimal(3, 2)->defaultValue(0)->comment('Рейтинг товара (0-5)'));
         $this->addColumn('{{%product}}', 'reviews_count', $this->integer()->defaultValue(0)->comment('Количество отзывов'));
-        
+
         // Создаем индексы для ускорения фильтрации
         $this->createIndex('idx-product-material', '{{%product}}', 'material');
         $this->createIndex('idx-product-season', '{{%product}}', 'season');
@@ -32,7 +32,7 @@ class m251105_091600_add_filter_fields_to_product extends Migration
         $this->createIndex('idx-product-height', '{{%product}}', 'height');
         $this->createIndex('idx-product-fastening', '{{%product}}', 'fastening');
         $this->createIndex('idx-product-rating', '{{%product}}', 'rating');
-        
+
         echo "✓ Добавлены поля фильтрации к таблице product\n";
         echo "✓ Созданы индексы для оптимизации производительности\n";
     }
@@ -46,7 +46,7 @@ class m251105_091600_add_filter_fields_to_product extends Migration
         $this->dropIndex('idx-product-gender', '{{%product}}');
         $this->dropIndex('idx-product-season', '{{%product}}');
         $this->dropIndex('idx-product-material', '{{%product}}');
-        
+
         // Удаляем поля
         $this->dropColumn('{{%product}}', 'reviews_count');
         $this->dropColumn('{{%product}}', 'rating');
@@ -59,7 +59,7 @@ class m251105_091600_add_filter_fields_to_product extends Migration
         $this->dropColumn('{{%product}}', 'gender');
         $this->dropColumn('{{%product}}', 'season');
         $this->dropColumn('{{%product}}', 'material');
-        
+
         echo "✓ Удалены поля фильтрации из таблицы product\n";
     }
 }

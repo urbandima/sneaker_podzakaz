@@ -1,4 +1,5 @@
 <?php
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -30,11 +31,19 @@ class FinanceController extends BaseAdminController
 
         $query = Payment::find()->orderBy(['created_at' => SORT_DESC]);
 
-        if ($filterStatus) $query->andWhere(['status' => $filterStatus]);
-        if ($filterMethod) $query->andWhere(['payment_method' => $filterMethod]);
+        if ($filterStatus) {
+            $query->andWhere(['status' => $filterStatus]);
+        }
+        if ($filterMethod) {
+            $query->andWhere(['payment_method' => $filterMethod]);
+        }
         // AUDIT-51: payment.created_at хранится как UNIX_TIMESTAMP (integer), а не TIMESTAMP/DATETIME
-        if ($filterFrom)   $query->andWhere(['>=', 'created_at', strtotime($filterFrom . ' 00:00:00')]);
-        if ($filterTo)     $query->andWhere(['<=', 'created_at', strtotime($filterTo   . ' 23:59:59')]);
+        if ($filterFrom) {
+            $query->andWhere(['>=', 'created_at', strtotime($filterFrom . ' 00:00:00')]);
+        }
+        if ($filterTo) {
+            $query->andWhere(['<=', 'created_at', strtotime($filterTo   . ' 23:59:59')]);
+        }
 
         $payments = $query->with(['order'])->limit(200)->all();
 
@@ -94,7 +103,9 @@ class FinanceController extends BaseAdminController
         $data = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
         $id   = (int)($data['id'] ?? 0);
         $p    = Payment::findOne($id);
-        if (!$p) return ['success' => false, 'message' => 'Не найдено'];
+        if (!$p) {
+            return ['success' => false, 'message' => 'Не найдено'];
+        }
 
         $p->status       = Payment::STATUS_CONFIRMED;
         $p->confirmed_by = Yii::$app->user->id;
@@ -114,10 +125,16 @@ class FinanceController extends BaseAdminController
         $filterTo   = Yii::$app->request->get('date_to', '');
 
         $query = Expense::find()->orderBy(['created_at' => SORT_DESC]);
-        if ($filterCat)  $query->andWhere(['category' => $filterCat]);
+        if ($filterCat) {
+            $query->andWhere(['category' => $filterCat]);
+        }
         // AUDIT-51: expense.created_at хранится как UNIX_TIMESTAMP (integer), а не TIMESTAMP/DATETIME
-        if ($filterFrom) $query->andWhere(['>=', 'created_at', strtotime($filterFrom . ' 00:00:00')]);
-        if ($filterTo)   $query->andWhere(['<=', 'created_at', strtotime($filterTo   . ' 23:59:59')]);
+        if ($filterFrom) {
+            $query->andWhere(['>=', 'created_at', strtotime($filterFrom . ' 00:00:00')]);
+        }
+        if ($filterTo) {
+            $query->andWhere(['<=', 'created_at', strtotime($filterTo   . ' 23:59:59')]);
+        }
 
         $expenses = $query->limit(500)->all();
 
@@ -171,7 +188,7 @@ class FinanceController extends BaseAdminController
 
     public function actionPnl()
     {
-        $year  = (int) Yii::$app->request->get('year',  date('Y'));
+        $year  = (int) Yii::$app->request->get('year', date('Y'));
         $years = $this->getAvailableYears();
 
         // Z40/Z43: Revenue from orders by month via RevenueService (consistent excluded-status filter)
@@ -243,8 +260,17 @@ class FinanceController extends BaseAdminController
             $margin = $revenue > 0 ? round($net / $revenue * 100, 1) : 0;
 
             $months[$m] = compact(
-                'revenue', 'cogs', 'gross', 'delChina', 'customs',
-                'delLocal', 'rent', 'salary', 'other', 'net', 'margin'
+                'revenue',
+                'cogs',
+                'gross',
+                'delChina',
+                'customs',
+                'delLocal',
+                'rent',
+                'salary',
+                'other',
+                'net',
+                'margin'
             );
         }
 
@@ -257,7 +283,7 @@ class FinanceController extends BaseAdminController
     {
         $tab  = Yii::$app->request->get('tab', 'product');
         $from = Yii::$app->request->get('from', date('Y-m-01'));
-        $to   = Yii::$app->request->get('to',   date('Y-m-d'));
+        $to   = Yii::$app->request->get('to', date('Y-m-d'));
 
         $fromTs = strtotime($from);
         $toTs   = strtotime($to . ' 23:59:59');

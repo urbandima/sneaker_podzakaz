@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\procurement\models\Supplier $supplier */
 /** @var app\backend\modules\catalog\models\Brand[] $allBrands */
@@ -11,8 +12,10 @@ $this->title = 'Поставщик: ' . $supplier->name;
 $stats         = $supplier->getPurchaseStats();
 $brandsList    = $supplier->getBrandsList();
 $brandMap      = [];
-foreach ($allBrands as $b) $brandMap[$b->id] = $b->name;
-$supplierBrands= $supplier->getBrandIds();
+foreach ($allBrands as $b) {
+    $brandMap[$b->id] = $b->name;
+}
+$supplierBrands = $supplier->getBrandIds();
 $contractColor = $supplier->getContractTypeBadgeColor();
 $countryMap    = Supplier::getCountryMap();
 $contractTypes = Supplier::getContractTypeOptions();
@@ -202,16 +205,16 @@ $flagEmoji     = $supplier->country ? Supplier::getCountryFlagEmoji($supplier->c
     <div class="sv-hero-info">
         <div class="sv-hero-name" id="svHeroName"><?= htmlspecialchars($supplier->name) ?></div>
         <div class="sv-hero-meta">
-            <?php if ($supplier->contact_person): ?>
+            <?php if ($supplier->contact_person) : ?>
             <span><i class="bi bi-person"></i> <?= htmlspecialchars($supplier->contact_person) ?></span>
             <?php endif; ?>
-            <?php if ($supplier->phone): ?>
+            <?php if ($supplier->phone) : ?>
             <a href="tel:<?= htmlspecialchars($supplier->phone) ?>"><i class="bi bi-telephone"></i> <?= htmlspecialchars($supplier->phone) ?></a>
             <?php endif; ?>
-            <?php if ($supplier->email): ?>
+            <?php if ($supplier->email) : ?>
             <a href="mailto:<?= htmlspecialchars($supplier->email) ?>"><i class="bi bi-envelope"></i> <?= htmlspecialchars($supplier->email) ?></a>
             <?php endif; ?>
-            <?php if ($supplier->country): ?>
+            <?php if ($supplier->country) : ?>
             <span><?= $flagEmoji ?> <?= htmlspecialchars($supplier->getCountryName()) ?><?= $supplier->region ? ', ' . htmlspecialchars($supplier->region) : '' ?></span>
             <?php endif; ?>
         </div>
@@ -219,12 +222,12 @@ $flagEmoji     = $supplier->country ? Supplier::getCountryFlagEmoji($supplier->c
             <span class="sv-badge <?= $supplier->is_active ? 'sv-badge-active' : 'sv-badge-inactive' ?>">
                 <?= $supplier->is_active ? 'Активен' : 'Неактивен' ?>
             </span>
-            <?php if ($supplier->contract_type): ?>
+            <?php if ($supplier->contract_type) : ?>
             <span class="sv-badge" style="background:<?= $contractColor ?>22;color:<?= $contractColor ?>;border:1px solid <?= $contractColor ?>44">
                 <?= htmlspecialchars($supplier->getContractTypeLabel()) ?>
             </span>
             <?php endif; ?>
-            <?php foreach ($brandsList as $b): ?>
+            <?php foreach ($brandsList as $b) : ?>
             <span class="sv-brand-tag"><?= htmlspecialchars($b->name) ?></span>
             <?php endforeach; ?>
         </div>
@@ -316,20 +319,20 @@ $flagEmoji     = $supplier->country ? Supplier::getCountryFlagEmoji($supplier->c
             <div class="sv-card-title"><i class="bi bi-bookmark-star"></i> Бренды</div>
             <div class="sv-card-body">
                 <div id="svBrandTags" style="margin-bottom:10px">
-                    <?php foreach ($brandsList as $b): ?>
+                    <?php foreach ($brandsList as $b) : ?>
                     <span class="sv-brand-tag">
                         <?= htmlspecialchars($b->name) ?>
                         <button class="remove-btn" onclick="SvBrands.remove(<?= $b->id ?>)" title="Убрать">×</button>
                     </span>
                     <?php endforeach; ?>
-                    <?php if (!$brandsList): ?>
+                    <?php if (!$brandsList) : ?>
                     <span style="color:#9ca3af;font-size:12px;font-style:italic">Бренды не указаны</span>
                     <?php endif; ?>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center">
                     <select id="svBrandAdd" class="compact-filter-select" style="flex:1">
                         <option value="">+ Добавить бренд</option>
-                        <?php foreach ($allBrands as $b): ?>
+                        <?php foreach ($allBrands as $b) : ?>
                         <option value="<?= $b->id ?>"><?= htmlspecialchars($b->name) ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -371,9 +374,9 @@ $flagEmoji     = $supplier->country ? Supplier::getCountryFlagEmoji($supplier->c
                 ->limit(20)
                 ->all();
             ?>
-            <?php if (!$orders): ?>
+            <?php if (!$orders) : ?>
             <div class="sv-card-body" style="color:#9ca3af;font-style:italic;font-size:13px">Закупок нет</div>
-            <?php else: ?>
+            <?php else : ?>
             <div style="overflow-x:auto">
                 <table class="sv-history-table">
                     <thead>
@@ -386,7 +389,7 @@ $flagEmoji     = $supplier->country ? Supplier::getCountryFlagEmoji($supplier->c
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($orders as $o): ?>
+                        <?php foreach ($orders as $o) : ?>
                         <tr>
                             <td><a href="/admin/procurement/view?id=<?= $o->id ?>" style="color:var(--admin-accent,#008060)">
                                 <?= htmlspecialchars($o->purchase_number) ?>
@@ -425,7 +428,7 @@ $flagEmoji     = $supplier->country ? Supplier::getCountryFlagEmoji($supplier->c
                     <select id="svCountrySelect" class="form-control" style="display:none;margin-top:6px"
                             onchange="SvInline.saveField(<?= $supplier->id ?>, 'country', this.value).then(()=>location.reload())">
                         <option value="">—</option>
-                        <?php foreach ($countryMap as $code => $name): ?>
+                        <?php foreach ($countryMap as $code => $name) : ?>
                         <option value="<?= $code ?>" <?= $supplier->country === $code ? 'selected' : '' ?>>
                             <?= $code ?> — <?= htmlspecialchars($name) ?>
                         </option>
@@ -444,18 +447,18 @@ $flagEmoji     = $supplier->country ? Supplier::getCountryFlagEmoji($supplier->c
         <div class="sv-card">
             <div class="sv-card-title"><i class="bi bi-file-earmark-check"></i> Тип договора</div>
             <div class="sv-card-body">
-                <?php if ($supplier->contract_type): ?>
+                <?php if ($supplier->contract_type) : ?>
                 <span class="sv-contract-badge" style="background:<?= $contractColor ?>22;color:<?= $contractColor ?>;border:1px solid <?= $contractColor ?>44">
                     <?= htmlspecialchars($supplier->getContractTypeLabel()) ?>
                 </span>
-                <?php else: ?>
+                <?php else : ?>
                 <span style="color:#9ca3af;font-size:12px;font-style:italic">Не указан</span>
                 <?php endif; ?>
                 <div style="margin-top:10px">
                     <select class="form-control" id="svContractSelect"
                             onchange="SvInline.saveField(<?= $supplier->id ?>, 'contract_type', this.value).then(()=>location.reload())">
                         <option value="">— Изменить —</option>
-                        <?php foreach ($contractTypes as $k => $v): ?>
+                        <?php foreach ($contractTypes as $k => $v) : ?>
                         <option value="<?= $k ?>" <?= $supplier->contract_type === $k ? 'selected' : '' ?>>
                             <?= htmlspecialchars($v) ?>
                         </option>
@@ -525,7 +528,7 @@ $flagEmoji     = $supplier->country ? Supplier::getCountryFlagEmoji($supplier->c
             <label class="form-label">Страна</label>
             <select id="em_country" class="form-control">
               <option value="">—</option>
-              <?php foreach ($countryMap as $code => $name): ?>
+              <?php foreach ($countryMap as $code => $name) : ?>
               <option value="<?= $code ?>" <?= $supplier->country === $code ? 'selected' : '' ?>><?= $code ?> — <?= htmlspecialchars($name) ?></option>
               <?php endforeach; ?>
             </select>
@@ -544,7 +547,7 @@ $flagEmoji     = $supplier->country ? Supplier::getCountryFlagEmoji($supplier->c
             <label class="form-label">Тип договора</label>
             <select id="em_contract_type" class="form-control">
               <option value="">—</option>
-              <?php foreach ($contractTypes as $k => $v): ?>
+              <?php foreach ($contractTypes as $k => $v) : ?>
               <option value="<?= $k ?>" <?= $supplier->contract_type === $k ? 'selected' : '' ?>><?= htmlspecialchars($v) ?></option>
               <?php endforeach; ?>
             </select>

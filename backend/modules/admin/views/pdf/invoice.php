@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Printable invoice view — renders with $this->layout = false
  * @var yii\web\View $this
@@ -63,9 +64,17 @@ tfoot td{padding:8px 10px;font-weight:700;border-top:2px solid #1a1a1a;font-size
 <div class="inv-header">
     <div class="inv-company">
         <h1><?= Html::encode($company['name'] ?? 'СНИКЕРХЭД') ?></h1>
-        <?php if (!empty($company['address'])): ?><p><?= Html::encode($company['address']) ?></p><?php endif; ?>
-        <?php if (!empty($company['phone'])): ?><p>Тел: <?= Html::encode($company['phone']) ?><?php if (!empty($company['email'])): ?> | <?= Html::encode($company['email']) ?><?php endif; ?></p><?php endif; ?>
-        <?php if (!empty($company['unp'])): ?><p>УНП: <?= Html::encode($company['unp']) ?></p><?php endif; ?>
+        <?php if (!empty($company['address'])) :
+            ?><p><?= Html::encode($company['address']) ?></p><?php
+        endif; ?>
+        <?php if (!empty($company['phone'])) :
+            ?><p>Тел: <?= Html::encode($company['phone']) ?><?php if (!empty($company['email'])) :
+    ?> | <?= Html::encode($company['email']) ?><?php
+            endif; ?></p><?php
+        endif; ?>
+        <?php if (!empty($company['unp'])) :
+            ?><p>УНП: <?= Html::encode($company['unp']) ?></p><?php
+        endif; ?>
     </div>
     <div class="inv-meta">
         <div class="inv-num">НАКЛАДНАЯ</div>
@@ -80,23 +89,37 @@ tfoot td{padding:8px 10px;font-weight:700;border-top:2px solid #1a1a1a;font-size
     <div class="inv-party">
         <div class="inv-party-label">Продавец</div>
         <p><strong><?= Html::encode($company['name'] ?? 'СНИКЕРХЭД') ?></strong></p>
-        <?php if (!empty($company['address'])): ?><p><?= Html::encode($company['address']) ?></p><?php endif; ?>
-        <?php if (!empty($company['phone'])): ?><p><?= Html::encode($company['phone']) ?></p><?php endif; ?>
-        <?php if (!empty($company['unp'])): ?><p>УНП: <?= Html::encode($company['unp']) ?></p><?php endif; ?>
+        <?php if (!empty($company['address'])) :
+            ?><p><?= Html::encode($company['address']) ?></p><?php
+        endif; ?>
+        <?php if (!empty($company['phone'])) :
+            ?><p><?= Html::encode($company['phone']) ?></p><?php
+        endif; ?>
+        <?php if (!empty($company['unp'])) :
+            ?><p>УНП: <?= Html::encode($company['unp']) ?></p><?php
+        endif; ?>
     </div>
     <div class="inv-party">
         <div class="inv-party-label">Покупатель</div>
         <p><strong><?= Html::encode($order->client_name ?? '—') ?></strong></p>
-        <?php if ($order->client_phone): ?><p>Тел: <?= Html::encode($order->client_phone) ?></p><?php endif; ?>
-        <?php if ($order->client_email): ?><p><?= Html::encode($order->client_email) ?></p><?php endif; ?>
+        <?php if ($order->client_phone) :
+            ?><p>Тел: <?= Html::encode($order->client_phone) ?></p><?php
+        endif; ?>
+        <?php if ($order->client_email) :
+            ?><p><?= Html::encode($order->client_email) ?></p><?php
+        endif; ?>
         <?php
         $addr = $order->delivery_address ?? '';
-        if ($addr): ?><p>Адрес: <?= Html::encode($addr) ?></p><?php endif; ?>
-        <?php if (!empty($order->pickup_point)): ?><p>ПВЗ: <?= Html::encode($order->pickup_point) ?></p><?php endif; ?>
+        if ($addr) :
+            ?><p>Адрес: <?= Html::encode($addr) ?></p><?php
+        endif; ?>
+        <?php if (!empty($order->pickup_point)) :
+            ?><p>ПВЗ: <?= Html::encode($order->pickup_point) ?></p><?php
+        endif; ?>
     </div>
 </div>
 
-<?php if ($order->comment): ?>
+<?php if ($order->comment) : ?>
 <div class="inv-note">💬 <?= Html::encode($order->comment) ?></div>
 <?php endif; ?>
 
@@ -113,7 +136,10 @@ tfoot td{padding:8px 10px;font-weight:700;border-top:2px solid #1a1a1a;font-size
         </tr>
     </thead>
     <tbody>
-        <?php $subtotal = 0; foreach ($order->orderItems as $i => $item): $lineTotal = $item->price * $item->quantity; $subtotal += $lineTotal; ?>
+        <?php $subtotal = 0;
+        foreach ($order->orderItems as $i => $item) :
+            $lineTotal = $item->price * $item->quantity;
+            $subtotal += $lineTotal; ?>
         <tr>
             <td style="color:#9ca3af"><?= $i + 1 ?></td>
             <td><?= Html::encode($item->product_name) ?></td>
@@ -137,20 +163,24 @@ tfoot td{padding:8px 10px;font-weight:700;border-top:2px solid #1a1a1a;font-size
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
     <div>
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:6px">Доставка</div>
-        <p><?= Html::encode(match($order->delivery_method ?? '') {
+        <p><?= Html::encode(match ($order->delivery_method ?? '') {
             'europochta' => 'Европочта',
             'belpochta'  => 'Белпочта',
             'cdek'       => 'СДЭК',
             'courier_minsk' => 'Курьер (Минск)',
             'pickup'     => 'Самовывоз',
             default      => $order->delivery_method ?: 'Не указано',
-        }) ?></p>
-        <?php if (!empty($order->local_track_number)): ?><p style="font-family:monospace;font-size:11px;color:#2563eb">Трек: <?= Html::encode($order->local_track_number) ?></p><?php endif; ?>
+           }) ?></p>
+        <?php if (!empty($order->local_track_number)) :
+            ?><p style="font-family:monospace;font-size:11px;color:#2563eb">Трек: <?= Html::encode($order->local_track_number) ?></p><?php
+        endif; ?>
     </div>
     <div>
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:6px">Оплата</div>
         <p><?= Html::encode($order->payment_method ?? 'Не указано') ?></p>
-        <?php if (!empty($order->delivery_date)): ?><p>Срок: <?= Html::encode($order->delivery_date) ?></p><?php endif; ?>
+        <?php if (!empty($order->delivery_date)) :
+            ?><p>Срок: <?= Html::encode($order->delivery_date) ?></p><?php
+        endif; ?>
     </div>
 </div>
 

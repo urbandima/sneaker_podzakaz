@@ -21,7 +21,7 @@ class m250102_000003_create_cart_table extends Migration
             'created_at' => $this->integer()->notNull(),
             'updated_at' => $this->integer()->notNull(),
         ]);
-        
+
         // Foreign keys
         $this->addForeignKey(
             'fk-cart-user_id',
@@ -31,7 +31,7 @@ class m250102_000003_create_cart_table extends Migration
             'id',
             'CASCADE'
         );
-        
+
         $this->addForeignKey(
             'fk-cart-product_id',
             '{{%cart}}',
@@ -40,12 +40,12 @@ class m250102_000003_create_cart_table extends Migration
             'id',
             'CASCADE'
         );
-        
+
         // Индексы
         $this->createIndex('idx-cart-user_id', '{{%cart}}', 'user_id');
         $this->createIndex('idx-cart-session_id', '{{%cart}}', 'session_id');
         $this->createIndex('idx-cart-product_id', '{{%cart}}', 'product_id');
-        
+
         echo "✓ Создана таблица корзины\n";
     }
 

@@ -19,9 +19,9 @@ $genderLabel = $model->gender === 'male' ? 'Муж' : ($model->gender === 'femal
     <div class="card-header">
         <div class="card-title">
             <h3><?= Html::encode($model->name) ?></h3>
-            <?php if ($model->brand): ?>
+            <?php if ($model->brand) : ?>
                 <span class="brand-badge"><?= Html::encode($model->brand->name) ?></span>
-            <?php else: ?>
+            <?php else : ?>
                 <span class="brand-badge no-brand">Без бренда</span>
             <?php endif; ?>
         </div>
@@ -43,7 +43,7 @@ $genderLabel = $model->gender === 'male' ? 'Муж' : ($model->gender === 'femal
                 <i class="bi bi-rulers"></i>
                 <span><?= $model->getSizeCount() ?> размеров</span>
             </div>
-            <?php if ($model->description): ?>
+            <?php if ($model->description) : ?>
                 <div class="meta-item description">
                     <i class="bi bi-info-circle"></i>
                     <span><?= Html::encode($model->description) ?></span>
@@ -51,17 +51,17 @@ $genderLabel = $model->gender === 'male' ? 'Муж' : ($model->gender === 'femal
             <?php endif; ?>
         </div>
 
-        <?php if (!empty($model->sizes)): ?>
+        <?php if (!empty($model->sizes)) : ?>
             <div class="sizes-preview">
                 <strong>Размеры:</strong>
                 <div class="sizes-list">
-                    <?php 
+                    <?php
                     $sizes = array_slice($model->sizes, 0, 8);
-                    foreach ($sizes as $size): 
-                    ?>
+                    foreach ($sizes as $size) :
+                        ?>
                         <span class="size-tag"><?= Html::encode($size->eu_size ?? $size->us_size ?? $size->uk_size) ?></span>
                     <?php endforeach; ?>
-                    <?php if (count($model->sizes) > 8): ?>
+                    <?php if (count($model->sizes) > 8) : ?>
                         <span class="size-tag more">+<?= count($model->sizes) - 8 ?></span>
                     <?php endif; ?>
                 </div>

@@ -2,11 +2,11 @@
 
 /**
  * Order — Модель заказа
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Заказы покупателей: создание, отслеживание, статусы, доставка,
  * оплата, логистика. Основная сущность для бизнес-процессов.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - Идентификация: id, order_number, token
  * - Клиент: client_name, client_email, client_phone, customer_id
@@ -16,7 +16,7 @@
  * - Логистика: china_track_number, recipient_*, passport_*, inn
  * - Оплата: payment_proof, offer_accepted
  * - Связи: created_by (менеджер), assigned_logist
- * 
+ *
  * СТАТУСЫ:
  * - new: новый заказ
  * - paid: оплачен
@@ -24,18 +24,19 @@
  * - shipped: отправлен
  * - delivered: доставлен
  * - cancelled: отменён
- * 
+ *
  * СВЯЗИ:
  * - Customer (покупатель)
  * - User (creator, logist)
  * - OrderItem[] (позиции заказа)
  * - OrderHistory[] (история изменений)
  * - DeliveryTracking (отслеживание)
- * 
+ *
  * БЕЗОПАСНОСТЬ:
  * - Доступ по токену для покупателей (не по ID)
  * - Файлы оплаты вне web root
  */
+
 namespace app\backend\modules\checkout\models;
 
 use Yii;
@@ -49,20 +50,20 @@ class Order extends ActiveRecord
     public $items = []; // Для формы создания заказа
 
     // ── Payment track ─────────────────────────────────────────
-    const PAYMENT_NOT_PAID  = 'not_paid';
-    const PAYMENT_PAID      = 'paid';
-    const PAYMENT_REFUNDED  = 'refunded';
+    public const PAYMENT_NOT_PAID  = 'not_paid';
+    public const PAYMENT_PAID      = 'paid';
+    public const PAYMENT_REFUNDED  = 'refunded';
 
     // ── Logistics track ───────────────────────────────────────
-    const LOGISTICS_AWAITING_BUYOUT  = 'awaiting_buyout';
-    const LOGISTICS_BOUGHT_AT_SOURCE = 'bought_at_source';
-    const LOGISTICS_IN_TRANSIT       = 'in_transit';
-    const LOGISTICS_AT_WAREHOUSE     = 'at_warehouse';
+    public const LOGISTICS_AWAITING_BUYOUT  = 'awaiting_buyout';
+    public const LOGISTICS_BOUGHT_AT_SOURCE = 'bought_at_source';
+    public const LOGISTICS_IN_TRANSIT       = 'in_transit';
+    public const LOGISTICS_AT_WAREHOUSE     = 'at_warehouse';
 
     // ── Delivery track ────────────────────────────────────────
-    const DELIVERY_READY     = 'ready_to_ship';
-    const DELIVERY_SHIPPING  = 'shipping';
-    const DELIVERY_DELIVERED = 'delivered';
+    public const DELIVERY_READY     = 'ready_to_ship';
+    public const DELIVERY_SHIPPING  = 'shipping';
+    public const DELIVERY_DELIVERED = 'delivered';
 
     // ── Status → tracks map ───────────────────────────────────
     private static $statusToTracks = [
@@ -138,7 +139,9 @@ class Order extends ActiveRecord
             ['citizenship', 'in', 'range' => ['by', 'ru'], 'skipOnEmpty' => true],
             ['passport_series', 'match',
                 'pattern' => '/^[A-Z]{2}[0-9]{7}$/',
-                'when' => function ($model) { return strtolower($model->citizenship ?? 'by') === 'by'; },
+                'when' => function ($model) {
+                    return strtolower($model->citizenship ?? 'by') === 'by';
+                },
                 'skipOnEmpty' => true,
                 'message' => 'Формат: 2 латинские буквы + 7 цифр (например MP1234567)'],
             ['passport_issued_by', 'string', 'max' => 255],
@@ -326,10 +329,9 @@ class Order extends ActiveRecord
 
                 $transaction->rollBack();
                 $attempt++;
-                
+
                 // Небольшая задержка перед повторной попыткой
                 usleep(rand(10000, 50000)); // 10-50ms
-                
             } catch (\Exception $e) {
                 if (isset($transaction)) {
                     $transaction->rollBack();
@@ -432,7 +434,7 @@ class Order extends ActiveRecord
     public function canChangeStatus($newStatus)
     {
         $user = Yii::$app->user->identity;
-        
+
         if (!$user) {
             return false;
         }
@@ -516,8 +518,12 @@ class Order extends ActiveRecord
     public function syncTracksFromStatus(): void
     {
         $tracks = self::$statusToTracks[$this->status] ?? ['not_paid', 'awaiting_buyout', null];
-        if (empty($this->payment_status))   { $this->payment_status   = $tracks[0]; }
-        if (empty($this->logistics_status)) { $this->logistics_status = $tracks[1]; }
+        if (empty($this->payment_status)) {
+            $this->payment_status   = $tracks[0];
+        }
+        if (empty($this->logistics_status)) {
+            $this->logistics_status = $tracks[1];
+        }
         // delivery_status: only auto-set if null; never clear a set value
         if ($this->delivery_status === null && $tracks[2] !== null) {
             $this->delivery_status = $tracks[2];
@@ -594,7 +600,7 @@ class Order extends ActiveRecord
         if (Yii::$app instanceof \yii\console\Application) {
             return false;
         }
-        
+
         if ($this->client_email) {
             try {
                 $sent = Yii::$app->mailer->compose('order-created', ['order' => $this])
@@ -602,7 +608,7 @@ class Order extends ActiveRecord
                     ->setTo($this->client_email)
                     ->setSubject('Создан заказ №' . $this->order_number)
                     ->send();
-                
+
                 if ($sent) {
                     Yii::info('Email успешно отправлен клиенту для заказа #' . $this->id, 'order');
                     return true;
@@ -615,7 +621,7 @@ class Order extends ActiveRecord
                 return false;
             }
         }
-        
+
         return false;
     }
 
@@ -636,8 +642,14 @@ class Order extends ActiveRecord
     }
 
     /**
-     * Alias для china_track_number для совместимости
+     * Alias для china_track_number для совместимости.
+     *
+     * Имя метода даёт магическое свойство `$order->track_number`, на которое
+     * завязаны TrackingController, TelegramBotController и несколько view —
+     * переименование в camelCase (getTrackNumber -> ->trackNumber) сломает
+     * все эти обращения, поэтому сознательно оставляем нестандартное имя.
      */
+    // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function getTrack_number()
     {
         return $this->china_track_number;
@@ -678,21 +690,35 @@ class Order extends ActiveRecord
      */
     public function missingPassportFields(): array
     {
-        return $this->_missingDocFields();
+        return $this->missingDocFields();
     }
 
-    private function _missingDocFields(): array
+    private function missingDocFields(): array
     {
         $citizenship = strtolower($this->citizenship ?? 'by');
         $errors = [];
 
-        if (empty($this->recipient_last_name))  $errors[] = 'Фамилия получателя';
-        if (empty($this->recipient_first_name)) $errors[] = 'Имя получателя';
-        if (empty($this->passport_issue_date))  $errors[] = 'Дата выдачи паспорта';
-        if (empty($this->full_address))         $errors[] = 'Полный адрес';
-        if (empty($this->city))                 $errors[] = 'Город';
-        if (empty($this->region))               $errors[] = 'Область/регион';
-        if (empty($this->postal_code))          $errors[] = 'Индекс';
+        if (empty($this->recipient_last_name)) {
+            $errors[] = 'Фамилия получателя';
+        }
+        if (empty($this->recipient_first_name)) {
+            $errors[] = 'Имя получателя';
+        }
+        if (empty($this->passport_issue_date)) {
+            $errors[] = 'Дата выдачи паспорта';
+        }
+        if (empty($this->full_address)) {
+            $errors[] = 'Полный адрес';
+        }
+        if (empty($this->city)) {
+            $errors[] = 'Город';
+        }
+        if (empty($this->region)) {
+            $errors[] = 'Область/регион';
+        }
+        if (empty($this->postal_code)) {
+            $errors[] = 'Индекс';
+        }
 
         if ($citizenship === 'by') {
             if (empty($this->passport_series)) {
@@ -701,10 +727,18 @@ class Order extends ActiveRecord
                 $errors[] = 'Серия+Номер паспорта: неверный формат (нужно MP1234567)';
             }
         } else {
-            if (empty($this->passport_series))  $errors[] = 'Серия паспорта (4 цифры)';
-            if (empty($this->passport_number))  $errors[] = 'Номер паспорта (6 цифр)';
-            if (empty($this->inn))              $errors[] = 'ИНН (12 цифр)';
-            if (empty($this->passport_dept_code)) $errors[] = 'Код подразделения (XXX-XXX)';
+            if (empty($this->passport_series)) {
+                $errors[] = 'Серия паспорта (4 цифры)';
+            }
+            if (empty($this->passport_number)) {
+                $errors[] = 'Номер паспорта (6 цифр)';
+            }
+            if (empty($this->inn)) {
+                $errors[] = 'ИНН (12 цифр)';
+            }
+            if (empty($this->passport_dept_code)) {
+                $errors[] = 'Код подразделения (XXX-XXX)';
+            }
         }
 
         return $errors;
@@ -716,7 +750,7 @@ class Order extends ActiveRecord
      */
     public function missingDpFields(): array
     {
-        $errors = $this->_missingDocFields();
+        $errors = $this->missingDocFields();
 
         if (empty($this->china_track_number)) {
             $errors[] = 'Трек-номер из Китая (china_track_number)';

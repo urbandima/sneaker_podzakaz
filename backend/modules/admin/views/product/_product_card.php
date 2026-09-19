@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Partial: single product grid card (used by index + infinite scroll)
  * @var app\backend\modules\catalog\models\Product $product
@@ -22,9 +23,9 @@ if ($isActive && !$isOutOfStock) {
 ?>
 <a href="<?= Url::to(['/admin/product/view', 'id' => $product->id]) ?>" class="product-card">
     <div class="product-card__img-wrap">
-        <?php if ($imageUrl): ?>
+        <?php if ($imageUrl) : ?>
             <img src="<?= Html::encode($imageUrl) ?>" alt="" class="product-card__img" loading="lazy">
-        <?php else: ?>
+        <?php else : ?>
             <div class="product-card__img product-card__img--empty"><i class="bi bi-image" style="font-size:2rem;opacity:.3"></i></div>
         <?php endif; ?>
         <span class="product-card__status" style="background:<?= $statusPill['bg'] ?>;color:<?= $statusPill['color'] ?>">

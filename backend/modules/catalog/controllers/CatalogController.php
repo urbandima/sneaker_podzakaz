@@ -2,11 +2,11 @@
 
 /**
  * CatalogController — Контроллер каталога товаров
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Основной контроллер для отображения каталога товаров, карточек товаров,
  * фильтрации, поиска и работы с избранным.
- * 
+ *
  * ФУНКЦИИ:
  * - Каталог товаров с пагинацией (index)
  * - Страница бренда со всеми товарами бренда (brand)
@@ -18,7 +18,7 @@
  * - Избранные товары (favorites)
  * - Добавление/удаление из избранного (add-favorite, remove-favorite)
  * - Запрос по товару (inquiry)
- * 
+ *
  * СВЯЗИ:
  * - Product (модель товара)
  * - Category (модель категории)
@@ -28,18 +28,19 @@
  * - CatalogSeoTrait (трейт SEO)
  * - ProductRepository (репозиторий товаров)
  * - FilterBuilder (построитель фильтров)
- * 
+ *
  * ОПТИМИЗАЦИИ:
  * - HTTP-кэширование через ETag и Last-Modified
  * - Eager loading для устранения N+1 запросов
  * - Денормализованные поля в таблице products (brand_name, category_name)
  * - Кэширование COUNT запросов
- * 
+ *
  * РЕФАКТОРИНГ 2025:
  * - Фильтры вынесены в CatalogFiltersTrait
  * - SEO методы вынесены в CatalogSeoTrait
  * - Удалены дублирующие методы (~400 строк)
  */
+
 namespace app\backend\modules\catalog\controllers;
 
 use Yii;
@@ -66,12 +67,12 @@ class CatalogController extends Controller
 {
     use CatalogFiltersTrait;
     use CatalogSeoTrait;
-    
+
     public $layout = 'main'; // Единый layout frontend
-    
+
     /** @var ProductRepository */
     private $productRepository;
-    
+
     /**
      * Инициализация контроллера
      */
@@ -80,7 +81,7 @@ class CatalogController extends Controller
         parent::init();
         $this->productRepository = new ProductRepository();
     }
-    
+
     /**
      * Behaviors для HTTP кэширования
      */
@@ -112,7 +113,7 @@ class CatalogController extends Controller
             ],
         ]);
     }
-    
+
     /**
      * Найти товар для behaviors (кэш привязан к slug)
      */
@@ -169,7 +170,7 @@ class CatalogController extends Controller
 
         // Получаем данные для фильтров
         $filters = $this->getFiltersData($currentFilters);
-        
+
         // Пагинация
         $pagination = new Pagination([
             'totalCount' => $query->count(),
@@ -177,7 +178,7 @@ class CatalogController extends Controller
             'pageParam' => 'page',
             'pageSizeParam' => 'per-page',
         ]);
-        
+
         // Получаем товары
         $products = $query
             ->offset($pagination->offset)
@@ -250,7 +251,7 @@ class CatalogController extends Controller
             'searchQuery'       => $searchQuery,
         ]);
     }
-    
+
     /**
      * Страница всех брендов
      */
@@ -263,7 +264,7 @@ class CatalogController extends Controller
             ->andWhere(['not', ['name' => null]])
             ->orderBy(['name' => SORT_ASC])
             ->all();
-        
+
         // Подсчёт товаров по брендам одним запросом вместо N+1
         $brandIds = array_map(fn($b) => $b->id, $brands);
         $countRows = Product::find()
@@ -277,7 +278,7 @@ class CatalogController extends Controller
         foreach ($brands as $brand) {
             $brand->products_count = (int)($countMap[$brand->id] ?? 0);
         }
-        
+
         $brandsTitle = 'Все бренды кроссовок | СНИКЕРХЭД';
         $brandsDescription = 'Полный каталог брендов оригинальных кроссовок: Nike, Adidas, Jordan, New Balance и другие. Доставка по Беларуси.';
         $ogImage = Yii::$app->request->hostInfo . '/images/og-default.jpg';
@@ -304,7 +305,7 @@ class CatalogController extends Controller
             'brands' => $brands,
         ]);
     }
-    
+
     /**
      * Избранное
      */
@@ -326,7 +327,7 @@ class CatalogController extends Controller
             'customer' => $customer,
         ]);
     }
-    
+
     /**
      * Live поиск (AJAX)
      * ИСПРАВЛЕНО: формат данных соответствует ожиданиям фронтенда
@@ -334,16 +335,16 @@ class CatalogController extends Controller
     public function actionSearch()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         // Кэшируемый API endpoint
         HttpCacheHeaders::setApiHeaders(Yii::$app->response, true, 300);
-        
+
         $query = Yii::$app->request->get('q');
-        
+
         if (!$query || mb_strlen($query) < 2) {
             return ['results' => []];
         }
-        
+
         $products = Product::find()
             ->select(['id', 'name', 'slug', 'price', 'old_price', 'main_image', 'stock_status', 'is_featured'])
             ->with(['brand'])
@@ -352,7 +353,7 @@ class CatalogController extends Controller
             ->andWhere(['like', 'name', $query])
             ->limit(5)
             ->all();
-        
+
         $results = [];
         foreach ($products as $product) {
             $results[] = [
@@ -371,17 +372,17 @@ class CatalogController extends Controller
                 'isFeatured' => (bool)$product->is_featured,
             ];
         }
-        
+
         return ['results' => $results];
     }
-    
+
     /**
      * Quick View (AJAX) - быстрый просмотр товара
      */
     public function actionQuickView($id)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         // AUDIT-62: используем ProductRepository::findById() вместо прямого
         // Product::find() — тот же набор relations (brand, category, sizes, colors, images)
         // и то же условие id + is_active, что уже даёт репозиторий.
@@ -396,11 +397,11 @@ class CatalogController extends Controller
             'html' => $this->renderAjax('_quick_view', ['product' => $product]),
         ];
     }
-    
+
     /**
      * Построение базового запроса для товаров (DRY принцип)
      * ОПТИМИЗИРОВАНО: Eager loading для устранения N+1 запросов
-     * 
+     *
      * @param array $whereConditions Дополнительные условия WHERE (например, ['brand_id' => 5])
      * @return \yii\db\ActiveQuery
      */
@@ -409,13 +410,13 @@ class CatalogController extends Controller
         $query = Product::find()
             ->with([
                 // ОПТИМИЗАЦИЯ: Загружаем sizes для диапазона цен и отображения в карточках
-                'sizes' => function($query) {
+                'sizes' => function ($query) {
                     $query->select(['id', 'product_id', 'size', 'price_byn', 'is_available', 'eu_size', 'us_size', 'uk_size', 'cm_size'])
                           ->where(['is_available' => true])
                           ->orderBy(['size' => SORT_ASC]);
                 },
                 // ОПТИМИЗАЦИЯ: Загружаем colors для отображения в карточках
-                'colors' => function($query) {
+                'colors' => function ($query) {
                     $query->select(['id', 'product_id', 'name', 'hex']);
                 },
                 // ОПТИМИЗАЦИЯ: Загружаем изображения для hover-эффекта (устраняет N+1)
@@ -424,21 +425,21 @@ class CatalogController extends Controller
                 // страницы, а не "N штук на каждый товар". Ограничение количества
                 // картинок на карточку товара делает ProductCardHelper::buildGalleryImages()
                 // (MAX_GALLERY_IMAGES) уже после загрузки всех связанных images.
-                'images' => function($query) {
+                'images' => function ($query) {
                     $query->select(['id', 'product_id', 'image', 'is_main', 'sort_order'])
                           ->orderBy(['is_main' => SORT_DESC, 'sort_order' => SORT_ASC]);
                 }
             ])
             ->select([
-                'id', 
-                'name', 
-                'slug', 
+                'id',
+                'name',
+                'slug',
                 'brand_id',        // Для связи with(['brand']) если понадобится
                 'brand_name',      // Денормализованное поле (устраняет N+1)
                 'category_name',   // Денормализованное поле
                 'main_image_url',  // Денормализованное поле
-                'price', 
-                'old_price', 
+                'price',
+                'old_price',
                 'stock_status',
                 'is_featured',
                 'rating',
@@ -447,12 +448,12 @@ class CatalogController extends Controller
             ])
             ->where(['is_active' => true])
             ->andWhere(['!=', 'stock_status', Product::STOCK_OUT_OF_STOCK]); // Скрываем "нет в наличии"
-        
+
         // Применяем дополнительные условия (brand_id, category_id и т.д.)
         if (!empty($whereConditions)) {
             $query->andWhere($whereConditions);
         }
-        
+
         return $query;
     }
 
@@ -502,12 +503,12 @@ class CatalogController extends Controller
      */
     protected function normalizeSizeValues(array $sizes): array
     {
-        $normalized = array_map(static function($size) {
+        $normalized = array_map(static function ($size) {
             $normalizedValue = str_replace(',', '.', trim((string)$size));
             return $normalizedValue;
         }, $sizes);
 
-        $normalized = array_filter($normalized, static function($size) {
+        $normalized = array_filter($normalized, static function ($size) {
             return $size !== '';
         });
 
@@ -522,7 +523,7 @@ class CatalogController extends Controller
         $field = $this->resolveSizeField($sizeSystem);
 
         if ($field === 'cm_size') {
-            $preparedSizes = array_map(static function($size) {
+            $preparedSizes = array_map(static function ($size) {
                 return (float)$size;
             }, $sizes);
         } else {
@@ -555,11 +556,11 @@ class CatalogController extends Controller
                 return 'eu_size';
         }
     }
-    
+
     /**
      * Универсальный метод рендеринга страницы каталога (DRY принцип)
      * Устраняет дублирование кода в actionIndex, actionBrand, actionCategory
-     * 
+     *
      * @param \yii\db\ActiveQuery $query Запрос товаров
      * @param string $h1 Заголовок H1 страницы
      * @param array $metaTags SEO мета-теги
@@ -570,7 +571,7 @@ class CatalogController extends Controller
     {
         // Применяем фильтры пользователя
         $query = $this->applyFilters($query);
-        
+
         $bypassCache = $this->shouldBypassCatalogCache();
 
         // Пагинация с кэшированным COUNT
@@ -578,7 +579,7 @@ class CatalogController extends Controller
         $totalCount = $bypassCache
             ? $countQuery->count()
             : $this->getCachedCount($countQuery);
-        
+
         // ДИАГНОСТИКА (только в dev)
         if (YII_ENV_DEV) {
             \Yii::info(sprintf(
@@ -587,18 +588,18 @@ class CatalogController extends Controller
                 ceil($totalCount / 24)
             ), 'catalog_pagination');
         }
-        
+
         $pagination = new Pagination([
             'defaultPageSize' => $this->module->pageSize ?? 24,
             'totalCount' => $totalCount,
         ]);
-        
+
         // Получаем товары (без query cache — eager loading изображений ломается в FileCache)
         $products = $query
             ->offset($pagination->offset)
             ->limit($pagination->limit)
             ->all();
-        
+
         // ДИАГНОСТИКА: Логируем количество товаров
         if (YII_ENV_DEV) {
             \Yii::info(sprintf(
@@ -609,22 +610,22 @@ class CatalogController extends Controller
                 $pagination->totalCount
             ), 'catalog_performance');
         }
-        
+
         // Получаем данные для фильтров
         $filters = $this->getFiltersData($filterConditions);
-        
+
         // Устанавливаем SEO meta-теги
         if (isset($metaTags['title'])) {
             $this->view->title = $metaTags['title'];
         }
-        
+
         // Регистрируем остальные мета-теги
         $this->registerMetaTags($metaTags);
-        
+
         // Получаем текущие фильтры из запроса
         $request = Yii::$app->request;
         $currentSizeSystem = $request->get('size_system', 'eu');
-        
+
         $currentFilters = [
             'brands' => $this->normalizeFilterList($request->get('brands')),
             'categories' => $this->normalizeFilterList($request->get('categories')),
@@ -633,26 +634,26 @@ class CatalogController extends Controller
             'price_from' => $request->get('price_from'),
             'price_to' => $request->get('price_to'),
         ];
-        
+
         // Формируем активные фильтры для отображения тегов
         // РЕФАКТОРИНГ: Используем централизованный метод из FilterBuilder
         $activeFilters = FilterBuilder::formatActiveFilters($currentFilters);
-        
+
         // Регистрируем Schema.org микроразметку
         if (!empty($products)) {
             // ItemList с расширенной информацией о товарах
             $this->registerSchemaItemList($products, $totalCount, $currentFilters);
-            
+
             // BreadcrumbList с учетом фильтров
             $breadcrumbs = isset($metaTags['breadcrumbs']) ? $metaTags['breadcrumbs'] : [];
             $this->registerSchemaBreadcrumbs($breadcrumbs, $currentFilters);
-            
+
             // WebSite schema (только для главной страницы каталога)
             if ($request->pathInfo === 'catalog' || $request->pathInfo === 'catalog/index') {
                 $this->registerSchemaWebSite();
             }
         }
-        
+
         // Infinite scroll / AJAX page load for brand & category pages
         if (Yii::$app->request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -698,21 +699,21 @@ class CatalogController extends Controller
             static fn($item) => $item !== ''
         ));
     }
-    
+
     /**
      * УДАЛЕНО: getActiveFilters() - 168 строк
      * ПРИЧИНА: Дублирование логики
      * ЗАМЕНА: FilterBuilder::formatActiveFilters()
-     * 
+     *
      * Метод перенесен в FilterBuilder для централизации логики форматирования
      * активных фильтров. Теперь используется единый источник истины.
      */
-    
+
     /**
      * УДАЛЕНО: buildFilterUrl() - 24 строки
      * ПРИЧИНА: Дублирование логики
      * ЗАМЕНА: FilterBuilder::buildQueryStringUrl() (protected метод)
-     * 
+     *
      * Генерация URL теперь происходит через FilterBuilder::formatActiveFilters()
      * с возможностью передачи кастомного генератора URL.
      */
@@ -723,13 +724,13 @@ class CatalogController extends Controller
     public function actionBrand($slug)
     {
         $brand = Brand::findBySlug($slug);
-        
+
         if (!$brand) {
             return $this->renderError(404, 'Бренд не найден');
         }
 
         $query = $this->buildProductQuery(['brand_id' => $brand->id]);
-        
+
         // Получаем активные фильтры для динамического описания
         $request = Yii::$app->request;
         $currentFilters = [
@@ -738,15 +739,15 @@ class CatalogController extends Controller
             'price_from' => $request->get('price_from'),
             'price_to' => $request->get('price_to'),
         ];
-        
+
         // Генерируем динамическое описание
         $description = $this->generateFilteredDescription(
-            $currentFilters, 
+            $currentFilters,
             $brand->getMetaDescription()
         );
-        
+
         $title = $this->generateFilteredTitle($currentFilters, $brand->name);
-        
+
         // Приоритет для изображения: логотип бренда -> первый товар -> дефолт
         $ogImage = $brand->getLogoUrl();
         if (!$ogImage || strpos($ogImage, 'no-brand-logo') !== false) {
@@ -757,7 +758,7 @@ class CatalogController extends Controller
                 $ogImage = Yii::$app->request->hostInfo . $ogImage;
             }
         }
-        
+
         $metaTags = [
             'title' => $title . ' | СНИКЕРХЭД',
             'description' => $description,
@@ -781,7 +782,7 @@ class CatalogController extends Controller
                 ['name' => $brand->name, 'url' => '/catalog/brand/' . $brand->slug]
             ],
         ];
-        
+
         return $this->renderCatalogPage(
             $query,
             $brand->name,
@@ -796,7 +797,7 @@ class CatalogController extends Controller
     public function actionCategory($slug)
     {
         $category = Category::findBySlug($slug);
-        
+
         if (!$category) {
             return $this->renderError(404, 'Категория не найдена');
         }
@@ -805,7 +806,7 @@ class CatalogController extends Controller
         $categoryIds = $category->getChildrenIds();
 
         $query = $this->buildProductQuery(['category_id' => $categoryIds]);
-        
+
         // Получаем активные фильтры для динамического описания
         $request = Yii::$app->request;
         $currentFilters = [
@@ -814,27 +815,27 @@ class CatalogController extends Controller
             'price_from' => $request->get('price_from'),
             'price_to' => $request->get('price_to'),
         ];
-        
+
         // Генерируем динамическое описание
         $description = $this->generateFilteredDescription(
             $currentFilters,
             $category->getMetaDescription()
         );
-        
+
         $title = $this->generateFilteredTitle($currentFilters, $category->name);
-        
+
         // Приоритет для изображения: изображение категории -> первый товар -> дефолт
         $ogImage = null;
         if ($category->image) {
-            $ogImage = strpos($category->image, 'http') === 0 
-                ? $category->image 
+            $ogImage = strpos($category->image, 'http') === 0
+                ? $category->image
                 : Yii::$app->request->hostInfo . '/' . ltrim($category->image, '/');
         }
-        
+
         if (!$ogImage) {
             $ogImage = $this->getFirstProductImage($query) ?: Yii::$app->request->hostInfo . '/images/og-default.jpg';
         }
-        
+
         return $this->renderCatalogPage(
             $query,
             $category->name,
@@ -875,7 +876,7 @@ class CatalogController extends Controller
         if (!$product) {
             return $this->renderError(404, 'Товар не найден');
         }
-        
+
         // Установка HTTP Cache headers для страницы товара
         HttpCacheHeaders::setProductHeaders(
             Yii::$app->response,
@@ -901,19 +902,19 @@ class CatalogController extends Controller
 
         // SEO
         $this->view->title = $product->getMetaTitle();
-        
+
         // $product->name already contains the brand; no need to prepend brand_name
         $socialTitle = $product->name;
-        
+
         // Формируем УТП-описание для соцсетей
         $socialDescription = $this->generateProductUTP($product);
-        
+
         // Получаем абсолютный URL изображения
         $imageUrl = $product->getMainImageUrl();
         if (strpos($imageUrl, 'http') !== 0) {
             $imageUrl = Yii::$app->request->hostInfo . $imageUrl;
         }
-        
+
         // og:title, og:description, og:image, og:type и description регистрируются
         // в product.php + main.php layout; здесь только дополнительные теги.
         $this->registerMetaTags([
@@ -958,12 +959,12 @@ class CatalogController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $inquiry = new CatalogInquiry();
-        
+
         if ($inquiry->load(Yii::$app->request->post(), '') && $inquiry->validate()) {
             if ($inquiry->save()) {
                 // Создаем заказ автоматически
                 $order = $inquiry->createOrder();
-                
+
                 return [
                     'success' => true,
                     'message' => 'Ваша заявка принята! Мы свяжемся с вами в ближайшее время.',
@@ -996,11 +997,11 @@ class CatalogController extends Controller
             'message' => $message,
         ]);
     }
-    
+
     // Удалены: actionFilterSef, applyParsedFilters, getAvailableFilters, getAvailableSizes,
     // registerJsonLd, registerSchemaItemList, registerSchemaBreadcrumbs, registerSchemaWebSite,
     // registerPaginationLinks - перенесены в CatalogSeoTrait
-    
+
     /**
      * AJAX фильтрация товаров (без перезагрузки)
      * ИСПРАВЛЕНО: Передаём фильтры напрямую, без мутации $_GET
@@ -1009,7 +1010,7 @@ class CatalogController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $request = Yii::$app->request;
-        
+
         // Собираем фильтры из POST
         $brands = $request->post('brands');
         $categories = $request->post('categories');
@@ -1020,7 +1021,7 @@ class CatalogController extends Controller
         $sort = $request->post('sort', 'popular');
         $page = (int)$request->post('page', 1);
         $perPage = (int)$request->post('perPage', 24);
-        
+
         // Декодируем JSON параметры
         if ($brands && is_string($brands)) {
             $brands = json_decode($brands, true);
@@ -1031,7 +1032,7 @@ class CatalogController extends Controller
         if ($sizes && is_string($sizes)) {
             $sizes = json_decode($sizes, true);
         }
-        
+
         // Формируем массив фильтров для передачи в applyFilters
         $filters = [
             'brands' => $brands ?: [],
@@ -1047,7 +1048,7 @@ class CatalogController extends Controller
             'conditions' => $request->post('conditions') ? json_decode($request->post('conditions'), true) : [],
             'sort' => $sort,
         ];
-        
+
         // Характеристики из POST
         foreach ($request->post() as $key => $value) {
             if (strpos($key, 'char_') === 0 && !empty($value)) {
@@ -1055,7 +1056,7 @@ class CatalogController extends Controller
                 $filters[$key] = $decoded ?: [];
             }
         }
-        
+
         // Применяем фильтры (ОПТИМИЗИРОВАНО: только нужные поля)
         $query = Product::find()
             ->select([
@@ -1065,7 +1066,7 @@ class CatalogController extends Controller
             ])
             ->where(['product.is_active' => true])
             ->andWhere(['!=', 'product.stock_status', Product::STOCK_OUT_OF_STOCK]);
-        
+
         // ИСПРАВЛЕНО: Передаём фильтры напрямую вместо мутации $_GET
         // AUDIT: applyFilters() (CatalogFiltersTrait) уже применяет сортировку через
         // applySorting() — единственный канонический источник истины для сортировки
@@ -1081,38 +1082,38 @@ class CatalogController extends Controller
         // Пагинация (ОПТИМИЗИРОВАНО: count без лишних данных)
         $countQuery = clone $query;
         $totalCount = $countQuery->count();
-        
+
         $pagination = new Pagination([
             'defaultPageSize' => $perPage,
             'totalCount' => $totalCount,
             'page' => $page - 1,
         ]);
-        
+
         // ИСПРАВЛЕНО: Убрали asArray() - view ожидает объекты
         $products = $query
-            ->with(['brand' => function($q) {
+            ->with(['brand' => function ($q) {
                 $q->select(['id', 'name', 'slug']);
             }])
             ->offset($pagination->offset)
             ->limit($pagination->limit)
             ->all();
-        
+
         // Текущие фильтры (используем уже собранный $filters)
         $currentFilters = $filters;
-        
+
         // Обновленные данные фильтров (умное сужение)
         // ИСПРАВЛЕНО: Передаем текущие фильтры для корректного подсчета
         $filters = $this->getFiltersData($currentFilters);
-        
+
         // Получаем активные фильтры для отображения
         // ИСПРАВЛЕНО: Используем FilterBuilder вместо удаленного метода getActiveFilters
         $activeFilters = FilterBuilder::formatActiveFilters($currentFilters);
-        
+
         // Рендерим только список товаров
         $html = $this->renderPartial('_products', [
             'products' => $products,
         ]);
-        
+
         // Рендерим активные фильтры
         $activeFiltersHtml = '';
         if (!empty($activeFilters)) {
@@ -1120,7 +1121,7 @@ class CatalogController extends Controller
                 'activeFilters' => $activeFilters,
             ]);
         }
-        
+
         // Рендерим пагинацию (если нужна)
         $paginationHtml = '';
         if ($pagination->pageCount > 1) {
@@ -1132,10 +1133,10 @@ class CatalogController extends Controller
                 'options' => ['class' => 'pagination'],
             ]);
         }
-        
+
         return [
             'success' => true,
-            'products' => array_map(function($product) {
+            'products' => array_map(function ($product) {
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
@@ -1157,11 +1158,11 @@ class CatalogController extends Controller
             ],
         ];
     }
-    
+
     /**
      * УДАЛЕНО (Проблема #17): Дублирующий QuickView API
      * Используйте actionQuickView() вместо этого
-     * 
+     *
      * Если нужен JSON вместо HTML - можно расширить actionQuickView
      */
 
@@ -1235,35 +1236,35 @@ class CatalogController extends Controller
     public function actionLoadMore()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        
+
         $request = Yii::$app->request;
-        
+
         // Получаем номер страницы
         $page = (int)$request->get('page', 1);
         $perPage = 24;
-        
+
         // Строим базовый query (DRY - используем тот же метод, что и в actionIndex)
         $query = $this->buildProductQuery();
-        
+
         // Применяем фильтры
         $query = $this->applyFilters($query);
-        
+
         // Подсчитываем общее количество (с кэшированием)
         $totalCount = $this->getCachedCount($query);
         $totalPages = ceil($totalCount / $perPage);
-        
+
         // Получаем товары для текущей страницы
         $products = $query
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)
             ->all();
-        
+
         // Рендерим HTML товаров
         $html = '';
         if (!empty($products)) {
             $html = $this->renderPartial('_products', ['products' => $products]);
         }
-        
+
         // ДИАГНОСТИКА (только в dev режиме)
         if (YII_ENV_DEV) {
             \Yii::info(sprintf(
@@ -1274,7 +1275,7 @@ class CatalogController extends Controller
                 ($page < $totalPages) ? 'yes' : 'no'
             ), 'infinite_scroll');
         }
-        
+
         return [
             'success' => true,
             'html' => $html,
@@ -1308,12 +1309,12 @@ class CatalogController extends Controller
         // Читаем JSON из body (fetch отправляет JSON, а не form-data)
         $rawBody = Yii::$app->request->getRawBody();
         $data = json_decode($rawBody, true);
-        
+
         // Если JSON не распарсился, попробуем form-data (обратная совместимость)
         if (!$data) {
             $data = Yii::$app->request->post();
         }
-        
+
         // Валидация данных
         if (empty($data['product_id']) || empty($data['name']) || empty($data['phone'])) {
             return [
@@ -1340,7 +1341,7 @@ class CatalogController extends Controller
         $message .= "📞 Телефон: " . $data['phone'] . "\n\n";
         $message .= "🛍 Товар: " . $product->brand_name . ' ' . $product->name . $sizeInfo . "\n";
         $message .= "💰 Цена: " . Yii::$app->formatter->asCurrency($product->price, 'BYN') . "\n";
-        
+
         if (!empty($data['comment'])) {
             $message .= "\n💬 Комментарий: " . $data['comment'] . "\n";
         }
@@ -1490,7 +1491,7 @@ class CatalogController extends Controller
             curl_close($ch);
         }
     }
-    
+
     // Методы generateFilteredDescription, generateFilteredTitle, getFirstProductImage, generateProductUTP
     // перенесены в CatalogSeoTrait
 }

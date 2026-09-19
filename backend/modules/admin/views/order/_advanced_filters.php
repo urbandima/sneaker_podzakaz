@@ -2,9 +2,9 @@
 
 /**
  * Advanced Filters Component для списка заказов
- * 
+ *
  * Рекомендация #87: Advanced Filters
- * 
+ *
  * Фильтры по:
  * - Датам (от/до)
  * - Суммам (мин/макс)
@@ -12,6 +12,7 @@
  * - Менеджерам
  * - Способам доставки
  */
+
 ?>
 
 <div class="advanced-filters">
@@ -47,7 +48,7 @@
                 <div class="filter-group">
                     <label>Статусы</label>
                     <div class="checkbox-group">
-                        <?php 
+                        <?php
                         $statuses = [
                             'new' => 'Новый',
                             'paid' => 'Оплачен',
@@ -61,8 +62,8 @@
                             'canceled' => 'Отменен',
                         ];
                         $selectedStatuses = $filters['status'] ?? [];
-                        foreach ($statuses as $key => $label): 
-                        ?>
+                        foreach ($statuses as $key => $label) :
+                            ?>
                         <label class="checkbox-label">
                             <input type="checkbox" name="status[]" value="<?= $key ?>" <?= in_array($key, $selectedStatuses) ? 'checked' : '' ?>>
                             <span class="status-badge status-<?= $key ?>"><?= $label ?></span>
@@ -76,7 +77,7 @@
                     <label>Менеджер</label>
                     <select name="manager_id" class="filter-select">
                         <option value="">Все</option>
-                        <?php foreach ($managers ?? [] as $manager): ?>
+                        <?php foreach ($managers ?? [] as $manager) : ?>
                         <option value="<?= $manager->id ?>" <?= ($filters['manager_id'] ?? '') == $manager->id ? 'selected' : '' ?>>
                             <?= Html::encode($manager->getFullName()) ?>
                         </option>
@@ -131,7 +132,7 @@
                     <i class="bi bi-x-circle"></i> Сбросить
                 </a>
                 
-                <?php if (!empty(array_filter($filters ?? []))): ?>
+                <?php if (!empty(array_filter($filters ?? []))) : ?>
                 <span class="active-filters">
                     Активно фильтров: <?= count(array_filter($filters)) ?>
                 </span>
@@ -142,6 +143,6 @@
 </div>
 
 
-<?php if (!empty(array_filter($filters ?? []))): ?>
-<?php $this->registerJs("document.addEventListener('DOMContentLoaded', function() { if (typeof toggleFilters === 'function') toggleFilters(); });"); ?>
+<?php if (!empty(array_filter($filters ?? []))) : ?>
+    <?php $this->registerJs("document.addEventListener('DOMContentLoaded', function() { if (typeof toggleFilters === 'function') toggleFilters(); });"); ?>
 <?php endif; ?>

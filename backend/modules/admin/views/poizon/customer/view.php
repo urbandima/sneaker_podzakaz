@@ -81,9 +81,9 @@ $this->title = 'Покупатель: ' . $customer->getFullName();
             <div class="content-card">
                 <h2><i class="bi bi-bag-check"></i> История заказов</h2>
                 
-                <?php if (!empty($orders)): ?>
+                <?php if (!empty($orders)) : ?>
                     <div class="orders-list">
-                        <?php foreach ($orders as $order): ?>
+                        <?php foreach ($orders as $order) : ?>
                             <a href="<?= Url::to(['order/view', 'id' => $order->id]) ?>" class="order-item">
                                 <div class="order-info">
                                     <div class="order-number">Заказ #<?= $order->order_number ?: $order->id ?></div>
@@ -96,7 +96,7 @@ $this->title = 'Покупатель: ' . $customer->getFullName();
                             </a>
                         <?php endforeach; ?>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="empty-orders">
                         <i class="bi bi-bag-x" style="font-size:2rem;display:block;margin-bottom:0.5rem;"></i>
                         Заказов нет

@@ -17,38 +17,38 @@ class m241228_213000_create_customer_table extends Migration
             'auth_key' => $this->string(64)->null(),
             'password_reset_token' => $this->string(255)->null()->unique(),
             'verification_token' => $this->string(255)->null(),
-            
+
             // Профиль
             'first_name' => $this->string(100)->null(),
             'last_name' => $this->string(100)->null(),
             'middle_name' => $this->string(100)->null(),
             'birth_date' => $this->date()->null(),
             'gender' => $this->string(10)->null(), // male, female
-            
+
             // Адрес доставки по умолчанию
             'default_country' => $this->string(50)->defaultValue('BY'),
             'default_city' => $this->string(100)->null(),
             'default_address' => $this->text()->null(),
             'default_postal_code' => $this->string(20)->null(),
-            
+
             // Паспортные данные (для таможни)
             'passport_series' => $this->string(10)->null(),
             'passport_number' => $this->string(20)->null(),
             'passport_issue_date' => $this->date()->null(),
             'inn' => $this->string(20)->null(),
-            
+
             // Статистика
             'orders_count' => $this->integer()->defaultValue(0),
             'total_spent' => $this->decimal(12, 2)->defaultValue(0),
             'last_order_at' => $this->integer()->null(),
-            
+
             // Статус и настройки
             'status' => $this->smallInteger()->defaultValue(10), // 0-deleted, 9-inactive, 10-active
             'email_verified' => $this->boolean()->defaultValue(false),
             'phone_verified' => $this->boolean()->defaultValue(false),
             'subscribe_news' => $this->boolean()->defaultValue(true),
             'subscribe_promo' => $this->boolean()->defaultValue(true),
-            
+
             // Метаданные
             'last_login_at' => $this->integer()->null(),
             'last_login_ip' => $this->string(45)->null(),
@@ -97,7 +97,9 @@ class m241228_213000_create_customer_table extends Migration
     {
         try {
             $this->dropForeignKey('fk-customer_social_account-customer_id', '{{%customer_social_account}}');
-        } catch (\Exception $e) { /* may not exist */ }
+        } catch (\Exception $e) {
+/* may not exist */
+        }
 
         $this->dropForeignKey('fk-order-customer_id', '{{%order}}');
         $this->dropIndex('idx-order-customer_id', '{{%order}}');

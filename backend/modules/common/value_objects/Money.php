@@ -4,22 +4,22 @@ namespace app\backend\modules\common\value_objects;
 
 /**
  * Money — Value Object для работы с деньгами
- * 
+ *
  * Рекомендация #8: Нормализовать поля денег
- * 
+ *
  * Хранит сумму в копейках (целое число) для избежания ошибок округления
  */
 class Money
 {
     private int $amount; // в копейках
     private string $currency;
-    
+
     public function __construct(float $amount, string $currency = 'BYN')
     {
         $this->amount = (int) round($amount * 100);
         $this->currency = $currency;
     }
-    
+
     /**
      * Создать из копеек
      */
@@ -29,7 +29,7 @@ class Money
         $money->amount = $cents;
         return $money;
     }
-    
+
     /**
      * Получить сумму в основной валюте
      */
@@ -37,7 +37,7 @@ class Money
     {
         return $this->amount / 100;
     }
-    
+
     /**
      * Получить в копейках
      */
@@ -45,7 +45,7 @@ class Money
     {
         return $this->amount;
     }
-    
+
     /**
      * Получить валюту
      */
@@ -53,7 +53,7 @@ class Money
     {
         return $this->currency;
     }
-    
+
     /**
      * Добавить сумму
      */
@@ -62,10 +62,10 @@ class Money
         if ($this->currency !== $other->currency) {
             throw new \InvalidArgumentException('Cannot add different currencies');
         }
-        
+
         return self::fromCents($this->amount + $other->amount, $this->currency);
     }
-    
+
     /**
      * Вычесть сумму
      */
@@ -74,10 +74,10 @@ class Money
         if ($this->currency !== $other->currency) {
             throw new \InvalidArgumentException('Cannot subtract different currencies');
         }
-        
+
         return self::fromCents($this->amount - $other->amount, $this->currency);
     }
-    
+
     /**
      * Умножить на процент
      */
@@ -88,7 +88,7 @@ class Money
             $this->currency
         );
     }
-    
+
     /**
      * Форматировать для отображения
      */
@@ -96,7 +96,7 @@ class Money
     {
         return number_format($this->getAmount(), 2, '.', ' ') . ' ' . $this->currency;
     }
-    
+
     /**
      * Сравнить
      */
@@ -104,7 +104,7 @@ class Money
     {
         return $this->amount === $other->amount && $this->currency === $other->currency;
     }
-    
+
     /**
      * Больше чем
      */
@@ -112,7 +112,7 @@ class Money
     {
         return $this->amount > $other->amount;
     }
-    
+
     /**
      * Меньше чем
      */
@@ -120,7 +120,7 @@ class Money
     {
         return $this->amount < $other->amount;
     }
-    
+
     /**
      * Проверить на ноль
      */
@@ -128,7 +128,7 @@ class Money
     {
         return $this->amount === 0;
     }
-    
+
     /**
      * Проверить на положительное значение
      */
@@ -136,7 +136,7 @@ class Money
     {
         return $this->amount > 0;
     }
-    
+
     public function __toString(): string
     {
         return $this->format();

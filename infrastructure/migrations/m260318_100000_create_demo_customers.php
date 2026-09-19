@@ -20,7 +20,7 @@ class m260318_100000_create_demo_customers extends Migration
         $demoHash = '$2y$12$zQo1DZMj3eLLVtpT4KZVz.k3gr.9AQK8R/EbQc7U128M83p4a1RJS'; // demo123
         $vipHash = '$2y$12$nmHVEfbybt2iJxwIjT0AwOFNBMlxx7UERokWfd0xwI0J2GUiq2eYK'; // vip123
         $adminHash = '$2y$12$CRPqAtwnKRLuoOxURR2iF.X4/IQJj9WaVXmoBAjyKx8q8L8JRxzvy'; // admin123
-        
+
         // Обычный пользователь
         $this->insert('{{%customer}}', [
             'email' => 'demo@sneakerhead.by',
@@ -33,7 +33,7 @@ class m260318_100000_create_demo_customers extends Migration
             'created_at' => $time,
             'updated_at' => $time,
         ]);
-        
+
         // VIP пользователь
         $this->insert('{{%customer}}', [
             'email' => 'vip@sneakerhead.by',
@@ -46,7 +46,7 @@ class m260318_100000_create_demo_customers extends Migration
             'created_at' => $time,
             'updated_at' => $time,
         ]);
-        
+
         // Администратор
         $this->insert('{{%customer}}', [
             'email' => 'admin@sneakerhead.by',

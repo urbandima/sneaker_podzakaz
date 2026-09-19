@@ -1,4 +1,5 @@
 <?php
+
 /** @var yii\web\View $this */
 /** @var app\backend\modules\catalog\models\Product|stdClass $product */
 /** @var app\backend\modules\catalog\models\Product[]|stdClass[] $similarProducts */
@@ -18,14 +19,16 @@ use app\backend\shared\helpers\PriceHelper;
 ProductAsset::register($this);
 
 // Helper функции для поддержки как Product модели, так и stdClass для demo режима
-function getProductProperty($product, $property, $default = null) {
+function getProductProperty($product, $property, $default = null)
+{
     if (method_exists($product, $property)) {
         return $product->$property();
     }
     return $product->$property ?? $default;
 }
 
-function getProductMethod($product, $method, $default = null) {
+function getProductMethod($product, $method, $default = null)
+{
     if (method_exists($product, $method)) {
         return $product->$method();
     }
@@ -198,12 +201,20 @@ $ga4Item = [
     'price'      => $viewItemValue,
     'quantity'   => 1,
 ];
-if ($brandName !== '')    { $ga4Item['item_brand']    = $brandName; }
-if ($categoryName !== '') { $ga4Item['item_category'] = $categoryName; }
+if ($brandName !== '') {
+    $ga4Item['item_brand']    = $brandName;
+}
+if ($categoryName !== '') {
+    $ga4Item['item_category'] = $categoryName;
+}
 $ga4Payload    = Json::encode(['currency' => 'BYN', 'value' => $viewItemValue, 'items' => [$ga4Item]], JSON_UNESCAPED_UNICODE);
 $ymProduct = ['id' => (string)$productId, 'name' => $productTitle, 'price' => $viewItemValue, 'quantity' => 1];
-if ($brandName !== '')    { $ymProduct['brand']    = $brandName; }
-if ($categoryName !== '') { $ymProduct['category'] = $categoryName; }
+if ($brandName !== '') {
+    $ymProduct['brand']    = $brandName;
+}
+if ($categoryName !== '') {
+    $ymProduct['category'] = $categoryName;
+}
 $ymPayload     = Json::encode(['ecommerce' => ['currencyCode' => 'BYN', 'detail' => ['products' => [$ymProduct]]]], JSON_UNESCAPED_UNICODE);
 $metaPayload   = Json::encode([
     'content_ids'  => [(string)$productId],
@@ -316,7 +327,7 @@ $this->registerJsVar('productVideo', $productVideo);
         <a href="<?= Url::to(['/']) ?>">Главная</a>
         <span class="breadcrumb-separator">/</span>
         <a href="<?= Url::to(['/catalog']) ?>">Каталог</a>
-        <?php if ($product->category): ?>
+        <?php if ($product->category) : ?>
             <span class="breadcrumb-separator">/</span>
             <a href="<?= Url::to(['/catalog/category', 'slug' => $product->category->slug]) ?>">
                 <?= Html::encode($product->category->name) ?>
@@ -330,10 +341,10 @@ $this->registerJsVar('productVideo', $productVideo);
     <div class="product-content">
         <!-- Левая колонка - Галерея -->
         <div class="product-gallery-section">
-            <?php if (count($galleryImages) > 1): ?>
+            <?php if (count($galleryImages) > 1) : ?>
                 <!-- Превью галереи -->
                 <div class="gallery-thumbnails">
-                    <?php foreach ($galleryImages as $idx => $img): ?>
+                    <?php foreach ($galleryImages as $idx => $img) : ?>
                         <div class="thumbnail-item <?= $idx === 0 ? 'active' : '' ?>" 
                              onclick="changeMainImage('<?= $idx ?>')"
                              data-index="<?= $idx ?>">
@@ -349,7 +360,7 @@ $this->registerJsVar('productVideo', $productVideo);
             <?php $isPlaceholder = !empty($galleryImages[0]['placeholder']); ?>
             <div class="main-image-container">
                 <div class="main-image-wrapper<?= $isPlaceholder ? ' is-placeholder' : '' ?>">
-                    <?php if ($productVideo): ?>
+                    <?php if ($productVideo) : ?>
                         <!-- Видео превью -->
                         <div class="video-preview" onclick="openVideoModal()">
                             <img src="<?= $galleryImages[0]['url'] ?>"
@@ -362,7 +373,7 @@ $this->registerJsVar('productVideo', $productVideo);
                                 <span>Смотреть видео-обзор</span>
                             </div>
                         </div>
-                    <?php else: ?>
+                    <?php else : ?>
                         <!-- Обычное изображение -->
                         <img src="<?= $galleryImages[0]['url'] ?>"
                              alt="<?= Html::encode($productTitle) ?>"
@@ -386,13 +397,13 @@ $this->registerJsVar('productVideo', $productVideo);
                     
                     <!-- Бейджи -->
                     <div class="image-badges">
-                        <?php if ($productPriceView['discountPercent'] > 0): ?>
+                        <?php if ($productPriceView['discountPercent'] > 0) : ?>
                             <span class="badge discount">-<?= $productPriceView['discountPercent'] ?>%</span>
                         <?php endif; ?>
-                        <?php if ($product->is_new ?? false): ?>
+                        <?php if ($product->is_new ?? false) : ?>
                             <span class="badge new">Новинка</span>
                         <?php endif; ?>
-                        <?php if ($product->is_hit ?? false): ?>
+                        <?php if ($product->is_hit ?? false) : ?>
                             <span class="badge hit">Хит</span>
                         <?php endif; ?>
                     </div>
@@ -414,9 +425,9 @@ $this->registerJsVar('productVideo', $productVideo);
         <div class="product-info-section">
             <!-- Бренд и артикул -->
             <div class="product-meta">
-                <?php if ($product->brand): ?>
+                <?php if ($product->brand) : ?>
                     <div class="brand-info">
-                        <?php if (!empty($product->brand->logo_url)): ?>
+                        <?php if (!empty($product->brand->logo_url)) : ?>
                         <img src="<?= Html::encode($product->brand->logo_url) ?>"
                              alt="<?= Html::encode($product->brand->name) ?>"
                              class="brand-logo"
@@ -448,9 +459,9 @@ $this->registerJsVar('productVideo', $productVideo);
             <!-- Рейтинг и отзывы -->
             <?php $reviewCount = count($reviews); ?>
             <div class="product-rating-section">
-                <?php if ($reviewCount > 0): ?>
+                <?php if ($reviewCount > 0) : ?>
                     <div class="rating-stars">
-                        <?php $rating = $product->rating ?? 0; for ($i = 1; $i <= 5; $i++): ?>
+                        <?php $rating = $product->rating ?? 0; for ($i = 1; $i <= 5; $i++) : ?>
                             <i class="bi bi-star<?= $i <= round($rating) ? '-fill' : '' ?>"></i>
                         <?php endfor; ?>
                     </div>
@@ -458,7 +469,7 @@ $this->registerJsVar('productVideo', $productVideo);
                     <a href="#reviews" class="reviews-link">
                         (<?= TextHelper::formatReviewCount($reviewCount) ?>)
                     </a>
-                <?php else: ?>
+                <?php else : ?>
                     <a href="#reviews" class="reviews-link reviews-link--empty">
                         <i class="bi bi-chat"></i> Нет отзывов — оставьте первый
                     </a>
@@ -469,12 +480,12 @@ $this->registerJsVar('productVideo', $productVideo);
             <div class="product-price-section">
                 <div class="price-main">
                     <span class="current-price"><?= $productPriceView['currentPrice'] ? PriceHelper::formatInt($productPriceView['currentPrice']) : PriceHelper::formatInt($product->price) ?></span>
-                    <?php if (!empty($productPriceView['oldPrice'])): ?>
+                    <?php if (!empty($productPriceView['oldPrice'])) : ?>
                         <span class="old-price"><?= PriceHelper::formatInt($productPriceView['oldPrice']) ?></span>
                     <?php endif; ?>
                 </div>
                 
-                <?php if (!empty($productPriceView['discountPercent'])): ?>
+                <?php if (!empty($productPriceView['discountPercent'])) : ?>
                     <div class="discount-info">
                         <span class="discount-badge">Скидка <?= $productPriceView['discountPercent'] ?>%</span>
                         <span class="discount-description">
@@ -495,7 +506,7 @@ $this->registerJsVar('productVideo', $productVideo);
                 </div>
 
                 <div class="size-grid" id="sizeGrid">
-                    <?php foreach ($availableSizes as $size => $available): ?>
+                    <?php foreach ($availableSizes as $size => $available) : ?>
                         <button type="button" 
                                 class="size-btn <?= !$available ? 'unavailable' : '' ?> <?= $size === $selectedSize ? 'active' : '' ?>"
                                 data-size="<?= $size ?>"
@@ -520,7 +531,7 @@ $this->registerJsVar('productVideo', $productVideo);
 
             <!-- Кнопки покупки -->
             <div class="purchase-actions">
-                <?php if ($product->price > 0): ?>
+                <?php if ($product->price > 0) : ?>
                 <button type="button"
                         class="btn btn-primary btn-large add-to-cart-btn"
                         onclick="addToCart()"
@@ -534,7 +545,7 @@ $this->registerJsVar('productVideo', $productVideo);
                     <i class="bi bi-lightning"></i>
                     <span>Купить в 1 клик</span>
                 </button>
-                <?php else: ?>
+                <?php else : ?>
                 <button type="button"
                         class="btn btn-outline btn-large"
                         onclick="openOneClickModal()">
@@ -551,7 +562,7 @@ $this->registerJsVar('productVideo', $productVideo);
     <div class="sticky-purchase-bar" id="stickyBar">
         <div class="sticky-content">
             <div class="sticky-product-info">
-                <?php if (!$isPlaceholder): ?>
+                <?php if (!$isPlaceholder) : ?>
                     <!-- CMP-23 Issue 1: omit thumb entirely when product has no real image.
                          Rendering the SVG-data-URI gallery placeholder as a 40px <img> shows
                          a "broken-image" icon (UX feedback). Letting .sticky-details take the
@@ -559,7 +570,7 @@ $this->registerJsVar('productVideo', $productVideo);
                     <img src="<?= Html::encode($galleryImages[0]['url']) ?>" class="sticky-thumb" alt="<?= Html::encode($productTitle) ?>" loading="lazy" decoding="async" onerror="this.style.display='none';this.onerror=null;">
                 <?php endif; ?>
                 <div class="sticky-details">
-                    <?php if ($product->brand): ?>
+                    <?php if ($product->brand) : ?>
                     <div class="sticky-brand"><?= Html::encode($product->brand->name) ?></div>
                     <?php endif; ?>
                     <div class="sticky-title sticky-name"><?= Html::encode($productTitle) ?></div>
@@ -581,7 +592,7 @@ $this->registerJsVar('productVideo', $productVideo);
             </div>
 
             <div class="sticky-actions">
-                <?php if ($product->price > 0): ?>
+                <?php if ($product->price > 0) : ?>
                 <button type="button"
                         class="btn btn-outline sticky-quick-buy"
                         onclick="openOneClickModal()">
@@ -619,7 +630,7 @@ $this->registerJsVar('productVideo', $productVideo);
             </div>
             <div class="modal--sheet__body">
                 <div class="size-sheet__list" id="sizeSheetList">
-                    <?php foreach ($availableSizes as $size => $available): ?>
+                    <?php foreach ($availableSizes as $size => $available) : ?>
                         <button type="button"
                                 class="size-sheet__option <?= !$available ? 'unavailable' : '' ?>"
                                 data-size="<?= $size ?>"
@@ -708,9 +719,9 @@ $this->registerJsVar('productVideo', $productVideo);
                 </summary>
                 <div class="product-accordion__body">
                     <div class="tab-content-inner">
-                        <?php if (!empty($product->description)): ?>
+                        <?php if (!empty($product->description)) : ?>
                             <?= $product->description ?>
-                        <?php else: ?>
+                        <?php else : ?>
                             <p>Подробное описание товара появится в ближайшее время.</p>
                         <?php endif; ?>
                     </div>
@@ -725,16 +736,16 @@ $this->registerJsVar('productVideo', $productVideo);
                 </summary>
                 <div class="product-accordion__body">
                     <div class="tab-content-inner">
-                        <?php if (!empty($productSpecs)): ?>
+                        <?php if (!empty($productSpecs)) : ?>
                             <div class="features-table">
-                                <?php foreach ($productSpecs as $label => $value): ?>
+                                <?php foreach ($productSpecs as $label => $value) : ?>
                                     <div class="feature-row">
                                         <div class="feature-name"><?= Html::encode($label) ?></div>
                                         <div class="feature-value"><?= Html::encode($value) ?></div>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
-                        <?php else: ?>
+                        <?php else : ?>
                             <p>Характеристики товара будут добавлены в ближайшее время.</p>
                         <?php endif; ?>
                     </div>
@@ -749,12 +760,12 @@ $this->registerJsVar('productVideo', $productVideo);
                 </summary>
                 <div class="product-accordion__body">
                 <div class="tab-content-inner">
-                    <?php if (!empty($reviews)): ?>
+                    <?php if (!empty($reviews)) : ?>
                         <div class="reviews-summary">
                             <div class="rating-overview">
                                 <div class="rating-large"><?= $product->rating ?? 4.5 ?></div>
                                 <div class="rating-stars-large">
-                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <?php for ($i = 1; $i <= 5; $i++) : ?>
                                         <i class="bi bi-star<?= $i <= ($product->rating ?? 4) ? '-fill' : '' ?>"></i>
                                     <?php endfor; ?>
                                 </div>
@@ -767,14 +778,14 @@ $this->registerJsVar('productVideo', $productVideo);
                         </div>
 
                         <div class="reviews-list">
-                            <?php foreach ($reviews as $review): ?>
+                            <?php foreach ($reviews as $review) : ?>
                                 <div class="review-item">
                                     <div class="review-header">
                                         <div class="review-author"><?= Html::encode($review['author']) ?></div>
                                         <div class="review-date"><?= date('d.m.Y', strtotime($review['date'])) ?></div>
                                     </div>
                                     <div class="review-rating">
-                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                        <?php for ($i = 1; $i <= 5; $i++) : ?>
                                             <i class="bi bi-star<?= $i <= $review['rating'] ? '-fill' : '' ?>"></i>
                                         <?php endfor; ?>
                                     </div>
@@ -787,7 +798,7 @@ $this->registerJsVar('productVideo', $productVideo);
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                    <?php else: ?>
+                    <?php else : ?>
                         <div class="no-reviews">
                             <i class="bi bi-chat-square-text"></i>
                             <h3>Отзывов пока нет</h3>
@@ -812,9 +823,9 @@ $this->registerJsVar('productVideo', $productVideo);
                         </button>
                     </div>
 
-                    <?php if (!empty($questions)): ?>
+                    <?php if (!empty($questions)) : ?>
                         <div class="questions-list">
-                            <?php foreach ($questions as $question): ?>
+                            <?php foreach ($questions as $question) : ?>
                                 <div class="question-item">
                                     <div class="question-header">
                                         <div class="question-author"><?= Html::encode($question['author']) ?></div>
@@ -823,11 +834,11 @@ $this->registerJsVar('productVideo', $productVideo);
                                     <div class="question-text">
                                         <strong>Вопрос:</strong> <?= Html::encode($question['question']) ?>
                                     </div>
-                                    <?php if (!empty($question['answer'])): ?>
+                                    <?php if (!empty($question['answer'])) : ?>
                                         <div class="answer-text">
                                             <strong>Ответ:</strong> <?= Html::encode($question['answer']) ?>
                                         </div>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <div class="answer-pending">
                                             <i class="bi bi-clock"></i>
                                             Ожидает ответа от администратора
@@ -836,7 +847,7 @@ $this->registerJsVar('productVideo', $productVideo);
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                    <?php else: ?>
+                    <?php else : ?>
                         <div class="no-questions">
                             <i class="bi bi-question-circle"></i>
                             <h3>Вопросов пока нет</h3>
@@ -849,7 +860,7 @@ $this->registerJsVar('productVideo', $productVideo);
     </div>
 
     <!-- Похожие товары -->
-    <?php if (!empty($similarProducts)): ?>
+    <?php if (!empty($similarProducts)) : ?>
         <div class="similar-products-section">
             <div class="section-header">
                 <h2>Похожие товары</h2>
@@ -857,7 +868,7 @@ $this->registerJsVar('productVideo', $productVideo);
             </div>
 
             <div class="similar-products-grid">
-                <?php foreach ($similarProducts as $similar): ?>
+                <?php foreach ($similarProducts as $similar) : ?>
                     <?php $similarPrice = ProductCardHelper::calculatePriceView($similar, null, [], $defaultSizeField); ?>
                     <a class="similar-product-card" href="<?= Url::to(['/catalog/product', 'slug' => $similar->slug ?? $similar->id]) ?>">
                         <div class="product-image">
@@ -870,7 +881,7 @@ $this->registerJsVar('productVideo', $productVideo);
                             <h3 class="product-name"><?= Html::encode($similar->name) ?></h3>
                             <div class="product-price">
                                 <span class="current-price"><?= $similarPrice['currentPrice'] ? PriceHelper::formatInt($similarPrice['currentPrice']) : PriceHelper::formatInt($similar->price) ?></span>
-                                <?php if (!empty($similarPrice['oldPrice'])): ?>
+                                <?php if (!empty($similarPrice['oldPrice'])) : ?>
                                     <span class="old-price"><?= PriceHelper::formatInt($similarPrice['oldPrice']) ?></span>
                                 <?php endif; ?>
                             </div>
@@ -889,9 +900,9 @@ $this->registerJsVar('productVideo', $productVideo);
             </button>
             
             <div class="gallery-scroll-container">
-                <?php if (!empty($product->images)): ?>
+                <?php if (!empty($product->images)) : ?>
                     <div class="gallery-images-grid">
-                        <?php foreach ($product->images as $idx => $img): ?>
+                        <?php foreach ($product->images as $idx => $img) : ?>
                             <div class="gallery-image-item">
                                 <img src="<?= ImageHelper::getWebpUrl($img->getUrl()) ?>" 
                                      alt="<?= Html::encode($product->name . ' — фото ' . ($idx + 1)) ?>"
@@ -899,7 +910,7 @@ $this->registerJsVar('productVideo', $productVideo);
                             </div>
                         <?php endforeach; ?>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="gallery-placeholder">
                         <i class="bi bi-image"></i>
                         <p>Изображения товара будут добавлены в ближайшее время</p>
@@ -1019,7 +1030,7 @@ $this->registerJsVar('productVideo', $productVideo);
     </div>
 
     <!-- Video Modal -->
-    <?php if ($productVideo): ?>
+    <?php if ($productVideo) : ?>
         <div class="video-modal" id="videoModal">
             <div class="video-modal-content">
                 <button class="video-modal-close" onclick="closeVideoModal()">
@@ -1034,13 +1045,13 @@ $this->registerJsVar('productVideo', $productVideo);
                         }
                     }
                     ?>
-                    <?php if ($videoId): ?>
+                    <?php if ($videoId) : ?>
                         <iframe src="https://www.youtube.com/embed/<?= $videoId ?>?rel=0&modestbranding=1" 
                                 frameborder="0" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowfullscreen>
                         </iframe>
-                    <?php else: ?>
+                    <?php else : ?>
                         <video controls>
                             <source src="<?= $productVideo ?>" type="video/mp4">
                             Ваш браузер не поддерживает видео.
@@ -1109,7 +1120,7 @@ $this->registerJsVar('productVideo', $productVideo);
                 <div class="form-group">
                     <label>Оценка</label>
                     <div class="rating-input" id="reviewRating">
-                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <?php for ($i = 1; $i <= 5; $i++) : ?>
                             <button type="button" class="rating-star" data-rating="<?= $i ?>" onclick="setReviewRating(<?= $i ?>)">
                                 <i class="bi bi-star"></i>
                             </button>

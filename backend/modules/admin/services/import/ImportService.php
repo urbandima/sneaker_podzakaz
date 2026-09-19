@@ -17,7 +17,7 @@ use app\backend\modules\catalog\models\Brand;
 
 /**
  * ImportService — Основной сервис импорта товаров
- * 
+ *
  * Управление процессом импорта, обработка товаров, сопоставление категорий
  */
 class ImportService extends Component
@@ -43,7 +43,7 @@ class ImportService extends Component
     public function runImport($sourceId, array $config = [])
     {
         $source = ImportSource::findOne($sourceId);
-        
+
         if (!$source || !$source->is_active) {
             throw new \Exception("Источник не найден или неактивен");
         }
@@ -62,7 +62,7 @@ class ImportService extends Component
 
             // Инициализируем парсер
             $parser = $this->getParser($source);
-            
+
             // Получаем список товаров для импорта
             $productUrls = $this->getProductUrls($parser, $config);
             $task->total_products = count($productUrls);
@@ -72,20 +72,20 @@ class ImportService extends Component
             foreach ($productUrls as $url) {
                 $this->processProduct($task, $parser, $url);
                 $task->incrementProcessed();
-                
+
                 // Задержка между запросами
                 $parser->delay();
             }
 
             // Завершаем задачу
             $task->complete();
-            
+
             // Создаем уведомление об успехе
             \app\backend\modules\admin\models\import\ImportNotification::createSuccess($task);
         } catch (\Exception $e) {
             $task->fail($e->getMessage());
             Yii::error("Import failed: " . $e->getMessage(), 'import');
-            
+
             // Создаем уведомление об ошибке
             \app\backend\modules\admin\models\import\ImportNotification::createError($task);
         }
@@ -101,21 +101,21 @@ class ImportService extends Component
     protected function getParser(ImportSource $source)
     {
         $code = $source->code;
-        
+
         if (!isset($this->parsers[$code])) {
             $parserClass = $this->getParserClass($code);
             $parser = new $parserClass($source);
-            
+
             // Устанавливаем сервисы
             if ($this->proxyService) {
                 $parser->setProxyService($this->proxyService);
             }
-            
+
             if ($this->captchaService) {
                 $this->captchaService->configureFromSource($source);
                 $parser->setCaptchaService($this->captchaService);
             }
-            
+
             $this->parsers[$code] = $parser;
         }
 
@@ -129,7 +129,7 @@ class ImportService extends Component
      */
     protected function getParserClass($code)
     {
-        return match($code) {
+        return match ($code) {
             'lamoda' => LamodaParser::class,
             'dewu' => DewuParser::class,
             'zalando' => ZalandoParser::class,
@@ -181,7 +181,7 @@ class ImportService extends Component
         try {
             // Парсим товар
             $data = $parser->parseProduct($url);
-            
+
             if (!$data) {
                 $task->incrementFailed();
                 ImportLog::logError($task->id, null, null, "Failed to parse product", ['url' => $url]);
@@ -190,7 +190,7 @@ class ImportService extends Component
 
             // Нормализуем данные
             $normalizedData = $parser->normalizeProductData($data);
-            
+
             // Конвертируем цены
             if ($this->currencyService) {
                 $normalizedData = $this->convertPrices($normalizedData, $task->source);
@@ -198,14 +198,14 @@ class ImportService extends Component
 
             // Сопоставляем категорию
             $categoryId = $this->matchCategory($task->source_id, $normalizedData['category_name'] ?? null);
-            
+
             if ($categoryId) {
                 $normalizedData['category_id'] = $categoryId;
             }
 
             // Ищем или создаем бренд
             $brandId = $this->findOrCreateBrand($normalizedData['brand_name'] ?? null);
-            
+
             if ($brandId) {
                 $normalizedData['brand_id'] = $brandId;
             }
@@ -240,7 +240,7 @@ class ImportService extends Component
         }
 
         $rate = $this->currencyService->getRate($source->currency_code);
-        
+
         if (!$rate) {
             return $data;
         }
@@ -286,7 +286,7 @@ class ImportService extends Component
 
         // Ищем в маппинге
         $map = ImportCategoryMap::findByCategoryName($sourceId, $sourceCategoryName);
-        
+
         if ($map && $map->category_id) {
             return $map->category_id;
         }
@@ -369,7 +369,7 @@ class ImportService extends Component
             'last_import_at' => date('Y-m-d H:i:s'),
             'is_active' => true,
             'stock_status' => Product::STOCK_IN_STOCK,
-            
+
             // Характеристики
             'material' => $data['material'] ?? null,
             'season' => $data['season'] ?? null,
@@ -396,8 +396,12 @@ class ImportService extends Component
             ImportLog::logCreated($task->id, $product->id, $product->sku, $product->name);
         } else {
             $task->incrementFailed();
-            ImportLog::logError($task->id, $data['sku'] ?? null, $data['name'] ?? null, 
-                'Failed to create product: ' . json_encode($product->errors));
+            ImportLog::logError(
+                $task->id,
+                $data['sku'] ?? null,
+                $data['name'] ?? null,
+                'Failed to create product: ' . json_encode($product->errors)
+            );
         }
     }
 
@@ -451,7 +455,7 @@ class ImportService extends Component
     protected function saveImages(Product $product, array $images)
     {
         $mainImage = $images[0] ?? null;
-        
+
         if ($mainImage) {
             $product->main_image = $mainImage;
             $product->main_image_url = $mainImage;
@@ -577,7 +581,7 @@ class ImportService extends Component
 
         foreach ($products as $product) {
             $bestPrice = ImportProductPrice::getBestPrice($product->external_sku);
-            
+
             if ($bestPrice && $bestPrice->price_byn < $product->price) {
                 $product->price = $bestPrice->price_byn;
                 $product->best_price_source_id = $bestPrice->source_id;
@@ -587,7 +591,7 @@ class ImportService extends Component
         }
 
         Yii::info("Updated best prices for {$updated} products", 'import');
-        
+
         return $updated;
     }
 }

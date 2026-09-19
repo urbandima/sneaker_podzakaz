@@ -2,26 +2,27 @@
 
 /**
  * LoyaltyProgram — Модель программы лояльности
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Определение уровней клиентов и правил программы лояльности.
- * 
+ *
  * ОСНОВНЫЕ СВОЙСТВА:
  * - name: название уровня
  * - level: уровень (bronze, silver, gold, platinum)
  * - min_points: минимум баллов для уровня
  * - points_multiplier: множитель начисления баллов
  * - benefits: преимущества (JSON)
- * 
+ *
  * УРОВНИ:
  * - Bronze: начальный уровень
  * - Silver: от 1000 баллов
  * - Gold: от 5000 баллов
  * - Platinum: от 10000 баллов
- * 
+ *
  * ИСПОЛЬЗОВАНИЕ:
  * $level = LoyaltyProgram::getLevelByPoints(2500);
  */
+
 namespace app\backend\modules\loyalty\models;
 
 use Yii;
@@ -45,10 +46,10 @@ use yii\db\ActiveRecord;
 class LoyaltyProgram extends ActiveRecord
 {
     // Уровни
-    const LEVEL_BRONZE = 'bronze';
-    const LEVEL_SILVER = 'silver';
-    const LEVEL_GOLD = 'gold';
-    const LEVEL_PLATINUM = 'platinum';
+    public const LEVEL_BRONZE = 'bronze';
+    public const LEVEL_SILVER = 'silver';
+    public const LEVEL_GOLD = 'gold';
+    public const LEVEL_PLATINUM = 'platinum';
 
     public static function tableName()
     {
@@ -89,7 +90,7 @@ class LoyaltyProgram extends ActiveRecord
 
     /**
      * Получить уровень по количеству баллов
-     * 
+     *
      * @param int $points
      * @return LoyaltyProgram|null
      */
@@ -104,7 +105,7 @@ class LoyaltyProgram extends ActiveRecord
 
     /**
      * Получить все уровни
-     * 
+     *
      * @return LoyaltyProgram[]
      */
     public static function getAllLevels(): array
@@ -117,7 +118,7 @@ class LoyaltyProgram extends ActiveRecord
 
     /**
      * Получить преимущества
-     * 
+     *
      * @return array
      */
     public function getBenefitsList(): array
@@ -130,7 +131,7 @@ class LoyaltyProgram extends ActiveRecord
 
     /**
      * Получить следующий уровень
-     * 
+     *
      * @return LoyaltyProgram|null
      */
     public function getNextLevel(): ?LoyaltyProgram
@@ -144,7 +145,7 @@ class LoyaltyProgram extends ActiveRecord
 
     /**
      * Рассчитать баллы до следующего уровня
-     * 
+     *
      * @param int $currentPoints
      * @return int
      */

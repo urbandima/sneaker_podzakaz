@@ -1,22 +1,26 @@
 <?php
+
 namespace app\backend\modules\procurement\models;
 
 use yii\db\ActiveRecord;
 
 class SupplierReturn extends ActiveRecord
 {
-    const STATUS_DRAFT    = 'draft';
-    const STATUS_SENT     = 'sent';
-    const STATUS_ACCEPTED = 'accepted';
-    const STATUS_REFUNDED = 'refunded';
+    public const STATUS_DRAFT    = 'draft';
+    public const STATUS_SENT     = 'sent';
+    public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_REFUNDED = 'refunded';
 
-    const REASON_DEFECT      = 'defect';
-    const REASON_WRONG_ITEM  = 'wrong_item';
-    const REASON_WRONG_SIZE  = 'wrong_size';
-    const REASON_DAMAGED     = 'damaged';
-    const REASON_OTHER       = 'other';
+    public const REASON_DEFECT      = 'defect';
+    public const REASON_WRONG_ITEM  = 'wrong_item';
+    public const REASON_WRONG_SIZE  = 'wrong_size';
+    public const REASON_DAMAGED     = 'damaged';
+    public const REASON_OTHER       = 'other';
 
-    public static function tableName() { return 'supplier_return'; }
+    public static function tableName()
+    {
+        return 'supplier_return';
+    }
 
     public function rules()
     {

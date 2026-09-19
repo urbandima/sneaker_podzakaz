@@ -38,13 +38,13 @@ $pagination = $dataProvider->getPagination();
     <?= Html::a('<i class="bi bi-plus-lg"></i> Создать категорию', ['/admin/category/create'], ['class' => 'btn btn-primary']) ?>
 </div>
 
-<?php if (Yii::$app->session->hasFlash('success')): ?>
+<?php if (Yii::$app->session->hasFlash('success')) : ?>
     <div class="alert alert-success alert-dismissible">
         <?= Html::encode(Yii::$app->session->getFlash('success')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
-<?php if (Yii::$app->session->hasFlash('error')): ?>
+<?php if (Yii::$app->session->hasFlash('error')) : ?>
     <div class="alert alert-danger alert-dismissible">
         <?= Html::encode(Yii::$app->session->getFlash('error')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -68,7 +68,7 @@ $pagination = $dataProvider->getPagination();
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($categories as $cat): ?>
+                <?php foreach ($categories as $cat) : ?>
                     <?php
                     $productCount = \app\backend\modules\catalog\models\Product::find()
                         ->where(['category_id' => $cat->id])
@@ -77,13 +77,13 @@ $pagination = $dataProvider->getPagination();
                     <tr>
                         <td class="text-muted" style="font-size:.8rem"><?= $cat->id ?></td>
                         <td>
-                            <?php if ($cat->image): ?>
+                            <?php if ($cat->image) : ?>
                                 <img src="<?= Html::encode($cat->image) ?>"
                                      class="cat-thumb"
                                      title="Нажмите для смены фото"
                                      onclick="openUpload(<?= $cat->id ?>, '<?= Html::encode($cat->name) ?>')"
                                      onerror="this.replaceWith(makeNoBadge(<?= $cat->id ?>, '<?= Html::encode($cat->name) ?>'))">
-                            <?php else: ?>
+                            <?php else : ?>
                                 <span class="badge-no-photo"
                                       onclick="openUpload(<?= $cat->id ?>, '<?= Html::encode($cat->name) ?>')">
                                     Без фото
@@ -92,23 +92,23 @@ $pagination = $dataProvider->getPagination();
                         </td>
                         <td>
                             <strong><?= Html::encode($cat->name) ?></strong>
-                            <?php if ($cat->description): ?>
+                            <?php if ($cat->description) : ?>
                                 <br><small class="text-muted"><?= Html::encode(mb_substr($cat->description, 0, 60)) ?>...</small>
                             <?php endif; ?>
                         </td>
                         <td><code style="font-size:.8rem"><?= Html::encode($cat->slug) ?></code></td>
                         <td>
-                            <?php if ($cat->parent_id): ?>
+                            <?php if ($cat->parent_id) : ?>
                                 <?= Html::encode($cat->parent ? $cat->parent->name : $cat->parent_id) ?>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <span class="text-muted">—</span>
                             <?php endif; ?>
                         </td>
                         <td class="text-center"><?= $cat->sort_order ?></td>
                         <td>
-                            <?php if ($cat->is_active): ?>
+                            <?php if ($cat->is_active) : ?>
                                 <span class="badge bg-success">Активна</span>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <span class="badge bg-secondary">Неактивна</span>
                             <?php endif; ?>
                         </td>
@@ -117,16 +117,19 @@ $pagination = $dataProvider->getPagination();
                         </td>
                         <td>
                             <div class="btn-group btn-group-sm">
-                                <?= Html::a('<i class="bi bi-pencil"></i>', ['/admin/category/'.$cat->id.'/edit'], ['class' => 'btn btn-outline-primary', 'title' => 'Редактировать']) ?>
-                                <?= Html::a('<i class="bi bi-trash"></i>', ['/admin/category/'.$cat->id.'/delete'],
+                                <?= Html::a('<i class="bi bi-pencil"></i>', ['/admin/category/' . $cat->id . '/edit'], ['class' => 'btn btn-outline-primary', 'title' => 'Редактировать']) ?>
+                                <?= Html::a(
+                                    '<i class="bi bi-trash"></i>',
+                                    ['/admin/category/' . $cat->id . '/delete'],
                                     ['class' => 'btn btn-outline-danger', 'title' => 'Удалить',
-                                     'data-confirm' => 'Удалить категорию «'.$cat->name.'»?',
-                                     'data-method' => 'post']) ?>
+                                     'data-confirm' => 'Удалить категорию «' . $cat->name . '»?',
+                                    'data-method' => 'post']
+                                ) ?>
                             </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>
-                <?php if (empty($categories)): ?>
+                <?php if (empty($categories)) : ?>
                     <tr><td colspan="9" class="text-center text-muted py-4">Категории не найдены</td></tr>
                 <?php endif; ?>
             </tbody>
@@ -134,7 +137,7 @@ $pagination = $dataProvider->getPagination();
     </div>
 </div>
 
-<?php if ($pagination->pageCount > 1): ?>
+<?php if ($pagination->pageCount > 1) : ?>
 <div class="mt-3">
     <?= \yii\widgets\LinkPager::widget(['pagination' => $pagination]) ?>
 </div>

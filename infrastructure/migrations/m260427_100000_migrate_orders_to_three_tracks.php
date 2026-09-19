@@ -20,26 +20,35 @@ class m260427_100000_migrate_orders_to_three_tracks extends Migration
         $cols = $schema->columnNames;
 
         if (!in_array('payment_status', $cols, true)) {
-            $this->addColumn('order', 'payment_status',
-                $this->string(32)->null()->after('status'));
+            $this->addColumn(
+                'order',
+                'payment_status',
+                $this->string(32)->null()->after('status')
+            );
         }
         if (!in_array('logistics_status', $cols, true)) {
-            $this->addColumn('order', 'logistics_status',
-                $this->string(32)->null()->after('payment_status'));
+            $this->addColumn(
+                'order',
+                'logistics_status',
+                $this->string(32)->null()->after('payment_status')
+            );
         }
         if (!in_array('delivery_status', $cols, true)) {
-            $this->addColumn('order', 'delivery_status',
-                $this->string(32)->null()->after('logistics_status'));
+            $this->addColumn(
+                'order',
+                'delivery_status',
+                $this->string(32)->null()->after('logistics_status')
+            );
         }
 
         if (!$this->indexExists('order', 'idx_order_payment_status')) {
-            $this->createIndex('idx_order_payment_status',   'order', 'payment_status');
+            $this->createIndex('idx_order_payment_status', 'order', 'payment_status');
         }
         if (!$this->indexExists('order', 'idx_order_logistics_status')) {
             $this->createIndex('idx_order_logistics_status', 'order', 'logistics_status');
         }
         if (!$this->indexExists('order', 'idx_order_delivery_status')) {
-            $this->createIndex('idx_order_delivery_status',  'order', 'delivery_status');
+            $this->createIndex('idx_order_delivery_status', 'order', 'delivery_status');
         }
 
         // Backfill from legacy status column. Idempotent: only touches rows with NULL track values.
@@ -104,13 +113,13 @@ class m260427_100000_migrate_orders_to_three_tracks extends Migration
     public function safeDown()
     {
         if ($this->indexExists('order', 'idx_order_delivery_status')) {
-            $this->dropIndex('idx_order_delivery_status',  'order');
+            $this->dropIndex('idx_order_delivery_status', 'order');
         }
         if ($this->indexExists('order', 'idx_order_logistics_status')) {
             $this->dropIndex('idx_order_logistics_status', 'order');
         }
         if ($this->indexExists('order', 'idx_order_payment_status')) {
-            $this->dropIndex('idx_order_payment_status',   'order');
+            $this->dropIndex('idx_order_payment_status', 'order');
         }
         $schema = $this->db->getTableSchema('{{%order}}', true);
         $cols = $schema ? $schema->columnNames : [];

@@ -38,7 +38,7 @@ $formatter = Yii::$app->formatter;
                     Управляйте личными данными, ролями и безопасностью входа в едином CRM-интерфейсе.
                 </p>
                 <div class="admin-flex admin-gap-2 admin-flex--wrap admin-mt-4">
-                    <?php if (isset($roleMeta[$user->role])): ?>
+                    <?php if (isset($roleMeta[$user->role])) : ?>
                         <span class="<?= $roleMeta[$user->role]['badge'] ?>">
                             <i class="bi bi-<?= $roleMeta[$user->role]['icon'] ?>"></i>
                             <?= Html::encode($roleMeta[$user->role]['label']) ?>
@@ -135,12 +135,12 @@ $formatter = Yii::$app->formatter;
                         <div>
                             <div class="admin-text-muted text-uppercase small mb-2">Роль</div>
                             <div>
-                                <?php if (isset($roleMeta[$user->role])): ?>
+                                <?php if (isset($roleMeta[$user->role])) : ?>
                                     <span class="<?= $roleMeta[$user->role]['badge'] ?>">
                                         <i class="bi bi-<?= $roleMeta[$user->role]['icon'] ?>"></i>
                                         <?= Html::encode($roleMeta[$user->role]['label']) ?>
                                     </span>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <span class="admin-badge admin-badge--neutral"><?= Html::encode($user->role) ?></span>
                                 <?php endif; ?>
                             </div>

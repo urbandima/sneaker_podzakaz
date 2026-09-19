@@ -2,11 +2,11 @@
 
 /**
  * ReviewController — Управление отзывами о товарах
- * 
+ *
  * НАЗНАЧЕНИЕ:
  * Модерация и управление отзывами покупателей о товарах:
  * публикация, отклонение, удаление.
- * 
+ *
  * ФУНКЦИИ:
  * - Список отзывов с фильтрацией (index)
  * - Просмотр отзыва (view)
@@ -14,15 +14,16 @@
  * - Снятие с публикации (unpublish)
  * - Удаление отзыва (delete)
  * - Массовая модерация (batch-moderate)
- * 
+ *
  * СВЯЗИ:
  * - ProductReview (модель отзыва)
  * - Product (модель товара)
  * - Customer (модель покупателя)
- * 
+ *
  * ДОСТУП:
  * - Администраторы и менеджеры
  */
+
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
@@ -70,7 +71,7 @@ class ReviewController extends BaseAdminController
     public function actionIndex()
     {
         $query = ProductReview::find()->with(['product', 'user'])->orderBy(['created_at' => SORT_DESC]);
-        
+
         // Фильтры
         $status = Yii::$app->request->get('status');
         if ($status === 'published') {
@@ -86,17 +87,17 @@ class ReviewController extends BaseAdminController
         } elseif ($status === 'featured') {
             $query->andWhere(['is_featured' => true]);
         }
-        
+
         $rating = Yii::$app->request->get('rating');
         if ($rating) {
             $query->andWhere(['rating' => $rating]);
         }
-        
+
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => ['pageSize' => 20],
         ]);
-        
+
         // Статистика
         $stats = [
             'total' => ProductReview::find()->count(),
@@ -131,7 +132,7 @@ class ReviewController extends BaseAdminController
     public function actionView($id)
     {
         $model = $this->findModel($id);
-        
+
         return $this->render('view', [
             'model' => $model,
         ]);
@@ -144,7 +145,7 @@ class ReviewController extends BaseAdminController
     {
         $model = $this->findModel($id);
         $model->publish();
-        
+
         Yii::$app->session->setFlash('success', 'Отзыв опубликован');
         return $this->redirect(['index']);
     }
@@ -156,7 +157,7 @@ class ReviewController extends BaseAdminController
     {
         $model = $this->findModel($id);
         $model->unpublish();
-        
+
         Yii::$app->session->setFlash('success', 'Отзыв снят с публикации');
         return $this->redirect(['index']);
     }
@@ -167,7 +168,7 @@ class ReviewController extends BaseAdminController
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
-        
+
         Yii::$app->session->setFlash('success', 'Отзыв удален');
         return $this->redirect(['index']);
     }
@@ -178,12 +179,12 @@ class ReviewController extends BaseAdminController
     public function actionBulkPublish()
     {
         $ids = Yii::$app->request->post('ids', []);
-        
+
         if (!empty($ids)) {
             ProductReview::updateAll(['is_published' => true], ['id' => $ids]);
             Yii::$app->session->setFlash('success', 'Отзывы опубликованы');
         }
-        
+
         return $this->redirect(['index']);
     }
 
@@ -195,7 +196,7 @@ class ReviewController extends BaseAdminController
         $model = $this->findModel($id);
         $model->is_featured = !$model->is_featured;
         $model->save();
-        
+
         Yii::$app->session->setFlash('success', $model->is_featured ? 'Отзыв добавлен в избранные' : 'Отзыв убран из избранных');
         return $this->redirect(['index']);
     }

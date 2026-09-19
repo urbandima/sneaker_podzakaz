@@ -7,9 +7,9 @@ use yii\db\ActiveRecord;
 
 /**
  * ImportSource — Модель источника импорта
- * 
+ *
  * Источники: Lamoda, Dewu, Zalando, StockX
- * 
+ *
  * @property int $id
  * @property string $name Название источника
  * @property string $code Код источника (lamoda, dewu, zalando, stockx)
@@ -32,24 +32,24 @@ use yii\db\ActiveRecord;
  * @property int $failed_runs Неудачных запусков
  * @property string $created_at
  * @property string $updated_at
- * 
+ *
  * @property ImportTask[] $tasks Задачи импорта
  * @property ImportProductPrice[] $productPrices Цены товаров
  * @property ImportCategoryMap[] $categoryMaps Маппинг категорий
  */
 class ImportSource extends ActiveRecord
 {
-    const SOURCE_LAMODA = 'lamoda';
-    const SOURCE_DEWU = 'dewu';
-    const SOURCE_ZALANDO = 'zalando';
-    const SOURCE_STOCKX = 'stockx';
+    public const SOURCE_LAMODA = 'lamoda';
+    public const SOURCE_DEWU = 'dewu';
+    public const SOURCE_ZALANDO = 'zalando';
+    public const SOURCE_STOCKX = 'stockx';
 
-    const CAPTCHA_2CAPTCHA = '2captcha';
-    const CAPTCHA_ANTICAPTCHA = 'anticaptcha';
-    const CAPTCHA_CAPMONSTER = 'capmonster';
+    public const CAPTCHA_2CAPTCHA = '2captcha';
+    public const CAPTCHA_ANTICAPTCHA = 'anticaptcha';
+    public const CAPTCHA_CAPMONSTER = 'capmonster';
 
-    const PROXY_ROTATION_RANDOM = 'random';
-    const PROXY_ROTATION_SEQUENTIAL = 'sequential';
+    public const PROXY_ROTATION_RANDOM = 'random';
+    public const PROXY_ROTATION_SEQUENTIAL = 'sequential';
 
     /**
      * {@inheritdoc}
@@ -232,13 +232,13 @@ class ImportSource extends ActiveRecord
     {
         $this->last_run_at = date('Y-m-d H:i:s');
         $this->total_products_parsed += $productsCount;
-        
+
         if ($success) {
             $this->successful_runs++;
         } else {
             $this->failed_runs++;
         }
-        
+
         $this->save(false, ['last_run_at', 'total_products_parsed', 'successful_runs', 'failed_runs']);
     }
 }

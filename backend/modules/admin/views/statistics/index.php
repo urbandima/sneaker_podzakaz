@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Аналитика — Продвинутые отчёты и графики
  *
@@ -85,14 +86,15 @@ $this->params['headerActions'] = [
         </div>
         <div style="max-width:300px;margin:0 auto"><canvas id="statusPieChart"></canvas></div>
         <div class="stat-legend">
-            <?php foreach ($statusStats as $key => $s): ?>
-            <?php if ($s['count'] > 0): ?>
+            <?php foreach ($statusStats as $key => $s) : ?>
+                <?php if ($s['count'] > 0) : ?>
             <div class="stat-legend-item">
                 <span class="stat-legend-dot" style="background:<?= $statusColors[$key] ?? '#94a3b8' ?>"></span>
                 <span><?= Html::encode($s['label']) ?></span>
                 <b><?= $s['count'] ?></b>
             </div>
-            <?php endif; endforeach ?>
+                <?php endif;
+            endforeach ?>
         </div>
     </div>
 
@@ -101,7 +103,7 @@ $this->params['headerActions'] = [
         <div class="admin-card-header">
             <h2 class="admin-card-title"><i class="bi bi-trophy-fill"></i> Топ-10 товаров по выручке</h2>
         </div>
-        <?php if (!empty($topProducts)): ?>
+        <?php if (!empty($topProducts)) : ?>
         <div class="overflow-x-auto">
             <table class="admin-table">
                 <thead>
@@ -114,7 +116,7 @@ $this->params['headerActions'] = [
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($topProducts as $i => $p): ?>
+                    <?php foreach ($topProducts as $i => $p) : ?>
                     <tr>
                         <td><span class="stat-rank"><?= $i + 1 ?></span></td>
                         <td><?= Html::encode($p['product_name'] ?? '—') ?></td>
@@ -126,7 +128,7 @@ $this->params['headerActions'] = [
                 </tbody>
             </table>
         </div>
-        <?php else: ?>
+        <?php else : ?>
         <div style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">
             <i class="bi bi-bar-chart" style="font-size:2rem;opacity:0.4;display:block;margin-bottom:0.5rem"></i>
             <p class="m-0">Нет данных о продажах товаров</p>
@@ -142,13 +144,16 @@ $this->params['headerActions'] = [
         <div class="admin-card-header">
             <h2 class="admin-card-title"><i class="bi bi-person-workspace"></i> Менеджеры</h2>
         </div>
-        <?php if (!empty($managerStats)): ?>
+        <?php if (!empty($managerStats)) : ?>
         <div class="overflow-x-auto">
             <table class="admin-table">
                 <thead><tr><th>Имя</th><th class="text-right text-right">Заказы</th><th>Сумма</th></tr></thead>
                 <tbody>
-                    <?php foreach ($managerStats as $m): ?>
-                    <?php $mSum = 0; foreach ($m->createdOrders as $o) $mSum += $o->total_amount; ?>
+                    <?php foreach ($managerStats as $m) : ?>
+                        <?php $mSum = 0;
+                        foreach ($m->createdOrders as $o) {
+                            $mSum += $o->total_amount;
+                        } ?>
                     <tr>
                         <td><?= Html::encode($m->username) ?></td>
                         <td><span class="admin-badge admin-badge-info text-right"><?= count($m->createdOrders) ?></span></td>
@@ -158,7 +163,7 @@ $this->params['headerActions'] = [
                 </tbody>
             </table>
         </div>
-        <?php else: ?>
+        <?php else : ?>
         <div style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">
             <i class="bi bi-people" style="font-size:2rem;opacity:0.4;display:block;margin-bottom:0.5rem"></i>
             <p class="m-0">Нет данных о менеджерах</p>
@@ -171,18 +176,23 @@ $this->params['headerActions'] = [
         <div class="admin-card-header">
             <h2 class="admin-card-title"><i class="bi bi-truck"></i> Логисты</h2>
         </div>
-        <?php if (!empty($logistStats)): ?>
+        <?php if (!empty($logistStats)) : ?>
         <div class="overflow-x-auto">
             <table class="admin-table">
                 <thead><tr><th>Имя</th><th class="text-right text-right text-right">Всего</th><th>Активных</th><th>Завершено</th></tr></thead>
                 <tbody>
-                    <?php foreach ($logistStats as $l): ?>
-                    <?php
-                    $lActive = 0; $lDone = 0;
-                    foreach ($l->assignedOrders as $o) {
-                        if ($o->status === 'delivered') $lDone++; else $lActive++;
-                    }
-                    ?>
+                    <?php foreach ($logistStats as $l) : ?>
+                        <?php
+                        $lActive = 0;
+                        $lDone = 0;
+                        foreach ($l->assignedOrders as $o) {
+                            if ($o->status === 'delivered') {
+                                $lDone++;
+                            } else {
+                                $lActive++;
+                            }
+                        }
+                        ?>
                     <tr>
                         <td><?= Html::encode($l->username) ?></td>
                         <td class="text-right"><?= count($l->assignedOrders) ?></td>
@@ -193,7 +203,7 @@ $this->params['headerActions'] = [
                 </tbody>
             </table>
         </div>
-        <?php else: ?>
+        <?php else : ?>
         <div style="text-align:center;padding:2rem;color:var(--admin-text-secondary)">
             <i class="bi bi-truck" style="font-size:2rem;opacity:0.4;display:block;margin-bottom:0.5rem"></i>
             <p class="m-0">Нет данных о логистах</p>

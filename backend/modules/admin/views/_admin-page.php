@@ -10,11 +10,11 @@ use yii\helpers\Html;
 
 <div class="admin-page">
     <div class="page-header">
-        <?php if (!empty($icon)): ?>
+        <?php if (!empty($icon)) : ?>
             <div class="page-icon"><?= $icon ?></div>
         <?php endif; ?>
         <h1 class="page-title"><?= Html::encode($title) ?></h1>
-        <?php if (!empty($description)): ?>
+        <?php if (!empty($description)) : ?>
             <p class="page-description"><?= Html::encode($description) ?></p>
         <?php endif; ?>
     </div>
