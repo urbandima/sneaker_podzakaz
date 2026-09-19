@@ -91,26 +91,35 @@ class CouponTest extends TestCase
         $coupon->min_order_amount = 100;
         $coupon->is_active = 1;
 
-        list($valid, $error) = $coupon->validate(50);
+        list($valid, $error) = $coupon->isValidForOrder(50);
         $this->assertFalse($valid);
-        $this->assertStringContainsString('минимальная сумма', $error);
+        $this->assertStringContainsString('Минимальная сумма', $error);
 
-        list($valid, $error) = $coupon->validate(100);
+        list($valid, $error) = $coupon->isValidForOrder(100);
         $this->assertTrue($valid);
     }
 
     /**
      * Тест применения купона (увеличение счётчика)
+     *
+     * apply() делает атомарный UPDATE по id в БД, поэтому купон должен быть сохранён.
      */
     public function testApplyCoupon()
     {
         $coupon = new Coupon();
+        $coupon->code = 'APPLY-' . uniqid();
+        $coupon->name = 'Тестовый купон для apply()';
+        $coupon->type = Coupon::TYPE_FIXED;
+        $coupon->value = 5;
         $coupon->current_uses = 5;
         $coupon->max_uses = 10;
+        $this->assertTrue($coupon->save(), 'Не удалось сохранить тестовый купон: ' . json_encode($coupon->errors));
 
         $initialUses = $coupon->current_uses;
         $coupon->apply();
 
         $this->assertEquals($initialUses + 1, $coupon->current_uses);
+
+        $coupon->delete();
     }
 }

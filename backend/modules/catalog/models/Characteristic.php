@@ -111,7 +111,14 @@ class Characteristic extends ActiveRecord
     public function behaviors()
     {
         return [
-            TimestampBehavior::class,
+            [
+                // created_at/updated_at — TIMESTAMP, а не int: дефолтный TimestampBehavior
+                // пишет time() и роняет INSERT/UPDATE под strict SQL mode.
+                'class' => TimestampBehavior::class,
+                'value' => function () {
+                    return date('Y-m-d H:i:s');
+                },
+            ],
         ];
     }
 

@@ -3,7 +3,7 @@
 namespace tests\unit;
 
 use PHPUnit\Framework\TestCase;
-use app\services\Catalog\FilterBuilder;
+use app\backend\modules\catalog\services\Catalog\FilterBuilder;
 
 /**
  * Unit тесты для FilterBuilder

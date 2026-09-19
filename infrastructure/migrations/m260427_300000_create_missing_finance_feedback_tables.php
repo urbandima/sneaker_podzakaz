@@ -21,7 +21,7 @@ class m260427_300000_create_missing_finance_feedback_tables extends Migration
                 'bank_reference' => $this->string(100)->null(),
                 'bank_details'   => $this->string(255)->null(),
                 'description'    => $this->text()->null(),
-                'created_at'     => $this->integer()->notNull()->defaultExpression('UNIX_TIMESTAMP()'),
+                'created_at'     => $this->integer()->notNull()->defaultExpression('(UNIX_TIMESTAMP())'),
             ]);
             $this->createIndex('idx_payment_order',    'payment', 'order_id');
             $this->createIndex('idx_payment_customer', 'payment', 'customer_id');
@@ -42,7 +42,7 @@ class m260427_300000_create_missing_finance_feedback_tables extends Migration
                 'description'       => $this->text()->null(),
                 'document_number'   => $this->string(100)->null(),
                 'created_by'        => $this->integer()->null(),
-                'created_at'        => $this->integer()->notNull()->defaultExpression('UNIX_TIMESTAMP()'),
+                'created_at'        => $this->integer()->notNull()->defaultExpression('(UNIX_TIMESTAMP())'),
             ]);
             $this->createIndex('idx_expense_cat',   'expense', 'category');
             $this->createIndex('idx_expense_order', 'expense', 'order_id');
@@ -60,7 +60,7 @@ class m260427_300000_create_missing_finance_feedback_tables extends Migration
                 'status'         => $this->string(20)->notNull()->defaultValue('new'),
                 'reply_text'     => $this->text()->null(),
                 'replied_at'     => $this->integer()->null(),
-                'created_at'     => $this->integer()->notNull()->defaultExpression('UNIX_TIMESTAMP()'),
+                'created_at'     => $this->integer()->notNull()->defaultExpression('(UNIX_TIMESTAMP())'),
             ]);
             $this->createIndex('idx_feedback_status', 'feedback', 'status');
         }

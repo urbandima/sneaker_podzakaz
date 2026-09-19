@@ -12,6 +12,16 @@ class m260331_085636_create_return_request_table extends Migration
      */
     public function safeUp()
     {
+        // Таблица уже создаётся более ранней миграцией m250315_120100_create_return_tables со
+        // схемой, которую реально использует app\backend\modules\returns\models\ReturnRequest
+        // (items_json/admin_comment/refund_method/pickup_address/tracking_number и т.д.). Эта
+        // миграция — дублирующая попытка создать ту же таблицу с другой, неиспользуемой схемой;
+        // делаем её безопасным no-op, чтобы не ронять чистые инсталляции (CI, новые окружения).
+        if ($this->db->schema->getTableSchema('{{%return_request}}', true) !== null) {
+            echo "    > skipped: {{%return_request}} уже создана миграцией m250315_120100_create_return_tables\n";
+            return true;
+        }
+
         $this->createTable('{{%return_request}}', [
             'id' => $this->primaryKey(),
             'return_number' => $this->string(50)->notNull()->unique(),
@@ -41,6 +51,13 @@ class m260331_085636_create_return_request_table extends Migration
      */
     public function safeDown()
     {
-        $this->dropTable('{{%return_request}}');
+        // Откатываем, только если таблицу создала именно эта миграция (маркер — колонка
+        // reason_description, которой нет в схеме m250315_120100_create_return_tables).
+        $schema = $this->db->schema->getTableSchema('{{%return_request}}', true);
+        if ($schema !== null && in_array('reason_description', $schema->columnNames, true)) {
+            $this->dropTable('{{%return_request}}');
+        } else {
+            echo "    > skipped down: {{%return_request}} принадлежит другой миграции\n";
+        }
     }
 }

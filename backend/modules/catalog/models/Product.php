@@ -118,11 +118,30 @@ class Product extends ActiveRecord
     const STOCK_PREORDER = 'preorder';
 
     /**
+     * Тестовый seam для unit-тестов (tests/unit/CartTest.php), позволяющий подменить findOne()
+     * без реальной БД. Вне тестов всегда null — поведение не меняется.
+     * @var callable|null
+     */
+    public static $mockFindOne = null;
+
+    /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
         return 'product';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function findOne($condition)
+    {
+        if (static::$mockFindOne !== null) {
+            return (static::$mockFindOne)($condition);
+        }
+
+        return parent::findOne($condition);
     }
 
     /**

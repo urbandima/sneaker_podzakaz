@@ -44,7 +44,7 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Run PHP CodeSniffer
-        run: vendor/bin/phpcs --standard=PSR12 --ignore=vendor/,runtime/,web/assets/ backend/ frontend/ api/ infrastructure/
+        run: vendor/bin/phpcs --standard=PSR12 --extensions=php --ignore=vendor/,runtime/,web/assets/ backend/ frontend/ api/ infrastructure/
 
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse -l 5 backend/ frontend/ api/ infrastructure/ --no-progress

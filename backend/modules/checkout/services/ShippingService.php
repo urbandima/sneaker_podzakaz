@@ -114,7 +114,7 @@ class ShippingService extends Component
 
         // Определяем зону по городу (упрощённая логика)
         $zone = 'center';
-        if (stripos($city, 'пригород') !== false || stripos($city, 'район') !== false) {
+        if (mb_stripos($city, 'пригород') !== false || mb_stripos($city, 'район') !== false) {
             $zone = 'suburbs';
         }
 
@@ -185,7 +185,9 @@ class ShippingService extends Component
             $cities = ['минск', 'гомель', 'брест', 'витебск', 'гродно', 'могилёв'];
             $hasCity = false;
             foreach ($cities as $city) {
-                if (stripos($address, $city) !== false) {
+                // stripos() не умеет в регистронезависимое сравнение кириллицы (байтовое
+                // сравнение ломается на заглавных буквах вида "Минск") — нужен mb_stripos().
+                if (mb_stripos($address, $city) !== false) {
                     $hasCity = true;
                     break;
                 }

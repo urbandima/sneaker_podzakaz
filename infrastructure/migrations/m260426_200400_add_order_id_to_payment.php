@@ -11,6 +11,14 @@ class m260426_200400_add_order_id_to_payment extends Migration
     {
         $schema = $this->db->schema;
 
+        // На чистой инсталляции `payment` на этот момент ещё не существует — её создаёт более
+        // поздняя миграция m260427_300000_create_missing_finance_feedback_tables, и она уже
+        // включает order_id и bank_details в исходную схему.
+        if ($schema->getTableSchema('payment', true) === null) {
+            echo "    > skipped: payment ещё не создана, добавит m260427_300000_create_missing_finance_feedback_tables\n";
+            return true;
+        }
+
         // Z41: order_id — foreign key to `order` table
         if (!isset($schema->getTableSchema('payment')->columns['order_id'])) {
             $this->addColumn('payment', 'order_id', $this->integer()->null()->after('id'));

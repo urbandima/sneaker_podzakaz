@@ -56,7 +56,9 @@ class m260426_160000_rbac_roles_and_permissions extends Migration
     {
         // 1 — add user_role to order_history
         if (!$this->columnExists('order_history', 'user_role')) {
-            $this->addColumn('order_history', 'user_role', $this->string(50)->null()->after('user_name'));
+            // order_history не содержит колонку user_name — after() указывал на несуществующую
+            // колонку, что всегда валило эту миграцию; добавляем без позиционирования.
+            $this->addColumn('order_history', 'user_role', $this->string(50)->null());
         }
 
         $now = date('Y-m-d H:i:s');
@@ -104,10 +106,12 @@ class m260426_160000_rbac_roles_and_permissions extends Migration
             }
         }
 
-        // 6 — seed auth_assignment from existing admin_user.role
+        // 6 — seed auth_assignment from existing {{%user}}.role
+        // (таблица admin_user никогда не существовала — административные аккаунты живут в {{%user}},
+        // см. m241023_181500_create_users_table и app\backend\modules\admin\models\User::tableName())
         $users = (new \yii\db\Query())
             ->select(['id', 'role'])
-            ->from('admin_user')
+            ->from('{{%user}}')
             ->where(['status' => 10])
             ->all();
 

@@ -3,7 +3,7 @@
 namespace tests\unit;
 
 use PHPUnit\Framework\TestCase;
-use app\shared\components\CacheManager;
+use app\backend\shared\components\CacheManager;
 
 /**
  * Unit тесты для CacheManager

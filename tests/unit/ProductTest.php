@@ -3,9 +3,9 @@
 namespace tests\unit;
 
 use PHPUnit\Framework\TestCase;
-use app\modules\catalog\models\Product;
-use app\modules\catalog\models\Brand;
-use app\modules\catalog\models\Category;
+use app\backend\modules\catalog\models\Product;
+use app\backend\modules\catalog\models\Brand;
+use app\backend\modules\catalog\models\Category;
 
 /**
  * Unit тесты для модели Product

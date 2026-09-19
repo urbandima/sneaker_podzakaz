@@ -14,7 +14,8 @@ class m260426_210000_add_sla_and_purchase_fields extends Migration
         $cols = $schema->columnNames;
 
         if (!in_array('purchase_currency', $cols, true)) {
-            $this->addColumn('order', 'purchase_currency', $this->string(10)->null()->after('purchase_cost'));
+            // order не содержит колонку purchase_cost — after() указывал на несуществующую колонку.
+            $this->addColumn('order', 'purchase_currency', $this->string(10)->null());
         }
         if (!in_array('purchase_user_id', $cols, true)) {
             $this->addColumn('order', 'purchase_user_id', $this->integer()->null()->after('purchase_currency'));

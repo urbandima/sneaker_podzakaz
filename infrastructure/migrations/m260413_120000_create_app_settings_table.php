@@ -13,7 +13,7 @@ class m260413_120000_create_app_settings_table extends Migration
             'id' => $this->primaryKey(),
             'section' => $this->string(100)->notNull(),
             'key' => $this->string(255)->notNull(),
-            'value' => $this->mediumText()->null(),
+            'value' => $this->text()->null(),
             'updated_at' => $this->integer()->notNull(),
         ]);
 

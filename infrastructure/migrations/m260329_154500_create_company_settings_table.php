@@ -9,6 +9,16 @@ class m260329_154500_create_company_settings_table extends Migration
 {
     public function safeUp()
     {
+        // Таблица уже создаётся более ранней миграцией m241023_200000_create_company_settings_and_statuses
+        // со схемой, которую реально использует app\backend\modules\admin\models\CompanySettings
+        // (name/unp/address/bank/bic/account/phone/email/offer_url). Эта миграция — дублирующая
+        // попытка создать ту же таблицу с другой, неиспользуемой схемой; делаем её безопасным no-op,
+        // чтобы не ронять чистые инсталляции (CI, новые окружения).
+        if ($this->db->schema->getTableSchema('{{%company_settings}}', true) !== null) {
+            echo "    > skipped: {{%company_settings}} уже создана миграцией m241023_200000_create_company_settings_and_statuses\n";
+            return true;
+        }
+
         $this->createTable('{{%company_settings}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string(255)->notNull()->comment('Название компании'),
@@ -51,6 +61,13 @@ class m260329_154500_create_company_settings_table extends Migration
 
     public function safeDown()
     {
-        $this->dropTable('{{%company_settings}}');
+        // Откатываем, только если таблицу создала именно эта миграция (маркер — колонка
+        // bank_name, которой нет в схеме m241023_200000_create_company_settings_and_statuses).
+        $schema = $this->db->schema->getTableSchema('{{%company_settings}}', true);
+        if ($schema !== null && in_array('bank_name', $schema->columnNames, true)) {
+            $this->dropTable('{{%company_settings}}');
+        } else {
+            echo "    > skipped down: {{%company_settings}} принадлежит другой миграции\n";
+        }
     }
 }

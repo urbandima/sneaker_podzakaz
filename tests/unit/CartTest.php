@@ -6,6 +6,7 @@ use Yii;
 use PHPUnit\Framework\TestCase;
 use app\backend\modules\cart\models\Cart;
 use app\backend\modules\catalog\models\Product;
+use app\backend\modules\catalog\models\ProductSize;
 
 /**
  * Unit тесты для модели Cart
@@ -25,6 +26,9 @@ class CartTest extends TestCase
         parent::setUp();
         // Очищаем корзину перед каждым тестом
         Cart::deleteAll();
+        // Тест мокает Product::findOne() и не создаёт реальные строки товара —
+        // отключаем FK cart.product_id -> product.id на время теста.
+        Yii::$app->db->createCommand('SET FOREIGN_KEY_CHECKS=0')->execute();
     }
     
     /**
@@ -73,11 +77,17 @@ class CartTest extends TestCase
             'price' => 200.00,
             'stock_status' => 'in_stock',
         ]);
-        
+        // Cart::add() проверяет размер только если у товара вообще есть записи в
+        // product_size — заводим одну, иначе валидация размера просто пропускается.
+        $productSize = new ProductSize(['product_id' => $product->id, 'size' => '42']);
+        $this->assertTrue($productSize->save(), 'Не удалось сохранить тестовый размер: ' . json_encode($productSize->errors));
+
         // Размер не существует - должен вернуть false
         $result = Cart::add($product->id, 1, 'invalid_size');
-        
+
         $this->assertFalse($result);
+
+        $productSize->delete();
     }
     
     /**
@@ -174,20 +184,32 @@ class CartTest extends TestCase
     }
     
     /**
+     * Зарегистрированные mock-товары: id => Product. Общий реестр нужен, потому что
+     * Product::$mockFindOne — один статический closure на класс, а не на товар.
+     * @var Product[]
+     */
+    private static array $mockedProducts = [];
+
+    /**
      * Создать mock продукта
      */
     private function createMockProduct(array $data): Product
     {
-        $product = $this->createMock(Product::class);
+        // Намеренно не $this->createMock(): PHPUnit генерирует стабы и для __get/__set
+        // ActiveRecord, из-за чего обычные присваивания атрибутов молча превращаются в null.
+        // Обычный экземпляр с реальными магическими аксессорами AR работает предсказуемо.
+        $product = new Product();
         $product->id = $data['id'];
         $product->price = $data['price'];
         $product->stock_status = $data['stock_status'];
-        
-        // Мокаем статический метод findOne
-        Product::$mockFindOne = function($id) use ($product) {
-            return $id === $product->id ? $product : null;
+
+        // Регистрируем в общем реестре, чтобы несколько mock-товаров могли сосуществовать
+        // в рамках одного теста (каждый вызов createMockProduct() раньше затирал предыдущий).
+        self::$mockedProducts[$product->id] = $product;
+        Product::$mockFindOne = function ($id) {
+            return self::$mockedProducts[$id] ?? null;
         };
-        
+
         return $product;
     }
     
@@ -195,6 +217,8 @@ class CartTest extends TestCase
     {
         Cart::deleteAll();
         Product::$mockFindOne = null;
+        self::$mockedProducts = [];
+        Yii::$app->db->createCommand('SET FOREIGN_KEY_CHECKS=1')->execute();
         parent::tearDown();
     }
 }

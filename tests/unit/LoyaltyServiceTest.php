@@ -3,6 +3,7 @@
 namespace tests\unit;
 
 use app\backend\modules\loyalty\services\LoyaltyService;
+use app\backend\modules\loyalty\models\LoyaltyPoints;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -73,8 +74,20 @@ class LoyaltyServiceTest extends TestCase
      */
     public function testGetMaxRedeemPoints()
     {
+        // getMaxRedeemPoints ограничен реальным балансом клиента (LoyaltyPoints::getBalance),
+        // поэтому баланс нужно завести — иначе min(0, maxByOrder) всегда 0.
+        $points = new LoyaltyPoints([
+            'customer_id' => 1,
+            'points' => 10000,
+            'balance' => 10000,
+            'type' => LoyaltyPoints::TYPE_BONUS,
+        ]);
+        $this->assertTrue($points->save(), 'Не удалось сохранить тестовый баланс: ' . json_encode($points->errors));
+
         // Для заказа на 100 BYN можно списать максимум 50% = 50 BYN = 5000 баллов
         $maxPoints = $this->service->getMaxRedeemPoints(1, 100);
         $this->assertEquals(5000, $maxPoints);
+
+        $points->delete();
     }
 }

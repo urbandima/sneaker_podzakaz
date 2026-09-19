@@ -16,7 +16,7 @@ class m260426_300000_create_page_revision_table extends Migration
         $this->createTable('{{%page_revision}}', [
             'id'       => $this->primaryKey(),
             'page_id'  => $this->integer()->notNull(),
-            'content'  => $this->mediumText()->null(),
+            'content'  => $this->text()->null(),
             'title'    => $this->string(512)->null(),
             'saved_by' => $this->integer()->null(),
             'saved_at' => $this->integer()->notNull(),

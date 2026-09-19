@@ -12,8 +12,13 @@ class m260325_064616_add_test_orders extends Migration
      */
     public function safeUp()
     {
+        if (YII_ENV_PROD || YII_ENV_TEST) {
+            echo "    > skipped: демо-заказы (TEST-001..TEST-005) не создаются на production и в тестовом окружении CI\n";
+            return true;
+        }
+
         $time = time();
-        
+
         // Тестовые заказы с разными статусами и данными
         $testOrders = [
             [
