@@ -53,6 +53,7 @@ use app\backend\modules\checkout\services\OrderStateMachine;
 use app\backend\modules\admin\models\User;
 use app\backend\modules\admin\models\AdminLog;
 use app\backend\modules\admin\services\AdminLogService;
+use app\backend\modules\admin\services\OrderShippingService;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -786,19 +787,13 @@ class OrderController extends BaseAdminController
         }
 
         $model = $this->findModel($id);
-        $allowed = [
-            Order::LOGISTICS_AWAITING_BUYOUT,
-            Order::LOGISTICS_BOUGHT_AT_SOURCE,
-            Order::LOGISTICS_IN_TRANSIT,
-            Order::LOGISTICS_AT_WAREHOUSE,
-        ];
-        $newStatus = Yii::$app->request->post('logistics_status');
-        if (!in_array($newStatus, $allowed, true)) {
+        $newStatus = (string)Yii::$app->request->post('logistics_status');
+
+        if (!OrderShippingService::isAllowedLogisticsStatus($newStatus)) {
             return ['success' => false, 'message' => 'Invalid logistics_status'];
         }
 
-        $model->logistics_status = $newStatus;
-        $model->save(false);
+        (new OrderShippingService())->setLogisticsStatus($model, $newStatus);
 
         return ['success' => true, 'logistics_status' => $model->logistics_status];
     }
@@ -822,9 +817,8 @@ class OrderController extends BaseAdminController
         if (Yii::$app->request->isPost) {
             $oldLogist = $model->assigned_logist;
             $logistId = Yii::$app->request->post('logist_id');
-            $model->assigned_logist = $logistId ?: null;
 
-            if ($model->save(false)) {
+            if ((new OrderShippingService())->assignLogist($model, $logistId)) {
                 Yii::info('Логист назначен на заказ #' . $id . ': старый=' . $oldLogist . ', новый=' . $logistId . ' (админ #' . $user->id . ')', 'order');
                 $this->flashSuccess('Логист назначен.');
             }
@@ -1527,9 +1521,9 @@ class OrderController extends BaseAdminController
         if (empty($ids)) {
             return ['success' => false, 'message' => 'Не указаны заказы'];
         }
-        
-        $updated = Order::updateAll(['assigned_logist' => $logistId ?: null], ['id' => $ids]);
-        
+
+        $updated = (new OrderShippingService())->bulkAssignLogist($ids, $logistId);
+
         return ['success' => true, 'updated' => $updated];
     }
 
@@ -1635,49 +1629,10 @@ class OrderController extends BaseAdminController
     public function actionPvzSearch()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $q     = mb_strtolower(trim((string) Yii::$app->request->get('q', '')));
-        $limit = max(1, min(500, (int) Yii::$app->request->get('limit', 60)));
+        $q     = (string) Yii::$app->request->get('q', '');
+        $limit = (int) Yii::$app->request->get('limit', 60);
 
-        $raw  = Yii::$app->settings->get('shipping', 'europochta_points', '');
-        $list = $raw ? (json_decode($raw, true) ?: []) : [];
-        if (!is_array($list) || empty($list)) {
-            return [];
-        }
-
-        $results = [];
-        foreach ($list as $pvz) {
-            if ($q !== '') {
-                $haystack = mb_strtolower(
-                    ($pvz['city'] ?? '') . ' '
-                    . ($pvz['name'] ?? '') . ' '
-                    . ($pvz['full'] ?? '') . ' '
-                    . ($pvz['num']  ?? '')
-                );
-                if (mb_strpos($haystack, $q) === false) {
-                    continue;
-                }
-            }
-            $results[] = [
-                'id'       => $pvz['id'] ?? ($pvz['num'] ?? ''),
-                'num'      => $pvz['num'] ?? '',
-                'city'     => $pvz['city'] ?? '',
-                'address'  => $pvz['name'] ?? '',
-                'full'     => $pvz['full'] ?? '',
-                'schedule' => $pvz['schedule'] ?? ($pvz['work_time'] ?? ''),
-            ];
-            if (count($results) >= $limit) break;
-        }
-
-        // При пустом запросе — группируем по городу для удобства
-        if ($q === '' && !empty($results)) {
-            usort($results, function($a, $b) {
-                $c = strcmp($a['city'] ?? '', $b['city'] ?? '');
-                if ($c !== 0) return $c;
-                return strcmp($a['num'] ?? '', $b['num'] ?? '');
-            });
-        }
-
-        return $results;
+        return (new OrderShippingService())->searchPvz($q, $limit);
     }
 
     /** B5/B11 — Track check. Accepts ?track=XXX&orderId=YYY */
@@ -1687,77 +1642,9 @@ class OrderController extends BaseAdminController
         $track   = trim(Yii::$app->request->get('track', ''));
         $orderId = (int)Yii::$app->request->get('orderId', 0);
 
-        if (empty($track)) {
-            return ['success' => false, 'status' => 'Трек не указан'];
-        }
+        $order = $orderId ? Order::findOne($orderId) : null;
 
-        // Determine delivery method from order (if provided)
-        $deliveryMethod = '';
-        if ($orderId) {
-            $order = Order::findOne($orderId);
-            if ($order) {
-                $deliveryMethod = strtolower($order->delivery_method ?? '');
-            }
-        }
-
-        try {
-            $result = $this->callTrackingService($track, $deliveryMethod);
-        } catch (\Exception $e) {
-            Yii::warning('Track check error: ' . $e->getMessage(), 'tracking');
-            return ['success' => false, 'status' => 'Ошибка: ' . $e->getMessage()];
-        }
-
-        // Format status text for display
-        $statusName = $result['status_name'] ?? $result['message'] ?? $result['status'] ?? 'Нет данных';
-        $date       = $result['status_date'] ?? null;
-        $location   = $result['location'] ?? null;
-
-        $text = $statusName;
-        if ($date) {
-            $ts = is_numeric($date) ? (int)$date : strtotime($date);
-            if ($ts) $text .= ' (' . date('d.m.Y', $ts) . ')';
-        }
-        if ($location) {
-            $text .= ' — ' . $location;
-        }
-
-        return ['success' => true, 'status' => $text, 'raw' => $result];
-    }
-
-    /** Pick and call the right tracking service */
-    private function callTrackingService(string $track, string $deliveryMethod): array
-    {
-        switch ($deliveryMethod) {
-            case 'europochta':
-                if (Yii::$app->has('europochtaTracking')) {
-                    return Yii::$app->europochtaTracking->getStatus($track);
-                }
-                break;
-            case 'belpochta':
-                if (Yii::$app->has('belpochtaTracking')) {
-                    return Yii::$app->belpochtaTracking->getStatus($track);
-                }
-                break;
-            case 'cdek':
-            case 'sdek':
-                if (Yii::$app->has('cdekTracking')) {
-                    return Yii::$app->cdekTracking->getStatus($track);
-                }
-                break;
-        }
-
-        // No specific provider — try each configured one in order
-        foreach (['europochtaTracking' => 'europochta', 'belpochtaTracking' => 'belpochta', 'cdekTracking' => 'cdek'] as $component => $name) {
-            if (!Yii::$app->has($component)) continue;
-            $svc = Yii::$app->$component;
-            if (!$svc->isConfigured()) continue;
-            $result = $svc->getStatus($track);
-            if (!in_array($result['status'] ?? '', ['not_found', 'not_configured', 'error'])) {
-                return $result;
-            }
-        }
-
-        return ['status' => 'not_found', 'message' => 'Отправление не найдено. Проверьте на сайте перевозчика.'];
+        return (new OrderShippingService())->checkTrack($track, $order);
     }
 
     /**
@@ -1770,34 +1657,7 @@ class OrderController extends BaseAdminController
 
         $model = $this->findModel($id);
 
-        if ($model->isSubmittedToDP()) {
-            return ['success' => false, 'message' => 'Заказ уже отправлен в Таможня:ДП (шипмент #' . $model->dp_shipment_id . ')'];
-        }
-
-        $missing = $model->missingDpFields();
-        if (!empty($missing)) {
-            return [
-                'success' => false,
-                'message' => 'Не заполнены обязательные поля: ' . implode(', ', $missing),
-                'missing_fields' => $missing,
-            ];
-        }
-
-        try {
-            /** @var \app\backend\modules\checkout\services\DobroPostService $dp */
-            $dp = Yii::$app->dobropost;
-            $response = $dp->createShipment($model);
-
-            return [
-                'success'    => true,
-                'message'    => 'Заказ успешно отправлен в Таможня:ДП',
-                'shipment_id'  => $response['id'] ?? null,
-                'track_number' => $response['dptrackNumber'] ?? null,
-            ];
-        } catch (\Exception $e) {
-            Yii::error('Исключение при отправке заказа #' . $id . ' в Таможня:ДП: ' . $e->getMessage(), 'dp-api');
-            return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
-        }
+        return (new OrderShippingService())->sendToDp($model);
     }
 
     /**
@@ -1810,42 +1670,7 @@ class OrderController extends BaseAdminController
 
         $model = $this->findModel($id);
 
-        if (!$model->isSubmittedToDP()) {
-            return ['success' => false, 'message' => 'Заказ не отправлен в Таможня:ДП'];
-        }
-
-        try {
-            /** @var \app\backend\modules\checkout\services\DobroPostService $dp */
-            $dp = Yii::$app->dobropost;
-
-            // Запрашиваем список шипментов и ищем наш по ID
-            $result  = $dp->getShipments(['statusId' => null]);
-            $content = $result['content'] ?? ($result[0] ?? null);
-
-            // Поддерживаем оба формата ответа: объект (одна запись) и массив (список)
-            $shipment = null;
-            if (isset($result['id']) && $result['id'] == $model->dp_shipment_id) {
-                $shipment = $result;
-            } elseif (is_array($result)) {
-                foreach ($result as $s) {
-                    if (isset($s['id']) && $s['id'] == $model->dp_shipment_id) {
-                        $shipment = $s;
-                        break;
-                    }
-                }
-            }
-
-            if ($shipment) {
-                $dp->handleCreateResponse($model, $shipment);
-                $statusName = $shipment['status']['name'] ?? $model->dp_status;
-                return ['success' => true, 'message' => 'Статус обновлён: ' . $statusName, 'status' => $statusName];
-            }
-
-            return ['success' => true, 'message' => 'Шипмент не найден в ответе API', 'status' => $model->dp_status];
-        } catch (\Exception $e) {
-            Yii::error('Ошибка обновления статуса ДП заказа #' . $id . ': ' . $e->getMessage(), 'dp-api');
-            return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
-        }
+        return (new OrderShippingService())->refreshDpStatus($model);
     }
 
     /**
@@ -1858,40 +1683,7 @@ class OrderController extends BaseAdminController
 
         $model = $this->findModel($id);
 
-        $missing = $model->missingDpFields();
-        if (!empty($missing)) {
-            return [
-                'success' => false,
-                'message' => 'Не заполнены обязательные поля: ' . implode(', ', $missing),
-                'missing_fields' => $missing,
-            ];
-        }
-
-        try {
-            // Сброс DP-полей перед повторной отправкой
-            $model->dp_shipment_id  = null;
-            $model->dp_track_number = null;
-            $model->dp_status       = null;
-            $model->dp_status_date  = null;
-            $model->dp_sent_at      = null;
-            $model->dp_response     = null;
-            $model->save(false);
-
-            /** @var \app\backend\modules\checkout\services\DobroPostService $dp */
-            $dp       = Yii::$app->dobropost;
-            $response = $dp->createShipment($model);
-
-            Yii::info('Повторная отправка заказа #' . $id . ' в Таможня:ДП успешна, шипмент #' . ($response['id'] ?? '-'), 'dp-api');
-            return [
-                'success'      => true,
-                'message'      => 'Повторная отправка выполнена успешно',
-                'shipment_id'  => $response['id'] ?? null,
-                'track_number' => $response['dptrackNumber'] ?? null,
-            ];
-        } catch (\Exception $e) {
-            Yii::error('Ошибка повторной отправки заказа #' . $id . ' в Таможня:ДП: ' . $e->getMessage(), 'dp-api');
-            return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
-        }
+        return (new OrderShippingService())->retryDp($model);
     }
 
     /**
