@@ -5,6 +5,7 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main]
+  workflow_dispatch: {}
 
 env:
   PHP_VERSION: '8.1'
@@ -196,7 +197,11 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: [test, build, security]
-    if: github.ref == 'refs/heads/main'
+    # Первый в истории репозитория деплой должен быть осознанным действием
+    # по runbook (docs/deploy/cmp405-main-to-prod-runbook.md), а не побочным
+    # эффектом зелёного push в main (CMP-408). Запуск — только вручную из
+    # вкладки Actions ("Run workflow").
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
     environment: production
     
     steps:
