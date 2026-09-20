@@ -1,12 +1,12 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$amocrm\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$amocrm\\.$#"
 			count: 1
 			path: api/controllers/AiChatController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$moyskladClient\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$moyskladClient\\.$#"
 			count: 1
 			path: api/controllers/AiChatController.php
 
@@ -106,17 +106,17 @@ parameters:
 			path: api/controllers/AmocrmController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$amocrm\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$amocrm\\.$#"
 			count: 1
 			path: api/controllers/AmocrmController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: api/controllers/AmocrmController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$redis\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$redis\\.$#"
 			count: 1
 			path: api/controllers/HealthController.php
 
@@ -171,7 +171,7 @@ parameters:
 			path: api/controllers/WebhookController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: api/controllers/WebhookController.php
 
@@ -186,17 +186,17 @@ parameters:
 			path: backend/console/controllers/GeneratorController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$moysklad\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$moysklad\\.$#"
 			count: 6
 			path: backend/console/controllers/MoySkladSyncController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/console/controllers/MoySkladSyncController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$currency\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$currency\\.$#"
 			count: 5
 			path: backend/console/controllers/PoizonImportController.php
 
@@ -921,17 +921,17 @@ parameters:
 			path: backend/modules/admin/controllers/AmoCrmController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 5
 			path: backend/modules/admin/controllers/AmoCrmController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$amocrm\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$amocrm\\.$#"
 			count: 6
 			path: backend/modules/admin/controllers/AnalyticsController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$moyskladClient\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$moyskladClient\\.$#"
 			count: 2
 			path: backend/modules/admin/controllers/AnalyticsController.php
 
@@ -1211,17 +1211,17 @@ parameters:
 			path: backend/modules/admin/controllers/DashboardController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$currency\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$currency\\.$#"
 			count: 3
 			path: backend/modules/admin/controllers/DashboardController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: backend/modules/admin/controllers/EmailController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 5
 			path: backend/modules/admin/controllers/ExchangeRateController.php
 
@@ -1346,7 +1346,7 @@ parameters:
 			path: backend/modules/admin/controllers/FinanceController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 7
 			path: backend/modules/admin/controllers/ImportController.php
 
@@ -1366,12 +1366,12 @@ parameters:
 			path: backend/modules/admin/controllers/MoyskladController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$moysklad\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$moysklad\\.$#"
 			count: 12
 			path: backend/modules/admin/controllers/MoyskladController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 29
 			path: backend/modules/admin/controllers/MoyskladController.php
 
@@ -1436,7 +1436,7 @@ parameters:
 			path: backend/modules/admin/controllers/OrderApiController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/controllers/OrderApiController.php
 
@@ -1796,17 +1796,17 @@ parameters:
 			path: backend/modules/admin/controllers/OrderController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$automation\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$automation\\.$#"
 			count: 1
 			path: backend/modules/admin/controllers/OrderController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$moysklad\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$moysklad\\.$#"
 			count: 2
 			path: backend/modules/admin/controllers/OrderController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 10
 			path: backend/modules/admin/controllers/OrderController.php
 
@@ -1851,17 +1851,17 @@ parameters:
 			path: backend/modules/admin/controllers/PdfController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 3
 			path: backend/modules/admin/controllers/PdfController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$amocrm\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$amocrm\\.$#"
 			count: 4
 			path: backend/modules/admin/controllers/PluginController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 18
 			path: backend/modules/admin/controllers/PluginController.php
 
@@ -2596,7 +2596,7 @@ parameters:
 			path: backend/modules/admin/controllers/SettingsController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 25
 			path: backend/modules/admin/controllers/SettingsController.php
 
@@ -2651,7 +2651,7 @@ parameters:
 			path: backend/modules/admin/controllers/TelegramBotController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: backend/modules/admin/controllers/TelegramBotController.php
 
@@ -2771,17 +2771,17 @@ parameters:
 			path: backend/modules/admin/services/AdminLogService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$amocrm\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$amocrm\\.$#"
 			count: 4
 			path: backend/modules/admin/services/AiChatService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$moyskladClient\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$moyskladClient\\.$#"
 			count: 1
 			path: backend/modules/admin/services/AiChatService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 4
 			path: backend/modules/admin/services/AmocrmStatusMapper.php
 
@@ -2881,7 +2881,7 @@ parameters:
 			path: backend/modules/admin/services/OrderFromLeadService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$amocrm\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$amocrm\\.$#"
 			count: 3
 			path: backend/modules/admin/services/OrderFromLeadService.php
 
@@ -2931,27 +2931,27 @@ parameters:
 			path: backend/modules/admin/services/OrderShippingService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$belpochtaTracking\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$belpochtaTracking\\.$#"
 			count: 2
 			path: backend/modules/admin/services/OrderShippingService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$cdekTracking\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$cdekTracking\\.$#"
 			count: 2
 			path: backend/modules/admin/services/OrderShippingService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$dobropost\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$dobropost\\.$#"
 			count: 3
 			path: backend/modules/admin/services/OrderShippingService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$europochtaTracking\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$europochtaTracking\\.$#"
 			count: 2
 			path: backend/modules/admin/services/OrderShippingService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/services/OrderShippingService.php
 
@@ -3641,7 +3641,7 @@ parameters:
 			path: backend/modules/admin/views/customer/_quick_view.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/customer/_quick_view.php
 
@@ -3661,7 +3661,7 @@ parameters:
 			path: backend/modules/admin/views/customer/update.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/customer/view.php
 
@@ -4091,7 +4091,7 @@ parameters:
 			path: backend/modules/admin/views/layouts/admin.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/layouts/admin.php
 
@@ -4146,7 +4146,7 @@ parameters:
 			path: backend/modules/admin/views/layouts/main.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/layouts/main.php
 
@@ -4196,7 +4196,7 @@ parameters:
 			path: backend/modules/admin/views/layouts/minimalist.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/layouts/minimalist.php
 
@@ -4216,7 +4216,7 @@ parameters:
 			path: backend/modules/admin/views/layouts/minimalist.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 10
 			path: backend/modules/admin/views/loyalty/index.php
 
@@ -4401,7 +4401,7 @@ parameters:
 			path: backend/modules/admin/views/order/_invoice_print.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/order/_invoice_print.php
 
@@ -4456,7 +4456,7 @@ parameters:
 			path: backend/modules/admin/views/order/_pdf_template.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/order/_pdf_template.php
 
@@ -4596,7 +4596,7 @@ parameters:
 			path: backend/modules/admin/views/order/create-wizard.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/order/create-wizard.php
 
@@ -4641,7 +4641,7 @@ parameters:
 			path: backend/modules/admin/views/order/create.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: backend/modules/admin/views/order/create.php
 
@@ -4661,7 +4661,7 @@ parameters:
 			path: backend/modules/admin/views/order/index.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/order/index.php
 
@@ -4681,7 +4681,7 @@ parameters:
 			path: backend/modules/admin/views/order/index.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/order/update.php
 
@@ -4786,7 +4786,7 @@ parameters:
 			path: backend/modules/admin/views/order/view-new-style.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: backend/modules/admin/views/order/view-new-style.php
 
@@ -4806,7 +4806,7 @@ parameters:
 			path: backend/modules/admin/views/order/view-new.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: backend/modules/admin/views/order/view-new.php
 
@@ -5066,7 +5066,7 @@ parameters:
 			path: backend/modules/admin/views/order/view-wizard-new.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/order/view-wizard-new.php
 
@@ -5111,7 +5111,7 @@ parameters:
 			path: backend/modules/admin/views/order/view-wizard.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: backend/modules/admin/views/order/view-wizard.php
 
@@ -5656,7 +5656,7 @@ parameters:
 			path: backend/modules/admin/views/order/view.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 3
 			path: backend/modules/admin/views/order/view.php
 
@@ -5736,7 +5736,7 @@ parameters:
 			path: backend/modules/admin/views/pdf/invoice.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/pdf/invoice.php
 
@@ -5791,7 +5791,7 @@ parameters:
 			path: backend/modules/admin/views/plugin/amocrm-widget.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/plugin/amocrm-widget.php
 
@@ -5831,7 +5831,7 @@ parameters:
 			path: backend/modules/admin/views/plugin/amocrm.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 4
 			path: backend/modules/admin/views/plugin/amocrm.php
 
@@ -5861,7 +5861,7 @@ parameters:
 			path: backend/modules/admin/views/plugin/cdek.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/plugin/currency.php
 
@@ -5871,7 +5871,7 @@ parameters:
 			path: backend/modules/admin/views/plugin/currency.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/plugin/dobropost.php
 
@@ -5901,22 +5901,22 @@ parameters:
 			path: backend/modules/admin/views/plugin/europochta.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$belpochtaTracking\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$belpochtaTracking\\.$#"
 			count: 1
 			path: backend/modules/admin/views/plugin/index.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$cdekTracking\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$cdekTracking\\.$#"
 			count: 1
 			path: backend/modules/admin/views/plugin/index.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$europochtaTracking\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$europochtaTracking\\.$#"
 			count: 1
 			path: backend/modules/admin/views/plugin/index.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 3
 			path: backend/modules/admin/views/plugin/index.php
 
@@ -5966,7 +5966,7 @@ parameters:
 			path: backend/modules/admin/views/plugin/lamoda.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 4
 			path: backend/modules/admin/views/plugin/lamoda.php
 
@@ -5976,7 +5976,7 @@ parameters:
 			path: backend/modules/admin/views/plugin/lamoda.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 11
 			path: backend/modules/admin/views/plugin/moysklad.php
 
@@ -6021,7 +6021,7 @@ parameters:
 			path: backend/modules/admin/views/plugin/moysklad.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 3
 			path: backend/modules/admin/views/plugin/telegram.php
 
@@ -6481,7 +6481,7 @@ parameters:
 			path: backend/modules/admin/views/poizon/order/_table_rows.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/poizon/order/create.php
 
@@ -6541,7 +6541,7 @@ parameters:
 			path: backend/modules/admin/views/poizon/order/create.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/poizon/order/index.php
 
@@ -6566,7 +6566,7 @@ parameters:
 			path: backend/modules/admin/views/poizon/order/index.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/poizon/order/update.php
 
@@ -6596,7 +6596,7 @@ parameters:
 			path: backend/modules/admin/views/poizon/order/update.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: backend/modules/admin/views/poizon/order/view-new.php
 
@@ -6851,7 +6851,7 @@ parameters:
 			path: backend/modules/admin/views/poizon/order/view-new.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 5
 			path: backend/modules/admin/views/poizon/order/view.php
 
@@ -8106,7 +8106,7 @@ parameters:
 			path: backend/modules/admin/views/return/_contract.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/admin/views/return/_contract.php
 
@@ -8266,7 +8266,7 @@ parameters:
 			path: backend/modules/admin/views/settings/email-templates.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 13
 			path: backend/modules/admin/views/settings/index.php
 
@@ -8276,7 +8276,7 @@ parameters:
 			path: backend/modules/admin/views/settings/index.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: backend/modules/admin/views/settings/integrations.php
 
@@ -8411,22 +8411,22 @@ parameters:
 			path: backend/modules/automation/services/AutomationEngine.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$dobropost\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$dobropost\\.$#"
 			count: 1
 			path: backend/modules/automation/services/AutomationEngine.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$moysklad\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$moysklad\\.$#"
 			count: 1
 			path: backend/modules/automation/services/AutomationEngine.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/automation/services/AutomationEngine.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$sms\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$sms\\.$#"
 			count: 1
 			path: backend/modules/automation/services/AutomationEngine.php
 
@@ -8671,12 +8671,22 @@ parameters:
 			path: backend/modules/catalog/models/CustomerSocialAccount.php
 
 		-
+			message: "#^Parameter \\#1 \\$class of method yii\\\\db\\\\ActiveRecord\\:\\:hasOne\\(\\) expects class\\-string\\<yii\\\\db\\\\ActiveRecord\\>, string given\\.$#"
+			count: 1
+			path: backend/modules/catalog/models/CustomerSocialAccount.php
+
+		-
 			message: "#^Unsafe usage of new static\\(\\)\\.$#"
 			count: 1
 			path: backend/modules/catalog/models/FilterHistory.php
 
 		-
 			message: "#^Class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog not found\\.$#"
+			count: 1
+			path: backend/modules/catalog/models/ImportBatch.php
+
+		-
+			message: "#^Parameter \\#1 \\$class of method yii\\\\db\\\\ActiveRecord\\:\\:hasMany\\(\\) expects class\\-string\\<yii\\\\db\\\\ActiveRecord\\>, string given\\.$#"
 			count: 1
 			path: backend/modules/catalog/models/ImportBatch.php
 
@@ -8741,6 +8751,11 @@ parameters:
 			path: backend/modules/catalog/models/ProductFavorite.php
 
 		-
+			message: "#^Parameter \\#1 \\$class of method yii\\\\db\\\\ActiveRecord\\:\\:hasOne\\(\\) expects class\\-string\\<yii\\\\db\\\\ActiveRecord\\>, string given\\.$#"
+			count: 1
+			path: backend/modules/catalog/models/ProductFavorite.php
+
+		-
 			message: "#^Unsafe usage of new static\\(\\)\\.$#"
 			count: 1
 			path: backend/modules/catalog/models/ProductFavorite.php
@@ -8766,6 +8781,11 @@ parameters:
 			path: backend/modules/catalog/models/ProductStock.php
 
 		-
+			message: "#^Parameter \\#1 \\$class of method yii\\\\db\\\\ActiveRecord\\:\\:hasOne\\(\\) expects class\\-string\\<yii\\\\db\\\\ActiveRecord\\>, string given\\.$#"
+			count: 2
+			path: backend/modules/catalog/models/ProductStock.php
+
+		-
 			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\SizeGrid\\:\\:\\$slug\\.$#"
 			count: 1
 			path: backend/modules/catalog/models/SizeGrid.php
@@ -8777,6 +8797,11 @@ parameters:
 
 		-
 			message: "#^Class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\User not found\\.$#"
+			count: 1
+			path: backend/modules/catalog/models/TariffCalculation.php
+
+		-
+			message: "#^Parameter \\#1 \\$class of method yii\\\\db\\\\ActiveRecord\\:\\:hasOne\\(\\) expects class\\-string\\<yii\\\\db\\\\ActiveRecord\\>, string given\\.$#"
 			count: 1
 			path: backend/modules/catalog/models/TariffCalculation.php
 
@@ -9001,12 +9026,12 @@ parameters:
 			path: backend/modules/checkout/controllers/OrderController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$automation\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$automation\\.$#"
 			count: 1
 			path: backend/modules/checkout/controllers/OrderController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$sms\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$sms\\.$#"
 			count: 1
 			path: backend/modules/checkout/controllers/OrderController.php
 
@@ -9111,7 +9136,7 @@ parameters:
 			path: backend/modules/checkout/models/Order.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: backend/modules/checkout/models/Order.php
 
@@ -9201,7 +9226,7 @@ parameters:
 			path: backend/modules/checkout/models/OrderHistory.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: backend/modules/checkout/models/OrderHistory.php
 
@@ -9221,12 +9246,12 @@ parameters:
 			path: backend/modules/checkout/models/OrderItem.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/checkout/services/BelpochtaTrackingService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/checkout/services/CdekTrackingService.php
 
@@ -9346,17 +9371,17 @@ parameters:
 			path: backend/modules/checkout/services/DobroPostService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$automation\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$automation\\.$#"
 			count: 1
 			path: backend/modules/checkout/services/DobroPostService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/checkout/services/DobroPostService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/checkout/services/EuropochtaTrackingService.php
 
@@ -9576,12 +9601,7 @@ parameters:
 			path: backend/modules/checkout/viewmodels/CheckoutViewModel.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\base\\\\Component\\:\\:\\$deleted_at\\.$#"
-			count: 1
-			path: backend/modules/common/behaviors/SoftDeleteBehavior.php
-
-		-
-			message: "#^Call to an undefined method yii\\\\base\\\\Component\\:\\:save\\(\\)\\.$#"
+			message: "#^Access to an undefined property yii\\\\db\\\\BaseActiveRecord\\:\\:\\$deleted_at\\.$#"
 			count: 1
 			path: backend/modules/common/behaviors/SoftDeleteBehavior.php
 
@@ -9666,7 +9686,7 @@ parameters:
 			path: backend/modules/finance/models/Payment.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$automation\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$automation\\.$#"
 			count: 1
 			path: backend/modules/loyalty/services/LoyaltyService.php
 
@@ -9676,12 +9696,17 @@ parameters:
 			path: backend/modules/marketing/services/AbandonedCartService.php
 
 		-
+			message: "#^If condition is always true\\.$#"
+			count: 1
+			path: backend/modules/marketing/services/AbandonedCartService.php
+
+		-
 			message: "#^Negated boolean expression is always false\\.$#"
 			count: 1
 			path: backend/modules/marketing/services/AbandonedCartService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/modules/notification/services/SmsService.php
 
@@ -9747,6 +9772,11 @@ parameters:
 
 		-
 			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
+			count: 1
+			path: backend/modules/procurement/models/Buyout.php
+
+		-
+			message: "#^Parameter \\#1 \\$class of method yii\\\\db\\\\ActiveRecord\\:\\:hasOne\\(\\) expects class\\-string\\<yii\\\\db\\\\ActiveRecord\\>, string given\\.$#"
 			count: 1
 			path: backend/modules/procurement/models/Buyout.php
 
@@ -10221,7 +10251,7 @@ parameters:
 			path: backend/modules/procurement/services/parsers/LamodaParser.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$poizonApi\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$poizonApi\\.$#"
 			count: 1
 			path: backend/modules/procurement/services/parsers/PoizonParser.php
 
@@ -10276,7 +10306,7 @@ parameters:
 			path: backend/modules/returns/services/ReturnService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$redis\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$redis\\.$#"
 			count: 1
 			path: backend/security/middleware/RateLimitMiddleware.php
 
@@ -10296,7 +10326,7 @@ parameters:
 			path: backend/security/validators/InputValidator.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 4
 			path: backend/shared/components/AmocrmClient.php
 
@@ -10326,12 +10356,12 @@ parameters:
 			path: backend/shared/components/CurrencyService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 5
 			path: backend/shared/components/MoyskladClient.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$currency\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$currency\\.$#"
 			count: 1
 			path: backend/shared/components/PoizonApiService.php
 
@@ -10541,12 +10571,12 @@ parameters:
 			path: backend/shared/services/AmocrmOrchestrator.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$amocrm\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$amocrm\\.$#"
 			count: 1
 			path: backend/shared/services/AmocrmOrchestrator.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: backend/shared/services/AmocrmOrchestrator.php
 
@@ -10581,12 +10611,12 @@ parameters:
 			path: backend/shared/services/MoySkladService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 7
 			path: backend/shared/services/MoySkladService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: backend/shared/services/TelegramService.php
 
@@ -10866,7 +10896,7 @@ parameters:
 			path: frontend/controllers/OrderController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 6
 			path: frontend/controllers/OrderController.php
 
@@ -10901,7 +10931,7 @@ parameters:
 			path: frontend/controllers/OrderController.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: frontend/controllers/PageController.php
 
@@ -11396,7 +11426,7 @@ parameters:
 			path: frontend/views/cart/index.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: frontend/views/cart/layouts/public.php
 
@@ -11686,7 +11716,7 @@ parameters:
 			path: frontend/views/checkout/success.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: frontend/views/checkout/view.php
 
@@ -11766,7 +11796,7 @@ parameters:
 			path: frontend/views/layouts/landing.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 3
 			path: frontend/views/layouts/main.php
 
@@ -11841,7 +11871,7 @@ parameters:
 			path: frontend/views/pages/delivery-terms.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: frontend/views/pages/payment-terms.php
 
@@ -11916,7 +11946,7 @@ parameters:
 			path: frontend/views/partials/_empty_state.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: frontend/views/partials/footer.php
 
@@ -11931,7 +11961,7 @@ parameters:
 			path: frontend/views/site/404.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: frontend/views/site/error.php
 
@@ -12031,12 +12061,12 @@ parameters:
 			path: infrastructure/config/web.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$redis\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$redis\\.$#"
 			count: 2
 			path: infrastructure/features/FeatureService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$redis\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$redis\\.$#"
 			count: 3
 			path: infrastructure/middleware/ApiSecurityMiddleware.php
 
@@ -12136,7 +12166,7 @@ parameters:
 			path: infrastructure/migrations/m260704_230000_add_unique_index_order_amocrm_lead.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$settings\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: infrastructure/plugins/analytics/LiveDunePlugin.php
 
@@ -12186,7 +12216,7 @@ parameters:
 			path: infrastructure/services/ImageOptimizationService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$redis\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$redis\\.$#"
 			count: 1
 			path: infrastructure/services/ProductionCacheService.php
 
@@ -12196,6 +12226,6 @@ parameters:
 			path: infrastructure/services/ProductionCacheService.php
 
 		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\:\\:\\$redis\\.$#"
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$redis\\.$#"
 			count: 1
 			path: infrastructure/services/RedisCacheService.php
