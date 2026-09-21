@@ -116,12 +116,9 @@ $this->params['breadcrumbs'][] = $this->title;
                                     <?php if ($level->discount_percent > 0) : ?>
                                         <span class="badge bg-info">Скидка <?= $level->discount_percent ?>%</span>
                                     <?php endif; ?>
-                                    <?php if ($level->free_shipping) : ?>
-                                        <span class="badge bg-warning">Бесплатная доставка</span>
-                                    <?php endif; ?>
-                                    <?php if ($level->priority_support) : ?>
-                                        <span class="badge bg-danger">Приоритетная поддержка</span>
-                                    <?php endif; ?>
+                                    <?php foreach ($level->getBenefitsList() as $benefit) : ?>
+                                        <span class="badge bg-secondary"><?= Html::encode($benefit) ?></span>
+                                    <?php endforeach; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

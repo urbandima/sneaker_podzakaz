@@ -793,77 +793,77 @@ parameters:
 		-
 			message: "#^Negated boolean expression is always false\\.$#"
 			count: 1
-			path: backend/modules/account/views/account/wishlist.php
+			path: frontend/views/account/wishlist.php
 
 		-
 			message: "#^Ternary operator condition is always true\\.$#"
 			count: 1
-			path: backend/modules/account/views/account/wishlist.php
+			path: frontend/views/account/wishlist.php
 
 		-
 			message: "#^Array has 2 duplicate keys with value 'format' \\('format', 'format'\\)\\.$#"
 			count: 1
-			path: backend/modules/account/views/loyalty/index.php
+			path: frontend/views/loyalty/index.php
 
 		-
 			message: "#^Variable \\$dataProvider might not be defined\\.$#"
 			count: 1
-			path: backend/modules/account/views/loyalty/index.php
+			path: frontend/views/loyalty/index.php
 
 		-
 			message: "#^Variable \\$info might not be defined\\.$#"
 			count: 10
-			path: backend/modules/account/views/loyalty/index.php
+			path: frontend/views/loyalty/index.php
 
 		-
 			message: "#^Variable \\$this might not be defined\\.$#"
 			count: 4
-			path: backend/modules/account/views/loyalty/index.php
+			path: frontend/views/loyalty/index.php
 
 		-
 			message: "#^Variable \\$info might not be defined\\.$#"
 			count: 15
-			path: backend/modules/account/views/loyalty/program.php
+			path: frontend/views/loyalty/program.php
 
 		-
 			message: "#^Variable \\$levels might not be defined\\.$#"
 			count: 1
-			path: backend/modules/account/views/loyalty/program.php
+			path: frontend/views/loyalty/program.php
 
 		-
 			message: "#^Variable \\$service might not be defined\\.$#"
 			count: 5
-			path: backend/modules/account/views/loyalty/program.php
+			path: frontend/views/loyalty/program.php
 
 		-
 			message: "#^Variable \\$this might not be defined\\.$#"
 			count: 5
-			path: backend/modules/account/views/loyalty/program.php
+			path: frontend/views/loyalty/program.php
 
 		-
 			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\checkout\\\\models\\\\Order\\:\\:\\$created_at\\.$#"
 			count: 1
-			path: backend/modules/account/views/return/create.php
+			path: frontend/views/return/create.php
 
 		-
 			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\checkout\\\\models\\\\Order\\:\\:\\$id\\.$#"
 			count: 2
-			path: backend/modules/account/views/return/create.php
+			path: frontend/views/return/create.php
 
 		-
 			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\checkout\\\\models\\\\Order\\:\\:\\$total_amount\\.$#"
 			count: 1
-			path: backend/modules/account/views/return/create.php
+			path: frontend/views/return/create.php
 
 		-
 			message: "#^Variable \\$dataProvider might not be defined\\.$#"
 			count: 1
-			path: backend/modules/account/views/return/index.php
+			path: frontend/views/return/index.php
 
 		-
 			message: "#^Variable \\$this might not be defined\\.$#"
 			count: 4
-			path: backend/modules/account/views/return/index.php
+			path: frontend/views/return/index.php
 
 		-
 			message: "#^Call to method writeString\\(\\) on an unknown class BaconQrCode\\\\Writer\\.$#"
@@ -8705,7 +8705,6 @@ parameters:
 			count: 2
 			path: backend/modules/catalog/models/ProductStock.php
 
-
 		-
 			message: "#^If condition is always true\\.$#"
 			count: 1
@@ -10673,7 +10672,7 @@ parameters:
 
 		-
 			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\checkout\\\\models\\\\Order\\:\\:\\$passport_number\\.$#"
-			count: 1
+			count: 2
 			path: frontend/controllers/OrderController.php
 
 		-

@@ -816,12 +816,15 @@ class OrderController extends Controller
         $citizenship = in_array($post['citizenship'] ?? '', ['by', 'ru'], true) ? $post['citizenship'] : 'by';
         $errors = [];
 
+        // BY: passport_series carries the combined "Серия+Номер" (MP1234567), matching
+        // the checkout form's JS (frontend/views/order/_passport_form.php,
+        // passport-format.js), Order::rules() and AccountController::actionSavePassport().
+        // RU: series (4 digits) and number (6 digits) are separate fields.
         $required = [
             'recipient_last_name'  => 'Фамилия',
             'recipient_first_name' => 'Имя',
             'birth_date'           => 'Дата рождения',
-            'passport_series'      => 'Серия паспорта',
-            'passport_number'      => 'Номер паспорта',
+            'passport_series'      => $citizenship === 'ru' ? 'Серия паспорта' : 'Серия+Номер паспорта',
             'passport_issue_date'  => 'Дата выдачи паспорта',
             'passport_issued_by'   => 'Кем выдан',
             'inn'                  => $citizenship === 'ru' ? 'ИНН' : 'Идентификационный номер',
@@ -829,6 +832,9 @@ class OrderController extends Controller
             'city'                 => 'Город',
             'postal_code'          => 'Почтовый индекс',
         ];
+        if ($citizenship === 'ru') {
+            $required['passport_number'] = 'Номер паспорта';
+        }
 
         foreach ($required as $field => $label) {
             $val = trim(strip_tags($post[$field] ?? ''));
@@ -843,17 +849,16 @@ class OrderController extends Controller
                 if (!preg_match('/^[0-9]{4}$/', $series)) {
                     $errors['passport_series'] = 'Серия РФ: ровно 4 цифры';
                 }
-            } else {
-                if (!preg_match('/^[A-Z]{2,4}$/', $series)) {
-                    $errors['passport_series'] = 'Серия РБ: 2–4 латинские заглавные буквы';
-                }
+            } elseif (!preg_match('/^[A-Z]{2}[0-9]{7}$/', $series)) {
+                $errors['passport_series'] = 'Формат: 2 латинские буквы + 7 цифр (например MP1234567)';
             }
         }
 
-        $passNum = trim($post['passport_number'] ?? '');
-        $expectedLen = $citizenship === 'ru' ? 6 : 7;
-        if (!empty($passNum) && !preg_match('/^[0-9]{' . $expectedLen . '}$/', $passNum)) {
-            $errors['passport_number'] = 'Номер паспорта: ровно ' . $expectedLen . ' цифр';
+        if ($citizenship === 'ru') {
+            $passNum = trim($post['passport_number'] ?? '');
+            if (!empty($passNum) && !preg_match('/^[0-9]{6}$/', $passNum)) {
+                $errors['passport_number'] = 'Номер паспорта: ровно 6 цифр';
+            }
         }
 
         $inn = trim($post['inn'] ?? '');
@@ -885,6 +890,10 @@ class OrderController extends Controller
         // Force uppercase on series
         if ($model->hasAttribute('passport_series')) {
             $model->passport_series = strtoupper($model->passport_series);
+        }
+        // BY combined: clear passport_number to avoid stale data from a prior RU submission.
+        if ($citizenship !== 'ru' && $model->hasAttribute('passport_number')) {
+            $model->passport_number = '';
         }
         if ($model->hasAttribute('passport_submitted_at')) {
             $model->passport_submitted_at = time();
