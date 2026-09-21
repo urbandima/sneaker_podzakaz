@@ -36,7 +36,7 @@ use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;
 use app\backend\modules\catalog\models\ImportBatch;
-use app\backend\modules\admin\models\import\ImportLog;
+use app\backend\modules\catalog\models\ImportLog;
 use app\backend\modules\catalog\models\Product;
 
 class PoizonController extends BaseAdminController

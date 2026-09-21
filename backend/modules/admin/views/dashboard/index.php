@@ -389,7 +389,7 @@ $orderFromCartPct = $fCarts > 0 ? round($fOrders / $fCarts * 100, 1) : 0;
             <i class="bi bi-bar-chart-line-fill"></i>
             <span>Аналитика</span>
         </a>
-        <a href="<?= Url::to(['/admin/import']) ?>" class="dash-action-card">
+        <a href="<?= Url::to(['/admin/poizon']) ?>" class="dash-action-card">
             <i class="bi bi-cloud-arrow-up-fill"></i>
             <span>Импорт</span>
         </a>

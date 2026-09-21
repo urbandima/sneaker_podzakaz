@@ -201,21 +201,6 @@ parameters:
 			path: backend/console/controllers/PoizonImportController.php
 
 		-
-			message: "#^Access to constant ACTION_CREATED on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 1
-			path: backend/console/controllers/PoizonImportController.php
-
-		-
-			message: "#^Access to constant ACTION_ERROR on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 3
-			path: backend/console/controllers/PoizonImportController.php
-
-		-
-			message: "#^Access to constant ACTION_UPDATED on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 1
-			path: backend/console/controllers/PoizonImportController.php
-
-		-
 			message: "#^Access to constant FG_CYAN on an unknown class app\\\\console\\\\controllers\\\\Console\\.$#"
 			count: 1
 			path: backend/console/controllers/PoizonImportController.php
@@ -231,47 +216,7 @@ parameters:
 			path: backend/console/controllers/PoizonImportController.php
 
 		-
-			message: "#^Access to property \\$action on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 2
-			path: backend/console/controllers/PoizonImportController.php
-
-		-
-			message: "#^Access to property \\$batch_id on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 2
-			path: backend/console/controllers/PoizonImportController.php
-
-		-
-			message: "#^Access to property \\$details on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 2
-			path: backend/console/controllers/PoizonImportController.php
-
-		-
-			message: "#^Access to property \\$message on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 2
-			path: backend/console/controllers/PoizonImportController.php
-
-		-
-			message: "#^Call to method save\\(\\) on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 1
-			path: backend/console/controllers/PoizonImportController.php
-
-		-
-			message: "#^Call to static method find\\(\\) on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 1
-			path: backend/console/controllers/PoizonImportController.php
-
-		-
-			message: "#^Call to static method log\\(\\) on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 2
-			path: backend/console/controllers/PoizonImportController.php
-
-		-
 			message: "#^If condition is always true\\.$#"
-			count: 1
-			path: backend/console/controllers/PoizonImportController.php
-
-		-
-			message: "#^Instantiated class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog not found\\.$#"
 			count: 1
 			path: backend/console/controllers/PoizonImportController.php
 
@@ -361,68 +306,8 @@ parameters:
 			path: backend/console/controllers/PoizonImportJsonController.php
 
 		-
-			message: "#^Access to constant ACTION_ERROR on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 1
-			path: backend/console/controllers/PoizonImportJsonController.php
-
-		-
-			message: "#^Access to constant LEVEL_ERROR on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 1
-			path: backend/console/controllers/PoizonImportJsonController.php
-
-		-
-			message: "#^Access to property \\$action on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 2
-			path: backend/console/controllers/PoizonImportJsonController.php
-
-		-
-			message: "#^Access to property \\$batch_id on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 2
-			path: backend/console/controllers/PoizonImportJsonController.php
-
-		-
-			message: "#^Access to property \\$data on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 2
-			path: backend/console/controllers/PoizonImportJsonController.php
-
-		-
-			message: "#^Access to property \\$error_details on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 2
-			path: backend/console/controllers/PoizonImportJsonController.php
-
-		-
-			message: "#^Access to property \\$level on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 2
-			path: backend/console/controllers/PoizonImportJsonController.php
-
-		-
-			message: "#^Access to property \\$message on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 2
-			path: backend/console/controllers/PoizonImportJsonController.php
-
-		-
-			message: "#^Access to property \\$poizon_id on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 2
-			path: backend/console/controllers/PoizonImportJsonController.php
-
-		-
-			message: "#^Access to property \\$product_name on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 2
-			path: backend/console/controllers/PoizonImportJsonController.php
-
-		-
-			message: "#^Call to method save\\(\\) on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 1
-			path: backend/console/controllers/PoizonImportJsonController.php
-
-		-
 			message: "#^If condition is always true\\.$#"
 			count: 3
-			path: backend/console/controllers/PoizonImportJsonController.php
-
-		-
-			message: "#^Instantiated class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog not found\\.$#"
-			count: 1
 			path: backend/console/controllers/PoizonImportJsonController.php
 
 		-
@@ -1334,16 +1219,6 @@ parameters:
 			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\finance\\\\models\\\\Payment\\:\\:\\$updated_at\\.$#"
 			count: 1
 			path: backend/modules/admin/controllers/FinanceController.php
-
-		-
-			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
-			count: 7
-			path: backend/modules/admin/controllers/ImportController.php
-
-		-
-			message: "#^Method app\\\\backend\\\\modules\\\\admin\\\\controllers\\\\ImportController\\:\\:actionUpload\\(\\) should return string but returns yii\\\\web\\\\Response\\.$#"
-			count: 1
-			path: backend/modules/admin/controllers/ImportController.php
 
 		-
 			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\checkout\\\\models\\\\Order\\:\\:\\$id\\.$#"
@@ -2731,11 +2606,6 @@ parameters:
 			path: backend/modules/admin/models/User.php
 
 		-
-			message: "#^Method app\\\\backend\\\\modules\\\\admin\\\\models\\\\import\\\\ImportTask\\:\\:getProgress\\(\\) should return int but returns float\\.$#"
-			count: 1
-			path: backend/modules/admin/models/import/ImportTask.php
-
-		-
 			message: "#^Dead catch \\- Throwable is never thrown in the try block\\.$#"
 			count: 2
 			path: backend/modules/admin/services/ActivityLogService.php
@@ -2939,156 +2809,6 @@ parameters:
 			message: "#^Offset 'num' on array\\{id\\: mixed, num\\: mixed, city\\: mixed, address\\: mixed, full\\: mixed, schedule\\: mixed\\} on left side of \\?\\? always exists and is not nullable\\.$#"
 			count: 2
 			path: backend/modules/admin/services/OrderShippingService.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\admin\\\\models\\\\import\\\\ImportTask\\:\\:\\$completed_at\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportPipelineService.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\admin\\\\models\\\\import\\\\ImportTask\\:\\:\\$file_path\\.$#"
-			count: 3
-			path: backend/modules/admin/services/import/ImportPipelineService.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\admin\\\\models\\\\import\\\\ImportTask\\:\\:\\$options\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportPipelineService.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\admin\\\\models\\\\import\\\\ImportTask\\:\\:\\$result\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportPipelineService.php
-
-		-
-			message: "#^Class app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\CsvParser not found\\.$#"
-			count: 2
-			path: backend/modules/admin/services/import/ImportPipelineService.php
-
-		-
-			message: "#^Class app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\LamodaParser constructor invoked with 0 parameters, 1 required\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportPipelineService.php
-
-		-
-			message: "#^Class app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\PoizonParser not found\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportPipelineService.php
-
-		-
-			message: "#^Instantiated class app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\CsvParser not found\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportPipelineService.php
-
-		-
-			message: "#^Instantiated class app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\PoizonParser not found\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportPipelineService.php
-
-		-
-			message: "#^Method app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\ImportPipelineService\\:\\:resolveBrand\\(\\) never returns int so it can be removed from the return type\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportPipelineService.php
-
-		-
-			message: "#^Method app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\ImportPipelineService\\:\\:resolveCategory\\(\\) never returns int so it can be removed from the return type\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportPipelineService.php
-
-		-
-			message: "#^Property app\\\\backend\\\\modules\\\\admin\\\\models\\\\import\\\\ImportTask\\:\\:\\$created_at \\(string\\) does not accept int\\<1, max\\>\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportPipelineService.php
-
-		-
-			message: "#^Property app\\\\backend\\\\modules\\\\admin\\\\models\\\\import\\\\ImportTask\\:\\:\\$started_at \\(string\\|null\\) does not accept int\\<1, max\\>\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportPipelineService.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\Product\\:\\:\\$best_price_source_id\\.$#"
-			count: 2
-			path: backend/modules/admin/services/import/ImportService.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\Product\\:\\:\\$external_sku\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportService.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\Product\\:\\:\\$last_import_at\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportService.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\Product\\:\\:\\$main_image_url\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportService.php
-
-		-
-			message: "#^Call to an undefined method app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\BaseParser\\:\\:getMainCategoryUrl\\(\\)\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportService.php
-
-		-
-			message: "#^Call to protected method delay\\(\\) of class app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\BaseParser\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportService.php
-
-		-
-			message: "#^Call to protected method normalizeProductData\\(\\) of class app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\BaseParser\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ImportService.php
-
-		-
-			message: "#^Parameter \\#2 \\$sku of static method app\\\\backend\\\\modules\\\\admin\\\\models\\\\import\\\\ImportLog\\:\\:logError\\(\\) expects string, null given\\.$#"
-			count: 2
-			path: backend/modules/admin/services/import/ImportService.php
-
-		-
-			message: "#^Parameter \\#3 \\$productName of static method app\\\\backend\\\\modules\\\\admin\\\\models\\\\import\\\\ImportLog\\:\\:logError\\(\\) expects string, null given\\.$#"
-			count: 2
-			path: backend/modules/admin/services/import/ImportService.php
-
-		-
-			message: "#^Call to an undefined method Symfony\\\\Component\\\\DomCrawler\\\\Crawler\\:\\:hasClass\\(\\)\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/LamodaParser.php
-
-		-
-			message: "#^Cannot access offset non\\-falsy\\-string on int\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ProxyService.php
-
-		-
-			message: "#^Cannot unset offset non\\-falsy\\-string on int\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ProxyService.php
-
-		-
-			message: "#^Property app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\ProxyService\\:\\:\\$currentIndex \\(int\\) does not accept array\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ProxyService.php
-
-		-
-			message: "#^Method app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\StockXParser\\:\\:parseFromHtml\\(\\) should return array but returns null\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/StockXParser.php
-
-		-
-			message: "#^Call to an undefined method Symfony\\\\Component\\\\DomCrawler\\\\Crawler\\:\\:hasClass\\(\\)\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ZalandoParser.php
-
-		-
-			message: "#^Method app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\ZalandoParser\\:\\:parseFromHtml\\(\\) should return array but returns null\\.$#"
-			count: 1
-			path: backend/modules/admin/services/import/ZalandoParser.php
-
-		-
-			message: "#^Undefined variable\\: \\$crawler$#"
-			count: 1
-			path: backend/modules/admin/services/import/ZalandoParser.php
 
 		-
 			message: "#^Variable \\$content might not be defined\\.$#"
@@ -4021,31 +3741,6 @@ parameters:
 			path: backend/modules/admin/views/finance/payments.php
 
 		-
-			message: "#^File ends with a trailing whitespace\\. This may cause problems when running the code in the web browser\\. Remove the closing \\?\\> mark or remove the whitespace\\.$#"
-			count: 1
-			path: backend/modules/admin/views/import/source.php
-
-		-
-			message: "#^If condition is always true\\.$#"
-			count: 1
-			path: backend/modules/admin/views/import/source.php
-
-		-
-			message: "#^If condition is always true\\.$#"
-			count: 1
-			path: backend/modules/admin/views/import/stats.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\admin\\\\models\\\\import\\\\ImportNotification\\:\\:\\$cssClass\\.$#"
-			count: 1
-			path: backend/modules/admin/views/layouts/_import_notifications.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\admin\\\\models\\\\import\\\\ImportNotification\\:\\:\\$icon\\.$#"
-			count: 1
-			path: backend/modules/admin/views/layouts/_import_notifications.php
-
-		-
 			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\checkout\\\\models\\\\Order\\:\\:\\$client_name\\.$#"
 			count: 1
 			path: backend/modules/admin/views/layouts/admin.php
@@ -4073,11 +3768,6 @@ parameters:
 		-
 			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
-			path: backend/modules/admin/views/layouts/admin.php
-
-		-
-			message: "#^Offset 'ids' on array\\{label\\: 'Instagram', url\\: '/admin/analytics…', ids\\: array\\{'analytics'\\}, icon\\: 'bi\\-instagram'\\}\\|array\\{label\\: 'P&L', url\\: '/admin/finance/pnl', ids\\: array\\{'finance'\\}, icon\\: 'bi\\-graph\\-up'\\}\\|array\\{label\\: 'RFM сегменты', url\\: '/admin/analytics/rfm', ids\\: array\\{'rfm'\\}\\}\\|array\\{label\\: 'SEO', url\\: '/admin/settings/seo', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Аналитика и отчеты', url\\: '/admin/analytics', ids\\: array\\{'analytics'\\}\\}\\|array\\{label\\: 'Возвраты поставщику', url\\: '/admin/procurement…', ids\\: array\\{'procurement'\\}, icon\\: 'bi\\-arrow\\-return\\-left'\\}\\|array\\{label\\: 'Возвраты', url\\: '/admin/return', ids\\: array\\{'return'\\}\\}\\|array\\{label\\: 'Все заказы', url\\: '/admin/order', ids\\: array\\{'order'\\}, badge\\: int\\<min, \\-1\\>\\|int\\<1, max\\>\\|null\\}\\|array\\{label\\: 'Выкупы', url\\: '/admin/procurement…', ids\\: array\\{'procurement'\\}, icon\\: 'bi\\-bag\\-check'\\}\\|array\\{label\\: 'Журнал действий', url\\: '/admin/activity\\-log', ids\\: array\\{'activity\\-log'\\}, icon\\: 'bi\\-journal\\-text'\\}\\|array\\{label\\: 'Импорт/Экспорт', url\\: '/admin/import', ids\\: array\\{'import'\\}, icon\\: 'bi\\-arrow\\-left\\-right'\\}\\|array\\{label\\: 'Источники заказов', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}, icon\\: 'bi\\-funnel'\\}\\|array\\{label\\: 'Кампании', url\\: '/admin/marketing…', ids\\: array\\{'marketing'\\}, icon\\: 'bi\\-flag'\\}\\|array\\{label\\: 'Купоны', url\\: '/admin/coupon', ids\\: array\\{'coupon'\\}, icon\\: 'bi\\-ticket\\-perforated'\\}\\|array\\{label\\: 'Маржинальность', url\\: '/admin/finance…', ids\\: array\\{'finance'\\}, icon\\: 'bi\\-percent'\\}\\|array\\{label\\: 'Маркетинг', url\\: '/admin/marketing', ids\\: array\\{'marketing'\\}, icon\\: 'bi\\-megaphone'\\}\\|array\\{label\\: 'Меню навигации', url\\: '/admin/sidebar\\-menu', ids\\: array\\{'sidebar\\-menu'\\}\\}\\|array\\{label\\: 'Настройки доставки', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Настройки', url\\: '/admin/settings', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Отзывы', url\\: '/admin/review', ids\\: array\\{'review'\\}\\}\\|array\\{label\\: 'Отправка заказов', url\\: '/admin/shipping…', ids\\: array\\{'dispatch'\\}\\}\\|array\\{label\\: 'Парсеры', url\\: '/admin/plugin/lamoda', ids\\: array\\{'import', 'plugin'\\}, icon\\: 'bi\\-cloud\\-download'\\}\\|array\\{label\\: 'Плагины', url\\: '/admin/plugin', ids\\: array\\{'plugin'\\}, icon\\: 'bi\\-puzzle'\\}\\|array\\{label\\: 'Платежи', url\\: '/admin/finance…', ids\\: array\\{'finance'\\}, icon\\: 'bi\\-credit\\-card'\\}\\|array\\{label\\: 'Поставщики', url\\: '/admin/procurement…', ids\\: array\\{'procurement'\\}, icon\\: 'bi\\-building'\\}\\|array\\{label\\: 'Приёмка \\(старая\\)', url\\: '/admin/procurement…', ids\\: array\\{'procurement'\\}, icon\\: 'bi\\-box\\-arrow\\-in\\-down'\\}\\|array\\{label\\: 'Приёмки \\(новые\\)', url\\: '/admin/receiving', ids\\: array\\{'receiving'\\}, icon\\: 'bi\\-box\\-arrow\\-in\\-down'\\}\\|array\\{label\\: 'Расходы', url\\: '/admin/finance…', ids\\: array\\{'finance'\\}, icon\\: 'bi\\-receipt'\\}\\|array\\{label\\: 'Редактор страниц', url\\: '/admin/page', ids\\: array\\{'page'\\}\\}\\|array\\{label\\: 'Сообщения директору', url\\: '/admin/feedback', icon\\: 'bi\\-envelope\\-heart', ids\\: array\\{'feedback'\\}\\}\\|array\\{label\\: 'Список клиентов', url\\: '/admin/customer', ids\\: array\\{'customer'\\}, icon\\: 'bi\\-people'\\}\\|array\\{label\\: 'Способы оплаты', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Статусы заказов', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}, icon\\: 'bi\\-card\\-checklist'\\}\\|array\\{label\\: 'Товары', url\\: '/admin/catalog', ids\\: array\\{'catalog', 'product'\\}\\}\\|array\\{label\\: 'Триггеры', url\\: '/admin/settings…', ids\\: array\\{'automation'\\}, icon\\: 'bi\\-lightning\\-charge'\\}\\|array\\{label\\: 'Характеристики', url\\: '/admin…', ids\\: array\\{'characteristic'\\}\\}\\|array\\{label\\: 'Чаты AmoCRM', url\\: '/admin/analytics…', ids\\: array\\{'chats'\\}, icon\\: 'bi\\-chat\\-dots\\-fill'\\}\\|array\\{label\\: mixed, url\\: non\\-falsy\\-string, ids\\: array\\{\\}, badge\\: int\\<1, max\\>, indent\\: true, dot\\: '\\#10b981'\\|'\\#22c55e'\\|'\\#3b82f6'\\|'\\#6b7280'\\|'\\#8b5cf6'\\|'\\#ef4444'\\|'\\#f59e0b'\\} in isset\\(\\) always exists and is not nullable\\.$#"
-			count: 2
 			path: backend/modules/admin/views/layouts/admin.php
 
 		-
@@ -4136,11 +3826,6 @@ parameters:
 			path: backend/modules/admin/views/layouts/main.php
 
 		-
-			message: "#^Offset 'ids' on array\\{label\\: 'POS\\-Терминал', url\\: '/admin/pos', ids\\: array\\{'pos'\\}\\}\\|array\\{label\\: 'RFM сегменты', url\\: '/admin/analytics/rfm', ids\\: array\\{'rfm'\\}\\}\\|array\\{label\\: 'SEO', url\\: '/admin/settings/seo', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Аналитика и отчеты', url\\: '/admin/analytics', ids\\: array\\{'analytics'\\}\\}\\|array\\{label\\: 'Бренды', url\\: '/admin/brand', ids\\: array\\{'brand'\\}\\}\\|array\\{label\\: 'Возвраты', url\\: '/admin/return', ids\\: array\\{'return'\\}\\}\\|array\\{label\\: 'Все заказы', url\\: '/admin/order', ids\\: array\\{'order'\\}, badge\\: int\\<min, \\-1\\>\\|int\\<1, max\\>\\|null\\}\\|array\\{label\\: 'Все плагины', url\\: '/admin/plugin', ids\\: array\\{'plugin'\\}\\}\\|array\\{label\\: 'Доставка', url\\: '/admin/shipping', ids\\: array\\{'shipping'\\}\\}\\|array\\{label\\: 'Импорт/Экспорт', url\\: '/admin/import', ids\\: array\\{'import'\\}\\}\\|array\\{label\\: 'Источники заказов', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}, icon\\: 'bi\\-funnel'\\}\\|array\\{label\\: 'Кампании', url\\: '/admin/marketing…', ids\\: array\\{'marketing'\\}\\}\\|array\\{label\\: 'Категории', url\\: '/admin/category', ids\\: array\\{'category'\\}\\}\\|array\\{label\\: 'Купоны', url\\: '/admin/coupon', ids\\: array\\{'coupon'\\}\\}\\|array\\{label\\: 'Маркетинг', url\\: '/admin/marketing', ids\\: array\\{'marketing'\\}\\}\\|array\\{label\\: 'Меню навигации', url\\: '/admin/sidebar\\-menu', ids\\: array\\{'sidebar\\-menu'\\}\\}\\|array\\{label\\: 'Настройки доставки', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Настройки', url\\: '/admin/settings', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Отзывы', url\\: '/admin/review', ids\\: array\\{'review'\\}\\}\\|array\\{label\\: 'Отправка заказов', url\\: '/admin/shipping…', ids\\: array\\{'dispatch'\\}, indent\\: true\\}\\|array\\{label\\: 'Редактор страниц', url\\: '/admin/page', ids\\: array\\{'page'\\}\\}\\|array\\{label\\: 'Сообщения директору', url\\: '/admin/feedback', icon\\: 'bi\\-envelope\\-heart', ids\\: array\\{'feedback'\\}\\}\\|array\\{label\\: 'Способы оплаты', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Статусы заказов', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}, icon\\: 'bi\\-card\\-checklist'\\}\\|array\\{label\\: 'Теги', url\\: '/admin/product\\-tag', ids\\: array\\{'product\\-tag'\\}\\}\\|array\\{label\\: 'Товары', url\\: '/admin/catalog', ids\\: array\\{'catalog', 'product'\\}\\}\\|array\\{label\\: 'Характеристики', url\\: '/admin…', ids\\: array\\{'characteristic'\\}\\}\\|array\\{label\\: mixed, url\\: non\\-falsy\\-string, ids\\: array\\{\\}, badge\\: int\\<1, max\\>, indent\\: true, dot\\: '\\#10b981'\\|'\\#22c55e'\\|'\\#3b82f6'\\|'\\#6b7280'\\|'\\#8b5cf6'\\|'\\#ef4444'\\|'\\#f59e0b'\\} in isset\\(\\) always exists and is not nullable\\.$#"
-			count: 2
-			path: backend/modules/admin/views/layouts/main.php
-
-		-
 			message: "#^Variable \\$content might not be defined\\.$#"
 			count: 1
 			path: backend/modules/admin/views/layouts/main.php
@@ -4178,11 +3863,6 @@ parameters:
 		-
 			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
-			path: backend/modules/admin/views/layouts/minimalist.php
-
-		-
-			message: "#^Offset 'ids' on array\\{label\\: 'POS\\-Терминал', url\\: '/admin/pos', ids\\: array\\{'pos'\\}\\}\\|array\\{label\\: 'RFM сегменты', url\\: '/admin/analytics/rfm', ids\\: array\\{'rfm'\\}\\}\\|array\\{label\\: 'Аналитика и отчеты', url\\: '/admin/analytics', ids\\: array\\{'analytics'\\}\\}\\|array\\{label\\: 'Возвраты', url\\: '/admin/return', ids\\: array\\{'return'\\}\\}\\|array\\{label\\: 'Заказы', url\\: '/admin/order', ids\\: array\\{'order'\\}\\}\\|array\\{label\\: 'Импорт/Экспорт', url\\: '/admin/import', ids\\: array\\{'import'\\}\\}\\|array\\{label\\: 'Купоны', url\\: '/admin/coupon', ids\\: array\\{'coupon'\\}\\}\\|array\\{label\\: 'Маркетинг', url\\: '/admin/marketing', ids\\: array\\{'marketing'\\}\\}\\|array\\{label\\: 'Маркетинговые…', url\\: '/admin/marketing…', ids\\: array\\{'marketing'\\}\\}\\|array\\{label\\: 'Меню навигации', url\\: '/admin/sidebar\\-menu', ids\\: array\\{'sidebar\\-menu'\\}\\}\\|array\\{label\\: 'Настройки доставки', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Настройки', url\\: '/admin/settings', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Отзывы', url\\: '/admin/review', ids\\: array\\{'review'\\}\\}\\|array\\{label\\: 'Отправка заказов', url\\: '/admin/shipping…', ids\\: array\\{'dispatch'\\}\\}\\|array\\{label\\: 'Плагины', url\\: '/admin/plugin', ids\\: array\\{'plugin'\\}\\}\\|array\\{label\\: 'Способы оплаты', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Теги', url\\: '/admin/product\\-tag', ids\\: array\\{'product\\-tag'\\}\\}\\|array\\{label\\: 'Товары', url\\: '/admin/catalog', ids\\: array\\{'catalog', 'product'\\}\\} in isset\\(\\) always exists and is not nullable\\.$#"
-			count: 2
 			path: backend/modules/admin/views/layouts/minimalist.php
 
 		-
@@ -8586,29 +8266,9 @@ parameters:
 			path: backend/modules/catalog/models/CharacteristicValue.php
 
 		-
-			message: "#^Class app\\\\models\\\\Customer not found\\.$#"
-			count: 2
-			path: backend/modules/catalog/models/CustomerSocialAccount.php
-
-		-
-			message: "#^Parameter \\#1 \\$class of method yii\\\\db\\\\ActiveRecord\\:\\:hasOne\\(\\) expects class\\-string\\<yii\\\\db\\\\ActiveRecord\\>, string given\\.$#"
-			count: 1
-			path: backend/modules/catalog/models/CustomerSocialAccount.php
-
-		-
 			message: "#^Unsafe usage of new static\\(\\)\\.$#"
 			count: 1
 			path: backend/modules/catalog/models/FilterHistory.php
-
-		-
-			message: "#^Class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog not found\\.$#"
-			count: 1
-			path: backend/modules/catalog/models/ImportBatch.php
-
-		-
-			message: "#^Parameter \\#1 \\$class of method yii\\\\db\\\\ActiveRecord\\:\\:hasMany\\(\\) expects class\\-string\\<yii\\\\db\\\\ActiveRecord\\>, string given\\.$#"
-			count: 1
-			path: backend/modules/catalog/models/ImportBatch.php
 
 		-
 			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\Product\\:\\:\\$brand_name\\.$#"
@@ -8689,21 +8349,6 @@ parameters:
 			message: "#^Method app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductSize\\:\\:roundToPrettyPrice\\(\\) should return int but returns float\\.$#"
 			count: 1
 			path: backend/modules/catalog/models/ProductSize.php
-
-		-
-			message: "#^Class app\\\\models\\\\Product not found\\.$#"
-			count: 1
-			path: backend/modules/catalog/models/ProductStock.php
-
-		-
-			message: "#^Class app\\\\models\\\\ProductSize not found\\.$#"
-			count: 1
-			path: backend/modules/catalog/models/ProductStock.php
-
-		-
-			message: "#^Parameter \\#1 \\$class of method yii\\\\db\\\\ActiveRecord\\:\\:hasOne\\(\\) expects class\\-string\\<yii\\\\db\\\\ActiveRecord\\>, string given\\.$#"
-			count: 2
-			path: backend/modules/catalog/models/ProductStock.php
 
 		-
 			message: "#^If condition is always true\\.$#"
@@ -10001,16 +9646,6 @@ parameters:
 			path: backend/modules/procurement/models/SupplierReturnItem.php
 
 		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\procurement\\\\models\\\\buyout\\\\Buyout\\:\\:\\$order_id\\.$#"
-			count: 1
-			path: backend/modules/procurement/models/buyout/Buyout.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\procurement\\\\models\\\\buyout\\\\Buyout\\:\\:\\$status\\.$#"
-			count: 3
-			path: backend/modules/procurement/models/buyout/Buyout.php
-
-		-
 			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\checkout\\\\models\\\\Order\\:\\:\\$status\\.$#"
 			count: 3
 			path: backend/modules/procurement/services/BuyoutStatusSyncService.php
@@ -10161,7 +9796,12 @@ parameters:
 			path: backend/modules/procurement/services/ReceivingService.php
 
 		-
-			message: "#^Class app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\LamodaParser constructor invoked with 0 parameters, 1 required\\.$#"
+			message: "#^Instantiated class app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\LamodaParser not found\\.$#"
+			count: 1
+			path: backend/modules/procurement/services/parsers/LamodaParser.php
+
+		-
+			message: "#^Call to method parseProduct\\(\\) on an unknown class app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\LamodaParser\\.$#"
 			count: 1
 			path: backend/modules/procurement/services/parsers/LamodaParser.php
 
@@ -10534,16 +10174,6 @@ parameters:
 			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 2
 			path: backend/shared/services/TelegramService.php
-
-		-
-			message: "#^Access to constant ACTION_ERROR on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 1
-			path: frontend/controllers/AdminImportController.php
-
-		-
-			message: "#^Call to static method find\\(\\) on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
-			count: 2
-			path: frontend/controllers/AdminImportController.php
 
 		-
 			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
@@ -12129,3 +11759,18 @@ parameters:
 			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$redis\\.$#"
 			count: 1
 			path: infrastructure/services/RedisCacheService.php
+
+		-
+			message: "#^Offset 'ids' on array\\{label\\: 'Instagram', url\\: '/admin/analytics…', ids\\: array\\{'analytics'\\}, icon\\: 'bi\\-instagram'\\}\\|array\\{label\\: 'P&L', url\\: '/admin/finance/pnl', ids\\: array\\{'finance'\\}, icon\\: 'bi\\-graph\\-up'\\}\\|array\\{label\\: 'RFM сегменты', url\\: '/admin/analytics/rfm', ids\\: array\\{'rfm'\\}\\}\\|array\\{label\\: 'SEO', url\\: '/admin/settings/seo', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Аналитика и отчеты', url\\: '/admin/analytics', ids\\: array\\{'analytics'\\}\\}\\|array\\{label\\: 'Возвраты поставщику', url\\: '/admin/procurement…', ids\\: array\\{'procurement'\\}, icon\\: 'bi\\-arrow\\-return\\-left'\\}\\|array\\{label\\: 'Возвраты', url\\: '/admin/return', ids\\: array\\{'return'\\}\\}\\|array\\{label\\: 'Все заказы', url\\: '/admin/order', ids\\: array\\{'order'\\}, badge\\: int\\<min, \\-1\\>\\|int\\<1, max\\>\\|null\\}\\|array\\{label\\: 'Выкупы', url\\: '/admin/procurement…', ids\\: array\\{'procurement'\\}, icon\\: 'bi\\-bag\\-check'\\}\\|array\\{label\\: 'Журнал действий', url\\: '/admin/activity\\-log', ids\\: array\\{'activity\\-log'\\}, icon\\: 'bi\\-journal\\-text'\\}\\|array\\{label\\: 'Импорт Poizon', url\\: '/admin/poizon', ids\\: array\\{'poizon'\\}, icon\\: 'bi\\-arrow\\-left\\-right'\\}\\|array\\{label\\: 'Источники заказов', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}, icon\\: 'bi\\-funnel'\\}\\|array\\{label\\: 'Кампании', url\\: '/admin/marketing…', ids\\: array\\{'marketing'\\}, icon\\: 'bi\\-flag'\\}\\|array\\{label\\: 'Купоны', url\\: '/admin/coupon', ids\\: array\\{'coupon'\\}, icon\\: 'bi\\-ticket\\-perforated'\\}\\|array\\{label\\: 'Маржинальность', url\\: '/admin/finance…', ids\\: array\\{'finance'\\}, icon\\: 'bi\\-percent'\\}\\|array\\{label\\: 'Маркетинг', url\\: '/admin/marketing', ids\\: array\\{'marketing'\\}, icon\\: 'bi\\-megaphone'\\}\\|array\\{label\\: 'Меню навигации', url\\: '/admin/sidebar\\-menu', ids\\: array\\{'sidebar\\-menu'\\}\\}\\|array\\{label\\: 'Настройки доставки', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Настройки', url\\: '/admin/settings', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Отзывы', url\\: '/admin/review', ids\\: array\\{'review'\\}\\}\\|array\\{label\\: 'Отправка заказов', url\\: '/admin/shipping…', ids\\: array\\{'dispatch'\\}\\}\\|array\\{label\\: 'Парсеры', url\\: '/admin/plugin/lamoda', ids\\: array\\{'poizon', 'plugin'\\}, icon\\: 'bi\\-cloud\\-download'\\}\\|array\\{label\\: 'Плагины', url\\: '/admin/plugin', ids\\: array\\{'plugin'\\}, icon\\: 'bi\\-puzzle'\\}\\|array\\{label\\: 'Платежи', url\\: '/admin/finance…', ids\\: array\\{'finance'\\}, icon\\: 'bi\\-credit\\-card'\\}\\|array\\{label\\: 'Поставщики', url\\: '/admin/procurement…', ids\\: array\\{'procurement'\\}, icon\\: 'bi\\-building'\\}\\|array\\{label\\: 'Приёмка \\(старая\\)', url\\: '/admin/procurement…', ids\\: array\\{'procurement'\\}, icon\\: 'bi\\-box\\-arrow\\-in\\-down'\\}\\|array\\{label\\: 'Приёмки \\(новые\\)', url\\: '/admin/receiving', ids\\: array\\{'receiving'\\}, icon\\: 'bi\\-box\\-arrow\\-in\\-down'\\}\\|array\\{label\\: 'Расходы', url\\: '/admin/finance…', ids\\: array\\{'finance'\\}, icon\\: 'bi\\-receipt'\\}\\|array\\{label\\: 'Редактор страниц', url\\: '/admin/page', ids\\: array\\{'page'\\}\\}\\|array\\{label\\: 'Сообщения директору', url\\: '/admin/feedback', icon\\: 'bi\\-envelope\\-heart', ids\\: array\\{'feedback'\\}\\}\\|array\\{label\\: 'Список клиентов', url\\: '/admin/customer', ids\\: array\\{'customer'\\}, icon\\: 'bi\\-people'\\}\\|array\\{label\\: 'Способы оплаты', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Статусы заказов', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}, icon\\: 'bi\\-card\\-checklist'\\}\\|array\\{label\\: 'Товары', url\\: '/admin/catalog', ids\\: array\\{'catalog', 'product'\\}\\}\\|array\\{label\\: 'Триггеры', url\\: '/admin/settings…', ids\\: array\\{'automation'\\}, icon\\: 'bi\\-lightning\\-charge'\\}\\|array\\{label\\: 'Характеристики', url\\: '/admin…', ids\\: array\\{'characteristic'\\}\\}\\|array\\{label\\: 'Чаты AmoCRM', url\\: '/admin/analytics…', ids\\: array\\{'chats'\\}, icon\\: 'bi\\-chat\\-dots\\-fill'\\}\\|array\\{label\\: mixed, url\\: non\\-falsy\\-string, ids\\: array\\{\\}, badge\\: int\\<1, max\\>, indent\\: true, dot\\: '\\#10b981'\\|'\\#22c55e'\\|'\\#3b82f6'\\|'\\#6b7280'\\|'\\#8b5cf6'\\|'\\#ef4444'\\|'\\#f59e0b'\\} in isset\\(\\) always exists and is not nullable\\.$#"
+			count: 2
+			path: backend/modules/admin/views/layouts/admin.php
+
+		-
+			message: "#^Offset 'ids' on array\\{label\\: 'POS\\-Терминал', url\\: '/admin/pos', ids\\: array\\{'pos'\\}\\}\\|array\\{label\\: 'RFM сегменты', url\\: '/admin/analytics/rfm', ids\\: array\\{'rfm'\\}\\}\\|array\\{label\\: 'SEO', url\\: '/admin/settings/seo', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Аналитика и отчеты', url\\: '/admin/analytics', ids\\: array\\{'analytics'\\}\\}\\|array\\{label\\: 'Бренды', url\\: '/admin/brand', ids\\: array\\{'brand'\\}\\}\\|array\\{label\\: 'Возвраты', url\\: '/admin/return', ids\\: array\\{'return'\\}\\}\\|array\\{label\\: 'Все заказы', url\\: '/admin/order', ids\\: array\\{'order'\\}, badge\\: int\\<min, \\-1\\>\\|int\\<1, max\\>\\|null\\}\\|array\\{label\\: 'Все плагины', url\\: '/admin/plugin', ids\\: array\\{'plugin'\\}\\}\\|array\\{label\\: 'Доставка', url\\: '/admin/shipping', ids\\: array\\{'shipping'\\}\\}\\|array\\{label\\: 'Импорт Poizon', url\\: '/admin/poizon', ids\\: array\\{'poizon'\\}\\}\\|array\\{label\\: 'Источники заказов', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}, icon\\: 'bi\\-funnel'\\}\\|array\\{label\\: 'Кампании', url\\: '/admin/marketing…', ids\\: array\\{'marketing'\\}\\}\\|array\\{label\\: 'Категории', url\\: '/admin/category', ids\\: array\\{'category'\\}\\}\\|array\\{label\\: 'Купоны', url\\: '/admin/coupon', ids\\: array\\{'coupon'\\}\\}\\|array\\{label\\: 'Маркетинг', url\\: '/admin/marketing', ids\\: array\\{'marketing'\\}\\}\\|array\\{label\\: 'Меню навигации', url\\: '/admin/sidebar\\-menu', ids\\: array\\{'sidebar\\-menu'\\}\\}\\|array\\{label\\: 'Настройки доставки', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Настройки', url\\: '/admin/settings', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Отзывы', url\\: '/admin/review', ids\\: array\\{'review'\\}\\}\\|array\\{label\\: 'Отправка заказов', url\\: '/admin/shipping…', ids\\: array\\{'dispatch'\\}, indent\\: true\\}\\|array\\{label\\: 'Редактор страниц', url\\: '/admin/page', ids\\: array\\{'page'\\}\\}\\|array\\{label\\: 'Сообщения директору', url\\: '/admin/feedback', icon\\: 'bi\\-envelope\\-heart', ids\\: array\\{'feedback'\\}\\}\\|array\\{label\\: 'Способы оплаты', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Статусы заказов', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}, icon\\: 'bi\\-card\\-checklist'\\}\\|array\\{label\\: 'Теги', url\\: '/admin/product\\-tag', ids\\: array\\{'product\\-tag'\\}\\}\\|array\\{label\\: 'Товары', url\\: '/admin/catalog', ids\\: array\\{'catalog', 'product'\\}\\}\\|array\\{label\\: 'Характеристики', url\\: '/admin…', ids\\: array\\{'characteristic'\\}\\}\\|array\\{label\\: mixed, url\\: non\\-falsy\\-string, ids\\: array\\{\\}, badge\\: int\\<1, max\\>, indent\\: true, dot\\: '\\#10b981'\\|'\\#22c55e'\\|'\\#3b82f6'\\|'\\#6b7280'\\|'\\#8b5cf6'\\|'\\#ef4444'\\|'\\#f59e0b'\\} in isset\\(\\) always exists and is not nullable\\.$#"
+			count: 2
+			path: backend/modules/admin/views/layouts/main.php
+
+		-
+			message: "#^Offset 'ids' on array\\{label\\: 'POS\\-Терминал', url\\: '/admin/pos', ids\\: array\\{'pos'\\}\\}\\|array\\{label\\: 'RFM сегменты', url\\: '/admin/analytics/rfm', ids\\: array\\{'rfm'\\}\\}\\|array\\{label\\: 'Аналитика и отчеты', url\\: '/admin/analytics', ids\\: array\\{'analytics'\\}\\}\\|array\\{label\\: 'Возвраты', url\\: '/admin/return', ids\\: array\\{'return'\\}\\}\\|array\\{label\\: 'Заказы', url\\: '/admin/order', ids\\: array\\{'order'\\}\\}\\|array\\{label\\: 'Импорт Poizon', url\\: '/admin/poizon', ids\\: array\\{'poizon'\\}\\}\\|array\\{label\\: 'Купоны', url\\: '/admin/coupon', ids\\: array\\{'coupon'\\}\\}\\|array\\{label\\: 'Маркетинг', url\\: '/admin/marketing', ids\\: array\\{'marketing'\\}\\}\\|array\\{label\\: 'Маркетинговые…', url\\: '/admin/marketing…', ids\\: array\\{'marketing'\\}\\}\\|array\\{label\\: 'Меню навигации', url\\: '/admin/sidebar\\-menu', ids\\: array\\{'sidebar\\-menu'\\}\\}\\|array\\{label\\: 'Настройки доставки', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Настройки', url\\: '/admin/settings', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Отзывы', url\\: '/admin/review', ids\\: array\\{'review'\\}\\}\\|array\\{label\\: 'Отправка заказов', url\\: '/admin/shipping…', ids\\: array\\{'dispatch'\\}\\}\\|array\\{label\\: 'Плагины', url\\: '/admin/plugin', ids\\: array\\{'plugin'\\}\\}\\|array\\{label\\: 'Способы оплаты', url\\: '/admin/settings…', ids\\: array\\{'settings'\\}\\}\\|array\\{label\\: 'Теги', url\\: '/admin/product\\-tag', ids\\: array\\{'product\\-tag'\\}\\}\\|array\\{label\\: 'Товары', url\\: '/admin/catalog', ids\\: array\\{'catalog', 'product'\\}\\} in isset\\(\\) always exists and is not nullable\\.$#"
+			count: 2
+			path: backend/modules/admin/views/layouts/minimalist.php

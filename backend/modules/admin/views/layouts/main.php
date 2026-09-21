@@ -198,7 +198,7 @@ $controllerId = Yii::$app->controller->id;
                     'items' => [
                         ['label' => 'Все плагины', 'url' => '/admin/plugin', 'ids' => ['plugin']],
                         ['label' => 'POS-Терминал', 'url' => '/admin/pos', 'ids' => ['pos']],
-                        ['label' => 'Импорт/Экспорт', 'url' => '/admin/import', 'ids' => ['import']]
+                        ['label' => 'Импорт Poizon', 'url' => '/admin/poizon', 'ids' => ['poizon']]
                     ]
                 ],
 

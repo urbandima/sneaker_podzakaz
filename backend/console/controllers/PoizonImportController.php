@@ -832,7 +832,7 @@ class PoizonImportController extends Controller
                     $log->batch_id = $this->batch->id;
                     $log->action = ImportLog::ACTION_ERROR;
                     $log->message = "Ошибка импорта: " . $e->getMessage();
-                    $log->details = json_encode($productData);
+                    $log->data = json_encode($productData, JSON_UNESCAPED_UNICODE);
                     $log->save(false);
                 }
             }

@@ -262,7 +262,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
         </a>
         <span class="crm-int-sep"></span>
         <?php endif; ?>
-        <a href="<?= Url::to(['/admin/import/upload']) ?>" class="crm-int-btn">
+        <a href="<?= Url::to(['/admin/poizon']) ?>" class="crm-int-btn">
             <i class="bi bi-download"></i> Импорт
         </a>
         <a href="<?= Url::to(['/admin/product/duplicate', 'id' => $product->id]) ?>"

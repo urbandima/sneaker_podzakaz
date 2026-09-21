@@ -739,18 +739,6 @@ $config = [
                 'admin/customer/remove-tag' => 'admin/customer/remove-tag',
                 'admin/customer/add-note' => 'admin/customer/add-note',
 
-                // Import
-                'admin/export' => 'admin/import/index',
-                'admin/import' => 'admin/import/index',
-                'admin/import/upload' => 'admin/import/upload',
-                'admin/import/source' => 'admin/import/source',
-                'admin/import/source/<id:\d+>' => 'admin/import/source',
-                'admin/import/run/<sourceId:\d+>' => 'admin/import/run',
-                'admin/import/run-all' => 'admin/import/run-all',
-                'admin/import/logs' => 'admin/import/logs',
-                'admin/import/stats' => 'admin/import/stats',
-                'admin/import/settings' => 'admin/import/settings',
-
                 // Общее правило для остальных admin действий
                 'admin/<controller:\w+>/<action:\w+>/<id:\d+>' => 'admin/<controller>/<action>',
                 'admin/<controller:\w+>/<action:\w+>' => 'admin/<controller>/<action>',

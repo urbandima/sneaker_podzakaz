@@ -245,8 +245,8 @@ $controllerId = Yii::$app->controller->id;
                     'icon' => 'bi-plugin',
                     'items' => [
                         ['label' => 'Плагины',        'url' => '/admin/plugin',        'ids' => ['plugin'],  'icon' => 'bi-puzzle'],
-                        ['label' => 'Импорт/Экспорт', 'url' => '/admin/import',        'ids' => ['import'],  'icon' => 'bi-arrow-left-right'],
-                        ['label' => 'Парсеры',        'url' => '/admin/plugin/lamoda', 'ids' => ['import', 'plugin'], 'icon' => 'bi-cloud-download'],
+                        ['label' => 'Импорт Poizon',  'url' => '/admin/poizon',        'ids' => ['poizon'],  'icon' => 'bi-arrow-left-right'],
+                        ['label' => 'Парсеры',        'url' => '/admin/plugin/lamoda', 'ids' => ['poizon', 'plugin'], 'icon' => 'bi-cloud-download'],
                     ]
                 ],
 
