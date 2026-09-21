@@ -31,6 +31,7 @@ namespace app\backend\modules\catalog\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
 
 /**
  * Модель ProductImage (Изображение товара)
@@ -40,7 +41,7 @@ use yii\db\ActiveRecord;
  * @property string $image Путь к изображению
  * @property int $sort_order Порядок сортировки
  * @property int $is_main Главное изображение
- * @property string $created_at
+ * @property int $created_at
  *
  * @property Product $product
  */
@@ -52,6 +53,27 @@ class ProductImage extends ActiveRecord
     public static function tableName()
     {
         return 'product_image';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * CMP-417: `product_image`.`created_at` — `int NOT NULL` без дефолта (см.
+     * infrastructure/migrations/m250101_000000_create_base_tables.php). Модель
+     * никогда не заполняла это поле, поэтому КАЖДЫЙ save() (actionAddImage)
+     * падал под strict mode с "SQLSTATE[HY000]: 1364 Field 'created_at'
+     * doesn't have a default value" — тот же класс багов, что и в CMP-410.
+     * Таблица не имеет колонки updated_at, поэтому она отключена явно.
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => false,
+            ],
+        ];
     }
 
     /**
