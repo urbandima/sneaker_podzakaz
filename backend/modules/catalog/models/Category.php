@@ -97,12 +97,49 @@ class Category extends ActiveRecord
             TimestampBehavior::class,
             [
                 'class' => SluggableBehavior::class,
-                'attribute' => 'name',
+                // 'name' напрямую не годится: yii\helpers\Inflector::transliterate()
+                // без php-intl (расширение не гарантировано на проде/локально, см.
+                // CMP-417) молча падает на strtr() по $transliteration, который не
+                // покрывает кириллицу — итог slug() вырезает ВСЕ кириллические буквы
+                // регэкспом [^a-zA-Z0-9...]. Категория с чисто кириллическим названием
+                // получала slug = '' (вторая такая же — slug = '-2'), что делает
+                // /catalog/category/{slug} недостижимым. getSlugSource() транслитерирует
+                // кириллицу вручную ПЕРЕД тем, как SluggableBehavior прогонит Inflector::slug().
+                // Найдено при живом HTTP-прогоне CMP-417 (POST с кириллическим названием).
+                'attribute' => 'slugSource',
                 'slugAttribute' => 'slug',
                 'immutable' => false,
                 'ensureUnique' => true,
             ],
         ];
+    }
+
+    /**
+     * Кириллическая карта транслитерации Ру/Бел алфавита в латиницу (используется
+     * только как источник для SluggableBehavior, см. behaviors()). Строка приводится
+     * к нижнему регистру заранее — Inflector::slug() лишь один раз вызывает
+     * strtolower() уже над финальным результатом, поэтому это не теряет информацию.
+     *
+     * @var array<string,string>
+     */
+    private static $cyrillicToLatin = [
+        'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e',
+        'ё' => 'e', 'ж' => 'zh', 'з' => 'z', 'и' => 'i', 'й' => 'y', 'к' => 'k',
+        'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p', 'р' => 'r',
+        'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'kh', 'ц' => 'ts',
+        'ч' => 'ch', 'ш' => 'sh', 'щ' => 'shch', 'ъ' => '', 'ы' => 'y', 'ь' => '',
+        'э' => 'e', 'ю' => 'yu', 'я' => 'ya',
+        // Белорусские дополнения (sneaker-head.by):
+        'і' => 'i', 'ў' => 'u', 'ґ' => 'g',
+    ];
+
+    /**
+     * Виртуальный источник slug'а для SluggableBehavior — см. комментарий в behaviors().
+     * @return string
+     */
+    public function getSlugSource()
+    {
+        return strtr(mb_strtolower((string) $this->name, 'UTF-8'), self::$cyrillicToLatin);
     }
 
     /**

@@ -157,6 +157,17 @@ class CategoryController extends BaseAdminController
             return $this->redirect(['index']);
         }
 
+        // Check if category has child categories. Нет FK/ON DELETE в схеме category.parent_id
+        // (проверено: information_schema.REFERENTIAL_CONSTRAINTS пуст для этой колонки) —
+        // без этой проверки удаление родителя оставляло дочерние категории с parent_id,
+        // указывающим на несуществующую запись (осиротевшее поддерево). Найдено при живом
+        // HTTP-прогоне CMP-417 (create дочерней категории + delete родителя).
+        $childCount = Category::find()->where(['parent_id' => $id])->count();
+        if ($childCount > 0) {
+            $this->flashError("Нельзя удалить категорию: у неё {$childCount} дочерних категорий");
+            return $this->redirect(['index']);
+        }
+
         $name = $model->name;
         $model->delete();
         $this->flashSuccess("Категория «{$name}» удалена");
