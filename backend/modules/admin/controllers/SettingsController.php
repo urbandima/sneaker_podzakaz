@@ -17,7 +17,7 @@ class SettingsController extends BaseAdminController
      * Разрешённые section для actionSave — whitelist против записи произвольных
      * ключей в таблицу settings через эту форму (AUDIT-26)
      */
-    private const ALLOWED_SAVE_SECTIONS = ['webhook', 'delivery', 'payment', 'notifications', 'moysklad', 'amocrm'];
+    private const ALLOWED_SAVE_SECTIONS = ['webhook', 'delivery', 'payment', 'notifications', 'moysklad', 'amocrm', 'analytics'];
 
     /**
      * Настройки системы

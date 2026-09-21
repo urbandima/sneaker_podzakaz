@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use app\frontend\assets\AppAsset;
+use app\backend\shared\components\AnalyticsSettings;
 
 AppAsset::register($this);
 
@@ -101,11 +102,11 @@ if (!empty($this->params['description'])) {
     $ga4Id     = $s->get('analytics', 'ga4_id', '');
     $metrikaId = $s->get('analytics', 'metrika_id', '') ?: $s->get('seo', 'metrika_id', '');
     $metaPixelId = $s->get('analytics', 'meta_pixel_id', '');
-    // Skip placeholder / demo values
-    $ga4Valid     = !empty($ga4Id) && $ga4Id !== 'G-XXXXXXXXXX' && strlen($ga4Id) > 5;
-    $metrikaValid = !empty($metrikaId) && $metrikaId !== '12345678' && strlen($metrikaId) >= 6 && ctype_digit($metrikaId);
+    // Skip placeholder / demo values — see AnalyticsSettings for the rules.
+    $ga4Valid     = AnalyticsSettings::isValidGa4Id($ga4Id);
+    $metrikaValid = AnalyticsSettings::isValidMetrikaId($metrikaId);
     // Replace META_PIXEL_ID_PLACEHOLDER with the real 13–16-digit Pixel ID to activate.
-    $metaPixelValid = !empty($metaPixelId) && $metaPixelId !== 'META_PIXEL_ID_PLACEHOLDER' && $metaPixelId !== 'XXXXXXXXXXXXXXX' && ctype_digit($metaPixelId) && strlen($metaPixelId) >= 13 && strlen($metaPixelId) <= 16;
+    $metaPixelValid = AnalyticsSettings::isValidMetaPixelId($metaPixelId);
     ?>
     <?php if ($ga4Valid) : ?>
     <script async src="https://www.googletagmanager.com/gtag/js?id=<?= htmlspecialchars($ga4Id) ?>"></script>
