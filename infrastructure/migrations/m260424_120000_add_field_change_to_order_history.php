@@ -34,9 +34,16 @@ class m260424_120000_add_field_change_to_order_history extends Migration
 
     public function safeDown()
     {
-        $this->dropIndex('idx_order_history_order_created', '{{%order_history}}');
-        $this->dropColumn('{{%order_history}}', 'new_value');
-        $this->dropColumn('{{%order_history}}', 'old_value');
-        $this->dropColumn('{{%order_history}}', 'field');
+        $indexes = array_column($this->db->createCommand('SHOW INDEX FROM {{%order_history}}')->queryAll(), 'Key_name');
+        if (in_array('idx_order_history_order_created', $indexes, true)) {
+            $this->dropIndex('idx_order_history_order_created', '{{%order_history}}');
+        }
+
+        $cols = array_column($this->db->createCommand('SHOW COLUMNS FROM {{%order_history}}')->queryAll(), 'Field');
+        foreach (['new_value', 'old_value', 'field'] as $col) {
+            if (in_array($col, $cols, true)) {
+                $this->dropColumn('{{%order_history}}', $col);
+            }
+        }
     }
 }

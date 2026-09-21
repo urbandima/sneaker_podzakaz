@@ -27,7 +27,6 @@ class m260704_210000_add_moysklad_fields_to_product_and_product_size extends Mig
             'ms_external_code'        => ["VARCHAR(100) NULL DEFAULT NULL", null],
             'barcode'                 => ["VARCHAR(255) NULL DEFAULT NULL", null],
             'barcodes_json'           => ["JSON NULL DEFAULT NULL", null],
-            'vat'                     => ["SMALLINT NULL DEFAULT NULL", null],
             'ms_volume'               => ["DECIMAL(10,4) NULL DEFAULT NULL", null],
             'uom_name'                => ["VARCHAR(50) NULL DEFAULT NULL", null],
             'ms_images_json'          => ["JSON NULL DEFAULT NULL", null],

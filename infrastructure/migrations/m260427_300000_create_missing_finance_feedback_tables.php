@@ -68,8 +68,14 @@ class m260427_300000_create_missing_finance_feedback_tables extends Migration
 
     public function safeDown()
     {
-        $this->dropTableIfExists('feedback');
-        $this->dropTableIfExists('expense');
-        $this->dropTableIfExists('payment');
+        if ($this->db->getTableSchema('feedback')) {
+            $this->dropTable('feedback');
+        }
+        if ($this->db->getTableSchema('expense')) {
+            $this->dropTable('expense');
+        }
+        if ($this->db->getTableSchema('payment')) {
+            $this->dropTable('payment');
+        }
     }
 }
