@@ -530,6 +530,7 @@ class OrderController extends BaseAdminController
             try {
                 // Проверяем, может ли пользователь изменить статус
                 if ($model->status != $oldStatus && !$model->canChangeStatus($model->status)) {
+                    $transaction->rollBack();
                     $this->flashError('У вас нет прав на изменение этого статуса.');
                     return $this->redirect(['/admin/order/view', 'id' => $model->id]);
                 }
@@ -539,8 +540,21 @@ class OrderController extends BaseAdminController
                     throw new \Exception('Ошибка сохранения заказа: ' . json_encode($model->errors));
                 }
 
-                $items = Yii::$app->request->post('OrderItem', []);
-                $this->saveOrderItems($model, $items, true);
+                // CMP-417: ключ 'OrderItem' в POST означает, что форма редактировала состав
+                // заказа (тогда saveOrderItems() ниже полностью заменяет позиции — и требует
+                // хотя бы одну непустую). Если ключа нет вовсе (обновлялись только поля
+                // клиента/адреса/статуса — единственный сценарий, доступный в текущем
+                // view.php через actionUpdateField(), но потенциально достижимый и через
+                // это action), товары трогать не нужно: раньше post('OrderItem', []) тихо
+                // подставлял [], saveOrderItems() удалял ВСЕ существующие позиции, находил 0
+                // непустых и бросал исключение — транзакция откатывалась целиком, и заказ
+                // молча терял все только что сохранённые изменения client_name/full_address/
+                // comment/status без видимого 500 (только неприметный flash, который редко
+                // кто читает при 200-ответе на форму).
+                $items = Yii::$app->request->post('OrderItem');
+                if ($items !== null) {
+                    $this->saveOrderItems($model, $items, true);
+                }
 
                 // Инвалидируем кеш статистики
                 TagDependency::invalidate(Yii::$app->cache, ['orders-stats']);

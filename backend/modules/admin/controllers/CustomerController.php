@@ -39,6 +39,11 @@ use app\backend\modules\loyalty\models\LoyaltyPoints;
 
 class CustomerController extends BaseAdminController
 {
+    /**
+     * @var array|null кеш декодированного JSON body для jsonOrPost()
+     */
+    private $jsonBody = null;
+
     public function beforeAction($action): bool
     {
         // CSRF отключён для AJAX-действий, которые вызываются фронтендом через fetch/XMLHttpRequest.
@@ -51,6 +56,36 @@ class CustomerController extends BaseAdminController
             $this->enableCsrfValidation = false;
         }
         return parent::beforeAction($action);
+    }
+
+    /**
+     * CMP-417: у компонента `request` в infrastructure/config/web.php не настроен
+     * `parsers` для 'application/json' (см. yii\web\Request::getBodyParams() —
+     * без записи в $parsers для POST он просто отдаёт $_POST, который PHP не
+     * заполняет для тела не-form-encoded запроса). А admin-customers.js
+     * (backend/web/js/admin-customers.js) отправляет ВСЕ свои fetch()-запросы с
+     * Content-Type: application/json (см. SH.fetch() в utils.js) — то есть
+     * Yii::$app->request->post() всегда пуст для этих вызовов, независимо от
+     * того, что реально прислал браузер.
+     *
+     * Хелпер декодирует raw JSON body (если он есть и валиден) и мерджит с
+     * form/query-параметрами, чтобы читать значения независимо от Content-Type
+     * запроса — тот же приём уже применялся вручную в actionAdjustPoints() и
+     * actionCreateFromOrder().
+     */
+    private function jsonOrPost(string $key, $default = null)
+    {
+        if ($this->jsonBody === null) {
+            $raw = Yii::$app->request->getRawBody();
+            $decoded = $raw !== '' ? json_decode($raw, true) : null;
+            $this->jsonBody = is_array($decoded) ? $decoded : [];
+        }
+
+        if (array_key_exists($key, $this->jsonBody)) {
+            return $this->jsonBody[$key];
+        }
+
+        return Yii::$app->request->post($key, $default);
     }
 
     /**
@@ -446,8 +481,17 @@ class CustomerController extends BaseAdminController
 
     /**
      * Добавить заметку команды к покупателю
+     *
+     * CMP-417: $id не обязателен в query-строке — реальный вызов из
+     * admin-customers.js::addCustomerNote() шлёт JSON/POST body {id, text}
+     * на голый URL /admin/customer/add-note без ?id= в query. Yii2 биндит
+     * параметры action-метода только из query-параметров (см.
+     * yii\web\Request::resolve()), поэтому до этого фикса actionAddNote($id)
+     * ловил "Отсутствуют обязательные параметры: id" на КАЖДОМ реальном клике
+     * "Добавить заметку" в браузере — баг был не виден, потому что curl-прогон
+     * с ?id= в URL (как в старом route-sweep) эту ветку никогда не проверял.
      */
-    public function actionAddNote($id)
+    public function actionAddNote($id = null)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
@@ -455,12 +499,13 @@ class CustomerController extends BaseAdminController
             return ['success' => false, 'message' => 'Метод не поддерживается'];
         }
 
+        $id = $id ?: (int)($this->jsonOrPost('id') ?: $this->jsonOrPost('customer_id'));
         $customer = Customer::findOne($id);
         if (!$customer) {
             return ['success' => false, 'message' => 'Покупатель не найден'];
         }
 
-        $text = trim(Yii::$app->request->post('text', ''));
+        $text = trim($this->jsonOrPost('text', ''));
         if (empty($text)) {
             return ['success' => false, 'message' => 'Текст заметки не может быть пустым'];
         }
@@ -499,8 +544,18 @@ class CustomerController extends BaseAdminController
 
     /**
      * Начислить баллы лояльности покупателю
+     *
+     * CMP-417: два независимых бага при вызове из реального браузера
+     * (admin-customers.js::submitPoints(), который перебивает дублирующийся
+     * inline-обработчик в view.php как загруженный позже — см. отчёт):
+     *  1. $id биндится Yii2 только из query-строки, а JS шлёт id в теле
+     *     запроса ({id, amount, comment} на голый /admin/customer/add-points) —
+     *     без фикса actionAddPoints($id) падал с "Отсутствуют обязательные
+     *     параметры: id" на каждый клик "Начислить".
+     *  2. JS шлёт ключ `amount`, контроллер читал только `points` —
+     *     даже после фикса (1) баллы всегда читались как 0.
      */
-    public function actionAddPoints($id)
+    public function actionAddPoints($id = null)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
@@ -508,13 +563,14 @@ class CustomerController extends BaseAdminController
             return ['success' => false, 'message' => 'Метод не поддерживается'];
         }
 
+        $id = $id ?: (int)($this->jsonOrPost('id') ?: $this->jsonOrPost('customer_id'));
         $customer = Customer::findOne($id);
         if (!$customer) {
             return ['success' => false, 'message' => 'Покупатель не найден'];
         }
 
-        $points = (int)Yii::$app->request->post('points', 0);
-        $comment = trim(Yii::$app->request->post('comment', ''));
+        $points = (int)($this->jsonOrPost('points') ?: $this->jsonOrPost('amount', 0));
+        $comment = trim($this->jsonOrPost('comment', ''));
 
         if ($points <= 0) {
             return ['success' => false, 'message' => 'Количество баллов должно быть больше 0'];
@@ -546,8 +602,11 @@ class CustomerController extends BaseAdminController
 
     /**
      * Списать баллы лояльности у покупателя
+     *
+     * CMP-417: те же два бага, что в actionAddPoints() (см. её docblock) —
+     * $id из body, а не query, + JS-ключ `amount` вместо `points`.
      */
-    public function actionDeductPoints($id)
+    public function actionDeductPoints($id = null)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
@@ -555,13 +614,14 @@ class CustomerController extends BaseAdminController
             return ['success' => false, 'message' => 'Метод не поддерживается'];
         }
 
+        $id = $id ?: (int)($this->jsonOrPost('id') ?: $this->jsonOrPost('customer_id'));
         $customer = Customer::findOne($id);
         if (!$customer) {
             return ['success' => false, 'message' => 'Покупатель не найден'];
         }
 
-        $points = (int)Yii::$app->request->post('points', 0);
-        $comment = trim(Yii::$app->request->post('comment', ''));
+        $points = (int)($this->jsonOrPost('points') ?: $this->jsonOrPost('amount', 0));
+        $comment = trim($this->jsonOrPost('comment', ''));
 
         if ($points <= 0) {
             return ['success' => false, 'message' => 'Количество баллов должно быть больше 0'];
@@ -592,8 +652,24 @@ class CustomerController extends BaseAdminController
 
     /**
      * Обновить теги покупателя
+     *
+     * CMP-417: поддерживает два независимых контракта одновременно:
+     *  - полная замена списка: POST {tags: [...]} (или CSV-строка) — как и
+     *    раньше, для пакетного сохранения формы;
+     *  - точечное добавление/удаление одного тега: POST {action: 'add'|
+     *    'remove', tag: '...'} — контракт, который реально шлёт
+     *    admin-customers.js::addTag()/removeTag() (тот JS выигрывает у
+     *    дублирующегося inline-обработчика в view.php, так как подключается
+     *    позже и переопределяет window.addTag/window.removeTag).
+     *  Без ветки `action` вызов с {action:'add', tag:'X'} читал бы
+     *  несуществующий 'tags' как [] и удалял ВСЕ теги покупателя вместо
+     *  добавления одного — тихая потеря данных при каждом клике "добавить
+     *  тег" в браузере.
+     *  Также $id теперь не обязателен в query — JS шлёт id в теле запроса
+     *  (см. actionAddNote()), без чего Yii2 не биндит параметр action-метода
+     *  и падает с "Отсутствуют обязательные параметры: id".
      */
-    public function actionUpdateTags($id)
+    public function actionUpdateTags($id = null)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
@@ -601,42 +677,79 @@ class CustomerController extends BaseAdminController
             return ['success' => false, 'message' => 'Метод не поддерживается'];
         }
 
+        $id = $id ?: (int)($this->jsonOrPost('id') ?: $this->jsonOrPost('customer_id'));
         $customer = Customer::findOne($id);
         if (!$customer) {
             return ['success' => false, 'message' => 'Покупатель не найден'];
         }
 
-        $tags = Yii::$app->request->post('tags', []);
-        if (!is_array($tags)) {
-            $tags = array_filter(array_map('trim', explode(',', $tags)));
-        }
+        $sanitize = function ($tag) {
+            return trim(preg_replace('/[^а-яёА-ЯЁa-zA-Z0-9\s\-_]/u', '', (string)$tag));
+        };
 
-        // Очищаем теги от опасных символов
-        $tags = array_map(function ($tag) {
-            return preg_replace('/[^а-яёА-ЯЁa-zA-Z0-9\s\-_]/u', '', $tag);
-        }, $tags);
-        $tags = array_filter(array_unique($tags));
+        $action = $this->jsonOrPost('action');
 
         try {
             $db = Yii::$app->db;
-            // Удаляем старые теги
-            $db->createCommand()->delete('{{%customer_tags}}', ['customer_id' => $id])->execute();
 
-            // Добавляем новые
-            foreach ($tags as $tag) {
-                if (!empty(trim($tag))) {
-                    $db->createCommand()->insert('{{%customer_tags}}', [
+            if ($action === 'add' || $action === 'remove') {
+                $tag = $sanitize($this->jsonOrPost('tag', ''));
+                if ($tag === '') {
+                    return ['success' => false, 'message' => 'Тег не может быть пустым'];
+                }
+
+                if ($action === 'add') {
+                    $exists = $db->createCommand(
+                        'SELECT 1 FROM {{%customer_tags}} WHERE customer_id = :id AND tag = :tag',
+                        [':id' => $id, ':tag' => $tag]
+                    )->queryScalar();
+                    if (!$exists) {
+                        $db->createCommand()->insert('{{%customer_tags}}', [
+                            'customer_id' => $id,
+                            'tag' => $tag,
+                            'created_at' => time(),
+                        ])->execute();
+                    }
+                } else {
+                    $db->createCommand()->delete('{{%customer_tags}}', [
                         'customer_id' => $id,
-                        'tag' => trim($tag),
-                        'created_at' => time(),
+                        'tag' => $tag,
                     ])->execute();
                 }
+            } else {
+                // Полная замена списка тегов
+                $tags = $this->jsonOrPost('tags', []);
+                if (!is_array($tags)) {
+                    $tags = array_filter(array_map('trim', explode(',', $tags)));
+                }
+
+                $tags = array_map($sanitize, $tags);
+                $tags = array_filter(array_unique($tags));
+
+                // Удаляем старые теги
+                $db->createCommand()->delete('{{%customer_tags}}', ['customer_id' => $id])->execute();
+
+                // Добавляем новые
+                foreach ($tags as $tag) {
+                    if ($tag !== '') {
+                        $db->createCommand()->insert('{{%customer_tags}}', [
+                            'customer_id' => $id,
+                            'tag' => $tag,
+                            'created_at' => time(),
+                        ])->execute();
+                    }
+                }
             }
+
+            $currentTags = $db->createCommand(
+                'SELECT tag FROM {{%customer_tags}} WHERE customer_id = :id ORDER BY created_at ASC',
+                [':id' => $id]
+            )->queryColumn();
 
             return [
                 'success' => true,
                 'message' => 'Теги обновлены',
-                'tags' => array_values($tags),
+                'tags' => array_values($currentTags),
             ];
         } catch (\Exception $e) {
             Yii::error('CustomerController::actionUpdateTags error: ' . $e->getMessage());
