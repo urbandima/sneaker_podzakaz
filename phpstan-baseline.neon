@@ -8705,10 +8705,6 @@ parameters:
 			count: 2
 			path: backend/modules/catalog/models/ProductStock.php
 
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\SizeGrid\\:\\:\\$slug\\.$#"
-			count: 1
-			path: backend/modules/catalog/models/SizeGrid.php
 
 		-
 			message: "#^If condition is always true\\.$#"

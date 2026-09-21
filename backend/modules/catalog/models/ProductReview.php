@@ -57,7 +57,14 @@ class ProductReview extends ActiveRecord
     public function behaviors()
     {
         return [
-            TimestampBehavior::class,
+            [
+                // product_review не имеет колонки updated_at (только created_at,
+                // int) — дефолтный TimestampBehavior пытается писать оба поля и
+                // роняет ЛЮБОЙ save() (insert и update) с
+                // UnknownPropertyException: Setting unknown property ...::updated_at.
+                'class' => TimestampBehavior::class,
+                'updatedAtAttribute' => false,
+            ],
         ];
     }
 
@@ -106,5 +113,43 @@ class ProductReview extends ActiveRecord
     public function getCustomer()
     {
         return $this->hasOne(Customer::class, ['id' => 'user_id']);
+    }
+
+    /**
+     * Опубликовать отзыв.
+     *
+     * Зеркалит логику actionModerate(action=publish): выставляет is_published,
+     * фронт (ReviewController::actionList) фильтрует именно по этому полю, не по status.
+     *
+     * @return bool
+     */
+    public function publish(): bool
+    {
+        $this->is_published = true;
+        return $this->save(false, ['is_published']);
+    }
+
+    /**
+     * Снять отзыв с публикации.
+     *
+     * @return bool
+     */
+    public function unpublish(): bool
+    {
+        $this->is_published = false;
+        return $this->save(false, ['is_published']);
+    }
+
+    /**
+     * Сохранить ответ администрации на отзыв.
+     *
+     * @param string|null $response
+     * @return bool
+     */
+    public function addAdminResponse(?string $response): bool
+    {
+        $this->admin_response = $response;
+        $this->admin_response_at = date('Y-m-d H:i:s');
+        return $this->save(false, ['admin_response', 'admin_response_at']);
     }
 }

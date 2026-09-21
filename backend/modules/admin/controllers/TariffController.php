@@ -60,6 +60,12 @@ class TariffController extends BaseAdminController
                 'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
+                    // CMP-417: actionToggle меняет is_active без подтверждения — GET
+                    // не проверяется CSRF-фильтром Yii (csrfTokenSafeMethods), поэтому
+                    // без этого ограничения тариф можно было переключить простым GET
+                    // (например через <img src>). CouponController::actionToggle уже
+                    // был защищён аналогично — здесь только выравниваем.
+                    'toggle' => ['POST'],
                 ],
             ],
         ];
