@@ -19,12 +19,16 @@ INSERT INTO coupon (code, name, description, type, value, min_order_amount, is_a
 -- created_by нужны почти на всех точках истории — если какой-то колонки нет
 -- (совсем ранняя база), эта секция упадёт и её нужно расширить/урезать вручную
 -- под конкретный кандидат (см. docs/deploy/cmp405-main-to-prod-runbook.md).
+-- order_item.product_id НЕ входит сюда специально: колонка появляется только в
+-- m260503_120000_add_product_fields_to_order_item (май 2026), поэтому на
+-- сценарии B (база = конец 2025, см. CMP-412/CMP-415) её ещё нет — INSERT
+-- с product_id падал с "Unknown column" (обнаружено в CMP-415).
 INSERT INTO `order` (customer_id, order_number, token, client_name, client_email, full_address, total_amount, status, source, created_by, created_at, updated_at)
 SELECT c.id, CONCAT('ORD-SIM-', c.id), MD5(CONCAT('cmp412-sim-', c.id)), c.first_name, c.email, 'г. Минск, симуляция CMP-412', 199.00 + c.id, 'delivered', 'website', c.id, c.created_at, c.updated_at
 FROM customer c WHERE c.email LIKE 'sim.%@example.test';
 
-INSERT INTO order_item (order_id, product_id, product_name, quantity, price, total, created_at)
-SELECT o.id, p.id, p.name, 1, p.price, p.price, o.created_at
+INSERT INTO order_item (order_id, product_name, quantity, price, total, created_at)
+SELECT o.id, p.name, 1, p.price, p.price, o.created_at
 FROM `order` o
 JOIN customer c ON c.id = o.customer_id AND c.email LIKE 'sim.%@example.test'
 JOIN product p ON p.id = ((o.customer_id % 5) + 1);
