@@ -772,7 +772,7 @@ class ProductController extends BaseAdminController
         // Заголовки
         fputcsv($output, [
             'ID', 'Название', 'Артикул', 'Бренд', 'Категория', 'Цена', 'Статус', 'Наличие', 'Poizon ID'
-        ]);
+        ], ',', '"', '\\');
 
         foreach ($products as $product) {
             fputcsv($output, [
@@ -785,7 +785,7 @@ class ProductController extends BaseAdminController
                 ($product['is_active'] ?? 0) ? 'Активен' : 'Неактивен',
                 $product['stock_status'] ?? '',
                 $product['poizon_id'] ?? ''
-            ]);
+            ], ',', '"', '\\');
         }
 
         fclose($output);

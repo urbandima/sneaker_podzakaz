@@ -383,7 +383,7 @@ class CustomerController extends BaseAdminController
         fputcsv($output, [
             'ID', 'Email', 'Телефон', 'Имя', 'Фамилия', 'Город',
             'Заказов', 'Потрачено', 'Статус', 'Дата регистрации'
-        ], ';');
+        ], ';', '"', '\\');
 
         foreach ($customers as $customer) {
             fputcsv($output, [
@@ -397,7 +397,7 @@ class CustomerController extends BaseAdminController
                 $customer->total_spent,
                 $customer->getStatusLabel(),
                 date('d.m.Y H:i', $customer->created_at),
-            ], ';');
+            ], ';', '"', '\\');
         }
 
         fclose($output);
@@ -841,12 +841,14 @@ class CustomerController extends BaseAdminController
             return ['success' => false, 'message' => 'Доступ запрещён'];
         }
 
+        // customer не имеет колонки is_active — деактивация выражается через status
+        // (см. Customer::STATUS_INACTIVE_DB), как и везде в остальном контроллере.
         $count = Yii::$app->db->createCommand("
             UPDATE {{%customer}}
-            SET is_active = 0
+            SET status = :inactiveStatus
             WHERE email REGEXP '^ms_[a-f0-9]+@'
               AND (last_order_at IS NULL OR orders_count = 0)
-        ")->execute();
+        ", [':inactiveStatus' => Customer::STATUS_INACTIVE_DB])->execute();
 
         return [
             'success' => true,

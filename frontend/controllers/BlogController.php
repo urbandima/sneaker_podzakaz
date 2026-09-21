@@ -61,8 +61,6 @@ class BlogController extends Controller
         $this->view->registerMetaTag(['property' => 'og:url',         'content' => Yii::$app->request->absoluteUrl]);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
 
-        $this->params['breadcrumbs'][] = 'Блог';
-
         return $this->render('index', ['articles' => $articles]);
     }
 
@@ -84,9 +82,6 @@ class BlogController extends Controller
         $this->view->registerMetaTag(['property' => 'article:published_time', 'content' => $article['datePublished']]);
         $this->view->registerMetaTag(['property' => 'article:modified_time',  'content' => $article['dateModified']]);
         $this->view->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->request->absoluteUrl]);
-
-        $this->params['breadcrumbs'][] = ['label' => 'Блог', 'url' => ['/blog/index']];
-        $this->params['breadcrumbs'][] = $article['title'];
 
         return $this->render('view', ['article' => $article]);
     }

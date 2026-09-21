@@ -635,7 +635,7 @@ class AnalyticsController extends BaseAdminController
             JOIN `order` o ON oi.order_id = o.id
             JOIN product p ON oi.product_name = p.name
             JOIN category c ON p.category_id = c.id
-            WHERE DATE(o.created_at) BETWEEN :from AND :to
+            WHERE DATE(FROM_UNIXTIME(o.created_at)) BETWEEN :from AND :to
             GROUP BY c.id
             ORDER BY total_qty DESC
             LIMIT 10
@@ -1409,9 +1409,9 @@ class AnalyticsController extends BaseAdminController
 
         $tmp = fopen('php://temp', 'r+');
         if (!empty($rows)) {
-            fputcsv($tmp, array_keys($rows[0]));
+            fputcsv($tmp, array_keys($rows[0]), ',', '"', '\\');
             foreach ($rows as $row) {
-                fputcsv($tmp, $row);
+                fputcsv($tmp, $row, ',', '"', '\\');
             }
         }
         rewind($tmp);
@@ -1509,12 +1509,12 @@ class AnalyticsController extends BaseAdminController
     {
         $rows = Yii::$app->db->createCommand("
             SELECT
-                p.id       AS `ID`,
-                p.name     AS `Название`,
-                p.sku      AS `Артикул`,
-                p.price    AS `Цена`,
-                p.status   AS `Статус`,
-                p.ms_code  AS `Код_МС`
+                p.id                                          AS `ID`,
+                p.name                                        AS `Название`,
+                p.sku                                         AS `Артикул`,
+                p.price                                        AS `Цена`,
+                IF(p.is_active, 'Активен', 'Неактивен')       AS `Статус`,
+                p.ms_code                                     AS `Код_МС`
             FROM product p
             ORDER BY p.name
         ")->queryAll();
@@ -1536,11 +1536,11 @@ class AnalyticsController extends BaseAdminController
 
         if (!empty($data)) {
             // Заголовки
-            fputcsv($output, array_keys($data[0]));
+            fputcsv($output, array_keys($data[0]), ',', '"', '\\');
 
             // Данные
             foreach ($data as $row) {
-                fputcsv($output, $row);
+                fputcsv($output, $row, ',', '"', '\\');
             }
         }
 

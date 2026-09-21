@@ -202,10 +202,15 @@ class AmoCrmController extends BaseAdminController
     }
 
     /**
-     * Страница настроек
+     * Страница настроек AmoCRM переехала в PluginController (admin/plugin/amocrm) —
+     * там же живут поля, пайплайны, синхронизация и авторизация. У этого экшена
+     * никогда не было вида (settings.php не существовал → 500 при заходе), маршрут
+     * нигде не выведен в меню/ссылках. Оставляем как redirect, а не удаляем
+     * контроллер целиком — actionCreateDeal/actionUpdateStatus остаются нетронутыми,
+     * это отдельный вопрос архитектуры (дублирование с AmocrmClient/PluginController).
      */
     public function actionSettings()
     {
-        return $this->render('settings');
+        return $this->redirect(['/admin/plugin/amocrm']);
     }
 }

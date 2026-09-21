@@ -127,10 +127,11 @@ class ActivityLogController extends BaseAdminController
         $source     = $req->get('source', '');
         $search     = trim($req->get('search', ''));
 
+        // buildQuery() возвращает обычный yii\db\Query (не ActiveQuery) — он и так
+        // отдаёт массивы, ->asArray() на нём не существует (только на ActiveQuery).
         $rows = $this->buildQuery($period, $startDate, $endDate, $userId, $targetType, $action, $source, $search)
             ->orderBy(['created_at' => SORT_DESC])
             ->limit(10000)
-            ->asArray()
             ->all();
 
         $filename = 'activity_log_' . date('Ymd_His') . '.csv';
@@ -144,7 +145,7 @@ class ActivityLogController extends BaseAdminController
         $fh = fopen('php://output', 'w');
         fputs($fh, "\xEF\xBB\xBF"); // UTF-8 BOM для Excel
 
-        fputcsv($fh, ['ID', 'Дата', 'Пользователь', 'Роль', 'Действие', 'Тип', 'ID объекта', 'Объект', 'Изменения', 'Источник', 'IP'], ';');
+        fputcsv($fh, ['ID', 'Дата', 'Пользователь', 'Роль', 'Действие', 'Тип', 'ID объекта', 'Объект', 'Изменения', 'Источник', 'IP'], ';', '"', '\\');
 
         foreach ($rows as $row) {
             fputcsv($fh, [
@@ -159,7 +160,7 @@ class ActivityLogController extends BaseAdminController
                 $row['changes'] ?? '',
                 $row['source'],
                 $row['ip'] ?? '',
-            ], ';');
+            ], ';', '"', '\\');
         }
 
         fclose($fh);

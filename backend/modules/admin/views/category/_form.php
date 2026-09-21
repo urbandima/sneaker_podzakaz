@@ -77,10 +77,6 @@ $this->params['breadcrumbs'][] = $this->title;
                     </div>
                 </div>
 
-                <?php
-                // Attach imageFile as virtual field
-                $model->addRule ? null : null; // no-op
-                ?>
                 <input type="file" id="imgFileInput" name="Category[imageFile]"
                        accept="image/*" style="display:none"
                        onchange="previewImage(this)">

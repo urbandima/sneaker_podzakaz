@@ -117,8 +117,13 @@ class CatalogController extends Controller
     /**
      * Найти товар для behaviors (кэш привязан к slug)
      */
-    protected function findProduct($slug)
+    protected function findProduct(?string $slug)
     {
+        // /catalog/product без ?slug= (старая закладка, бот, битая ссылка) — не 500,
+        // а «товар не найден»: findBySlug() принимает только string.
+        if ($slug === null || $slug === '') {
+            return null;
+        }
         static $cache = [];
         if (!array_key_exists($slug, $cache)) {
             $cache[$slug] = $this->productRepository->findBySlug($slug);

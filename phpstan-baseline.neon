@@ -896,11 +896,6 @@ parameters:
 			path: backend/modules/admin/components/TwoFactorAuth.php
 
 		-
-			message: "#^Call to an undefined method yii\\\\db\\\\Query\\:\\:asArray\\(\\)\\.$#"
-			count: 1
-			path: backend/modules/admin/controllers/ActivityLogController.php
-
-		-
 			message: "#^Constant app\\\\backend\\\\modules\\\\admin\\\\controllers\\\\ActivityLogController\\:\\:PERIOD_ALL is unused\\.$#"
 			count: 1
 			path: backend/modules/admin/controllers/ActivityLogController.php
@@ -3138,12 +3133,22 @@ parameters:
 		-
 			message: "#^Variable \\$this might not be defined\\.$#"
 			count: 2
+			path: backend/modules/admin/views/analytics/conversion.php
+
+		-
+			message: "#^Variable \\$this might not be defined\\.$#"
+			count: 2
 			path: backend/modules/admin/views/analytics/conversions.php
 
 		-
 			message: "#^Variable \\$this might not be defined\\.$#"
 			count: 2
 			path: backend/modules/admin/views/analytics/index.php
+
+		-
+			message: "#^Variable \\$this might not be defined\\.$#"
+			count: 2
+			path: backend/modules/admin/views/analytics/sales.php
 
 		-
 			message: "#^Variable \\$error might not be defined\\.$#"
@@ -3499,11 +3504,6 @@ parameters:
 			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\procurement\\\\models\\\\BuyoutOrderLink\\:\\:\\$order_id\\.$#"
 			count: 2
 			path: backend/modules/admin/views/buyout/view.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\Category\\:\\:\\$addRule\\.$#"
-			count: 1
-			path: backend/modules/admin/views/category/_form.php
 
 		-
 			message: "#^Ternary operator condition is always true\\.$#"
@@ -10549,11 +10549,6 @@ parameters:
 			message: "#^Call to static method find\\(\\) on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ImportLog\\.$#"
 			count: 2
 			path: frontend/controllers/AdminImportController.php
-
-		-
-			message: "#^Access to an undefined property app\\\\frontend\\\\controllers\\\\BlogController\\:\\:\\$params\\.$#"
-			count: 2
-			path: frontend/controllers/BlogController.php
 
 		-
 			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
