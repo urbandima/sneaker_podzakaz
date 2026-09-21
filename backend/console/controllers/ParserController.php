@@ -302,10 +302,10 @@ class ParserController extends Controller
      */
     private function detectGender($name)
     {
-        if (stripos($name, 'Wmns') !== false || stripos($name, 'Women') !== false || stripos($name, 'женские') !== false) {
+        if (stripos($name, 'Wmns') !== false || stripos($name, 'Women') !== false || mb_stripos($name, 'женские') !== false) {
             return 'female';
         }
-        if (stripos($name, 'Men') !== false || stripos($name, 'мужские') !== false) {
+        if (stripos($name, 'Men') !== false || mb_stripos($name, 'мужские') !== false) {
             return 'male';
         }
         return 'unisex';

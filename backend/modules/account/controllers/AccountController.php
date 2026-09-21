@@ -446,7 +446,7 @@ class AccountController extends Controller
         if ($email || $phone) {
             // Проверяем, есть ли аккаунт
             $customer = Customer::find()
-                ->where(['is_active' => Customer::STATUS_ACTIVE])
+                ->where(['status' => [Customer::STATUS_ACTIVE, Customer::STATUS_ACTIVE_DB]])
                 ->andWhere(['or', ['email' => $email], ['phone' => $phone]])
                 ->one();
 

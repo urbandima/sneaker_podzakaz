@@ -38,7 +38,7 @@ namespace app\backend\modules\catalog\models;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
-use app\backend\modules\catalog\models\history\CharacteristicHistory;
+use app\backend\modules\catalog\models\CharacteristicHistory;
 
 /**
  * Модель Characteristic (Тип характеристики)

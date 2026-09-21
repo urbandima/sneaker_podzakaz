@@ -26,6 +26,7 @@ use yii\filters\VerbFilter;
 use yii\web\Response;
 use app\backend\modules\catalog\models\ProductReview;
 use app\backend\modules\catalog\models\Product;
+use app\backend\modules\account\models\Customer;
 
 class ReviewController extends Controller
 {
@@ -94,7 +95,7 @@ class ReviewController extends Controller
         }
 
         $existingReview = ProductReview::find()
-            ->where(['product_id' => $productId, 'customer_id' => $customerId])
+            ->where(['product_id' => $productId, 'user_id' => $customerId])
             ->one();
 
         if ($existingReview) {
@@ -104,16 +105,25 @@ class ReviewController extends Controller
             ];
         }
 
+        $customer = Customer::findOne($customerId);
+        if (!$customer) {
+            return [
+                'success' => false,
+                'message' => 'Необходимо авторизоваться',
+            ];
+        }
+
         // Создание отзыва
         $review = new ProductReview();
         $review->product_id = $productId;
-        $review->customer_id = $customerId;
+        $review->user_id = $customerId;
+        $review->name = $customer->getFullName();
+        $review->email = $customer->email;
         $review->rating = (int)$rating;
         $review->comment = $comment;
-        $review->advantages = $advantages;
-        $review->disadvantages = $disadvantages;
+        $review->pros = $advantages;
+        $review->cons = $disadvantages;
         $review->status = 'pending'; // На модерации
-        $review->created_at = date('Y-m-d H:i:s');
 
         if ($review->save()) {
             return [
@@ -136,9 +146,11 @@ class ReviewController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
+        // Модерация в админке переключает is_published (ReviewController::actionModerate),
+        // а не status — фильтруем по тому же полю, иначе одобренные отзывы никогда
+        // не появляются на сайте.
         $reviews = ProductReview::find()
-            ->where(['product_id' => $productId, 'status' => 'published'])
-            ->with(['customer'])
+            ->where(['product_id' => $productId, 'is_published' => true])
             ->orderBy(['created_at' => SORT_DESC])
             ->all();
 
@@ -148,9 +160,9 @@ class ReviewController extends Controller
                 'id' => $review->id,
                 'rating' => $review->rating,
                 'comment' => $review->comment,
-                'advantages' => $review->advantages,
-                'disadvantages' => $review->disadvantages,
-                'customer_name' => $review->customer->name ?? 'Покупатель',
+                'advantages' => $review->pros,
+                'disadvantages' => $review->cons,
+                'customer_name' => $review->name ?: 'Покупатель',
                 'created_at' => Yii::$app->formatter->asDate($review->created_at, 'php:d.m.Y'),
                 'helpful_count' => $review->helpful_count ?? 0,
             ];

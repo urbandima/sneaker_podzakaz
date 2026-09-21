@@ -15,7 +15,7 @@ class PurchaseOrderItem extends ActiveRecord
     {
         return [
             [['purchase_order_id'], 'required'],
-            [['purchase_order_id', 'product_id', 'quantity', 'received_quantity'], 'integer'],
+            [['purchase_order_id', 'quantity', 'received_quantity'], 'integer'],
             [['price_cny', 'price_byn'], 'number'],
             [['product_name'], 'string', 'max' => 255],
             [['size'], 'string', 'max' => 20],

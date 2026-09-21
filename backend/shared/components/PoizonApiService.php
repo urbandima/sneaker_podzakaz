@@ -152,7 +152,7 @@ class PoizonApiService extends Component
                 $name = (string) $param['name'];
                 $value = (string) $param;
 
-                if (stripos($name, 'size') !== false || stripos($name, 'размер') !== false) {
+                if (stripos($name, 'size') !== false || mb_stripos($name, 'размер') !== false) {
                     $sizes[] = $value;
                 }
             }

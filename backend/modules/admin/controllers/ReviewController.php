@@ -70,7 +70,7 @@ class ReviewController extends BaseAdminController
      */
     public function actionIndex()
     {
-        $query = ProductReview::find()->with(['product', 'user'])->orderBy(['created_at' => SORT_DESC]);
+        $query = ProductReview::find()->with(['product', 'customer'])->orderBy(['created_at' => SORT_DESC]);
 
         // Фильтры
         $status = Yii::$app->request->get('status');

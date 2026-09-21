@@ -25,7 +25,7 @@ class PurchaseOrder extends ActiveRecord
     {
         return [
             [['purchase_number', 'supplier_id'], 'required'],
-            [['supplier_id', 'order_id', 'customer_id', 'created_by'], 'integer'],
+            [['supplier_id', 'order_id', 'created_by'], 'integer'],
             [['total_amount_cny', 'total_amount_byn', 'exchange_rate'], 'number'],
             [['ordered_at', 'received_at'], 'safe'],
             [['notes'], 'string'],
@@ -47,7 +47,6 @@ class PurchaseOrder extends ActiveRecord
             'total_amount_byn' => 'Сумма BYN',
             'exchange_rate'    => 'Курс',
             'order_id'         => 'Заказ клиента',
-            'customer_id'      => 'Клиент',
             'notes'            => 'Примечания',
             'ordered_at'       => 'Дата заказа',
             'received_at'      => 'Дата получения',

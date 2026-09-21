@@ -86,12 +86,10 @@ class Brand extends ActiveRecord
     public function behaviors()
     {
         return [
-            [
-                'class' => TimestampBehavior::class,
-                'value' => function () {
-                    return date('Y-m-d H:i:s');
-                },
-            ],
+            // brand.created_at/updated_at — int (unix timestamp), не DATETIME:
+            // дефолтный TimestampBehavior::value (int time()) подходит без переопределения,
+            // как в Category (CMP-410) — кастомный callback с date() писал строку в int.
+            TimestampBehavior::class,
             [
                 'class' => SluggableBehavior::class,
                 'attribute' => 'name',

@@ -716,11 +716,6 @@ parameters:
 			path: backend/modules/account/models/ChangePasswordForm.php
 
 		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\account\\\\models\\\\Customer\\:\\:\\$is_active\\.$#"
-			count: 2
-			path: backend/modules/account/models/Customer.php
-
-		-
 			message: "#^Negated boolean expression is always true\\.$#"
 			count: 1
 			path: backend/modules/account/models/CustomerLoginForm.php
@@ -2414,21 +2409,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$string of function str_pad expects string, int\\<1, 9999\\> given\\.$#"
 			count: 1
 			path: backend/modules/admin/controllers/ReturnController.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductReview\\:\\:\\$admin_response\\.$#"
-			count: 1
-			path: backend/modules/admin/controllers/ReviewController.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductReview\\:\\:\\$admin_response_at\\.$#"
-			count: 1
-			path: backend/modules/admin/controllers/ReviewController.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductReview\\:\\:\\$is_published\\.$#"
-			count: 2
-			path: backend/modules/admin/controllers/ReviewController.php
 
 		-
 			message: "#^Call to an undefined method yii\\\\web\\\\IdentityInterface\\:\\:isAdmin\\(\\)\\.$#"
@@ -8506,56 +8486,6 @@ parameters:
 			path: backend/modules/catalog/controllers/CatalogController.php
 
 		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductReview\\:\\:\\$advantages\\.$#"
-			count: 2
-			path: backend/modules/catalog/controllers/ReviewController.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductReview\\:\\:\\$comment\\.$#"
-			count: 2
-			path: backend/modules/catalog/controllers/ReviewController.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductReview\\:\\:\\$created_at\\.$#"
-			count: 2
-			path: backend/modules/catalog/controllers/ReviewController.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductReview\\:\\:\\$customer_id\\.$#"
-			count: 1
-			path: backend/modules/catalog/controllers/ReviewController.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductReview\\:\\:\\$disadvantages\\.$#"
-			count: 2
-			path: backend/modules/catalog/controllers/ReviewController.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductReview\\:\\:\\$helpful_count\\.$#"
-			count: 1
-			path: backend/modules/catalog/controllers/ReviewController.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductReview\\:\\:\\$id\\.$#"
-			count: 1
-			path: backend/modules/catalog/controllers/ReviewController.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductReview\\:\\:\\$product_id\\.$#"
-			count: 1
-			path: backend/modules/catalog/controllers/ReviewController.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductReview\\:\\:\\$rating\\.$#"
-			count: 2
-			path: backend/modules/catalog/controllers/ReviewController.php
-
-		-
-			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductReview\\:\\:\\$status\\.$#"
-			count: 1
-			path: backend/modules/catalog/controllers/ReviewController.php
-
-		-
 			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\admin\\\\models\\\\User\\:\\:\\$email\\.$#"
 			count: 1
 			path: backend/modules/catalog/models/CatalogInquiry.php
@@ -8643,16 +8573,6 @@ parameters:
 		-
 			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\Characteristic\\:\\:\\$version\\.$#"
 			count: 3
-			path: backend/modules/catalog/models/Characteristic.php
-
-		-
-			message: "#^Call to method save\\(\\) on an unknown class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\history\\\\CharacteristicHistory\\.$#"
-			count: 1
-			path: backend/modules/catalog/models/Characteristic.php
-
-		-
-			message: "#^Instantiated class app\\\\backend\\\\modules\\\\catalog\\\\models\\\\history\\\\CharacteristicHistory not found\\.$#"
-			count: 1
 			path: backend/modules/catalog/models/Characteristic.php
 
 		-

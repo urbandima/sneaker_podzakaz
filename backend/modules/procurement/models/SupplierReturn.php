@@ -31,7 +31,7 @@ class SupplierReturn extends ActiveRecord
             [['return_number'], 'string', 'max' => 50],
             [['status', 'reason'], 'string', 'max' => 50],
             [['notes'], 'string'],
-            [['created_at', 'updated_at'], 'safe'],
+            [['created_at'], 'safe'],
         ];
     }
 

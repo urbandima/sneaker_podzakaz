@@ -16,7 +16,7 @@ class SupplierReturnItem extends ActiveRecord
         return [
             [['supplier_return_id', 'product_name'], 'required'],
             [['supplier_return_id', 'purchase_order_item_id', 'quantity'], 'integer'],
-            [['price_cny', 'price_byn'], 'number'],
+            [['price_byn'], 'number'],
             [['product_name'], 'string', 'max' => 255],
             [['size'], 'string', 'max' => 20],
             [['reason'], 'string'],

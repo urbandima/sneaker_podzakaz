@@ -179,7 +179,7 @@ class TrackingService extends Component
 
         // Добавляем события
         if (!empty($data['events'])) {
-            $tracking->events_json = json_encode($data['events'], JSON_UNESCAPED_UNICODE);
+            $tracking->tracking_events = json_encode($data['events'], JSON_UNESCAPED_UNICODE);
         }
 
         if ($tracking->save()) {

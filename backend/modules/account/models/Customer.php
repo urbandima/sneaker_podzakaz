@@ -16,7 +16,7 @@
  * - Настройки: subscribe_news, subscribe_promo
  * - Статус: status (active/inactive/deleted)
  *
- * СТАТУСЫ (поле is_active):
+ * СТАТУСЫ (поле status):
  * - STATUS_ACTIVE = 1 (активный)
  * - STATUS_INACTIVE = 0 (неактивный/удалённый)
  *
@@ -110,8 +110,10 @@ class Customer extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            ['is_active', 'default', 'value' => self::STATUS_ACTIVE],
-            ['is_active', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE]],
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            // Диапазон включает оба конвертирующихся набора значений: 1/0 (используется
+            // при регистрации) и 10/9 (реальные данные в БД, значение по умолчанию в схеме).
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_ACTIVE_DB, self::STATUS_INACTIVE_DB]],
 
             ['email', 'trim'],
             ['email', 'required'],
@@ -200,7 +202,7 @@ class Customer extends ActiveRecord implements IdentityInterface
     {
         return static::find()
             ->where(['id' => $id])
-            ->andWhere(['is_active' => self::STATUS_ACTIVE])
+            ->andWhere(['status' => [self::STATUS_ACTIVE, self::STATUS_ACTIVE_DB]])
             ->one();
     }
 
@@ -232,14 +234,14 @@ class Customer extends ActiveRecord implements IdentityInterface
     {
         return static::find()
             ->where(['email' => $email])
-            ->andWhere(['is_active' => self::STATUS_ACTIVE])
+            ->andWhere(['status' => [self::STATUS_ACTIVE, self::STATUS_ACTIVE_DB]])
             ->one();
     }
 
     public static function findByEmailOrPhone($emailOrPhone)
     {
         return static::find()
-            ->where(['is_active' => self::STATUS_ACTIVE])
+            ->where(['status' => [self::STATUS_ACTIVE, self::STATUS_ACTIVE_DB]])
             ->andWhere(['or', ['email' => $emailOrPhone], ['phone' => $emailOrPhone]])
             ->one();
     }
@@ -325,7 +327,7 @@ class Customer extends ActiveRecord implements IdentityInterface
             self::STATUS_ACTIVE => 'Активен',
             self::STATUS_DELETED => 'Удалён',
         ];
-        return $statuses[$this->status] ?? ($this->is_active ? 'Активен' : 'Неактивен');
+        return $statuses[$this->status] ?? ($this->status == self::STATUS_ACTIVE ? 'Активен' : 'Неактивен');
     }
 
     public function getStatusBadgeClass()
@@ -336,7 +338,7 @@ class Customer extends ActiveRecord implements IdentityInterface
             self::STATUS_ACTIVE => 'success',
             self::STATUS_DELETED => 'danger',
         ];
-        return $classes[$this->status] ?? ($this->is_active ? 'success' : 'secondary');
+        return $classes[$this->status] ?? ($this->status == self::STATUS_ACTIVE ? 'success' : 'secondary');
     }
 
     public function updateLoginInfo()

@@ -89,12 +89,12 @@ class Category extends ActiveRecord
     public function behaviors()
     {
         return [
-            [
-                'class' => TimestampBehavior::class,
-                'value' => function () {
-                    return date('Y-m-d H:i:s');
-                },
-            ],
+            // category.created_at/updated_at — int (unix timestamp), не DATETIME:
+            // дефолтный TimestampBehavior::value (int time()) подходит без переопределения.
+            // Кастомный callback с date('Y-m-d H:i:s') писал строку в int-колонку —
+            // MySQL обрезал её до "2026" (совпадение первых цифр с годом). Найдено
+            // при живом прогоне CMP-410.
+            TimestampBehavior::class,
             [
                 'class' => SluggableBehavior::class,
                 'attribute' => 'name',

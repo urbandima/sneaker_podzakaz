@@ -103,7 +103,7 @@ class Coupon extends ActiveRecord
     public function rules()
     {
         return [
-            [['code', 'type', 'value'], 'required'],
+            [['code', 'name', 'type', 'value'], 'required'],
             [['code'], 'unique'],
             [['code'], 'string', 'max' => 50],
             [['name', 'description'], 'string', 'max' => 255],
@@ -157,7 +157,7 @@ class Coupon extends ActiveRecord
     public static function findByCode(string $code): ?Coupon
     {
         return self::find()
-            ->where(['code' => strtoupper($code), 'is_active' => self::STATUS_ACTIVE])
+            ->where(['code' => mb_strtoupper($code), 'is_active' => self::STATUS_ACTIVE])
             ->one();
     }
 

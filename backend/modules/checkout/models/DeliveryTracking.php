@@ -16,7 +16,7 @@
  * - location: текущее местоположение
  * - estimated_delivery: ожидаемая дата доставки
  * - actual_delivery: фактическая дата доставки
- * - events_json: история событий JSON
+ * - tracking_events: история событий JSON
  * - last_check_at: последняя проверка
  *
  * СТАТУСЫ:
@@ -55,7 +55,7 @@ use yii\db\ActiveRecord;
  * @property string|null $location
  * @property string|null $estimated_delivery
  * @property string|null $actual_delivery
- * @property string|null $events_json
+ * @property string|null $tracking_events
  * @property string|null $last_check_at
  * @property string $created_at
  * @property string $updated_at
@@ -83,7 +83,7 @@ class DeliveryTracking extends ActiveRecord
         return [
             [['order_id'], 'required'],
             [['order_id'], 'integer'],
-            [['events_json'], 'string'],
+            [['tracking_events'], 'string'],
             [['estimated_delivery', 'actual_delivery', 'last_check_at', 'created_at', 'updated_at'], 'safe'],
             [['tracking_number', 'carrier'], 'string', 'max' => 100],
             [['status'], 'string', 'max' => 50],
@@ -118,10 +118,10 @@ class DeliveryTracking extends ActiveRecord
      */
     public function getEvents()
     {
-        if (empty($this->events_json)) {
+        if (empty($this->tracking_events)) {
             return [];
         }
-        return json_decode($this->events_json, true) ?: [];
+        return json_decode($this->tracking_events, true) ?: [];
     }
 
     /**
@@ -136,7 +136,7 @@ class DeliveryTracking extends ActiveRecord
             'location' => $location,
             'timestamp' => date('Y-m-d H:i:s'),
         ];
-        $this->events_json = json_encode($events, JSON_UNESCAPED_UNICODE);
+        $this->tracking_events = json_encode($events, JSON_UNESCAPED_UNICODE);
         $this->status = $status;
         $this->status_description = $description;
         $this->location = $location;

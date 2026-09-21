@@ -116,7 +116,7 @@ class CouponController extends BaseAdminController
 
         if ($model->load(Yii::$app->request->post())) {
             // Преобразуем код в верхний регистр
-            $model->code = strtoupper($model->code);
+            $model->code = mb_strtoupper($model->code);
 
             // Обработка JSON полей
             if (Yii::$app->request->post('applicable_products')) {
@@ -153,7 +153,7 @@ class CouponController extends BaseAdminController
 
         if ($model->load(Yii::$app->request->post())) {
             // Преобразуем код в верхний регистр
-            $model->code = strtoupper($model->code);
+            $model->code = mb_strtoupper($model->code);
 
             // Обработка JSON полей
             if (Yii::$app->request->post('applicable_products')) {

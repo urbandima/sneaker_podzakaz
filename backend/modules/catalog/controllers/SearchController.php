@@ -39,7 +39,7 @@ class SearchController extends Controller
 
         // FULLTEXT search with LIKE fallback
         $useFulltext = false;
-        if (!empty($q) && strlen($q) >= 2) {
+        if (!empty($q) && mb_strlen($q) >= 2) {
             $useFulltext = $this->tryFulltext($productQuery, $q, $sort);
             if (!$useFulltext) {
                 $this->applyLikeSearch($productQuery, $q);
@@ -192,7 +192,7 @@ class SearchController extends Controller
         $q     = Yii::$app->request->get('q', '');
         $limit = min((int)Yii::$app->request->get('limit', 5), 10);
 
-        if (empty($q) || strlen($q) < 2) {
+        if (empty($q) || mb_strlen($q) < 2) {
             return ['results' => [], 'total' => 0];
         }
 
@@ -277,7 +277,7 @@ class SearchController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $q = Yii::$app->request->get('q', '');
-        if (empty($q) || strlen($q) < 2) {
+        if (empty($q) || mb_strlen($q) < 2) {
             return ['html' => '', 'count' => 0];
         }
 
@@ -309,7 +309,7 @@ class SearchController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $q = Yii::$app->request->get('q', '');
-        if (empty($q) || strlen($q) < 2) {
+        if (empty($q) || mb_strlen($q) < 2) {
             return ['suggestions' => [], 'popular' => $this->getPopularSearches(5)];
         }
 
@@ -403,7 +403,7 @@ class SearchController extends Controller
             // Compare first word to query for speed
             $firstWord = explode(' ', $nameLower)[0];
             $dist      = levenshtein($qLower, $firstWord);
-            if ($dist < $bestScore && $dist <= max(2, intval(strlen($q) / 4))) {
+            if ($dist < $bestScore && $dist <= max(2, intval(mb_strlen($q) / 4))) {
                 $bestScore = $dist;
                 $best      = $name;
             }

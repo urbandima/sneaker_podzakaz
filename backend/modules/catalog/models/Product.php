@@ -204,7 +204,7 @@ class Product extends ActiveRecord
                 $this->is_active && (
                 !$this->name ||
                 mb_strlen(trim($this->name)) < 3 ||
-                strtolower(trim($this->name)) === 'товар'
+                mb_strtolower(trim($this->name)) === 'товар'
                 )
             ) {
                 $this->is_active = false;
