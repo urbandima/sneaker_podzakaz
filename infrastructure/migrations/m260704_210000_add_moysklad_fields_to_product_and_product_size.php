@@ -17,7 +17,7 @@ use yii\db\Migration;
 class m260704_210000_add_moysklad_fields_to_product_and_product_size extends Migration
 {
     /**
-     * @return array<string, array{0:string,1:string}> column => [definition, afterColumn|null]
+     * @return array<string, array{0:string,1:string|null}> column => [definition, afterColumn|null]
      */
     private function productColumns(): array
     {

@@ -12056,18 +12056,8 @@ parameters:
 			path: infrastructure/migrations/m260426_170000_amocrm_field_mapping.php
 
 		-
-			message: "#^Call to an undefined method m260427_300000_create_missing_finance_feedback_tables\\:\\:dropTableIfExists\\(\\)\\.$#"
-			count: 3
-			path: infrastructure/migrations/m260427_300000_create_missing_finance_feedback_tables.php
-
-		-
 			message: "#^Call to an undefined method yii\\\\db\\\\Schema\\:\\:getTableIndexes\\(\\)\\.$#"
 			count: 2
-			path: infrastructure/migrations/m260704_210000_add_moysklad_fields_to_product_and_product_size.php
-
-		-
-			message: "#^Method m260704_210000_add_moysklad_fields_to_product_and_product_size\\:\\:productColumns\\(\\) should return array\\<string, array\\{string, string\\}\\> but returns array\\{moysklad_id\\: array\\{'VARCHAR\\(36\\) NULL…', null\\}, ms_code\\: array\\{'VARCHAR\\(100\\) NULL…', null\\}, ms_external_code\\: array\\{'VARCHAR\\(100\\) NULL…', null\\}, barcode\\: array\\{'VARCHAR\\(255\\) NULL…', null\\}, barcodes_json\\: array\\{'JSON NULL DEFAULT…', null\\}, vat\\: array\\{'SMALLINT NULL…', null\\}, ms_volume\\: array\\{'DECIMAL\\(10,4\\) NULL…', null\\}, uom_name\\: array\\{'VARCHAR\\(50\\) NULL…', null\\}, \\.\\.\\.\\}\\.$#"
-			count: 1
 			path: infrastructure/migrations/m260704_210000_add_moysklad_fields_to_product_and_product_size.php
 
 		-
