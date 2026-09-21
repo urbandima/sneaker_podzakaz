@@ -1043,7 +1043,8 @@ class PoizonImportJsonController extends Controller
             $image->image = $imageUrl; // Используем поле image, а не image_url
             $image->is_main = ($sortOrder === 0) ? 1 : 0;
             $image->sort_order = $sortOrder++;
-            $image->created_at = date('Y-m-d H:i:s');
+            // CMP-417: created_at теперь заполняется TimestampBehavior (см. ProductImage) —
+            // ручное присвоение строки даты конфликтовало с типом int-колонки.
 
             if ($image->save(false)) { // save(false) - без валидации
                 $this->stats['images_created']++;
