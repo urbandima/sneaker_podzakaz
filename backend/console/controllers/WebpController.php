@@ -31,8 +31,8 @@ class WebpController extends Controller
      * Список директорий для конвертации
      */
     private $directories = [
-        'web/uploads',
-        'web/images',
+        'frontend/web/uploads',
+        'frontend/web/images',
     ];
 
     /**

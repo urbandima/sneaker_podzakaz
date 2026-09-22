@@ -4,11 +4,13 @@ namespace app\infrastructure\services;
 
 use Yii;
 use yii\base\Component;
-use yii\imagine\Image;
 use yii\helpers\FileHelper;
 
 /**
- * ImageOptimizationService - оптимизация изображений для продакшена
+ * ImageOptimizationService - оптимизация изображений для продакшена.
+ *
+ * Реализовано на встроенном GD (без внешних зависимостей): та же библиотека,
+ * которую уже использует WebpController для конвертации в WebP.
  */
 class ImageOptimizationService extends Component
 {
@@ -54,13 +56,20 @@ class ImageOptimizationService extends Component
         $webpPath = $webpPath ?? preg_replace('/\.(jpg|jpeg|png)$/i', '.webp', $sourcePath);
 
         try {
-            $image = Image::getImagine()->open($sourcePath);
-            $image->save($webpPath, [
-                'quality' => $this->webpQuality,
-                'format' => 'webp'
-            ]);
+            $image = $this->loadImage($sourcePath);
+            if (!$image) {
+                throw new \RuntimeException("Unsupported image type: {$sourcePath}");
+            }
+
+            $result = imagewebp($image, $webpPath, $this->webpQuality);
+            imagedestroy($image);
+
+            if (!$result) {
+                throw new \RuntimeException('imagewebp() failed');
+            }
+
             return $webpPath;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Yii::error("WebP creation failed: {$e->getMessage()}");
             return false;
         }
@@ -72,21 +81,22 @@ class ImageOptimizationService extends Component
     private function optimizeJpeg($sourcePath, $destPath)
     {
         try {
-            $image = Image::getImagine()->open($sourcePath);
-
-            // Ресайз если превышает максимальные размеры
-            $size = $image->getSize();
-            if ($size->getWidth() > $this->maxWidth || $size->getHeight() > $this->maxHeight) {
-                $image = Image::resize($image, $this->maxWidth, $this->maxHeight);
+            $image = imagecreatefromjpeg($sourcePath);
+            if (!$image) {
+                throw new \RuntimeException('imagecreatefromjpeg() failed');
             }
 
-            $image->save($destPath, [
-                'quality' => $this->jpegQuality,
-                'format' => 'jpeg'
-            ]);
+            $image = $this->resizeIfNeeded($image);
+
+            $result = imagejpeg($image, $destPath, $this->jpegQuality);
+            imagedestroy($image);
+
+            if (!$result) {
+                throw new \RuntimeException('imagejpeg() failed');
+            }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Yii::error("JPEG optimization failed: {$e->getMessage()}");
             return false;
         }
@@ -98,21 +108,27 @@ class ImageOptimizationService extends Component
     private function optimizePng($sourcePath, $destPath)
     {
         try {
-            $image = Image::getImagine()->open($sourcePath);
-
-            // Ресайз если превышает максимальные размеры
-            $size = $image->getSize();
-            if ($size->getWidth() > $this->maxWidth || $size->getHeight() > $this->maxHeight) {
-                $image = Image::resize($image, $this->maxWidth, $this->maxHeight);
+            $image = imagecreatefrompng($sourcePath);
+            if (!$image) {
+                throw new \RuntimeException('imagecreatefrompng() failed');
             }
 
-            $image->save($destPath, [
-                'format' => 'png',
-                'png_compression_level' => 6
-            ]);
+            imagepalettetotruecolor($image);
+            imagealphablending($image, false);
+            imagesavealpha($image, true);
+
+            $image = $this->resizeIfNeeded($image);
+
+            // GD-компрессия PNG: 0 (без сжатия) .. 9 (максимум)
+            $result = imagepng($image, $destPath, 6);
+            imagedestroy($image);
+
+            if (!$result) {
+                throw new \RuntimeException('imagepng() failed');
+            }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Yii::error("PNG optimization failed: {$e->getMessage()}");
             return false;
         }
@@ -124,24 +140,82 @@ class ImageOptimizationService extends Component
     private function optimizeWebp($sourcePath, $destPath)
     {
         try {
-            $image = Image::getImagine()->open($sourcePath);
-
-            // Ресайз если превышает максимальные размеры
-            $size = $image->getSize();
-            if ($size->getWidth() > $this->maxWidth || $size->getHeight() > $this->maxHeight) {
-                $image = Image::resize($image, $this->maxWidth, $this->maxHeight);
+            $image = imagecreatefromwebp($sourcePath);
+            if (!$image) {
+                throw new \RuntimeException('imagecreatefromwebp() failed');
             }
 
-            $image->save($destPath, [
-                'quality' => $this->webpQuality,
-                'format' => 'webp'
-            ]);
+            $image = $this->resizeIfNeeded($image);
+
+            $result = imagewebp($image, $destPath, $this->webpQuality);
+            imagedestroy($image);
+
+            if (!$result) {
+                throw new \RuntimeException('imagewebp() failed');
+            }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Yii::error("WebP optimization failed: {$e->getMessage()}");
             return false;
         }
+    }
+
+    /**
+     * Загрузить изображение по расширению файла (для createWebpVersion)
+     *
+     * @return \GdImage|false
+     */
+    private function loadImage($sourcePath)
+    {
+        $extension = strtolower(pathinfo($sourcePath, PATHINFO_EXTENSION));
+
+        switch ($extension) {
+            case 'jpg':
+            case 'jpeg':
+                return imagecreatefromjpeg($sourcePath);
+            case 'png':
+                $image = imagecreatefrompng($sourcePath);
+                if ($image) {
+                    imagepalettetotruecolor($image);
+                    imagealphablending($image, false);
+                    imagesavealpha($image, true);
+                }
+                return $image;
+            case 'webp':
+                return imagecreatefromwebp($sourcePath);
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Ресайз изображения, если оно превышает maxWidth/maxHeight (с сохранением пропорций)
+     *
+     * @param \GdImage $image
+     * @return \GdImage
+     */
+    private function resizeIfNeeded($image)
+    {
+        $width = imagesx($image);
+        $height = imagesy($image);
+
+        if ($width <= $this->maxWidth && $height <= $this->maxHeight) {
+            return $image;
+        }
+
+        $ratio = min($this->maxWidth / $width, $this->maxHeight / $height);
+        $newWidth = max(1, (int) round($width * $ratio));
+        $newHeight = max(1, (int) round($height * $ratio));
+
+        $resized = imagecreatetruecolor($newWidth, $newHeight);
+        imagealphablending($resized, false);
+        imagesavealpha($resized, true);
+
+        imagecopyresampled($resized, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+        imagedestroy($image);
+
+        return $resized;
     }
 
     /**

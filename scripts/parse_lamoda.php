@@ -21,6 +21,7 @@
 // Подключаем Yii2
 $basePath = dirname(__DIR__);
 require $basePath . '/vendor/autoload.php';
+require $basePath . '/infrastructure/config/bootstrap.php';
 require $basePath . '/vendor/yiisoft/yii2/Yii.php';
 
 $config = require $basePath . '/infrastructure/config/web.php';

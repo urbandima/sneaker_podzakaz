@@ -154,7 +154,7 @@ class MoyskladClient extends Component
 
         $headers = [
             'Authorization: ' . $this->getAuth(),
-            'Accept: application/json',
+            'Accept: application/json;charset=utf-8',
         ];
         if ($body !== null) {
             $headers[] = 'Content-Type: application/json';

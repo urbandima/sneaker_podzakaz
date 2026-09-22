@@ -36,12 +36,26 @@ $config = [
         'authManager' => [
             'class' => 'yii\rbac\DbManager',
         ],
+        'mutex' => [
+            'class' => 'yii\mutex\FileMutex',
+        ],
+        'redis' => [
+            'class' => 'yii\redis\Connection',
+            'hostname' => env('REDIS_HOST', 'localhost'),
+            'port' => (int) env('REDIS_PORT', 6379),
+            'database' => (int) env('REDIS_DB', 0),
+            'password' => env('REDIS_PASSWORD') ?: null,
+            'connectionTimeout' => 0.5,
+        ],
         'settings' => [
             'class' => 'app\backend\shared\components\Settings',
         ],
+        'amocrm' => [
+            'class' => 'app\backend\shared\components\AmocrmClient',
+        ],
         'mailer' => [
             'class' => 'yii\symfonymailer\Mailer',
-            'viewPath' => '@app/mail',
+            'viewPath' => '@app/backend/shared/mail',
             'useFileTransport' => true,
         ],
         'poizonApi' => [
@@ -61,6 +75,12 @@ $config = [
             'email'         => env('DP_API_EMAIL', ''),
             'password'      => env('DP_API_PASSWORD', ''),
             'defaultTariff' => (int) env('DP_DEFAULT_TARIFF', 26),
+        ],
+        'moysklad' => [
+            'class' => 'app\backend\shared\services\MoySkladService',
+        ],
+        'moyskladClient' => [
+            'class' => 'app\backend\shared\components\MoyskladClient',
         ],
         'sms' => [
             'class'      => 'app\backend\modules\notification\services\SmsService',

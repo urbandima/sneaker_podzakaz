@@ -222,10 +222,10 @@ class TestController extends Controller
     private function checkEmailTemplates()
     {
         $templates = [
-            Yii::getAlias('@app/mail/order-created.php'),
-            Yii::getAlias('@app/mail/payment-uploaded.php'),
-            Yii::getAlias('@app/mail/layouts/html.php'),
-            Yii::getAlias('@app/mail/layouts/text.php'),
+            Yii::getAlias('@backend/shared/mail/order-created.php'),
+            Yii::getAlias('@backend/shared/mail/payment-uploaded.php'),
+            Yii::getAlias('@backend/shared/mail/layouts/html.php'),
+            Yii::getAlias('@backend/shared/mail/layouts/text.php'),
         ];
 
         $existing = array_filter($templates, 'file_exists');

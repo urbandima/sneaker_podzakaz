@@ -5,6 +5,7 @@ namespace app\console\controllers;
 use Yii;
 use yii\console\Controller;
 use yii\console\ExitCode;
+use yii\helpers\Console;
 use app\backend\modules\catalog\models\Product;
 use app\backend\modules\catalog\models\ProductSize;
 use app\backend\modules\catalog\models\ProductImage;

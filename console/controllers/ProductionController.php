@@ -2,6 +2,7 @@
 
 namespace app\console\controllers;
 
+use Yii;
 use yii\console\Controller;
 use yii\console\ExitCode;
 use app\infrastructure\services\ImageOptimizationService;
@@ -96,34 +97,34 @@ class ProductionController extends Controller
         try {
             Yii::$app->db->createCommand('SELECT 1')->queryOne();
             $checks['db'] = '✅ OK';
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $checks['db'] = '❌ Error';
         }
-        
+
         // Проверка Redis
         try {
             Yii::$app->redis->ping();
             $checks['redis'] = '✅ OK';
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $checks['redis'] = '❌ Error';
         }
-        
+
         // Проверка кэша
         try {
             Yii::$app->cache->set('health_check', 'ok', 10);
             $result = Yii::$app->cache->get('health_check');
             $checks['cache'] = $result === 'ok' ? '✅ OK' : '❌ Error';
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $checks['cache'] = '❌ Error';
         }
-        
+
         foreach ($checks as $service => $status) {
-            $this->stdout("{$service}: {$status}\n", 
+            $this->stdout("{$service}: {$status}\n",
                 strpos($status, '✅') !== false ? \yii\helpers\Console::FG_GREEN : \yii\helpers\Console::FG_RED
             );
         }
-        
-        $allOk = !in_array('❌', $checks);
+
+        $allOk = !in_array('❌ Error', $checks, true);
         
         if ($allOk) {
             $this->stdout("\n✅ Все сервисы работают нормально\n", \yii\helpers\Console::FG_GREEN);

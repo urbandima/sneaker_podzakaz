@@ -4,13 +4,14 @@
  * Контроллер для создания тестовых товаров
  */
 
-namespace app\backend\console\controllers;
+namespace app\console\controllers;
 
 use Yii;
 use yii\console\Controller;
 use app\backend\modules\catalog\models\Product;
 use app\backend\modules\catalog\models\Category;
 use app\backend\modules\catalog\models\Brand;
+use app\backend\modules\catalog\models\Characteristic;
 use app\backend\modules\catalog\models\ProductImage;
 use app\backend\modules\catalog\models\ProductSize;
 use app\backend\modules\catalog\models\ProductCharacteristicValue;
@@ -31,9 +32,10 @@ class ProductController extends Controller
             'Ultra Boost', 'Samba', 'Gazelle', 'Campus', '550', '574'
         ];
         $colors = ['Белый', 'Черный', 'Серый', 'Красный', 'Синий', 'Зеленый', 'Бежевый'];
-        $materials = ['Кожа', 'Замша', 'Сетка', 'Канвас', 'Нубук'];
-        $seasons = ['Лето', 'Зима', 'Демисезон', 'Всесезон'];
-        $genders = ['Мужской', 'Женский', 'Унисекс'];
+        // Значения из Product::rules() — 'in' validator принимает только эти slug'и
+        $materials = ['leather', 'textile', 'synthetic', 'suede', 'mesh', 'canvas'];
+        $seasons = ['summer', 'winter', 'demi', 'all'];
+        $genders = ['male', 'female', 'unisex'];
 
         // Получаем или создаем категорию
         $category = Category::find()->one();
@@ -132,9 +134,8 @@ class ProductController extends Controller
         foreach ($placeholders as $i => $url) {
             $image = new ProductImage([
                 'product_id' => $product->id,
-                'url' => $url,
-                'alt' => "{$product->name} - фото " . ($i + 1),
-                'position' => $positions[$i],
+                'image' => $url,
+                'sort_order' => $positions[$i],
                 'is_main' => $i === 0 ? 1 : 0,
             ]);
             $image->save();
@@ -155,12 +156,12 @@ class ProductController extends Controller
             $stock = rand(0, 10);
             $size = new ProductSize([
                 'product_id' => $product->id,
-                'size_eu' => $euSize,
-                'size_us' => $usSizes[$i] ?? null,
-                'size_uk' => $ukSizes[$i] ?? null,
-                'stock_quantity' => $stock,
+                'size' => (string) $euSize,
+                'eu_size' => (string) $euSize,
+                'us_size' => (string) $usSizes[$i],
+                'uk_size' => (string) $ukSizes[$i],
+                'stock' => $stock,
                 'is_available' => $stock > 0 ? 1 : 0,
-                'sku' => "{$product->id}-{$euSize}",
             ]);
             $size->save();
         }
@@ -168,19 +169,33 @@ class ProductController extends Controller
 
     private function addProductCharacteristics($product)
     {
+        $uppers = ['Натуральная кожа', 'Замша', 'Сетка'];
+        $linings = ['Текстиль', 'Синтетика', 'Натуральная кожа'];
+        $soles = ['Резина', 'Полиуретан', 'Пеноматериал'];
+        $countries = ['Вьетнам', 'Индонезия', 'Китай'];
+
         $characteristics = [
-            ['name' => 'Верх', 'value' => ['Натуральная кожа', 'Замша', 'Сетка'][array_rand(['Натуральная кожа', 'Замша', 'Сетка'])]],
-            ['name' => 'Подкладка', 'value' => ['Текстиль', 'Синтетика', 'Натуральная кожа'][array_rand(['Текстиль', 'Синтетика', 'Натуральная кожа'])]],
-            ['name' => 'Подошва', 'value' => ['Резина', 'Полиуретан', 'Пеноматериал'][array_rand(['Резина', 'Полиуретан', 'Пеноматериал'])]],
-            ['name' => 'Страна производства', 'value' => ['Вьетнам', 'Индонезия', 'Китай'][array_rand(['Вьетнам', 'Индонезия', 'Китай'])]],
-            ['name' => 'Вес', 'value' => rand(300, 500) . ' г'],
+            ['key' => 'upper', 'name' => 'Верх', 'value' => $uppers[array_rand($uppers)]],
+            ['key' => 'lining', 'name' => 'Подкладка', 'value' => $linings[array_rand($linings)]],
+            ['key' => 'sole', 'name' => 'Подошва', 'value' => $soles[array_rand($soles)]],
+            ['key' => 'country', 'name' => 'Страна производства', 'value' => $countries[array_rand($countries)]],
+            ['key' => 'weight', 'name' => 'Вес', 'value' => rand(300, 500) . ' г'],
         ];
 
         foreach ($characteristics as $char) {
+            $characteristic = Characteristic::findOne(['key' => $char['key']]);
+            if (!$characteristic) {
+                $characteristic = new Characteristic([
+                    'key' => $char['key'],
+                    'name' => $char['name'],
+                ]);
+                $characteristic->save();
+            }
+
             $charValue = new ProductCharacteristicValue([
                 'product_id' => $product->id,
-                'characteristic_id' => null,
-                'value' => $char['value'],
+                'characteristic_id' => $characteristic->id,
+                'value_text' => $char['value'],
             ]);
             $charValue->save();
         }

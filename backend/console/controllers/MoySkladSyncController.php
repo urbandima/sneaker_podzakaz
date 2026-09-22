@@ -1,6 +1,6 @@
 <?php
 
-namespace app\backend\console\controllers;
+namespace app\console\controllers;
 
 use Yii;
 use yii\console\Controller;
@@ -11,14 +11,23 @@ use app\backend\modules\checkout\models\Order;
  * МойСклад sync commands.
  *
  * Usage:
- *   php yii moysklad-sync/sync [--since=60]
- *   php yii moysklad-sync/push-all [--limit=50]
- *   php yii moysklad-sync/setup-webhook
- *   php yii moysklad-sync/push-order <order_id>
+ *   php yii moy-sklad-sync/sync [--since=60]
+ *   php yii moy-sklad-sync/push-all [--limit=50]
+ *   php yii moy-sklad-sync/setup-webhook
+ *   php yii moy-sklad-sync/push-order <order_id>
  */
 class MoySkladSyncController extends Controller
 {
     public $defaultAction = 'sync';
+
+    /**
+     * CMP-420: cron может запустить вторую копию до завершения первой (документированный
+     * интервал — каждые 5–15 минут), из-за чего pushAllOrders()/periodicSync() рискуют
+     * дважды отправить один и тот же несинхронизированный заказ. Общий advisory lock на
+     * sync и push-all — заведомо дешёвая защита от этого пересечения.
+     */
+    private const LOCK_NAME = 'moy-sklad-sync';
+    private const LOCK_TIMEOUT = 0;
 
     /**
      * Pull orders updated in last N minutes from МойСклад → update our DB.
@@ -26,29 +35,38 @@ class MoySkladSyncController extends Controller
      */
     public function actionSync(int $since = 60): int
     {
-        $this->stdout("МойСклад: periodic sync (last {$since} min)\n");
+        if (!Yii::$app->mutex->acquire(self::LOCK_NAME, self::LOCK_TIMEOUT)) {
+            $this->stderr("Пропуск: другой запуск moy-sklad-sync уже выполняется.\n");
+            return ExitCode::OK;
+        }
 
         try {
-            $result = Yii::$app->moysklad->periodicSync($since);
-        } catch (\Throwable $e) {
-            $this->stderr("ОШИБКА: " . $e->getMessage() . "\n");
-            return ExitCode::UNSPECIFIED_ERROR;
-        }
+            $this->stdout("МойСклад: periodic sync (last {$since} min)\n");
 
-        $this->stdout(
-            "  Обновлено: {$result['synced']}, новых связей: {$result['new_links']}, " .
-            "обработано: {$result['processed']}, всего в МС: {$result['ms_total']}\n"
-        );
-        $this->stdout("  Синхронизация с: {$result['since']}\n");
-
-        foreach ($result['log'] as $entry) {
-            if (($entry['status'] ?? '') === 'updated') {
-                $this->stdout("  [upd] #{$entry['our_id']} ← МС {$entry['ms_id']} ({$entry['name']})\n");
+            try {
+                $result = Yii::$app->moysklad->periodicSync($since);
+            } catch (\Throwable $e) {
+                $this->stderr("ОШИБКА: " . $e->getMessage() . "\n");
+                return ExitCode::UNSPECIFIED_ERROR;
             }
-        }
 
-        $this->stdout("Готово.\n");
-        return ExitCode::OK;
+            $this->stdout(
+                "  Обновлено: {$result['synced']}, новых связей: {$result['new_links']}, " .
+                "обработано: {$result['processed']}, всего в МС: {$result['ms_total']}\n"
+            );
+            $this->stdout("  Синхронизация с: {$result['since']}\n");
+
+            foreach ($result['log'] as $entry) {
+                if (($entry['status'] ?? '') === 'updated') {
+                    $this->stdout("  [upd] #{$entry['our_id']} ← МС {$entry['ms_id']} ({$entry['name']})\n");
+                }
+            }
+
+            $this->stdout("Готово.\n");
+            return ExitCode::OK;
+        } finally {
+            Yii::$app->mutex->release(self::LOCK_NAME);
+        }
     }
 
     /**
@@ -56,24 +74,33 @@ class MoySkladSyncController extends Controller
      */
     public function actionPushAll(int $limit = 50): int
     {
-        $this->stdout("МойСклад: push all unsynced (limit={$limit})\n");
+        if (!Yii::$app->mutex->acquire(self::LOCK_NAME, self::LOCK_TIMEOUT)) {
+            $this->stderr("Пропуск: другой запуск moy-sklad-sync уже выполняется.\n");
+            return ExitCode::OK;
+        }
 
         try {
-            $result = Yii::$app->moysklad->pushAllOrders($limit);
-        } catch (\Throwable $e) {
-            $this->stderr("ОШИБКА: " . $e->getMessage() . "\n");
-            return ExitCode::UNSPECIFIED_ERROR;
+            $this->stdout("МойСклад: push all unsynced (limit={$limit})\n");
+
+            try {
+                $result = Yii::$app->moysklad->pushAllOrders($limit);
+            } catch (\Throwable $e) {
+                $this->stderr("ОШИБКА: " . $e->getMessage() . "\n");
+                return ExitCode::UNSPECIFIED_ERROR;
+            }
+
+            $this->stdout("  Отправлено: {$result['pushed']}, ошибок: {$result['errors']}, всего: {$result['total']}\n");
+
+            foreach ($result['log'] as $entry) {
+                $mark = ($entry['status'] === 'pushed') ? '+' : '!';
+                $msg  = $entry['message'] ?? '';
+                $this->stdout("  [{$mark}] #{$entry['id']} {$entry['number']}" . ($msg ? " — {$msg}" : '') . "\n");
+            }
+
+            return ExitCode::OK;
+        } finally {
+            Yii::$app->mutex->release(self::LOCK_NAME);
         }
-
-        $this->stdout("  Отправлено: {$result['pushed']}, ошибок: {$result['errors']}, всего: {$result['total']}\n");
-
-        foreach ($result['log'] as $entry) {
-            $mark = ($entry['status'] === 'pushed') ? '+' : '!';
-            $msg  = $entry['message'] ?? '';
-            $this->stdout("  [{$mark}] #{$entry['id']} {$entry['number']}" . ($msg ? " — {$msg}" : '') . "\n");
-        }
-
-        return ExitCode::OK;
     }
 
     /**

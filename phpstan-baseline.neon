@@ -191,6 +191,11 @@ parameters:
 			path: backend/console/controllers/MoySkladSyncController.php
 
 		-
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$mutex\\.$#"
+			count: 4
+			path: backend/console/controllers/MoySkladSyncController.php
+
+		-
 			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
 			count: 1
 			path: backend/console/controllers/MoySkladSyncController.php
@@ -198,21 +203,6 @@ parameters:
 		-
 			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$currency\\.$#"
 			count: 5
-			path: backend/console/controllers/PoizonImportController.php
-
-		-
-			message: "#^Access to constant FG_CYAN on an unknown class app\\\\console\\\\controllers\\\\Console\\.$#"
-			count: 1
-			path: backend/console/controllers/PoizonImportController.php
-
-		-
-			message: "#^Access to constant FG_GREEN on an unknown class app\\\\console\\\\controllers\\\\Console\\.$#"
-			count: 2
-			path: backend/console/controllers/PoizonImportController.php
-
-		-
-			message: "#^Access to constant FG_RED on an unknown class app\\\\console\\\\controllers\\\\Console\\.$#"
-			count: 2
 			path: backend/console/controllers/PoizonImportController.php
 
 		-
@@ -319,16 +309,6 @@ parameters:
 			message: "#^Ternary operator condition is always false\\.$#"
 			count: 1
 			path: backend/console/controllers/PoizonImportJsonController.php
-
-		-
-			message: "#^Offset 0\\|1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9 on array\\{3\\.5, 4, 4\\.5, 5, 5\\.5, 6, 7, 8, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#"
-			count: 1
-			path: backend/console/controllers/ProductController.php
-
-		-
-			message: "#^Offset 0\\|1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9 on array\\{4, 5, 5\\.5, 6, 6\\.5, 7, 8, 9, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#"
-			count: 1
-			path: backend/console/controllers/ProductController.php
 
 		-
 			message: "#^Class app\\\\backend\\\\services\\\\Sitemap\\\\SitemapGenerator constructor invoked with 1 parameter, 0 required\\.$#"
@@ -11734,16 +11714,6 @@ parameters:
 			message: "#^Access to an undefined property app\\\\backend\\\\modules\\\\catalog\\\\models\\\\ProductSize\\:\\:\\$size_value\\.$#"
 			count: 1
 			path: infrastructure/services/ElasticsearchService.php
-
-		-
-			message: "#^Call to static method getImagine\\(\\) on an unknown class yii\\\\imagine\\\\Image\\.$#"
-			count: 4
-			path: infrastructure/services/ImageOptimizationService.php
-
-		-
-			message: "#^Call to static method resize\\(\\) on an unknown class yii\\\\imagine\\\\Image\\.$#"
-			count: 3
-			path: infrastructure/services/ImageOptimizationService.php
 
 		-
 			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$redis\\.$#"

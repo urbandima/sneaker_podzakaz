@@ -20,8 +20,11 @@ class CharacteristicController extends Controller
     /**
      * Импорт характеристик и значений из CSV файла
      *
+     * Аргумент позиционный (--file= не поддерживается: $file — параметр метода, а не
+     * publicController-свойство, которое одно способно принимать именованные опции Yii2).
+     *
      * Пример:
-     * php yii characteristic/import --file=@app/data/characteristics.csv
+     * php yii characteristic/import @app/data/characteristics.csv
      */
     public function actionImport(string $file): int
     {
@@ -102,8 +105,11 @@ class CharacteristicController extends Controller
     /**
      * Массовое назначение значения характеристик товарам по фильтрам
      *
+     * Аргументы позиционные, в порядке параметров метода (--char= и т.п. не
+     * поддерживаются: см. примечание в actionImport()).
+     *
      * Пример:
-     * php yii characteristic/bulk-assign --char=material --value=leather --brand=5
+     * php yii characteristic/bulk-assign material leather 5
      */
     public function actionBulkAssign(string $char, string $value, ?int $brand = null, ?int $category = null, ?float $priceFrom = null, ?float $priceTo = null): int
     {

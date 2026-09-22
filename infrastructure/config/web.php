@@ -135,7 +135,7 @@ $config = [
             'port' => (int) env('REDIS_PORT', 6379),
             'database' => (int) env('REDIS_DB', 0),
             'password' => env('REDIS_PASSWORD') ?: null,
-            'timeout' => 0.5,
+            'connectionTimeout' => 0.5,
         ],
         'elasticsearch' => [
             'class' => 'app\infrastructure\services\ElasticsearchService',

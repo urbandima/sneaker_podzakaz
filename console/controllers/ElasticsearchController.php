@@ -46,14 +46,18 @@ class ElasticsearchController extends Controller
         
         $es = new ElasticsearchService();
         $result = $es->indexAllProducts();
-        
+
         $this->stdout("✅ Индексация завершена\n", \yii\helpers\Console::FG_GREEN);
         $this->stdout("   Успешно: {$result['success']}\n", \yii\helpers\Console::FG_GREEN);
         $this->stdout("   Ошибок: {$result['failed']}\n", \yii\helpers\Console::FG_RED);
-        
+
+        if ($result['failed'] > 0 && $result['success'] === 0) {
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
         return ExitCode::OK;
     }
-    
+
     /**
      * Пересоздать индекс и индексировать все товары
      */
@@ -86,7 +90,11 @@ class ElasticsearchController extends Controller
         $this->stdout("✅ Реиндексация завершена\n", \yii\helpers\Console::FG_GREEN);
         $this->stdout("   Успешно: {$result['success']}\n", \yii\helpers\Console::FG_GREEN);
         $this->stdout("   Ошибок: {$result['failed']}\n", \yii\helpers\Console::FG_RED);
-        
+
+        if ($result['failed'] > 0 && $result['success'] === 0) {
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
         return ExitCode::OK;
     }
     
