@@ -403,27 +403,34 @@ class OrderController extends Controller
             // Очищаем корзину
             Cart::clear();
 
-            // Отправляем email уведомления (опционально)
-            try {
-                // Клиенту
-                if ($email) {
+            // Отправляем email уведомления (опционально). Клиенту и менеджеру —
+            // независимо, в отдельных try/catch: раньше оба письма были в одном
+            // блоке, и сбой отправки клиенту (например, опечатка в его email —
+            // самый частый случай) обрывал try до строки с письмом менеджеру,
+            // из-за чего магазин не узнавал о заказе вообще ни по одному каналу
+            // (CMP-422).
+            if ($email) {
+                try {
                     Yii::$app->mailer->compose('order-created', ['order' => $order])
                         ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
                         ->setTo($email)
                         ->setSubject('Заказ №' . $order->order_number . ' оформлен')
                         ->send();
+                } catch (\Exception $e) {
+                    Yii::warning('Ошибка отправки email клиенту: ' . $e->getMessage(), 'order');
                 }
+            }
 
-                // Менеджеру
-                if (!empty(Yii::$app->params['adminEmail'])) {
+            if (!empty(Yii::$app->params['adminEmail'])) {
+                try {
                     Yii::$app->mailer->compose('order-created-manager', ['order' => $order])
                         ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
                         ->setTo(Yii::$app->params['adminEmail'])
                         ->setSubject('Новый заказ №' . $order->order_number)
                         ->send();
+                } catch (\Exception $e) {
+                    Yii::warning('Ошибка отправки email менеджеру: ' . $e->getMessage(), 'order');
                 }
-            } catch (\Exception $e) {
-                Yii::warning('Ошибка отправки email: ' . $e->getMessage(), 'order');
             }
 
             $transaction->commit();
