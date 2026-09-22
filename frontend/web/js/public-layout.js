@@ -37,7 +37,7 @@ brandsNavBtn?.addEventListener('mouseenter', () => {
 });
 
 function loadBrands() {
-  fetch('/catalog/get-brands')
+  fetch('/api/catalog/get-brands')
     .then(r => r.json())
     .then(brands => {
       const grid = document.getElementById('brandsGrid');

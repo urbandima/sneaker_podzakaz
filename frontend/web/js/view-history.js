@@ -64,7 +64,7 @@
         container.innerHTML = '<div class="loading-history" style="grid-column:1/-1;text-align:center;padding:3rem;color:#6b7280;"><i class="bi bi-hourglass-split" style="font-size:2rem;display:block;margin-bottom:1rem;"></i> Загрузка...</div>';
 
         // Загружаем товары
-        fetch(`/catalog/products-by-ids?ids=${history.join(',')}`)
+        fetch(`/api/catalog/products-by-ids?ids=${history.join(',')}`)
             .then(response => response.json())
             .then(products => {
                 if (products.length === 0) {

@@ -59,8 +59,7 @@ const paths = {
             'web/js/catalog.js',
             'web/js/catalog-filter.js',
             'web/js/price-slider.js',
-            'web/js/favorites.js',
-            'web/js/quick-view.js'
+            'web/js/favorites.js'
         ],
         // Страница товара
         product: [

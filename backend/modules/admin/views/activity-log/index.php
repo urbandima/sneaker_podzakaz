@@ -41,9 +41,9 @@ $targetUrls = [
     'Order'     => '/admin/order/view',
     'Customer'  => '/admin/customer/view',
     'Product'   => '/admin/product/view',
-    'Buyout'    => '/admin/procurement/buyout/view',
-    'Receiving' => '/admin/procurement/receiving/view',
-    'User'      => '/admin/user/view',
+    'Buyout'    => '/admin/buyout/view',
+    'Receiving' => '/admin/receiving/view',
+    'User'      => '/admin/user/edit',
 ];
 
 /** Построить URL к объекту */

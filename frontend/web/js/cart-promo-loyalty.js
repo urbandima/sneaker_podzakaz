@@ -30,7 +30,7 @@ function initCartPromoLoyalty() {
  */
 async function loadLoyaltyBalance() {
     try {
-        const response = await fetch('/api/v1/loyalty/balance', {
+        const response = await fetch('/account/loyalty/balance', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

@@ -265,7 +265,7 @@ $marginColor = $marginPct >= 20 ? '#059669' : ($marginPct >= 0 ? '#d97706' : '#d
         <a href="<?= Url::to(['/admin/poizon']) ?>" class="crm-int-btn">
             <i class="bi bi-download"></i> Импорт
         </a>
-        <a href="<?= Url::to(['/admin/product/duplicate', 'id' => $product->id]) ?>"
+        <a href="<?= Url::to(['/admin/product/clone', 'id' => $product->id]) ?>"
            class="admin-btn admin-btn-secondary admin-btn-sm"
            data-method="post" data-confirm="Дублировать товар?">
             <i class="bi bi-copy"></i>
