@@ -3,6 +3,7 @@
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
+use yii\filters\VerbFilter;
 use yii\web\Response;
 use yii\web\NotFoundHttpException;
 use app\backend\modules\automation\models\AutomationTrigger;
@@ -11,6 +12,19 @@ use app\backend\modules\automation\models\AutomationLog;
 class AutomationController extends BaseAdminController
 {
     protected bool $adminOnly = true;
+
+    /**
+     * CMP-418: actionToggle flips is_active unconditionally with no isPost/
+     * VerbFilter guard — GET-CSRF exploitable. Its only UI caller
+     * (automation/index.php toggleTrigger()) already calls fetch(..., {method:
+     * 'POST'}), so restricting to POST doesn't change legitimate behavior.
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['verbs']['actions']['toggle'] = ['POST'];
+        return $behaviors;
+    }
 
     public function actionIndex()
     {

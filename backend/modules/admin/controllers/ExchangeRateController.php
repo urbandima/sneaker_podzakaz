@@ -10,11 +10,28 @@
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
+use yii\filters\VerbFilter;
 use yii\web\Response;
 
 class ExchangeRateController extends BaseAdminController
 {
     private $nbrbApiUrl = 'https://api.nbrb.by/exrates/rates/';
+
+    /**
+     * CMP-418: actionUpdate overwrites the live CNY rate used to price CNY-sourced
+     * procurement/tariffs, unconditionally, with no isPost/VerbFilter guard — its
+     * only real caller (backend/modules/admin/views/plugin/currency.php) already
+     * calls it via `fetch(..., {method: 'POST'})`, so restricting to POST doesn't
+     * change legitimate behavior. There is no cron/console caller (verified: only
+     * reference to this route in the repo is that fetch() call), so the "или cron"
+     * mentioned in the class docblock is aspirational, not wired.
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['verbs']['actions']['update'] = ['POST'];
+        return $behaviors;
+    }
 
     /**
      * Получить текущий курс CNY

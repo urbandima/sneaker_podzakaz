@@ -3,6 +3,7 @@
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
+use yii\filters\VerbFilter;
 use yii\web\Response;
 use app\backend\modules\checkout\models\Order;
 use app\backend\modules\checkout\models\OrderHistory;
@@ -14,6 +15,26 @@ use app\backend\modules\checkout\models\OrderHistory;
 class MoyskladController extends BaseAdminController
 {
     protected bool $adminOnly = true;
+
+    /**
+     * CMP-418: saveStatusMapping/pushAll/periodicSync/pull/registerWebhook run
+     * unconditionally on a bare GET (their post()-read params silently default to
+     * empty/zero and the code proceeds anyway) — pushAll/periodicSync/pull push or
+     * pull up to dozens of live orders to/from МойСклад, registerWebhook registers
+     * an external webhook, saveStatusMapping overwrites the saved status mapping.
+     * actionWebhook is intentionally excluded — it's the inbound receiver called by
+     * МойСклад itself and is not a POST-form action from the admin UI.
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['verbs']['actions']['save-status-mapping'] = ['POST'];
+        $behaviors['verbs']['actions']['push-all'] = ['POST'];
+        $behaviors['verbs']['actions']['periodic-sync'] = ['POST'];
+        $behaviors['verbs']['actions']['pull'] = ['POST'];
+        $behaviors['verbs']['actions']['register-webhook'] = ['POST'];
+        return $behaviors;
+    }
 
     /** GET /admin/plugin/moysklad */
     public function actionIndex()

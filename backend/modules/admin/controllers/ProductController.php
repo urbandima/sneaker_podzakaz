@@ -47,6 +47,7 @@ use app\backend\modules\catalog\models\Brand;
 use app\backend\modules\catalog\models\Category;
 use app\backend\modules\catalog\models\SizeGrid;
 use app\backend\modules\catalog\repositories\ProductRepository;
+use yii\filters\VerbFilter;
 
 class ProductController extends BaseAdminController
 {
@@ -61,13 +62,33 @@ class ProductController extends BaseAdminController
         parent::init();
         $this->productRepository = new ProductRepository();
     }
+
     /**
      * @inheritdoc
+     *
+     * CMP-418: sync/clone/deleteSize/deleteImage/setMainImage all mutate Product/
+     * ProductSize/ProductImage unconditionally on route $id alone, no isPost check
+     * — GET-CSRF exploitable. All are triggered in the admin UI only via
+     * `Html::a(..., ['data-method' => 'post', ...])` links (product/view.php,
+     * product/edit.php), which now actually submit as POST via the delegated
+     * handler added to admin.js (CMP-418) — restricting these to POST does not
+     * break that UI. actionFixBrand's mutating branch is guarded separately with
+     * an inline isPost check (its GET-based preview branch must stay GET).
+     * actionAddSizesFromGrid's link in product/edit.php had no data-method
+     * attribute (plain GET navigation) — added data-method="post" there as part
+     * of this same fix.
      */
     public function behaviors()
     {
         $this->adminOnly = true;
-        return parent::behaviors();
+        $behaviors = parent::behaviors();
+        $behaviors['verbs']['actions']['sync'] = ['POST'];
+        $behaviors['verbs']['actions']['clone'] = ['POST'];
+        $behaviors['verbs']['actions']['delete-size'] = ['POST'];
+        $behaviors['verbs']['actions']['delete-image'] = ['POST'];
+        $behaviors['verbs']['actions']['set-main-image'] = ['POST'];
+        $behaviors['verbs']['actions']['add-sizes-from-grid'] = ['POST'];
+        return $behaviors;
     }
 
     /**
@@ -264,6 +285,13 @@ class ProductController extends BaseAdminController
 
         if ($preview) {
             return ['success' => true, 'preview' => $previewData];
+        }
+
+        // CMP-418: the apply branch (preview=0) bulk-updates up to 500 products and was
+        // reachable via a bare GET (`<img src="...fix-brand?preview=0">`) — the preview
+        // branch above stays GET (read-only, used by previewBrandFix() in product/index.php).
+        if (!Yii::$app->request->isPost) {
+            throw new \yii\web\MethodNotAllowedHttpException('Только POST может применить исправление брендов.');
         }
 
         $fixed = 0;

@@ -626,7 +626,8 @@ $customer = $model->customer ?? null;
                                             Отмена
                                         </button>
                                         <a href="<?= Url::to(['/admin/order/delete-item', 'id' => $item->id, 'order_id' => $model->id]) ?>"
-                                           onclick="return confirm('Удалить эту позицию?')"
+                                           data-method="post"
+                                           data-confirm="Удалить эту позицию?"
                                            style="margin-left:auto;font-size:0.75rem;color:#b91c1c;text-decoration:none">
                                             <i class="bi bi-trash3"></i> Удалить
                                         </a>

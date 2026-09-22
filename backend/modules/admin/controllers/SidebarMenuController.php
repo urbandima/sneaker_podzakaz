@@ -30,7 +30,13 @@ class SidebarMenuController extends BaseAdminController
         ];
         $behaviors['verbs'] = [
             'class' => \yii\filters\VerbFilter::class,
-            'actions' => ['delete' => ['POST']],
+            'actions' => [
+                'delete' => ['POST'],
+                // CMP-418: actionToggle flips is_active unconditionally with no isPost/
+                // VerbFilter guard — GET-CSRF exploitable. Its UI link in
+                // sidebar-menu/index.php already has data-method="post".
+                'toggle' => ['POST'],
+            ],
         ];
         return $behaviors;
     }

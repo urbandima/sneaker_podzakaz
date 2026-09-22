@@ -4,11 +4,25 @@ namespace app\backend\modules\admin\controllers;
 
 use Yii;
 use yii\data\Pagination;
+use yii\filters\VerbFilter;
 use app\backend\modules\admin\models\User;
 
 class ActivityLogController extends BaseAdminController
 {
     protected bool $adminOnly = true;
+
+    /**
+     * CMP-418: actionCleanup lives in this web controller (also meant for CLI use
+     * per its own docblock) and unconditionally deletes activity_log rows older
+     * than 90 days with no isPost/VerbFilter guard — GET-CSRF exploitable, no UI
+     * caller relies on GET here.
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['verbs']['actions']['cleanup'] = ['POST'];
+        return $behaviors;
+    }
 
     // ── Фильтры / список допустимых значений ─────────────────────────────────
 

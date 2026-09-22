@@ -60,6 +60,11 @@ class ReviewController extends BaseAdminController
                     'delete' => ['POST'],
                     'publish' => ['POST'],
                     'unpublish' => ['POST'],
+                    // CMP-418: actionToggleFeatured() called $model->save() unconditionally
+                    // with no isPost/VerbFilter guard — confirmed GET-CSRF exploitable via a
+                    // bare link. Its "В избранное"/"Из избранных" link in review/index.php had
+                    // no data-method attribute either; added data-method="post" there.
+                    'toggle-featured' => ['POST'],
                 ],
             ],
         ];

@@ -613,7 +613,10 @@ function applyBrandFix() {
     var btn = document.getElementById('btn-fix-brand');
     var status = document.getElementById('brand-fix-status');
     if (btn) { btn.disabled = true; btn.style.opacity = '.6'; }
-    fetch('/admin/catalog/fix-brand?preview=0')
+    fetch('/admin/catalog/fix-brand?preview=0', {
+        method: 'POST',
+        headers: {'X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content || ''}
+    })
     .then(function(r){ return r.json(); })
     .then(function(d) {
         if (d.success) {

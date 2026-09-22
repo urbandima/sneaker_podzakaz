@@ -44,6 +44,10 @@ class ProductTagController extends BaseAdminController
                 'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
+                    // CMP-418: actionToggleActive flips is_active unconditionally with no
+                    // isPost/VerbFilter guard — GET-CSRF exploitable. Its UI link in
+                    // product-tag/index.php already has data-method="post".
+                    'toggle-active' => ['POST'],
                 ],
             ],
         ]);

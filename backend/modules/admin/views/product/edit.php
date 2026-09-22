@@ -1201,7 +1201,8 @@ if (!$product->isNewRecord) {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <a href="<?= yii\helpers\Url::to(['/admin/product/add-sizes-from-grid', 'productId' => $product->id, 'gridId' => '__GRID_ID__', 'returnUrl' => 'edit']) ?>" 
+                            <a href="<?= yii\helpers\Url::to(['/admin/product/add-sizes-from-grid', 'productId' => $product->id, 'gridId' => '__GRID_ID__', 'returnUrl' => 'edit']) ?>"
+                               data-method="post"
                                class="btn btn-sm btn-success mt-2 d-none" id="add-from-grid-btn">
                                 <i class="bi bi-plus-circle"></i> Добавить все размеры из сетки
                             </a>

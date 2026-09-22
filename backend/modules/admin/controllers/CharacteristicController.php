@@ -58,7 +58,14 @@ class CharacteristicController extends BaseAdminController
             'actions' => [
                 'delete' => ['POST'],
                 'delete-value' => ['POST'],
-                'delete-size' => ['POST'],
+                // CMP-418: this key was 'delete-size', but actionSizeDelete's real
+                // action id (Yii2 camel2id) is 'size-delete' — the old key matched
+                // nothing, so GET actually deleted a size grid unprotected. Also
+                // added 'size-delete-item' (actionSizeDeleteItem), which had no
+                // entry here at all. Both links already use data-method="post" in
+                // characteristic/index.php and size-update.php.
+                'size-delete' => ['POST'],
+                'size-delete-item' => ['POST'],
             ],
         ];
         return $behaviors;

@@ -9,6 +9,7 @@
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
+use yii\filters\VerbFilter;
 use yii\web\Response;
 use app\backend\modules\checkout\models\Order;
 
@@ -22,6 +23,21 @@ class AmoCrmController extends BaseAdminController
         parent::init();
         $this->subdomain = Yii::$app->settings->get('amocrm', 'subdomain', '');
         $this->apiUrl = "https://{$this->subdomain}.amocrm.ru/api/v4";
+    }
+
+    /**
+     * CMP-418: actionCreateDeal takes only $orderId from the route, writes
+     * $order->amocrm_deal_id unconditionally, and creates a live contact+deal in
+     * AmoCRM — no isPost/VerbFilter guard, GET-CSRF exploitable via a bare link.
+     * actionUpdateStatus restricted for the same reason (live external CRM write
+     * tied to a real order, driven only by route $orderId).
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['verbs']['actions']['create-deal'] = ['POST'];
+        $behaviors['verbs']['actions']['update-status'] = ['POST'];
+        return $behaviors;
     }
 
     /**

@@ -441,6 +441,58 @@ document.addEventListener('click', function (e) {
     }
 });
 
+/**
+ * CMP-418: AdminAsset intentionally does not load yii\web\YiiAsset ("Yii2 core JS
+ * не нужен для админки"), so every `Html::a(..., ['data-method' => 'post', ...])`
+ * link across the admin panel (product sync/clone/delete-image/set-main-image/
+ * delete-size, tariff toggle, customer delete, etc. — ~39 usages) rendered as a
+ * plain <a href> with no real POST submission: clicking one just navigated via
+ * GET. That was already a silent CSRF footgun, and it turns into an outright 405
+ * once a controller action is correctly VerbFilter-restricted to POST. This
+ * delegated handler reimplements the one behavior these links actually need
+ * (data-method + data-confirm + CSRF field), matching what yii.js does natively.
+ */
+document.addEventListener('click', function (e) {
+    var link = e.target.closest ? e.target.closest('a[data-method]') : null;
+    if (!link) return;
+
+    var method = link.getAttribute('data-method');
+    if (!method) return;
+
+    var confirmMsg = link.getAttribute('data-confirm');
+    if (confirmMsg && !window.confirm(confirmMsg)) {
+        e.preventDefault();
+        return;
+    }
+    e.preventDefault();
+
+    var form = document.createElement('form');
+    form.method = 'post';
+    form.action = link.getAttribute('href');
+    form.style.display = 'none';
+
+    if (method.toUpperCase() !== 'POST') {
+        var methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = method;
+        form.appendChild(methodInput);
+    }
+
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var csrfParamMeta = document.querySelector('meta[name="csrf-param"]');
+    if (csrfMeta && csrfParamMeta) {
+        var csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = csrfParamMeta.getAttribute('content');
+        csrfInput.value = csrfMeta.getAttribute('content');
+        form.appendChild(csrfInput);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+});
+
 /* ========== SIDEBAR FUNCTIONS ========== */
 
 function toggleSubmenu(button) {

@@ -108,8 +108,13 @@ abstract class BaseAdminController extends Controller
             'verbs' => [
                 'class' => VerbFilter::class,
                 'actions' => [
+                    // CMP-418: yii\filters\VerbFilter matches action ids by exact key
+                    // (or the literal '*' for "all actions") — it does NOT support
+                    // prefix wildcards. A previous 'delete-*' entry here matched no
+                    // real action id and protected nothing; subclasses with actions
+                    // like delete-item/delete-size must declare each id explicitly
+                    // in their own behaviors()['verbs']['actions'].
                     'delete' => ['POST'],
-                    'delete-*' => ['POST'],
                 ],
             ],
         ];

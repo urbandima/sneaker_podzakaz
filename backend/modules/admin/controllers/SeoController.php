@@ -10,6 +10,7 @@
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
+use yii\filters\VerbFilter;
 use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;
 use app\backend\modules\seo\models\Redirect;
@@ -19,6 +20,19 @@ use app\backend\modules\catalog\models\Category;
 
 class SeoController extends BaseAdminController
 {
+    /**
+     * CMP-418: actionRedirectDelete deletes a Redirect unconditionally on route
+     * $id alone, no isPost check, no controller-level VerbFilter at all — GET-CSRF
+     * exploitable. Its UI trigger is a yii\grid\ActionColumn {delete} button
+     * (seo/redirects.php), which renders with data-method="post" by default.
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['verbs']['actions']['redirect-delete'] = ['POST'];
+        return $behaviors;
+    }
+
     /**
      * Главная страница SEO инструментов
      */

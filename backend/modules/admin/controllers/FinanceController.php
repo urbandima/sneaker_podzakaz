@@ -3,6 +3,7 @@
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
+use yii\filters\VerbFilter;
 use yii\web\Response;
 use yii\db\Query;
 use app\backend\modules\finance\models\Payment;
@@ -14,6 +15,21 @@ class FinanceController extends BaseAdminController
 {
     protected bool $adminOnly   = false;
     protected bool $financeOnly = true;
+
+    /**
+     * CMP-418: actionCreatePayment has no isPost/VerbFilter guard and Payment's
+     * `amount` required-validator does not reject 0 — a bare GET (`<img src>`)
+     * leaves 'amount' defaulting to 0 and the save() still succeeds, letting a
+     * CSRF link create junk Payment rows. actionConfirmPayment restricted too
+     * since it's the same money-domain mutation pattern (confirm-payment).
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['verbs']['actions']['create-payment'] = ['POST'];
+        $behaviors['verbs']['actions']['confirm-payment'] = ['POST'];
+        return $behaviors;
+    }
 
     public function actionIndex()
     {

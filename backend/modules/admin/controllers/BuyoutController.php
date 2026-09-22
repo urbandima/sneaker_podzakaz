@@ -3,6 +3,7 @@
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
+use yii\filters\VerbFilter;
 use yii\web\Response;
 use yii\web\NotFoundHttpException;
 use yii\web\BadRequestHttpException;
@@ -16,6 +17,27 @@ use app\backend\modules\checkout\models\Order;
 
 class BuyoutController extends BaseAdminController
 {
+    /**
+     * CMP-418: actionLinkOrder/actionUnlinkOrder/actionAccept/actionCancel/
+     * actionBulkStatus/actionUpdateStatus mutated Buyout/BuyoutOrderLink/PurchaseOrder
+     * unconditionally on $id alone — GET-CSRF exploitable (e.g. bulk-canceling or
+     * bulk-accepting buyouts via a bare link) since Yii2 does not check the CSRF
+     * token on GET. BaseAdminController::behaviors() only VerbFilter-restricts the
+     * literal 'delete' action id, so every other mutating action here needed its own
+     * explicit POST restriction.
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['verbs']['actions']['link-order'] = ['POST'];
+        $behaviors['verbs']['actions']['unlink-order'] = ['POST'];
+        $behaviors['verbs']['actions']['accept'] = ['POST'];
+        $behaviors['verbs']['actions']['cancel'] = ['POST'];
+        $behaviors['verbs']['actions']['bulk-status'] = ['POST'];
+        $behaviors['verbs']['actions']['update-status'] = ['POST'];
+        return $behaviors;
+    }
+
     // ─── Index ────────────────────────────────────────────────────────────────
 
     public function actionIndex()

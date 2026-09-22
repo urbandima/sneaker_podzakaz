@@ -178,7 +178,7 @@ $pendingCount = $stats['pending'] ?? 0;
                         <?= Html::a('<i class="bi bi-eye-slash"></i> Снять', ['unpublish', 'id' => $review->id], ['class' => 'admin-btn admin-btn-secondary admin-btn-sm', 'data' => ['method' => 'post']]) ?>
                     <?php endif; ?>
 
-                    <a href="<?= Url::to(['toggle-featured', 'id' => $review->id]) ?>" class="admin-btn admin-btn-secondary admin-btn-sm">
+                    <a href="<?= Url::to(['toggle-featured', 'id' => $review->id]) ?>" data-method="post" class="admin-btn admin-btn-secondary admin-btn-sm">
                         <?= $review->is_featured ? '<i class="bi bi-star-fill"></i> Из избранных' : '<i class="bi bi-star"></i> В избранное' ?>
                     </a>
 

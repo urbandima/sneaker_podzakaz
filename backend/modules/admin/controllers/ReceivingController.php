@@ -15,9 +15,23 @@ use app\backend\modules\procurement\models\Supplier;
 use app\backend\modules\procurement\models\Buyout;
 use app\backend\modules\procurement\services\ReceivingService;
 use app\backend\modules\catalog\models\Product;
+use yii\filters\VerbFilter;
 
 class ReceivingController extends BaseAdminController
 {
+    /**
+     * CMP-418: actionFromBuyout takes only route $buyoutId and creates a Receiving
+     * from a Buyout via JSON response — no UI caller uses it as a navigational GET
+     * link (unlike actionCreate below, which is intentionally GET-reachable: see
+     * its own docblock, "single-screen creation" triggered by a plain <a href>
+     * index-page button — restricting that one to POST would break that button).
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['verbs']['actions']['from-buyout'] = ['POST'];
+        return $behaviors;
+    }
     // ── Index ──────────────────────────────────────────────────────────────────
 
     public function actionIndex()

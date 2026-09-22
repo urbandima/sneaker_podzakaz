@@ -60,9 +60,31 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use yii\filters\VerbFilter;
 
 class OrderController extends BaseAdminController
 {
+    /**
+     * CMP-418: sendToDp/dpStatus/retryDp/autoFillDp/cleanBadImport/deleteItem all
+     * mutate Order/OrderItem/DP-shipment state from route/query params alone (no
+     * request body needed) with no isPost check — GET-CSRF exploitable via a bare
+     * link. BaseAdminController::behaviors() only restricts the literal 'delete'
+     * action id, not these. deleteItem's "Удалить" link in order/view.php was a
+     * plain <a href> (no data-method) — converted to data-method="post" as part
+     * of this fix; the rest are already POST via fetch() in the same view.
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['verbs']['actions']['send-to-dp'] = ['POST'];
+        $behaviors['verbs']['actions']['dp-status'] = ['POST'];
+        $behaviors['verbs']['actions']['retry-dp'] = ['POST'];
+        $behaviors['verbs']['actions']['auto-fill-dp'] = ['POST'];
+        $behaviors['verbs']['actions']['clean-bad-import'] = ['POST'];
+        $behaviors['verbs']['actions']['delete-item'] = ['POST'];
+        return $behaviors;
+    }
+
     /**
      * Список заказов с фильтрацией и статистикой
      */

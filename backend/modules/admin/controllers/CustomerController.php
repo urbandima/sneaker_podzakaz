@@ -31,6 +31,7 @@
 namespace app\backend\modules\admin\controllers;
 
 use Yii;
+use yii\filters\VerbFilter;
 use yii\web\Response;
 use yii\data\ActiveDataProvider;
 use app\backend\modules\account\models\Customer;
@@ -39,6 +40,23 @@ use app\backend\modules\loyalty\models\LoyaltyPoints;
 
 class CustomerController extends BaseAdminController
 {
+    /**
+     * CMP-418: toggleStatus/resetPassword/linkOrders/markPhantoms mutate customer
+     * data unconditionally on GET (block/unblock a customer, force a password
+     * reset that invalidates their session, mass-link orders to a customer_id,
+     * bulk-deactivate matching customers) — GET-CSRF exploitable, no isPost check
+     * and not covered by the base 'delete'-only VerbFilter.
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['verbs']['actions']['toggle-status'] = ['POST'];
+        $behaviors['verbs']['actions']['reset-password'] = ['POST'];
+        $behaviors['verbs']['actions']['link-orders'] = ['POST'];
+        $behaviors['verbs']['actions']['mark-phantoms'] = ['POST'];
+        return $behaviors;
+    }
+
     /**
      * @var array|null кеш декодированного JSON body для jsonOrPost()
      */
