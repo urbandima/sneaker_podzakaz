@@ -9776,16 +9776,6 @@ parameters:
 			path: backend/modules/procurement/services/ReceivingService.php
 
 		-
-			message: "#^Instantiated class app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\LamodaParser not found\\.$#"
-			count: 1
-			path: backend/modules/procurement/services/parsers/LamodaParser.php
-
-		-
-			message: "#^Call to method parseProduct\\(\\) on an unknown class app\\\\backend\\\\modules\\\\admin\\\\services\\\\import\\\\LamodaParser\\.$#"
-			count: 1
-			path: backend/modules/procurement/services/parsers/LamodaParser.php
-
-		-
 			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$poizonApi\\.$#"
 			count: 1
 			path: backend/modules/procurement/services/parsers/PoizonParser.php

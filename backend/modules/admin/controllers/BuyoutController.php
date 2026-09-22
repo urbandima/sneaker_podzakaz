@@ -198,6 +198,9 @@ class BuyoutController extends BaseAdminController
         $data    = $service->parse($url);
 
         if ($data === null) {
+            if ($service->detectSource($url) === Buyout::SOURCE_LAMODA) {
+                return ['success' => false, 'message' => 'Автоматический парсинг Lamoda не поддерживается, заполните данные вручную.'];
+            }
             return ['success' => false, 'message' => 'Не удалось распарсить URL'];
         }
 

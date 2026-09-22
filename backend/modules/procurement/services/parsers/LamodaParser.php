@@ -2,11 +2,12 @@
 
 namespace app\backend\modules\procurement\services\parsers;
 
-use Yii;
 use app\backend\modules\procurement\models\Buyout;
 
 /**
- * Delegates to existing LamodaParser import service.
+ * Lamoda URL detection only — automatic card parsing is not implemented (CMP-419).
+ * BuyoutController::actionParseUrl() reports this to the operator as a fill-in-manually
+ * result rather than as a generic parse failure; see detectSource() usage there.
  */
 class LamodaParser implements BuyoutParserInterface
 {
@@ -22,40 +23,6 @@ class LamodaParser implements BuyoutParserInterface
 
     public function parse(string $url): ?array
     {
-        try {
-            $importParser = new \app\backend\modules\admin\services\import\LamodaParser();
-            $raw = $importParser->parseProduct($url);
-        } catch (\Throwable $e) {
-            Yii::warning('LamodaParser error: ' . $e->getMessage(), 'buyout.parser');
-            $raw = [];
-        }
-
-        if (empty($raw)) {
-            return [
-                'name'        => 'Lamoda товар',
-                'brand'       => null,
-                'image'       => null,
-                'images'      => [],
-                'price'       => null,
-                'currency'    => 'BYN',
-                'external_id' => null,
-                'size'        => null,
-                'source'      => $this->getSourceKey(),
-                'raw'         => ['url' => $url],
-            ];
-        }
-
-        return [
-            'name'        => $raw['name'] ?? 'Lamoda товар',
-            'brand'       => $raw['brand_name'] ?? null,
-            'image'       => $raw['images'][0] ?? null,
-            'images'      => $raw['images'] ?? [],
-            'price'       => isset($raw['price']) ? (float)$raw['price'] : null,
-            'currency'    => 'BYN',
-            'external_id' => null,
-            'size'        => null,
-            'source'      => $this->getSourceKey(),
-            'raw'         => $raw,
-        ];
+        return null;
     }
 }
