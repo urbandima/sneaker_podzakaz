@@ -464,10 +464,28 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
                         <?php endforeach; ?>
                     </div>
 
+                    <div class="checkout-coupon-section">
+                        <div class="checkout-coupon-input-group" id="couponInputGroup">
+                            <input type="text" id="couponCodeInput" placeholder="Промокод" maxlength="50">
+                            <button type="button" class="btn-coupon-apply" onclick="applyCouponCode()">Применить</button>
+                        </div>
+                        <div id="couponApplied" class="checkout-coupon-applied d-none">
+                            <span><i class="bi bi-check-circle-fill"></i> Промокод <strong id="couponAppliedCode"></strong> применён</span>
+                            <button type="button" class="checkout-coupon-remove" onclick="removeCouponCode()">
+                                <i class="bi bi-x"></i> Удалить
+                            </button>
+                        </div>
+                        <div id="couponError" class="checkout-coupon-error d-none"></div>
+                    </div>
+
                     <div class="summary-totals">
                         <div class="summary-row">
                             <span>Товары (<?= count($items) ?>):</span>
                             <span id="productsTotal"><?= PriceHelper::format($total) ?></span>
+                        </div>
+                        <div class="summary-row" id="couponDiscountRow" style="display:none;">
+                            <span>Скидка по промокоду:</span>
+                            <span id="couponDiscountValue">-0.00 BYN</span>
                         </div>
                         <div class="summary-row" id="deliveryCostRow">
                             <span>Доставка:</span>
@@ -566,6 +584,51 @@ if ($cnt % 10 === 1 && $cnt % 100 !== 11) {
 @media (max-width: 767px) {
     .checkout-passport-note--mobile { display: block; margin: 0 0 var(--space-3); }
 }
+
+.checkout-coupon-section { margin: 12px 0; }
+.checkout-coupon-input-group { display: flex; gap: 8px; }
+.checkout-coupon-input-group input {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    border: 1px solid var(--color-border, #D1D5DB);
+    border-radius: 6px;
+    font-size: 14px;
+}
+.btn-coupon-apply {
+    padding: 8px 14px;
+    border: 1px solid var(--color-border, #D1D5DB);
+    border-radius: 6px;
+    background: #fff;
+    font-size: 14px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.btn-coupon-apply:hover { background: #F3F4F6; }
+.checkout-coupon-applied {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--color-success-bg, #DCFCE7);
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--color-success, #15803D);
+}
+.checkout-coupon-remove {
+    border: none;
+    background: none;
+    color: inherit;
+    text-decoration: underline;
+    font-size: 12px;
+    cursor: pointer;
+}
+.checkout-coupon-error {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #ef4444;
+}
 </style>
 
 <script>
@@ -578,6 +641,8 @@ var selectedPayment   = <?= json_encode($firstPaymentId) ?>; // '' if no payment
 var selectedPvz       = '';
 var csrfToken         = <?= json_encode($csrfToken) ?>;
 var createUrl         = <?= json_encode($createUrl) ?>;
+var couponValidateUrl = <?= json_encode(Url::to(['/api/coupon/validate'])) ?>;
+var appliedCouponCode = null;
 
 // Analytics begin_checkout: GA4 + Y.Metrika ecommerce.checkout + Meta InitiateCheckout.
 // Все три тега settings-gated в layout — отсутствие конфигов делает emit no-op.
@@ -834,6 +899,73 @@ function updateTotal() {
     });
 }
 
+// Промокод (CMP-423). Предпросмотр скидки здесь — только для UI; реальная
+// валидация и пересчёт суммы происходят на сервере в OrderController::actionCreate(),
+// который никогда не доверяет orderDiscount из этого файла, только coupon_code.
+function applyCouponCodeValue(code) {
+    return fetch(couponValidateUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ code: code })
+    })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var errorEl = document.getElementById('couponError');
+            if (data.success) {
+                appliedCouponCode = code;
+                orderDiscount = data.discount || 0;
+
+                document.getElementById('couponInputGroup').style.display = 'none';
+                document.getElementById('couponApplied').classList.remove('d-none');
+                document.getElementById('couponAppliedCode').textContent = code;
+
+                var rowEl = document.getElementById('couponDiscountRow');
+                rowEl.style.display = 'flex';
+                document.getElementById('couponDiscountValue').textContent = '-' + orderDiscount.toFixed(2) + ' BYN';
+
+                errorEl.classList.add('d-none');
+                updateTotal();
+            } else {
+                appliedCouponCode = null;
+                orderDiscount = 0;
+                errorEl.textContent = data.message || 'Недействительный промокод';
+                errorEl.classList.remove('d-none');
+                updateTotal();
+            }
+        })
+        .catch(function() {
+            var errorEl = document.getElementById('couponError');
+            errorEl.textContent = 'Ошибка при проверке промокода';
+            errorEl.classList.remove('d-none');
+        });
+}
+
+function applyCouponCode() {
+    var input = document.getElementById('couponCodeInput');
+    var code = input.value.trim().toUpperCase();
+    if (!code) {
+        var errorEl = document.getElementById('couponError');
+        errorEl.textContent = 'Введите промокод';
+        errorEl.classList.remove('d-none');
+        return;
+    }
+    applyCouponCodeValue(code);
+}
+
+function removeCouponCode() {
+    appliedCouponCode = null;
+    orderDiscount = 0;
+
+    document.getElementById('couponInputGroup').style.display = 'flex';
+    document.getElementById('couponCodeInput').value = '';
+    document.getElementById('couponApplied').classList.add('d-none');
+    document.getElementById('couponDiscountRow').style.display = 'none';
+    document.getElementById('couponError').classList.add('d-none');
+
+    updateTotal();
+}
+
 // Отправка заказа
 function submitOrder() {
     var name   = document.getElementById('field-name').value.trim();
@@ -898,6 +1030,11 @@ function submitOrder() {
     // Send pickup_point separately for Europochta
     if (delivery.value === 'europochta' && selectedPvz) {
         params.append('pickup_point', selectedPvz);
+    }
+    // Промокод: сервер сам пересчитывает скидку по coupon_code, значение
+    // orderDiscount здесь — только для отображения, на сервер не отправляется.
+    if (appliedCouponCode) {
+        params.append('coupon_code', appliedCouponCode);
     }
 
     fetch(createUrl, {

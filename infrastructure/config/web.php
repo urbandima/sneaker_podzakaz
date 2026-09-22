@@ -367,6 +367,7 @@ $config = [
                 'webhook/amocrm/ai-chat/status' => 'api/ai-chat/status',
                 'api/amocrm/order' => 'api/amocrm/order',
                 'api/amocrm/sync' => 'api/amocrm/sync',
+                'api/coupon/validate' => 'api/coupon/validate',
 
                 // Catalog API endpoints (вынесено из CatalogController)
                 'api/catalog/filter' => 'catalog/catalog-api/filter',

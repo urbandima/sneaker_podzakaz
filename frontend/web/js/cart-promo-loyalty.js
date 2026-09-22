@@ -86,7 +86,20 @@ async function applyPromoCode() {
     }
     
     try {
-        const response = await fetch('/api/v1/coupon/validate', {
+        // Реальный эндпоинт (CMP-423) — /api/v1/coupon/validate никогда не был
+        // смонтирован ни на одном маршруте и всегда отдавал 404. Сумма заказа
+        // на сервере считается из корзины по сессии, а не из order_amount —
+        // это поле здесь больше не используется как источник истины.
+        //
+        // ВНИМАНИЕ: эта страница (frontend/views/cart/index.php) недостижима —
+        // /cart безусловно редиректит на /checkout (CartController::actionIndex()),
+        // так что этот файл сейчас мёртвый код (как и купоны в модуле checkout
+        // до этого тикета). Эндпоинт всё равно исправлен на реальный (а не на
+        // фиктивный /api/v1/...), чтобы контракт был согласован, если страницу
+        // когда-нибудь вернут в маршруты — живой путь применения купона теперь
+        // на /checkout, см. applyCouponCode()/applyCouponCodeValue() в
+        // frontend/views/checkout/index.php.
+        const response = await fetch('/api/coupon/validate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -97,26 +110,26 @@ async function applyPromoCode() {
                 order_amount: cartTotal
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             appliedPromoCode = data.coupon;
-            
+
             // Показываем применённый промокод
             document.getElementById('promoCodeInput').style.display = 'none';
             document.querySelector('.btn-promo-apply').style.display = 'none';
-            
+
             const appliedEl = document.getElementById('promoApplied');
             appliedEl.style.display = 'block';
-            
+
             document.getElementById('promoCodeText').textContent = code;
-            document.getElementById('promoDiscountAmount').textContent = 
+            document.getElementById('promoDiscountAmount').textContent =
                 data.discount.toFixed(2) + ' BYN';
-            
+
             // Обновляем итоговую сумму
             updateCartTotals();
-            
+
             // Скрываем ошибку
             document.getElementById('promoError').style.display = 'none';
         } else {
@@ -132,7 +145,7 @@ async function applyPromoCode() {
  */
 function removePromoCode() {
     appliedPromoCode = null;
-    
+
     // Восстанавливаем форму ввода
     document.getElementById('promoCodeInput').style.display = 'block';
     document.getElementById('promoCodeInput').value = '';

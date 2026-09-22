@@ -13,6 +13,8 @@ use app\backend\modules\checkout\models\OrderItem;
 use app\backend\modules\checkout\models\OrderHistory;
 use app\backend\modules\checkout\viewmodels\CheckoutViewModel;
 use app\backend\modules\cart\models\Cart;
+use app\backend\modules\coupon\services\CouponService;
+use app\backend\modules\coupon\models\CouponUsage;
 
 class OrderController extends Controller
 {
@@ -349,6 +351,28 @@ class OrderController extends Controller
             ];
         }
 
+        // Купон (CMP-423). Валидируем код ДО создания заказа — по сумме
+        // корзины и текущему покупателю (истёк/не найден/лимит исчерпан/
+        // меньше min_order_amount/только для первого заказа). Отклоняем весь
+        // сабмит с явной ошибкой, а не молча создаём заказ без скидки — иначе
+        // покупатель, видевший скидку на предыдущем шаге, был бы неожиданно
+        // списан по полной цене. Применимость к конкретным товарам и запись
+        // использования — внутри транзакции ниже, после сохранения позиций.
+        $couponCode = trim((string) Yii::$app->request->post('coupon_code', ''));
+        $coupon = null;
+        $couponService = null;
+        if ($couponCode !== '') {
+            $couponService = new CouponService();
+            $coupon = $couponService->validateCoupon(
+                $couponCode,
+                Cart::getTotal(),
+                \app\backend\modules\account\models\Customer::getCurrentCustomerId()
+            );
+            if ($coupon === null) {
+                return ['success' => false, 'message' => $couponService->getErrorMessage() ?: 'Промокод недействителен'];
+            }
+        }
+
         // Начинаем транзакцию
         $transaction = Yii::$app->db->beginTransaction();
 
@@ -400,6 +424,9 @@ class OrderController extends Controller
 
             $order->delivery_cost = $deliveryCost;
             $order->total_amount = $totalAmount + $deliveryCost;
+            // product_price — источник для CouponService::calculateDiscount() ниже;
+            // колонка существует на Order, но actionCreate() раньше её не заполнял.
+            $order->product_price = $totalAmount;
 
             // Генерируем номер заказа и токен
             $order->order_number = 'WEB-' . date('Ymd') . '-' . strtoupper(Yii::$app->security->generateRandomString(6));
@@ -426,6 +453,38 @@ class OrderController extends Controller
 
                 if (!$orderItem->save()) {
                     throw new \Exception('Ошибка сохранения товара: ' . json_encode($orderItem->errors));
+                }
+            }
+
+            // Применяем купон (CMP-423): теперь, когда позиции заказа сохранены,
+            // можно проверить применимость к конкретным товарам и безопасно
+            // (под блокировкой строки) списать использование лимитированного купона.
+            $discountAmount = 0;
+            if ($coupon !== null) {
+                if (!$couponService->checkApplicability($coupon, $order)) {
+                    throw new \RuntimeException('Промокод не применим к товарам в корзине');
+                }
+
+                // FOR UPDATE закрывает гонку между validateCoupon() выше и записью
+                // ниже: два параллельных заказа не смогут оба пройти проверку
+                // max_uses и списать limit-купон сверх лимита.
+                $lockedCoupon = Yii::$app->db->createCommand(
+                    'SELECT current_uses FROM {{%coupon}} WHERE id = :id FOR UPDATE',
+                    [':id' => $coupon->id]
+                )->queryOne();
+                if ($lockedCoupon && $coupon->max_uses && (int) $lockedCoupon['current_uses'] >= $coupon->max_uses) {
+                    throw new \RuntimeException('Лимит использований промокода исчерпан');
+                }
+
+                $discountAmount = $couponService->calculateDiscount($coupon, $order);
+
+                $order->coupon_id = $coupon->id;
+                $order->coupon_code = $coupon->code;
+                $order->discount_amount = $discountAmount;
+                $order->total_amount = max(0, $totalAmount + $deliveryCost - $discountAmount);
+
+                if (!$order->save(false)) {
+                    throw new \Exception('Ошибка применения промокода: ' . json_encode($order->errors));
                 }
             }
 
@@ -475,13 +534,24 @@ class OrderController extends Controller
 
             $transaction->commit();
 
+            // Счётчик использований купона и запись CouponUsage — уже вне
+            // транзакции заказа (её откат не должен требовать отдельного отката
+            // здесь: обе операции атомарны и идемпотентно-безопасны, а срыв
+            // заказа выше по стеку уже вернул ошибку до этой точки).
+            if ($coupon !== null) {
+                $coupon->apply();
+                CouponUsage::record($coupon->id, $order->id, $discountAmount, $order->customer_id);
+            }
+
             Yii::info('Создан заказ #' . $order->id . ' через корзину', 'order');
 
             return [
                 'success' => true,
                 'order_id' => $order->id,
                 'order_number' => $order->order_number,
-                'token' => $order->token
+                'token' => $order->token,
+                'discount_amount' => $discountAmount,
+                'total_amount' => $order->total_amount,
             ];
         } catch (\Throwable $e) {
             $transaction->rollBack();

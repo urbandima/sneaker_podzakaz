@@ -225,7 +225,7 @@ class CouponService extends Component
      * @param Order $order
      * @return bool
      */
-    protected function checkApplicability(Coupon $coupon, Order $order): bool
+    public function checkApplicability(Coupon $coupon, Order $order): bool
     {
         // Используем relation orderItems, а не публичное свойство items (которое всегда [])
         $items = $order->orderItems;
@@ -233,9 +233,12 @@ class CouponService extends Component
             return false;
         }
 
-        // Проверяем каждый товар
+        // Проверяем каждый товар. OrderItem не хранит category_id как отдельную
+        // колонку (только product_id) — категория берётся из связанного Product,
+        // иначе обращение к несуществующему свойству кидает UnknownPropertyException.
         foreach ($items as $item) {
-            if ($coupon->isApplicableToProduct($item->product_id, $item->category_id ?? null)) {
+            $categoryId = $item->product->category_id ?? null;
+            if ($coupon->isApplicableToProduct($item->product_id, $categoryId)) {
                 return true;
             }
         }
