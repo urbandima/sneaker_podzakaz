@@ -6,6 +6,7 @@ use Yii;
 use yii\web\Response;
 use app\infrastructure\plugins\PluginManager;
 use app\backend\shared\services\AmocrmOrchestrator;
+use app\backend\modules\checkout\models\DeliveryProvider;
 
 class PluginController extends BaseAdminController
 {
@@ -91,6 +92,217 @@ class PluginController extends BaseAdminController
     public function actionMoysklad()
     {
         return $this->render('moysklad');
+    }
+
+    // ----------------------------------------------------------------
+    // CDEK / Европочта / Белпочта / RocketSMS — учётные данные служб доставки и SMS
+    // Конфиги хранятся в settings('plugin', '{provider}_config') как JSON —
+    // именно оттуда их уже читают CdekTrackingService/EuropochtaTrackingService/
+    // BelpochtaTrackingService/SmsService.
+    // ----------------------------------------------------------------
+
+    public function actionCdek()
+    {
+        $config = $this->getPluginConfig('cdek_config', ['api_url' => 'https://api.cdek.ru/v2']);
+        $provider = DeliveryProvider::findOne(['code' => 'cdek']);
+
+        return $this->render('cdek', [
+            'config'         => $config,
+            'statusMappings' => $provider ? $provider->statusMappings : [],
+        ]);
+    }
+
+    public function actionSaveCdek(): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $this->requirePermission('manageSettings');
+
+        $body = json_decode(Yii::$app->request->rawBody, true) ?: [];
+        $config = [
+            'active'        => !empty($body['active']) ? 1 : 0,
+            'client_id'     => trim((string)($body['client_id'] ?? '')),
+            'client_secret' => trim((string)($body['client_secret'] ?? '')),
+            'api_url'       => trim((string)($body['api_url'] ?? '')) ?: 'https://api.cdek.ru/v2',
+        ];
+
+        $this->savePluginConfig('cdek_config', $config);
+        $this->logAction('plugin_settings_updated', 'plugin', null, 'CDEK', 'Настройки СДЭК обновлены', null, ['active' => $config['active']]);
+
+        return ['success' => true, 'message' => 'Настройки сохранены'];
+    }
+
+    public function actionEuropochta()
+    {
+        $config = $this->getPluginConfig('europochta_config');
+        $pvzRaw = Yii::$app->settings->get('plugin', 'europochta_pvz', '[]');
+        $pvzList = is_array($pvzRaw) ? $pvzRaw : (json_decode((string)$pvzRaw, true) ?: []);
+        $provider = DeliveryProvider::findOne(['code' => 'europochta']);
+
+        return $this->render('europochta', [
+            'config'         => $config,
+            'pvzList'        => $pvzList,
+            'pvzCount'       => count($pvzList),
+            'statusMappings' => $provider ? $provider->statusMappings : [],
+        ]);
+    }
+
+    public function actionSaveEuropochta(): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $this->requirePermission('manageSettings');
+
+        $body = json_decode(Yii::$app->request->rawBody, true) ?: [];
+        $config = [
+            'active'  => !empty($body['active']) ? 1 : 0,
+            'api_key' => trim((string)($body['api_key'] ?? '')),
+        ];
+
+        $this->savePluginConfig('europochta_config', $config);
+        $this->logAction('plugin_settings_updated', 'plugin', null, 'Европочта', 'Настройки Европочты обновлены', null, ['active' => $config['active']]);
+
+        return ['success' => true, 'message' => 'Настройки сохранены'];
+    }
+
+    public function actionBelpochta()
+    {
+        $config = $this->getPluginConfig('belpochta_config');
+        $provider = DeliveryProvider::findOne(['code' => 'belpochta']);
+
+        return $this->render('belpochta', [
+            'config'         => $config,
+            'statusMappings' => $provider ? $provider->statusMappings : [],
+        ]);
+    }
+
+    public function actionSaveBelpochta(): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $this->requirePermission('manageSettings');
+
+        $body = json_decode(Yii::$app->request->rawBody, true) ?: [];
+        $config = [
+            'active'  => !empty($body['active']) ? 1 : 0,
+            'api_key' => trim((string)($body['api_key'] ?? '')),
+        ];
+
+        $this->savePluginConfig('belpochta_config', $config);
+        $this->logAction('plugin_settings_updated', 'plugin', null, 'Белпочта', 'Настройки Белпочты обновлены', null, ['active' => $config['active']]);
+
+        return ['success' => true, 'message' => 'Настройки сохранены'];
+    }
+
+    /**
+     * POST /admin/plugin/test-tracking — общий тест трекинга для cdek/europochta/belpochta.
+     * Body: { provider: 'cdek'|'europochta'|'belpochta', track: string }
+     */
+    public function actionTestTracking(): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $body     = json_decode(Yii::$app->request->rawBody, true) ?: [];
+        $provider = (string)($body['provider'] ?? '');
+        $track    = trim((string)($body['track'] ?? ''));
+
+        if (!$track) {
+            return ['status' => 'error', 'message' => 'Трек-номер не указан'];
+        }
+
+        $components = [
+            'cdek'       => 'cdekTracking',
+            'europochta' => 'europochtaTracking',
+            'belpochta'  => 'belpochtaTracking',
+        ];
+
+        if (!isset($components[$provider]) || !Yii::$app->has($components[$provider])) {
+            return ['status' => 'error', 'message' => 'Неизвестный провайдер трекинга'];
+        }
+
+        try {
+            return Yii::$app->get($components[$provider])->getStatus($track);
+        } catch (\Throwable $e) {
+            Yii::error('[Plugin] test-tracking(' . $provider . ') failed: ' . $e->getMessage(), 'tracking');
+            return ['status' => 'error', 'message' => 'Ошибка проверки трекинга'];
+        }
+    }
+
+    public function actionRocketsms()
+    {
+        $config = $this->getPluginConfig('rocketsms_config');
+
+        $balance = null;
+        if (!empty($config['username']) && !empty($config['password'])) {
+            try {
+                $balance = Yii::$app->sms->getRocketSmsBalance();
+            } catch (\Throwable $e) {
+                Yii::warning('[RocketSMS] balance fetch failed: ' . $e->getMessage(), 'sms');
+                $balance = null;
+            }
+        }
+
+        return $this->render('rocketsms', [
+            'config'  => $config,
+            'balance' => $balance,
+        ]);
+    }
+
+    public function actionSaveRocketsms(): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $this->requirePermission('manageSettings');
+
+        $config = [
+            'active'   => Yii::$app->request->post('active') == '1' ? 1 : 0,
+            'username' => trim((string)Yii::$app->request->post('username', '')),
+            'password' => trim((string)Yii::$app->request->post('password', '')),
+            'sender'   => trim((string)Yii::$app->request->post('sender', '')),
+        ];
+
+        $this->savePluginConfig('rocketsms_config', $config);
+        $this->logAction('plugin_settings_updated', 'plugin', null, 'RocketSMS', 'Настройки RocketSMS обновлены', null, ['active' => $config['active']]);
+
+        return ['success' => true, 'message' => 'Настройки сохранены'];
+    }
+
+    public function actionTestRocketsms(): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $phone = trim((string)Yii::$app->request->post('phone', ''));
+        $text  = trim((string)Yii::$app->request->post('text', 'Тест RocketSMS от админки'));
+
+        if (!$phone) {
+            return ['success' => false, 'message' => 'Укажите номер телефона'];
+        }
+
+        $config = $this->getPluginConfig('rocketsms_config');
+        if (empty($config['username']) || empty($config['password'])) {
+            return ['success' => false, 'message' => 'Сначала заполните и сохраните username/password'];
+        }
+
+        try {
+            $ok = Yii::$app->sms->send($phone, $text);
+        } catch (\Throwable $e) {
+            Yii::error('[RocketSMS] test send failed: ' . $e->getMessage(), 'sms');
+            return ['success' => false, 'message' => 'Ошибка отправки: ' . $e->getMessage()];
+        }
+
+        return ['success' => $ok, 'message' => $ok ? 'SMS отправлена' : 'Провайдер отклонил отправку — см. логи (категория sms)'];
+    }
+
+    /**
+     * Читает конфиг плагина из settings('plugin', $key) — там же его ждут
+     * *TrackingService/SmsService. Хранится как JSON-строка.
+     */
+    private function getPluginConfig(string $key, array $defaults = []): array
+    {
+        $raw = Yii::$app->settings->get('plugin', $key, '{}');
+        $decoded = is_array($raw) ? $raw : (json_decode((string)$raw, true) ?: []);
+        return array_merge($defaults, $decoded);
+    }
+
+    private function savePluginConfig(string $key, array $config): void
+    {
+        Yii::$app->settings->set('plugin', $key, json_encode($config, JSON_UNESCAPED_UNICODE));
     }
 
     public function actionAmocrm()

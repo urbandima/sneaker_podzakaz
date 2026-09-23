@@ -1707,7 +1707,12 @@ parameters:
 
 		-
 			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$settings\\.$#"
-			count: 18
+			count: 21
+			path: backend/modules/admin/controllers/PluginController.php
+
+		-
+			message: "#^Access to an undefined property yii\\\\console\\\\Application\\|yii\\\\web\\\\Application\\<yii\\\\web\\\\IdentityInterface\\>\\:\\:\\$sms\\.$#"
+			count: 2
 			path: backend/modules/admin/controllers/PluginController.php
 
 		-
