@@ -289,10 +289,56 @@ class Order extends ActiveRecord
                     'Не удалось сохранить историю статусов заказа #' . $this->id . ': ' . json_encode($history->errors)
                 );
             }
+
+            // CMP-438: начисление баллов лояльности при выдаче заказа. Программа
+            // лояльности активно обещана покупателю (лендинг, /sale, корзина,
+            // личный кабинет), но LoyaltyService::processOrderCompletion() нигде
+            // не вызывался — сломанное обещание. 'delivered' — единственный
+            // статус, который в остальном коде (isOverdue/getSlaStatus) трактуется
+            // как терминальный "заказ выполнен".
+            if ($this->status === 'delivered') {
+                $this->awardLoyaltyPoints();
+            }
         }
 
         // Уведомление при создании заказа отправляется в OrderController::actionCreate()
         // чтобы избежать двойной отправки email клиенту.
+    }
+
+    /**
+     * Начислить баллы лояльности за заказ, если ещё не начислены.
+     * Не бросает исключений — сбой начисления не должен блокировать смену статуса.
+     */
+    protected function awardLoyaltyPoints(): void
+    {
+        if (empty($this->customer_id)) {
+            return;
+        }
+
+        $alreadyAwarded = \app\backend\modules\loyalty\models\LoyaltyPoints::find()
+            ->where([
+                'order_id'    => $this->id,
+                'customer_id' => $this->customer_id,
+                'type'        => \app\backend\modules\loyalty\models\LoyaltyPoints::TYPE_PURCHASE,
+            ])
+            ->exists();
+        if ($alreadyAwarded) {
+            return;
+        }
+
+        try {
+            $loyaltyService = new \app\backend\modules\loyalty\services\LoyaltyService();
+            $loyaltyService->processOrderCompletion(
+                (int) $this->customer_id,
+                (float) $this->total_amount,
+                (int) $this->id
+            );
+        } catch (\Throwable $e) {
+            Yii::error(
+                'Не удалось начислить баллы лояльности для заказа #' . $this->id . ': ' . $e->getMessage(),
+                'loyalty'
+            );
+        }
     }
 
     protected function generateOrderNumber()

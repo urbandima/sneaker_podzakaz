@@ -297,6 +297,12 @@ class OrderController extends Controller
         // Product/ProductSize, поправляем позицию корзины и просим покупателя
         // повторить оформление — тем же паттерном ошибок, что и валидации выше.
         $staleItems = [];
+        // CMP-438: id проданного product_size на cartItem->id — остаток нигде
+        // не синхронизируется автоматически (МойСклад-синк остатков не трогает
+        // вообще, только заказы; единственный импортёр остатков — ручной
+        // одноразовый скрипт, нигде не запланирован), поэтому единственный
+        // способ не разойтись с реальностью — списывать при оформлении заказа.
+        $sizeModelIdsByCartItemId = [];
         foreach ($cartItems as $cartItem) {
             $product = $cartItem->product;
             if (!$product) {
@@ -333,6 +339,7 @@ class OrderController extends Controller
                     if ($sizeModel->price !== null && (float) $sizeModel->price > 0) {
                         $actualPrice = (float) $sizeModel->price;
                     }
+                    $sizeModelIdsByCartItemId[$cartItem->id] = $sizeModel->id;
                 }
             }
 
@@ -453,6 +460,33 @@ class OrderController extends Controller
 
                 if (!$orderItem->save()) {
                     throw new \Exception('Ошибка сохранения товара: ' . json_encode($orderItem->errors));
+                }
+
+                // Списываем остаток под блокировкой строки (CMP-438): ревалидация
+                // наличия выше прошла до открытия транзакции, поэтому между ней и
+                // этой точкой остаток мог уйти в 0 из-за параллельного заказа —
+                // перепроверяем под FOR UPDATE и списываем в одной транзакции с
+                // заказом, тем же паттерном блокировки, что и купон (CMP-423) выше.
+                $sizeModelId = $sizeModelIdsByCartItemId[$cartItem->id] ?? null;
+                if ($sizeModelId !== null) {
+                    $lockedSize = Yii::$app->db->createCommand(
+                        'SELECT stock FROM {{%product_size}} WHERE id = :id FOR UPDATE',
+                        [':id' => $sizeModelId]
+                    )->queryOne();
+
+                    if (!$lockedSize || (int) $lockedSize['stock'] < $cartItem->quantity) {
+                        throw new \RuntimeException(
+                            'Размер ' . $cartItem->size . ' товара "' . $cartItem->product->name . '" закончился. Обновите корзину.'
+                        );
+                    }
+
+                    Yii::$app->db->createCommand()
+                        ->update(
+                            '{{%product_size}}',
+                            ['stock' => new \yii\db\Expression('stock - :qty', [':qty' => $cartItem->quantity])],
+                            ['id' => $sizeModelId]
+                        )
+                        ->execute();
                 }
             }
 
