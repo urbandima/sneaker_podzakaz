@@ -659,25 +659,12 @@ if (isCrawler()) {
 
 <div class="overlay sidebar-overlay" id="overlay"></div>
 
-<!-- Quick View Modal -->
+<!-- Quick View Modal: содержимое приходит из партиала catalog/_quick_view через
+     GET /catalog/quick-view/<id>, тот же эндпоинт, что уже используется в витрине. -->
 <div class="quick-view-modal" id="quickViewModal">
     <div class="qv-content">
         <button type="button" class="qv-close" onclick="closeQuickView()" aria-label="Закрыть быстрый просмотр"><i class="bi bi-x" aria-hidden="true"></i></button>
-        <div class="qv-grid">
-            <div class="qv-gallery">
-                <img src="" alt="" id="qvMainImg">
-                <div class="qv-thumbs" id="qvThumbs"></div>
-            </div>
-            <div class="qv-details">
-                <div class="qv-brand" id="qvBrand"></div>
-                <h2 id="qvName"></h2>
-                <div class="qv-price" id="qvPrice"></div>
-                <div class="qv-sizes" id="qvSizes"></div>
-                <div class="qv-colors" id="qvColors"></div>
-                <button type="button" class="btn-order" onclick="addToCart()"><i class="bi bi-cart-plus"></i> В корзину</button>
-                <a href="#" id="qvLink" class="qv-full btn btn-outline-secondary btn-sm mt-2">Открыть страницу товара</a>
-            </div>
-        </div>
+        <div id="qvBody"></div>
     </div>
 </div>
 
@@ -1088,24 +1075,8 @@ function updateCompareCount() {
     const count = compareProducts.length;
 }
 
-function openQuickView(event, productId) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    // Открываем Quick View modal
-    const modal = document.getElementById('quickViewModal');
-    if (modal) {
-        modal.classList.add('active');
-        // Загрузка данных товара через AJAX
-    }
-}
-
-function closeQuickView() {
-    const modal = document.getElementById('quickViewModal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
-}
+// openQuickView/closeQuickView определены ниже, в блоке "Quick View" —
+// здесь было дублирующее заглушечное определение (CMP-440), удалено.
 
 // Открытие/закрытие группы фильтров - см. ниже (удалено дублирование)
 
@@ -1273,70 +1244,83 @@ img.src = originalImages.get(card);
 }
 }
 
-// Quick size select
-function selectQuickSize(e, productId, size) {
-e.preventDefault();
-e.stopPropagation();
-openQuickView(e, productId);
-setTimeout(() => {
-const sizeButtons = document.querySelectorAll('#qvSizes span');
-sizeButtons.forEach(btn => {
-if (btn.textContent === size) {
-btn.style.background = '#000';
-btn.style.color = '#fff';
-}
-});
-}, 300);
-}
+// Быстрый выбор размера на карточке (клик по .size-badge) обрабатывается
+// каноническим window.selectQuickSize из global-helpers.js — он уже умеет
+// звать openQuickView(e, productId, size), если она определена на странице.
 
-// Quick View
-const qvModal=document.getElementById('quickViewModal');
-let qvProductId=null, qvSelectedSize=null;
-function openQuickView(e,id){
-    e.preventDefault();e.stopPropagation();
-    qvProductId=id; qvSelectedSize=null;
-    fetch(`/catalog/product-quick/${id}`).then(r=>r.json()).then(data=>{
-        document.getElementById('qvMainImg').src=data.image;
-        document.getElementById('qvBrand').textContent=data.brand;
-        document.getElementById('qvName').textContent=data.name;
-        document.getElementById('qvPrice').innerHTML=data.price;
-        document.getElementById('qvLink').href=data.url;
-        let thumbsHtml='';
-        if(data.images){data.images.forEach(img=>{thumbsHtml+=`<img src="${img}" onclick="document.getElementById('qvMainImg').src='${img}'">`;})}
-        document.getElementById('qvThumbs').innerHTML=thumbsHtml;
-        let sizesHtml='<h4>Размер</h4><div style="display:flex;gap:0.5rem;flex-wrap:wrap">';
-        if(data.sizes){data.sizes.forEach(s=>{sizesHtml+=`<button type="button" class="size-chip" onclick="qvSelectSize(this,'${s}')">${s}</button>`;});}
-        sizesHtml+='</div>';
-        document.getElementById('qvSizes').innerHTML=sizesHtml;
-        qvModal.classList.add('active');
-    }).catch(err=>console.error(err));
+// Quick View: переиспользуем существующий эндпоинт GET /catalog/quick-view/<id>
+// (тот же, что уже отдаёт готовый HTML-партиал catalog/_quick_view в других местах
+// витрины), вместо второго параллельного JSON-контракта — см. CMP-440/CMP-421-A.
+const qvModal = document.getElementById('quickViewModal');
+const qvBody = document.getElementById('qvBody');
+
+function openQuickView(e, id, preselectSize) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    fetch(`/catalog/quick-view/${id}`)
+        .then(r => r.json())
+        .then(data => {
+            if (!data || !data.success) {
+                if (typeof showNotification === 'function') {
+                    showNotification((data && data.message) || 'Товар недоступен', 'error');
+                }
+                return;
+            }
+            qvBody.innerHTML = data.html;
+            // innerHTML не исполняет вложенные <script> — пересоздаём их,
+            // партиал несёт свою логику (changeQvImg/addFromQuickView).
+            qvBody.querySelectorAll('script').forEach(oldScript => {
+                const newScript = document.createElement('script');
+                newScript.textContent = oldScript.textContent;
+                oldScript.replaceWith(newScript);
+            });
+            if (preselectSize) {
+                const sizeInput = qvBody.querySelector(`input[name="qv_size"][value="${CSS.escape(String(preselectSize))}"]`);
+                if (sizeInput) {
+                    sizeInput.checked = true;
+                }
+            }
+            qvModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        })
+        .catch(err => console.error(err));
 }
-function qvSelectSize(el,size){
-    qvSelectedSize=size;
-    document.querySelectorAll('#quickViewModal .size-chip').forEach(b=>b.classList.remove('active'));
-    el.classList.add('active');
+window.openQuickView = openQuickView;
+
+function closeQuickView() {
+    qvModal.classList.remove('active');
+    document.body.style.overflow = '';
 }
-function closeQuickView(){qvModal.classList.remove('active');qvProductId=null;qvSelectedSize=null;}
-function addToCart(){
-    if(!qvProductId){closeQuickView();return;}
-    var csrfMeta=document.querySelector('meta[name="csrf-token"]');
-    var csrf=csrfMeta?csrfMeta.getAttribute('content'):'';
-    var btn=qvModal.querySelector('.btn-order');
-    if(btn){btn.disabled=true;btn.textContent='Добавляем...';}
-    fetch('/cart/add',{method:'POST',
-        headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRF-Token':csrf,'X-Requested-With':'XMLHttpRequest'},
-        body:'product_id='+qvProductId+'&quantity=1'+(qvSelectedSize?'&size='+encodeURIComponent(qvSelectedSize):'')
-    }).then(r=>r.json()).then(data=>{
-        if(btn){btn.disabled=false;btn.innerHTML='<i class="bi bi-cart-plus"></i> В корзину';}
-        if(data.success){
+window.closeQuickView = closeQuickView;
+
+// Добавление в корзину из Quick View: partial зовёт addToCart(productId, qty, size, color).
+function addToCart(productId, quantity, size, color) {
+    quantity = quantity || 1;
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var csrf = csrfMeta ? csrfMeta.getAttribute('content') : '';
+    var btn = qvBody.querySelector('.btn-add-cart');
+    var originalHtml = btn ? btn.innerHTML : null;
+    if (btn) { btn.disabled = true; btn.textContent = 'Добавляем...'; }
+    var body = 'product_id=' + encodeURIComponent(productId) + '&quantity=' + encodeURIComponent(quantity);
+    if (size) { body += '&size=' + encodeURIComponent(size); }
+    if (color) { body += '&color=' + encodeURIComponent(color); }
+    fetch('/cart/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': csrf, 'X-Requested-With': 'XMLHttpRequest' },
+        body: body
+    }).then(r => r.json()).then(data => {
+        if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+        if (data.success) {
             closeQuickView();
-            if(typeof updateCartCount==='function')updateCartCount();
-            if(typeof showNotification==='function')showNotification('Товар добавлен в корзину','success');
+            if (typeof updateCartCount === 'function') updateCartCount();
+            if (typeof showNotification === 'function') showNotification('Товар добавлен в корзину', 'success');
         } else {
-            if(typeof showNotification==='function')showNotification(data.message||'Ошибка','error');
+            if (typeof showNotification === 'function') showNotification(data.message || 'Ошибка', 'error');
         }
-    }).catch(()=>{if(btn){btn.disabled=false;btn.innerHTML='<i class="bi bi-cart-plus"></i> В корзину';}});
+    }).catch(() => {
+        if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+    });
 }
+window.addToCart = addToCart;
 
 // Быстрое добавление в корзину с карточки
 function quickAddToCart(e, productId) {

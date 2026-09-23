@@ -99,7 +99,7 @@ $isPlaceholder = empty($mainImage) || strncmp($mainImage, 'data:', 5) === 0;
 
         <!-- Hover overlay: быстрый просмотр + добавление в корзину -->
         <div class="product-card-overlay">
-            <a href="<?= $product->getUrl() ?>" class="overlay-quick-view">
+            <a href="<?= $product->getUrl() ?>" class="overlay-quick-view" onclick="openQuickView(event, <?= $product->id ?>)">
                 <i class="bi bi-eye"></i>
                 Быстрый просмотр
             </a>
@@ -131,7 +131,7 @@ $isPlaceholder = empty($mainImage) || strncmp($mainImage, 'data:', 5) === 0;
         <?php if (!empty($sizeBadges['badges'])) : ?>
         <div class="sizes-quick">
             <?php foreach (array_slice($sizeBadges['badges'], 0, 4) as $badge) : ?>
-            <span class="size-badge <?= $badge['selected'] ? 'selected' : '' ?>"><?= Html::encode($badge['value']) ?></span>
+            <span class="size-badge <?= $badge['selected'] ? 'selected' : '' ?>" onclick="selectQuickSize(event, <?= $product->id ?>, '<?= Html::encode($badge['value']) ?>')"><?= Html::encode($badge['value']) ?></span>
             <?php endforeach; ?>
             <?php if ($sizeBadges['remaining'] > 0) : ?>
             <span class="size-more">+<?= (int) $sizeBadges['remaining'] ?></span>

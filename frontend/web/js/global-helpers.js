@@ -108,9 +108,14 @@
             e.stopPropagation();
         }
 
-
-        // Перенаправляем на страницу товара с предвыбранным размером
-        window.location.href = '/catalog/product/' + productId + '?size=' + encodeURIComponent(size);
+        // Если на странице есть Quick View (каталог) — открываем попап с уже
+        // выбранным размером, вместо перехода на страницу товара.
+        if (typeof window.openQuickView === 'function') {
+            window.openQuickView(e, productId, size);
+        } else {
+            // Fallback там, где Quick View недоступен: страница товара с предвыбранным размером
+            window.location.href = '/catalog/product/' + productId + '?size=' + encodeURIComponent(size);
+        }
     };
 
     /**
