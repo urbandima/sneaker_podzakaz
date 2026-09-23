@@ -104,7 +104,8 @@ $csrf = Yii::$app->request->csrfToken;
                         <?php endif; ?>
                         <a href="<?= Url::to(['feedback/delete', 'id' => $fb->id]) ?>"
                            class="admin-btn admin-btn-xs admin-btn-secondary"
-                           onclick="return confirm('Удалить сообщение?')">
+                           data-method="post"
+                           data-confirm="Удалить сообщение?">
                             <i class="bi bi-trash"></i>
                         </a>
                     </td>

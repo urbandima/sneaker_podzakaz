@@ -62,7 +62,7 @@ $calculationHistory = $calculationHistory ?? [];
                         <a href="<?= Url::to(['update', 'id' => $tariff->id]) ?>" class="btn-action">
                             <i class="bi bi-pencil"></i> Изменить
                         </a>
-                        <a href="<?= Url::to(['toggle', 'id' => $tariff->id]) ?>" class="btn-action">
+                        <a href="<?= Url::to(['toggle', 'id' => $tariff->id]) ?>" class="btn-action" data-method="post">
                             <i class="bi bi-<?= $tariff->is_active ? 'pause' : 'play' ?>"></i>
                             <?= $tariff->is_active ? 'Деактивировать' : 'Активировать' ?>
                         </a>

@@ -1053,7 +1053,7 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
                             <i class="bi bi-<?= $customer->status == 10 ? 'lock' : 'unlock' ?>-fill"></i>
                             <?= $customer->status == 10 ? 'Заблокировать' : 'Разблокировать' ?>
                         </button>
-                        <a href="<?= Url::to(['customer/delete', 'id' => $customer->id]) ?>" class="crm-action-btn danger" onclick="return confirm('Удалить покупателя?')">
+                        <a href="<?= Url::to(['customer/delete', 'id' => $customer->id]) ?>" class="crm-action-btn danger" data-method="post" data-confirm="Удалить покупателя?">
                             <i class="bi bi-trash3-fill"></i> Удалить покупателя
                         </a>
                     </div>

@@ -458,7 +458,7 @@ $controllerId = Yii::$app->controller->id;
                             <i class="bi bi-box-arrow-up-right"></i> На сайт
                         </a>
                         <div class="admin-profile-divider"></div>
-                        <a href="<?= Url::to(['/admin/logout']) ?>" class="admin-profile-item admin-profile-logout">
+                        <a href="<?= Url::to(['/admin/logout']) ?>" class="admin-profile-item admin-profile-logout" data-method="post">
                             <i class="bi bi-power"></i> Выйти
                         </a>
                     </div>
