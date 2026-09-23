@@ -548,13 +548,15 @@ class MoyskladController extends BaseAdminController
         try {
             // Cannot use MoySkladService::request() here — it adds "Accept: application/json"
             // which the images endpoint rejects with HTTP 400.
-            $apiKey = Yii::$app->settings->get('moysklad', 'api_key', '');
+            $apiKey   = Yii::$app->settings->get('moysklad', 'api_key', '');
+            $login    = Yii::$app->settings->get('moysklad', 'login', '');
+            $password = Yii::$app->settings->get('moysklad', 'password', '');
+            if (!$apiKey && (!$login || !$password)) {
+                return json_encode([]);
+            }
             $authHeader = $apiKey
                 ? 'Bearer ' . $apiKey
-                : 'Basic ' . base64_encode(
-                    Yii::$app->settings->get('moysklad', 'login', 'admin@sneakerculture')
-                    . ':' . Yii::$app->settings->get('moysklad', 'password', 'NorTwe1534')
-                );
+                : 'Basic ' . base64_encode($login . ':' . $password);
             $ch = curl_init($collectionUrl . '?limit=20');
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
@@ -614,15 +616,17 @@ class MoyskladController extends BaseAdminController
             return;
         }
 
-        $authHeader = 'Basic ' . base64_encode(
-            (Yii::$app->settings->get('moysklad', 'login', 'admin@sneakerculture'))
-            . ':'
-            . (Yii::$app->settings->get('moysklad', 'password', 'NorTwe1534'))
-        );
-        $apiKey = Yii::$app->settings->get('moysklad', 'api_key', '');
-        if ($apiKey) {
-            $authHeader = 'Bearer ' . $apiKey;
+        $apiKey   = Yii::$app->settings->get('moysklad', 'api_key', '');
+        $login    = Yii::$app->settings->get('moysklad', 'login', '');
+        $password = Yii::$app->settings->get('moysklad', 'password', '');
+        if (!$apiKey && (!$login || !$password)) {
+            Yii::$app->response->statusCode = 503;
+            Yii::$app->response->send();
+            return;
         }
+        $authHeader = $apiKey
+            ? 'Bearer ' . $apiKey
+            : 'Basic ' . base64_encode($login . ':' . $password);
 
         $ch = curl_init($url);
         curl_setopt_array($ch, [

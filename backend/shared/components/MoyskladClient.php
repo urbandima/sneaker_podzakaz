@@ -9,7 +9,7 @@ use yii\base\Component;
  * MoyskladClient — read-focused REST API wrapper for МойСклад API v1.2.
  *
  * Auth: Bearer (api_key from settings) > Basic (login:password from settings).
- * Credentials fallback: admin@sneakerculture / NorTwe1534.
+ * No credential defaults — throws a config error if neither is set (CMP-436).
  *
  * Handles 429 rate-limit (retry once after 1 s) and 401 (throws with clear message).
  */
@@ -138,8 +138,11 @@ class MoyskladClient extends Component
         if (!empty($apiKey)) {
             $this->authHeader = 'Bearer ' . $apiKey;
         } else {
-            $login    = Yii::$app->settings->get('moysklad', 'login', 'admin@sneakerculture');
-            $password = Yii::$app->settings->get('moysklad', 'password', 'NorTwe1534');
+            $login    = Yii::$app->settings->get('moysklad', 'login', '');
+            $password = Yii::$app->settings->get('moysklad', 'password', '');
+            if ($login === '' || $password === '') {
+                throw new \RuntimeException('МойСклад: интеграция не настроена — заполните api_key или login/password в /admin/plugin/moysklad.');
+            }
             $this->authHeader = 'Basic ' . base64_encode("{$login}:{$password}");
         }
         return $this->authHeader;

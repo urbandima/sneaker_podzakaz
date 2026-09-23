@@ -10,6 +10,7 @@ use app\backend\modules\checkout\models\Order;
  * МойСклад API v1.2 bidirectional sync service.
  *
  * Auth: Basic (login:password) or Bearer (api_key from settings).
+ * No credential defaults — throws a config error if neither is set (CMP-436).
  * API: https://api.moysklad.ru/api/remap/1.2/
  *
  * Settings keys used:
@@ -42,8 +43,11 @@ class MoySkladService extends Component
         if (!empty($apiKey)) {
             $this->authHeader = 'Bearer ' . $apiKey;
         } else {
-            $login    = Yii::$app->settings->get('moysklad', 'login', 'admin@sneakerculture');
-            $password = Yii::$app->settings->get('moysklad', 'password', 'NorTwe1534');
+            $login    = Yii::$app->settings->get('moysklad', 'login', '');
+            $password = Yii::$app->settings->get('moysklad', 'password', '');
+            if ($login === '' || $password === '') {
+                throw new \RuntimeException('МойСклад: интеграция не настроена — заполните api_key или login/password в /admin/plugin/moysklad.');
+            }
             $this->authHeader = 'Basic ' . base64_encode("{$login}:{$password}");
         }
 
