@@ -122,14 +122,31 @@ AppAsset::register($this);
                         </div>
                     <?php endif; ?>
 
+                    <?php
+                    // Внешний трекинг (Cdek/Europochta/Belpochta) доступен только для этих способов
+                    // доставки — pickup_minsk/courier_minsk обслуживает сам магазин (CMP-439).
+                    $trackableCarriers = ['sdek', 'europochta', 'belpochta'];
+                    $canRefreshTracking = $order->local_track_number && in_array($order->delivery_method, $trackableCarriers, true);
+                    ?>
                     <?php if ($order->local_track_number) : ?>
                         <div class="track-number" style="margin-top:12px">
                             <i class="bi bi-truck"></i>
                             <div class="track-info">
                                 <div class="track-label">Трек-номер (доставка по РБ)</div>
                                 <div class="track-value"><?= Html::encode($order->local_track_number) ?></div>
+                                <?php if ($order->local_delivery_status) : ?>
+                                <div class="track-status" id="tracking-status-text"><?= Html::encode($order->local_delivery_status) ?></div>
+                                <?php endif; ?>
                             </div>
+                            <?php if ($canRefreshTracking) : ?>
+                            <button type="button" id="tracking-refresh-btn" class="btn-refresh-tracking" onclick="refreshOrderTracking(<?= (int) $order->id ?>)" style="margin-left:auto">
+                                <i class="bi bi-arrow-clockwise"></i> Обновить данные
+                            </button>
+                            <?php endif; ?>
                         </div>
+                        <?php if ($canRefreshTracking) : ?>
+                        <div id="tracking-refresh-error" class="track-error d-none"></div>
+                        <?php endif; ?>
                     <?php elseif ($order->china_track_number) : ?>
                         <div class="track-number">
                             <i class="bi bi-truck"></i>
@@ -216,3 +233,46 @@ AppAsset::register($this);
         </div>
     </div>
 </div>
+
+<?php if ($canRefreshTracking) :
+$this->registerJs("
+function refreshOrderTracking(orderId) {
+    var btn = document.getElementById('tracking-refresh-btn');
+    var errorBox = document.getElementById('tracking-refresh-error');
+    errorBox.classList.add('d-none');
+    btn.disabled = true;
+    var originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i class=\"bi bi-arrow-clockwise\"></i> Обновление...';
+
+    var csrf = document.querySelector('meta[name=\"csrf-token\"]').content;
+
+    fetch('/account/order/' + orderId + '/refresh-tracking', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-Token': csrf,
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+        if (data.success) {
+            var statusEl = document.getElementById('tracking-status-text');
+            if (statusEl) {
+                statusEl.textContent = data.status_name || '';
+            }
+        } else {
+            errorBox.textContent = data.message || 'Не удалось обновить статус доставки';
+            errorBox.classList.remove('d-none');
+        }
+    })
+    .catch(function () {
+        errorBox.textContent = 'Не удалось обновить статус доставки. Попробуйте позже.';
+        errorBox.classList.remove('d-none');
+    })
+    .finally(function () {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+    });
+}
+", \yii\web\View::POS_END);
+endif; ?>

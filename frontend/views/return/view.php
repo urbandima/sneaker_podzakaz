@@ -87,7 +87,52 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
     <?php endif; ?>
 
+    <div id="return-cancel-error" class="alert alert-danger d-none"></div>
+
     <a href="<?= Url::to(['/account/returns']) ?>" class="btn btn-secondary">
         <i class="bi bi-arrow-left"></i> Вернуться к списку возвратов
     </a>
+    <?php if ($model->status === 'pending') : ?>
+    <button type="button" id="return-cancel-btn" class="btn btn-outline-danger" onclick="cancelReturnRequest(<?= (int) $model->id ?>)">
+        <i class="bi bi-x-circle"></i> Отменить заявку
+    </button>
+    <?php endif; ?>
 </div>
+
+<?php if ($model->status === 'pending') :
+$this->registerJs("
+function cancelReturnRequest(id) {
+    if (!confirm('Отменить заявку на возврат?')) return;
+
+    var btn = document.getElementById('return-cancel-btn');
+    var errorBox = document.getElementById('return-cancel-error');
+    errorBox.classList.add('d-none');
+    btn.disabled = true;
+
+    var csrf = document.querySelector('meta[name=\"csrf-token\"]').content;
+
+    fetch('/account/returns/' + id + '/cancel', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-Token': csrf,
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+        if (data.success) {
+            location.reload();
+        } else {
+            errorBox.textContent = data.message || 'Не удалось отменить заявку';
+            errorBox.classList.remove('d-none');
+            btn.disabled = false;
+        }
+    })
+    .catch(function () {
+        errorBox.textContent = 'Не удалось отменить заявку. Попробуйте позже.';
+        errorBox.classList.remove('d-none');
+        btn.disabled = false;
+    });
+}
+", \yii\web\View::POS_END);
+endif; ?>

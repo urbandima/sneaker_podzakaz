@@ -28,6 +28,7 @@ namespace app\backend\modules\account\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\web\Response;
+use yii\web\TooManyRequestsHttpException;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use app\backend\modules\checkout\models\Order;
@@ -53,11 +54,11 @@ class AccountController extends Controller
             ],
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['profile', 'orders', 'order-view', 'settings', 'logout', 'wishlist', 'loyalty', 'save-passport'],
+                'only' => ['profile', 'orders', 'order-view', 'settings', 'logout', 'wishlist', 'loyalty', 'save-passport', 'refresh-tracking'],
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['profile', 'orders', 'order-view', 'settings', 'logout', 'wishlist', 'loyalty', 'save-passport'],
+                        'actions' => ['profile', 'orders', 'order-view', 'settings', 'logout', 'wishlist', 'loyalty', 'save-passport', 'refresh-tracking'],
                         'matchCallback' => function ($rule, $action) {
                             return $this->isCustomerLoggedIn();
                         },
@@ -71,6 +72,7 @@ class AccountController extends Controller
                 'class' => VerbFilter::class,
                 'actions' => [
                     'logout' => ['post'],
+                    'refresh-tracking' => ['post'],
                 ],
             ],
         ];
@@ -274,6 +276,84 @@ class AccountController extends Controller
             'customer' => $customer,
             'order' => $order,
         ]);
+    }
+
+    /**
+     * AJAX: обновить статус трекинга заказа у перевозчика по запросу (CMP-439)
+     *
+     * Дёргает Cdek/Europochta/Belpochta по запросу покупателя — с лимитом
+     * запросов, чтобы кнопка не стала бесплатным прокси к API перевозчика,
+     * и с явным сообщением об ошибке вместо пустого экрана/500, если
+     * перевозчик не ответил.
+     */
+    public function actionRefreshTracking($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $customer = $this->getCustomer();
+        if (!$customer) {
+            return ['success' => false, 'message' => 'Требуется авторизация'];
+        }
+
+        // Владелец заказа — тот же критерий, что и в actionOrderView()
+        $order = Order::find()
+            ->where(['id' => $id])
+            ->andWhere(['or',
+                ['customer_id' => $customer->id],
+                ['client_email' => $customer->email]
+            ])
+            ->one();
+
+        if (!$order) {
+            throw new \yii\web\NotFoundHttpException('Заказ не найден');
+        }
+
+        try {
+            RateLimiter::check('tracking-refresh', $customer->id . ':' . $order->id, 5, 300);
+        } catch (TooManyRequestsHttpException $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+
+        // Способы доставки — тот же список, что и OrderController::defaultShippingMethods();
+        // pickup_minsk/courier_minsk — внутренняя доставка магазина, внешнего трекинга нет.
+        $carrierComponents = [
+            'sdek'       => 'cdekTracking',
+            'europochta' => 'europochtaTracking',
+            'belpochta'  => 'belpochtaTracking',
+        ];
+        $componentName = $carrierComponents[$order->delivery_method] ?? null;
+
+        if (!$componentName || !Yii::$app->has($componentName)) {
+            return ['success' => false, 'message' => 'Обновление статуса недоступно для этого способа доставки'];
+        }
+
+        if (empty($order->local_track_number)) {
+            return ['success' => false, 'message' => 'Трек-номер ещё не присвоен'];
+        }
+
+        try {
+            $data = Yii::$app->get($componentName)->getStatus($order->local_track_number);
+        } catch (\Throwable $e) {
+            Yii::error('[Tracking] refresh(' . $order->delivery_method . ') failed: ' . $e->getMessage(), 'tracking');
+            return ['success' => false, 'message' => 'Не удалось обновить статус доставки. Попробуйте позже.'];
+        }
+
+        $status = $data['status'] ?? 'error';
+        if (in_array($status, ['error', 'not_configured', 'not_found'], true)) {
+            return ['success' => false, 'message' => $data['message'] ?? 'Не удалось обновить статус доставки. Попробуйте позже.'];
+        }
+
+        $order->local_delivery_status = $data['status_name'] ?? (string) $status;
+        if (!$order->save(false, ['local_delivery_status'])) {
+            Yii::error('Не удалось сохранить статус трекинга заказа #' . $order->id, 'tracking');
+        }
+
+        return [
+            'success'     => true,
+            'status_name' => $order->local_delivery_status,
+            'status_date' => $data['status_date'] ?? null,
+            'location'    => $data['location'] ?? null,
+        ];
     }
 
     /**

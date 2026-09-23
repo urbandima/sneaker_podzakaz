@@ -68,6 +68,8 @@ class ReturnRequest extends ActiveRecord
     public const STATUS_COMPLETED = 'completed';
     // Средства ещё не возвращены реальным платёжным шлюзом — требуется ручная обработка бухгалтерией/менеджером
     public const STATUS_REFUND_PENDING_MANUAL = 'refund_pending_manual';
+    // Отменена покупателем самостоятельно — доступно только пока магазин не начал обработку (см. cancel())
+    public const STATUS_CANCELED = 'canceled';
 
     // Причины возврата
     public const REASON_DEFECT = 'defect';
@@ -214,6 +216,28 @@ class ReturnRequest extends ActiveRecord
     }
 
     /**
+     * Отменить заявку самим покупателем
+     *
+     * Разрешено только пока заявка в pending: как только магазин начал её
+     * обрабатывать (approved/processing/...), самостоятельная отмена кнопкой
+     * может привести к отменённым заявкам по уже отправленному товару —
+     * дальше отмена только через поддержку (CMP-439).
+     *
+     * @return bool
+     */
+    public function cancel(): bool
+    {
+        if ($this->status !== self::STATUS_PENDING) {
+            return false;
+        }
+
+        $this->status = self::STATUS_CANCELED;
+        $this->processed_at = date('Y-m-d H:i:s');
+
+        return $this->save(false);
+    }
+
+    /**
      * Начать обработку
      *
      * @return bool
@@ -292,6 +316,7 @@ class ReturnRequest extends ActiveRecord
             self::STATUS_PROCESSING => 'В обработке',
             self::STATUS_REFUND_PENDING_MANUAL => 'Ожидает ручного возврата средств',
             self::STATUS_COMPLETED => 'Завершено',
+            self::STATUS_CANCELED => 'Отменена',
         ];
     }
 
@@ -315,6 +340,7 @@ class ReturnRequest extends ActiveRecord
             self::STATUS_PROCESSING => 'info',
             self::STATUS_REFUND_PENDING_MANUAL => 'warning',
             self::STATUS_COMPLETED => 'primary',
+            self::STATUS_CANCELED => 'secondary',
         ];
         return $classes[$this->status] ?? 'secondary';
     }

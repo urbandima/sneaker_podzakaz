@@ -18,7 +18,9 @@ namespace app\backend\modules\account\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use yii\data\ActiveDataProvider;
 use app\backend\modules\returns\models\ReturnRequest;
 use app\backend\modules\returns\services\ReturnService;
@@ -55,6 +57,12 @@ class ReturnController extends Controller
                 'denyCallback' => function ($rule, $action) {
                     return $this->redirect(['account/account/login']);
                 },
+            ],
+            'verbs' => [
+                'class' => VerbFilter::class,
+                'actions' => [
+                    'cancel' => ['post'],
+                ],
             ],
         ];
     }
@@ -155,6 +163,36 @@ class ReturnController extends Controller
         return $this->render('create', [
             'order' => $order,
         ]);
+    }
+
+    /**
+     * Отмена заявки на возврат самим покупателем (CMP-439)
+     *
+     * Разрешена только пока заявка в статусе pending — как только магазин
+     * начал её обрабатывать, отмена доступна только через поддержку
+     * (см. ReturnRequest::cancel()).
+     */
+    public function actionCancel($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $model = $this->findModel($id);
+
+        // Владелец заявки — тот же класс проверки, что и в actionView()
+        if ($model->customer_id != Yii::$app->session->get('customer_id')) {
+            throw new NotFoundHttpException('Заявка не найдена');
+        }
+
+        if (!$model->cancel()) {
+            return [
+                'success' => false,
+                'message' => 'Заявку в текущем статусе нельзя отменить самостоятельно. Обратитесь в поддержку.',
+            ];
+        }
+
+        Yii::info("Заявка на возврат #{$model->id} отменена покупателем", 'return');
+
+        return ['success' => true, 'message' => 'Заявка на возврат отменена'];
     }
 
     /**

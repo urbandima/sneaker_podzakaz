@@ -442,8 +442,10 @@ $config = [
                 'account/loyalty/balance' => 'account/loyalty/balance',
                 'account/returns' => 'account/return/index',
                 'account/returns/create' => 'account/return/create',
+                'account/returns/<id:\d+>/cancel' => 'account/return/cancel',
                 'account/returns/<id:\d+>' => 'account/return/view',
                 'account/tracking' => 'account/account/orders',
+                'account/order/<id:\d+>/refresh-tracking' => 'account/account/refresh-tracking',
                 'account/save-passport' => 'account/account/save-passport',
 
                 // Публичный просмотр покупателя (для админки)

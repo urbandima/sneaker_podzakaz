@@ -379,40 +379,11 @@ $brands = $brands ?? [];
     </div>
 </section>
 
-<!-- Newsletter -->
-<section class="newsletter-section">
-    <div class="container">
-        <div class="newsletter-content">
-            <h2 class="newsletter-title">Подпишитесь на новости</h2>
-            <p class="newsletter-subtitle">Получайте эксклюзивные скидки и узнавайте о новинках первыми</p>
-            
-            <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
-                <input type="email" placeholder="Ваш email" required class="form-control">
-                <button type="submit" class="btn btn-primary">Подписаться</button>
-            </form>
-        </div>
-    </div>
-</section>
-
 <?php
-$this->registerJs("
-function subscribeNewsletter(e) {
-    e.preventDefault();
-    const form = e.target;
-    const email = form.querySelector('input').value;
-
-    // AJAX запрос
-    fetch('/api/v1/newsletter/subscribe', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({email: email})
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            form.innerHTML = '<div class=\"newsletter-success\">✓ Вы подписаны!</div>';
-        }
-    });
-}
-", \yii\web\View::POS_END);
+/**
+ * Секция подписки на рассылку убрана по решению CEO (CMP-439): под неё нет ни
+ * таблицы, ни сервиса, а владелец (CMO) на паузе. Собранная и заброшенная база
+ * подписчиков — обязательства по персональным данным без того, кто их несёт.
+ * Возвращаем вместе с возвращением маркетинга.
+ */
 ?>
