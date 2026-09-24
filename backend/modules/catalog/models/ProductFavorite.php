@@ -5,17 +5,22 @@ namespace app\backend\modules\catalog\models;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
+use app\backend\modules\account\models\Customer;
 
 /**
  * Модель ProductFavorite (Избранный товар)
  *
+ * CMP-446: product_favorite.user_id хранит id покупателя (Customer::getCurrentCustomerId()),
+ * не админского пользователя — имя поля исторически совпало с колонкой user_id, но по смыслу
+ * это customer_id (тот же паттерн, что в ProductReview и CMP-435 cart.user_id).
+ *
  * @property int $id
- * @property int|null $user_id ID пользователя (для авторизованных)
+ * @property int|null $user_id ID покупателя (Customer), не админского пользователя
  * @property int $product_id ID товара
  * @property string|null $session_id ID сессии (для неавторизованных)
  * @property int $created_at
  *
- * @property User $user
+ * @property Customer $customer
  * @property Product $product
  */
 class ProductFavorite extends ActiveRecord
@@ -50,7 +55,7 @@ class ProductFavorite extends ActiveRecord
             [['product_id'], 'required'],
             [['user_id', 'product_id'], 'integer'],
             [['session_id'], 'string', 'max' => 255],
-            [['user_id'], 'exist', 'targetClass' => User::class, 'targetAttribute' => 'id'],
+            [['user_id'], 'exist', 'targetClass' => Customer::class, 'targetAttribute' => 'id'],
             [['product_id'], 'exist', 'targetClass' => Product::class, 'targetAttribute' => 'id'],
         ];
     }
@@ -70,11 +75,11 @@ class ProductFavorite extends ActiveRecord
     }
 
     /**
-     * Пользователь
+     * Покупатель (Customer), не админский пользователь
      */
-    public function getUser()
+    public function getCustomer()
     {
-        return $this->hasOne(User::class, ['id' => 'user_id']);
+        return $this->hasOne(Customer::class, ['id' => 'user_id']);
     }
 
     /**

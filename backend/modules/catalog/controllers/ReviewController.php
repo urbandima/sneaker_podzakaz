@@ -42,9 +42,21 @@ class ReviewController extends Controller
                     [
                         'allow' => true,
                         'actions' => ['create', 'helpful'],
-                        'roles' => ['@'],
+                        // Покупатели авторизуются через session['customer_id'], а не через
+                        // компонент Yii::$app->user (тот — для сотрудников бэк-офиса, см.
+                        // Customer::getCurrentCustomerId(), AUDIT-35). roles => ['@'] здесь
+                        // всегда false для покупателя, поэтому AccessControl раньше уводил
+                        // любого залогиненного покупателя на /admin/login (CMP-446).
+                        'matchCallback' => function ($rule, $action) {
+                            return Yii::$app->session->get('customer_id') !== null;
+                        },
                     ],
                 ],
+                'denyCallback' => function ($rule, $action) {
+                    Yii::$app->response->format = Response::FORMAT_JSON;
+                    Yii::$app->response->statusCode = 200;
+                    Yii::$app->response->data = ['success' => false, 'message' => 'Необходимо авторизоваться'];
+                },
             ],
             'verbs' => [
                 'class' => VerbFilter::class,
