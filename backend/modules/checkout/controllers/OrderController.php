@@ -346,7 +346,7 @@ class OrderController extends Controller
                         $newCustomer->first_name = $name ?: null;
                         $newCustomer->created_at = time();
                         $newCustomer->updated_at = time();
-                        $newCustomer->is_active  = 1;
+                        $newCustomer->status     = \app\backend\modules\account\models\Customer::STATUS_ACTIVE;
 
                         // Generate password and set it on the new customer
                         $autoAccountPassword = Yii::$app->security->generateRandomString(8);
