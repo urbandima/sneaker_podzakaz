@@ -401,7 +401,6 @@ $config = [
                 'catalog/load-more' => 'catalog/catalog/load-more',
                 'catalog/quick-view/<id:\d+>' => 'catalog/catalog/quick-view',
                 'catalog/quick-order' => 'catalog/catalog/quick-order',
-                'catalog/submit-review' => 'catalog/catalog/submit-review',
                 'catalog/submit-question' => 'catalog/catalog/submit-question',
 
                 // Корзина API

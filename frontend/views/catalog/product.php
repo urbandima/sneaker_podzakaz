@@ -282,20 +282,29 @@ if (!empty($similarProducts)) {
 $this->registerJsVar('similarProducts', $similarProductsData);
 
 // Отзывы
+// ProductReview хранит имя/текст в колонках name/comment (helpful_count —
+// счётчик полезности); author/text/helpful на модели не существуют — обращение
+// к ним валило бы страницу UnknownPropertyException в момент, когда первый
+// отзыв прошёл модерацию (CMP-454).
 $reviews = [];
 if (!empty($product->reviews)) {
     foreach ($product->reviews as $review) {
         $reviews[] = [
             'id' => $review->id,
-            'author' => $review->author,
+            'author' => $review->name,
             'rating' => $review->rating,
-            'text' => $review->text,
+            'text' => $review->comment,
             'date' => $review->created_at,
-            'helpful' => $review->helpful ?? 0,
+            'helpful' => $review->helpful_count ?? 0,
         ];
     }
 }
 $this->registerJsVar('productReviews', $reviews);
+
+// Отзыв пишется на customer_id (product_review.user_id — FK на customer), гость
+// физически не может быть автором — форма должна сразу вести на вход, а не
+// принимать текст и терять его после отправки (CMP-454).
+$isGuestForReview = !Yii::$app->session->get('customer_id');
 
 // Вопросы и ответы
 $questions = [];
@@ -1105,18 +1114,20 @@ $this->registerJsVar('productVideo', $productVideo);
             <button class="review-modal-close" onclick="closeReviewModal()">
                 <i class="bi bi-x-lg"></i>
             </button>
-            
+
+            <?php if ($isGuestForReview) : ?>
+                <h2>Войдите, чтобы оставить отзыв</h2>
+                <p class="form-note">
+                    Отзыв привязывается к вашему аккаунту, поэтому оставить его можно
+                    только под своим профилем.
+                </p>
+                <a href="<?= Url::to(['/account/login']) ?>" class="btn btn-primary btn-large">
+                    Войти
+                </a>
+            <?php else : ?>
             <h2>Написать отзыв</h2>
-            
+
             <form class="review-form" onsubmit="submitReview(event)">
-                <div class="form-group">
-                    <label for="reviewName">Ваше имя</label>
-                    <input type="text" id="reviewName" required>
-                </div>
-                <div class="form-group">
-                    <label for="reviewEmail">Email</label>
-                    <input type="email" id="reviewEmail" required>
-                </div>
                 <div class="form-group">
                     <label>Оценка</label>
                     <div class="rating-input" id="reviewRating">
@@ -1131,12 +1142,13 @@ $this->registerJsVar('productVideo', $productVideo);
                     <label for="reviewText">Отзыв</label>
                     <textarea id="reviewText" rows="5" required></textarea>
                 </div>
-                
+
                 <button type="submit" class="btn btn-primary btn-large">
                     <i class="bi bi-send"></i>
                     Отправить отзыв
                 </button>
             </form>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -1541,16 +1553,22 @@ function submitReview(event) {
     btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Отправляем...';
 
     var formData = new FormData();
-    formData.append('name', document.getElementById('reviewName').value);
-    formData.append('email', document.getElementById('reviewEmail').value);
     formData.append('rating', _reviewRating);
-    formData.append('text', document.getElementById('reviewText').value);
+    formData.append('comment', document.getElementById('reviewText').value);
     formData.append('product_id', '<?= $productId ?>');
     formData.append('_csrf', SH.getCsrfToken());
 
-    SH.fetch('/catalog/submit-review', { method: 'POST', body: formData })
-        .then(function() {
-            showNotification('Спасибо за ваш отзыв!', 'success');
+    // ReviewController::actionCreate пишет строку в product_review со
+    // status=pending — отзыв реально сохраняется, а не только уходит письмом
+    // (CMP-454). Текст пользователю берём из ответа сервера, а не хардкодим,
+    // чтобы не обещать публикацию раньше модерации.
+    SH.fetch('/catalog/review/create', { method: 'POST', body: formData })
+        .then(function(data) {
+            if (!data || !data.success) {
+                showNotification((data && data.message) || 'Ошибка отправки. Попробуйте позже.', 'error');
+                return;
+            }
+            showNotification(data.message || 'Отзыв отправлен на модерацию', 'success');
             closeReviewModal();
             event.target.reset();
             _reviewRating = 0;

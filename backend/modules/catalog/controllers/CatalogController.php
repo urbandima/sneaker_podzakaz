@@ -1382,53 +1382,6 @@ class CatalogController extends Controller
     }
 
     /**
-     * Отправка отзыва с публичной страницы товара (гостевой доступ)
-     */
-    public function actionSubmitReview()
-    {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-
-        if (!Yii::$app->request->isPost) {
-            return ['success' => false, 'message' => 'Метод не поддерживается'];
-        }
-
-        $data = Yii::$app->request->post();
-
-        if (empty($data['product_id']) || empty($data['name']) || empty($data['text']) || empty($data['rating'])) {
-            return ['success' => false, 'message' => 'Пожалуйста, заполните все обязательные поля'];
-        }
-
-        $product = Product::findOne($data['product_id']);
-        if (!$product) {
-            return ['success' => false, 'message' => 'Товар не найден'];
-        }
-
-        $message = "⭐ НОВЫЙ ОТЗЫВ\n\n";
-        $message .= "👤 Автор: " . $data['name'] . "\n";
-        if (!empty($data['email'])) {
-            $message .= "📧 Email: " . $data['email'] . "\n";
-        }
-        $message .= "⭐ Оценка: " . $data['rating'] . "/5\n\n";
-        $message .= "🛍 Товар: " . $product->brand_name . ' ' . $product->name . "\n";
-        $message .= "💬 Отзыв:\n" . $data['text'] . "\n";
-        $message .= "\n🔗 " . \yii\helpers\Url::to(['/catalog/catalog/product', 'slug' => $product->slug], true);
-
-        try {
-            Yii::$app->mailer->compose()
-                ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
-                ->setTo(Yii::$app->params['adminEmail'])
-                ->setSubject('⭐ Новый отзыв: ' . $product->name)
-                ->setTextBody($message)
-                ->send();
-
-            return ['success' => true, 'message' => 'Спасибо за ваш отзыв!'];
-        } catch (\Exception $e) {
-            Yii::error('Submit review email error: ' . $e->getMessage(), __METHOD__);
-            return ['success' => true, 'message' => 'Отзыв получен, спасибо!'];
-        }
-    }
-
-    /**
      * Отправка вопроса с публичной страницы товара (гостевой доступ)
      */
     public function actionSubmitQuestion()
