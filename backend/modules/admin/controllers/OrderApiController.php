@@ -94,11 +94,15 @@ class OrderApiController extends BaseAdminController
         }
 
         // Сохраняем в историю как комментарий
+        // CMP-456: same schema mismatch as logChange() below — order_history has no
+        // `status`/`created_by` columns, so this threw UnknownPropertyException and
+        // 500'd on every call; no note was ever written.
         $history = new OrderHistory();
-        $history->order_id = $order->id;
-        $history->status = $order->status;
-        $history->comment = $note;
-        $history->created_by = Yii::$app->user->id;
+        $history->order_id   = $order->id;
+        $history->action     = 'note_added';
+        $history->new_status = $order->status;
+        $history->comment    = $note;
+        $history->changed_by = Yii::$app->user->id;
         $history->created_at = time();
 
         if ($history->save(false)) {
@@ -222,16 +226,26 @@ class OrderApiController extends BaseAdminController
             'track_number' => 'Трек-номер',
         ];
 
+        // CMP-456: order_history has no `status`/`created_by` columns (real schema:
+        // action/field_name/old_value/new_value/changed_by/new_status) — setting them
+        // threw UnknownPropertyException on every call, so actionUpdateField() below
+        // always 500'd on this line even though the Order field itself had already
+        // saved successfully just above. Aligned to the real schema, same pattern
+        // OrderController::actionAddNote/actionUpdateField already use.
         $history = new OrderHistory();
-        $history->order_id = $orderId;
-        $history->status = 'modified';
+        $history->order_id   = $orderId;
+        $history->action     = 'field_updated';
+        $history->field_name = $field;
+        $history->old_value  = $oldValue;
+        $history->new_value  = $newValue;
+        $history->new_status = 'modified';
         $history->comment = sprintf(
             'Изменено поле "%s": "%s" → "%s"',
             $fieldLabels[$field] ?? $field,
             $oldValue ?: '(пусто)',
             $newValue ?: '(пусто)'
         );
-        $history->created_by = Yii::$app->user->id;
+        $history->changed_by = Yii::$app->user->id;
         $history->created_at = time();
         $history->save(false);
     }

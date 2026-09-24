@@ -2260,14 +2260,23 @@ window.toggleDeliveryFields = function(method) {
 })();
 
 // ── Add note ──────────────────────────────────────────────
+// CMP-456: actionAddNote(\$id) binds \$id from the route/query string only —
+// Yii2 doesn't parse a JSON body into request params, and this app has no
+// 'application/json' request parser configured. The old JSON-body call below
+// sent id/text only in the body with no '?id=' in the URL, so every click
+// either 400'd ("Отсутствуют обязательные параметры: id") or, if id was
+// present, saw \$_POST['text'] come back empty (JSON body isn't in \$_POST)
+// and failed validation — the note was never written to order_history.
+// Fixed to match the working call shape used elsewhere (admin-orders.js):
+// id in the query string, body as normal urlencoded form fields.
 window.addOrderNote = function(id) {
     var ta = document.getElementById('new-note-text');
     var text = ta ? ta.value.trim() : '';
     if (!text) return;
-    fetch('$_addNoteUrl', {
+    fetch('$_addNoteUrl?id=' + encodeURIComponent(id), {
         method: 'POST',
-        headers: {'Content-Type':'application/json','X-CSRF-Token':'$_csrfToken'},
-        body: JSON.stringify({id: id, text: text})
+        headers: {'Content-Type':'application/x-www-form-urlencoded','X-CSRF-Token':'$_csrfToken'},
+        body: 'text=' + encodeURIComponent(text)
     }).then(function(r){return r.json();}).then(function(d){
         if (d.success) { ta.value = ''; location.reload(); }
     });

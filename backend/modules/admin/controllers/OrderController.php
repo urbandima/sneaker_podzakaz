@@ -804,18 +804,36 @@ class OrderController extends BaseAdminController
             $buyout->source_currency  = $model->purchase_currency ?: 'CNY';
             $buyout->tracking_number  = $model->china_track_number ?: '';
             $buyout->receipt_url      = $model->purchase_receipt_url ?: '';
+            // CMP-456: buyout.ordered_at is a DATETIME column, but this assigned a raw
+            // strtotime() unix timestamp int — MySQL strict mode rejected the INSERT/UPDATE
+            // ("Incorrect datetime value"), the exception was swallowed by the catch(\Throwable)
+            // below, and actionSaveBuyout still returned success:true with no Buyout row ever
+            // created/linked (order fields saved fine; the buyout half silently no-op'd).
             $buyout->ordered_at       = !empty($model->purchase_date)
-                ? strtotime($model->purchase_date) : null;
+                ? date('Y-m-d H:i:s', strtotime($model->purchase_date)) : null;
             $buyout->buyer_user_id    = $model->purchase_user_id ?: Yii::$app->user->id;
             $buyout->source           = 'manual';
             $buyout->qty              = 1;
 
             if ($buyout->save(false) && !$link) {
-                $link            = new \app\backend\modules\procurement\models\BuyoutOrderLink();
-                $link->buyout_id = $buyout->id;
-                $link->order_id  = $model->id;
-                $link->qty       = 1;
-                $link->save(false);
+                // CMP-456: buyout_order_link.order_item_id is NOT NULL and part of the
+                // composite PK (buyout_id, order_id, order_item_id) — this insert never
+                // set it, so MySQL rejected every row ("doesn't have a default value"),
+                // the exception was swallowed by the catch below, and the freshly-created
+                // Buyout draft was left orphaned (no link row, invisible from the order).
+                // Use the order's first item as the linked item; skip the link (but keep
+                // the draft Buyout row) if the order has no items yet.
+                $firstItem = $model->getOrderItems()->one();
+                if ($firstItem) {
+                    $link                 = new \app\backend\modules\procurement\models\BuyoutOrderLink();
+                    $link->buyout_id      = $buyout->id;
+                    $link->order_id       = $model->id;
+                    $link->order_item_id  = $firstItem->id;
+                    $link->qty            = 1;
+                    $link->save(false);
+                } else {
+                    Yii::warning('Buyout #' . $buyout->id . ' created for order #' . $id . ' but not linked: order has no items yet', 'order');
+                }
             }
         } catch (\Throwable $e) {
             Yii::warning('Buyout save error for order #' . $id . ': ' . $e->getMessage(), 'order');
@@ -1198,12 +1216,18 @@ class OrderController extends BaseAdminController
         $note->comment    = $text;
         $note->save(false);
 
-        $html = $this->renderPartial('_notes', [
-            'notes' => [$note],
-            'statuses' => Yii::$app->settings->getStatuses(),
-        ]);
-
-        return ['success' => true, 'html' => $html];
+        // CMP-456: this used to renderPartial('_notes', ...), but that view file
+        // was never created — every successful save threw ViewNotFoundException
+        // and returned HTTP 500, even though the note WAS written to
+        // order_history. The only live caller (order/view.php's
+        // window.addOrderNote) only checks response.success and reloads the
+        // page on success — it never used the html — so we just stop
+        // rendering the missing partial instead of resurrecting it.
+        return [
+            'success' => true,
+            'note' => $text,
+            'created_at' => Yii::$app->formatter->asDatetime($note->created_at, 'short'),
+        ];
     }
 
     /**
@@ -2183,6 +2207,18 @@ class OrderController extends BaseAdminController
         }
         $orderId = $item->order_id;
         $item->delete();
+
+        // CMP-456: this never touched order.total_amount, so deleting the last
+        // (or any) item left the order's total stuck at its pre-delete value —
+        // the action "succeeded" (item row gone) but the order total silently
+        // went stale/wrong. Recompute from the remaining items, same as
+        // saveOrderItems()/actionUpdateItems() already do.
+        $order = Order::findOne($orderId);
+        if ($order) {
+            $order->total_amount = (float)(OrderItem::find()->where(['order_id' => $orderId])->sum('total') ?: 0);
+            $order->save(false, ['total_amount']);
+        }
+
         return $this->redirect(['/admin/order/view', 'id' => $orderId]);
     }
 
