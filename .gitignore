@@ -23,10 +23,10 @@ composer.phar
 /infrastructure/runtime/*.log
 /infrastructure/runtime/database.sqlite
 
-# Published Assets (Yii2 auto-generated)
-/frontend/web/assets/*/
+# Published Assets (Yii2 auto-generated; trailing-slash glob misses symlinks, use bare *)
+/frontend/web/assets/*
 !/frontend/web/assets/.gitkeep
-/frontend/assets/*/
+/frontend/assets/*
 !/frontend/assets/.gitkeep
 !/frontend/assets/*.php
 
@@ -60,6 +60,7 @@ SECURITY_AUDIT.md
 # Tests
 phpunit.phar
 /phpunit.xml
+/build/testing/.phpunit.cache/
 
 # Vagrant
 /.vagrant
