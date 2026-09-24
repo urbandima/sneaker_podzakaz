@@ -438,7 +438,7 @@ $config = [
                 'account/favorites' => 'account/account/wishlist',
 
                 // Программа лояльности и возвраты в личном кабинете
-                'account/loyalty' => 'account/account/loyalty',
+                'account/loyalty' => 'account/loyalty/index',
                 'account/loyalty/balance' => 'account/loyalty/balance',
                 'account/returns' => 'account/return/index',
                 'account/returns/create' => 'account/return/create',
