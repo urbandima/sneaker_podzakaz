@@ -39,7 +39,6 @@ class CatalogApiController extends Controller
                 'actions' => [
                     'filter' => ['POST'],
                     'load-more' => ['GET'],
-                    'quick-view' => ['GET'],
                 ],
             ],
             'contentNegotiator' => [
@@ -145,33 +144,6 @@ class CatalogApiController extends Controller
             'hasMore' => $page < $totalPages,
             'currentPage' => $page,
             'totalPages' => $totalPages,
-        ];
-    }
-
-    /**
-     * Быстрый просмотр товара (modal)
-     */
-    public function actionQuickView($id)
-    {
-        $product = Product::findOne($id);
-
-        if (!$product) {
-            return ['success' => false, 'message' => 'Товар не найден'];
-        }
-
-        $html = $this->renderPartial('/catalog/_quick_view', [
-            'product' => $product,
-        ]);
-
-        return [
-            'success' => true,
-            'html' => $html,
-            'product' => [
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => $product->price,
-                'slug' => $product->slug,
-            ],
         ];
     }
 

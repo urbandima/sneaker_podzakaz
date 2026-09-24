@@ -224,7 +224,7 @@ Save actions: `/admin/plugin/{name}/save` → `PluginController::actionSave{Name
 | JS file | Endpoints called |
 |---------|-----------------|
 | `catalog.js`, `catalog-filter.js` | `GET /api/catalog/filter`, `GET /api/catalog/load-more` |
-| `product-page.js` | `GET /api/catalog/quick-view/{id}` |
+| `catalog/index.php` (openQuickView) | `GET /catalog/quick-view/{id}` (единственная реализация, CMP-448) |
 | `cart.js`, `cart-mobile.js` | `POST /cart/add`, `POST /cart/remove`, `POST /cart/update` |
 | `cart-promo-loyalty.js` | `POST /cart/apply-coupon`, `POST /cart/remove-coupon` |
 | `checkout.js` | `POST /order/create` |

@@ -372,7 +372,6 @@ $config = [
                 // Catalog API endpoints (вынесено из CatalogController)
                 'api/catalog/filter' => 'catalog/catalog-api/filter',
                 'api/catalog/load-more' => 'catalog/catalog-api/load-more',
-                'api/catalog/quick-view/<id:\d+>' => 'catalog/catalog-api/quick-view',
                 'api/catalog/get-brands' => 'catalog/catalog-api/get-brands',
                 'api/catalog/products-by-ids' => 'catalog/catalog-api/products-by-ids',
                 'catalog/brand/<slug:[a-z0-9-]+>' => 'catalog/catalog/brand',
