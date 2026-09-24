@@ -70,11 +70,38 @@ class ProductTag extends ActiveRecord
             TimestampBehavior::class,
             [
                 'class' => SluggableBehavior::class,
-                'attribute' => 'name',
+                // Тот же баг класса, что и в Product/Category/Brand (CMP-417/CMP-460):
+                // без php-intl Inflector::slug() вырезает кириллицу целиком — тег с чисто
+                // кириллическим названием получал slug = ''. getSlugSource() транслитерирует
+                // кириллицу вручную перед тем, как SluggableBehavior прогонит Inflector::slug().
+                'attribute' => 'slugSource',
                 'slugAttribute' => 'slug',
                 'ensureUnique' => true,
             ],
         ];
+    }
+
+    /**
+     * Кириллическая карта транслитерации, см. аналогичное поле в Product/Category/Brand.
+     * @var array<string,string>
+     */
+    private static $cyrillicToLatin = [
+        'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e',
+        'ё' => 'e', 'ж' => 'zh', 'з' => 'z', 'и' => 'i', 'й' => 'y', 'к' => 'k',
+        'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p', 'р' => 'r',
+        'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'kh', 'ц' => 'ts',
+        'ч' => 'ch', 'ш' => 'sh', 'щ' => 'shch', 'ъ' => '', 'ы' => 'y', 'ь' => '',
+        'э' => 'e', 'ю' => 'yu', 'я' => 'ya',
+        'і' => 'i', 'ў' => 'u', 'ґ' => 'g',
+    ];
+
+    /**
+     * Виртуальный источник slug'а для SluggableBehavior — см. комментарий в behaviors().
+     * @return string
+     */
+    public function getSlugSource()
+    {
+        return strtr(mb_strtolower((string) $this->name, 'UTF-8'), self::$cyrillicToLatin);
     }
 
     /**

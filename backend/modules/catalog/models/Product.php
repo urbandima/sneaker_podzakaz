@@ -156,7 +156,14 @@ class Product extends ActiveRecord
             ],
             [
                 'class' => SluggableBehavior::class,
-                'attribute' => 'name',
+                // Как и в Category/Brand (CMP-417): 'name' напрямую не годится, потому что
+                // yii\helpers\Inflector::transliterate() без php-intl не переводит кириллицу,
+                // и Inflector::slug() вырезает все кириллические буквы регэкспом — товар с
+                // чисто кириллическим названием получал slug = '' и падал на unique-валидации
+                // при повторе (второй такой же товар не сохранялся). Найдено живым HTTP-прогоном
+                // CMP-460 (волна 2б). getSlugSource() транслитерирует кириллицу вручную перед тем,
+                // как SluggableBehavior прогонит Inflector::slug().
+                'attribute' => 'slugSource',
                 'slugAttribute' => 'slug',
                 'immutable' => false,
                 'ensureUnique' => true,
@@ -167,6 +174,29 @@ class Product extends ActiveRecord
                 'labelAttribute' => 'name',
             ],
         ];
+    }
+
+    /**
+     * Кириллическая карта транслитерации, см. аналогичное поле в Category/Brand (CMP-417).
+     * @var array<string,string>
+     */
+    private static $cyrillicToLatin = [
+        'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e',
+        'ё' => 'e', 'ж' => 'zh', 'з' => 'z', 'и' => 'i', 'й' => 'y', 'к' => 'k',
+        'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p', 'р' => 'r',
+        'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'kh', 'ц' => 'ts',
+        'ч' => 'ch', 'ш' => 'sh', 'щ' => 'shch', 'ъ' => '', 'ы' => 'y', 'ь' => '',
+        'э' => 'e', 'ю' => 'yu', 'я' => 'ya',
+        'і' => 'i', 'ў' => 'u', 'ґ' => 'g',
+    ];
+
+    /**
+     * Виртуальный источник slug'а для SluggableBehavior — см. комментарий в behaviors().
+     * @return string
+     */
+    public function getSlugSource()
+    {
+        return strtr(mb_strtolower((string) $this->name, 'UTF-8'), self::$cyrillicToLatin);
     }
 
     /**
