@@ -443,6 +443,13 @@ class OrderController extends Controller
                 throw new \Exception('Ошибка сохранения заказа: ' . json_encode($order->errors));
             }
 
+            // Товары, у которых в этой транзакции списался остаток размера —
+            // после цикла проверяем, не закончились ли у них ВСЕ размеры, и
+            // если да, гасим product.stock_status (CMP-449), чтобы витрина не
+            // продолжала показывать «в наличии» карточку без единого доступного
+            // размера.
+            $affectedProductIds = [];
+
             // Добавляем товары в заказ
             foreach ($cartItems as $cartItem) {
                 if (!$cartItem->product) {
@@ -470,7 +477,7 @@ class OrderController extends Controller
                 $sizeModelId = $sizeModelIdsByCartItemId[$cartItem->id] ?? null;
                 if ($sizeModelId !== null) {
                     $lockedSize = Yii::$app->db->createCommand(
-                        'SELECT stock FROM {{%product_size}} WHERE id = :id FOR UPDATE',
+                        'SELECT stock, product_id FROM {{%product_size}} WHERE id = :id FOR UPDATE',
                         [':id' => $sizeModelId]
                     )->queryOne();
 
@@ -480,11 +487,44 @@ class OrderController extends Controller
                         );
                     }
 
+                    // Строка залочена FOR UPDATE выше, поэтому посчитанный здесь
+                    // остаток гарантированно не меняется параллельной транзакцией
+                    // до commit — можно безопасно писать is_available вместе со
+                    // stock одним UPDATE, а не отдельной атомарной Expression.
+                    $newStock = (int) $lockedSize['stock'] - $cartItem->quantity;
+
                     Yii::$app->db->createCommand()
                         ->update(
                             '{{%product_size}}',
-                            ['stock' => new \yii\db\Expression('stock - :qty', [':qty' => $cartItem->quantity])],
+                            [
+                                'stock' => $newStock,
+                                'is_available' => $newStock > 0 ? 1 : 0,
+                            ],
                             ['id' => $sizeModelId]
+                        )
+                        ->execute();
+
+                    $affectedProductIds[(int) $lockedSize['product_id']] = true;
+                }
+            }
+
+            // CMP-449: если у товара с размерной сеткой не осталось ни одного
+            // размера в наличии — гасим product.stock_status в этой же
+            // транзакции. Отдельный отложенный пересчёт (cron/подписчик) дал бы
+            // окно, в котором витрина продолжает показывать «в наличии» уже
+            // проданный подчистую товар — тот самый оверселл-риск из тикета.
+            foreach (array_keys($affectedProductIds) as $affectedProductId) {
+                $hasAvailableSize = Yii::$app->db->createCommand(
+                    'SELECT 1 FROM {{%product_size}} WHERE product_id = :pid AND stock > 0 AND is_available = 1 LIMIT 1',
+                    [':pid' => $affectedProductId]
+                )->queryScalar();
+
+                if ($hasAvailableSize === false) {
+                    Yii::$app->db->createCommand()
+                        ->update(
+                            '{{%product}}',
+                            ['stock_status' => \app\backend\modules\catalog\models\Product::STOCK_OUT_OF_STOCK],
+                            ['id' => $affectedProductId]
                         )
                         ->execute();
                 }
