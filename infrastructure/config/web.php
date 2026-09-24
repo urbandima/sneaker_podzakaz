@@ -431,6 +431,7 @@ $config = [
                 'account/order/<id:\d+>' => 'account/account/order-view',
                 'account/settings' => 'account/account/settings',
                 'account/forgot-password' => 'account/account/forgot-password',
+                'account/reset-password' => 'account/account/reset-password',
                 'account/find-orders' => 'account/account/find-orders',
                 'account/wishlist' => 'account/account/wishlist',
                 'account/favorites' => 'account/account/wishlist',

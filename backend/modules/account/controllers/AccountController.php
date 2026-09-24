@@ -412,7 +412,18 @@ class AccountController extends Controller
             $customer = Customer::findByEmail($email);
             if ($customer) {
                 $customer->generatePasswordResetToken();
-                $customer->save(false);
+                if ($customer->save(false)) {
+                    $resetUrl = Yii::$app->urlManager->createAbsoluteUrl(['account/reset-password', 'token' => $customer->password_reset_token]);
+                    try {
+                        Yii::$app->mailer->compose('password-reset', ['resetUrl' => $resetUrl, 'customer' => $customer])
+                            ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
+                            ->setTo($customer->email)
+                            ->setSubject('Восстановление пароля')
+                            ->send();
+                    } catch (\Throwable $e) {
+                        Yii::warning('forgot-password: не удалось отправить письмо со ссылкой сброса пароля: ' . $e->getMessage(), __METHOD__);
+                    }
+                }
             }
             $sent = true;
             Yii::$app->session->setFlash('success', 'Если аккаунт с таким email существует, инструкции по восстановлению пароля отправлены на вашу почту');
@@ -420,6 +431,55 @@ class AccountController extends Controller
 
         return $this->render('forgot-password', [
             'sent' => $sent,
+        ]);
+    }
+
+    /**
+     * Установка нового пароля по токену из письма восстановления (см. actionForgotPassword()).
+     * GET /account/reset-password?token=...
+     */
+    public function actionResetPassword()
+    {
+        if ($this->isCustomerLoggedIn()) {
+            return $this->redirect(['account/profile']);
+        }
+
+        $token = Yii::$app->request->get('token', Yii::$app->request->post('token'));
+        $customer = Customer::findByPasswordResetToken($token);
+
+        if (!$customer) {
+            Yii::$app->session->setFlash('error', 'Ссылка для восстановления пароля недействительна или устарела');
+            return $this->redirect(['account/forgot-password']);
+        }
+
+        $done = false;
+        $error = null;
+
+        if (Yii::$app->request->isPost) {
+            $newPassword = Yii::$app->request->post('new_password');
+            $confirmPassword = Yii::$app->request->post('confirm_password');
+
+            if (strlen((string) $newPassword) < 6) {
+                $error = 'Новый пароль должен содержать минимум 6 символов';
+            } elseif ($newPassword !== $confirmPassword) {
+                $error = 'Пароли не совпадают';
+            } else {
+                $customer->setPassword($newPassword);
+                $customer->generateAuthKey();
+                $customer->removePasswordResetToken();
+                if ($customer->save(false)) {
+                    $done = true;
+                    Yii::$app->session->setFlash('success', 'Пароль успешно изменён. Теперь вы можете войти.');
+                } else {
+                    $error = 'Не удалось сохранить новый пароль';
+                }
+            }
+        }
+
+        return $this->render('reset-password', [
+            'token' => $token,
+            'done' => $done,
+            'error' => $error,
         ]);
     }
 

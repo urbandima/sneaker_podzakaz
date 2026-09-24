@@ -247,6 +247,27 @@ class Customer extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Находит покупателя по действующему (не истёкшему) токену сброса пароля.
+     * Токен формата "<randomString>_<unixTimestamp>" (см. generatePasswordResetToken()).
+     */
+    public static function findByPasswordResetToken($token, $expireSeconds = 3600)
+    {
+        if (empty($token) || !is_string($token) || strpos($token, '_') === false) {
+            return null;
+        }
+
+        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
+        if ($timestamp + $expireSeconds < time()) {
+            return null;
+        }
+
+        return static::find()
+            ->where(['password_reset_token' => $token])
+            ->andWhere(['status' => [self::STATUS_ACTIVE, self::STATUS_ACTIVE_DB]])
+            ->one();
+    }
+
+    /**
      * Единый резолвер id текущего покупателя (AUDIT-35).
      *
      * Авторизация покупателей на витрине идёт через session['customer_id']
