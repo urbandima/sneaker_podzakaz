@@ -138,7 +138,7 @@ $pendingCount = $stats['pending'] ?? 0;
                     <div class="review-title"><?= Html::encode($review->title) ?></div>
                 <?php endif; ?>
 
-                <div class="review-content"><?= Html::encode($review->content) ?></div>
+                <div class="review-content"><?= Html::encode($review->comment) ?></div>
 
                 <?php if ($review->pros || $review->cons) : ?>
                     <div class="review-pros-cons">

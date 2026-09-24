@@ -116,6 +116,24 @@ class ProductReview extends ActiveRecord
     }
 
     /**
+     * Имя автора отзыва для админки.
+     *
+     * CMP-457: review/index.php вызывал getDisplayName(), которого никогда не
+     * было на модели — 500 на всей странице модерации отзывов (не только на
+     * кнопке «Отклонить»), обнаружено при живой проверке этой карточки.
+     *
+     * @return string
+     */
+    public function getDisplayName(): string
+    {
+        if ($this->name !== null && $this->name !== '') {
+            return $this->name;
+        }
+
+        return $this->customer ? $this->customer->getFullName() : 'Аноним';
+    }
+
+    /**
      * Опубликовать отзыв.
      *
      * Зеркалит логику actionModerate(action=publish): выставляет is_published,
@@ -132,12 +150,28 @@ class ProductReview extends ActiveRecord
     /**
      * Снять отзыв с публикации.
      *
+     * Отличие от reject(): unpublish — обратимое скрытие уже опубликованного
+     * отзыва (status не трогается), reject — терминальное решение модератора
+     * по отзыву, ещё не опубликованному (is_published=false + status=rejected).
+     *
      * @return bool
      */
     public function unpublish(): bool
     {
         $this->is_published = false;
         return $this->save(false, ['is_published']);
+    }
+
+    /**
+     * Отклонить отзыв при модерации.
+     *
+     * @return bool
+     */
+    public function reject(): bool
+    {
+        $this->is_published = false;
+        $this->status = 'rejected';
+        return $this->save(false, ['is_published', 'status']);
     }
 
     /**

@@ -60,6 +60,7 @@ class ReviewController extends BaseAdminController
                     'delete' => ['POST'],
                     'publish' => ['POST'],
                     'unpublish' => ['POST'],
+                    'reject' => ['POST'],
                     // CMP-418: actionToggleFeatured() called $model->save() unconditionally
                     // with no isPost/VerbFilter guard — confirmed GET-CSRF exploitable via a
                     // bare link. Its "В избранное"/"Из избранных" link in review/index.php had
@@ -164,6 +165,25 @@ class ReviewController extends BaseAdminController
         $model->unpublish();
 
         Yii::$app->session->setFlash('success', 'Отзыв снят с публикации');
+        return $this->redirect(['index']);
+    }
+
+    /**
+     * Отклонить отзыв (модерация)
+     *
+     * CMP-457: кнопка «Отклонить» в index.php вела на несуществующий actionReject
+     * (404). Ни actionPublish/actionUnpublish, ни actionModerate не пишут в
+     * колонку status — оба читали «отклонён» и «на модерации» как одно и то же
+     * is_published=false, так что переиспользовать их напрямую было бы
+     * поведенческим no-op для ещё не опубликованных отзывов. Заводим отдельный
+     * actionReject, который явно переводит отзыв в status=rejected.
+     */
+    public function actionReject($id)
+    {
+        $model = $this->findModel($id);
+        $model->reject();
+
+        Yii::$app->session->setFlash('success', 'Отзыв отклонён');
         return $this->redirect(['index']);
     }
 

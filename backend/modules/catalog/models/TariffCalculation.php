@@ -5,6 +5,7 @@ namespace app\backend\modules\catalog\models;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
+use app\backend\modules\admin\models\User;
 
 /**
  * Модель истории расчетов тарифов

@@ -11,19 +11,6 @@ class ActivityLogController extends BaseAdminController
 {
     protected bool $adminOnly = true;
 
-    /**
-     * CMP-418: actionCleanup lives in this web controller (also meant for CLI use
-     * per its own docblock) and unconditionally deletes activity_log rows older
-     * than 90 days with no isPost/VerbFilter guard — GET-CSRF exploitable, no UI
-     * caller relies on GET here.
-     */
-    public function behaviors()
-    {
-        $behaviors = parent::behaviors();
-        $behaviors['verbs']['actions']['cleanup'] = ['POST'];
-        return $behaviors;
-    }
-
     // ── Фильтры / список допустимых значений ─────────────────────────────────
 
     private const PERIOD_TODAY = 'today';
@@ -180,20 +167,6 @@ class ActivityLogController extends BaseAdminController
         fclose($fh);
         $response->content = ob_get_clean();
         return $response;
-    }
-
-    /**
-     * CLI: удаление логов старше 90 дней.
-     * php yii activity-log/cleanup
-     */
-    public function actionCleanup()
-    {
-        $cutoff  = time() - 90 * 86400;
-        $deleted = Yii::$app->db->createCommand()
-            ->delete('activity_log', 'created_at < :ts', [':ts' => $cutoff])
-            ->execute();
-
-        echo "Удалено $deleted записей старше 90 дней.\n";
     }
 
     // ── Query builder ─────────────────────────────────────────────────────────
