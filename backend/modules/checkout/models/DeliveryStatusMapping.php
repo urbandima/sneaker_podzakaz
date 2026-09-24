@@ -50,7 +50,7 @@ class DeliveryStatusMapping extends ActiveRecord
             [['provider_id', 'provider_status_id'], 'required'],
             [['provider_id', 'sort_order', 'estimated_days'], 'integer'],
             [['is_final'], 'boolean'],
-            [['provider_status_id'], 'string', 'max' => 20],
+            [['provider_status_id'], 'string', 'max' => 64],
             [['provider_status_name', 'display_name'], 'string', 'max' => 255],
             [['internal_status'], 'string', 'max' => 50],
         ];
