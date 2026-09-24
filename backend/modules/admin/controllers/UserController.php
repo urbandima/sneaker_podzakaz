@@ -238,6 +238,48 @@ class UserController extends BaseAdminController
     }
 
     /**
+     * CMP-430/J: выгрузка сотрудников админки в CSV (по образцу
+     * CustomerController::actionExport). Набор колонок другой — у User
+     * нет orders_count/default_city, зато есть role.
+     */
+    public function actionExport()
+    {
+        $users = User::find()
+            ->where(['!=', 'status', User::STATUS_DELETED])
+            ->orderBy(['created_at' => SORT_DESC])
+            ->all();
+
+        $filename = 'users_' . date('Y-m-d_H-i-s') . '.csv';
+
+        Yii::$app->response->format = Response::FORMAT_RAW;
+        Yii::$app->response->headers->add('Content-Type', 'text/csv; charset=utf-8');
+        Yii::$app->response->headers->add('Content-Disposition', 'attachment; filename="' . $filename . '"');
+
+        $output = fopen('php://output', 'w');
+        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM для Excel
+
+        fputcsv($output, [
+            'ID', 'Логин', 'Email', 'Роль', 'Статус', 'Дата регистрации'
+        ], ';', '"', '\\');
+
+        $statusLabels = [
+            User::STATUS_ACTIVE => 'Активен',
+            User::STATUS_INACTIVE => 'Заблокирован',
+        ];
+
+        foreach ($users as $user) {
+            fputcsv($output, [
+                $user->id, $user->username, $user->email,
+                $user->getRoleName(), $statusLabels[$user->status] ?? $user->status,
+                date('d.m.Y H:i', $user->created_at),
+            ], ';', '"', '\\');
+        }
+
+        fclose($output);
+        return Yii::$app->response;
+    }
+
+    /**
      * Удаление пользователя
      *
      * @param int $id

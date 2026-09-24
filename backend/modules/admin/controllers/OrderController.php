@@ -55,6 +55,7 @@ use app\backend\modules\admin\models\User;
 use app\backend\modules\admin\models\AdminLog;
 use app\backend\modules\admin\services\AdminLogService;
 use app\backend\modules\admin\services\OrderShippingService;
+use app\backend\modules\checkout\services\DobroPostService;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -82,6 +83,7 @@ class OrderController extends BaseAdminController
         $behaviors['verbs']['actions']['auto-fill-dp'] = ['POST'];
         $behaviors['verbs']['actions']['clean-bad-import'] = ['POST'];
         $behaviors['verbs']['actions']['delete-item'] = ['POST'];
+        $behaviors['verbs']['actions']['dp-test'] = ['POST'];
         return $behaviors;
     }
 
@@ -1687,6 +1689,55 @@ class OrderController extends BaseAdminController
         } catch (\Throwable $e) {
             return ['success' => false, 'message' => $e->getMessage()];
         }
+    }
+
+    /**
+     * CMP-430/H: бейдж уведомлений в шапке (опрашивается admin.js каждые 30с).
+     * Дублирует счётчик NotificationController::actionIndex — тот эндпоинт
+     * возвращает то же самое под другим маршрутом (/admin/notification/index),
+     * но реальный JS-опрос колокольчика (initNotifications() в admin.js) бьёт
+     * именно в /admin/order/notifications, которого не существовало.
+     */
+    public function actionNotifications()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $count = 0;
+        try {
+            $count = (int) Order::find()->where(['status' => 'new'])->count();
+        } catch (\Throwable $e) {
+            // При ошибке не ломаем бейдж — просто 0
+        }
+
+        return ['count' => $count];
+    }
+
+    /**
+     * CMP-430/H: проверка учётных данных Таможня:ДП перед сохранением —
+     * вызывается из settings/integrations.php и plugin/dobropost.php.
+     * Тестируем именно введённые в форму email/password (ещё не сохранённые),
+     * поэтому НЕ используем общий DobroPostService::authenticate() —
+     * он пишет токен в разделяемый кеш-ключ и мог бы затереть токен,
+     * которым живой сервис пользуется для реальной отправки посылок.
+     */
+    public function actionDpTest()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $body     = json_decode(Yii::$app->request->getRawBody(), true) ?: [];
+        $email    = trim((string) ($body['email'] ?? ''));
+        $password = (string) ($body['password'] ?? '');
+
+        if ($email === '' || $password === '') {
+            return ['success' => false, 'message' => 'Укажите email и пароль'];
+        }
+
+        $service = new DobroPostService([
+            'email'    => $email,
+            'password' => $password,
+        ]);
+
+        return $service->testCredentials();
     }
 
     /**

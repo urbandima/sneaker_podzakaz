@@ -39,11 +39,19 @@ $allKeywords = array_unique(array_filter($allKeywords));
 
 // Объединяем характеристики из справочников
 $characteristicsFromRegistry = [];
+// CMP-430/I: справочник характеристик для формы привязки "Добавить" —
+// без него <select> в модалке был вечно пустым (никто его не заполнял).
+$allCharacteristicsForAttach = [];
 if (!$product->isNewRecord) {
     try {
         $characteristicsFromRegistry = \app\backend\modules\catalog\models\ProductCharacteristicValue::find()
             ->where(['product_id' => $product->id])
             ->with(['characteristic', 'characteristicValue'])
+            ->all();
+        $allCharacteristicsForAttach = \app\backend\modules\catalog\models\Characteristic::find()
+            ->where(['is_active' => 1])
+            ->with('values')
+            ->orderBy(['sort_order' => SORT_ASC, 'name' => SORT_ASC])
             ->all();
     } catch (\Exception $e) {
         $characteristicsFromRegistry = [];
@@ -546,13 +554,15 @@ if (!$product->isNewRecord) {
                                                 <?= Html::encode($pcv->value_text) ?>
                                             <?php elseif ($pcv->value_number !== null) : ?>
                                                 <?= Html::encode($pcv->value_number) ?>
+                                            <?php elseif ($pcv->value_boolean !== null) : ?>
+                                                <?= $pcv->value_boolean ? 'Да' : 'Нет' ?>
                                             <?php endif; ?>
                                         </div>
                                         <div class="char-value-edit d-none">
                                             <?php $charType = $pcv->characteristic ? $pcv->characteristic->type : null;
-                                            if ($charType === 'select') :
+                                            if ($charType === 'select' || $charType === 'multiselect') :
                                                 $values = \yii\helpers\ArrayHelper::map($pcv->characteristic->values ?? [], 'id', 'value'); ?>
-                                                <select class="form-select form-select-sm char-edit-input" data-original="<?= $pcv->characteristic_value_id ?>">
+                                                <select class="form-select form-select-sm char-edit-input" data-field="value_id" data-original="<?= $pcv->characteristic_value_id ?>">
                                                     <?php foreach ($values as $valId => $valName) : ?>
                                                         <option value="<?= $valId ?>" <?= $valId == $pcv->characteristic_value_id ? 'selected' : '' ?>>
                                                             <?= Html::encode($valName) ?>
@@ -560,10 +570,15 @@ if (!$product->isNewRecord) {
                                                     <?php endforeach; ?>
                                                 </select>
                                             <?php elseif ($charType === 'number') : ?>
-                                                <input type="number" step="0.01" class="form-control form-control-sm char-edit-input"
+                                                <input type="number" step="0.01" class="form-control form-control-sm char-edit-input" data-field="value_number"
                                                        value="<?= $pcv->value_number ?>" data-original="<?= $pcv->value_number ?>">
+                                            <?php elseif ($charType === 'boolean') : ?>
+                                                <select class="form-select form-select-sm char-edit-input" data-field="value_boolean" data-original="<?= $pcv->value_boolean ?>">
+                                                    <option value="1" <?= $pcv->value_boolean ? 'selected' : '' ?>>Да</option>
+                                                    <option value="0" <?= !$pcv->value_boolean ? 'selected' : '' ?>>Нет</option>
+                                                </select>
                                             <?php else : ?>
-                                                <input type="text" class="form-control form-control-sm char-edit-input"
+                                                <input type="text" class="form-control form-control-sm char-edit-input" data-field="value_text"
                                                        value="<?= Html::encode($pcv->value_text) ?>" data-original="<?= Html::encode($pcv->value_text) ?>">
                                             <?php endif; ?>
                                         </div>
@@ -1295,7 +1310,7 @@ if (!$product->isNewRecord) {
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-light">
-                <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Добавить новую характеристику</h5>
+                <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Привязать характеристику к товару</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -1310,54 +1325,29 @@ if (!$product->isNewRecord) {
                                 <label class="form-label">Характеристика</label>
                                 <select class="form-select" id="characteristicSelect">
                                     <option value="">Выберите характеристику...</option>
-                                    <option value="__new__" class="text-primary fw-bold">➕ Создать новую...</option>
+                                    <?php foreach ($allCharacteristicsForAttach as $char) : ?>
+                                        <option value="<?= $char->id ?>"
+                                                data-type="<?= Html::encode($char->type) ?>"
+                                                data-values="<?= Html::encode(json_encode(\yii\helpers\ArrayHelper::map($char->values ?? [], 'id', 'value'))) ?>">
+                                            <?= Html::encode($char->name) ?>
+                                        </option>
+                                    <?php endforeach; ?>
                                 </select>
-                            </div>
-
-                            <!-- Форма создания новой характеристики -->
-                            <div id="newCharacteristicForm" class="mb-3 p-3 bg-light border rounded d-none">
-                                <h6 class="text-primary"><i class="bi bi-magic"></i> Новая характеристика</h6>
-                                <div class="mb-2">
-                                    <label class="form-label">Название</label>
-                                    <input type="text" class="form-control" id="newCharName" placeholder="Материал подошвы">
+                                <div class="form-text">
+                                    Нет нужной характеристики или значения? Заведите её на
+                                    <a href="<?= \yii\helpers\Url::to(['/admin/characteristic/index']) ?>" target="_blank">странице характеристик</a>
+                                    и вернитесь сюда.
                                 </div>
-                                <div class="mb-2">
-                                    <label class="form-label">Тип</label>
-                                    <select class="form-select" id="newCharType">
-                                        <option value="text">Текст</option>
-                                        <option value="select">Выбор из списка</option>
-                                        <option value="number">Число</option>
-                                        <option value="boolean">Да/Нет</option>
-                                    </select>
-                                </div>
-                                <button type="button" class="btn btn-sm btn-primary" onclick="createNewCharacteristic()">
-                                    <i class="bi bi-check"></i> Создать и выбрать
-                                </button>
-                                <button type="button" class="btn btn-sm btn-secondary" onclick="cancelNewCharacteristic()">
-                                    Отмена
-                                </button>
                             </div>
 
                             <!-- Поле значения (динамическое) -->
                             <div id="valueContainer" class="d-none">
-                                <!-- Для select: dropdown -->
+                                <!-- Для select/multiselect: dropdown -->
                                 <div id="valueSelect" class="mb-3 d-none">
                                     <label class="form-label">Значение</label>
                                     <select class="form-select" id="characteristicValueSelect">
                                         <option value="">Выберите значение...</option>
-                                        <option value="__new__" class="text-primary fw-bold">➕ Добавить новое значение...</option>
                                     </select>
-                                    
-                                    <!-- Добавление нового значения -->
-                                    <div id="newValueForm" class="mt-2 p-2 bg-light border rounded d-none">
-                                        <input type="text" class="form-control form-control-sm mb-2" id="newValueInput" placeholder="Новое значение">
-                                        <button type="button" class="btn btn-sm btn-primary" onclick="createNewValue()">
-                                            <i class="bi bi-check"></i> Добавить
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-secondary" onclick="cancelNewValue()">
-                                            Отмена
-                                        </button>
-                                    </div>
                                 </div>
 
                                 <!-- Для text: input -->
@@ -1370,6 +1360,15 @@ if (!$product->isNewRecord) {
                                 <div id="valueNumber" class="mb-3 d-none">
                                     <label class="form-label">Значение (число)</label>
                                     <input type="number" step="0.01" class="form-control" id="characteristicValueNumber" placeholder="0">
+                                </div>
+
+                                <!-- Для boolean: select Да/Нет -->
+                                <div id="valueBoolean" class="mb-3 d-none">
+                                    <label class="form-label">Значение</label>
+                                    <select class="form-select" id="characteristicValueBoolean">
+                                        <option value="1">Да</option>
+                                        <option value="0">Нет</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -1447,41 +1446,94 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Переключение видимого поля значения по типу выбранной характеристики
+    function updateCharacteristicValueUI() {
+        const charSelect = document.getElementById('characteristicSelect');
+        const container = document.getElementById('valueContainer');
+        const addCharBtn = document.getElementById('addCharBtn');
+        ['valueSelect', 'valueText', 'valueNumber', 'valueBoolean'].forEach(function (id) {
+            document.getElementById(id).classList.add('d-none');
+        });
+
+        if (!charSelect.value) {
+            container.classList.add('d-none');
+            addCharBtn.disabled = true;
+            return;
+        }
+
+        container.classList.remove('d-none');
+        addCharBtn.disabled = false;
+
+        const option = charSelect.options[charSelect.selectedIndex];
+        const type = option.dataset.type;
+
+        if (type === 'select' || type === 'multiselect') {
+            const values = JSON.parse(option.dataset.values || '{}');
+            const valSelect = document.getElementById('characteristicValueSelect');
+            valSelect.innerHTML = '<option value="">Выберите значение...</option>';
+            Object.keys(values).forEach(function (valId) {
+                const opt = document.createElement('option');
+                opt.value = valId;
+                opt.textContent = values[valId];
+                valSelect.appendChild(opt);
+            });
+            document.getElementById('valueSelect').classList.remove('d-none');
+        } else if (type === 'number') {
+            document.getElementById('valueNumber').classList.remove('d-none');
+        } else if (type === 'boolean') {
+            document.getElementById('valueBoolean').classList.remove('d-none');
+        } else {
+            document.getElementById('valueText').classList.remove('d-none');
+        }
+    }
+
     // Функция для кнопки "Добавить характеристику"
     window.addCharacteristicToProduct = function() {
         const charSelect = document.getElementById('characteristicSelect');
-        const valueText = document.getElementById('characteristicValueText');
-        const valueNumber = document.getElementById('characteristicValueNumber');
         const messageDiv = document.getElementById('addCharMessage');
+        const option = charSelect.options[charSelect.selectedIndex];
+        const type = option ? option.dataset.type : null;
 
         if (!charSelect.value) {
             messageDiv.innerHTML = '<div class="alert alert-danger">Выберите характеристику</div>';
             return;
         }
 
-        const value = charSelect.value === 'number' ? valueNumber.value : valueText.value;
-        if (!value) {
-            messageDiv.innerHTML = '<div class="alert alert-danger">Введите значение</div>';
-            return;
+        const payload = {
+            product_id: _productId,
+            characteristic_id: charSelect.value,
+        };
+        if (type === 'select' || type === 'multiselect') {
+            payload.value_id = document.getElementById('characteristicValueSelect').value;
+        } else if (type === 'number') {
+            payload.value_number = document.getElementById('characteristicValueNumber').value;
+        } else if (type === 'boolean') {
+            payload.value_boolean = document.getElementById('characteristicValueBoolean').value;
+        } else {
+            payload.value_text = document.getElementById('characteristicValueText').value;
         }
 
-        // Здесь должна быть отправка на сервер
-        messageDiv.innerHTML = '<div class="alert alert-success">Характеристика добавлена</div>';
-        
-        // Закрыть модальное окно
-        setTimeout(function() {
-            closeModal('manageCharacteristicsModal');
-        }, 1000);
+        fetch('<?= \yii\helpers\Url::to(['/admin/characteristic/product-attach']) ?>', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRF-Token': _csrfToken},
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) {
+                messageDiv.innerHTML = '<div class="alert alert-success">Характеристика добавлена</div>';
+                location.reload();
+            } else {
+                messageDiv.innerHTML = '<div class="alert alert-danger">' + (d.message || 'Ошибка') + '</div>';
+            }
+        })
+        .catch(() => { messageDiv.innerHTML = '<div class="alert alert-danger">Ошибка сети</div>'; });
     };
 
-    // Активация/деактивация кнопки добавления характеристики
+    // Активация/деактивация кнопки добавления характеристики + показ нужного поля
     const charSelect = document.getElementById('characteristicSelect');
-    const addCharBtn = document.getElementById('addCharBtn');
-
-    if (charSelect && addCharBtn) {
-        charSelect.addEventListener('change', function() {
-            addCharBtn.disabled = !this.value;
-        });
+    if (charSelect) {
+        charSelect.addEventListener('change', updateCharacteristicValueUI);
     }
 });
 
@@ -1604,8 +1656,48 @@ function cancelEditCharacteristic(id) {
     row.querySelector('.char-actions-display').classList.remove('d-none');
     row.querySelector('.char-actions-edit').classList.add('d-none');
 }
-function saveCharacteristic(id) { /* extend as needed */ document.getElementById('product-form').submit(); }
-function deleteCharacteristicInline(id) { if (confirm('Удалить характеристику?')) { /* TODO */ } }
+function saveCharacteristic(id) {
+    const row = document.querySelector('tr[data-char-id="' + id + '"]');
+    if (!row) return;
+    const input = row.querySelector('.char-edit-input');
+    if (!input) return;
+
+    const payload = {};
+    payload[input.dataset.field || 'value_text'] = input.value;
+
+    fetch('<?= \yii\helpers\Url::to(['/admin/characteristic/product-update']) ?>?id=' + id, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRF-Token': _csrfToken},
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            location.reload();
+        } else {
+            SH.toast({type: 'error', message: d.message || 'Ошибка'});
+        }
+    })
+    .catch(() => SH.toast({type: 'error', message: 'Ошибка сети'}));
+}
+function deleteCharacteristicInline(id) {
+    if (!confirm('Удалить характеристику?')) return;
+
+    fetch('<?= \yii\helpers\Url::to(['/admin/characteristic/product-detach']) ?>?id=' + id, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRF-Token': _csrfToken},
+        body: '{}'
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            location.reload();
+        } else {
+            SH.toast({type: 'error', message: d.message || 'Ошибка'});
+        }
+    })
+    .catch(() => SH.toast({type: 'error', message: 'Ошибка сети'}));
+}
 
 // ─── Size price inline edit ──────────────────────────────────────────────────
 function editSizePrice(sizeId) {

@@ -156,9 +156,9 @@
             case 'product':
                 window.location.href = '/admin/product/create';
                 break;
-            case 'customer':
-                window.location.href = '/admin/customer/create';
-                break;
+            // CMP-430/K: пункт "создать покупателя" убран — формы создания
+            // клиента с нуля нет, CustomerController умеет только
+            // createFromOrder (привязка к существующему гостевому заказу).
             case 'calculator':
                 openCalculator();
                 break;

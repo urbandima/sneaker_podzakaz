@@ -66,6 +66,13 @@ class CharacteristicController extends BaseAdminController
                 // characteristic/index.php and size-update.php.
                 'size-delete' => ['POST'],
                 'size-delete-item' => ['POST'],
+                // CMP-430/I: привязка характеристики к конкретному товару —
+                // этого сценария в контроллере не было вовсе (только справочник
+                // типов и размерные сетки), хотя UI на product/edit.php его
+                // подразумевал. Минимальный CRUD для ProductCharacteristicValue.
+                'product-attach' => ['POST'],
+                'product-update' => ['POST'],
+                'product-detach' => ['POST'],
             ],
         ];
         return $behaviors;
@@ -347,5 +354,141 @@ class CharacteristicController extends BaseAdminController
             Yii::$app->session->setFlash('error', 'Не удалось удалить размер.');
         }
         return $this->redirect(['size-update', 'id' => $gridId]);
+    }
+
+    /**
+     * CMP-430/I: привязать характеристику к товару (карточка product/edit).
+     * Для типов select/text/number/boolean держим одну строку на пару
+     * (товар, характеристика) — повторный вызов обновляет значение вместо
+     * дублирования строки. Для multiselect допускаем несколько строк.
+     */
+    public function actionProductAttach()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $productId = (int) Yii::$app->request->post('product_id');
+        $characteristicId = (int) Yii::$app->request->post('characteristic_id');
+
+        $product = Product::findOne($productId);
+        $characteristic = Characteristic::findOne($characteristicId);
+        if (!$product || !$characteristic) {
+            return ['success' => false, 'message' => 'Товар или характеристика не найдены'];
+        }
+
+        $pcv = null;
+        if ($characteristic->type !== Characteristic::TYPE_MULTISELECT) {
+            $pcv = ProductCharacteristicValue::findOne([
+                'product_id' => $productId,
+                'characteristic_id' => $characteristicId,
+            ]);
+        }
+        $pcv = $pcv ?: new ProductCharacteristicValue();
+        $pcv->product_id = $productId;
+        $pcv->characteristic_id = $characteristicId;
+
+        if (!$this->fillCharacteristicValue($pcv, $characteristic, Yii::$app->request->post())) {
+            return ['success' => false, 'message' => 'Укажите значение характеристики'];
+        }
+
+        if (!$pcv->save()) {
+            return ['success' => false, 'message' => 'Не удалось сохранить: ' . implode(', ', $pcv->getFirstErrors())];
+        }
+
+        return ['success' => true];
+    }
+
+    /**
+     * CMP-430/I: изменить значение уже привязанной характеристики.
+     */
+    public function actionProductUpdate($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $pcv = ProductCharacteristicValue::findOne($id);
+        if (!$pcv) {
+            return ['success' => false, 'message' => 'Привязка не найдена'];
+        }
+        $characteristic = $pcv->characteristic;
+        if (!$characteristic) {
+            return ['success' => false, 'message' => 'Характеристика не найдена'];
+        }
+
+        if (!$this->fillCharacteristicValue($pcv, $characteristic, Yii::$app->request->post())) {
+            return ['success' => false, 'message' => 'Укажите значение характеристики'];
+        }
+
+        if (!$pcv->save()) {
+            return ['success' => false, 'message' => 'Не удалось сохранить: ' . implode(', ', $pcv->getFirstErrors())];
+        }
+
+        return ['success' => true];
+    }
+
+    /**
+     * CMP-430/I: отвязать характеристику от товара.
+     */
+    public function actionProductDetach($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $pcv = ProductCharacteristicValue::findOne($id);
+        if (!$pcv) {
+            return ['success' => false, 'message' => 'Привязка не найдена'];
+        }
+        $pcv->delete();
+
+        return ['success' => true];
+    }
+
+    /**
+     * Заполняет value_* поля ProductCharacteristicValue по типу характеристики
+     * из массива POST-данных ('value_id', 'value_text', 'value_number', 'value_boolean').
+     */
+    private function fillCharacteristicValue(ProductCharacteristicValue $pcv, Characteristic $characteristic, array $post): bool
+    {
+        switch ($characteristic->type) {
+            case Characteristic::TYPE_SELECT:
+            case Characteristic::TYPE_MULTISELECT:
+                $valueId = (int) ($post['value_id'] ?? 0);
+                if (!$valueId || !CharacteristicValue::findOne(['id' => $valueId, 'characteristic_id' => $characteristic->id])) {
+                    return false;
+                }
+                $pcv->characteristic_value_id = $valueId;
+                $pcv->value_text = null;
+                $pcv->value_number = null;
+                $pcv->value_boolean = null;
+                return true;
+
+            case Characteristic::TYPE_NUMBER:
+                if (!isset($post['value_number']) || $post['value_number'] === '') {
+                    return false;
+                }
+                $pcv->value_number = (float) $post['value_number'];
+                $pcv->characteristic_value_id = null;
+                $pcv->value_text = null;
+                $pcv->value_boolean = null;
+                return true;
+
+            case Characteristic::TYPE_BOOLEAN:
+                if (!isset($post['value_boolean']) || $post['value_boolean'] === '') {
+                    return false;
+                }
+                $pcv->value_boolean = (int) (bool) $post['value_boolean'];
+                $pcv->characteristic_value_id = null;
+                $pcv->value_text = null;
+                $pcv->value_number = null;
+                return true;
+
+            default: // text
+                $text = trim((string) ($post['value_text'] ?? ''));
+                if ($text === '') {
+                    return false;
+                }
+                $pcv->value_text = $text;
+                $pcv->characteristic_value_id = null;
+                $pcv->value_number = null;
+                $pcv->value_boolean = null;
+                return true;
+        }
     }
 }

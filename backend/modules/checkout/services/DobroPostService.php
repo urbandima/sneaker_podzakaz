@@ -101,6 +101,30 @@ class DobroPostService extends Component
     }
 
     /**
+     * Проверка учётных данных (для формы настроек — тест до сохранения).
+     * В отличие от authenticate(), не читает и не пишет разделяемый кеш
+     * токена, чтобы тест непроверенных credentials не мог подменить токен,
+     * которым живой сервис пользуется для реальной отправки посылок.
+     */
+    public function testCredentials(): array
+    {
+        try {
+            $response = $this->request('POST', '/api/shipment/sign-in', [
+                'email'    => $this->email,
+                'password' => $this->password,
+            ], false);
+
+            if (empty($response['token'])) {
+                return ['success' => false, 'message' => 'Не удалось получить токен авторизации'];
+            }
+
+            return ['success' => true, 'message' => 'Подключение успешно'];
+        } catch (\Throwable $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
      * Сбрасывает закешированный токен (при ошибке 401).
      */
     private function invalidateToken(): void
@@ -345,6 +369,11 @@ class DobroPostService extends Component
         'vatIdentificationNumber',
         'passportDepartmentCode',
         'consigneeBirthDate',
+        // CMP-430/H: authenticate()/testCredentials() шлют этот же request() на
+        // /api/shipment/sign-in с email/password — до сих пор писались в лог
+        // plaintext-ом при каждом логине.
+        'password',
+        'email',
     ];
 
     /**

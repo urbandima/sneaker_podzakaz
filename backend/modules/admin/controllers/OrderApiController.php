@@ -128,13 +128,17 @@ class OrderApiController extends BaseAdminController
 
         $result = [];
         foreach ($history as $h) {
+            // CMP-430/H: у модели нет ни `status`/`getStatusLabel()`, ни связи
+            // `creator` — реальные поля денормализованы (new_status/user_name),
+            // из-за чего этот action падал c UnknownPropertyException на любом
+            // заказе с непустой историей.
             $result[] = [
                 'id' => $h->id,
-                'status' => $h->status,
-                'status_label' => $h->getStatusLabel(),
+                'status' => $h->new_status,
+                'status_label' => $h->new_status ? $h->getNewStatusLabel() : $h->getActionLabel(),
                 'comment' => $h->comment,
                 'created_at' => Yii::$app->formatter->asDatetime($h->created_at, 'short'),
-                'created_by' => $h->creator ? $h->creator->username : 'Система',
+                'created_by' => $h->user_name ?: 'Система',
             ];
         }
 
