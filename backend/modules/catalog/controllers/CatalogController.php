@@ -898,11 +898,14 @@ class CatalogController extends Controller
         $similarProducts = $this->productRepository->findSimilarProducts($product, 4);
 
         // Проверка — в избранном ли (через модель ProductFavorite)
+        // Покупатели авторизуются через session('customer_id'), а не через
+        // Yii::$app->user (тот компонент — для сотрудников бэк-офиса), см. CMP-446.
+        $currentCustomerId = Customer::getCurrentCustomerId();
         $isFavorite = ProductFavorite::find()
             ->where(['product_id' => $product->id])
-            ->andWhere(Yii::$app->user->isGuest
-                ? ['session_id' => Yii::$app->session->id]
-                : ['user_id' => Yii::$app->user->id])
+            ->andWhere($currentCustomerId
+                ? ['user_id' => $currentCustomerId]
+                : ['session_id' => Yii::$app->session->id])
             ->exists();
 
         // SEO
