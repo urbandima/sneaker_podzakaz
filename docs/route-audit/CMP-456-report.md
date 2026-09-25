@@ -104,6 +104,71 @@ bulk-update-field), `backend/modules/admin/controllers/OrderApiController.php`
 - Тестовые данные (customer, order, cart, coupon, buyout) удалены обоими прогонами,
   подтверждено проверочными SELECT после каждой фазы.
 
+## Остаток закрыт (CMP-462)
+
+Обе находки из раздела выше разобраны живьём, с эффектом в БД до/после.
+
+**`OrderApiController::actionUpdateField`/`actionChangeStatus` — удалены как мёртвый
+дубль**, а не доведены до паритета. Проверено: во всём репозитории (views + JS,
+`grep -rn` по `frontend/web/js`, `backend/modules/admin/views`) нет ни одного вызова
+`/admin/order-api/update-field` или `/admin/order-api/change-status` — единственный
+живой потребитель `order-api/*` это read-only `order-api/history`
+(`admin-orders.js:432`). Реальная админ-панель весь inline-edit и смену статуса шлёт на
+`/admin/order/update-field` и `/admin/order/change-status` (`OrderController`), где поля
+называются `full_address`/`china_track_number`, а не `address`/`track_number` —
+последних в схеме `order` вообще нет. Это ровно случай развилки CEO «потребителя нет →
+убрать поле из белого списка», доведённый до предела: убрали весь маршрут. После удаления
+оба `POST /admin/order-api/update-field` и `POST /admin/order-api/change-status`
+подтверждены живьём как **404**. Коммит с удалением и docblock-обоснованием — этот же
+коммит, что и ниже.
+
+**Живой `actionChangeStatus` (`OrderController`, реальный путь) прогнан по полной цепочке
+переходов** на тестовом заказе #251, живым `POST /admin/order/change-status` с
+CSRF+сессией admin, каждый шаг сверен `SELECT` до/после по `order.status` и
+`order_history`:
+
+| Переход | HTTP-результат | `order.status` после | Строка в `order_history` |
+|---|---|---|---|
+| `paid → confirmed_and_paid` | `success:true` | `confirmed_and_paid` | id 97, `old_status/new_status` верные |
+| `confirmed_and_paid → ordered` **без buyout** | `success:false, buyout_required:true` | не изменился (`confirmed_and_paid`) | не создана |
+| `confirmed_and_paid → garbage_status_xyz` (неизвестный статус) | `success:false` | не изменился | не создана |
+| `confirmed_and_paid → ordered` (buyout заполнен) | `success:true` | `ordered` | id 98 |
+| `ordered → awaiting_warehouse` | `success:true` | `awaiting_warehouse` | id 99 |
+| `awaiting_warehouse → international_delivery` | `success:true` | `international_delivery` | id 100 |
+| `international_delivery → at_warehouse` | `success:true` | `at_warehouse` | id 101 |
+| `at_warehouse → local_delivery` | `success:true` | `local_delivery` | id 102 |
+| `local_delivery → delivered` (терминальный) | `success:true` | `delivered` | id 103 |
+| `delivered → paid` (переход из терминального) | `success:false` | не изменился (`delivered`) | не создана |
+
+Отдельно на заказе #116 (`new`): `new → canceled` — `success:true`, статус сменился,
+запись в `order_history` появилась (терминальный переход в canceled из нетерминального
+статуса разрешён правилом `isValidTransition`). Заказ возвращён в исходный статус `new`
+после теста.
+
+**Атомарность записи `order_history` и перехода статуса.** Корень проблемы: `Order` не
+переопределял `transactions()`, поэтому `save()` не оборачивал `insert`/`update` в
+транзакцию — `afterSave()` (который и пишет `order_history`) выполнялся уже после того,
+как `UPDATE order SET status=...` физически закоммитился. Добавлен
+`Order::transactions()` (`OP_INSERT | OP_UPDATE`) — тот же принцип, что в CMP-449
+(`stock_status` в одной транзакции с декрементом). Проверено не догадкой, а живым
+воспроизведением сбоя: одноразовый скрипт (`Event::on(OrderHistory::EVENT_BEFORE_INSERT,
+fn($e) => $e->isValid = false)`) форсировал провал записи истории на заказе #251
+(`status=delivered`) при попытке перевести его дальше — `Order::afterSave()` бросил
+`RuntimeException`, и после перезагрузки заказа из БД `status` остался `delivered`
+(UPDATE тоже откатился транзакцией), а не сменился на новый — до фикса `UPDATE`
+коммитился бы немедленно (autocommit), несмотря на провал истории. Скрипт не входит в
+кодовую базу, использован только для проверки и удалён вместе с прогоном.
+
+**Тестовые данные удалены:** заказ #251 (`order`, `order_item`, `order_history`) удалён
+целиком, заказ #116 восстановлен в исходный статус `new` с удалением тестовой строки
+истории — оба подтверждены `SELECT` после очистки.
+
+**Найдено, не исправлено (за рамками этой карточки, заведено с исполнителем):**
+`BuyoutController::actionLinkOrder` (~строка 259) — тот же NOT NULL/nullable-рассинхрон по
+`order_item_id`, что чинили в `save-buyout` (см. таблицу выше), модуль procurement, вне
+охвата и волны 1, и CMP-462. Заведено как **CMP-468** (`todo`, self-assigned), не оставлено
+безхозным backlog.
+
 ## Честная граница охвата этой волны
 
 Проверен только **Приоритет 1 — деньги и заказы** (корзина, оформление заказа, паспортные

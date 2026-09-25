@@ -3,8 +3,16 @@
 /**
  * OrderApiController — AJAX endpoints для карточки заказа
  *
- * B5.5: Inline-редактирование полей заказа
+ * B5.5: Заметки
  * B5.7: История изменений
+ *
+ * CMP-462: actionUpdateField/actionChangeStatus удалены — дублировали живые
+ * OrderController::actionUpdateField/actionChangeStatus (реальные колонки
+ * full_address/china_track_number, проверка переходов через
+ * OrderStateMachine), но не имели ни одного вызова из UI/JS во всём
+ * репозитории и были сломаны схемным рассинхроном с order_history (падали
+ * 500 на каждом вызове, при этом статус уже успевал сохраниться — см.
+ * докрепорт docs/route-audit/CMP-456-report.md).
  */
 
 namespace app\backend\modules\admin\controllers;
@@ -23,57 +31,10 @@ class OrderApiController extends BaseAdminController
             'verbs' => [
                 'class' => VerbFilter::class,
                 'actions' => [
-                    'update-field' => ['POST'],
                     'add-note' => ['POST'],
-                    'change-status' => ['POST'],
                 ],
             ],
         ]);
-    }
-
-    /**
-     * B5.5: Inline-редактирование поля заказа
-     */
-    public function actionUpdateField($id)
-    {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-
-        $order = Order::findOne($id);
-        if (!$order) {
-            return ['success' => false, 'message' => 'Заказ не найден'];
-        }
-
-        // Проверка прав доступа: логист может редактировать только назначенные ему заказы
-        $user = $this->getCurrentUser();
-        if ($this->isLogist() && $order->assigned_logist != $user->id) {
-            Yii::warning('Попытка доступа к чужому заказу: пользователь #' . ($user->id ?? '?') . ' к заказу #' . $id, 'security');
-            Yii::$app->response->statusCode = 403;
-            return ['success' => false, 'message' => 'Доступ запрещен'];
-        }
-
-        $field = Yii::$app->request->post('field');
-        $value = Yii::$app->request->post('value');
-
-        $allowedFields = ['client_name', 'client_phone', 'client_email', 'address', 'comment', 'track_number'];
-        if (!in_array($field, $allowedFields)) {
-            return ['success' => false, 'message' => 'Недопустимое поле'];
-        }
-
-        $oldValue = $order->$field;
-        $order->$field = $value;
-
-        if ($order->save()) {
-            // Логируем изменение
-            $this->logChange($order->id, $field, $oldValue, $value);
-
-            return [
-                'success' => true,
-                'message' => 'Сохранено',
-                'value' => $value
-            ];
-        }
-
-        return ['success' => false, 'message' => 'Ошибка сохранения', 'errors' => $order->errors];
     }
 
     /**
@@ -167,114 +128,4 @@ class OrderApiController extends BaseAdminController
         return ['history' => $result];
     }
 
-    /**
-     * B5.4: Изменение статуса заказа
-     */
-    public function actionChangeStatus($id)
-    {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-
-        $order = Order::findOne($id);
-        if (!$order) {
-            return ['success' => false, 'message' => 'Заказ не найден'];
-        }
-
-        // Проверка прав доступа: логист может менять только назначенные ему заказы
-        $user = $this->getCurrentUser();
-        if ($this->isLogist() && $order->assigned_logist != $user->id) {
-            Yii::warning('Попытка доступа к чужому заказу: пользователь #' . ($user->id ?? '?') . ' к заказу #' . $id, 'security');
-            Yii::$app->response->statusCode = 403;
-            return ['success' => false, 'message' => 'Доступ запрещен'];
-        }
-
-        $newStatus = Yii::$app->request->post('status');
-        $comment = Yii::$app->request->post('comment', '');
-
-        $allowedStatuses = array_keys(Yii::$app->settings->getStatuses());
-        if (!in_array($newStatus, $allowedStatuses)) {
-            return ['success' => false, 'message' => 'Недопустимый статус'];
-        }
-
-        // Бизнес-правило: разрешены ли пользователю такие переходы статуса
-        if (!$order->canChangeStatus($newStatus)) {
-            Yii::warning('Попытка изменить статус без прав: пользователь #' . ($user->id ?? '?') . ', заказ #' . $id . ', статус: ' . $newStatus, 'security');
-            Yii::$app->response->statusCode = 403;
-            return ['success' => false, 'message' => 'Нет прав на изменение этого статуса'];
-        }
-
-        $oldStatus = $order->status;
-        $order->status = $newStatus;
-
-        if ($order->save()) {
-            // Логируем изменение статуса
-            $history = new OrderHistory();
-            $history->order_id = $order->id;
-            $history->status = $newStatus;
-            $history->old_status = $oldStatus;
-            $history->comment = $comment ?: 'Статус изменен на: ' . $order->getStatusLabel();
-            $history->created_by = Yii::$app->user->id;
-            $history->created_at = time();
-            $history->save(false);
-
-            // Telegram notification (B10.1)
-            $this->sendTelegramNotification($order, $oldStatus, $newStatus);
-
-            return [
-                'success' => true,
-                'message' => 'Статус обновлен',
-                'status' => $newStatus,
-                'status_label' => $order->getStatusLabel(),
-            ];
-        }
-
-        return ['success' => false, 'message' => 'Ошибка сохранения', 'errors' => $order->errors];
-    }
-
-    /**
-     * Логирование изменений
-     */
-    private function logChange($orderId, $field, $oldValue, $newValue)
-    {
-        $fieldLabels = [
-            'client_name' => 'Имя клиента',
-            'client_phone' => 'Телефон',
-            'client_email' => 'Email',
-            'address' => 'Адрес',
-            'comment' => 'Комментарий',
-            'track_number' => 'Трек-номер',
-        ];
-
-        // CMP-456: order_history has no `status`/`created_by` columns (real schema:
-        // action/field_name/old_value/new_value/changed_by/new_status) — setting them
-        // threw UnknownPropertyException on every call, so actionUpdateField() below
-        // always 500'd on this line even though the Order field itself had already
-        // saved successfully just above. Aligned to the real schema, same pattern
-        // OrderController::actionAddNote/actionUpdateField already use.
-        $history = new OrderHistory();
-        $history->order_id   = $orderId;
-        $history->action     = 'field_updated';
-        $history->field_name = $field;
-        $history->old_value  = $oldValue;
-        $history->new_value  = $newValue;
-        $history->new_status = 'modified';
-        $history->comment = sprintf(
-            'Изменено поле "%s": "%s" → "%s"',
-            $fieldLabels[$field] ?? $field,
-            $oldValue ?: '(пусто)',
-            $newValue ?: '(пусто)'
-        );
-        $history->changed_by = Yii::$app->user->id;
-        $history->created_at = time();
-        $history->save(false);
-    }
-
-    /**
-     * B10.1: Telegram уведомление о смене статуса
-     */
-    private function sendTelegramNotification($order, $oldStatus, $newStatus)
-    {
-        // Реализация будет в TelegramBotController
-        // Здесь только триггер события
-        Yii::info("Telegram notification triggered for order #{$order->id}: {$oldStatus} -> {$newStatus}", 'admin');
-    }
 }

@@ -244,6 +244,20 @@ class Order extends ActiveRecord
         ];
     }
 
+    /**
+     * CMP-462: без этого save() не оборачивает insert/update в транзакцию, а
+     * afterSave() пишет order_history отдельной командой уже ПОСЛЕ коммита
+     * UPDATE — если запись истории упадёт, статус заказа останется изменённым,
+     * а аудит денежной операции потеряется. Тот же принцип, что и в CMP-449
+     * (stock_status/decrement в одной транзакции).
+     */
+    public function transactions()
+    {
+        return [
+            self::SCENARIO_DEFAULT => self::OP_INSERT | self::OP_UPDATE,
+        ];
+    }
+
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
