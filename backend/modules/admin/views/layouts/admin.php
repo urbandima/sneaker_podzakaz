@@ -507,7 +507,7 @@ $controllerId = Yii::$app->controller->id;
                     }
                     ?>
         <div class="alert <?= $flashClass ?> alert-dismissible" style="margin:0 0 1rem">
-            <?= Html::encode($flashMessage) ?>
+                    <?= Html::encode($flashMessage) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
         </div>
                     <?php

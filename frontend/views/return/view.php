@@ -100,7 +100,7 @@ $this->params['breadcrumbs'][] = $this->title;
 </div>
 
 <?php if ($model->status === 'pending') :
-$this->registerJs("
+    $this->registerJs("
 function cancelReturnRequest(id) {
     if (!confirm('Отменить заявку на возврат?')) return;
 

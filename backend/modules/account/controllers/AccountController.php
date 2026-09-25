@@ -713,5 +713,4 @@ class AccountController extends Controller
             'favorites' => $favorites,
         ]);
     }
-
 }

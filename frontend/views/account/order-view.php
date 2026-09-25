@@ -235,7 +235,7 @@ AppAsset::register($this);
 </div>
 
 <?php if ($canRefreshTracking) :
-$this->registerJs("
+    $this->registerJs("
 function refreshOrderTracking(orderId) {
     var btn = document.getElementById('tracking-refresh-btn');
     var errorBox = document.getElementById('tracking-refresh-error');

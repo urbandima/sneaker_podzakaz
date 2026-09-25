@@ -36,7 +36,8 @@ class PluginController extends BaseAdminController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-        foreach ([
+        foreach (
+            [
             'toggle',
             'amocrm-save',
             'amocrm-test',
@@ -50,7 +51,8 @@ class PluginController extends BaseAdminController
             'lamoda-save-schedule',
             'save-proxy-phones',
             'save-status-mapping',
-        ] as $actionId) {
+            ] as $actionId
+        ) {
             $behaviors['verbs']['actions'][$actionId] = ['POST'];
         }
         return $behaviors;

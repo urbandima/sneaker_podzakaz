@@ -59,7 +59,9 @@ $this->params['headerActions'] = [
         <?php endif; ?>
 
         <?php foreach ($settings as $key => $value) : ?>
-            <?php if ($key === 'is_active') continue; // controlled by the activate/deactivate toggle on the index page ?>
+            <?php if ($key === 'is_active') {
+                continue;
+            } // controlled by the activate/deactivate toggle on the index page ?>
             <div class="admin-form-group">
                 <label class="admin-form-label"><?= Html::encode($key) ?></label>
                 <input type="text" class="admin-form-input"
