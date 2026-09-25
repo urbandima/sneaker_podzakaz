@@ -1,11 +1,16 @@
 <?php
 
 return [
-    'adminEmail' => 'admin@sneakerculture.by',
-    'senderEmail' => 'noreply@sneakerculture.by',
+    // CMP-464: были sneakerculture.by (CMP-285 — домен не боевой, вообще не тот сайт)
+    // и sneakerhead.by без дефиса (резолвится на другой IP, HTTPS зависает по
+    // timeout — не боевой). Реальный прод подтверждён живым HTTP-запросом
+    // (200 на главной, брендинг совпадает, тот же IP, что и у sneakerculture.by
+    // на общем хостинге) — sneaker-head.by, ЧЕРЕЗ ДЕФИС.
+    'adminEmail' => 'admin@sneaker-head.by',
+    'senderEmail' => 'noreply@sneaker-head.by',
     'senderName' => 'СНИКЕРХЭД',
-    'frontendUrl'     => env('FRONTEND_URL', 'https://sneakerhead.by'),
-    'frontendBaseUrl' => env('FRONTEND_URL', 'https://sneakerhead.by'),
+    'frontendUrl'     => env('FRONTEND_URL', 'https://sneaker-head.by'),
+    'frontendBaseUrl' => env('FRONTEND_URL', 'https://sneaker-head.by'),
 
     'socialAuth' => [
         'googleClientId' => env('GOOGLE_CLIENT_ID'),
@@ -42,7 +47,7 @@ return [
         'bic' => 'TESTBY2X',
         'account' => 'BY12TEST12345678901234567890',
         'phone' => '+375 29 123-45-67',
-        'email' => 'info@sneakerculture.by',
+        'email' => 'info@sneaker-head.by',
     ],
 
     // Настройки Poizon/Dewu API

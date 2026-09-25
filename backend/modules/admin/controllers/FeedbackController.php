@@ -46,10 +46,16 @@ class FeedbackController extends BaseAdminController
             return ['success' => false, 'message' => 'Сообщение не найдено'];
         }
 
-        // Send email if customer email is available
+        // Send email if customer email is available.
+        // CMP-464: setFrom() отсутствовал — Symfony Mailer требует заголовок From,
+        // без него send() всегда бросал исключение, и письмо ни разу не уходило,
+        // при этом ответ ниже безусловно возвращал success:true с текстом
+        // «Ответ отправлен» независимо от исхода отправки.
+        $emailSent = false;
         if ($fb->customer_email) {
             try {
-                Yii::$app->mailer->compose()
+                $emailSent = (bool) Yii::$app->mailer->compose()
+                    ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
                     ->setTo($fb->customer_email)
                     ->setSubject('Ответ на ваш отзыв')
                     ->setTextBody($replyText)
@@ -65,7 +71,11 @@ class FeedbackController extends BaseAdminController
         $fb->is_read     = 1;
         $fb->save(false);
 
-        return ['success' => true, 'message' => 'Ответ отправлен'];
+        if ($fb->customer_email && !$emailSent) {
+            return ['success' => true, 'message' => 'Ответ сохранён, но письмо клиенту не отправлено (ошибка почты)'];
+        }
+
+        return ['success' => true, 'message' => $fb->customer_email ? 'Ответ отправлен' : 'Ответ сохранён (у клиента не указан email)'];
     }
 
     public function actionDelete(int $id)

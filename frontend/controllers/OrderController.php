@@ -825,12 +825,23 @@ class OrderController extends Controller
                                 throw new \Exception('Ошибка сохранения истории');
                             }
 
-                            // Отправляем уведомление менеджеру
-                            if ($model->creator && $model->creator->email) {
+                            // Отправляем уведомление менеджеру. CMP-464: для заказов,
+                            // оформленных с сайта, created_by не заполняется
+                            // («created_by необязательно для заказов с сайта», см.
+                            // Order::rules()) — $model->creator всегда null, поэтому
+                            // это письмо ни разу не отправлялось по самому частому
+                            // сценарию (только заказы, созданные вручную в админке,
+                            // доходили до менеджера). Тот же fallback на adminEmail,
+                            // что уже используется для order-created-manager.
+                            $notifyEmail = ($model->creator && $model->creator->email)
+                                ? $model->creator->email
+                                : (Yii::$app->params['adminEmail'] ?? null);
+
+                            if ($notifyEmail) {
                                 try {
                                     $sent = Yii::$app->mailer->compose('payment-uploaded', ['order' => $model])
                                         ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
-                                        ->setTo($model->creator->email)
+                                        ->setTo($notifyEmail)
                                         ->setSubject('Загружено подтверждение оплаты для заказа №' . $model->order_number)
                                         ->send();
 

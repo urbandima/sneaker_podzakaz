@@ -88,6 +88,21 @@ class Cart extends ActiveRecord
     }
 
     /**
+     * Связь с покупателем (для авторизованной корзины).
+     *
+     * CMP-464: relation отсутствовала, а AbandonedCartService::getAbandonedCarts()
+     * делает Cart::find()->with('customer') — без неё запрос падал с исключением
+     * "relation ... is not defined", проглатываемым try/catch, и брошенные корзины
+     * никогда не находились (письмо-напоминание не отправлялось никому).
+     * FK cart.user_id -> customer.id закреплён миграцией CMP-435
+     * (m260923_120000_fix_cart_user_id_fk_to_customer).
+     */
+    public function getCustomer()
+    {
+        return $this->hasOne(Customer::class, ['id' => 'user_id']);
+    }
+
+    /**
      * Добавить товар в корзину
      */
     public static function add($productId, $quantity = 1, $size = null, $color = null)

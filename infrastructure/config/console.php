@@ -98,6 +98,13 @@ $config = [
             'scriptUrl' => 'http://localhost:8080',
             'enablePrettyUrl' => true,
             'showScriptName' => false,
+            // CMP-464: без hostInfo createAbsoluteUrl() в консоли/cron падает
+            // (console-запрос не умеет getHostInfo()) — любой будущий cron,
+            // который соберёт абсолютную ссылку для письма (например,
+            // AbandonedCartService, если её всё же вызовут по расписанию),
+            // тихо ронял бы отправку. Используем реальный прод-домен
+            // (см. params.php, подтверждён живым HTTP-запросом в CMP-464).
+            'hostInfo' => rtrim($params['frontendBaseUrl'] ?? $params['frontendUrl'] ?? 'https://sneaker-head.by', '/'),
         ],
     ],
     'controllerMap' => [

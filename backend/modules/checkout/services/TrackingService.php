@@ -453,15 +453,23 @@ class TrackingService extends Component
             return;
         }
 
-        // Отправляем email
-        Yii::$app->mailer->compose('tracking-update', [
-            'order' => $order,
-            'tracking' => $tracking,
-            'data' => $data,
-        ])
-        ->setTo($order->client_email)
-        ->setSubject('Обновление статуса доставки заказа #' . $order->order_number)
-        ->send();
+        // Отправляем email. CMP-464: шаблон tracking-update отсутствовал, а вызов
+        // не был обёрнут в try/catch — при вызове updateTracking() это уронило бы
+        // весь метод необработанным исключением. Шаблон создан, здесь же добавлены
+        // setFrom() (отсутствовал) и try/catch по образцу остальных точек отправки.
+        try {
+            Yii::$app->mailer->compose('tracking-update', [
+                'order' => $order,
+                'tracking' => $tracking,
+                'data' => $data,
+            ])
+            ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
+            ->setTo($order->client_email)
+            ->setSubject('Обновление статуса доставки заказа #' . $order->order_number)
+            ->send();
+        } catch (\Throwable $e) {
+            Yii::warning('Не удалось отправить письмо об обновлении статуса доставки: ' . $e->getMessage(), __METHOD__);
+        }
     }
 
     /**

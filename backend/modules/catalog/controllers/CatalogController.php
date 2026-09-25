@@ -1422,8 +1422,10 @@ class CatalogController extends Controller
 
             return ['success' => true, 'message' => 'Спасибо! Ваш вопрос отправлен.'];
         } catch (\Exception $e) {
+            // CMP-464: раньше здесь возвращался success:true даже при сорвавшейся
+            // отправке — клиент видел «вопрос отправлен», а письмо никуда не уходило.
             Yii::error('Submit question email error: ' . $e->getMessage(), __METHOD__);
-            return ['success' => true, 'message' => 'Вопрос получен, спасибо!'];
+            return ['success' => false, 'message' => 'Не удалось отправить вопрос. Пожалуйста, позвоните нам.'];
         }
     }
 
