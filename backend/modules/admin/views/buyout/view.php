@@ -328,7 +328,7 @@ function hideLinkOrderModal() { document.getElementById('link-order-modal').styl
 function doLinkOrder() {
     const val = document.getElementById('link-order-input').value.trim();
     if (!val) return;
-    fetch('/admin/procurement/buyout/link-order', {
+    fetch('/admin/buyout/link-order', {
         method: 'POST',
         headers: {'Content-Type':'application/json','X-CSRF-Token':yii.getCsrfToken()},
         body: JSON.stringify({buyout_id: <?= $buyout->id ?>, order_id: parseInt(val)||0, qty: 1})
@@ -339,7 +339,7 @@ function doLinkOrder() {
 }
 function unlinkOrder(buyoutId, orderId) {
     if (!confirm('Отвязать заказ #' + orderId + '?')) return;
-    fetch('/admin/procurement/buyout/unlink-order', {
+    fetch('/admin/buyout/unlink-order', {
         method: 'POST',
         headers: {'Content-Type':'application/json','X-CSRF-Token':yii.getCsrfToken()},
         body: JSON.stringify({buyout_id: buyoutId, order_id: orderId})

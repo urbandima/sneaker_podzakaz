@@ -245,22 +245,42 @@ class BuyoutController extends BaseAdminController
             return ['success' => false, 'message' => 'Не найдено'];
         }
 
+        // CMP-468: buyout_order_link.order_item_id is part of the composite PK
+        // (buyout_id, order_id, order_item_id), so MySQL forces it NOT NULL
+        // regardless of the migration's ->null() intent ("NULL = весь заказ" never
+        // actually worked). The old ['order_item_id' => null] duplicate check could
+        // therefore never match a real row, and inserting order_item_id = null threw
+        // an uncaught DB exception — Yii's default error handler turned that into a
+        // raw 500 on every call, so "link order" was completely broken from the UI.
+        // Same class of bug as OrderController::actionSaveBuyout (CMP-456): link the
+        // order's first item to represent "whole order", matching the single
+        // order-level row the view already renders.
+        $firstItem = $order->getOrderItems()->one();
+        if (!$firstItem) {
+            return ['success' => false, 'message' => 'У заказа нет позиций для привязки'];
+        }
+
         $existing = BuyoutOrderLink::find()
-            ->where(['buyout_id' => $buyoutId, 'order_id' => $orderId, 'order_item_id' => null])
+            ->where(['buyout_id' => $buyoutId, 'order_id' => $orderId])
             ->one();
 
         if ($existing) {
             return ['success' => false, 'message' => 'Заказ уже привязан'];
         }
 
-        $link             = new BuyoutOrderLink();
-        $link->buyout_id  = $buyoutId;
-        $link->order_id   = $orderId;
-        $link->order_item_id = null;
-        $link->qty        = $qty;
+        $link                 = new BuyoutOrderLink();
+        $link->buyout_id      = $buyoutId;
+        $link->order_id       = $orderId;
+        $link->order_item_id  = $firstItem->id;
+        $link->qty            = $qty;
 
-        if (!$link->save()) {
-            return ['success' => false, 'errors' => $link->errors];
+        try {
+            if (!$link->save()) {
+                return ['success' => false, 'errors' => $link->errors];
+            }
+        } catch (\Throwable $e) {
+            Yii::error('Buyout link-order failed for buyout #' . $buyoutId . ', order #' . $orderId . ': ' . $e->getMessage(), 'buyout');
+            return ['success' => false, 'message' => 'Не удалось привязать заказ'];
         }
 
         // History
