@@ -989,16 +989,30 @@ class ProductController extends BaseAdminController
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $prices  = Yii::$app->request->post('prices', []);
+        // CMP-463: the real caller (admin-products.js applyPrices()) sends
+        // `Content-Type: application/json` with a raw JSON body. This app has no
+        // 'application/json' entry in Request::$parsers, so plain
+        // Yii::$app->request->post('prices') always resolved to the [] default —
+        // the action was a complete no-op in production (responded
+        // success:true, updated:N>0 while touching zero rows). Decode the raw
+        // body first, same pattern already used by the sibling AJAX actions below
+        // (actionUpdatePrice, actionSaveField, etc.).
+        $data   = json_decode(Yii::$app->request->getRawBody(), true) ?: Yii::$app->request->post();
+        $prices = $data['prices'] ?? [];
         $updated = 0;
 
         foreach ($prices as $item) {
             if (!empty($item['id']) && isset($item['price'])) {
-                Product::updateAll(
+                // CMP-463: count rows actually changed by updateAll() (it returns
+                // the affected row count), not one increment per array item —
+                // the old code incremented $updated even when the WHERE clause
+                // (is_active = true) matched zero rows, so an inactive product's
+                // id in the payload was reported as "updated" while its price in
+                // the DB never changed.
+                $updated += Product::updateAll(
                     ['price' => (float)$item['price']],
                     ['id' => (int)$item['id'], 'is_active' => true]
                 );
-                $updated++;
             }
         }
 
