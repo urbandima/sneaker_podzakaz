@@ -41,12 +41,22 @@ class ExchangeRateController extends BaseAdminController
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $rate = $this->getCurrentRate();
+        $updatedTs = (int) Yii::$app->settings->get('currency', 'cny_updated', 0);
 
         return [
             'success' => true,
             'rate' => $rate,
             'currency' => 'CNY',
             'date' => date('Y-m-d H:i:s'),
+            // CMP-470-A: both live consumers of this endpoint
+            // (backend/modules/admin/views/plugin/currency.php and the dead
+            // duplicate block in frontend/web/js/admin-settings.js) read
+            // `data.updated_at` to render "Обновлено: ...", but this action
+            // never returned that key — only `date` (=now, not the actual
+            // last-update time). The "Обновлено" label always showed the
+            // literal fallback "—" on every page load, even right after a
+            // real update, until the button was clicked in the same session.
+            'updated_at' => $updatedTs ? date('d.m.Y H:i', $updatedTs) : null,
         ];
     }
 

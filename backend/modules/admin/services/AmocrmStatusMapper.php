@@ -239,11 +239,26 @@ class AmocrmStatusMapper
             ];
         }
 
+        // CMP-470-B: this used to `delete('amocrm_status_mapping')` with no
+        // condition — a full-table wipe before reinserting only the submitted
+        // rows. The admin UI's 'statuses' tab (PluginController::actionAmocrm,
+        // tab=statuses) only ever knows about the 'order'/'payment'/'logistics'/
+        // 'delivery' tracks (see $trackLabels in views/plugin/amocrm.php) and
+        // submits all of its visible rows in one POST — so a completely normal,
+        // legitimate "Сохранить" click there silently destroyed every row for
+        // any OTHER track, including two real pre-existing 'dm' rows (Instagram
+        // DM-bot → AmoCRM lead mapping) that this page has no UI for at all.
+        // Confirmed live: submitting a single valid 'order' row deleted both
+        // 'dm' rows with the response still reporting success. Scoping the
+        // DELETE to only the tracks present in this submission fixes it while
+        // preserving the original "replace this track's rows" semantics.
+        $affectedTracks = array_values(array_unique(array_column($clean, 'our_track')));
+
         $db = Yii::$app->db;
         // DELETE (not TRUNCATE) so the wipe + inserts are atomic — TRUNCATE implicitly commits in MySQL.
         $tx = $db->beginTransaction();
         try {
-            $db->createCommand()->delete('amocrm_status_mapping')->execute();
+            $db->createCommand()->delete('amocrm_status_mapping', ['our_track' => $affectedTracks])->execute();
             foreach ($clean as $row) {
                 $db->createCommand()->insert('amocrm_status_mapping', $row)->execute();
             }

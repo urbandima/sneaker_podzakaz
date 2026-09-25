@@ -85,12 +85,27 @@ class AmoCrmController extends BaseAdminController
      */
     public function actionUpdateStatus($orderId)
     {
+        // CMP-470-B: this action returned a bare PHP array with the response
+        // format never set to JSON — Yii's default HTML formatter can't render an
+        // array, so EVERY call (regardless of AmoCRM credentials) 500'd with a
+        // generic "Ошибка сервера" page instead of ever reaching the caller with
+        // a usable response (confirmed live). Fixed below, matching
+        // actionCreateDeal's pattern in this same file.
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
         $order = Order::findOne($orderId);
         if (!$order || !$order->amocrm_deal_id) {
             return ['success' => false, 'message' => 'Сделка не найдена'];
         }
 
         $accessToken = Yii::$app->settings->get('amocrm', 'access_token', '');
+        if (empty($accessToken)) {
+            // CMP-470-B: previously absent — with no token configured, execution
+            // fell straight through to curl_init()/curl_exec() against
+            // "{$this->apiUrl}/leads" (an invalid host when no subdomain is
+            // configured) instead of failing fast like actionCreateDeal does.
+            return ['success' => false, 'message' => 'AmoCRM не настроена'];
+        }
         $pipelineId = Yii::$app->settings->get('amocrm', 'pipeline_id', '');
 
         $statusMap = [
@@ -114,19 +129,38 @@ class AmoCrmController extends BaseAdminController
             'pipeline_id' => (int)$pipelineId,
         ];
 
-        $ch = curl_init($this->apiUrl . '/leads');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([$data]));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $accessToken,
-            'Content-Type: application/json',
-        ]);
+        try {
+            $ch = curl_init($this->apiUrl . '/leads');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([$data]));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $accessToken,
+                'Content-Type: application/json',
+            ]);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
 
-        $response = curl_exec($ch);
-        curl_close($ch);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlErr  = curl_error($ch);
+            curl_close($ch);
 
-        return ['success' => true, 'response' => json_decode($response, true)];
+            // CMP-470-B: previously curl_exec()===false (network error/timeout)
+            // and any 4xx/5xx from AmoCRM were both reported back as
+            // ['success' => true, 'response' => null] — a silent "nothing
+            // happened" success. Now both are surfaced as failures.
+            if ($response === false) {
+                return ['success' => false, 'message' => 'Сетевая ошибка AmoCRM: ' . $curlErr];
+            }
+            if ($httpCode >= 400) {
+                return ['success' => false, 'message' => "AmoCRM {$httpCode}: " . mb_substr($response, 0, 300)];
+            }
+
+            return ['success' => true, 'response' => json_decode($response, true)];
+        } catch (\Throwable $e) {
+            Yii::error('AmoCRM updateStatus error: ' . $e->getMessage(), 'admin');
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
     }
 
     /**

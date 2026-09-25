@@ -142,7 +142,7 @@ class SearchController extends BaseAdminController
                         'type' => 'user',
                         'title' => $userModel->username,
                         'description' => $userModel->email,
-                        'url' => Url::to(['/admin/user/edit', 'id' => $userModel->id]),
+                        'url' => ['/admin/user/edit', 'id' => $userModel->id],
                         'icon' => 'person',
                     ];
                 }

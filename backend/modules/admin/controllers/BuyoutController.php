@@ -11,6 +11,7 @@ use app\backend\modules\procurement\models\Buyout;
 use app\backend\modules\procurement\models\BuyoutOrderLink;
 use app\backend\modules\procurement\models\BuyoutHistory;
 use app\backend\modules\procurement\models\PurchaseOrder;
+use app\backend\modules\procurement\models\Supplier;
 use app\backend\modules\procurement\services\BuyoutUrlParserService;
 use app\backend\modules\procurement\services\BuyoutStatusSyncService;
 use app\backend\modules\checkout\models\Order;
@@ -152,7 +153,11 @@ class BuyoutController extends BaseAdminController
                 $history->save(false);
 
                 $this->flashSuccess('Выкуп создан.');
-                return $this->redirect(['/admin/procurement/buyout/' . $buyout->id]);
+                // CMP-470-A: '/admin/procurement/buyout/<id>' has no matching URL rule
+                // (only the real controller route '/admin/buyout/<id>' is registered,
+                // see infrastructure/config/web.php) — every successful create redirected
+                // straight into a 404, hiding the fact that the buyout actually saved.
+                return $this->redirect(['/admin/buyout/' . $buyout->id]);
             }
 
             $this->flashError('Ошибка: ' . implode(', ', $buyout->getFirstErrors()));
@@ -178,7 +183,8 @@ class BuyoutController extends BaseAdminController
 
             if ($buyout->save()) {
                 $this->flashSuccess('Выкуп сохранён.');
-                return $this->redirect(['/admin/procurement/buyout/' . $buyout->id]);
+                // CMP-470-A: same dead-redirect bug as actionCreate above.
+                return $this->redirect(['/admin/buyout/' . $buyout->id]);
             }
             $this->flashError('Ошибка: ' . implode(', ', $buyout->getFirstErrors()));
         }
@@ -197,7 +203,8 @@ class BuyoutController extends BaseAdminController
         $buyout = $this->findBuyout($id);
         if (!in_array($buyout->status, [Buyout::STATUS_DRAFT, Buyout::STATUS_CANCELLED], true)) {
             $this->flashError('Удалить можно только черновик или отменённый выкуп.');
-            return $this->redirect(['/admin/procurement/buyout/' . $id]);
+            // CMP-470-A: same dead-redirect bug as actionCreate/actionUpdate above.
+            return $this->redirect(['/admin/buyout/' . $id]);
         }
         BuyoutOrderLink::deleteAll(['buyout_id' => $id]);
         BuyoutHistory::deleteAll(['buyout_id'   => $id]);
@@ -331,8 +338,15 @@ class BuyoutController extends BaseAdminController
             $po->notes           = 'Приёмка выкупа #' . $buyout->id . ': ' . $buyout->getProductName();
             $po->received_at     = date('Y-m-d H:i:s');
             $po->created_by      = Yii::$app->user->id;
-            // Use dummy supplier_id=0 if no supplier — find or create placeholder
-            $po->supplier_id     = 1; // will be created if needed; admin can edit
+            // CMP-470-A: this used to hardcode supplier_id=1 with a comment claiming
+            // "will be created if needed" — but nothing ever created it, and
+            // purchase_order.supplier_id has no FK constraint in the schema, so a
+            // missing/wrong id=1 silently produced a purchase_order row pointing at a
+            // supplier that doesn't exist (confirmed live: this DB's `supplier` table
+            // has zero rows, id=1 included). Every buyout-derived receiving then showed
+            // a blank/null supplier in the Procurement UI. Fixed to actually find-or-
+            // create a real placeholder supplier row.
+            $po->supplier_id     = $this->getBuyoutPlaceholderSupplierId();
             $po->total_amount_byn = (float)$buyout->total_cost_byn;
             $po->save(false);
 
@@ -477,5 +491,21 @@ class BuyoutController extends BaseAdminController
             throw new NotFoundHttpException('Выкуп не найден.');
         }
         return $buyout;
+    }
+
+    /**
+     * CMP-470-A: find-or-create the placeholder supplier used for
+     * buyout-derived receivings (see actionAccept). A single well-known
+     * name is reused so repeated accepts don't create duplicate rows.
+     */
+    private function getBuyoutPlaceholderSupplierId(): int
+    {
+        $name = 'Выкуп (авто)';
+        $supplier = Supplier::find()->where(['name' => $name])->one();
+        if (!$supplier) {
+            $supplier = new Supplier(['name' => $name, 'is_active' => 1, 'notes' => 'Автоматически создан для приёмок, оформленных через "Принять выкуп".']);
+            $supplier->save(false);
+        }
+        return (int) $supplier->id;
     }
 }

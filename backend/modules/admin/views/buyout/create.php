@@ -9,7 +9,7 @@ use yii\helpers\Html;
 
 $isNew = $buyout->isNewRecord;
 $this->title = $isNew ? 'Новый выкуп' : 'Редактирование выкупа #' . $buyout->id;
-$action = $isNew ? '/admin/procurement/buyout/create' : '/admin/procurement/buyout/' . $buyout->id . '/edit';
+$action = $isNew ? '/admin/buyout/create' : '/admin/buyout/' . $buyout->id . '/edit';
 ?>
 <style>
 .buyout-form-grid { display:grid; grid-template-columns:1fr 340px; gap:20px; align-items:start; }
@@ -258,7 +258,7 @@ function parseUrl() {
     const status = document.getElementById('parse-status');
     status.textContent = 'Парсим...';
 
-    fetch('/admin/procurement/buyout/parse-url', {
+    fetch('/admin/buyout/parse-url', {
         method: 'POST',
         headers: {'Content-Type':'application/x-www-form-urlencoded','X-CSRF-Token':yii.getCsrfToken()},
         body: 'url=' + encodeURIComponent(url)

@@ -41,6 +41,20 @@ use app\backend\shared\services\RevenueService;
 
 class DashboardController extends BaseAdminController
 {
+    // CMP-470-Д: actionLogout destroys the session on a plain GET with no
+    // VerbFilter/CSRF guard — any authenticated user (any role) could be logged
+    // out by a third party embedding this URL (e.g. <img src="...">). The sibling
+    // /admin/logout (AdminController::actionLogout) already restricts to POST;
+    // this duplicate route was missed. Nothing in the current UI links here
+    // (only /admin/logout is used), so this hardens an otherwise-unused but
+    // still-live endpoint rather than fixing an active data-loss bug.
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['verbs']['actions']['logout'] = ['POST'];
+        return $behaviors;
+    }
+
     /**
      * Главная страница админ-панели с виджетами и статистикой
      */

@@ -141,12 +141,38 @@ class SidebarMenuController extends BaseAdminController
 
     /**
      * Сортировка пунктов (AJAX)
+     *
+     * CMP-470: сигнатура была `: \yii\web\Response`, а метод всегда
+     * `return ['success' => true];` — простой массив. Это не JS/парсинг-баг,
+     * а несовпадение PHP-типов на уровне языка: строгий return type у самого
+     * PHP (не у Yii) фатально падает `TypeError` на КАЖДОМ вызове, независимо
+     * от содержимого `$items` — экшен ни разу не мог успешно завершиться, даже
+     * если бы парсинг `items` ниже был в порядке. Тип убран, как и у соседних
+     * JSON-экшенов в этом же контроллере/проекте (actionToggle и т.п. без
+     * return type); `Yii::$app->response->format = FORMAT_JSON` сам оборачивает
+     * возвращаемый массив в JSON-ответ.
      */
-    public function actionSort(): \yii\web\Response
+    public function actionSort()
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
+        /**
+         * CMP-470: реальный вызывающий код — drag&drop обработчик в
+         * admin-settings.js (блок "sidebar-menu/index.php") — шлёт
+         * `fetch(sortUrl, {headers:{'Content-Type':'application/x-www-form-urlencoded'},
+         * body: 'items=' + JSON.stringify(items)})`, т.е. `items` приходит в
+         * $_POST как ОДНА JSON-строка (`["3","1","2"]`), а не как PHP-массив
+         * (тот получился бы только при `items[]=3&items[]=1&...`). Старый код
+         * делал `foreach ($this->request->post('items', []), ...)` — на PHP 8
+         * `foreach` по строке не варнинг, а фатальная ErrorException
+         * ("foreach() argument must be of type array|object, string given"):
+         * живым прогоном подтверждено — реальный drag&drop в браузере ронял
+         * весь запрос 500-й, ни один sort_order не менялся.
+         */
         $items = $this->request->post('items', []);
+        if (is_string($items)) {
+            $items = json_decode($items, true) ?: [];
+        }
 
         foreach ($items as $index => $id) {
             $model = SidebarMenuItem::findOne($id);

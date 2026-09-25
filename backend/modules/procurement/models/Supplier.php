@@ -170,11 +170,17 @@ class Supplier extends ActiveRecord
 
     public function getPurchaseStats(): array
     {
+        // CMP-470-A: purchase_order has no `total_byn` column — the real column
+        // is `total_amount_byn` (see PurchaseOrder::$total_amount_byn / migration).
+        // This threw an uncaught yii\db\Exception on every single call, which
+        // means ProcurementController::actionSupplier() — the supplier detail
+        // page reached from "Поставщики" → click a row — 500'd unconditionally
+        // for every supplier, live confirmed via HTTP.
         $rows = PurchaseOrder::find()
             ->select([
                 'COUNT(*) AS cnt',
-                'SUM(total_byn) AS total',
-                'AVG(total_byn) AS avg',
+                'SUM(total_amount_byn) AS total',
+                'AVG(total_amount_byn) AS avg',
                 'MAX(ordered_at) AS last_date',
             ])
             ->where(['supplier_id' => $this->id])

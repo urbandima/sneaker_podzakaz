@@ -125,7 +125,19 @@ class AutomationController extends BaseAdminController
                 'value'    => $condVals[$i] ?? null,
             ];
         }
-        $model->conditions = json_encode($conditions, JSON_UNESCAPED_UNICODE);
+        // CMP-470: `conditions`/`actions` — нативные MySQL JSON-колонки. Yii2
+        // (yii\db\mysql\ColumnSchema::dbTypecast) сам оборачивает ЛЮБОЕ
+        // присваиваемое значение в JsonExpression и json_encode'ит его перед
+        // записью. Раньше сюда присваивалась уже готовая json_encode()-строка —
+        // в итоге колонка получала ДВОЙНОЕ кодирование (JSON_TYPE()='STRING'
+        // вместо 'ARRAY', сохранённое значение — не массив, а JSON-строка,
+        // содержащая экранированный JSON). Триггеры продолжали работать only
+        // потому, что AutomationEngine::checkConditions()/executeActions() и
+        // AutomationTrigger::getConditionsArray()/getActionsArray() на всякий
+        // случай сами вызывают json_decode() при чтении — по факту это
+        // компенсировало один уровень двойного кодирования. Присваиваем массив
+        // напрямую и даём typecast'у колонки закодировать его ровно один раз.
+        $model->conditions = $conditions;
 
         // Build actions JSON from form rows
         $actTypes  = $post['act_type']   ?? [];
@@ -139,7 +151,7 @@ class AutomationController extends BaseAdminController
             $params = json_decode($raw, true) ?? [];
             $actions[] = array_merge(['type' => $type], $params);
         }
-        $model->actions = json_encode($actions, JSON_UNESCAPED_UNICODE);
+        $model->actions = $actions;
 
         $isNew = $model->isNewRecord;
         if ($model->save()) {

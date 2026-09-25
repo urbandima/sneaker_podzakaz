@@ -15,7 +15,48 @@ use app\backend\modules\checkout\models\Order;
 
 class TelegramBotController extends BaseAdminController
 {
-    public $enableCsrfValidation = false;
+    /**
+     * CMP-470-B: two stacked fixes here.
+     *
+     * 1. actionWebhook is Telegram's inbound receiver — its URL is the one handed
+     *    to Telegram via actionSetWebhook, so a real call never carries an admin
+     *    session cookie. Without the access-rule carve-out below, the inherited
+     *    BaseAdminController AccessControl rule (roles=['@']) matched it like
+     *    every other action here and 302-redirected every genuine Telegram
+     *    update to /admin/login before it ever reached
+     *    handleMessage()/handleCallback() (confirmed live: guest POST → 302, not
+     *    200) — the bot's /start, /status, /support commands could never have
+     *    worked.
+     * 2. `public $enableCsrfValidation = false;` used to sit here as a
+     *    class-wide property, disabling CSRF for every action in this
+     *    controller — not just the inbound webhook that genuinely needs it off.
+     *    That left actionSetWebhook (registers a webhook URL with Telegram) and
+     *    actionNotifyStatus (sends a message to a customer's Telegram) with
+     *    neither CSRF protection nor a POST-only VerbFilter — the exact
+     *    GET-triggerable-external-side-effect pattern CMP-418 already flagged
+     *    and fixed for MoyskladController/AmoCrmController. Moved the CSRF
+     *    exemption to beforeAction(), scoped to 'webhook' only, and added POST
+     *    verb restrictions below for the two mutating actions.
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['access']['rules'] = array_merge(
+            [['allow' => true, 'actions' => ['webhook'], 'roles' => ['?', '@']]],
+            $behaviors['access']['rules']
+        );
+        $behaviors['verbs']['actions']['set-webhook']   = ['POST'];
+        $behaviors['verbs']['actions']['notify-status'] = ['POST'];
+        return $behaviors;
+    }
+
+    public function beforeAction($action)
+    {
+        if ($action->id === 'webhook') {
+            $this->enableCsrfValidation = false;
+        }
+        return parent::beforeAction($action);
+    }
 
     /**
      * Webhook для входящих сообщений от Telegram

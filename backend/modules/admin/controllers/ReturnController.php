@@ -102,6 +102,17 @@ class ReturnController extends BaseAdminController
         if ($model->load(Yii::$app->request->post())) {
             $model->return_number = 'R' . date('Ymd') . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
             $model->status = ReturnRequest::STATUS_PENDING;
+            // CMP-470-A: return_request.items_json is NOT NULL with no DB default,
+            // but this admin form (unlike the customer-facing
+            // ReturnRequest::create() factory, which always fills it from the
+            // selected order items) has no item-picker at all and never set this
+            // column — every single submission threw an uncaught
+            // yii\db\Exception ("Field 'items_json' doesn't have a default
+            // value") and 500'd, confirmed live. Default to an empty list since
+            // this flow is a whole-order return with no per-item breakdown.
+            if ($model->items_json === null || $model->items_json === '') {
+                $model->items_json = json_encode([], JSON_UNESCAPED_UNICODE);
+            }
             if ($model->save()) {
                 Yii::$app->session->setFlash('success', 'Заявка на возврат создана: ' . $model->return_number);
                 return $this->redirect(['view', 'id' => $model->id]);

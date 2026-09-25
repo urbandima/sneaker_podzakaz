@@ -81,7 +81,7 @@ $this->title = 'Выкупы товаров';
     <input type="date" name="date_to"   value="<?= Html::encode($filterTo ?? '') ?>"   placeholder="До">
     <button type="submit" class="compact-filter-btn compact-filter-btn--apply">Применить</button>
     <a href="/admin/procurement/buyouts" class="compact-filter-btn">Сбросить</a>
-    <a href="/admin/procurement/buyout/create" class="compact-filter-btn compact-filter-btn--apply" style="margin-left:auto">
+    <a href="/admin/buyout/create" class="compact-filter-btn compact-filter-btn--apply" style="margin-left:auto">
         <i class="bi bi-plus-lg"></i> Новый выкуп
     </a>
 </div>
@@ -125,12 +125,12 @@ $this->title = 'Выкупы товаров';
         <?php $snap = is_array($b->product_snapshot) ? $b->product_snapshot : (array)json_decode((string)$b->product_snapshot, true); ?>
 <tr data-id="<?= $b->id ?>">
     <td><input type="checkbox" class="buyout-chk" value="<?= $b->id ?>" onchange="onCheckChange()"></td>
-    <td><a href="/admin/procurement/buyout/<?= $b->id ?>" style="font-weight:700;color:var(--admin-accent,#2563eb)"><?= $b->id ?></a></td>
+    <td><a href="/admin/buyout/<?= $b->id ?>" style="font-weight:700;color:var(--admin-accent,#2563eb)"><?= $b->id ?></a></td>
     <td>
         <?php if (!empty($snap['image'])) : ?>
         <img src="<?= Html::encode($snap['image']) ?>" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;margin-right:6px;vertical-align:middle">
         <?php endif; ?>
-        <a href="/admin/procurement/buyout/<?= $b->id ?>" style="font-weight:600;color:var(--admin-text-primary,#111);text-decoration:none">
+        <a href="/admin/buyout/<?= $b->id ?>" style="font-weight:600;color:var(--admin-text-primary,#111);text-decoration:none">
             <?= Html::encode($b->getProductName()) ?>
         </a>
     </td>
@@ -148,7 +148,7 @@ $this->title = 'Выкупы товаров';
     <td style="color:#6b7280;font-size:0.75rem"><?= Html::encode($b->buyer_user_id ?? '—') ?></td>
     <td style="font-size:0.75rem"><?= count($b->orderLinks) ?></td>
     <td>
-        <a href="/admin/procurement/buyout/<?= $b->id ?>" class="admin-btn admin-btn-sm admin-btn-secondary" title="Открыть">
+        <a href="/admin/buyout/<?= $b->id ?>" class="admin-btn admin-btn-sm admin-btn-secondary" title="Открыть">
             <i class="bi bi-eye"></i>
         </a>
     </td>
@@ -176,7 +176,7 @@ function bulkChangeStatus() {
     if (!ids.length) return;
     if (!confirm('Сменить статус у ' + ids.length + ' выкупов?')) return;
 
-    fetch('/admin/procurement/buyout/bulk-status', {
+    fetch('/admin/buyout/bulk-status', {
         method: 'POST',
         headers: {'Content-Type':'application/json','X-CSRF-Token':yii.getCsrfToken()},
         body: JSON.stringify({ids, status})

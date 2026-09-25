@@ -98,8 +98,14 @@ class TrackingController extends BaseAdminController
      */
     public function actionPublic($token)
     {
+        // CMP-470-Д: column was 'public_token' — that column doesn't exist in `order`
+        // (schema only has `token`, a crypto-random string set by
+        // frontend\controllers\OrderController::actionCreate via
+        // Yii::$app->security->generateRandomString(32)). Every call to this action
+        // threw a SQL "Unknown column" error. Fixed to match the real, already-secure
+        // token column instead of inventing a new one.
         $order = Order::find()
-            ->where(['public_token' => $token])
+            ->where(['token' => $token])
             ->one();
 
         if (!$order) {
@@ -108,7 +114,12 @@ class TrackingController extends BaseAdminController
 
         $this->layout = '@frontend/views/layouts/main';
 
-        return $this->render('@frontend/views/order/tracker', [
+        // CMP-470-Д: view was '@frontend/views/order/tracker', which doesn't exist
+        // anywhere in the repo (ViewNotFoundException on every call). The real,
+        // already-working customer tracking view is 'track.php', used by the
+        // equivalent frontend\controllers\OrderController::actionTrack($token) —
+        // reused it here instead of inventing a new template.
+        return $this->render('@frontend/views/order/track', [
             'order' => $order,
         ]);
     }

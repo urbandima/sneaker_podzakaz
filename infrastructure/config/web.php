@@ -634,7 +634,12 @@ $config = [
                 'admin/buyout/parse-url'                => 'admin/buyout/parse-url',
                 'admin/buyout/bulk-status'              => 'admin/buyout/bulk-status',
                 'admin/buyout/<id:\d+>'                 => 'admin/buyout/view',
-                'admin/buyout/<id:\d+>/edit'            => 'admin/buyout/edit',
+                // CMP-470-A: target action must be 'update' — BuyoutController has no
+                // actionEdit(), only actionUpdate(); this rule always resolved to a
+                // nonexistent action (404 "Страница не найдена"), so the "Редактировать"
+                // link on every buyout was dead — editing an existing buyout was
+                // impossible via the UI.
+                'admin/buyout/<id:\d+>/edit'            => 'admin/buyout/update',
                 'admin/buyout/<id:\d+>/accept'          => 'admin/buyout/accept',
                 'admin/buyout/<id:\d+>/cancel'          => 'admin/buyout/cancel',
                 'admin/buyout/<id:\d+>/link-order'      => 'admin/buyout/link-order',

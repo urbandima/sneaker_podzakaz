@@ -44,7 +44,7 @@ $allowed = $buyout->getAllowedTransitions();
             <i class="bi bi-check-circle"></i> Принять (создать приёмку)
         </button>
         <?php endif; ?>
-        <a href="/admin/procurement/buyout/<?= $buyout->id ?>/edit" class="admin-btn admin-btn-sm admin-btn-secondary">
+        <a href="/admin/buyout/<?= $buyout->id ?>/edit" class="admin-btn admin-btn-sm admin-btn-secondary">
             <i class="bi bi-pencil"></i> Редактировать
         </a>
     </div>
@@ -304,7 +304,7 @@ $allowed = $buyout->getAllowedTransitions();
 <script>
 function changeStatus(status) {
     if (!confirm('Сменить статус?')) return;
-    fetch('/admin/procurement/buyout/update-status', {
+    fetch('/admin/buyout/update-status', {
         method: 'POST',
         headers: {'Content-Type':'application/json','X-CSRF-Token':yii.getCsrfToken()},
         body: JSON.stringify({id: <?= $buyout->id ?>, status})
@@ -315,7 +315,7 @@ function changeStatus(status) {
 }
 function acceptBuyout() {
     if (!confirm('Принять выкуп и создать приёмку?')) return;
-    fetch('/admin/procurement/buyout/<?= $buyout->id ?>/accept', {
+    fetch('/admin/buyout/<?= $buyout->id ?>/accept', {
         method: 'POST',
         headers: {'X-CSRF-Token':yii.getCsrfToken()}
     }).then(r=>r.json()).then(d=>{

@@ -241,8 +241,22 @@ class ReceivingController extends BaseAdminController
 
         $receiving = $item->receiving;
         $receiving->redistributeExpenses();
+        $item->refresh();
 
-        return ['success' => true, 'totals' => $this->getTotals($receiving)];
+        // CMP-470-A: the caller (rcvUpdateItem() in receiving/view.php) reads
+        // `r.item.allocated_expenses_byn` / `r.item.final_cost_byn` to refresh the
+        // per-row "Расходы"/"Итого" cells in place — this response never included
+        // an `item` key, so those two cells silently kept showing the pre-edit
+        // values (confirmed live: DB updates correctly via redistributeExpenses(),
+        // only the on-screen row was stale) until the admin reloaded the page.
+        return [
+            'success' => true,
+            'totals'  => $this->getTotals($receiving),
+            'item'    => [
+                'allocated_expenses_byn' => (float)$item->allocated_expenses_byn,
+                'final_cost_byn'         => (float)$item->final_cost_byn,
+            ],
+        ];
     }
 
     public function actionRemoveItem()
@@ -346,7 +360,17 @@ class ReceivingController extends BaseAdminController
             return ['success' => false, 'message' => 'Недопустимый тип файла'];
         }
 
-        $dir = Yii::getAlias('@app') . '/../frontend/web/uploads/receiving/' . $receivingId . '/';
+        // CMP-470-A: `@app` in this app resolves to the repo root itself
+        // (infrastructure/config/web.php sets `basePath => dirname(__DIR__, 2)`),
+        // NOT to `frontend/`. The old `'@app' . '/../frontend/web/...'` therefore
+        // climbed one directory ABOVE the repo and wrote into a sibling
+        // `frontend/web/uploads/receiving/` that this app never serves (confirmed
+        // live: uploaded files landed outside the real, git-tracked
+        // frontend/web/uploads/ directory, so every "document" link the admin UI
+        // returned was a dead 404 even though the DB row and API response both
+        // said success). `@webroot` is the correct, already-used-elsewhere alias
+        // for frontend/web (see BrandController/CategoryController/OrderController).
+        $dir = Yii::getAlias('@webroot') . '/uploads/receiving/' . $receivingId . '/';
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
@@ -389,7 +413,8 @@ class ReceivingController extends BaseAdminController
             return ['success' => false];
         }
 
-        $fullPath = Yii::getAlias('@app') . '/../frontend/web/' . $doc->file_path;
+        // CMP-470-A: same wrong-directory bug as actionUploadDocument above.
+        $fullPath = Yii::getAlias('@webroot') . '/' . $doc->file_path;
         if (file_exists($fullPath)) {
             unlink($fullPath);
         }

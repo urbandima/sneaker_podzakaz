@@ -34,7 +34,17 @@ class ReceivingService
         $h->receiving_id = $receiving->id;
         $h->from_status  = null;
         $h->to_status    = Receiving::STATUS_ARRIVED;
-        $h->comment      = "Создана автоматически из выкупа #{$buyout->number}";
+        // CMP-470-A: Buyout has no `number` attribute/column at all (its schema
+        // has id/source/source_url/external_id/... — see Buyout migration).
+        // Accessing $buyout->number threw yii\base\UnknownPropertyException
+        // *after* $receiving->save() above had already committed a row — so a
+        // real "phantom" Receiving (status=arrived, zero items, no history
+        // entry) was left in the DB on every call, while the controller's
+        // catch-all reported {"success":false} back to the caller, hiding the
+        // fact that a broken row had just been created. Confirmed live via
+        // direct call to /admin/receiving/from-buyout/<id> (route has no UI
+        // caller today, but the bug is real and reachable via direct API).
+        $h->comment      = "Создана автоматически из выкупа #{$buyout->id} ({$buyout->getProductName()})";
         $h->changed_by   = Yii::$app->user->id ?? null;
         $h->changed_at   = time();
         $h->save(false);

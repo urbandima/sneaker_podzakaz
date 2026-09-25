@@ -385,8 +385,20 @@ $controllerId = Yii::$app->controller->id;
                     <button class="admin-topbar-icon-btn admin-notif-btn" id="notif-btn" title="Уведомления" onclick="toggleNotifications()">
                         <i class="bi bi-bell-fill"></i>
                         <?php
+                        /**
+                         * CMP-470: фильтровало по status='created' — такого статуса
+                         * ни один заказ никогда не получает (Order::STATUS_NEW='new'
+                         * присваивается в OrderService::create(), см. Order.php:275
+                         * и OrderService.php:62; 'created' существует только как
+                         * неиспользуемая строка в справочнике order_status). Колокольчик
+                         * в шапке всегда показывал 0 новых заказов, даже когда реально
+                         * необработанные заказы были — то же семейство бага, что и
+                         * NotificationController::actionIndex (этот экшен считает
+                         * status='new' правильно, но ничего в JS его не опрашивает —
+                         * см. отчёт CMP-470-G, «Найдено, не исправлено»).
+                         */
                         $newOrdersCount = \app\backend\modules\checkout\models\Order::find()
-                            ->where(['status' => 'created'])
+                            ->where(['status' => 'new'])
                             ->andWhere(['>', 'created_at', time() - 86400])
                             ->count();
                         ?>
@@ -402,7 +414,7 @@ $controllerId = Yii::$app->controller->id;
                         <div class="admin-notif-list">
                             <?php
                             $newOrders = \app\backend\modules\checkout\models\Order::find()
-                                ->where(['status' => 'created'])
+                                ->where(['status' => 'new'])
                                 ->orderBy(['created_at' => SORT_DESC])
                                 ->limit(5)
                                 ->all();
@@ -465,6 +477,44 @@ $controllerId = Yii::$app->controller->id;
                 </div>
             </div>
         </div>
+
+        <?php
+        /**
+         * CMP-470: layout нигде не рендерил session flash — ~75+ вызовов
+         * Yii::$app->session->setFlash(...) по контроллерам (SeoController::
+         * actionRedirectEdit/actionRedirectDelete/actionSitemap/actionRobots,
+         * AutomationController::save/actionDelete, SidebarMenuController::
+         * actionCreate/actionUpdate/actionDelete и т.д.) молча терялись —
+         * действие реально отрабатывало (факт в БД/файле верный), но админ
+         * не получал вообще никакой обратной связи об успехе/ошибке. Рендер
+         * добавлен централизованно в layout вместо копирования в каждую вьюху
+         * (как уже сделано локально в category/index.php, brand/index.php).
+         */
+        $flashes = Yii::$app->session->getAllFlashes();
+        if (!empty($flashes)) :
+            $flashClassMap = [
+                'success' => 'alert-success',
+                'error'   => 'alert-danger',
+                'danger'  => 'alert-danger',
+                'warning' => 'alert-warning',
+                'info'    => 'alert-info',
+            ];
+            foreach ($flashes as $flashKey => $flashMessages) :
+                $flashClass = $flashClassMap[$flashKey] ?? 'alert-info';
+                foreach ((array) $flashMessages as $flashMessage) :
+                    if ($flashMessage === null || $flashMessage === '') {
+                        continue;
+                    }
+                    ?>
+        <div class="alert <?= $flashClass ?> alert-dismissible" style="margin:0 0 1rem">
+            <?= Html::encode($flashMessage) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+        </div>
+                    <?php
+                endforeach;
+            endforeach;
+        endif;
+        ?>
 
         <?= $content ?>
     </main>

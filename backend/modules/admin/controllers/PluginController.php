@@ -11,6 +11,52 @@ use app\backend\modules\checkout\models\DeliveryProvider;
 class PluginController extends BaseAdminController
 {
     /**
+     * CMP-470-B: this controller had no behaviors() override at all — every
+     * mutating action relied purely on its own body inspection to stay safe on
+     * a bare GET, and two didn't:
+     *   - actionLamodaRun: on GET, Yii::$app->request->post('url','') returns ''
+     *     regardless of method, so it silently falls back to the previously
+     *     saved lamoda.last_url and spawns the background scraper anyway.
+     *     Confirmed live: a plain authenticated GET (no CSRF token at all,
+     *     exactly what a hostile <img>/bare link can send under
+     *     SameSite=Lax) returned 200 and re-triggered the parse job.
+     *   - actionAmocrmSync: Yii::$app->request->post($name, $default) returns
+     *     the default on GET too (limit=50, status='', order_id=0), so a bare
+     *     GET reaches the same "sync up to 50 unsynced orders to AmoCRM" path
+     *     a real POST would — once AmoCRM is configured this is a live
+     *     external write triggered by a link, not just a state change here.
+     * This is the exact GET-triggers-external-mutation pattern CMP-418 already
+     * fixed for MoyskladController/AmoCrmController (see their behaviors()
+     * comments) — applying the same POST-only restriction here, plus to the
+     * other JSON-mutating AmoCRM/Lamoda actions in this controller for
+     * consistency (all of them are already POSTed by the real admin JS, so
+     * this changes no legitimate behavior). CDEK/Европочта/Белпочта/RocketSMS
+     * actions are out of this ticket's scope (CMP-437) and untouched.
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        foreach ([
+            'toggle',
+            'amocrm-save',
+            'amocrm-test',
+            'amocrm-sync',
+            'amocrm-fields-save',
+            'amocrm-fields-delete',
+            'amocrm-pipelines',
+            'amocrm-status-map-save',
+            'amocrm-widget-key',
+            'lamoda-run',
+            'lamoda-save-schedule',
+            'save-proxy-phones',
+            'save-status-mapping',
+        ] as $actionId) {
+            $behaviors['verbs']['actions'][$actionId] = ['POST'];
+        }
+        return $behaviors;
+    }
+
+    /**
      * Список всех плагинов
      */
     public function actionIndex()
@@ -827,9 +873,123 @@ class PluginController extends BaseAdminController
         return $this->render('currency');
     }
 
+    /**
+     * CMP-470-B: this used to `return $this->render('dobropost');` with no
+     * params at all. The view (backend/modules/admin/views/plugin/dobropost.php)
+     * defensively does `$statusMappings = $statusMappings ?? [];` /
+     * `$proxyPhones = $proxyPhones ?? [];` so it never fataled, but that meant
+     * the status-mapping table and the proxy-phone list always rendered empty —
+     * confirmed live: DeliveryProvider code='dobropost' already has 40 real
+     * rows in delivery_status_mapping (identical setup to the Cdek/Europochta/
+     * Belpochta pages a few methods above, which already do exactly this) and
+     * they never showed up here. Wired up the same way as those three.
+     */
     public function actionDobropost()
     {
-        return $this->render('dobropost');
+        $provider = DeliveryProvider::findOne(['code' => 'dobropost']);
+        $proxyPhonesRaw = Yii::$app->settings->get('dobropost', 'proxy_phones', '[]');
+        $proxyPhones = is_array($proxyPhonesRaw) ? $proxyPhonesRaw : (json_decode((string)$proxyPhonesRaw, true) ?: []);
+
+        return $this->render('dobropost', [
+            'statusMappings' => $provider ? $provider->statusMappings : [],
+            'proxyPhones'    => $proxyPhones,
+        ]);
+    }
+
+    /**
+     * POST /admin/plugin/save-proxy-phones — JSON: {"phones":[{"phone":"+375...","label":"..."}]}
+     *
+     * CMP-470-B: this action didn't exist at all — the "Сохранить" button for
+     * the proxy-phone directory on /admin/plugin/dobropost (saveProxyPhones()
+     * in the view's inline <script>) called this exact URL and always got a
+     * live 404. The setting it's supposed to write
+     * (settings('dobropost','proxy_phones')) already has a real consumer —
+     * DobroPostService::getRandomPhone() — so this directory had no way to be
+     * populated via the admin UI at all; every shipment fell back to the
+     * hardcoded default phone.
+     */
+    public function actionSaveProxyPhones(): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $this->requirePermission('manageSettings');
+
+        $body   = json_decode(Yii::$app->request->rawBody, true) ?: [];
+        $phones = $body['phones'] ?? [];
+
+        if (!is_array($phones)) {
+            return ['success' => false, 'message' => 'Неверный формат данных'];
+        }
+
+        $clean = [];
+        foreach ($phones as $p) {
+            $phone = trim((string)($p['phone'] ?? ''));
+            if ($phone === '') {
+                continue;
+            }
+            $clean[] = ['phone' => $phone, 'label' => trim((string)($p['label'] ?? ''))];
+        }
+
+        Yii::$app->settings->set('dobropost', 'proxy_phones', json_encode($clean, JSON_UNESCAPED_UNICODE));
+        $this->logAction('plugin_settings_updated', 'plugin', null, 'DobroPost proxy phones', 'Сохранён справочник телефонов (' . count($clean) . ')', null, ['count' => count($clean)]);
+
+        return ['success' => true, 'saved' => count($clean)];
+    }
+
+    /**
+     * POST /admin/plugin/save-status-mapping — JSON: {"mappings":[{"id":N,"internal_status":"...","estimated_days":N|null,"is_final":0|1}]}
+     *
+     * CMP-470-B: also entirely missing — saveStatusMapping() in
+     * views/plugin/dobropost.php's inline <script> called this exact URL and
+     * always 404'd, so edits to the DobroPost→internal status mapping (which
+     * DOES exist and has 40 real rows, see actionDobropost() above) could
+     * never be saved via the admin UI. Scoped to provider_id=dobropost only —
+     * this is distinct from MoyskladController::actionSaveStatusMapping(),
+     * which is a different table (moysklad status_map_* settings) reached via
+     * a different route.
+     */
+    public function actionSaveStatusMapping(): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $this->requirePermission('manageSettings');
+
+        $provider = DeliveryProvider::findOne(['code' => 'dobropost']);
+        if (!$provider) {
+            return ['success' => false, 'message' => 'Провайдер DobroPost не найден'];
+        }
+
+        $body     = json_decode(Yii::$app->request->rawBody, true) ?: [];
+        $mappings = $body['mappings'] ?? [];
+        if (!is_array($mappings)) {
+            return ['success' => false, 'message' => 'Неверный формат данных'];
+        }
+
+        $updated = 0;
+        foreach ($mappings as $m) {
+            $id = (int)($m['id'] ?? 0);
+            if (!$id) {
+                continue;
+            }
+            // Scope to this provider's own rows so a crafted id can't touch another provider's mapping.
+            $row = \app\backend\modules\checkout\models\DeliveryStatusMapping::findOne([
+                'id' => $id,
+                'provider_id' => $provider->id,
+            ]);
+            if (!$row) {
+                continue;
+            }
+            $row->internal_status = trim((string)($m['internal_status'] ?? '')) ?: null;
+            $row->estimated_days  = ($m['estimated_days'] ?? null) !== null && $m['estimated_days'] !== ''
+                ? (int)$m['estimated_days']
+                : null;
+            $row->is_final = !empty($m['is_final']) ? 1 : 0;
+            if ($row->save(false, ['internal_status', 'estimated_days', 'is_final'])) {
+                $updated++;
+            }
+        }
+
+        $this->logAction('plugin_settings_updated', 'plugin', null, 'DobroPost status mapping', "Обновлено {$updated} маппинг(ов)", null, ['updated' => $updated]);
+
+        return ['success' => true, 'updated' => $updated];
     }
 
     public function actionLamoda()

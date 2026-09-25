@@ -19,7 +19,12 @@ $clientName     = $model->order->client_name  ?? '___________';
 $clientEmail    = $model->order->client_email ?? '';
 $clientPhone    = $model->order->client_phone ?? '';
 
-$today          = date('«d» F Y г.', $model->created_at);
+// CMP-470-A: return_request.created_at is a DATETIME string ("Y-m-d H:i:s"),
+// not a unix timestamp — passing it straight to date() throws
+// `TypeError: date(): Argument #2 ($timestamp) must be of type ?int, string
+// given` on PHP 8+, so every "PDF договор" click for a commission return
+// 500'd unconditionally (confirmed live via GET /admin/return/contract/<id>).
+$today          = date('«d» F Y г.', strtotime($model->created_at));
 $contractNumber = 'КД-' . $model->return_number;
 ?>
 <!DOCTYPE html>

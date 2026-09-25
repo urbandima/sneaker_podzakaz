@@ -619,8 +619,12 @@ function bulkAssignLogist() {
     fetch('/admin/user/logists')
         .then(response => response.json())
         .then(data => {
+            // CMP-470-B: UserController::actionLogists (fixed in CMP-467, commit
+            // 8b4f112) returns {"success":true,"logists":[...]}, not a bare array —
+            // `data.forEach` here always threw "data.forEach is not a function" in
+            // the browser, so this modal's logist dropdown never populated.
             const select = document.getElementById('bulkLogistSelect');
-            data.forEach(logist => {
+            (data.logists || []).forEach(logist => {
                 select.innerHTML += `<option value="${logist.id}">${logist.username}</option>`;
             });
         });

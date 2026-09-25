@@ -458,7 +458,7 @@ $canAccept = $receiving->canTransitionTo(Receiving::STATUS_ACCEPTED)
                     <span class="rcv-field-label">Связанный выкуп</span>
                     <?php if ($receiving->buyout_id && $receiving->buyout) : ?>
                         <div style="font-size:.8125rem">
-                            <a href="<?= Url::to(['/admin/procurement/buyouts', 'id' => $receiving->buyout_id]) ?>"
+                            <a href="<?= Url::to(['/admin/buyout/view', 'id' => $receiving->buyout_id]) ?>"
                                style="color:var(--admin-primary,#2563eb);font-weight:600">
                                 <?= Html::encode($receiving->buyout->number ?? ('Выкуп #' . $receiving->buyout_id)) ?>
                             </a>

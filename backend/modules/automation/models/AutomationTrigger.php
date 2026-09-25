@@ -41,7 +41,13 @@ class AutomationTrigger extends ActiveRecord
             [['name'], 'string', 'max' => 255],
             [['description'], 'string'],
             [['event_code'], 'string', 'max' => 100],
-            [['conditions', 'actions'], 'string'],
+            // CMP-470: были 'string' — но conditions/actions теперь передаются
+            // контроллером как PHP-массивы (см. AutomationController::save()),
+            // чтобы typecast нативной MySQL JSON-колонки кодировал их ровно
+            // один раз, а не поверх уже закодированной строки. 'safe' не влияет
+            // на mass-assignment риски: оба поля никогда не грузятся через
+            // load($_POST), только присваиваются напрямую в контроллере.
+            [['conditions', 'actions'], 'safe'],
             [['is_active'], 'boolean'],
             [['priority', 'execution_count'], 'integer'],
             [['last_executed_at'], 'safe'],

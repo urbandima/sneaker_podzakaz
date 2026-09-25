@@ -126,7 +126,12 @@ class FinanceController extends BaseAdminController
         $p->status       = Payment::STATUS_CONFIRMED;
         $p->confirmed_by = Yii::$app->user->id;
         $p->confirmed_at = date('Y-m-d H:i:s');
-        $p->updated_at   = date('Y-m-d H:i:s');
+        // CMP-470-A: `payment` table has no `updated_at` column at all (only
+        // `created_at`) — assigning it threw yii\base\UnknownPropertyException
+        // on every single call, which Yii's error handler turned into an
+        // uncaught 500. The "Подтвердить платёж" button was a 100% no-op in
+        // the live UI: status/confirmed_by/confirmed_at were never persisted
+        // for any payment, ever.
         $p->save(false);
 
         return ['success' => true];

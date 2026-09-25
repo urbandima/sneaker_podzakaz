@@ -33,7 +33,37 @@ class MoyskladController extends BaseAdminController
         $behaviors['verbs']['actions']['periodic-sync'] = ['POST'];
         $behaviors['verbs']['actions']['pull'] = ['POST'];
         $behaviors['verbs']['actions']['register-webhook'] = ['POST'];
+
+        // CMP-470-B: actionWebhook is the inbound receiver called by МойСклад's own
+        // servers (its URL is handed to МойСклад by actionRegisterWebhook) — a real
+        // call never carries an admin session cookie. The inherited
+        // BaseAdminController AccessControl rule (roles=['@']) was matching it like
+        // every other action here and 302-redirecting every genuine webhook call to
+        // /admin/login before it ever reached the handler (confirmed live: guest
+        // POST → 302, not 200). Carve out guest access for this one action only;
+        // everything else in this controller stays admin-only.
+        $behaviors['access']['rules'] = array_merge(
+            [['allow' => true, 'actions' => ['webhook'], 'roles' => ['?', '@']]],
+            $behaviors['access']['rules']
+        );
+
         return $behaviors;
+    }
+
+    /**
+     * @inheritdoc
+     * CMP-470-B: `$this->enableCsrfValidation = false;` inside actionWebhook() was
+     * dead code — CSRF validation runs in yii\web\Controller::beforeAction(),
+     * which already executes (and, for a cookie-less external POST, already
+     * throws) before the action method body ever runs. It has to be disabled
+     * here instead, before parent::beforeAction() performs the check.
+     */
+    public function beforeAction($action)
+    {
+        if ($action->id === 'webhook') {
+            $this->enableCsrfValidation = false;
+        }
+        return parent::beforeAction($action);
     }
 
     /** GET /admin/plugin/moysklad */
@@ -471,8 +501,7 @@ class MoyskladController extends BaseAdminController
     public function actionWebhook()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        // Disable CSRF for webhook
-        $this->enableCsrfValidation = false;
+        // CSRF is disabled for this action in beforeAction() (see CMP-470-B note there).
 
         $body   = Yii::$app->request->getRawBody();
         $data   = json_decode($body, true) ?? [];
