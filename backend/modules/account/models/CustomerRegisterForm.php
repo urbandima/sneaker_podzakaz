@@ -36,7 +36,6 @@ namespace app\backend\modules\account\models;
 use Yii;
 use yii\base\Model;
 use app\backend\modules\account\models\Customer;
-use app\backend\modules\checkout\models\Order;
 
 /**
  * Форма регистрации покупателя
@@ -114,36 +113,18 @@ class CustomerRegisterForm extends Model
             Yii::$app->session->set('customer_phone', $customer->phone);
             Yii::$app->session->set('customer_name', $customer->getFullName());
 
-            // Связываем существующие заказы с этим покупателем
-            $this->linkExistingOrders($customer);
+            // ВНИМАНИЕ (CMP-465): здесь раньше стоял linkExistingOrders() — автоматическая
+            // привязка гостевых заказов к новому аккаунту по совпадению email/телефона.
+            // Регистрация не подтверждает владение email/телефоном, поэтому это был захват
+            // чужих заказов: атакующий регистрировался на email/телефон жертвы и получал
+            // customer_id её гостевых заказов в постоянное владение. Метод удалён целиком.
+            // Покупатель всё ещё может получить доступ к своим гостевым заказам через
+            // защищённый механизм AccountController::actionFindOrders() (ссылка отправляется
+            // на email, указанный в самом заказе, а не вводимый атакующим).
 
             return $customer;
         }
 
         return null;
-    }
-
-    /**
-     * Связывает существующие заказы (по email/phone) с новым покупателем
-     */
-    protected function linkExistingOrders(Customer $customer)
-    {
-        $conditions = ['or'];
-        if ($customer->email) {
-            $conditions[] = ['client_email' => $customer->email];
-        }
-        if ($customer->phone) {
-            $conditions[] = ['client_phone' => $customer->phone];
-        }
-
-        if (count($conditions) > 1) {
-            Order::updateAll(
-                ['customer_id' => $customer->id],
-                ['and', ['customer_id' => null], $conditions]
-            );
-
-            // Обновляем статистику
-            $customer->updateOrderStats();
-        }
     }
 }

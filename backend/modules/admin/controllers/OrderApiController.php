@@ -88,6 +88,13 @@ class OrderApiController extends BaseAdminController
             return ['success' => false, 'message' => 'Заказ не найден'];
         }
 
+        // CMP-465: тот же logist-scoping, что и в admin/OrderController::actionView —
+        // без него любой залогиненный сотрудник мог добавить заметку к чужому заказу.
+        if ($this->isLogist() && $order->assigned_logist != Yii::$app->user->id) {
+            Yii::warning('Попытка добавить заметку к чужому заказу: пользователь #' . Yii::$app->user->id . ' к заказу #' . $id, 'security');
+            return ['success' => false, 'message' => 'Заказ не найден'];
+        }
+
         $note = Yii::$app->request->post('note');
         if (empty($note)) {
             return ['success' => false, 'message' => 'Заметка не может быть пустой'];
@@ -124,6 +131,17 @@ class OrderApiController extends BaseAdminController
     public function actionHistory($id)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $order = Order::findOne($id);
+        if (!$order) {
+            return ['history' => []];
+        }
+
+        // CMP-465: тот же logist-scoping, что и в admin/OrderController::actionView.
+        if ($this->isLogist() && $order->assigned_logist != Yii::$app->user->id) {
+            Yii::warning('Попытка просмотреть историю чужого заказа: пользователь #' . Yii::$app->user->id . ' к заказу #' . $id, 'security');
+            return ['history' => []];
+        }
 
         $history = OrderHistory::find()
             ->where(['order_id' => $id])

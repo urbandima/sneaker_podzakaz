@@ -54,6 +54,22 @@ class CustomerController extends BaseAdminController
         $behaviors['verbs']['actions']['reset-password'] = ['POST'];
         $behaviors['verbs']['actions']['link-orders'] = ['POST'];
         $behaviors['verbs']['actions']['mark-phantoms'] = ['POST'];
+
+        // CMP-465: докблок класса декларирует «Доступ: Администраторы и менеджеры»,
+        // но до этого фикса роль вообще не проверялась — действовал только дефолтный
+        // AccessControl из BaseAdminController (roles=>['@']), то есть любой залогиненный
+        // сотрудник, включая logist, мог сбросить пароль покупателя, удалить его,
+        // начислить/списать баллы лояльности и выгрузить PII. Явно запрещаем всем,
+        // кроме admin/manager, до совпадения с базовым разрешающим правилом.
+        array_unshift($behaviors['access']['rules'], [
+            'allow' => false,
+            'roles' => ['@'],
+            'matchCallback' => function ($rule, $action) {
+                $user = Yii::$app->user->identity;
+                return !($user->isAdmin() || $user->isManager());
+            },
+        ]);
+
         return $behaviors;
     }
 

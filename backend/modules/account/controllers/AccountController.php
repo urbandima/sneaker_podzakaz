@@ -207,13 +207,12 @@ class AccountController extends Controller
         }
 
         // Получаем последние заказы
-        $orderQuery = Order::find()->where(['customer_id' => $customer->id]);
-        if (!empty($customer->email)) {
-            // orWhere с пустым/NULL email превратился бы в "client_email IS NULL",
-            // что матчит ВСЕ гостевые заказы — добавляем ветку только при непустом email
-            $orderQuery->orWhere(['client_email' => $customer->email]);
-        }
-        $orders = $orderQuery
+        // CMP-465: раньше здесь был доп. orWhere(['client_email' => $customer->email]) —
+        // регистрация не подтверждает владение email (см. CustomerRegisterForm), поэтому
+        // это давало доступ к чужому гостевому заказу любому, кто зарегистрируется на его
+        // client_email. Критерий владения — только customer_id.
+        $orders = Order::find()
+            ->where(['customer_id' => $customer->id])
             ->orderBy(['created_at' => SORT_DESC])
             ->limit(5)
             ->all();
@@ -234,13 +233,10 @@ class AccountController extends Controller
             return $this->redirect(['account/login']);
         }
 
-        $orderQuery = Order::find()->where(['customer_id' => $customer->id]);
-        if (!empty($customer->email)) {
-            // См. actionProfile(): не добавляем ветку по client_email при пустом email,
-            // иначе orWhere превращается в "client_email IS NULL" и матчит чужие гостевые заказы
-            $orderQuery->orWhere(['client_email' => $customer->email]);
-        }
-        $orders = $orderQuery
+        // CMP-465: см. actionProfile() — критерий владения только customer_id,
+        // без сопоставления по client_email (регистрация не подтверждает email).
+        $orders = Order::find()
+            ->where(['customer_id' => $customer->id])
             ->orderBy(['created_at' => SORT_DESC])
             ->all();
 
@@ -260,12 +256,9 @@ class AccountController extends Controller
             return $this->redirect(['account/login']);
         }
 
+        // CMP-465: критерий владения только customer_id — см. actionProfile().
         $order = Order::find()
-            ->where(['id' => $id])
-            ->andWhere(['or',
-                ['customer_id' => $customer->id],
-                ['client_email' => $customer->email]
-            ])
+            ->where(['id' => $id, 'customer_id' => $customer->id])
             ->one();
 
         if (!$order) {
@@ -295,13 +288,9 @@ class AccountController extends Controller
             return ['success' => false, 'message' => 'Требуется авторизация'];
         }
 
-        // Владелец заказа — тот же критерий, что и в actionOrderView()
+        // Владелец заказа — тот же критерий, что и в actionOrderView() (CMP-465: только customer_id)
         $order = Order::find()
-            ->where(['id' => $id])
-            ->andWhere(['or',
-                ['customer_id' => $customer->id],
-                ['client_email' => $customer->email]
-            ])
+            ->where(['id' => $id, 'customer_id' => $customer->id])
             ->one();
 
         if (!$order) {
@@ -625,12 +614,9 @@ class AccountController extends Controller
             return ['success' => false, 'message' => 'Необходима авторизация'];
         }
 
+        // CMP-465: критерий владения только customer_id — см. actionProfile().
         $order = Order::find()
-            ->where(['id' => $id])
-            ->andWhere(['or',
-                ['customer_id' => $customer->id],
-                ['client_email' => $customer->email]
-            ])
+            ->where(['id' => $id, 'customer_id' => $customer->id])
             ->one();
 
         if (!$order) {
