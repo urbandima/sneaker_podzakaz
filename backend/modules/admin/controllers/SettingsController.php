@@ -119,6 +119,9 @@ class SettingsController extends BaseAdminController
 
         try {
             // A9: persist to DB via CompanySettings model, not just in-memory storage
+            // CMP-467: this used to reference an undefined $company variable (dead leftover
+            // from an earlier in-memory-settings implementation) and never called save() on
+            // $model, so the form always reported an error and nothing ever reached the DB.
             $model = \app\backend\modules\admin\models\CompanySettings::find()->one()
                   ?? new \app\backend\modules\admin\models\CompanySettings();
             foreach ($fields as $field) {
@@ -126,22 +129,10 @@ class SettingsController extends BaseAdminController
                     $model->$field = $data[$field];
                 }
             }
-            Yii::$app->settings->set('company', 'data', json_encode($company, JSON_UNESCAPED_UNICODE));
-            foreach ($company as $k => $v) {
-                Yii::$app->settings->set('company', $k, $v);
+            $model->updated_at = time();
+            if (!$model->save()) {
+                return ['success' => false, 'message' => 'Ошибка валидации: ' . json_encode($model->errors, JSON_UNESCAPED_UNICODE)];
             }
-            // Sync to company_settings table (used by checkout/view.php)
-            $cs = \app\backend\modules\admin\models\CompanySettings::find()->one();
-            if (!$cs) {
-                $cs = new \app\backend\modules\admin\models\CompanySettings();
-            }
-            foreach (['name', 'unp', 'address', 'phone', 'email', 'bank', 'bic', 'account'] as $f) {
-                if (isset($company[$f])) {
-                    $cs->$f = $company[$f];
-                }
-            }
-            $cs->updated_at = time();
-            $cs->save(false);
             return ['success' => true, 'message' => 'Реквизиты компании сохранены'];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];

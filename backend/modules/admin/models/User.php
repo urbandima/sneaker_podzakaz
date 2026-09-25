@@ -117,7 +117,10 @@ class User extends ActiveRecord implements IdentityInterface
 
             // Для создания пользователя
             ['password', 'required', 'on' => 'create'],
-            ['password', 'string', 'min' => 8, 'on' => 'create'], // AUDIT-70: минимальная длина пароля 8 символов
+            // CMP-467: also enforce the AUDIT-70 minimum on 'update' — password is optional
+            // there (only set if provided, see actionEdit), but if an admin does provide one
+            // it must meet the same bar as at creation time.
+            ['password', 'string', 'min' => 8, 'on' => ['create', 'update']],
         ];
     }
 
@@ -125,6 +128,15 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $scenarios = parent::scenarios();
         $scenarios['create'] = ['username', 'email', 'password', 'role', 'status'];
+        // CMP-467: UserController::actionEdit sets scenario 'update', but without an
+        // explicit entry here Yii's default scenarios() (built from rules()) never
+        // creates an 'update' key, so Model::safeAttributes()/activeAttributes()
+        // return [] for it and $model->load($_POST) silently assigns nothing —
+        // actionEdit reported "Пользователь обновлён" while username/email/role/
+        // password never changed in the DB. Status is intentionally left out here:
+        // it's mutated exclusively via the audited actionToggleBlock endpoint
+        // (which guards against self-block), not via this form.
+        $scenarios['update'] = ['username', 'email', 'password', 'role'];
         return $scenarios;
     }
 

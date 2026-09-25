@@ -197,119 +197,23 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 });
 
-/* -- settings/statuses.php -- */
-document.addEventListener('DOMContentLoaded', function () {
-    window.saveStatuses = function () {
-        var statuses = [];
-        document.querySelectorAll('.status-config-item').forEach(function (item, index) {
-            statuses.push({
-                key: item.dataset.status,
-                label: item.querySelector('.status-label').value,
-                color: item.querySelector('.status-color').value,
-                active: item.querySelector('.status-active').checked
-            });
-        });
-
-        fetch('/admin/settings/save-statuses', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]') ? getCsrfToken() : ''
-            },
-            body: JSON.stringify({ statuses: statuses })
-        })
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-                if (data.success) {
-                    alert('✅ Статусы сохранены');
-                    location.reload();
-                } else {
-                    alert('❌ ' + (data.message || 'Ошибка сохранения'));
-                }
-            });
-    };
-
-    window.addStatus = function () {
-        var container = document.getElementById('statuses-list');
-        if (!container) return;
-        var index = container.children.length;
-
-        var newStatus = document.createElement('div');
-        newStatus.className = 'status-config-item';
-        newStatus.dataset.status = 'new_' + index;
-        newStatus.innerHTML = '<div style="display:flex;align-items:center;gap:16px">' +
-            '<div class="drag-handle" style="cursor:move;color:var(--admin-text-secondary)">' +
-            '<i class="bi bi-grip-vertical"></i>' +
-            '</div>' +
-            '<div style="flex:1">' +
-            '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">' +
-            '<input type="text" class="admin-form-input status-label" value="" placeholder="Название" style="max-width:200px">' +
-            '<select class="admin-form-select status-color" style="max-width:150px">' +
-            '<option value="info">Синий</option>' +
-            '<option value="success">Зеленый</option>' +
-            '<option value="warning">Желтый</option>' +
-            '<option value="danger">Красный</option>' +
-            '<option value="primary">Фиолетовый</option>' +
-            '<option value="secondary">Серый</option>' +
-            '</select>' +
-            '<label style="display:flex;align-items:center;gap:8px;margin:0">' +
-            '<input type="checkbox" class="status-active" checked>' +
-            '<span style="font-size:14px">Активен</span>' +
-            '</label>' +
-            '</div>' +
-            '</div>' +
-            '</div>';
-
-        container.appendChild(newStatus);
-        newStatus.draggable = true;
-    };
-
-    // Drag & Drop for status sorting
-    var statusDraggedElement = null;
-    var list = document.getElementById('statuses-list');
-
-    if (list) {
-        list.addEventListener('dragstart', function (e) {
-            if (e.target.classList.contains('status-config-item')) {
-                statusDraggedElement = e.target;
-                e.target.style.opacity = '0.5';
-            }
-        });
-
-        list.addEventListener('dragend', function (e) {
-            if (e.target.classList.contains('status-config-item')) {
-                e.target.style.opacity = '1';
-            }
-        });
-
-        list.addEventListener('dragover', function (e) {
-            e.preventDefault();
-            var afterElement = getStatusDragAfterElement(list, e.clientY);
-            if (afterElement == null) {
-                list.appendChild(statusDraggedElement);
-            } else {
-                list.insertBefore(statusDraggedElement, afterElement);
-            }
-        });
-
-        document.querySelectorAll('.status-config-item').forEach(function (item) {
-            item.draggable = true;
-        });
-    }
-
-    function getStatusDragAfterElement(container, y) {
-        var draggableElements = Array.from(container.querySelectorAll('.status-config-item:not(.dragging)'));
-        return draggableElements.reduce(function (closest, child) {
-            var box = child.getBoundingClientRect();
-            var offset = y - box.top - box.height / 2;
-            if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, element: child };
-            } else {
-                return closest;
-            }
-        }, { offset: Number.NEGATIVE_INFINITY }).element;
-    }
-});
+/* -- settings/statuses.php --
+ * CMP-467: this block used to redefine window.saveStatuses/addStatus with a
+ * DOM contract (`.status-config-item`, `active` key, no `logist_available`)
+ * that never matched the real markup rendered by
+ * backend/modules/admin/views/settings/statuses.php (`.status-row`,
+ * `is_active`/`logist_available` keys — see that view's own inline
+ * <script> block, which is the actual, correct implementation).
+ * Because this file loads after that inline script and both attach to
+ * `DOMContentLoaded`, this stale duplicate always won the race and
+ * overwrote the working `window.saveStatuses` with a version that found
+ * zero `.status-config-item` rows and POSTed `{"statuses":[]}`.
+ * SettingsController::actionSaveStatuses interprets an empty `statuses`
+ * list as "delete every non-system status" — so clicking the real
+ * "Сохранить изменения" button silently wiped out every order status
+ * except new/paid/canceled (confirmed live: 21 rows -> 3 rows in
+ * order_status). Removed here; the correct logic already lives inline in
+ * the view. */
 
 /* -- settings/email-templates.php -- */
 document.addEventListener('DOMContentLoaded', function () {

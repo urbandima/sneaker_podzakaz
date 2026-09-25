@@ -58,6 +58,11 @@ class CompanySettings extends ActiveRecord
                     'phone' => $settings->phone,
                     'email' => $settings->email,
                     'offer_url' => $settings->offer_url,
+                    // CMP-467: expose work_time so frontend\controllers\OrderController's
+                    // $company['work_time'] lookup actually reflects what admin saved via
+                    // SettingsController::actionSaveCompany, instead of always falling through
+                    // to the legacy settings('company','work_time') key that nothing ever wrote.
+                    'work_time' => $settings->work_time,
                 ];
             }
         } catch (\Exception $e) {

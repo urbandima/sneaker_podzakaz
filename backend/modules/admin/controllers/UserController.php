@@ -54,9 +54,13 @@ class UserController extends BaseAdminController
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         try {
+            // CMP-467: `status` is a smallint (User::STATUS_ACTIVE = 10), not the string
+            // 'active' — comparing an int column to a non-numeric string made this query
+            // match zero rows in MySQL, so this action always returned an empty list
+            // (silently, no exception) instead of the actual active logists.
             $logists = User::find()
                 ->where(['role' => 'logist'])
-                ->andWhere(['status' => 'active'])
+                ->andWhere(['status' => User::STATUS_ACTIVE])
                 ->orderBy(['username' => SORT_ASC])
                 ->all();
 
@@ -137,7 +141,16 @@ class UserController extends BaseAdminController
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $id = Yii::$app->request->post('id');
+        // CMP-467: the real caller (resetPassword() in admin-settings.js) sends
+        // `fetch(..., {headers:{'Content-Type':'application/json'}, body: JSON.stringify({id})})`.
+        // The app never registers an 'application/json' parser for Request::$parsers, so
+        // Yii::$app->request->post('id') always came back empty here and this action was a
+        // complete no-op in the live UI (always returned "ID не указан"), exactly like the
+        // actionBulkUpdatePrice bug fixed in CMP-463. Read the raw JSON body first, same
+        // pattern already used elsewhere in the admin controllers.
+        $raw  = Yii::$app->request->getRawBody();
+        $data = json_decode($raw, true) ?: Yii::$app->request->post();
+        $id   = $data['id'] ?? null;
         if (!$id) {
             return ['success' => false, 'message' => 'ID не указан'];
         }
@@ -175,7 +188,13 @@ class UserController extends BaseAdminController
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $id = Yii::$app->request->post('id');
+        // CMP-467: same fix as actionResetPassword above — toggleBlock() in
+        // admin-settings.js also posts a raw JSON body, which Yii::$app->request->post()
+        // never parses (no 'application/json' entry in Request::$parsers). This made
+        // block/unblock a silent no-op for every real click in the admin UI.
+        $raw  = Yii::$app->request->getRawBody();
+        $data = json_decode($raw, true) ?: Yii::$app->request->post();
+        $id   = $data['id'] ?? null;
         if (!$id) {
             return ['success' => false, 'message' => 'ID не указан'];
         }
@@ -196,7 +215,11 @@ class UserController extends BaseAdminController
 
             if ($user->save(false)) {
                 Yii::info('Статус пользователя #' . $id . ' изменён на ' . $user->status . ' (admin #' . $currentUser->id . ')', 'user');
-                return ['success' => true, 'status' => $user->status, 'blocked' => !$wasActive];
+                // CMP-467: was `!$wasActive`, which reports the OLD state, not the new one —
+                // a user that WAS active and just got blocked returned "blocked":false.
+                // Currently unread by any caller (toggleBlock() in admin-settings.js just
+                // reloads the page on success), but the field should describe reality.
+                return ['success' => true, 'status' => $user->status, 'blocked' => $wasActive];
             }
 
             return ['success' => false, 'message' => 'Ошибка сохранения'];

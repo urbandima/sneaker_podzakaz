@@ -1,0 +1,83 @@
+<?php
+
+/** @var yii\web\View $this */
+/** @var app\backend\modules\admin\models\User $model */
+
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+
+$this->title = 'Редактировать пользователя';
+?>
+
+<div class="admin-create-user">
+    <div class="mb-4">
+        <h1><?= Html::encode($this->title) ?>: <?= Html::encode($model->username) ?></h1>
+        <?= Html::a('<i class="bi bi-arrow-left me-2"></i>Назад к списку', ['/admin/user/index'], ['class' => 'admin-btn admin-btn-outlined']) ?>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <?php $form = ActiveForm::begin([
+                'id' => 'update-user-form',
+                'options' => ['class' => 'needs-validation'],
+            ]); ?>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <?= $form->field($model, 'username')->textInput([
+                        'maxlength' => true,
+                        'placeholder' => 'Введите имя пользователя',
+                        'class' => 'form-control'
+                    ]) ?>
+                </div>
+
+                <div class="col-md-6">
+                    <?= $form->field($model, 'email')->textInput([
+                        'maxlength' => true,
+                        'type' => 'email',
+                        'placeholder' => 'example@mail.com',
+                        'class' => 'form-control'
+                    ]) ?>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <?= $form->field($model, 'password')->passwordInput([
+                        'maxlength' => true,
+                        'placeholder' => 'Оставьте пустым, чтобы не менять',
+                        'class' => 'form-control'
+                    ])->hint('Заполняйте только если хотите задать новый пароль (минимум 8 символов)') ?>
+                </div>
+
+                <div class="col-md-6">
+                    <?= $form->field($model, 'role')->dropDownList([
+                        'manager'  => 'Менеджер',
+                        'logist'   => 'Логист',
+                        'director' => 'Директор',
+                        'admin'    => 'Администратор',
+                    ], ['prompt' => 'Выберите роль', 'class' => 'form-select']) ?>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <h6><i class="bi bi-info-circle me-2"></i>Информация о ролях:</h6>
+                <ul class="mb-0 small">
+                    <li><strong>Администратор</strong> - полный доступ ко всем функциям системы</li>
+                    <li><strong>Директор</strong> - полный доступ ко всем функциям системы</li>
+                    <li><strong>Менеджер</strong> - создание и управление заказами</li>
+                    <li><strong>Логист</strong> - просмотр назначенных заказов и управление доставкой</li>
+                </ul>
+            </div>
+
+            <div class="d-flex gap-2">
+                <?= Html::submitButton('<i class="bi bi-check-circle me-2"></i>Сохранить изменения', [
+                    'class' => 'admin-btn admin-btn-success'
+                ]) ?>
+                <?= Html::a('Отмена', ['/admin/user/index'], ['class' => 'admin-btn admin-btn-outlined']) ?>
+            </div>
+
+            <?php ActiveForm::end(); ?>
+        </div>
+    </div>
+</div>
